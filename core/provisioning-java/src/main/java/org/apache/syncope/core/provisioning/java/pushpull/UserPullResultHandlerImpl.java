@@ -88,7 +88,7 @@ public class UserPullResultHandlerImpl extends AbstractPullResultHandler impleme
     }
 
     @Override
-    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta, final ProvisioningReport result) {
+    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta) {
         UserTO userTO = UserTO.class.cast(anyTO);
 
         Boolean enabled = pullUtils.readEnabled(delta.getObject(), profile.getTask());
@@ -96,14 +96,11 @@ public class UserPullResultHandlerImpl extends AbstractPullResultHandler impleme
                 userProvisioningManager.create(userTO, true, true, enabled,
                         Collections.singleton(profile.getTask().getResource().getKey()), true);
 
-        result.setKey(created.getKey());
-        result.setName(getName(anyTO));
-
         return getAnyTO(created.getKey());
     }
 
     @Override
-    protected AnyTO doUpdate(
+    protected AnyPatch doUpdate(
             final AnyTO before,
             final AnyPatch anyPatch,
             final SyncDelta delta,
@@ -112,14 +109,14 @@ public class UserPullResultHandlerImpl extends AbstractPullResultHandler impleme
         UserPatch userPatch = UserPatch.class.cast(anyPatch);
         Boolean enabled = pullUtils.readEnabled(delta.getObject(), profile.getTask());
 
-        Map.Entry<String, List<PropagationStatus>> updated = userProvisioningManager.update(
+        Pair<UserPatch, List<PropagationStatus>> updated = userProvisioningManager.update(
                 userPatch,
                 result,
                 enabled,
                 Collections.singleton(profile.getTask().getResource().getKey()),
                 true);
 
-        return getAnyTO(updated.getKey());
+        return updated.getLeft();
     }
 
     @Override

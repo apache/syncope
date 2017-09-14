@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.PropagationStatus;
@@ -84,11 +83,11 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return new ImmutablePair<>(created.getResult(), propagationReporter.getStatuses());
+        return Pair.of(created.getResult(), propagationReporter.getStatuses());
     }
 
     @Override
-    public Pair<String, List<PropagationStatus>> update(
+    public Pair<AnyObjectPatch, List<PropagationStatus>> update(
             final AnyObjectPatch anyObjectPatch, final boolean nullPriorityAsync) {
 
         return update(anyObjectPatch, Collections.<String>emptySet(), nullPriorityAsync);
@@ -96,7 +95,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
-    public Pair<String, List<PropagationStatus>> update(
+    public Pair<AnyObjectPatch, List<PropagationStatus>> update(
             final AnyObjectPatch anyObjectPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         WorkflowResult<String> updated = awfAdapter.update(anyObjectPatch);
@@ -111,7 +110,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return new ImmutablePair<>(updated.getResult(), propagationReporter.getStatuses());
+        return Pair.of(anyObjectPatch, propagationReporter.getStatuses());
     }
 
     @Override

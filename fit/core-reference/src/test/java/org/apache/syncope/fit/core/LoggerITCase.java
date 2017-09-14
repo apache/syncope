@@ -213,8 +213,7 @@ public class LoggerITCase extends AbstractITCase {
             if (AnyTypeKind.USER.name().toLowerCase().equals(eventCategoryTO.getCategory())) {
                 if (RESOURCE_NAME_LDAP.equals(eventCategoryTO.getSubcategory())
                         && EventCategoryType.PULL == eventCategoryTO.getType()) {
-                    assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.CREATE.name().toLowerCase()));
-                    assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.UPDATE.name().toLowerCase()));
+
                     assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.DELETE.name().toLowerCase()));
                     found = true;
                 }
@@ -227,6 +226,7 @@ public class LoggerITCase extends AbstractITCase {
             if (AnyTypeKind.USER.name().toLowerCase().equals(eventCategoryTO.getCategory())) {
                 if (RESOURCE_NAME_CSV.equals(eventCategoryTO.getSubcategory())
                         && EventCategoryType.PROPAGATION == eventCategoryTO.getType()) {
+
                     assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.CREATE.name().toLowerCase()));
                     assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.UPDATE.name().toLowerCase()));
                     assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.DELETE.name().toLowerCase()));

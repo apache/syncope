@@ -27,7 +27,6 @@ import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -81,7 +80,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 Collections.<String>emptySet());
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return new ImmutablePair<>(created.getResult(), propagationReporter.getStatuses());
+        return Pair.of(created.getResult(), propagationReporter.getStatuses());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -108,17 +107,19 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return new ImmutablePair<>(created.getResult(), propagationReporter.getStatuses());
+        return Pair.of(created.getResult(), propagationReporter.getStatuses());
     }
 
     @Override
-    public Pair<String, List<PropagationStatus>> update(final GroupPatch groupPatch, final boolean nullPriorityAsync) {
+    public Pair<GroupPatch, List<PropagationStatus>> update(
+            final GroupPatch groupPatch, final boolean nullPriorityAsync) {
+
         return update(groupPatch, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
-    public Pair<String, List<PropagationStatus>> update(
+    public Pair<GroupPatch, List<PropagationStatus>> update(
             final GroupPatch groupPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         WorkflowResult<String> updated = gwfAdapter.update(groupPatch);
@@ -133,7 +134,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return new ImmutablePair<>(updated.getResult(), propagationReporter.getStatuses());
+        return Pair.of(groupPatch, propagationReporter.getStatuses());
     }
 
     @Override

@@ -54,7 +54,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
@@ -288,7 +287,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Set<String> tasks = getPerformedTasks(user);
 
         return new WorkflowResult<Pair<String, Boolean>>(
-                new ImmutablePair<>(user.getKey(), propagateEnable), propByRes, tasks);
+                Pair.of(user.getKey(), propagateEnable), propByRes, tasks);
     }
 
     protected Set<String> doExecuteTask(final User user, final String task, final Map<String, Object> moreVariables) {
@@ -358,7 +357,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 user.getWorkflowId(), PROPAGATE_ENABLE, Boolean.class);
 
         return new WorkflowResult<Pair<UserPatch, Boolean>>(
-                new ImmutablePair<>(updatedPatch, propagateEnable), propByRes, tasks);
+                Pair.of(updatedPatch, propagateEnable), propByRes, tasks);
     }
 
     @Override
@@ -428,7 +427,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 user.getWorkflowId(), PROPAGATE_ENABLE, Boolean.class);
 
         return new WorkflowResult<Pair<UserPatch, Boolean>>(
-                new ImmutablePair<>(updatedPatch, propagateEnable), propByRes, tasks);
+                Pair.of(updatedPatch, propagateEnable), propByRes, tasks);
     }
 
     @Override
@@ -710,7 +709,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             }
         }
 
-        return new ImmutablePair<>(task, formData);
+        return Pair.of(task, formData);
     }
 
     @Override

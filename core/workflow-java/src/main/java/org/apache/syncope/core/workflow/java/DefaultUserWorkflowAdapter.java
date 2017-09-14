@@ -21,7 +21,6 @@ package org.apache.syncope.core.workflow.java;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -85,7 +84,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         propByRes.set(ResourceOperation.CREATE, userDAO.findAllResourceKeys(user.getKey()));
 
         return new WorkflowResult<Pair<String, Boolean>>(
-                new ImmutablePair<>(user.getKey(), propagateEnable), propByRes, "create");
+                Pair.of(user.getKey(), propagateEnable), propByRes, "create");
     }
 
     @Override
@@ -108,7 +107,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         userDAO.save(user);
 
         return new WorkflowResult<Pair<UserPatch, Boolean>>(
-                new ImmutablePair<>(userPatch, !user.isSuspended()), propByRes, "update");
+                Pair.of(userPatch, !user.isSuspended()), propByRes, "update");
     }
 
     @Override

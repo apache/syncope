@@ -68,9 +68,7 @@ public class AnyObjectITCase extends AbstractITCase {
                 resourceService.readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
         assertNotNull(connObjectTO);
         assertNotNull(connObjectTO.getAttr("LOCATION"));
-        assertEquals(
-                anyObjectTO.getPlainAttr("location").getValues(),
-                connObjectTO.getAttr("LOCATION").getValues());
+        assertEquals(anyObjectTO.getPlainAttr("location").getValues(), connObjectTO.getAttr("LOCATION").getValues());
     }
 
     @Test

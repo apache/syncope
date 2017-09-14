@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -85,20 +86,17 @@ public class AnyObjectPullResultHandlerImpl extends AbstractPullResultHandler im
     }
 
     @Override
-    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta, final ProvisioningReport result) {
+    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta) {
         AnyObjectTO anyObjectTO = AnyObjectTO.class.cast(anyTO);
 
         Map.Entry<String, List<PropagationStatus>> created = anyObjectProvisioningManager.create(
                 anyObjectTO, Collections.singleton(profile.getTask().getResource().getKey()), true);
 
-        result.setKey(created.getKey());
-        result.setName(getName(anyTO));
-
         return getAnyTO(created.getKey());
     }
 
     @Override
-    protected AnyTO doUpdate(
+    protected AnyPatch doUpdate(
             final AnyTO before,
             final AnyPatch anyPatch,
             final SyncDelta delta,
@@ -106,11 +104,9 @@ public class AnyObjectPullResultHandlerImpl extends AbstractPullResultHandler im
 
         AnyObjectPatch anyObjectPatch = AnyObjectPatch.class.cast(anyPatch);
 
-        Map.Entry<String, List<PropagationStatus>> updated = anyObjectProvisioningManager.update(
+        Pair<AnyObjectPatch, List<PropagationStatus>> updated = anyObjectProvisioningManager.update(
                 anyObjectPatch, Collections.singleton(profile.getTask().getResource().getKey()), true);
 
-        AnyObjectTO after = anyObjectDataBinder.getAnyObjectTO(updated.getKey());
-        result.setName(getName(after));
-        return after;
+        return anyPatch;
     }
 }

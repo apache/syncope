@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.GroupPatch;
@@ -95,7 +96,7 @@ public class GroupPullResultHandlerImpl extends AbstractPullResultHandler implem
     }
 
     @Override
-    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta, final ProvisioningReport result) {
+    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta) {
         GroupTO groupTO = GroupTO.class.cast(anyTO);
 
         Map.Entry<String, List<PropagationStatus>> created = groupProvisioningManager.create(
@@ -104,14 +105,11 @@ public class GroupPullResultHandlerImpl extends AbstractPullResultHandler implem
                 Collections.singleton(profile.getTask().getResource().getKey()),
                 true);
 
-        result.setKey(created.getKey());
-        result.setName(getName(anyTO));
-
         return getAnyTO(created.getKey());
     }
 
     @Override
-    protected AnyTO doUpdate(
+    protected AnyPatch doUpdate(
             final AnyTO before,
             final AnyPatch anyPatch,
             final SyncDelta delta,
@@ -119,7 +117,7 @@ public class GroupPullResultHandlerImpl extends AbstractPullResultHandler implem
 
         GroupPatch groupPatch = GroupPatch.class.cast(anyPatch);
 
-        Map.Entry<String, List<PropagationStatus>> updated = groupProvisioningManager.update(
+        Pair<GroupPatch, List<PropagationStatus>> updated = groupProvisioningManager.update(
                 groupPatch, Collections.singleton(profile.getTask().getResource().getKey()), true);
 
         String groupOwner = null;
@@ -131,14 +129,10 @@ public class GroupPullResultHandlerImpl extends AbstractPullResultHandler implem
             }
         }
         if (groupOwner != null) {
-            groupOwnerMap.put(updated.getKey(), groupOwner);
+            groupOwnerMap.put(updated.getLeft().getKey(), groupOwner);
         }
 
-        GroupTO after = groupDataBinder.getGroupTO(updated.getKey());
-
-        result.setName(getName(after));
-
-        return after;
+        return anyPatch;
     }
 
 }

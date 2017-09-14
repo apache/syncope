@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -72,8 +71,8 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
         userPatch.setKey(userTO.getKey());
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
-                new WorkflowResult<Pair<UserPatch, Boolean>>(
-                        new ImmutablePair<UserPatch, Boolean>(userPatch, null),
+                new WorkflowResult<>(
+                        Pair.<UserPatch, Boolean>of(userPatch, null),
                         updated.getPropByRes(), updated.getPerformedTasks()));
 
         taskExecutor.execute(tasks, false);
@@ -106,8 +105,8 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
                 && updated.getPropByRes() != null && !updated.getPropByRes().isEmpty()) {
 
             List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
-                    new WorkflowResult<Pair<UserPatch, Boolean>>(
-                            new ImmutablePair<>((UserPatch) updated.getResult(), Boolean.TRUE),
+                    new WorkflowResult<>(
+                            Pair.of((UserPatch) updated.getResult(), Boolean.TRUE),
                             updated.getPropByRes(),
                             updated.getPerformedTasks()));
 

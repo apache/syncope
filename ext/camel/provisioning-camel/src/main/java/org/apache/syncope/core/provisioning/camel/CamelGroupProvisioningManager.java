@@ -85,14 +85,16 @@ public class CamelGroupProvisioningManager
     }
 
     @Override
-    public Pair<String, List<PropagationStatus>> update(final GroupPatch anyPatch, final boolean nullPriorityAsync) {
+    public Pair<GroupPatch, List<PropagationStatus>> update(
+            final GroupPatch anyPatch, final boolean nullPriorityAsync) {
+
         return update(anyPatch, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<String, List<PropagationStatus>> update(
+    public Pair<GroupPatch, List<PropagationStatus>> update(
             final GroupPatch anyPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:updateGroupPort");
