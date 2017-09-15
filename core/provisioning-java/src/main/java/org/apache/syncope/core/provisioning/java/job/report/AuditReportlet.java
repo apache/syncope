@@ -86,7 +86,7 @@ public class AuditReportlet extends AbstractReportlet {
 
             if (auditEntry.getBefore() != null) {
                 char[] before = ToStringBuilder.reflectionToString(
-                        auditEntry.getBefore(), ToStringStyle.MULTI_LINE_STYLE).toCharArray();
+                        auditEntry.getBefore(), ToStringStyle.JSON_STYLE).toCharArray();
                 handler.startElement("", "", "before", null);
                 handler.characters(before, 0, before.length);
                 handler.endElement("", "", "before");
@@ -96,7 +96,7 @@ public class AuditReportlet extends AbstractReportlet {
                 handler.startElement("", "", "inputs", null);
                 for (Object inputObj : auditEntry.getInput()) {
                     char[] input = ToStringBuilder.reflectionToString(
-                            inputObj, ToStringStyle.MULTI_LINE_STYLE).toCharArray();
+                            inputObj, ToStringStyle.JSON_STYLE).toCharArray();
                     handler.startElement("", "", "input", null);
                     handler.characters(input, 0, input.length);
                     handler.endElement("", "", "input");
@@ -106,7 +106,7 @@ public class AuditReportlet extends AbstractReportlet {
 
             if (auditEntry.getOutput() != null) {
                 char[] output = ToStringBuilder.reflectionToString(
-                        auditEntry.getOutput(), ToStringStyle.MULTI_LINE_STYLE).toCharArray();
+                        auditEntry.getOutput(), ToStringStyle.JSON_STYLE).toCharArray();
                 handler.startElement("", "", "output", null);
                 handler.characters(output, 0, output.length);
                 handler.endElement("", "", "output");

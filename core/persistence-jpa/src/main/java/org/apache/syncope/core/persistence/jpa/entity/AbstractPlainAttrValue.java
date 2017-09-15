@@ -223,8 +223,8 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
     public String getValueAsString() {
         final AttrSchemaType type = getAttr() == null || getAttr().getSchema() == null
                 || getAttr().getSchema().getType() == null
-                        ? AttrSchemaType.String
-                        : getAttr().getSchema().getType();
+                ? AttrSchemaType.String
+                : getAttr().getSchema().getType();
 
         return getValueAsString(type);
     }
@@ -241,23 +241,23 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
             case Long:
                 result = getAttr() == null || getAttr().getSchema() == null
                         || getAttr().getSchema().getConversionPattern() == null
-                                ? getLongValue().toString()
-                                : FormatUtils.format(getLongValue(), getAttr().getSchema().getConversionPattern());
+                        ? getLongValue().toString()
+                        : FormatUtils.format(getLongValue(), getAttr().getSchema().getConversionPattern());
                 break;
 
             case Double:
                 result = getAttr() == null || getAttr().getSchema() == null
                         || getAttr().getSchema().getConversionPattern() == null
-                                ? getDoubleValue().toString()
-                                : FormatUtils.format(getDoubleValue(), getAttr().getSchema().getConversionPattern());
+                        ? getDoubleValue().toString()
+                        : FormatUtils.format(getDoubleValue(), getAttr().getSchema().getConversionPattern());
                 break;
 
             case Date:
                 result = getAttr() == null || getAttr().getSchema() == null
                         || getAttr().getSchema().getConversionPattern() == null
-                                ? FormatUtils.format(getDateValue())
-                                : FormatUtils.format(
-                                        getDateValue(), false, getAttr().getSchema().getConversionPattern());
+                        ? FormatUtils.format(getDateValue())
+                        : FormatUtils.format(
+                                getDateValue(), false, getAttr().getSchema().getConversionPattern());
                 break;
 
             case Binary:
@@ -277,6 +277,6 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
 
     @Override
     public String toString() {
-        return ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE);
+        return ReflectionToStringBuilder.toString(this, ToStringStyle.JSON_STYLE);
     }
 }
