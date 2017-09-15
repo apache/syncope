@@ -441,7 +441,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         attr.setMembership(null);
                     }
 
-                    toBeDeprovisioned.addAll(groupDAO.findAllResourceKeys(membership.getRightEnd().getKey()));
+                    if (membPatch.getOperation() == PatchOperation.DELETE) {
+                        toBeDeprovisioned.addAll(groupDAO.findAllResourceKeys(membership.getRightEnd().getKey()));
+                    }
                 }
 
                 if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
