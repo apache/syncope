@@ -21,8 +21,11 @@ package org.apache.syncope.core.workflow.java;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -50,12 +53,18 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
     }
 
     @Override
-    protected WorkflowResult<String> doUpdate(final AnyObject anyObject, final AnyObjectPatch anyObjectPatch) {
+    protected WorkflowResult<AnyObjectPatch> doUpdate(final AnyObject anyObject, final AnyObjectPatch anyObjectPatch) {
+        AnyObjectTO original = dataBinder.getAnyObjectTO(anyObject, true);
+
         PropagationByResource propByRes = dataBinder.update(anyObject, anyObjectPatch);
+        Set<AttrTO> virAttrs = anyObjectPatch.getVirAttrs();
 
-        AnyObject updated = anyObjectDAO.save(anyObject);
+        AnyObjectTO updated = dataBinder.getAnyObjectTO(anyObjectDAO.save(anyObject), true);
+        AnyObjectPatch effectivePatch = AnyOperations.diff(updated, original, false);
+        effectivePatch.getVirAttrs().clear();
+        effectivePatch.getVirAttrs().addAll(virAttrs);
 
-        return new WorkflowResult<>(updated.getKey(), propByRes, "update");
+        return new WorkflowResult<>(effectivePatch, propByRes, "update");
     }
 
     @Override

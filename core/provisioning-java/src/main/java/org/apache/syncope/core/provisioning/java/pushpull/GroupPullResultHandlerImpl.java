@@ -91,7 +91,7 @@ public class GroupPullResultHandlerImpl extends AbstractPullResultHandler implem
     }
 
     @Override
-    protected WorkflowResult<String> update(final AnyPatch patch) {
+    protected WorkflowResult<? extends AnyPatch> update(final AnyPatch patch) {
         return gwfAdapter.update((GroupPatch) patch);
     }
 

@@ -63,7 +63,7 @@ public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implem
     }
 
     @Override
-    protected WorkflowResult<String> update(final AnyPatch patch) {
+    protected WorkflowResult<? extends AnyPatch> update(final AnyPatch patch) {
         return gwfAdapter.update((GroupPatch) patch);
     }
 

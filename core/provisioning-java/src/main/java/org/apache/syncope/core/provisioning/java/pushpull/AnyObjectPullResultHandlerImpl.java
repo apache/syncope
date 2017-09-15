@@ -81,7 +81,7 @@ public class AnyObjectPullResultHandlerImpl extends AbstractPullResultHandler im
     }
 
     @Override
-    protected WorkflowResult<String> update(final AnyPatch patch) {
+    protected WorkflowResult<? extends AnyPatch> update(final AnyPatch patch) {
         return awfAdapter.update((AnyObjectPatch) patch);
     }
 

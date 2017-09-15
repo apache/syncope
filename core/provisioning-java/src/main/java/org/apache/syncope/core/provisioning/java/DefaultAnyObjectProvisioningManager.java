@@ -98,11 +98,11 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     public Pair<AnyObjectPatch, List<PropagationStatus>> update(
             final AnyObjectPatch anyObjectPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
-        WorkflowResult<String> updated = awfAdapter.update(anyObjectPatch);
+        WorkflowResult<AnyObjectPatch> updated = awfAdapter.update(anyObjectPatch);
 
         List<PropagationTask> tasks = propagationManager.getUpdateTasks(
                 AnyTypeKind.ANY_OBJECT,
-                updated.getResult(),
+                updated.getResult().getKey(),
                 false,
                 null,
                 updated.getPropByRes(),
@@ -110,7 +110,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return Pair.of(anyObjectPatch, propagationReporter.getStatuses());
+        return Pair.of(updated.getResult(), propagationReporter.getStatuses());
     }
 
     @Override
@@ -149,12 +149,12 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
 
     @Override
     public String unlink(final AnyObjectPatch anyObjectPatch) {
-        return awfAdapter.update(anyObjectPatch).getResult();
+        return awfAdapter.update(anyObjectPatch).getResult().getKey();
     }
 
     @Override
     public String link(final AnyObjectPatch anyObjectPatch) {
-        return awfAdapter.update(anyObjectPatch).getResult();
+        return awfAdapter.update(anyObjectPatch).getResult().getKey();
     }
 
     @Override

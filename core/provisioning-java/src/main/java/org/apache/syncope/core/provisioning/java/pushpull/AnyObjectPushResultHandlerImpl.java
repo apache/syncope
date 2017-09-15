@@ -63,7 +63,7 @@ public class AnyObjectPushResultHandlerImpl extends AbstractPushResultHandler im
     }
 
     @Override
-    protected WorkflowResult<String> update(final AnyPatch patch) {
+    protected WorkflowResult<? extends AnyObjectPatch> update(final AnyPatch patch) {
         return awfAdapter.update((AnyObjectPatch) patch);
     }
 

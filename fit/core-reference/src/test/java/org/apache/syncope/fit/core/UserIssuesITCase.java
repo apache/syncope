@@ -565,7 +565,7 @@ public class UserIssuesITCase extends AbstractITCase {
     }
 
     @Test
-    public void isseSYNCOPE136Random() {
+    public void issueSYNCOPE136Random() {
         // 1. create user with no resources
         UserTO userTO = UserITCase.getUniqueSampleTO("syncope136_Random@apache.org");
         userTO.getResources().clear();

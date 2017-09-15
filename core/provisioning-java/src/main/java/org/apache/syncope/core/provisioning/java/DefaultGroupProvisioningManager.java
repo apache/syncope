@@ -123,11 +123,11 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     public Pair<GroupPatch, List<PropagationStatus>> update(
             final GroupPatch groupPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
-        WorkflowResult<String> updated = gwfAdapter.update(groupPatch);
+        WorkflowResult<GroupPatch> updated = gwfAdapter.update(groupPatch);
 
         List<PropagationTask> tasks = propagationManager.getUpdateTasks(
                 AnyTypeKind.GROUP,
-                updated.getResult(),
+                updated.getResult().getKey(),
                 false,
                 null,
                 updated.getPropByRes(),
@@ -135,7 +135,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return Pair.of(groupPatch, propagationReporter.getStatuses());
+        return Pair.of(updated.getResult(), propagationReporter.getStatuses());
     }
 
     @Override
@@ -185,8 +185,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
 
     @Override
     public String unlink(final GroupPatch groupPatch) {
-        WorkflowResult<String> updated = gwfAdapter.update(groupPatch);
-        return updated.getResult();
+        return gwfAdapter.update(groupPatch).getResult().getKey();
     }
 
     @Override
@@ -230,7 +229,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
 
     @Override
     public String link(final GroupPatch groupPatch) {
-        return gwfAdapter.update(groupPatch).getResult();
+        return gwfAdapter.update(groupPatch).getResult().getKey();
     }
 
 }
