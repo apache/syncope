@@ -1985,7 +1985,7 @@ under the License.
                 project.properties['site.deploymentBaseUrl'] == null || !project.properties['site.deploymentBaseUrl'].startsWith('file:') ? project.properties['project.build.directory'] + "/generated-docs" : project.properties['site.deploymentBaseUrl'].substring(7)
 
                 if (!project.properties.containsKey('buildNumber'))
-                  project.properties['buildNumber'] = ""
+                project.properties['buildNumber'] = ""
               </source>
             </configuration>
           </execution>
@@ -2159,7 +2159,7 @@ under the License.
             <link>http://docs.oracle.com/javaee/7/api/</link>
             <link>http://www.slf4j.org/api/</link>
             <link>http://connid.tirasa.net/apidocs/1.4/</link>
-            <link>http://cxf.apache.org/javadoc/latest-3.1.x/</link>
+            <link>http://cxf.apache.org/javadoc/latest-3.2.x/</link>
             <link>http://fasterxml.github.io/jackson-core/javadoc/2.8/</link>
             <link>http://fasterxml.github.io/jackson-databind/javadoc/2.8/</link>
             <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.8/</link>
@@ -2174,7 +2174,6 @@ under the License.
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
             <link>http://docs.spring.io/spring/docs/4.3.x/javadoc-api/</link>
             <link>http://docs.spring.io/spring-security/site/docs/4.2.x/apidocs/</link>
-            <link>http://www.flowable.org/docs/javadocs/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/service/local/repositories/releases/archive/org/opensaml/opensaml-saml-api/3.3.0/opensaml-saml-api-3.3.0-javadoc.jar/!/index.html</link>
             <link>https://build.shibboleth.net/nexus/service/local/repositories/releases/archive/org/opensaml/opensaml-core/3.3.0/opensaml-core-3.3.0-javadoc.jar/!/index.html</link>
