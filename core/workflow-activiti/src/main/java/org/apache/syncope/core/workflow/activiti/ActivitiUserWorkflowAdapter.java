@@ -286,8 +286,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         Set<String> tasks = getPerformedTasks(user);
 
-        return new WorkflowResult<Pair<String, Boolean>>(
-                Pair.of(user.getKey(), propagateEnable), propByRes, tasks);
+        return new WorkflowResult<>(Pair.of(user.getKey(), propagateEnable), propByRes, tasks);
     }
 
     protected Set<String> doExecuteTask(final User user, final String task, final Map<String, Object> moreVariables) {
@@ -356,8 +355,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Boolean propagateEnable = engine.getRuntimeService().getVariable(
                 user.getWorkflowId(), PROPAGATE_ENABLE, Boolean.class);
 
-        return new WorkflowResult<Pair<UserPatch, Boolean>>(
-                Pair.of(updatedPatch, propagateEnable), propByRes, tasks);
+        return new WorkflowResult<>(Pair.of(updatedPatch, propagateEnable), propByRes, tasks);
     }
 
     @Override
@@ -426,8 +424,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Boolean propagateEnable = engine.getRuntimeService().getVariable(
                 user.getWorkflowId(), PROPAGATE_ENABLE, Boolean.class);
 
-        return new WorkflowResult<Pair<UserPatch, Boolean>>(
-                Pair.of(updatedPatch, propagateEnable), propByRes, tasks);
+        return new WorkflowResult<>(Pair.of(updatedPatch, propagateEnable), propByRes, tasks);
     }
 
     @Override

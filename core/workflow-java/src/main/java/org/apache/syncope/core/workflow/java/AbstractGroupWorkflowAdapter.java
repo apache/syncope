@@ -55,11 +55,11 @@ public abstract class AbstractGroupWorkflowAdapter implements GroupWorkflowAdapt
         return doCreate(groupTO);
     }
 
-    protected abstract WorkflowResult<String> doUpdate(Group group, GroupPatch groupPatch);
+    protected abstract WorkflowResult<GroupPatch> doUpdate(Group group, GroupPatch groupPatch);
 
     @Override
-    public WorkflowResult<String> update(final GroupPatch groupPatch) {
-        WorkflowResult<String> result = doUpdate(groupDAO.authFind(groupPatch.getKey()), groupPatch);
+    public WorkflowResult<GroupPatch> update(final GroupPatch groupPatch) {
+        WorkflowResult<GroupPatch> result = doUpdate(groupDAO.authFind(groupPatch.getKey()), groupPatch);
 
         // re-read to ensure that requester's administration rights are still valid
         groupDAO.authFind(groupPatch.getKey());

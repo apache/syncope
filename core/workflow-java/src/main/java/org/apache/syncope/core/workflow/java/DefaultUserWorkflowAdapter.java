@@ -21,9 +21,12 @@ package org.apache.syncope.core.workflow.java;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
@@ -83,8 +86,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(ResourceOperation.CREATE, userDAO.findAllResourceKeys(user.getKey()));
 
-        return new WorkflowResult<Pair<String, Boolean>>(
-                Pair.of(user.getKey(), propagateEnable), propByRes, "create");
+        return new WorkflowResult<>(Pair.of(user.getKey(), propagateEnable), propByRes, "create");
     }
 
     @Override
@@ -102,12 +104,19 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     protected WorkflowResult<Pair<UserPatch, Boolean>> doUpdate(final User user, final UserPatch userPatch) {
+        UserTO original = dataBinder.getUserTO(user, true);
+
         PropagationByResource propByRes = dataBinder.update(user, userPatch);
+        PasswordPatch password = userPatch.getPassword();
+        Set<AttrTO> virAttrs = userPatch.getVirAttrs();
 
-        userDAO.save(user);
+        UserTO updated = dataBinder.getUserTO(userDAO.save(user), true);
+        UserPatch effectivePatch = AnyOperations.diff(updated, original, false);
+        effectivePatch.setPassword(password);
+        effectivePatch.getVirAttrs().clear();
+        effectivePatch.getVirAttrs().addAll(virAttrs);
 
-        return new WorkflowResult<Pair<UserPatch, Boolean>>(
-                Pair.of(userPatch, !user.isSuspended()), propByRes, "update");
+        return new WorkflowResult<>(Pair.of(effectivePatch, !user.isSuspended()), propByRes, "update");
     }
 
     @Override

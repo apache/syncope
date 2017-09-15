@@ -50,7 +50,7 @@ public interface GroupWorkflowAdapter extends WorkflowAdapter {
      * @param groupPatch modification set to be performed
      * @return group just updated and propagations to be performed
      */
-    WorkflowResult<String> update(GroupPatch groupPatch);
+    WorkflowResult<GroupPatch> update(GroupPatch groupPatch);
 
     /**
      * Delete a group.

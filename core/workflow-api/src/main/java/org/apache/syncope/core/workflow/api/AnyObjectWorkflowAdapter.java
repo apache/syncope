@@ -50,7 +50,7 @@ public interface AnyObjectWorkflowAdapter extends WorkflowAdapter {
      * @param anyObjectPatch modification set to be performed
      * @return anyObject just updated and propagations to be performed
      */
-    WorkflowResult<String> update(AnyObjectPatch anyObjectPatch);
+    WorkflowResult<AnyObjectPatch> update(AnyObjectPatch anyObjectPatch);
 
     /**
      * Delete a anyObject.

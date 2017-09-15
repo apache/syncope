@@ -135,7 +135,7 @@ public class CamelAnyObjectProvisioningManager
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return exchange.getIn().getBody(String.class);
+        return exchange.getIn().getBody(AnyObjectPatch.class).getKey();
     }
 
     @Override
@@ -150,7 +150,7 @@ public class CamelAnyObjectProvisioningManager
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return exchange.getIn().getBody(String.class);
+        return exchange.getIn().getBody(AnyObjectPatch.class).getKey();
     }
 
     @Override

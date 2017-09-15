@@ -154,8 +154,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        exchange.getIn().setBody((exchange.getIn().getBody(UserPatch.class).getKey()));
-        return exchange.getIn().getBody(String.class);
+        return exchange.getIn().getBody(UserPatch.class).getKey();
     }
 
     @Override
@@ -258,8 +257,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        exchange.getIn().setBody((exchange.getIn().getBody(UserPatch.class).getKey()));
-        return exchange.getIn().getBody(String.class);
+        return exchange.getIn().getBody(UserPatch.class).getKey();
     }
 
     @Override

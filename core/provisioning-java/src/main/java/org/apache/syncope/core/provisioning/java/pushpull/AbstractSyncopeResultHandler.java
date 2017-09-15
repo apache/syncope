@@ -108,7 +108,7 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
 
     protected abstract AnyPatch newPatch(String key);
 
-    protected abstract WorkflowResult<String> update(AnyPatch patch);
+    protected abstract WorkflowResult<? extends AnyPatch> update(AnyPatch patch);
 
     @Override
     public void setProfile(final ProvisioningProfile<T, A> profile) {

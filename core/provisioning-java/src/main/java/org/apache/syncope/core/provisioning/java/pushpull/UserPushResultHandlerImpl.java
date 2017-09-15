@@ -91,10 +91,9 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
     }
 
     @Override
-    protected WorkflowResult<String> update(final AnyPatch patch) {
+    protected WorkflowResult<? extends AnyPatch> update(final AnyPatch patch) {
         WorkflowResult<Pair<UserPatch, Boolean>> update = uwfAdapter.update((UserPatch) patch);
-        return new WorkflowResult<>(
-                update.getResult().getLeft().getKey(), update.getPropByRes(), update.getPerformedTasks());
+        return new WorkflowResult<>(update.getResult().getLeft(), update.getPropByRes(), update.getPerformedTasks());
     }
 
 }
