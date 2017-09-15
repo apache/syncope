@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.commons;
 
-import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
@@ -33,12 +32,9 @@ public abstract class TaskDataProvider<T extends AbstractTaskTO> extends Directo
 
     protected final TaskType taskType;
 
-    private final TaskRestClient taskRestClient;
-
-    public TaskDataProvider(final int paginatorRows, final TaskType taskType, final TaskRestClient taskRestClient) {
+    public TaskDataProvider(final int paginatorRows, final TaskType taskType) {
         super(paginatorRows);
 
-        this.taskRestClient = taskRestClient;
         setSort("start", SortOrder.ASCENDING);
         comparator = new SortableDataProviderComparator<>(this);
         this.taskType = taskType;
@@ -46,11 +42,6 @@ public abstract class TaskDataProvider<T extends AbstractTaskTO> extends Directo
 
     public SortableDataProviderComparator<T> getComparator() {
         return comparator;
-    }
-
-    @Override
-    public long size() {
-        return taskRestClient.count(taskType);
     }
 
     @Override

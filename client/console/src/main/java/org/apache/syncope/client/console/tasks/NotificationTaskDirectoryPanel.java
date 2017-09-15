@@ -210,10 +210,15 @@ public abstract class NotificationTaskDirectoryPanel
                 final String entityKey,
                 final int paginatorRows) {
 
-            super(paginatorRows, TaskType.NOTIFICATION, restClient);
+            super(paginatorRows, TaskType.NOTIFICATION);
             this.notification = notification;
             this.anyTypeKind = anyTypeKind;
             this.entityKey = entityKey;
+        }
+
+        @Override
+        public long size() {
+            return restClient.count(TaskType.NOTIFICATION);
         }
 
         @Override
