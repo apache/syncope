@@ -426,7 +426,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     attr.setMembership(null);
                 });
 
-                toBeDeprovisioned.addAll(groupDAO.findAllResourceKeys(membership.get().getRightEnd().getKey()));
+                if (membPatch.getOperation() == PatchOperation.DELETE) {
+                    toBeDeprovisioned.addAll(groupDAO.findAllResourceKeys(membership.get().getRightEnd().getKey()));
+                }
             }
             if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
                 Group group = groupDAO.find(membPatch.getGroup());
