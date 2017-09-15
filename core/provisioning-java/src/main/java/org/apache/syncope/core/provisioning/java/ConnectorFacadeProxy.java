@@ -412,15 +412,18 @@ public class ConnectorFacadeProxy implements Connector {
     }
 
     @Override
-    public void search(
+    public SearchResult search(
             final ObjectClass objectClass,
             final Filter filter,
             final ResultsHandler handler,
             final OperationOptions options) {
 
+        SearchResult result = null;
+
         if (connInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
             if (options.getPageSize() == null && options.getPagedResultsCookie() == null) {
-                OperationOptionsBuilder builder = new OperationOptionsBuilder(options).setPageSize(DEFAULT_PAGE_SIZE);
+                OperationOptionsBuilder builder = new OperationOptionsBuilder(options).
+                        setPageSize(DEFAULT_PAGE_SIZE).setPagedResultsOffset(-1);
 
                 final String[] cookies = new String[] { null };
                 do {
@@ -428,7 +431,7 @@ public class ConnectorFacadeProxy implements Connector {
                         builder.setPagedResultsCookie(cookies[0]);
                     }
 
-                    connector.search(objectClass, filter, new SearchResultsHandler() {
+                    result = connector.search(objectClass, filter, new SearchResultsHandler() {
 
                         @Override
                         public void handleResult(final SearchResult result) {
@@ -445,16 +448,18 @@ public class ConnectorFacadeProxy implements Connector {
                     }, builder.build());
                 } while (cookies[0] != null);
             } else {
-                connector.search(objectClass, filter, handler, options);
+                result = connector.search(objectClass, filter, handler, options);
             }
         } else {
             LOG.info("Search was attempted, although the connector only has these capabilities: {}. No action.",
                     connInstance.getCapabilities());
         }
+
+        return result;
     }
 
     @Override
-    public void search(
+    public SearchResult search(
             final ObjectClass objectClass,
             final Filter filter,
             final ResultsHandler handler,
@@ -463,7 +468,7 @@ public class ConnectorFacadeProxy implements Connector {
             final List<OrderByClause> orderBy,
             final OperationOptions options) {
 
-        OperationOptionsBuilder builder = new OperationOptionsBuilder().setPageSize(pageSize);
+        OperationOptionsBuilder builder = new OperationOptionsBuilder().setPageSize(pageSize).setPagedResultsOffset(-1);
         if (pagedResultsCookie != null) {
             builder.setPagedResultsCookie(pagedResultsCookie);
         }
@@ -473,7 +478,7 @@ public class ConnectorFacadeProxy implements Connector {
 
         builder.setAttributesToGet(options.getAttributesToGet());
 
-        search(objectClass, filter, handler, builder.build());
+        return search(objectClass, filter, handler, builder.build());
     }
 
     @Override

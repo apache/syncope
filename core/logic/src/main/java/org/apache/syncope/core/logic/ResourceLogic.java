@@ -72,9 +72,9 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.Uid;
-import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -390,17 +390,11 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             options = MappingUtils.buildOperationOptions(mapItems);
         }
 
-        final SearchResult[] searchResult = new SearchResult[1];
         final List<ConnObjectTO> connObjects = new ArrayList<>();
 
-        connFactory.getConnector(resource).search(objectClass, null, new SearchResultsHandler() {
+        SearchResult searchResult = connFactory.getConnector(resource).search(objectClass, null, new ResultsHandler() {
 
             private int count;
-
-            @Override
-            public void handleResult(final SearchResult result) {
-                searchResult[0] = result;
-            }
 
             @Override
             public boolean handle(final ConnectorObject connectorObject) {
@@ -411,7 +405,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             }
         }, size, pagedResultsCookie, orderBy, options);
 
-        return ImmutablePair.of(searchResult[0], connObjects);
+        return ImmutablePair.of(searchResult, connObjects);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")
