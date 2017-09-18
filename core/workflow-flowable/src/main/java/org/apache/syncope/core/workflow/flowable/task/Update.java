@@ -24,6 +24,7 @@ import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
@@ -37,6 +38,9 @@ public class Update extends AbstractFlowableServiceTask {
     @Autowired
     private UserDataBinder dataBinder;
 
+    @Autowired
+    private UserDAO userDAO;
+
     @Override
     protected void doExecute(final String executionId) {
         User user = engine.getRuntimeService().
@@ -44,6 +48,7 @@ public class Update extends AbstractFlowableServiceTask {
         UserPatch userPatch = engine.getRuntimeService().
                 getVariable(executionId, FlowableUserWorkflowAdapter.USER_PATCH, UserPatch.class);
 
+        user = userDAO.save(user);
         UserTO original = dataBinder.getUserTO(user, true);
 
         PropagationByResource propByRes = dataBinder.update(user, userPatch);
