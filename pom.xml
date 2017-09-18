@@ -368,7 +368,7 @@ under the License.
 
     <jackson.version>2.9.1</jackson.version>
 
-    <spring.version>4.3.10.RELEASE</spring.version>
+    <spring.version>4.3.11.RELEASE</spring.version>
     <spring-security.version>4.2.3.RELEASE</spring-security.version>
 
     <openjpa.version>3.0.0-SNAPSHOT</openjpa.version>
@@ -385,12 +385,12 @@ under the License.
 
     <flowable.version>6.1.2</flowable.version>
 
-    <camel.version>2.19.2</camel.version>	
+    <camel.version>2.19.3</camel.version>	
 
     <slf4j.version>1.7.25</slf4j.version>
     <opensaml.version>3.3.0</opensaml.version>
 
-    <elasticsearch.version>5.5.2</elasticsearch.version>
+    <elasticsearch.version>5.6.0</elasticsearch.version>
 
     <log4j.version>2.9.0</log4j.version>
     <disruptor.version>3.3.6</disruptor.version>
@@ -1679,7 +1679,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.0.1</version>
+          <version>3.0.2</version>
           <configuration>
             <outputDirectory>${bundles.directory}</outputDirectory>
             <useBaseVersion>true</useBaseVersion>
@@ -1788,7 +1788,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.20</version>
+          <version>2.20.1</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
@@ -1799,7 +1799,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>2.20</version>
+          <version>2.20.1</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
@@ -2177,7 +2177,7 @@ under the License.
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/service/local/repositories/releases/archive/org/opensaml/opensaml-saml-api/3.3.0/opensaml-saml-api-3.3.0-javadoc.jar/!/index.html</link>
             <link>https://build.shibboleth.net/nexus/service/local/repositories/releases/archive/org/opensaml/opensaml-core/3.3.0/opensaml-core-3.3.0-javadoc.jar/!/index.html</link>
-            <link>https://www.javadoc.io/doc/org.elasticsearch/elasticsearch/5.5.1</link>
+            <link>https://www.javadoc.io/doc/org.elasticsearch/elasticsearch/5.6.0</link>
           </links>
         </configuration>
         <reportSets>
