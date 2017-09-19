@@ -161,15 +161,15 @@ public class MappingManagerImpl implements MappingManager {
             try {
                 Pair<String, Attribute> preparedAttr = prepareAttr(provision, mapItem, any, password);
                 if (preparedAttr != null) {
-                    if (preparedAttr.getKey() != null) {
-                        connObjectKey = preparedAttr.getKey();
+                    if (preparedAttr.getLeft() != null) {
+                        connObjectKey = preparedAttr.getLeft();
                     }
 
-                    if (preparedAttr.getValue() != null) {
-                        Attribute alreadyAdded = AttributeUtil.find(preparedAttr.getValue().getName(), attributes);
+                    if (preparedAttr.getRight() != null) {
+                        Attribute alreadyAdded = AttributeUtil.find(preparedAttr.getRight().getName(), attributes);
 
                         if (alreadyAdded == null) {
-                            attributes.add(preparedAttr.getValue());
+                            attributes.add(preparedAttr.getRight());
                         } else {
                             attributes.remove(alreadyAdded);
 
@@ -178,9 +178,9 @@ public class MappingManagerImpl implements MappingManager {
                                 values.addAll(alreadyAdded.getValue());
                             }
 
-                            values.addAll(preparedAttr.getValue().getValue());
+                            values.addAll(preparedAttr.getRight().getValue());
 
-                            attributes.add(AttributeBuilder.build(preparedAttr.getValue().getName(), values));
+                            attributes.add(AttributeBuilder.build(preparedAttr.getRight().getName(), values));
                         }
                     }
                 }
