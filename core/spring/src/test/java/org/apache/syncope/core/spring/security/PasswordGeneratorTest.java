@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import org.apache.syncope.core.spring.security.DefaultPasswordGenerator;
-
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;

@@ -24,13 +24,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.utils.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.provisioning.api.utils.policy.PolicyPattern;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Generate random passwords according to given policies.
@@ -46,28 +42,15 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
 
     private static final int VERY_MAX_LENGTH = 64;
 
-    private static final int MIN_LENGTH_IF_ZERO = 6;
+    private static final int MIN_LENGTH_IF_ZERO = 8;
 
-    @Autowired
-    private UserDAO userDAO;
-
-    @Autowired
-    private RealmDAO realmDAO;
-
+    @Transactional(readOnly = true)
     @Override
-    public String generate(final User user) throws InvalidPasswordRuleConf {
+    public String generate(final ExternalResource resource) throws InvalidPasswordRuleConf {
         List<PasswordRuleConf> ruleConfs = new ArrayList<>();
 
-        for (Realm ancestor : realmDAO.findAncestors(user.getRealm())) {
-            if (ancestor.getPasswordPolicy() != null) {
-                ruleConfs.addAll(ancestor.getPasswordPolicy().getRuleConfs());
-            }
-        }
-
-        for (ExternalResource resource : userDAO.findAllResources(user)) {
-            if (resource.getPasswordPolicy() != null) {
-                ruleConfs.addAll(resource.getPasswordPolicy().getRuleConfs());
-            }
+        if (resource.getPasswordPolicy() != null) {
+            ruleConfs.addAll(resource.getPasswordPolicy().getRuleConfs());
         }
 
         return generate(ruleConfs);
@@ -76,11 +59,11 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
     @Override
     public String generate(final List<PasswordRuleConf> ruleConfs) throws InvalidPasswordRuleConf {
         List<DefaultPasswordRuleConf> defaultRuleConfs = new ArrayList<>();
-        for (PasswordRuleConf ruleConf : ruleConfs) {
-            if (ruleConf instanceof DefaultPasswordRuleConf) {
-                defaultRuleConfs.add((DefaultPasswordRuleConf) ruleConf);
-            }
-        }
+        ruleConfs.stream().
+                filter(ruleConf -> (ruleConf instanceof DefaultPasswordRuleConf)).
+                forEachOrdered(ruleConf -> {
+                    defaultRuleConfs.add((DefaultPasswordRuleConf) ruleConf);
+                });
 
         DefaultPasswordRuleConf ruleConf = merge(defaultRuleConfs);
         check(ruleConf);
@@ -92,7 +75,7 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
         result.setMinLength(VERY_MIN_LENGTH);
         result.setMaxLength(VERY_MAX_LENGTH);
 
-        for (DefaultPasswordRuleConf ruleConf : defaultRuleConfs) {
+        defaultRuleConfs.forEach(ruleConf -> {
             if (ruleConf.getMinLength() > result.getMinLength()) {
                 result.setMinLength(ruleConf.getMinLength());
             }
@@ -159,7 +142,7 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
             if (!result.isUsernameAllowed()) {
                 result.setUsernameAllowed(ruleConf.isUsernameAllowed());
             }
-        }
+        });
 
         if (result.getMinLength() == 0) {
             result.setMinLength(
