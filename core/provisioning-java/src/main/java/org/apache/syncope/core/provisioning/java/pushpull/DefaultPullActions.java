@@ -40,8 +40,8 @@ public abstract class DefaultPullActions implements PullActions {
     public <P extends AnyPatch> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final EntityTO entityTO,
-            final P anyMod) throws JobExecutionException {
+            final EntityTO entity,
+            final P anyPatch) throws JobExecutionException {
 
         return delta;
     }

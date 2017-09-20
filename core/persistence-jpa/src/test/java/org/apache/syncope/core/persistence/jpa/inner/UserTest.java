@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -49,6 +50,9 @@ public class UserTest extends AbstractTest {
 
     @Autowired
     private RealmDAO realmDAO;
+
+    @Autowired
+    private ExternalResourceDAO resourceDAO;
 
     @Test
     public void findAll() {
@@ -206,34 +210,16 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE226() {
-        User user = userDAO.find("823074dc-d280-436d-a7dd-07399fae48ec");
-        String password = "";
-        try {
-            password = passwordGenerator.generate(user);
-        } catch (InvalidPasswordRuleConf ex) {
-            fail(ex.getMessage());
-        }
-        assertNotNull(password);
-
-        user.setPassword(password, CipherAlgorithm.AES);
-
-        User actual = userDAO.save(user);
-        assertNotNull(actual);
-    }
-
-    @Test
     public void testPasswordGenerator() {
-        User user = userDAO.find("823074dc-d280-436d-a7dd-07399fae48ec");
-
         String password = "";
         try {
-            password = passwordGenerator.generate(user);
-
-        } catch (InvalidPasswordRuleConf ex) {
-            fail(ex.getMessage());
+            password = passwordGenerator.generate(resourceDAO.find("ws-target-resource-nopropagation"));
+        } catch (InvalidPasswordRuleConf e) {
+            fail(e.getMessage());
         }
         assertNotNull(password);
+
+        User user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
         user.setPassword(password, CipherAlgorithm.SHA);
         userDAO.save(user);
     }

@@ -24,13 +24,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.utils.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.provisioning.api.utils.policy.PolicyPattern;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Generate random passwords according to given policies.
@@ -46,28 +42,15 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
 
     private static final int VERY_MAX_LENGTH = 64;
 
-    private static final int MIN_LENGTH_IF_ZERO = 6;
+    private static final int MIN_LENGTH_IF_ZERO = 8;
 
-    @Autowired
-    private UserDAO userDAO;
-
-    @Autowired
-    private RealmDAO realmDAO;
-
+    @Transactional(readOnly = true)
     @Override
-    public String generate(final User user) throws InvalidPasswordRuleConf {
+    public String generate(final ExternalResource resource) throws InvalidPasswordRuleConf {
         List<PasswordRuleConf> ruleConfs = new ArrayList<>();
 
-        for (Realm ancestor : realmDAO.findAncestors(user.getRealm())) {
-            if (ancestor.getPasswordPolicy() != null) {
-                ruleConfs.addAll(ancestor.getPasswordPolicy().getRuleConfs());
-            }
-        }
-
-        for (ExternalResource resource : userDAO.findAllResources(user)) {
-            if (resource.getPasswordPolicy() != null) {
-                ruleConfs.addAll(resource.getPasswordPolicy().getRuleConfs());
-            }
+        if (resource.getPasswordPolicy() != null) {
+            ruleConfs.addAll(resource.getPasswordPolicy().getRuleConfs());
         }
 
         return generate(ruleConfs);
