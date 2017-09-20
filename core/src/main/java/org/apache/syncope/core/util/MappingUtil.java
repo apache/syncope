@@ -354,7 +354,7 @@ public final class MappingUtil {
                         }
                     } else if (resource.isRandomPwdIfNotProvided()) {
                         try {
-                            passwordAttrValue = passwordGenerator.generate(user);
+                            passwordAttrValue = passwordGenerator.generate(resource);
                         } catch (InvalidPasswordPolicySpecException e) {
                             LOG.error("Could not generate policy-compliant random password for {}", user, e);
                         }
@@ -377,8 +377,8 @@ public final class MappingUtil {
                 } else {
                     result = new AbstractMap.SimpleEntry<String, Attribute>(
                             null, objValues.isEmpty()
-                                    ? AttributeBuilder.build(extAttrName)
-                                    : AttributeBuilder.build(extAttrName, objValues.iterator().next()));
+                            ? AttributeBuilder.build(extAttrName)
+                            : AttributeBuilder.build(extAttrName, objValues.iterator().next()));
                 }
             }
         }

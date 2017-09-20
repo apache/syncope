@@ -29,6 +29,7 @@ import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.core.AbstractNonDAOTest;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.policy.PolicyPattern;
 import org.apache.syncope.core.util.InvalidPasswordPolicySpecException;
@@ -45,20 +46,8 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
     @Autowired
     private UserDAO userDAO;
 
-    @Test
-    public void forUser() {
-        SyncopeUser user = userDAO.find(5L);
-        String password = null;
-        try {
-            password = passwordGenerator.generate(user);
-        } catch (InvalidPasswordPolicySpecException ex) {
-            fail(ex.getMessage());
-        }
-        assertNotNull(password);
-
-        user.setPassword(password, CipherAlgorithm.SHA);
-        userDAO.save(user);
-    }
+    @Autowired
+    private ResourceDAO resourceDAO;
 
     private PasswordPolicySpec createBasePasswordPolicySpec() {
         PasswordPolicySpec basePasswordPolicySpec = new PasswordPolicySpec();
@@ -144,20 +133,18 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
     }
 
     @Test
-    public void issueSYNCOPE226() {
-        SyncopeUser user = userDAO.find(5L);
-        String password = null;
+    public void testPasswordGenerator() {
+        String password = "";
         try {
-            password = passwordGenerator.generate(user);
+            password = passwordGenerator.generate(resourceDAO.find("ws-target-resource-nopropagation"));
         } catch (InvalidPasswordPolicySpecException e) {
             fail(e.getMessage());
         }
         assertNotNull(password);
 
-        user.setPassword(password, CipherAlgorithm.AES);
-
-        SyncopeUser actual = userDAO.save(user);
-        assertNotNull(actual);
+        SyncopeUser user = userDAO.find(4L);
+        user.setPassword(password, CipherAlgorithm.SHA);
+        userDAO.save(user);
     }
 
     @Test

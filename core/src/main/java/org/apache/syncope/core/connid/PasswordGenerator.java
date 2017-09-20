@@ -25,14 +25,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.PasswordPolicy;
-import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
-import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
-import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.policy.PolicyPattern;
 import org.apache.syncope.core.util.InvalidPasswordPolicySpecException;
 import org.apache.syncope.core.util.SecureRandomUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Generate random passwords according to given policies.
@@ -49,10 +46,7 @@ public class PasswordGenerator {
 
     private static final int VERY_MAX_LENGTH = 64;
 
-    private static final int MIN_LENGTH_IF_ZERO = 6;
-
-    @Autowired
-    private PolicyDAO policyDAO;
+    private static final int MIN_LENGTH_IF_ZERO = 8;
 
     public String generate(final List<PasswordPolicySpec> ppSpecs)
             throws InvalidPasswordPolicySpecException {
@@ -64,30 +58,16 @@ public class PasswordGenerator {
         return generate(policySpec);
     }
 
-    public String generate(final SyncopeUser user)
+    @Transactional(readOnly = true)
+    public String generate(final ExternalResource resource)
             throws InvalidPasswordPolicySpecException {
 
         List<PasswordPolicySpec> ppSpecs = new ArrayList<PasswordPolicySpec>();
 
-        PasswordPolicy globalPP = policyDAO.getGlobalPasswordPolicy();
-        if (globalPP != null && globalPP.getSpecification(PasswordPolicySpec.class) != null) {
-            ppSpecs.add(globalPP.getSpecification(PasswordPolicySpec.class));
-        }
+        if (resource.getPasswordPolicy() != null
+                && resource.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
 
-        for (SyncopeRole role : user.getRoles()) {
-            if (role.getPasswordPolicy() != null
-                    && role.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
-
-                ppSpecs.add(role.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
-            }
-        }
-
-        for (ExternalResource resource : user.getResources()) {
-            if (resource.getPasswordPolicy() != null
-                    && resource.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
-
-                ppSpecs.add(resource.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
-            }
+            ppSpecs.add(resource.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
         }
 
         PasswordPolicySpec policySpec = merge(ppSpecs);
