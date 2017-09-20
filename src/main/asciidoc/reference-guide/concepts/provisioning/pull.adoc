@@ -134,4 +134,13 @@ endif::[]
 the cipher algorithm associated with the password must match the value of `Password cipher algorithm` for the 
 https://connid.atlassian.net/wiki/display/BASE/Database+Table#DatabaseTable-ConfigurationProperties[DatabaseTable connector bundle^].
 
+|
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/GoogleAppsPullActions.java[GoogleAppsPullActions^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/GoogleAppsPullActions.java[GoogleAppsPullActions^]
+endif::[]
+| Required for setup of an External Resource based on the https://connid.atlassian.net/wiki/display/BASE/Google+Apps#GoogleApps-Configuration[ConnId GoogleApps connector bundle^].
+
 |===
