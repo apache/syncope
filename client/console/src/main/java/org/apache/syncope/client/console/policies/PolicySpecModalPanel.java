@@ -290,7 +290,9 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
                             return input.getKey();
                         }
                     }, new ArrayList<String>());
-
+            
+            choices.add("key");
+            choices.add(rule.getAny().equals(AnyTypeKind.USER.name()) ? "username" : "name");
             Collections.sort(choices);
             return choices;
         }
