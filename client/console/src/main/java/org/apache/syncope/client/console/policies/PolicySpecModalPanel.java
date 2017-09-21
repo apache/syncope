@@ -279,6 +279,8 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
                             : AnyTypeKind.ANY_OBJECT).stream().map(EntityTO::getKey).
                             collect(Collectors.toList());
 
+            choices.add("key");
+            choices.add(rule.getAny().equals(AnyTypeKind.USER.name()) ? "username" : "name");
             Collections.sort(choices);
             return choices;
         }
