@@ -38,6 +38,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -300,13 +301,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
     @Override
-    public int countExecutions(final String key) {
-        return reportExecDAO.count(key);
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
-    @Override
-    public List<ExecTO> listExecutions(
+    public Pair<Integer, List<ExecTO>> listExecutions(
             final String key, final int page, final int size, final List<OrderByClause> orderByClauses) {
 
         Report report = reportDAO.find(key);
@@ -314,7 +309,9 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             throw new NotFoundException("Report " + key);
         }
 
-        return CollectionUtils.collect(reportExecDAO.findAll(report, page, size, orderByClauses),
+        Integer count = reportExecDAO.count(key);
+
+        List<ExecTO> result = CollectionUtils.collect(reportExecDAO.findAll(report, page, size, orderByClauses),
                 new Transformer<ReportExec, ExecTO>() {
 
             @Override
@@ -322,6 +319,8 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
                 return binder.getExecTO(reportExec);
             }
         }, new ArrayList<ExecTO>());
+
+        return Pair.of(count, result);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")

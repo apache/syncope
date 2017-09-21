@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic;
 
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -31,9 +32,8 @@ public abstract class AbstractExecutableLogic<T extends AbstractBaseBean> extend
 
     public abstract ExecTO execute(String key, Date startAt, boolean dryRun);
 
-    public abstract int countExecutions(String key);
-
-    public abstract List<ExecTO> listExecutions(String key, int page, int size, List<OrderByClause> orderByClauses);
+    public abstract Pair<Integer, List<ExecTO>> listExecutions(
+            String key, int page, int size, List<OrderByClause> orderByClauses);
 
     public abstract List<ExecTO> listRecentExecutions(int max);
 

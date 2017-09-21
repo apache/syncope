@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.Date;
+import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -64,14 +65,11 @@ public class AccessTokenServiceImpl extends AbstractServiceImpl implements Acces
 
     @Override
     public PagedResult<AccessTokenTO> list(final AccessTokenQuery query) {
-        return buildPagedResult(
-                logic.list(
-                        query.getPage(),
-                        query.getSize(),
-                        getOrderByClauses(query.getOrderBy())),
+        Pair<Integer, List<AccessTokenTO>> result = logic.list(
                 query.getPage(),
                 query.getSize(),
-                logic.count());
+                getOrderByClauses(query.getOrderBy()));
+        return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
     }
 
     @Override
