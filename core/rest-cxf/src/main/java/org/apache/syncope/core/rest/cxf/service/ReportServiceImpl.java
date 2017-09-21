@@ -47,7 +47,7 @@ public class ReportServiceImpl extends AbstractExecutableService implements Repo
     @Override
     public Response create(final ReportTO reportTO) {
         ReportTO createdReportTO = logic.create(reportTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(createdReportTO.getKey())).build();
+        URI location = uriInfo.getAbsolutePathBuilder().path(createdReportTO.getKey()).build();
         return Response.created(location).
                 header(RESTHeaders.RESOURCE_KEY, createdReportTO.getKey()).
                 build();

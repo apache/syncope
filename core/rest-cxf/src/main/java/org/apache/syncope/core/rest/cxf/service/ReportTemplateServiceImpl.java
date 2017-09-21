@@ -45,7 +45,7 @@ public class ReportTemplateServiceImpl extends AbstractServiceImpl implements Re
     @Override
     public Response create(final ReportTemplateTO reportTemplateTO) {
         ReportTemplateTO created = logic.create(reportTemplateTO.getKey());
-        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getKey())).build();
+        URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
         return Response.created(location).
                 header(RESTHeaders.RESOURCE_KEY, created.getKey()).
                 build();

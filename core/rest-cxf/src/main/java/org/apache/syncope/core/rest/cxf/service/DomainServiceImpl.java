@@ -47,7 +47,7 @@ public class DomainServiceImpl extends AbstractServiceImpl implements DomainServ
     @Override
     public Response create(final DomainTO anyTypeTO) {
         DomainTO created = logic.create(anyTypeTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getKey())).build();
+        URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
         return Response.created(location).
                 header(RESTHeaders.RESOURCE_KEY, created.getKey()).
                 build();
