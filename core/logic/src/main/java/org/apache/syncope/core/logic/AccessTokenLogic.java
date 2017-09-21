@@ -103,18 +103,17 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ACCESS_TOKEN_LIST + "')")
-    public int count() {
-        return accessTokenDAO.count();
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.ACCESS_TOKEN_LIST + "')")
-    public List<AccessTokenTO> list(
+    public Pair<Integer, List<AccessTokenTO>> list(
             final int page,
             final int size,
             final List<OrderByClause> orderByClauses) {
 
-        return accessTokenDAO.findAll(page, size, orderByClauses).stream().
+        Integer count = accessTokenDAO.count();
+
+        List<AccessTokenTO> result = accessTokenDAO.findAll(page, size, orderByClauses).stream().
                 map(accessToken -> binder.getAccessTokenTO(accessToken)).collect(Collectors.toList());
+
+        return Pair.of(count, result);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ACCESS_TOKEN_DELETE + "')")

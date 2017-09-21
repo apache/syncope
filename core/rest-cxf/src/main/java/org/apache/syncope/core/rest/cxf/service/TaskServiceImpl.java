@@ -19,8 +19,10 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.net.URI;
+import java.util.List;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -68,25 +70,17 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
     @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractTaskTO> PagedResult<T> list(final TaskQuery query) {
-        return (PagedResult<T>) buildPagedResult(
-                logic.list(
-                        query.getType(),
-                        query.getResource(),
-                        query.getNotification(),
-                        query.getAnyTypeKind(),
-                        query.getEntityKey(),
-                        query.getPage(),
-                        query.getSize(),
-                        getOrderByClauses(query.getOrderBy()),
-                        query.getDetails()),
+        Pair<Integer, List<T>> result = logic.list(
+                query.getType(),
+                query.getResource(),
+                query.getNotification(),
+                query.getAnyTypeKind(),
+                query.getEntityKey(),
                 query.getPage(),
                 query.getSize(),
-                logic.count(
-                        query.getType(),
-                        query.getResource(),
-                        query.getNotification(),
-                        query.getAnyTypeKind(),
-                        query.getEntityKey()));
+                getOrderByClauses(query.getOrderBy()),
+                query.getDetails());
+        return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
     }
 
     @Override
