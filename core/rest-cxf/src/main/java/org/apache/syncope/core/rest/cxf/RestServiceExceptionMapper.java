@@ -206,11 +206,19 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         }
 
         if (iee != null) {
-            ClientExceptionType exType = iee.getEntityClassSimpleName().endsWith("Policy")
-                    ? ClientExceptionType.InvalidPolicy
-                    : iee.getEntityClassSimpleName().equals(PlainAttr.class.getSimpleName())
-                    ? ClientExceptionType.InvalidValues
-                    : ClientExceptionType.valueOf("Invalid" + iee.getEntityClassSimpleName());
+            ClientExceptionType exType;
+            if (iee.getEntityClassSimpleName().endsWith("Policy")) {
+                exType = ClientExceptionType.InvalidPolicy;
+            } else if (iee.getEntityClassSimpleName().equals(PlainAttr.class.getSimpleName())) {
+                exType = ClientExceptionType.InvalidValues;
+            } else {
+                try {
+                    exType = ClientExceptionType.valueOf("Invalid" + iee.getEntityClassSimpleName());
+                } catch (IllegalArgumentException e) {
+                    // ignore
+                    exType = ClientExceptionType.InvalidEntity;
+                }
+            }
 
             ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
             builder.header(RESTHeaders.ERROR_CODE, exType.name());
