@@ -56,7 +56,7 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
             throw new BadRequestException();
         }
 
-        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(createdTask.getKey())).build();
+        URI location = uriInfo.getAbsolutePathBuilder().path(createdTask.getKey()).build();
         return Response.created(location).
                 header(RESTHeaders.RESOURCE_KEY, createdTask.getKey()).
                 build();

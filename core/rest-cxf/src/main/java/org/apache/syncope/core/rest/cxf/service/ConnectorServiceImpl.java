@@ -39,7 +39,7 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     @Override
     public Response create(final ConnInstanceTO connInstanceTO) {
         ConnInstanceTO connInstance = logic.create(connInstanceTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(connInstance.getKey())).build();
+        URI location = uriInfo.getAbsolutePathBuilder().path(connInstance.getKey()).build();
         return Response.created(location).
                 header(RESTHeaders.RESOURCE_KEY, connInstance.getKey()).
                 build();
