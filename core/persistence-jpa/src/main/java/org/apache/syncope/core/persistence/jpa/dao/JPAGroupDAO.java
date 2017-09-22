@@ -276,7 +276,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     private SearchCond buildDynMembershipCond(final String baseCondFIQL, final Realm groupRealm) {
         AssignableCond cond = new AssignableCond();
         cond.setRealmFullPath(groupRealm.getFullPath());
-        cond.setFromGroup(false);
+        cond.setFromGroup(true);
 
         return SearchCond.getAndCond(SearchCond.getLeafCond(cond), SearchCondConverter.convert(baseCondFIQL));
     }

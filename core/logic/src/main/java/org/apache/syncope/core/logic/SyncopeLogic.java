@@ -361,9 +361,7 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public Pair<Integer, List<GroupTO>> searchAssignableGroups(
-            final String realm, final int page, final int size) {
-
+    public Pair<Integer, List<GroupTO>> searchAssignableGroups(final String realm, final int page, final int size) {
         AssignableCond assignableCond = new AssignableCond();
         assignableCond.setRealmFullPath(realm);
         SearchCond searchCond = SearchCond.getLeafCond(assignableCond);
