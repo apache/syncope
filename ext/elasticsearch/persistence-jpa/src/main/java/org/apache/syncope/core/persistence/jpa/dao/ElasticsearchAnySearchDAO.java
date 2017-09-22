@@ -299,14 +299,14 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
         DisMaxQueryBuilder builder = QueryBuilders.disMaxQuery();
         if (cond.isFromGroup()) {
+            for (Realm current : realmDAO.findDescendants(realm)) {
+                builder.add(QueryBuilders.termQuery("realm", current.getFullPath()));
+            }
+        } else {
             for (Realm current = realm; current.getParent() != null; current = current.getParent()) {
                 builder.add(QueryBuilders.termQuery("realm", current.getFullPath()));
             }
             builder.add(QueryBuilders.termQuery("realm", realmDAO.getRoot().getFullPath()));
-        } else {
-            for (Realm current : realmDAO.findDescendants(realm)) {
-                builder.add(QueryBuilders.termQuery("realm", current.getFullPath()));
-            }
         }
 
         return builder;

@@ -25,11 +25,11 @@ public class AssignableCond extends AbstractSearchCond {
     private String realmFullPath;
 
     /**
-     * Whether this condition should be evaluated from the assignable group (default) - or instead the
-     * assignee - point of view.
+     * Whether this condition should be evaluated from the assignable group's or instead the
+     * assignee's point of view (default).
      * The converter from FIQL will ignore this setting, which is meant for internal usage.
      */
-    private boolean fromGroup = true;
+    private boolean fromGroup = false;
 
     public String getRealmFullPath() {
         return realmFullPath;

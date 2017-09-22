@@ -608,15 +608,15 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE (");
         if (cond.isFromGroup()) {
-            for (Realm current = realm; current.getParent() != null; current = current.getParent()) {
-                query.append("realm_id=?").append(setParameter(parameters, current.getKey())).append(" OR ");
-            }
-            query.append("realm_id=?").append(setParameter(parameters, realmDAO.getRoot().getKey()));
-        } else {
             for (Realm current : realmDAO.findDescendants(realm)) {
                 query.append("realm_id=?").append(setParameter(parameters, current.getKey())).append(" OR ");
             }
             query.setLength(query.length() - 4);
+        } else {
+            for (Realm current = realm; current.getParent() != null; current = current.getParent()) {
+                query.append("realm_id=?").append(setParameter(parameters, current.getKey())).append(" OR ");
+            }
+            query.append("realm_id=?").append(setParameter(parameters, realmDAO.getRoot().getKey()));
         }
         query.append(')');
 
