@@ -46,8 +46,6 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
-import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
-import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
@@ -69,8 +67,11 @@ import org.identityconnectors.common.IOUtil;
 import org.quartz.impl.jdbcjobstore.Constants;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
 import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
+import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 
 public class JobManagerImpl implements JobManager, SyncopeLoader {
 
@@ -214,11 +215,17 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
         TaskJob job = createSpringBean(TaskJob.class);
         job.setTaskKey(task.getKey());
 
-        String jobDelegateClassName = task instanceof PullTask
-                ? PullJobDelegate.class.getName()
-                : task instanceof PushTask
-                        ? PushJobDelegate.class.getName()
-                        : task.getJobDelegateClassName();
+        String jobDelegateClassName = task.getJobDelegateClassName() == null
+                ? task instanceof PullTask
+                        ? PullJobDelegate.class.getName()
+                        : task instanceof PushTask
+                                ? PushJobDelegate.class.getName()
+                                : null
+                : task.getJobDelegateClassName();
+        if (jobDelegateClassName == null) {
+            throw new IllegalArgumentException("Task " + task
+                    + " does not provide any " + SchedTaskJobDelegate.class.getSimpleName());
+        }
 
         Map<String, Object> jobMap = new HashMap<>();
         jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());

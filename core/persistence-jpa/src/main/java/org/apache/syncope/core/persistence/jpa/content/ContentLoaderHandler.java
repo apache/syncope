@@ -189,7 +189,7 @@ public class ContentLoaderHandler extends DefaultHandler {
         try {
             jdbcTemplate.update(query.toString(), getParameters(qName, atts));
         } catch (DataAccessException e) {
-            LOG.error("While trying to perform {}", query, e);
+            LOG.error("While trying to perform {} with params {}", query, getParameters(qName, atts), e);
             if (!continueOnError) {
                 throw e;
             }

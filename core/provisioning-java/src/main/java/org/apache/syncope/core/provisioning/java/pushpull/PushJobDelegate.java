@@ -45,6 +45,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPushResultHand
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
+import org.apache.syncope.core.provisioning.api.pushpull.RealmPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
 import org.quartz.JobExecutionException;
@@ -57,27 +58,37 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
      * User DAO.
      */
     @Autowired
-    private UserDAO userDAO;
+    protected UserDAO userDAO;
 
     /**
      * Search DAO.
      */
     @Autowired
-    private AnySearchDAO searchDAO;
+    protected AnySearchDAO searchDAO;
 
     /**
      * Group DAO.
      */
     @Autowired
-    private GroupDAO groupDAO;
+    protected GroupDAO groupDAO;
 
     @Autowired
-    private AnyObjectDAO anyObjectDAO;
+    protected AnyObjectDAO anyObjectDAO;
 
     @Autowired
-    private RealmDAO realmDAO;
+    protected RealmDAO realmDAO;
 
-    private AnyDAO<?> getAnyDAO(final AnyTypeKind anyTypeKind) {
+    protected ProvisioningProfile<PushTask, PushActions> profile;
+
+    protected RealmPushResultHandler rhandler;
+
+    protected AnyObjectPushResultHandler ahandler;
+
+    protected UserPushResultHandler uhandler;
+
+    protected GroupPushResultHandler ghandler;
+
+    protected AnyDAO<?> getAnyDAO(final AnyTypeKind anyTypeKind) {
         AnyDAO<?> result;
         switch (anyTypeKind) {
             case USER:
@@ -96,7 +107,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         return result;
     }
 
-    private void doHandle(
+    protected void doHandle(
             final List<? extends Any<?>> anys,
             final SyncopePushResultHandler handler,
             final ExternalResource resource)
@@ -110,6 +121,38 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                 throw new JobExecutionException("While pushing " + any + " on " + resource, e);
             }
         }
+    }
+
+    protected RealmPushResultHandler buildRealmHandler() {
+        RealmPushResultHandler handler = (RealmPushResultHandler) ApplicationContextProvider.getBeanFactory().
+                createBean(DefaultRealmPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        handler.setProfile(profile);
+
+        return handler;
+    }
+
+    protected AnyObjectPushResultHandler buildAnyObjectHandler() {
+        AnyObjectPushResultHandler handler = (AnyObjectPushResultHandler) ApplicationContextProvider.getBeanFactory().
+                createBean(DefaultAnyObjectPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        handler.setProfile(profile);
+
+        return handler;
+    }
+
+    protected UserPushResultHandler buildUserHandler() {
+        UserPushResultHandler handler = (UserPushResultHandler) ApplicationContextProvider.getBeanFactory().
+                createBean(DefaultUserPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        handler.setProfile(profile);
+
+        return handler;
+    }
+
+    protected GroupPushResultHandler buildGroupHandler() {
+        GroupPushResultHandler handler = (GroupPushResultHandler) ApplicationContextProvider.getBeanFactory().
+                createBean(DefaultGroupPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        handler.setProfile(profile);
+
+        return handler;
     }
 
     @Override
@@ -133,7 +176,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
             }
         });
 
-        ProvisioningProfile<PushTask, PushActions> profile = new ProvisioningProfile<>(connector, pushTask);
+        profile = new ProvisioningProfile<>(connector, pushTask);
         profile.getActions().addAll(actions);
         profile.setDryRun(dryRun);
         profile.setResAct(null);
@@ -144,11 +187,9 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
             }
         }
 
-        // First OrgUnits...
+        // First realms...
         if (pushTask.getResource().getOrgUnit() != null) {
-            SyncopePushResultHandler rhandler = (SyncopePushResultHandler) ApplicationContextProvider.getBeanFactory().
-                    createBean(RealmPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
-            rhandler.setProfile(profile);
+            rhandler = buildRealmHandler();
 
             for (Realm realm : realmDAO.findDescendants(profile.getTask().getSourceRealm())) {
                 // Never push the root realm
@@ -164,19 +205,9 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         }
 
         // ...then provisions for any types
-        AnyObjectPushResultHandler ahandler = (AnyObjectPushResultHandler) ApplicationContextProvider.getBeanFactory().
-                createBean(AnyObjectPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
-        ahandler.setProfile(profile);
-
-        UserPushResultHandler uhandler =
-                (UserPushResultHandler) ApplicationContextProvider.getBeanFactory().
-                        createBean(UserPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
-        uhandler.setProfile(profile);
-
-        GroupPushResultHandler ghandler =
-                (GroupPushResultHandler) ApplicationContextProvider.getBeanFactory().
-                        createBean(GroupPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
-        ghandler.setProfile(profile);
+        ahandler = buildAnyObjectHandler();
+        uhandler = buildUserHandler();
+        ghandler = buildGroupHandler();
 
         for (Provision provision : pushTask.getResource().getProvisions()) {
             if (provision.getMapping() != null) {

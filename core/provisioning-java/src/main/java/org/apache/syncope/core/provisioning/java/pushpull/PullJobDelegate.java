@@ -49,6 +49,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
+import org.apache.syncope.core.provisioning.api.pushpull.RealmPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPullResultHandler;
@@ -60,25 +61,35 @@ import org.identityconnectors.framework.common.objects.SyncToken;
 public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> implements SyncopePullExecutor {
 
     @Autowired
-    private UserDAO userDAO;
+    protected UserDAO userDAO;
 
     @Autowired
-    private GroupDAO groupDAO;
+    protected GroupDAO groupDAO;
 
     @Autowired
-    private VirSchemaDAO virSchemaDAO;
+    protected VirSchemaDAO virSchemaDAO;
 
     @Autowired
-    private PullUtils pullUtils;
+    protected PullUtils pullUtils;
 
-    private final Map<ObjectClass, SyncToken> latestSyncTokens = new HashMap<>();
+    protected final Map<ObjectClass, SyncToken> latestSyncTokens = new HashMap<>();
+
+    protected ProvisioningProfile<PullTask, PullActions> profile;
+
+    protected RealmPullResultHandler rhandler;
+
+    protected AnyObjectPullResultHandler ahandler;
+
+    protected UserPullResultHandler uhandler;
+
+    protected GroupPullResultHandler ghandler;
 
     @Override
     public void setLatestSyncToken(final ObjectClass objectClass, final SyncToken latestSyncToken) {
         latestSyncTokens.put(objectClass, latestSyncToken);
     }
 
-    private void setGroupOwners(final GroupPullResultHandler ghandler) {
+    protected void setGroupOwners(final GroupPullResultHandler ghandler) {
         ghandler.getGroupOwnerMap().entrySet().stream().map(entry -> {
             Group group = groupDAO.find(entry.getKey());
             if (group == null) {
@@ -114,6 +125,42 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         });
     }
 
+    protected RealmPullResultHandler buildRealmHandler() {
+        RealmPullResultHandler handler = (RealmPullResultHandler) ApplicationContextProvider.getBeanFactory().
+                createBean(DefaultRealmPullResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        handler.setProfile(profile);
+        handler.setPullExecutor(this);
+
+        return handler;
+    }
+
+    protected AnyObjectPullResultHandler buildAnyObjectHandler() {
+        AnyObjectPullResultHandler handler = (AnyObjectPullResultHandler) ApplicationContextProvider.getBeanFactory().
+                createBean(DefaultAnyObjectPullResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        handler.setProfile(profile);
+        handler.setPullExecutor(this);
+
+        return handler;
+    }
+
+    protected UserPullResultHandler buildUserHandler() {
+        UserPullResultHandler handler = (UserPullResultHandler) ApplicationContextProvider.getBeanFactory().
+                createBean(DefaultUserPullResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        handler.setProfile(profile);
+        handler.setPullExecutor(this);
+
+        return handler;
+    }
+
+    protected GroupPullResultHandler buildGroupHandler() {
+        GroupPullResultHandler handler = (GroupPullResultHandler) ApplicationContextProvider.getBeanFactory().
+                createBean(DefaultGroupPullResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        handler.setProfile(profile);
+        handler.setPullExecutor(this);
+
+        return handler;
+    }
+
     @Override
     protected String doExecuteProvisioning(
             final PullTask pullTask,
@@ -135,7 +182,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             }
         });
 
-        ProvisioningProfile<PullTask, PullActions> profile = new ProvisioningProfile<>(connector, pullTask);
+        profile = new ProvisioningProfile<>(connector, pullTask);
         profile.getActions().addAll(actions);
         profile.setDryRun(dryRun);
         profile.setResAct(getPullPolicySpec(pullTask).getConflictResolutionAction());
@@ -148,16 +195,13 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             }
         }
 
-        // First OrgUnits...
+        // First realms...
         if (pullTask.getResource().getOrgUnit() != null) {
             OrgUnit orgUnit = pullTask.getResource().getOrgUnit();
             OperationOptions options = MappingUtils.buildOperationOptions(
                     MappingUtils.getPullItems(orgUnit.getItems()).iterator());
 
-            SyncopePullResultHandler rhandler = (SyncopePullResultHandler) ApplicationContextProvider.getBeanFactory().
-                    createBean(RealmPullResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
-            rhandler.setProfile(profile);
-            rhandler.setPullExecutor(this);
+            rhandler = buildRealmHandler();
 
             try {
                 switch (pullTask.getPullMode()) {
@@ -202,20 +246,9 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         }
 
         // ...then provisions for any types
-        AnyObjectPullResultHandler ahandler = (AnyObjectPullResultHandler) ApplicationContextProvider.getBeanFactory().
-                createBean(AnyObjectPullResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
-        ahandler.setProfile(profile);
-        ahandler.setPullExecutor(this);
-
-        UserPullResultHandler uhandler = (UserPullResultHandler) ApplicationContextProvider.getBeanFactory().
-                createBean(UserPullResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
-        uhandler.setProfile(profile);
-        uhandler.setPullExecutor(this);
-
-        GroupPullResultHandler ghandler = (GroupPullResultHandler) ApplicationContextProvider.getBeanFactory().
-                createBean(GroupPullResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
-        ghandler.setProfile(profile);
-        ghandler.setPullExecutor(this);
+        ahandler = buildAnyObjectHandler();
+        uhandler = buildUserHandler();
+        ghandler = buildGroupHandler();
 
         for (Provision provision : pullTask.getResource().getProvisions()) {
             if (provision.getMapping() != null) {
@@ -303,7 +336,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         return result;
     }
 
-    private PullPolicySpec getPullPolicySpec(final ProvisioningTask task) {
+    protected PullPolicySpec getPullPolicySpec(final ProvisioningTask task) {
         PullPolicySpec pullPolicySpec;
 
         if (task instanceof PullTask) {

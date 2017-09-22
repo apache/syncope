@@ -18,53 +18,53 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPushResultHandler;
+import org.apache.syncope.core.provisioning.api.pushpull.GroupPushResultHandler;
 
-public class AnyObjectPushResultHandlerImpl extends AbstractPushResultHandler implements AnyObjectPushResultHandler {
+public class DefaultGroupPushResultHandler extends AbstractPushResultHandler implements GroupPushResultHandler {
 
     @Override
     protected AnyUtils getAnyUtils() {
-        return anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
+        return anyUtilsFactory.getInstance(AnyTypeKind.GROUP);
     }
 
     @Override
     protected String getName(final Any<?> any) {
-        return StringUtils.EMPTY;
+        return Group.class.cast(any).getName();
     }
 
     @Override
     protected Any<?> getAny(final String key) {
         try {
-            return anyObjectDAO.authFind(key);
+            return groupDAO.authFind(key);
         } catch (Exception e) {
-            LOG.warn("Error retrieving anyObject {}", key, e);
+            LOG.warn("Error retrieving group {}", key, e);
             return null;
         }
     }
 
     @Override
     protected AnyTO getAnyTO(final String key) {
-        return anyObjectDataBinder.getAnyObjectTO(key);
+        return groupDataBinder.getGroupTO(key);
     }
 
     @Override
     protected AnyPatch newPatch(final String key) {
-        AnyObjectPatch patch = new AnyObjectPatch();
+        GroupPatch patch = new GroupPatch();
         patch.setKey(key);
         return patch;
     }
 
     @Override
-    protected WorkflowResult<? extends AnyObjectPatch> update(final AnyPatch patch) {
-        return awfAdapter.update((AnyObjectPatch) patch);
+    protected WorkflowResult<? extends AnyPatch> update(final AnyPatch patch) {
+        return gwfAdapter.update((GroupPatch) patch);
     }
 
 }
