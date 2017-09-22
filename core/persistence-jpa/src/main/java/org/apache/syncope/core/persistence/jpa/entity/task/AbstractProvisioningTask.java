@@ -80,16 +80,6 @@ public abstract class AbstractProvisioningTask extends JPASchedTask implements P
     protected MatchingRule matchingRule;
 
     @Override
-    public String getJobDelegateClassName() {
-        return null;
-    }
-
-    @Override
-    public void setJobDelegateClassName(final String jobDelegateClassName) {
-        // fixed, cannot be changed
-    }
-
-    @Override
     public ExternalResource getResource() {
         return resource;
     }

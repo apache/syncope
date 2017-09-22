@@ -41,7 +41,7 @@ import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class GroupPullResultHandlerImpl extends AbstractPullResultHandler implements GroupPullResultHandler {
+public class DefaultGroupPullResultHandler extends AbstractPullResultHandler implements GroupPullResultHandler {
 
     @Autowired
     private GroupProvisioningManager groupProvisioningManager;

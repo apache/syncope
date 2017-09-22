@@ -35,7 +35,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
 
-public class UserPushResultHandlerImpl extends AbstractPushResultHandler implements UserPushResultHandler {
+public class DefaultUserPushResultHandler extends AbstractPushResultHandler implements UserPushResultHandler {
 
     @Override
     protected AnyUtils getAnyUtils() {
