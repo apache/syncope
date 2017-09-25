@@ -26,13 +26,14 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 
 @XmlType
 // Reporting here only classes used via PagedResult
-@XmlSeeAlso({ AbstractTaskTO.class, ReportTO.class, GroupTO.class, UserTO.class })
+@XmlSeeAlso({ AbstractTaskTO.class, ReportTO.class, GroupTO.class, UserTO.class, AnyObjectTO.class })
 public abstract class AbstractBaseBean implements Serializable {
 
     private static final long serialVersionUID = 3119542005279892164L;

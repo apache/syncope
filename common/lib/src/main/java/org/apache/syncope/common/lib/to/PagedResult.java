@@ -31,7 +31,7 @@ import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "pagedResult")
 @XmlType
-public class PagedResult<T extends AbstractBaseBean> extends AbstractBaseBean {
+public class PagedResult<T extends EntityTO> extends AbstractBaseBean {
 
     private static final long serialVersionUID = 3472875885259250934L;
 

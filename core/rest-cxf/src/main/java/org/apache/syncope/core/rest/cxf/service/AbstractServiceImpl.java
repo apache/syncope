@@ -34,8 +34,8 @@ import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
 import org.apache.cxf.jaxrs.ext.search.SearchContext;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -199,7 +199,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
      * @param totalCount total result size (not considering pagination)
      * @return paged result
      */
-    protected <T extends AbstractBaseBean> PagedResult<T> buildPagedResult(
+    protected <T extends EntityTO> PagedResult<T> buildPagedResult(
             final List<T> list, final int page, final int size, final int totalCount) {
 
         PagedResult<T> result = new PagedResult<>();
