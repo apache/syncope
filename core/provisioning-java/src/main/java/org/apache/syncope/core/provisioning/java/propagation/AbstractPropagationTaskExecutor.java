@@ -513,12 +513,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             Collection<PropagationTask> tasks, PropagationReporter reporter, boolean nullPriorityAsync);
 
     @Override
-    public PropagationReporter execute(
-            final Collection<PropagationTask> tasks,
-            final boolean nullPriorityAsync) {
-
-        PropagationReporter reporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
+    public PropagationReporter execute(final Collection<PropagationTask> tasks, final boolean nullPriorityAsync) {
+        PropagationReporter reporter = new DefaultPropagationReporter();
         try {
             doExecute(tasks, reporter, nullPriorityAsync);
         } catch (PropagationException e) {

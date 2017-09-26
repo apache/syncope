@@ -108,9 +108,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     private ResourceDataBinder binder;
 
     @Autowired
-    private ConnObjectUtils connObjectUtils;
-
-    @Autowired
     private MappingManager mappingManager;
 
     @Autowired
@@ -351,7 +348,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             attributes.add(connectorObject.getName());
         }
 
-        return connObjectUtils.getConnObjectTO(connectorObject);
+        return ConnObjectUtils.getConnObjectTO(connectorObject);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_LIST_CONNOBJECT + "')")
@@ -398,7 +395,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
             @Override
             public boolean handle(final ConnectorObject connectorObject) {
-                connObjects.add(connObjectUtils.getConnObjectTO(connectorObject));
+                connObjects.add(ConnObjectUtils.getConnObjectTO(connectorObject));
                 // safety protection against uncontrolled result size
                 count++;
                 return count < size;
