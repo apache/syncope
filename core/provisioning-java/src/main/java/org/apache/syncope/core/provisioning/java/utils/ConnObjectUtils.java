@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.AnyPatch;
@@ -104,6 +105,51 @@ public class ConnObjectUtils {
         }
 
         return result.toString();
+    }
+
+    /**
+     * Builds {@link ConnObjectTO} out of {@link ConnectorObject}.
+     *
+     * @param connObject connector object.
+     * @return transfer object
+     */
+    public static ConnObjectTO getConnObjectTO(final ConnectorObject connObject) {
+        return connObject == null ? new ConnObjectTO() : getConnObjectTO(connObject.getAttributes());
+    }
+
+    /**
+     * Builds {@link ConnObjectTO} out of a collection of {@link Attribute} instances.
+     *
+     * @param attrs attributes
+     * @return transfer object
+     */
+    public static ConnObjectTO getConnObjectTO(final Set<Attribute> attrs) {
+        final ConnObjectTO connObjectTO = new ConnObjectTO();
+
+        if (attrs != null) {
+            for (Attribute attr : attrs) {
+                AttrTO attrTO = new AttrTO();
+                attrTO.setSchema(attr.getName());
+
+                if (attr.getValue() != null) {
+                    for (Object value : attr.getValue()) {
+                        if (value != null) {
+                            if (value instanceof GuardedString || value instanceof GuardedByteArray) {
+                                attrTO.getValues().add(getPassword(value));
+                            } else if (value instanceof byte[]) {
+                                attrTO.getValues().add(Base64.encode((byte[]) value));
+                            } else {
+                                attrTO.getValues().add(value.toString());
+                            }
+                        }
+                    }
+                }
+
+                connObjectTO.getAttrs().add(attrTO);
+            }
+        }
+
+        return connObjectTO;
     }
 
     /**
@@ -275,40 +321,5 @@ public class ConnObjectUtils {
         templateUtils.apply(anyTO, pullTask.getTemplate(provision.getAnyType()));
 
         return anyTO;
-    }
-
-    /**
-     * Get connector object TO from a connector object.
-     *
-     * @param connObject connector object.
-     * @return connector object TO.
-     */
-    public ConnObjectTO getConnObjectTO(final ConnectorObject connObject) {
-        final ConnObjectTO connObjectTO = new ConnObjectTO();
-
-        if (connObject != null) {
-            for (Attribute attr : connObject.getAttributes()) {
-                AttrTO attrTO = new AttrTO();
-                attrTO.setSchema(attr.getName());
-
-                if (attr.getValue() != null) {
-                    for (Object value : attr.getValue()) {
-                        if (value != null) {
-                            if (value instanceof GuardedString || value instanceof GuardedByteArray) {
-                                attrTO.getValues().add(getPassword(value));
-                            } else if (value instanceof byte[]) {
-                                attrTO.getValues().add(Base64.encode((byte[]) value));
-                            } else {
-                                attrTO.getValues().add(value.toString());
-                            }
-                        }
-                    }
-                }
-
-                connObjectTO.getAttrs().add(attrTO);
-            }
-        }
-
-        return connObjectTO;
     }
 }
