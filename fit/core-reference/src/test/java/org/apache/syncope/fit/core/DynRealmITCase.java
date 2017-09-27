@@ -49,6 +49,7 @@ import org.apache.syncope.common.rest.api.service.DynRealmService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
+import org.apache.syncope.fit.ElasticsearchDetector;
 import org.junit.Test;
 
 public class DynRealmITCase extends AbstractITCase {
@@ -139,6 +140,14 @@ public class DynRealmITCase extends AbstractITCase {
             group = createGroup(group).getEntity();
             assertNotNull(group);
             final String groupKey = group.getKey();
+
+            if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
 
             // 5. verify that the new user and group are found when searching by dynamic realm
             PagedResult<UserTO> matchingUsers = userService.search(new AnyQuery.Builder().realm("/").fiql(
