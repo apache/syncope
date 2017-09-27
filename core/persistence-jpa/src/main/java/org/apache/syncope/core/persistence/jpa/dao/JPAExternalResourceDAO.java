@@ -326,11 +326,13 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
         }
 
         for (Provision provision : resource.getProvisions()) {
-            for (MappingItem item : provision.getMapping().getItems()) {
-                item.setMapping(null);
+            if (provision.getMapping() != null) {
+                for (MappingItem item : provision.getMapping().getItems()) {
+                    item.setMapping(null);
+                }
+                provision.getMapping().getItems().clear();
+                provision.setMapping(null);
             }
-            provision.getMapping().getItems().clear();
-            provision.setMapping(null);
             provision.setResource(null);
 
             for (VirSchema schema : virSchemaDAO().findByProvision(provision)) {
