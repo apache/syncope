@@ -68,7 +68,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             final PropagationTask task, final PropagationReporter reporter) {
 
         PropagationTaskCallable callable = (PropagationTaskCallable) ApplicationContextProvider.getBeanFactory().
-                createBean(PropagationTaskCallableImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                createBean(DefaultPropagationTaskCallable.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
         callable.setExecutor(this);
         callable.setTask(task);
         callable.setReporter(reporter);

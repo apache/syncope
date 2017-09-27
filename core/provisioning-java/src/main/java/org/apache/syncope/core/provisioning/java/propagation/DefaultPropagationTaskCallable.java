@@ -36,23 +36,23 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(rollbackFor = { Throwable.class })
-public class PropagationTaskCallableImpl implements PropagationTaskCallable {
+public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PropagationTaskCallable.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(PropagationTaskCallable.class);
 
-    private final String domain;
+    protected final String domain;
 
-    private final String username;
+    protected final String username;
 
-    private final Collection<? extends GrantedAuthority> authorities;
+    protected final Collection<? extends GrantedAuthority> authorities;
 
-    private AbstractPropagationTaskExecutor executor;
+    protected AbstractPropagationTaskExecutor executor;
 
-    private PropagationTask task;
+    protected PropagationTask task;
 
-    private PropagationReporter reporter;
+    protected PropagationReporter reporter;
 
-    public PropagationTaskCallableImpl() {
+    public DefaultPropagationTaskCallable() {
         SecurityContext ctx = SecurityContextHolder.getContext();
         domain = AuthContextUtils.getDomain();
         username = ctx.getAuthentication().getName();

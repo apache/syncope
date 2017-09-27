@@ -89,7 +89,6 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
      * The resource type is identified by the associated connector.
      */
     @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE })
-    @NotNull
     private JPAConnInstance connector;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, mappedBy = "resource")
