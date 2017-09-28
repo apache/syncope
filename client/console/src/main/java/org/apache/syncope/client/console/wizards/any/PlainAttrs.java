@@ -374,6 +374,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                                 "panel",
                                 attrTO.getSchema(),
                                 FieldPanel.class.cast(panel));
+                        // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
+                        ((MultiFieldPanel) panel).setReadOnly(availableSchemas.get(attrTO.getSchema()).isReadonly());
                     }
                     item.add(panel);
 

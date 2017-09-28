@@ -193,4 +193,9 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
     protected void clearInput(final Panel panel) {
         // do nothing by default
     }
+
+    public AbstractFieldPanel<List<INNER>> setReadOnly(final boolean readOnly) {
+        container.setEnabled(!readOnly);
+        return this;
+    }
 }
