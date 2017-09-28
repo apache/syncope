@@ -104,6 +104,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     private String useGZIPCompression;
 
+    private Integer maxFileSizeMB;
+
     private List<String> domains;
 
     private Map<String, Class<? extends BasePage>> pageClasses;
@@ -153,6 +155,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         Args.notNull(rootPath, "<rootPath>");
         useGZIPCompression = props.getProperty("useGZIPCompression");
         Args.notNull(useGZIPCompression, "<useGZIPCompression>");
+        maxFileSizeMB = Integer.valueOf(props.getProperty("maxFileSizeMB", "4"));
 
         String csrf = props.getProperty("csrf");
 
@@ -278,6 +281,10 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     public String getReconciliationReportKey() {
         return reconciliationReportKey;
+    }
+
+    public Integer getMaxFileSizeMB() {
+        return maxFileSizeMB;
     }
 
     public SyncopeClientFactoryBean newClientFactory() {

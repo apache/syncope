@@ -19,37 +19,37 @@
 
 'use strict';
 angular.module('self')
-        .directive('fileInput', function () {
-          return {
-            restrict: 'A',
-            link: function ($scope, element, attrs) {
-              var previewImgComposite;
-              if ($scope.previewImg) {
-                previewImgComposite = "data:image/png;base64," + $scope.previewImg;
-              } else
-                previewImgComposite = null;
-              $(element).fileinput({
-                showUpload: false,
-                showCaption: false,
-                showCancel: false,
-                showClose: true,
-                showRemove: false,
-                fileActionSettings: {'showZoom': false, indicatorNew: '', 'removeTitle': 'boh'},
-                removeClass: "btn btn-default",
-                browseClass: "btn btn-default",
-                browseLabel: '',
-                dragIcon: '',
-                browseIcon: '',
-                initialPreviewAsData: true,
-                overwriteInitial: true,
+        .directive('fileInput', ['$rootScope', function ($rootScope) {
+            return {
+              restrict: 'A',
+              link: function ($scope, element, attrs) {
+                var previewImgComposite;
+                if ($scope.previewImg) {
+                  previewImgComposite = "data:image/png;base64," + $scope.previewImg;
+                } else
+                  previewImgComposite = null;
+                $(element).fileinput({
+                  showUpload: false,
+                  showCaption: false,
+                  showCancel: false,
+                  showClose: true,
+                  showRemove: false,
+                  fileActionSettings: {'showZoom': false, indicatorNew: '', 'removeTitle': 'boh'},
+                  removeClass: "btn btn-default",
+                  browseClass: "btn btn-default",
+                  browseLabel: '',
+                  dragIcon: '',
+                  browseIcon: '',
+                  initialPreviewAsData: true,
+                  overwriteInitial: true,
 //                maxFileCount: 1,
 //                'previewFileType': 'any',
-                initialPreview: [
-                  previewImgComposite
-                ],
-                'maxFileSize': 5120
-              });
-            }
-          };
-        });
+                  initialPreview: [
+                    previewImgComposite
+                  ],
+                  'maxFileSize': parseInt($rootScope.maxFileSizeMB) * 1000
+                });
+              }
+            };
+          }]);
         
