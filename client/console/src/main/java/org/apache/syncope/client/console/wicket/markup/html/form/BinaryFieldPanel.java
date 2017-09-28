@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.HttpResourceStream;
@@ -91,7 +92,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
 
         uploadForm = new StatelessForm<>("uploadForm");
         uploadForm.setMultiPart(true);
-        uploadForm.setMaxSize(Bytes.megabytes(4));
+        uploadForm.setMaxSize(Bytes.megabytes(SyncopeConsoleApplication.get().getMaxFileSizeMB()));
         add(uploadForm);
 
         container = new WebMarkupContainer("previewContainer") {

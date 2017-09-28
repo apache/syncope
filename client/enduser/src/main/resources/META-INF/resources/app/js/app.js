@@ -359,6 +359,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
       $rootScope.pwdResetRequiringSecurityQuestions = false;
       $rootScope.captchaEnabled = false;
       $rootScope.validationEnabled = true;
+      $rootScope.maxFileSizeMB = 4;
       $rootScope.saml2idps = {
         available: [],
         selected: {}
@@ -371,6 +372,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
                 $rootScope.version = response.version;
                 $rootScope.pwdResetRequiringSecurityQuestions = response.pwdResetRequiringSecurityQuestions;
                 $rootScope.captchaEnabled = response.captchaEnabled;
+                $rootScope.maxFileSizeMB = response.maxFileSizeMB;
                 /* 
                  * USER form customization JSON
                  */
@@ -399,12 +401,15 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
       };
       $rootScope.saml2spExtAvailable = function () {
         return $rootScope.saml2idps.available.length > 0;
-      }
+      };
       $rootScope.saml2login = function () {
         window.location.href = '../saml2sp/login?idp=' + $rootScope.saml2idps.selected.entityID;
-      }
+      };
       $rootScope.getVersion = function () {
         return $rootScope.version;
+      };
+      $rootScope.getMaxFileSizeMB = function () {
+        return $rootScope.maxFileSizeMB;
       };
       /* 
        * USER Attributes sorting strategies
