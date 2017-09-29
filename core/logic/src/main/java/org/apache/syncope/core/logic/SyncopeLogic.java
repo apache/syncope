@@ -74,6 +74,7 @@ import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
@@ -151,6 +152,9 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
     private ConnIdBundleManager bundleManager;
 
     @Autowired
+    private PropagationTaskExecutor propagationTaskExecutor;
+
+    @Autowired
     private AnyObjectWorkflowAdapter awfAdapter;
 
     @Autowired
@@ -205,6 +209,7 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
                             forEach(location -> PLATFORM_INFO.getConnIdLocations().add(location.toASCIIString()));
                 }
 
+                PLATFORM_INFO.setPropagationTaskExecutor(AopUtils.getTargetClass(propagationTaskExecutor).getName());
                 PLATFORM_INFO.setAnyObjectWorkflowAdapter(AopUtils.getTargetClass(awfAdapter).getName());
                 PLATFORM_INFO.setUserWorkflowAdapter(AopUtils.getTargetClass(uwfAdapter).getName());
                 PLATFORM_INFO.setGroupWorkflowAdapter(AopUtils.getTargetClass(gwfAdapter).getName());
