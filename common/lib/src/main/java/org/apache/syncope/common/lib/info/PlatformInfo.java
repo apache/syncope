@@ -47,6 +47,8 @@ public class PlatformInfo extends AbstractBaseBean {
 
     private final Set<String> connIdLocations = new HashSet<>();
 
+    private String propagationTaskExecutor;
+
     private String anyObjectWorkflowAdapter;
 
     private boolean anyObjectWorkflowAdapterSupportEdit;
@@ -136,6 +138,10 @@ public class PlatformInfo extends AbstractBaseBean {
     @JsonProperty("connIdLocations")
     public Set<String> getConnIdLocations() {
         return connIdLocations;
+    }
+
+    public String getPropagationTaskExecutor() {
+        return propagationTaskExecutor;
     }
 
     public String getAnyObjectWorkflowAdapter() {
@@ -352,6 +358,10 @@ public class PlatformInfo extends AbstractBaseBean {
 
     public void setPwdResetRequiringSecurityQuestions(final boolean pwdResetRequiringSecurityQuestions) {
         this.pwdResetRequiringSecurityQuestions = pwdResetRequiringSecurityQuestions;
+    }
+
+    public void setPropagationTaskExecutor(final String propagationTaskExecutor) {
+        this.propagationTaskExecutor = propagationTaskExecutor;
     }
 
     public void setAnyObjectWorkflowAdapter(final String anyObjectWorkflowAdapter) {
