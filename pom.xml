@@ -392,10 +392,10 @@ under the License.
     <slf4j.version>1.7.25</slf4j.version>
     <opensaml.version>3.3.0</opensaml.version>
 
-    <elasticsearch.version>5.6.0</elasticsearch.version>
+    <elasticsearch.version>5.6.2</elasticsearch.version>
 
     <log4j.version>2.9.1</log4j.version>
-    <disruptor.version>3.3.6</disruptor.version>
+    <disruptor.version>3.3.7</disruptor.version>
 
     <commons-io.version>2.5</commons-io.version>
     <commons-email.version>1.5</commons-email.version>
@@ -954,7 +954,7 @@ under the License.
       <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
-        <version>1.8.10</version>
+        <version>1.8.11</version>
       </dependency>
       
       <dependency>
@@ -1979,7 +1979,7 @@ under the License.
         <plugin>
           <groupId>com.github.eirslett</groupId>
           <artifactId>frontend-maven-plugin</artifactId>
-          <version>1.5</version>
+          <version>1.6</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -2272,7 +2272,7 @@ under the License.
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/service/local/repositories/releases/archive/org/opensaml/opensaml-saml-api/3.3.0/opensaml-saml-api-3.3.0-javadoc.jar/!/index.html</link>
             <link>https://build.shibboleth.net/nexus/service/local/repositories/releases/archive/org/opensaml/opensaml-core/3.3.0/opensaml-core-3.3.0-javadoc.jar/!/index.html</link>
-            <link>https://www.javadoc.io/doc/org.elasticsearch/elasticsearch/5.6.0</link>
+            <link>https://www.javadoc.io/doc/org.elasticsearch/elasticsearch/5.6.2</link>
           </links>
         </configuration>
         <reportSets>
@@ -2351,7 +2351,7 @@ under the License.
           <plugin>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctor-maven-plugin</artifactId>
-            <version>1.5.5</version>
+            <version>1.5.6</version>
             <dependencies>
               <dependency>
                 <groupId>org.asciidoctor</groupId>
