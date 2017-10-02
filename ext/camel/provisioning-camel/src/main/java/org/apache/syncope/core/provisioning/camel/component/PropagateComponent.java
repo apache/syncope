@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.camel.component;
 import java.util.Map;
 
 import org.apache.camel.Endpoint;
-import org.apache.camel.impl.UriEndpointComponent;
+import org.apache.camel.impl.DefaultComponent;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -31,7 +31,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class PropagateComponent extends UriEndpointComponent {
+public class PropagateComponent extends DefaultComponent {
 
     @Autowired
     protected PropagationManager propagationManager;
@@ -53,10 +53,6 @@ public class PropagateComponent extends UriEndpointComponent {
 
     @Autowired
     protected UserWorkflowAdapter uwfAdapter;
-
-    public PropagateComponent() {
-        super(PropagateEndpoint.class);
-    }
 
     @Override
     protected Endpoint createEndpoint(final String uri, final String remaining,
