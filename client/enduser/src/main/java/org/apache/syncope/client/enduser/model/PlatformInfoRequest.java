@@ -35,7 +35,7 @@ public class PlatformInfoRequest implements Serializable {
 
     private boolean captchaEnabled;
 
-    private int maxFileSizeMB;
+    private int maxUploadFileSizeMB;
 
     private Map<String, CustomAttributesInfo> customForm;
 
@@ -66,8 +66,8 @@ public class PlatformInfoRequest implements Serializable {
         this.version = version;
     }
 
-     public int getMaxFileSizeMB() {
-        return maxFileSizeMB;
+     public int getMaxUploadFileSizeMB() {
+        return maxUploadFileSizeMB;
     }
     
     public void setSelfRegAllowed(final boolean selfRegAllowed) {
@@ -86,8 +86,8 @@ public class PlatformInfoRequest implements Serializable {
         this.captchaEnabled = captchaEnabled;
     }
 
-    public void setMaxFileSizeMB(final int maxFileSizeMB) {
-        this.maxFileSizeMB = maxFileSizeMB;
+    public void setMaxUploadFileSizeMB(final int maxUploadFileSizeMB) {
+        this.maxUploadFileSizeMB = maxUploadFileSizeMB;
     }
 
     public Map<String, CustomAttributesInfo> getCustomForm() {
