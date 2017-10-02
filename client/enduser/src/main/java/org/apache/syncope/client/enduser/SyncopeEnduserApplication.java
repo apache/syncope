@@ -83,7 +83,7 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
     private boolean xsrfEnabled;
 
-    private Integer maxFileSizeMB;
+    private Integer maxUploadFileSizeMB;
     
     private SyncopeClientFactoryBean clientFactory;
 
@@ -122,7 +122,7 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
         Args.notNull(rootPath, "<rootPath>");
         String useGZIPCompression = props.getProperty("useGZIPCompression");
         Args.notNull(useGZIPCompression, "<useGZIPCompression>");
-        maxFileSizeMB = Integer.valueOf(props.getProperty("maxFileSizeMB", "4"));
+        maxUploadFileSizeMB = Integer.valueOf(props.getProperty("maxUploadFileSizeMB"));
 
         clientFactory = new SyncopeClientFactoryBean().
                 setAddress(scheme + "://" + host + ":" + port + "/" + rootPath).
@@ -281,8 +281,8 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
         return xsrfEnabled;
     }
 
-    public Integer getMaxFileSizeMB() {
-        return maxFileSizeMB;
+    public Integer getMaxUploadFileSizeMB() {
+        return maxUploadFileSizeMB;
     }
     
     public Map<String, CustomAttributesInfo> getCustomForm() {

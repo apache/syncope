@@ -359,7 +359,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
       $rootScope.pwdResetRequiringSecurityQuestions = false;
       $rootScope.captchaEnabled = false;
       $rootScope.validationEnabled = true;
-      $rootScope.maxFileSizeMB = 4;
+      $rootScope.maxUploadFileSizeMB = 5;
       $rootScope.saml2idps = {
         available: [],
         selected: {}
@@ -372,7 +372,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
                 $rootScope.version = response.version;
                 $rootScope.pwdResetRequiringSecurityQuestions = response.pwdResetRequiringSecurityQuestions;
                 $rootScope.captchaEnabled = response.captchaEnabled;
-                $rootScope.maxFileSizeMB = response.maxFileSizeMB;
+                $rootScope.maxUploadFileSizeMB = response.maxUploadFileSizeMB;
                 /* 
                  * USER form customization JSON
                  */
@@ -408,8 +408,8 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
       $rootScope.getVersion = function () {
         return $rootScope.version;
       };
-      $rootScope.getMaxFileSizeMB = function () {
-        return $rootScope.maxFileSizeMB;
+      $rootScope.getMaxUploadFileSizeMB = function () {
+        return $rootScope.maxUploadFileSizeMB;
       };
       /* 
        * USER Attributes sorting strategies

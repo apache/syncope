@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
@@ -69,7 +70,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
                 Model.<String>of(),
                 title == null ? Model.<String>of() : Model.of(title),
                 new PopoverConfig().withHtml(html).withHoverTrigger().withPlacement(
-                index.getObject() != null && index.getObject() == 0
+                        index.getObject() != null && index.getObject() == 0
                         ? TooltipConfig.Placement.bottom
                         : this instanceof AjaxCheckBoxPanel
                                 ? TooltipConfig.Placement.right
@@ -204,5 +205,11 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
         panel.setModelObject(null);
         panel.addLabel();
         return panel;
+    }
+
+    protected PageReference getPageReference() {
+        // SYNCOPE-1213
+        // default implementation does not requier to pass page reference, override this method of want otherwise
+        return null;
     }
 }
