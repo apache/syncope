@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RealmITCase extends AbstractITCase {
 
@@ -58,7 +58,7 @@ public class RealmITCase extends AbstractITCase {
 
         try {
             realmService.list("a name");
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPath, e.getType());
         }
@@ -105,7 +105,7 @@ public class RealmITCase extends AbstractITCase {
         // 4. create under invalid path
         try {
             realmService.create("a name", realm);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPath, e.getType());
         }
@@ -113,7 +113,7 @@ public class RealmITCase extends AbstractITCase {
         // 5. attempt to create duplicate
         try {
             realmService.create("/odd", realm);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.EntityExists, e.getType());
         }
@@ -168,7 +168,7 @@ public class RealmITCase extends AbstractITCase {
 
         try {
             realmService.list(actual.getFullPath());
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
@@ -178,7 +178,7 @@ public class RealmITCase extends AbstractITCase {
     public void deleteNonEmpty() {
         try {
             realmService.delete("/even/two");
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.AssociatedAnys, e.getType());
             assertEquals(3, e.getElements().size());

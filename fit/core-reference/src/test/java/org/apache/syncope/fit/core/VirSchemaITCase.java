@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.security.AccessControlException;
 import java.util.List;
@@ -37,7 +37,7 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class VirSchemaITCase extends AbstractITCase {
 
@@ -79,7 +79,7 @@ public class VirSchemaITCase extends AbstractITCase {
 
         try {
             schemaService.read(SchemaType.VIRTUAL, schema.getKey());
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
@@ -95,7 +95,7 @@ public class VirSchemaITCase extends AbstractITCase {
         SchemaService unauthenticated = clientFactory.create().getService(SchemaService.class);
         try {
             unauthenticated.list(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build());
-            fail();
+            fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
@@ -113,7 +113,7 @@ public class VirSchemaITCase extends AbstractITCase {
 
         try {
             createSchema(SchemaType.VIRTUAL, actual);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.CONFLICT, e.getType().getResponseStatus());
             assertEquals(ClientExceptionType.EntityExists, e.getType());
@@ -122,7 +122,7 @@ public class VirSchemaITCase extends AbstractITCase {
         actual.setKey(null);
         try {
             createSchema(SchemaType.VIRTUAL, actual);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.BAD_REQUEST, e.getType().getResponseStatus());
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
@@ -144,7 +144,7 @@ public class VirSchemaITCase extends AbstractITCase {
 
         try {
             createSchema(SchemaType.VIRTUAL, schema);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidVirSchema, e.getType());
 

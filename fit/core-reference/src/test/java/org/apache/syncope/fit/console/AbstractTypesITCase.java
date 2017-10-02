@@ -22,7 +22,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.pages.Types;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
 import org.apache.wicket.util.tester.FormTester;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
 
@@ -35,7 +35,7 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
     protected static final String DATATABLE_PATH =
             "body:content:tabbedPanel:panel:container:content:searchContainer:resultTable";
 
-    @Before
+    @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
     }

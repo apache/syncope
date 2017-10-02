@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,9 +35,9 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -56,7 +56,7 @@ public class MultitenancyTest extends AbstractTest {
     @Autowired
     private UserDAO userDAO;
 
-    @BeforeClass
+    @BeforeAll
     public static void setAuthContext() {
         List<GrantedAuthority> authorities = StandardEntitlement.values().stream().
                 map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
@@ -69,7 +69,7 @@ public class MultitenancyTest extends AbstractTest {
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
-    @AfterClass
+    @AfterAll
     public static void unsetAuthContext() {
         SecurityContextHolder.getContext().setAuthentication(null);
     }
@@ -96,7 +96,7 @@ public class MultitenancyTest extends AbstractTest {
         user.setUsername("username");
 
         User actual = userDAO.save(user);
-        assertNotNull("expected save to work", actual);
+        assertNotNull(actual);
         assertEquals(0, actual.getPasswordHistory().size());
     }
 }

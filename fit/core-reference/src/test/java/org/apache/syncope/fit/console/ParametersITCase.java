@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.fit.console;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.commons.Constants;
@@ -26,12 +26,12 @@ import org.apache.syncope.client.console.pages.Parameters;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.util.tester.FormTester;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ParametersITCase extends AbstractConsoleITCase {
 
-    @Before
+    @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
         TESTER.clickLink("body:configurationLI:configurationUL:parametersLI:parameters");
@@ -73,7 +73,7 @@ public class ParametersITCase extends AbstractConsoleITCase {
 
         Component result = findComponentByProp(SCHEMA, "body:content:parametersPanel", "notification.maxRetries");
         assertNotNull(result);
-        
+
         TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:parametersPanel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
@@ -112,7 +112,7 @@ public class ParametersITCase extends AbstractConsoleITCase {
 
         Component result = findComponentByProp(SCHEMA, "body:content:parametersPanel", "deleteParam");
         assertNotNull(result);
-        
+
         TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:parametersPanel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");

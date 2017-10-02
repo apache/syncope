@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -41,7 +41,7 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.ElasticsearchDetector;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SearchITCase extends AbstractITCase {
 

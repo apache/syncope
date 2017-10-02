@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.outer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Date;
 import javax.persistence.EntityExistsException;
@@ -32,7 +33,7 @@ import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,20 +59,22 @@ public class ReportTest extends AbstractTest {
         assertEquals(1, report.getExecs().size());
     }
 
-    @Test(expected = EntityExistsException.class)
+    @Test
     public void saveWithExistingName() {
-        Report report = reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
-        assertNotNull(report);
+        assertThrows(EntityExistsException.class, () -> {
+            Report report = reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
+            assertNotNull(report);
 
-        String name = report.getName();
+            String name = report.getName();
 
-        report = entityFactory.newEntity(Report.class);
-        report.setName(name);
-        report.setActive(true);
-        report.setTemplate(reportTemplateDAO.find("sample"));
+            report = entityFactory.newEntity(Report.class);
+            report.setName(name);
+            report.setActive(true);
+            report.setTemplate(reportTemplateDAO.find("sample"));
 
-        reportDAO.save(report);
-        reportDAO.flush();
+            reportDAO.save(report);
+            reportDAO.flush();
+        });
     }
 
     @Test

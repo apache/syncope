@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Date;
 import java.util.List;
@@ -35,7 +36,7 @@ import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.provisioning.api.utils.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,49 +58,53 @@ public class UserTest extends AbstractTest {
     @Test
     public void findAll() {
         List<User> list = userDAO.findAll(1, 100);
-        assertEquals("did not get expected number of users", 5, list.size());
+        assertEquals(5, list.size());
     }
 
     @Test
     public void count() {
-        Integer count = userDAO.count();
+        int count = userDAO.count();
         assertNotNull(count);
-        assertEquals(5, count, 0);
+        assertEquals(5, count);
     }
 
     @Test
     public void findAllByPageAndSize() {
         // get first page
         List<User> list = userDAO.findAll(1, 2);
-        assertEquals("did not get expected number of users", 2, list.size());
+        assertEquals(2, list.size());
 
         // get second page
         list = userDAO.findAll(2, 2);
-        assertEquals("did not get expected number of users", 2, list.size());
+        assertEquals(2, list.size());
 
         // get second page with uncomplete set
         list = userDAO.findAll(2, 3);
-        assertEquals("did not get expected number of users", 2, list.size());
+        assertEquals(2, list.size());
 
         // get unexistent page
         list = userDAO.findAll(3, 2);
-        assertEquals("did not get expected number of users", 1, list.size());
+        assertEquals(1, list.size());
     }
 
     @Test
     public void findByDerAttributeValue() {
         final List<User> list = userDAO.findByDerAttrValue("cn", "Vivaldi, Antonio");
-        assertEquals("did not get expected number of users", 1, list.size());
+        assertEquals(1, list.size());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void findByInvalidDerAttrValue() {
-        userDAO.findByDerAttrValue("cn", "Antonio, Maria, Rossi");
+        assertThrows(IllegalArgumentException.class, () -> {
+            userDAO.findByDerAttrValue("cn", "Antonio, Maria, Rossi");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void findByInvalidDerAttrExpression() {
-        userDAO.findByDerAttrValue("noschema", "Antonio, Maria");
+        assertThrows(IllegalArgumentException.class, () -> {
+            userDAO.findByDerAttrValue("noschema", "Antonio, Maria");
+        });
     }
 
     @Test
@@ -108,7 +113,7 @@ public class UserTest extends AbstractTest {
         fullnameValue.setStringValue("Gioacchino Rossini");
 
         final List<User> list = userDAO.findByPlainAttrValue("fullname", fullnameValue);
-        assertEquals("did not get expected number of users", 1, list.size());
+        assertEquals(1, list.size());
     }
 
     @Test
@@ -117,23 +122,23 @@ public class UserTest extends AbstractTest {
         coolValue.setBooleanValue(true);
 
         final List<User> list = userDAO.findByPlainAttrValue("cool", coolValue);
-        assertEquals("did not get expected number of users", 1, list.size());
+        assertEquals(1, list.size());
     }
 
     @Test
     public void findByKey() {
         User user = userDAO.find("1417acbe-cbf6-4277-9372-e75e04f97000");
-        assertNotNull("did not find expected user", user);
+        assertNotNull(user);
     }
 
     @Test
     public void findByUsername() {
         User user = userDAO.findByUsername("rossini");
-        assertNotNull("did not find expected user", user);
+        assertNotNull(user);
         user = userDAO.findByUsername("vivaldi");
-        assertNotNull("did not find expected user", user);
+        assertNotNull(user);
         user = userDAO.findByUsername("user6");
-        assertNull("found user but did not expect it", user);
+        assertNull(user);
     }
 
     @Test
@@ -148,7 +153,7 @@ public class UserTest extends AbstractTest {
 
         try {
             userDAO.save(user);
-            fail();
+            fail("This should not happen");
         } catch (InvalidEntityException e) {
             assertNotNull(e);
         }
@@ -159,7 +164,7 @@ public class UserTest extends AbstractTest {
 
         try {
             userDAO.save(user);
-            fail();
+            fail("This should not happen");
         } catch (InvalidEntityException e) {
             assertNotNull(e);
         }
@@ -167,7 +172,7 @@ public class UserTest extends AbstractTest {
         user.setUsername("username");
 
         User actual = userDAO.save(user);
-        assertNotNull("expected save to work", actual);
+        assertNotNull(actual);
         assertEquals(1, actual.getPasswordHistory().size());
         assertNotNull(userDAO.findLastChange(actual.getKey()));
         assertEquals(actual.getLastChangeDate(), userDAO.findLastChange(actual.getKey()));
@@ -180,7 +185,7 @@ public class UserTest extends AbstractTest {
         userDAO.delete(user.getKey());
 
         User actual = userDAO.find("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee");
-        assertNull("delete did not work", actual);
+        assertNull(actual);
     }
 
     @Test

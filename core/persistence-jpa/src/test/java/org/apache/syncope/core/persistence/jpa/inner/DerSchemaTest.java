@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import org.apache.syncope.common.lib.types.EntityViolationType;
@@ -30,7 +30,7 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntit
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,7 +49,7 @@ public class DerSchemaTest extends AbstractTest {
     @Test
     public void findByName() {
         DerSchema attributeSchema = derSchemaDAO.find("cn");
-        assertNotNull("did not find expected derived attribute schema", attributeSchema);
+        assertNotNull(attributeSchema);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class DerSchemaTest extends AbstractTest {
         derSchemaDAO.save(derivedAttributeSchema);
 
         DerSchema actual = derSchemaDAO.find("cn2");
-        assertNotNull("expected save to work", actual);
+        assertNotNull(actual);
         assertEquals(derivedAttributeSchema, actual);
     }
 
@@ -73,7 +73,7 @@ public class DerSchemaTest extends AbstractTest {
         derSchemaDAO.delete(cn.getKey());
 
         DerSchema actual = derSchemaDAO.find("cn");
-        assertNull("delete did not work", actual);
+        assertNull(actual);
 
         // ------------- //
         DerSchema rderiveddata = derSchemaDAO.find("rderiveddata");
@@ -82,7 +82,7 @@ public class DerSchemaTest extends AbstractTest {
         derSchemaDAO.delete(rderiveddata.getKey());
 
         actual = derSchemaDAO.find("rderiveddata");
-        assertNull("delete did not work", actual);
+        assertNull(actual);
     }
 
     @Test
@@ -92,7 +92,7 @@ public class DerSchemaTest extends AbstractTest {
 
         try {
             derSchemaDAO.save(schema);
-            fail();
+            fail("This should not happen");
         } catch (InvalidEntityException e) {
             assertTrue(e.hasViolation(EntityViolationType.InvalidKey));
         }

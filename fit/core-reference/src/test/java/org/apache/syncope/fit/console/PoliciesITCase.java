@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.fit.console;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.commons.Constants;
@@ -30,13 +30,12 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.util.tester.FormTester;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PoliciesITCase extends AbstractConsoleITCase {
 
-    @Before
+    @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
         TESTER.clickLink("body:configurationLI:configurationUL:policiesLI:policies");
@@ -72,7 +71,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         Component component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
@@ -94,7 +93,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
-        Assert.assertNotNull(component);
+        assertNotNull(component);
     }
 
     private void createPasswordPolicy(final String description) {
@@ -122,7 +121,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         Component component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
@@ -140,7 +139,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",
                 Constants.ON_CLICK);
 
-        Assert.assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
     }
 
@@ -168,7 +167,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         Component component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
@@ -182,7 +181,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",
                 Constants.ON_CLICK);
 
-        Assert.assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
     }
 
@@ -191,7 +190,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         Component component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.getRequest().addParameter("confirm", "true");
         TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
@@ -206,7 +205,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
 
-        Assert.assertNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
     }
 
@@ -215,7 +214,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         Component component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.getRequest().addParameter("confirm", "true");
         TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
@@ -230,7 +229,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
 
-        Assert.assertNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
     }
 
@@ -239,7 +238,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         Component component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.getRequest().addParameter("confirm", "true");
         TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
@@ -254,13 +253,13 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
 
-        Assert.assertNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
     }
 
     @Test
     public void read() {
-        Assert.assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "an account policy"));
     }
 
@@ -279,7 +278,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         Component component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
@@ -301,12 +300,12 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         closeCallBack(modal);
 
-        Assert.assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
 
         deleteAccountPolicy(description);
 
-        Assert.assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description + "2"));
 
         deleteAccountPolicy(description + "2");
@@ -327,7 +326,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         Component component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
@@ -349,12 +348,12 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         closeCallBack(modal);
 
-        Assert.assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
 
         deletePasswordPolicy(description);
 
-        Assert.assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description + "2"));
 
         deletePasswordPolicy(description + "2");
@@ -375,7 +374,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         Component component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
@@ -397,12 +396,12 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         closeCallBack(modal);
 
-        Assert.assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
 
         deletePullPolicy(description);
 
-        Assert.assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description + "2"));
 
         deletePullPolicy(description + "2");
@@ -416,7 +415,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         Component component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
@@ -441,7 +440,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
@@ -463,7 +462,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         Component component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", policyDescription);
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action");
@@ -497,7 +496,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "content:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 ruleName);
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
 
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:container:content:exit");
@@ -521,7 +520,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         Component component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
@@ -546,7 +545,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
@@ -571,7 +570,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         Component component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action");
@@ -604,7 +603,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "content:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 "myrule");
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
 
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:container:content:exit");
@@ -625,7 +624,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         Component modal = TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer");
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
@@ -647,7 +646,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description + "2");
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
@@ -672,7 +671,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         Component component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action");
@@ -703,7 +702,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
-        Assert.assertNotNull(component);
+        assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action");

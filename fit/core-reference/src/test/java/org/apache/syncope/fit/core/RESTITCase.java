@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,7 +58,7 @@ import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RESTITCase extends AbstractITCase {
 
@@ -72,7 +72,7 @@ public class RESTITCase extends AbstractITCase {
         // service with bad password: 401 unauthorized
         try {
             clientFactory.create("bellini", "passwor");
-            fail();
+            fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
@@ -81,7 +81,7 @@ public class RESTITCase extends AbstractITCase {
         SyncopeClient goodClient = clientFactory.create("bellini", "password");
         try {
             goodClient.getService(ConnectorService.class).list(null);
-            fail();
+            fail("This should not happen");
         } catch (ForbiddenException e) {
             assertNotNull(e);
         }
@@ -149,7 +149,7 @@ public class RESTITCase extends AbstractITCase {
         userPatch.setUsername(new StringReplacePatchItem.Builder().value(userTO.getUsername() + "YY").build());
         try {
             ifMatchService.update(userPatch);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.ConcurrentModification, e.getType());
         }

@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -57,15 +57,12 @@ import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:testJDBCEnv.xml" })
+@SpringJUnitConfig(locations = { "classpath:testJDBCEnv.xml" })
 public class PushTaskITCase extends AbstractTaskITCase {
 
     @Autowired
@@ -91,7 +88,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         assertFalse(tasks.getResult().isEmpty());
         tasks.getResult().stream().
                 filter((task) -> (!(task instanceof PushTaskTO))).
-                forEach(item -> fail());
+                forEach(item -> fail("This should not happen"));
     }
 
     @Test

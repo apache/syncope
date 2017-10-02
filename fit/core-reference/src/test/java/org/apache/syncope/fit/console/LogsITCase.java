@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.fit.console;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import org.apache.syncope.client.console.pages.Logs;
@@ -30,14 +30,14 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.util.visit.IVisit;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class LogsITCase extends AbstractConsoleITCase {
 
     private static final String CONTAINER_PATH = "body:content:tabbedPanel:panel:loggerContainer";
 
-    @Before
+    @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
         TESTER.clickLink("body:configurationLI:configurationUL:logsLI:logs");

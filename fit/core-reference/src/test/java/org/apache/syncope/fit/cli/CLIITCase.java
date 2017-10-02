@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.fit.cli;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,8 +43,8 @@ import org.apache.syncope.client.cli.commands.report.ReportCommand;
 import org.apache.syncope.client.cli.commands.role.RoleCommand;
 import org.apache.syncope.client.cli.commands.user.UserCommand;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class CLIITCase extends AbstractITCase {
 
@@ -52,7 +52,7 @@ public class CLIITCase extends AbstractITCase {
 
     private static ProcessBuilder PROCESS_BUILDER;
 
-    @BeforeClass
+    @BeforeAll
     public static void install() {
         Properties props = new Properties();
         InputStream propStream = null;

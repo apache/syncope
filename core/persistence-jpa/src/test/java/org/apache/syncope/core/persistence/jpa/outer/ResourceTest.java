@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.outer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +51,7 @@ import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnit;
 import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,7 +89,7 @@ public class ResourceTest extends AbstractTest {
         resource.setPasswordPolicy(policy);
 
         ConnInstance connector = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
-        assertNotNull("connector not found", connector);
+        assertNotNull(connector);
         resource.setConnector(connector);
 
         ExternalResource actual = resourceDAO.save(resource);
@@ -112,7 +112,7 @@ public class ResourceTest extends AbstractTest {
 
         // specify the connector
         ConnInstance connector = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
-        assertNotNull("connector not found", connector);
+        assertNotNull(connector);
 
         resource.setConnector(connector);
 
@@ -163,7 +163,7 @@ public class ResourceTest extends AbstractTest {
 
         // assign the new resource to an user
         User user = userDAO.findByUsername("rossini");
-        assertNotNull("user not found", user);
+        assertNotNull(user);
 
         user.add(actual);
 
@@ -197,7 +197,7 @@ public class ResourceTest extends AbstractTest {
     @Test
     public void delete() {
         ExternalResource resource = resourceDAO.find("resource-testdb");
-        assertNotNull("find to delete did not work", resource);
+        assertNotNull(resource);
 
         // -------------------------------------
         // Get originally associated connector
@@ -228,7 +228,7 @@ public class ResourceTest extends AbstractTest {
 
         // resource must be removed
         ExternalResource actual = resourceDAO.find("resource-testdb");
-        assertNull("delete did not work", actual);
+        assertNull(actual);
 
         // resource must be not referenced any more from users
         userKeys.stream().

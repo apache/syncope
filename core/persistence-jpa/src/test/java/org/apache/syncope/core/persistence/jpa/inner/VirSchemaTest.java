@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import org.apache.syncope.common.lib.types.EntityViolationType;
@@ -34,7 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,7 +56,7 @@ public class VirSchemaTest extends AbstractTest {
     @Test
     public void findByName() {
         VirSchema attributeSchema = virSchemaDAO.find("virtualdata");
-        assertNotNull("did not find expected virtual attribute schema", attributeSchema);
+        assertNotNull(attributeSchema);
     }
 
     @Test
@@ -74,7 +74,7 @@ public class VirSchemaTest extends AbstractTest {
         virSchemaDAO.save(virSchema);
 
         VirSchema actual = virSchemaDAO.find("virtual");
-        assertNotNull("expected save to work", actual);
+        assertNotNull(actual);
         assertTrue(actual.isReadonly());
         assertEquals("EXT_ATTR", actual.getExtAttrName());
     }
@@ -86,7 +86,7 @@ public class VirSchemaTest extends AbstractTest {
         virSchemaDAO.delete(virtualdata.getKey());
 
         VirSchema actual = virSchemaDAO.find("virtualdata");
-        assertNull("delete did not work", actual);
+        assertNull(actual);
 
         // ------------- //
         VirSchema rvirtualdata = virSchemaDAO.find("rvirtualdata");
@@ -95,7 +95,7 @@ public class VirSchemaTest extends AbstractTest {
         virSchemaDAO.delete(rvirtualdata.getKey());
 
         actual = virSchemaDAO.find("rvirtualdata");
-        assertNull("delete did not work", actual);
+        assertNull(actual);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class VirSchemaTest extends AbstractTest {
 
         try {
             virSchemaDAO.save(schema);
-            fail();
+            fail("This should not happen");
         } catch (InvalidEntityException e) {
             assertTrue(e.hasViolation(EntityViolationType.InvalidKey));
         }

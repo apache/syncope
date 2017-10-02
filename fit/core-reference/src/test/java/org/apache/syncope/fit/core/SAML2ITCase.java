@@ -18,13 +18,14 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.File;
 import java.io.InputStream;
@@ -92,10 +93,9 @@ import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.joda.time.DateTime;
-import org.junit.AfterClass;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
@@ -113,7 +113,7 @@ public class SAML2ITCase extends AbstractITCase {
 
     private static Path truststorePath;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         anonymous = new SyncopeClientFactoryBean().
                 setAddress(ADDRESS).
@@ -123,7 +123,7 @@ public class SAML2ITCase extends AbstractITCase {
         OpenSAMLUtil.initSamlEngine(false);
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void importFromIdPMetadata() throws Exception {
         if (!SAML2SPDetector.isSAML2SPAvailable()) {
             return;
@@ -147,7 +147,7 @@ public class SAML2ITCase extends AbstractITCase {
             // Allow unsolicited responses for the realmb case
             String realmBEntityId = "urn:org:apache:cxf:fediz:idp:realm-B";
             Optional<SAML2IdPTO> realmBIdP =
-                saml2IdPService.list().stream().filter(idp -> realmBEntityId.equals(idp.getEntityID())).findFirst();
+                    saml2IdPService.list().stream().filter(idp -> realmBEntityId.equals(idp.getEntityID())).findFirst();
             realmBIdP.get().setSupportUnsolicited(true);
             saml2IdPService.update(realmBIdP.get());
         } catch (Exception e) {
@@ -161,7 +161,7 @@ public class SAML2ITCase extends AbstractITCase {
         assertEquals(4, saml2IdPService.list().size());
     }
 
-    @AfterClass
+    @AfterAll
     public static void clearIdPs() throws Exception {
         if (!SAML2SPDetector.isSAML2SPAvailable()) {
             return;
@@ -177,7 +177,7 @@ public class SAML2ITCase extends AbstractITCase {
 
     @Test
     public void spMetadata() {
-        Assume.assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
+        assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
 
         try {
             SAML2SPService service = anonymous.getService(SAML2SPService.class);
@@ -209,7 +209,7 @@ public class SAML2ITCase extends AbstractITCase {
 
     @Test
     public void createLoginRequest() {
-        Assume.assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
+        assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
 
         SAML2RequestTO loginRequest = anonymous.getService(SAML2SPService.class).
                 createLoginRequest(ADDRESS, "https://idp.testshib.org/idp/shibboleth");
@@ -223,7 +223,7 @@ public class SAML2ITCase extends AbstractITCase {
 
     @Test
     public void setIdPMapping() {
-        Assume.assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
+        assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
 
         Optional<SAML2IdPTO> ssoCircleOpt =
                 saml2IdPService.list().stream().filter(o -> "https://idp.ssocircle.com".equals(o.getEntityID())).
@@ -262,7 +262,7 @@ public class SAML2ITCase extends AbstractITCase {
 
     @Test
     public void validateLoginResponse() throws Exception {
-        Assume.assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
+        assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
 
         // Get a valid login request for the Fediz realm
         SAML2SPService saml2Service = anonymous.getService(SAML2SPService.class);
@@ -313,7 +313,7 @@ public class SAML2ITCase extends AbstractITCase {
 
     @Test
     public void unsignedAssertionInLoginResponse() throws Exception {
-        Assume.assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
+        assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
 
         // Get a valid login request for the Fediz realm
         SAML2SPService saml2Service = anonymous.getService(SAML2SPService.class);
@@ -331,7 +331,7 @@ public class SAML2ITCase extends AbstractITCase {
 
         org.opensaml.saml.saml2.core.Response samlResponse =
                 createResponse(inResponseTo, false, SAML2Constants.CONF_SENDER_VOUCHES,
-                               "urn:org:apache:cxf:fediz:idp:realm-A");
+                        "urn:org:apache:cxf:fediz:idp:realm-A");
 
         Document doc = DOMUtils.newDocument();
         Element responseElement = OpenSAMLUtil.toDom(samlResponse, doc);
@@ -349,7 +349,7 @@ public class SAML2ITCase extends AbstractITCase {
 
     @Test
     public void loginResponseWrappingAttack() throws Exception {
-        Assume.assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
+        assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
 
         // Get a valid login request for the Fediz realm
         SAML2SPService saml2Service = anonymous.getService(SAML2SPService.class);
@@ -411,7 +411,7 @@ public class SAML2ITCase extends AbstractITCase {
 
     @Test
     public void validateIdpInitiatedLoginResponse() throws Exception {
-        Assume.assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
+        assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
 
         SAML2SPService saml2Service = anonymous.getService(SAML2SPService.class);
 
@@ -421,7 +421,7 @@ public class SAML2ITCase extends AbstractITCase {
         response.setUrlContext("saml2sp");
 
         org.opensaml.saml.saml2.core.Response samlResponse =
-            createResponse(null, true, SAML2Constants.CONF_BEARER, "urn:org:apache:cxf:fediz:idp:realm-B");
+                createResponse(null, true, SAML2Constants.CONF_BEARER, "urn:org:apache:cxf:fediz:idp:realm-B");
 
         Document doc = DOMUtils.newDocument();
         Element responseElement = OpenSAMLUtil.toDom(samlResponse, doc);
@@ -431,7 +431,7 @@ public class SAML2ITCase extends AbstractITCase {
         response.setSamlResponse(Base64.getEncoder().encodeToString(responseStr.getBytes()));
         response.setRelayState("idpInitiated");
         SAML2LoginResponseTO loginResponse =
-            saml2Service.validateLoginResponse(response);
+                saml2Service.validateLoginResponse(response);
         assertNotNull(loginResponse.getAccessToken());
         assertEquals("puccini", loginResponse.getNameID());
     }
@@ -439,7 +439,7 @@ public class SAML2ITCase extends AbstractITCase {
     // Make sure that the IdP initiated case is only supported when "supportUnsolicited" is true for that IdP
     @Test
     public void validateIdpInitiatedLoginResponseFailure() throws Exception {
-        Assume.assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
+        assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
 
         SAML2SPService saml2Service = anonymous.getService(SAML2SPService.class);
 
@@ -449,7 +449,7 @@ public class SAML2ITCase extends AbstractITCase {
         response.setUrlContext("saml2sp");
 
         org.opensaml.saml.saml2.core.Response samlResponse =
-            createResponse(null, true, SAML2Constants.CONF_BEARER, "urn:org:apache:cxf:fediz:idp:realm-A");
+                createResponse(null, true, SAML2Constants.CONF_BEARER, "urn:org:apache:cxf:fediz:idp:realm-A");
 
         Document doc = DOMUtils.newDocument();
         Element responseElement = OpenSAMLUtil.toDom(samlResponse, doc);

@@ -31,13 +31,10 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.apache.wicket.util.visit.IVisit;
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@FixMethodOrder(MethodSorters.JVM)
 public abstract class AbstractConsoleITCase {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractConsoleITCase.class);
@@ -56,7 +53,7 @@ public abstract class AbstractConsoleITCase {
 
     protected static SyncopeService SYNCOPE_SERVICE;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         TESTER = ConsoleSetup.TESTER;
 

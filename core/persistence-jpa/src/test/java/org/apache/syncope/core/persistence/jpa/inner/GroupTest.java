@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -29,7 +29,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,13 +48,13 @@ public class GroupTest extends AbstractTest {
     @Test
     public void findAll() {
         List<Group> list = groupDAO.findAll(1, 100);
-        assertEquals("did not get expected number of groups ", 16, list.size());
+        assertEquals(16, list.size());
     }
 
     @Test
     public void find() {
         Group group = groupDAO.findByName("root");
-        assertNotNull("did not find expected group", group);
+        assertNotNull(group);
 
         group = groupDAO.findByName("additional");
         assertNotNull(group);
@@ -71,7 +71,7 @@ public class GroupTest extends AbstractTest {
         group = groupDAO.save(group);
 
         Group actual = groupDAO.find(group.getKey());
-        assertNotNull("expected save to work", actual);
+        assertNotNull(actual);
     }
 
     @Test
@@ -80,6 +80,6 @@ public class GroupTest extends AbstractTest {
         groupDAO.delete(group.getKey());
 
         Group actual = groupDAO.find("8fb2d51e-c605-4e80-a72b-13ffecf1aa9a");
-        assertNull("delete did not work", actual);
+        assertNull(actual);
     }
 }

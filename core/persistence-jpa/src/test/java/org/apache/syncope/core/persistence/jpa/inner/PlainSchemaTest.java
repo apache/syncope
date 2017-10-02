@@ -18,12 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -34,7 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,7 +54,7 @@ public class PlainSchemaTest extends AbstractTest {
     @Test
     public void findByName() {
         PlainSchema schema = plainSchemaDAO.find("fullname");
-        assertNotNull("did not find expected attribute schema", schema);
+        assertNotNull(schema);
     }
 
     @Test
@@ -78,21 +79,23 @@ public class PlainSchemaTest extends AbstractTest {
         plainSchemaDAO.save(schema);
 
         PlainSchema actual = plainSchemaDAO.find("secondaryEmail");
-        assertNotNull("expected save to work", actual);
+        assertNotNull(actual);
         assertEquals(schema, actual);
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test
     public void saveNonValid() {
-        PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
-        schema.setKey("secondaryEmail");
-        schema.setType(AttrSchemaType.String);
-        schema.setValidatorClass("org.apache.syncope.core.validation.EmailAddressValidator");
-        schema.setMandatoryCondition("false");
-        schema.setMultivalue(true);
-        schema.setUniqueConstraint(true);
+        assertThrows(InvalidEntityException.class, () -> {
+            PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
+            schema.setKey("secondaryEmail");
+            schema.setType(AttrSchemaType.String);
+            schema.setValidatorClass("org.apache.syncope.core.validation.EmailAddressValidator");
+            schema.setMandatoryCondition("false");
+            schema.setMultivalue(true);
+            schema.setUniqueConstraint(true);
 
-        plainSchemaDAO.save(schema);
+            plainSchemaDAO.save(schema);
+        });
     }
 
     @Test
@@ -103,7 +106,7 @@ public class PlainSchemaTest extends AbstractTest {
 
         try {
             plainSchemaDAO.save(schema);
-            fail();
+            fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
         }
@@ -119,11 +122,13 @@ public class PlainSchemaTest extends AbstractTest {
         assertFalse(actual.getEnumerationKeys().isEmpty());
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test
     public void saveInvalidSchema() {
-        PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
-        schema.setKey("username");
-        plainSchemaDAO.save(schema);
+        assertThrows(InvalidEntityException.class, () -> {
+            PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
+            schema.setKey("username");
+            plainSchemaDAO.save(schema);
+        });
     }
 
     @Test
@@ -133,7 +138,7 @@ public class PlainSchemaTest extends AbstractTest {
         plainSchemaDAO.delete(firstname.getKey());
 
         PlainSchema actual = plainSchemaDAO.find("firstname");
-        assertNull("delete did not work", actual);
+        assertNull(actual);
     }
 
     @Test
@@ -143,7 +148,7 @@ public class PlainSchemaTest extends AbstractTest {
 
         try {
             plainSchemaDAO.save(schema);
-            fail();
+            fail("This should not happen");
         } catch (InvalidEntityException e) {
             assertTrue(e.hasViolation(EntityViolationType.InvalidKey));
         }

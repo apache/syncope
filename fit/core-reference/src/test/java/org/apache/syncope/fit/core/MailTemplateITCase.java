@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,7 +36,7 @@ import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MailTemplateITCase extends AbstractITCase {
 
@@ -70,13 +70,13 @@ public class MailTemplateITCase extends AbstractITCase {
         // 2. attempt to read HTML and TEXT -> fail
         try {
             mailTemplateService.getFormat(key, MailTemplateFormat.HTML);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
         try {
             mailTemplateService.getFormat(key, MailTemplateFormat.TEXT);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
@@ -112,7 +112,7 @@ public class MailTemplateITCase extends AbstractITCase {
 
         try {
             mailTemplateService.getFormat(key, MailTemplateFormat.HTML);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
@@ -130,19 +130,19 @@ public class MailTemplateITCase extends AbstractITCase {
 
         try {
             mailTemplateService.read(key);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
         try {
             mailTemplateService.getFormat(key, MailTemplateFormat.HTML);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
         try {
             mailTemplateService.getFormat(key, MailTemplateFormat.TEXT);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
@@ -154,7 +154,7 @@ public class MailTemplateITCase extends AbstractITCase {
         mailTemplateTO.setKey("optin");
         try {
             mailTemplateService.create(mailTemplateTO);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.EntityExists, e.getType());
         }

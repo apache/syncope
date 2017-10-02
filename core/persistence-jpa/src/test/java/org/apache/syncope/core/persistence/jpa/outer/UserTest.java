@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.outer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Date;
 import java.util.List;
@@ -45,7 +45,7 @@ import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -172,7 +172,7 @@ public class UserTest extends AbstractTest {
 
         try {
             userDAO.save(user);
-            fail();
+            fail("This should not happen");
         } catch (InvalidEntityException e) {
             assertNotNull(e);
         }
@@ -235,18 +235,18 @@ public class UserTest extends AbstractTest {
 
         // add derived attributes to user
         User owner = userDAO.findByUsername("vivaldi");
-        assertNotNull("did not get expected user", owner);
+        assertNotNull(owner);
 
         String firstname = owner.getPlainAttr("firstname").get().getValuesAsStrings().iterator().next();
         assertNotNull(firstname);
 
         // search by ksuffix derived attribute
         List<User> list = userDAO.findByDerAttrValue("ksuffix", firstname + "k");
-        assertEquals("did not get expected number of users ", 1, list.size());
+        assertEquals(1, list.size());
 
         // search by kprefix derived attribute
         list = userDAO.findByDerAttrValue("kprefix", "k" + firstname);
-        assertEquals("did not get expected number of users ", 1, list.size());
+        assertEquals(1, list.size());
     }
 
     @Test

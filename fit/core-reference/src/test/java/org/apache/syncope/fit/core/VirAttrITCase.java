@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Locale;
@@ -61,15 +61,12 @@ import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:testJDBCEnv.xml" })
+@SpringJUnitConfig(locations = { "classpath:testJDBCEnv.xml" })
 public class VirAttrITCase extends AbstractITCase {
 
     @Autowired
@@ -679,7 +676,7 @@ public class VirAttrITCase extends AbstractITCase {
             assertNotNull(userTO);
             assertTrue(ldap.getKey().equals(userTO.getResources().iterator().next()));
 
-            assertEquals(2, userTO.getVirAttrs().iterator().next().getValues().size(), 0);
+            assertEquals(2, userTO.getVirAttrs().iterator().next().getValues().size());
             assertTrue(userTO.getVirAttrs().iterator().next().getValues().contains("test@issue691.dom1.org"));
             assertTrue(userTO.getVirAttrs().iterator().next().getValues().contains("test@issue691.dom2.org"));
 
@@ -695,7 +692,7 @@ public class VirAttrITCase extends AbstractITCase {
 
             UserTO updated = updateUser(userPatch).getEntity();
             assertNotNull(updated);
-            assertEquals(2, updated.getVirAttrs().iterator().next().getValues().size(), 0);
+            assertEquals(2, updated.getVirAttrs().iterator().next().getValues().size());
             assertTrue(updated.getVirAttrs().iterator().next().getValues().contains("test@issue691.dom3.org"));
             assertTrue(updated.getVirAttrs().iterator().next().getValues().contains("test@issue691.dom4.org"));
         } finally {

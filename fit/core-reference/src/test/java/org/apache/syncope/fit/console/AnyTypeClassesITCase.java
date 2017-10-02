@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.fit.console;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.commons.Constants;
@@ -29,7 +29,7 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.wicket.Component;
 import org.apache.wicket.util.tester.FormTester;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AnyTypeClassesITCase extends AbstractTypesITCase {
 

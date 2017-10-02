@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.fit.console;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.commons.Constants;
@@ -26,12 +26,12 @@ import org.apache.syncope.client.console.pages.Realms;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.util.tester.FormTester;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RealmsITCase extends AbstractConsoleITCase {
 
-    @Before
+    @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
         TESTER.clickLink("body:realmsLI:realms");

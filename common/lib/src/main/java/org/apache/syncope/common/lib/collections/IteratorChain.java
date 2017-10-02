@@ -124,6 +124,7 @@ public class IteratorChain<E> implements Iterator<E> {
      * @param iteratorChain the array of iterators, not null
      * @throws NullPointerException if iterators array is or contains null
      */
+    @SafeVarargs
     public IteratorChain(final Iterator<? extends E>... iteratorChain) {
         super();
         for (final Iterator<? extends E> element : iteratorChain) {
@@ -145,9 +146,9 @@ public class IteratorChain<E> implements Iterator<E> {
      */
     public IteratorChain(final Collection<Iterator<? extends E>> iteratorChain) {
         super();
-        for (final Iterator<? extends E> iterator : iteratorChain) {
+        iteratorChain.forEach(iterator -> {
             addIterator(iterator);
-        }
+        });
     }
 
     //-----------------------------------------------------------------------
@@ -158,7 +159,7 @@ public class IteratorChain<E> implements Iterator<E> {
      * @throws IllegalStateException if I've already started iterating
      * @throws NullPointerException if the iterator is null
      */
-    public void addIterator(final Iterator<? extends E> iterator) {
+    private void addIterator(final Iterator<? extends E> iterator) {
         checkLocked();
         if (iterator == null) {
             throw new NullPointerException("Iterator must not be null");

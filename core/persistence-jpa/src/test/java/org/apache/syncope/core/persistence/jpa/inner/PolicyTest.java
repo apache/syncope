@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
@@ -35,7 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
@@ -59,7 +59,7 @@ public class PolicyTest extends AbstractTest {
     @Test
     public void findByKey() {
         PullPolicy policy = policyDAO.find("880f8553-069b-4aed-9930-2cd53873f544");
-        assertNotNull("findById did not work", policy);
+        assertNotNull(policy);
 
         PullPolicySpec spec = policy.getSpecification();
         assertNotNull(spec);
@@ -76,7 +76,7 @@ public class PolicyTest extends AbstractTest {
     @Test
     public void findByType() {
         List<PullPolicy> policies = policyDAO.find(PullPolicy.class);
-        assertNotNull("findById did not work", policies);
+        assertNotNull(policies);
         assertFalse(policies.isEmpty());
     }
 
@@ -125,11 +125,11 @@ public class PolicyTest extends AbstractTest {
     @Test
     public void delete() {
         Policy policy = policyDAO.find("66691e96-285f-4464-bc19-e68384ea4c85");
-        assertNotNull("find to delete did not work", policy);
+        assertNotNull(policy);
 
         policyDAO.delete(policy);
 
         Policy actual = policyDAO.find("66691e96-285f-4464-bc19-e68384ea4c85");
-        assertNull("delete did not work", actual);
+        assertNull(actual);
     }
 }

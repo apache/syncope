@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -74,16 +74,13 @@ import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.DoubleValueLogicActions;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:testJDBCEnv.xml" })
+@SpringJUnitConfig(locations = { "classpath:testJDBCEnv.xml" })
 public class UserIssuesITCase extends AbstractITCase {
 
     @Autowired
@@ -115,7 +112,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         try {
             userTO = updateUser(userPatch).getEntity();
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
@@ -247,7 +244,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         try {
             createUser(userTO);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidValues, e.getType());
         }
@@ -709,7 +706,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 5. try to read user on resource: fail
         try {
             resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
@@ -1136,7 +1133,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
             userTO.getResources().add(RESOURCE_NAME_CSV);
             createUser(userTO, false);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidUser, e.getType());
             assertTrue(e.getMessage().contains("Password mandatory"));
@@ -1203,7 +1200,7 @@ public class UserIssuesITCase extends AbstractITCase {
             user.setPassword(user.getUsername());
             try {
                 createUser(user);
-                fail();
+                fail("This should not happen");
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.InvalidUser, e.getType());
                 assertTrue(e.getElements().iterator().next().startsWith("InvalidPassword"));

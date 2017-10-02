@@ -18,16 +18,16 @@
  */
 package org.apache.syncope.fit.console;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.util.tester.FormTester;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.wicket.markup.html.form.TextField;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class AnyObjectsITCase extends AbstractConsoleITCase {
 
@@ -35,7 +35,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
     private static final String CONTAINER = TAB_PANEL + "container:content:";
 
-    @Before
+    @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
     }

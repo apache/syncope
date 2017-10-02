@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.HashSet;
 import java.util.List;
@@ -43,9 +43,9 @@ import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -67,7 +67,7 @@ public class ResourceDataBinderTest extends AbstractTest {
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
 
-    @BeforeClass
+    @BeforeAll
     public static void setAuthContext() {
         List<GrantedAuthority> authorities = StandardEntitlement.values().stream().
                 map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
@@ -80,7 +80,7 @@ public class ResourceDataBinderTest extends AbstractTest {
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
-    @AfterClass
+    @AfterAll
     public static void unsetAuthContext() {
         SecurityContextHolder.getContext().setAuthentication(null);
     }

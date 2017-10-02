@@ -18,15 +18,15 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -153,7 +153,7 @@ public class IntAttrNameParserTest extends AbstractTest {
     public void invalid() {
         try {
             intAttrNameParser.parse("memberships.cn", AnyTypeKind.USER);
-            fail();
+            fail("This should not happen");
         } catch (IllegalArgumentException e) {
             assertNotNull(e);
         }

@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.security.AccessControlException;
 import java.util.Collections;
@@ -83,8 +85,7 @@ import org.apache.syncope.fit.core.reference.TestPasswordRuleConf;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.FlowableDetector;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class UserITCase extends AbstractITCase {
 
@@ -152,7 +153,7 @@ public class UserITCase extends AbstractITCase {
 
         try {
             userTO = createUser(userTO).getEntity();
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
@@ -180,7 +181,7 @@ public class UserITCase extends AbstractITCase {
 
             try {
                 userTO = createUser(userTO).getEntity();
-                fail();
+                fail("This should not happen");
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
             }
@@ -205,50 +206,60 @@ public class UserITCase extends AbstractITCase {
         assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
     }
 
-    @Test(expected = SyncopeClientException.class)
+    @Test
     public void createWithInvalidPassword() {
-        UserTO userTO = getSampleTO("invalidpasswd@syncope.apache.org");
-        userTO.setPassword("pass");
-        createUser(userTO);
+        assertThrows(SyncopeClientException.class, () -> {
+            UserTO userTO = getSampleTO("invalidpasswd@syncope.apache.org");
+            userTO.setPassword("pass");
+            createUser(userTO);
+        });
     }
 
-    @Test(expected = SyncopeClientException.class)
+    @Test
     public void createWithInvalidUsername() {
-        UserTO userTO = getSampleTO("invalidusername@syncope.apache.org");
-        userTO.setUsername("us");
-        userTO.setRealm("/odd");
+        assertThrows(SyncopeClientException.class, () -> {
+            UserTO userTO = getSampleTO("invalidusername@syncope.apache.org");
+            userTO.setUsername("us");
+            userTO.setRealm("/odd");
 
-        createUser(userTO);
+            createUser(userTO);
+        });
     }
 
-    @Test(expected = SyncopeClientException.class)
+    @Test
     public void createWithInvalidPasswordByRes() {
-        UserTO userTO = getSampleTO("invalidPwdByRes@passwd.com");
+        assertThrows(SyncopeClientException.class, () -> {
+            UserTO userTO = getSampleTO("invalidPwdByRes@passwd.com");
 
-        // configured to be minLength=16
-        userTO.setPassword("password1");
-        userTO.getResources().add(RESOURCE_NAME_NOPROPAGATION);
-        createUser(userTO);
+            // configured to be minLength=16
+            userTO.setPassword("password1");
+            userTO.getResources().add(RESOURCE_NAME_NOPROPAGATION);
+            createUser(userTO);
+        });
     }
 
-    @Test(expected = SyncopeClientException.class)
+    @Test
     public void createWithInvalidPasswordByGroup() {
-        UserTO userTO = getSampleTO("invalidPwdByGroup@passwd.com");
+        assertThrows(SyncopeClientException.class, () -> {
+            UserTO userTO = getSampleTO("invalidPwdByGroup@passwd.com");
 
-        // configured to be minLength=16
-        userTO.setPassword("password1");
+            // configured to be minLength=16
+            userTO.setPassword("password1");
 
-        userTO.getMemberships().add(new MembershipTO.Builder().
-                group("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
+            userTO.getMemberships().add(new MembershipTO.Builder().
+                    group("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
 
-        createUser(userTO);
+            createUser(userTO);
+        });
     }
 
-    @Test(expected = SyncopeClientException.class)
+    @Test
     public void createWithException() {
-        UserTO newUserTO = new UserTO();
-        newUserTO.getPlainAttrs().add(attrTO("userId", "userId@nowhere.org"));
-        createUser(newUserTO);
+        assertThrows(SyncopeClientException.class, () -> {
+            UserTO newUserTO = new UserTO();
+            newUserTO.getPlainAttrs().add(attrTO("userId", "userId@nowhere.org"));
+            createUser(newUserTO);
+        });
     }
 
     @Test
@@ -337,7 +348,7 @@ public class UserITCase extends AbstractITCase {
 
         try {
             createUser(userTO);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.EntityExists, e.getType());
         }
@@ -356,7 +367,7 @@ public class UserITCase extends AbstractITCase {
         // 1. create user without type (mandatory by UserSchema)
         try {
             createUser(userTO);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
@@ -369,7 +380,7 @@ public class UserITCase extends AbstractITCase {
         // 2. create user without surname (mandatory when type == 'F')
         try {
             createUser(userTO);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
@@ -492,33 +503,37 @@ public class UserITCase extends AbstractITCase {
         assertFalse(userTO.getPlainAttr("ctype").isPresent());
     }
 
-    @Test(expected = SyncopeClientException.class)
+    @Test
     public void updateInvalidPassword() {
-        UserTO userTO = getSampleTO("updateinvalid@password.com");
+        assertThrows(SyncopeClientException.class, () -> {
+            UserTO userTO = getSampleTO("updateinvalid@password.com");
 
-        userTO = createUser(userTO).getEntity();
-        assertNotNull(userTO);
+            userTO = createUser(userTO).getEntity();
+            assertNotNull(userTO);
 
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().value("pass").build());
+            UserPatch userPatch = new UserPatch();
+            userPatch.setKey(userTO.getKey());
+            userPatch.setPassword(new PasswordPatch.Builder().value("pass").build());
 
-        userService.update(userPatch);
+            userService.update(userPatch);
+        });
     }
 
-    @Test(expected = SyncopeClientException.class)
+    @Test
     public void updateSamePassword() {
-        UserTO userTO = getUniqueSampleTO("updatesame@password.com");
-        userTO.setRealm("/even/two");
+        assertThrows(SyncopeClientException.class, () -> {
+            UserTO userTO = getUniqueSampleTO("updatesame@password.com");
+            userTO.setRealm("/even/two");
 
-        userTO = createUser(userTO).getEntity();
-        assertNotNull(userTO);
+            userTO = createUser(userTO).getEntity();
+            assertNotNull(userTO);
 
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().value("password123").build());
+            UserPatch userPatch = new UserPatch();
+            userPatch.setKey(userTO.getKey());
+            userPatch.setPassword(new PasswordPatch.Builder().value("password123").build());
 
-        userService.update(userPatch);
+            userService.update(userPatch);
+        });
     }
 
     @Test
@@ -683,7 +698,7 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void createActivate() {
-        Assume.assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
 
         UserTO userTO = getUniqueSampleTO("createActivate@syncope.apache.org");
 
@@ -921,7 +936,7 @@ public class UserITCase extends AbstractITCase {
         // org.apache.syncope.common.lib.policy.AbstractAccountRuleConf's and / or
         // org.apache.syncope.common.lib.policy.AbstractPasswordRuleConf's
         // @XmlSeeAlso - the power of JAXB :-/
-        Assume.assumeTrue(MediaType.APPLICATION_JSON_TYPE.equals(clientFactory.getContentType().getMediaType()));
+        assumeTrue(MediaType.APPLICATION_JSON_TYPE.equals(clientFactory.getContentType().getMediaType()));
 
         AccountPolicyTO accountPolicy = new AccountPolicyTO();
         accountPolicy.setDescription("Account Policy with custom rules");
@@ -947,7 +962,7 @@ public class UserITCase extends AbstractITCase {
             user.setRealm(realm.getFullPath());
             try {
                 createUser(user);
-                fail();
+                fail("This should not happen");
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.InvalidUser, e.getType());
                 assertTrue(e.getElements().iterator().next().startsWith("InvalidPassword"));
@@ -956,7 +971,7 @@ public class UserITCase extends AbstractITCase {
             user.setPassword(user.getPassword() + "XXX");
             try {
                 createUser(user);
-                fail();
+                fail("This should not happen");
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.InvalidUser, e.getType());
                 assertTrue(e.getElements().iterator().next().startsWith("InvalidUsername"));
@@ -1064,7 +1079,7 @@ public class UserITCase extends AbstractITCase {
 
         try {
             resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
-            fail();
+            fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
         }
@@ -1082,7 +1097,7 @@ public class UserITCase extends AbstractITCase {
 
         try {
             resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
-            fail();
+            fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
         }
@@ -1114,7 +1129,7 @@ public class UserITCase extends AbstractITCase {
 
         try {
             resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
-            fail();
+            fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
         }
@@ -1134,7 +1149,7 @@ public class UserITCase extends AbstractITCase {
 
         try {
             resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
-            fail();
+            fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
         }
@@ -1179,7 +1194,7 @@ public class UserITCase extends AbstractITCase {
 
         try {
             resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
@@ -1199,7 +1214,7 @@ public class UserITCase extends AbstractITCase {
 
         try {
             resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
-            fail();
+            fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
         }
@@ -1232,7 +1247,7 @@ public class UserITCase extends AbstractITCase {
 
         try {
             resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
-            fail();
+            fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
         }
@@ -1263,7 +1278,7 @@ public class UserITCase extends AbstractITCase {
 
         try {
             resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
-            fail();
+            fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
         }

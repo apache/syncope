@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,8 +31,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SwaggerITCase extends AbstractITCase {
 
@@ -39,7 +39,7 @@ public class SwaggerITCase extends AbstractITCase {
     public void swagger() throws IOException {
         WebClient webClient = WebClient.create(ADDRESS + "/swagger.json").accept(MediaType.APPLICATION_JSON_TYPE);
         Response response = webClient.get();
-        Assume.assumeTrue(response.getStatus() == 200);
+        assumeTrue(response.getStatus() == 200);
 
         JsonNode tree = new ObjectMapper().readTree((InputStream) response.getEntity());
         assertNotNull(tree);

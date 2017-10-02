@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Set;
 import java.util.UUID;
@@ -42,7 +42,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AnyObjectITCase extends AbstractITCase {
 
@@ -83,7 +83,7 @@ public class AnyObjectITCase extends AbstractITCase {
 
         try {
             createAnyObject(anyObjectTO);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidMembership, e.getType());
         }
@@ -194,7 +194,7 @@ public class AnyObjectITCase extends AbstractITCase {
 
         try {
             anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
@@ -208,7 +208,7 @@ public class AnyObjectITCase extends AbstractITCase {
 
         try {
             createAnyObject(anyObjectTO).getEntity();
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidAnyType, e.getType());
         }

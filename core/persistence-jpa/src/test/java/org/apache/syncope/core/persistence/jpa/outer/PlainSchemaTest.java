@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.outer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashSet;
 import java.util.List;
@@ -47,9 +47,9 @@ import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -77,7 +77,7 @@ public class PlainSchemaTest extends AbstractTest {
     @Autowired
     private ExternalResourceDAO resourceDAO;
 
-    @BeforeClass
+    @BeforeAll
     public static void setAuthContext() {
         List<GrantedAuthority> authorities = StandardEntitlement.values().stream().
                 map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
@@ -90,7 +90,7 @@ public class PlainSchemaTest extends AbstractTest {
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
-    @AfterClass
+    @AfterAll
     public static void unsetAuthContext() {
         SecurityContextHolder.getContext().setAuthentication(null);
     }
@@ -106,7 +106,7 @@ public class PlainSchemaTest extends AbstractTest {
 
         try {
             plainSchemaDAO.flush();
-            fail();
+            fail("This should not happen");
         } catch (Exception e) {
             assertTrue(e instanceof EntityExistsException);
         }
@@ -116,15 +116,15 @@ public class PlainSchemaTest extends AbstractTest {
     public void deleteFullname() {
         // fullname is mapped as ConnObjectKey for ws-target-resource-2, need to swap it otherwise validation errors 
         // will be raised
-        for (MappingItem item : resourceDAO.find("ws-target-resource-2").
-                getProvision(anyTypeDAO.findUser()).get().getMapping().getItems()) {
-
-            if ("fullname".equals(item.getIntAttrName())) {
-                item.setConnObjectKey(false);
-            } else if ("surname".equals(item.getIntAttrName())) {
-                item.setConnObjectKey(true);
-            }
-        }
+        resourceDAO.find("ws-target-resource-2").
+                getProvision(anyTypeDAO.findUser()).get().getMapping().getItems().
+                forEach(item -> {
+                    if ("fullname".equals(item.getIntAttrName())) {
+                        item.setConnObjectKey(false);
+                    } else if ("surname".equals(item.getIntAttrName())) {
+                        item.setConnObjectKey(true);
+                    }
+                });
 
         // search for user schema fullname
         PlainSchema schema = plainSchemaDAO.find("fullname");

@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.common.lib;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AnyOperationsTest {
 

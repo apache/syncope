@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +30,7 @@ import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.core.provisioning.api.utils.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.provisioning.api.utils.policy.PolicyPattern;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PasswordGeneratorTest {
 
@@ -107,18 +108,20 @@ public class PasswordGeneratorTest {
         assertTrue(Character.isLetter(generatedPassword.charAt(generatedPassword.length() - 1)));
     }
 
-    @Test(expected = InvalidPasswordRuleConf.class)
-    public void incopatiblePolicies() throws InvalidPasswordRuleConf {
-        DefaultPasswordRuleConf pwdRuleConf = createBaseDefaultPasswordRuleConf();
-        pwdRuleConf.setMinLength(12);
+    @Test
+    public void incopatiblePolicies() {
+        assertThrows(InvalidPasswordRuleConf.class, () -> {
+            DefaultPasswordRuleConf pwdRuleConf = createBaseDefaultPasswordRuleConf();
+            pwdRuleConf.setMinLength(12);
 
-        DefaultPasswordRuleConf pwdRuleConf2 = createBaseDefaultPasswordRuleConf();
-        pwdRuleConf.setMaxLength(10);
+            DefaultPasswordRuleConf pwdRuleConf2 = createBaseDefaultPasswordRuleConf();
+            pwdRuleConf.setMaxLength(10);
 
-        List<PasswordRuleConf> pwdRuleConfs = new ArrayList<>();
-        pwdRuleConfs.add(pwdRuleConf);
-        pwdRuleConfs.add(pwdRuleConf2);
-        passwordGenerator.generate(pwdRuleConfs);
+            List<PasswordRuleConf> pwdRuleConfs = new ArrayList<>();
+            pwdRuleConfs.add(pwdRuleConf);
+            pwdRuleConfs.add(pwdRuleConf2);
+            passwordGenerator.generate(pwdRuleConfs);
+        });
     }
 
     @Test

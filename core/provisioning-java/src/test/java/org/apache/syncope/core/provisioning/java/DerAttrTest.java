@@ -18,17 +18,17 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +50,7 @@ public class DerAttrTest extends AbstractTest {
         assertEquals("username + ' - ' + creationDate + '[' + failedLogins + ']'", info.getExpression());
 
         User user = userDAO.findByUsername("vivaldi");
-        assertNotNull("did not get expected user", user);
+        assertNotNull(user);
 
         String value = derAttrHandler.getValue(user, info);
         assertNotNull(value);

@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import javax.ws.rs.core.Response;
@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SecurityQuestionITCase extends AbstractITCase {
 
@@ -90,7 +90,7 @@ public class SecurityQuestionITCase extends AbstractITCase {
 
         try {
             securityQuestionService.read(securityQuestion.getKey());
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }

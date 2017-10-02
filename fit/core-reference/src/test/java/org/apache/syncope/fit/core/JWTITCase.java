@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.security.AccessControlException;
 import java.text.ParseException;
@@ -54,7 +54,7 @@ import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.CustomJWTSSOProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Some tests for JWT Tokens.

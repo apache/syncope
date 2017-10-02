@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import javax.ws.rs.core.GenericType;
@@ -42,7 +42,7 @@ import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PlainSchemaITCase extends AbstractITCase {
 
@@ -63,7 +63,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         try {
             createSchema(SchemaType.PLAIN, schemaTO);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.EntityExists, e.getType());
         }
@@ -293,7 +293,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         try {
             createSchema(SchemaType.PLAIN, actual);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.CONFLICT, e.getType().getResponseStatus());
             assertEquals(ClientExceptionType.EntityExists, e.getType());
@@ -302,7 +302,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         actual.setKey(null);
         try {
             createSchema(SchemaType.PLAIN, actual);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.BAD_REQUEST, e.getType().getResponseStatus());
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
@@ -316,7 +316,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         try {
             createSchema(SchemaType.PLAIN, schema);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
             assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidKey.name()));

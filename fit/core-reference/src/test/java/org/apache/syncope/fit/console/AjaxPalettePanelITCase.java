@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.fit.console;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,7 +28,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePane
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.tester.FormTester;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AjaxPalettePanelITCase extends AbstractConsoleITCase {
 

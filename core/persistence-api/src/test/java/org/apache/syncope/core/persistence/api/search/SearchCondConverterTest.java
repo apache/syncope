@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.search;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.UUID;
 import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
@@ -37,7 +37,7 @@ import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SearchCondConverterTest {
 

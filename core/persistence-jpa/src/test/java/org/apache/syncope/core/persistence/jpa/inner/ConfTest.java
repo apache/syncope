@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -34,7 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrValue;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -112,7 +112,7 @@ public class ConfTest extends AbstractTest {
             failing.setType(AttrSchemaType.String);
             plainSchemaDAO.save(failing);
 
-            fail();
+            fail("This should not happen");
         } catch (InvalidEntityException e) {
             assertTrue(e.hasViolation(EntityViolationType.InvalidKey));
         }

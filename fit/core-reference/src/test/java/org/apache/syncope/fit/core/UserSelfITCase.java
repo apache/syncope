@@ -18,13 +18,14 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.util.Map;
 import java.util.Set;
@@ -53,16 +54,12 @@ import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.FlowableDetector;
-import org.junit.Assume;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:testJDBCEnv.xml" })
+@SpringJUnitConfig(locations = { "classpath:testJDBCEnv.xml" })
 public class UserSelfITCase extends AbstractITCase {
 
     @Autowired
@@ -75,12 +72,12 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void create() {
-        Assume.assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
 
         // 1. self-registration as admin: failure
         try {
             userSelfService.create(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org"), true);
-            fail();
+            fail("This should not happen");
         } catch (ForbiddenException e) {
             assertNotNull(e);
         }
@@ -97,7 +94,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void createAndApprove() {
-        Assume.assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
 
         // self-create user with membership: goes 'createApproval' with resources and membership but no propagation
         UserTO userTO = UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org");
@@ -117,7 +114,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         try {
             resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey());
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
@@ -138,7 +135,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         try {
             userService2.read("1417acbe-cbf6-4277-9372-e75e04f97000");
-            fail();
+            fail("This should not happen");
         } catch (ForbiddenException e) {
             assertNotNull(e);
         }
@@ -182,7 +179,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void updateWithApproval() {
-        Assume.assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
 
         // 1. create user as admin
         UserTO created = createUser(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org")).getEntity();
@@ -215,7 +212,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertTrue(updated.getResources().isEmpty());
         try {
             resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), updated.getKey());
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
@@ -282,7 +279,7 @@ public class UserSelfITCase extends AbstractITCase {
         SyncopeClient anonClient = clientFactory.create();
         try {
             anonClient.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "WRONG");
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidSecurityAnswer, e.getType());
         }
@@ -295,7 +292,7 @@ public class UserSelfITCase extends AbstractITCase {
         // 5. confirm password reset
         try {
             anonClient.getService(UserSelfService.class).confirmPasswordReset("WRONG TOKEN", "newPassword");
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
             assertTrue(e.getMessage().contains("WRONG TOKEN"));
@@ -340,7 +337,7 @@ public class UserSelfITCase extends AbstractITCase {
         // 5. confirm password reset
         try {
             anonClient.getService(UserSelfService.class).confirmPasswordReset("WRONG TOKEN", "newPassword");
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
             assertTrue(e.getMessage().contains("WRONG TOKEN"));
@@ -380,7 +377,7 @@ public class UserSelfITCase extends AbstractITCase {
         // 2. attempt to access -> fail
         try {
             vivaldiClient.getService(ResourceService.class).list();
-            fail();
+            fail("This should not happen");
         } catch (ForbiddenException e) {
             assertNotNull(e);
             assertEquals("Please change your password first", e.getMessage());

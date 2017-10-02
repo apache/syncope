@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.common.lib;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JAXBTest {
 

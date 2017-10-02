@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +41,7 @@ public class ConnectorManagerTest extends AbstractTest {
     @Autowired
     private ExternalResourceDAO resourceDAO;
 
-    @Before
+    @BeforeEach
     public void before() {
         connManager = new ConnectorManager();
         ReflectionTestUtils.setField(connManager, "connIdBundleManager", connIdBundleManager);

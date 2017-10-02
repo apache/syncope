@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.fit.console;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.validation.validator.StringValidator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 

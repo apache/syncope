@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +41,7 @@ import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
 import org.apache.syncope.fit.core.reference.TestNotificationRecipientsProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
 
@@ -64,11 +64,9 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         assertNotNull(taskTO);
         assertTrue(taskTO.isExecuted());
         assertNotNull(taskTO.getTextBody());
-        assertTrue("Notification mail text doesn't contain expected content.",
-                taskTO.getTextBody().contains("Your email address is " + created.getRight() + "."));
-        assertTrue("Notification mail text doesn't contain expected content.",
-                taskTO.getTextBody().contains("Your email address inside a link: "
-                        + "http://localhost/?email=" + created.getRight().replaceAll("@", "%40")));
+        assertTrue(taskTO.getTextBody().contains("Your email address is " + created.getRight() + "."));
+        assertTrue(taskTO.getTextBody().contains("Your email address inside a link: "
+                + "http://localhost/?email=" + created.getRight().replaceAll("@", "%40")));
     }
 
     @Test

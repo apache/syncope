@@ -407,7 +407,7 @@ under the License.
 
     <h2.version>1.4.196</h2.version>
 
-    <junit.version>4.12</junit.version>
+    <junit.version>5.0.0</junit.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -736,6 +736,12 @@ under the License.
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa-jdbc</artifactId>
         <version>${openjpa.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.openjpa</groupId>
@@ -1581,6 +1587,12 @@ under the License.
         <artifactId>greenmail</artifactId>
         <version>1.5.5</version>
         <scope>test</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.bouncycastle</groupId>
@@ -1595,8 +1607,8 @@ under the License.
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
         <version>${junit.version}</version>
         <scope>test</scope>
       </dependency>
@@ -1619,12 +1631,26 @@ under the License.
       <id>netbeans</id>
       <url>http://bits.netbeans.org/maven2/</url>
     </repository>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
   </repositories>
 
   <pluginRepositories>
     <pluginRepository>
       <id>apache.snapshots</id>
       <url>http://repository.apache.org/snapshots</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>sonatype</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </pluginRepository>
   </pluginRepositories>
 
@@ -1801,6 +1827,13 @@ under the License.
             <runOrder>alphabetical</runOrder>
             <argLine>-Xms512m -Xmx1024m -Xss256k</argLine>
           </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.junit.platform</groupId>
+              <artifactId>junit-platform-surefire-provider</artifactId>
+              <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+          </dependencies>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -1812,6 +1845,13 @@ under the License.
             <runOrder>alphabetical</runOrder>
             <argLine>-Xms512m -Xmx1024m -Xss256k</argLine>
           </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.junit.platform</groupId>
+              <artifactId>junit-platform-surefire-provider</artifactId>
+              <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+          </dependencies>
           <executions>
             <execution>
               <goals>

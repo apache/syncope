@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,14 +34,14 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class ExceptionMapperITCase extends AbstractITCase {
 
     private static final Properties ERROR_MESSAGES = new Properties();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpErrorMessages() throws IOException {
         InputStream propStream = null;
         try {
@@ -99,7 +99,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
 
         try {
             createUser(userTO2);
-            fail();
+            fail("This should not happen");
         } catch (Exception e) {
             String message = ERROR_MESSAGES.getProperty("errMessage.UniqueConstraintViolation");
             assertEquals("EntityExists [" + message + "]", e.getMessage());
@@ -122,7 +122,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
         groupTO2.setRealm(SyncopeConstants.ROOT_REALM);
         try {
             createGroup(groupTO2);
-            fail();
+            fail("This should not happen");
         } catch (Exception e) {
             String message = ERROR_MESSAGES.getProperty("errMessage.UniqueConstraintViolation");
             assertEquals("DataIntegrityViolation [" + message + "]", e.getMessage());
@@ -143,7 +143,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
 
         try {
             createUser(userTO);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientCompositeException e) {
             assertEquals(2, e.getExceptions().size());
         }

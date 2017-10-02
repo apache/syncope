@@ -91,8 +91,8 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -109,14 +109,14 @@ under the License.
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
         <includes>
-            <include>**/security.properties</include>
+          <include>**/security.properties</include>
         </includes>
       </resource>
       <resource>
         <directory>src/main/resources</directory>
         <filtering>false</filtering>
         <excludes>
-            <exclude>**/security.properties</exclude>
+          <exclude>**/security.properties</exclude>
         </excludes>
       </resource>
     </resources>

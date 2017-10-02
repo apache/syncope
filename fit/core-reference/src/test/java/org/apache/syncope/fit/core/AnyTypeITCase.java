@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import javax.ws.rs.core.Response;
@@ -34,7 +34,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AnyTypeITCase extends AbstractITCase {
 
@@ -93,7 +93,7 @@ public class AnyTypeITCase extends AbstractITCase {
 
         try {
             anyTypeService.read(newType.getKey());
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
@@ -106,7 +106,7 @@ public class AnyTypeITCase extends AbstractITCase {
         newType.setKind(AnyTypeKind.USER);
         try {
             anyTypeService.create(newType);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidAnyType, e.getType());
         }
@@ -119,7 +119,7 @@ public class AnyTypeITCase extends AbstractITCase {
         newType.setKind(AnyTypeKind.GROUP);
         try {
             anyTypeService.create(newType);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.EntityExists, e.getType());
         }
@@ -129,7 +129,7 @@ public class AnyTypeITCase extends AbstractITCase {
     public void deleteInvalid() {
         try {
             anyTypeService.delete(AnyTypeKind.USER.name());
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidAnyType, e.getType());
         }

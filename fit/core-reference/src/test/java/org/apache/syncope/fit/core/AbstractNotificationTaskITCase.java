@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
@@ -30,8 +30,8 @@ import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Store;
 import org.apache.commons.io.IOUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase {
 
@@ -45,7 +45,7 @@ public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase 
 
     private static GreenMail greenMail;
 
-    @BeforeClass
+    @BeforeAll
     public static void startGreenMail() {
         Properties props = new Properties();
         InputStream propStream = null;
@@ -70,7 +70,7 @@ public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase 
         greenMail.start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void stopGreenMail() {
         if (greenMail != null) {
             greenMail.stop();
@@ -83,7 +83,6 @@ public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase 
 
         boolean found = false;
         Session session = Session.getDefaultInstance(System.getProperties());
-        session.setDebug(true);
         Store store = session.getStore("pop3");
         store.connect(POP3_HOST, POP3_PORT, mailAddress, mailAddress);
 

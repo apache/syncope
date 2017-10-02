@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,7 +40,7 @@ import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.TestPullRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PolicyITCase extends AbstractITCase {
 
@@ -97,7 +97,7 @@ public class PolicyITCase extends AbstractITCase {
 
         try {
             createPolicy(policy);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPolicy, e.getType());
         }
@@ -148,7 +148,7 @@ public class PolicyITCase extends AbstractITCase {
 
         try {
             policyService.read(policyTO.getKey());
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertNotNull(e);
         }

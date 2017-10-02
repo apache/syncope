@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.security.AccessControlException;
 import java.util.Collections;
@@ -90,7 +90,7 @@ import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class GroupITCase extends AbstractITCase {
 
@@ -203,7 +203,7 @@ public class GroupITCase extends AbstractITCase {
 
         try {
             groupService2.read("29f96485-729e-4d31-88a1-6fc60e4677f3");
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
         }
@@ -289,7 +289,7 @@ public class GroupITCase extends AbstractITCase {
 
         try {
             groupService2.update(groupPatch);
-            fail();
+            fail("This should not happen");
         } catch (ForbiddenException e) {
             assertNotNull(e);
         }
@@ -340,7 +340,7 @@ public class GroupITCase extends AbstractITCase {
 
         try {
             resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
-            fail();
+            fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
         }
@@ -357,7 +357,7 @@ public class GroupITCase extends AbstractITCase {
 
         try {
             resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
-            fail();
+            fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
         }
@@ -387,7 +387,7 @@ public class GroupITCase extends AbstractITCase {
 
             try {
                 resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
-                fail();
+                fail("This should not happen");
             } catch (Exception e) {
                 assertNotNull(e);
             }
@@ -409,7 +409,7 @@ public class GroupITCase extends AbstractITCase {
 
             try {
                 resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
-                fail();
+                fail("This should not happen");
             } catch (Exception e) {
                 assertNotNull(e);
             }
@@ -456,7 +456,7 @@ public class GroupITCase extends AbstractITCase {
 
             try {
                 resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
-                fail();
+                fail("This should not happen");
             } catch (Exception e) {
                 assertNotNull(e);
             }
@@ -478,7 +478,7 @@ public class GroupITCase extends AbstractITCase {
 
             try {
                 resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
-                fail();
+                fail("This should not happen");
             } catch (Exception e) {
                 assertNotNull(e);
             }
@@ -513,7 +513,7 @@ public class GroupITCase extends AbstractITCase {
 
             try {
                 resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
-                fail();
+                fail("This should not happen");
             } catch (Exception e) {
                 assertNotNull(e);
             }
@@ -544,7 +544,7 @@ public class GroupITCase extends AbstractITCase {
 
             try {
                 resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
-                fail();
+                fail("This should not happen");
             } catch (Exception e) {
                 assertNotNull(e);
             }
@@ -586,7 +586,7 @@ public class GroupITCase extends AbstractITCase {
 
             try {
                 updateGroup(groupPatch);
-                fail();
+                fail("This should not happen");
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
             }
@@ -611,7 +611,7 @@ public class GroupITCase extends AbstractITCase {
         GroupService unauthenticated = clientFactory.create().getService(GroupService.class);
         try {
             unauthenticated.search(new AnyQuery.Builder().realm("/even").build());
-            fail();
+            fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
@@ -621,7 +621,7 @@ public class GroupITCase extends AbstractITCase {
         try {
             anonymous.getService(GroupService.class).
                     search(new AnyQuery.Builder().realm("/even").build());
-            fail();
+            fail("This should not happen");
         } catch (ForbiddenException e) {
             assertNotNull(e);
         }
@@ -861,7 +861,7 @@ public class GroupITCase extends AbstractITCase {
         // 4. verify that the user above is not found on LDAP
         try {
             resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }

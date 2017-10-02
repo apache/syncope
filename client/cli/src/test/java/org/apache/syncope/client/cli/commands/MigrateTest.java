@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.client.cli.commands;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,8 +33,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.commands.migrate.MigrateCommand;
 import org.apache.syncope.core.persistence.jpa.content.ContentLoaderHandler;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
@@ -45,7 +45,7 @@ public class MigrateTest {
 
     private static String BASE_PATH;
 
-    @BeforeClass
+    @BeforeAll
     public static void before() {
         Properties props = new Properties();
         InputStream propStream = null;

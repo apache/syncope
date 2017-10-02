@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import java.util.Locale;
@@ -61,12 +61,12 @@ import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class MultitenancyITCase extends AbstractITCase {
 
-    @BeforeClass
+    @BeforeAll
     public static void restSetup() {
         clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("Two");
 
@@ -83,14 +83,14 @@ public class MultitenancyITCase extends AbstractITCase {
     public void masterOnly() {
         try {
             adminClient.getService(DomainService.class).read("Two");
-            fail();
+            fail("This should not happen");
         } catch (ForbiddenException e) {
             assertNotNull(e);
         }
 
         try {
             adminClient.getService(LoggerService.class).list(LoggerType.LOG);
-            fail();
+            fail("This should not happen");
         } catch (ForbiddenException e) {
             assertNotNull(e);
         }

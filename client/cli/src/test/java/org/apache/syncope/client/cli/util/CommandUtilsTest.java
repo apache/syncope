@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.client.cli.util;
 
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.List;
 import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CommandUtilsTest {
 

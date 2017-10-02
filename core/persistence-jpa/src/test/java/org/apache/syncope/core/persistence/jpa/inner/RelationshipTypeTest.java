@@ -18,21 +18,21 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import java.util.UUID;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,11 +69,13 @@ public class RelationshipTypeTest extends AbstractTest {
         assertEquals("description", newType.getDescription());
     }
 
-    @Test(expected = InvalidEntityException.class)
+    @Test
     public void saveInvalidName() {
-        RelationshipType newType = entityFactory.newEntity(RelationshipType.class);
-        newType.setKey("membership");
-        relationshipTypeDAO.save(newType);
+        assertThrows(InvalidEntityException.class, () -> {
+            RelationshipType newType = entityFactory.newEntity(RelationshipType.class);
+            newType.setKey("membership");
+            relationshipTypeDAO.save(newType);
+        });
     }
 
     @Test

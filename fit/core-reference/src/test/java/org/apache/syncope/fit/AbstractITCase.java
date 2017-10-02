@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.fit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -99,14 +99,11 @@ import org.apache.syncope.common.rest.api.service.UserWorkflowService;
 import org.apache.syncope.common.rest.api.service.WorkflowService;
 import org.apache.syncope.fit.core.UserITCase;
 import org.identityconnectors.common.security.Encryptor;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.junit.FixMethodOrder;
-import org.junit.runners.MethodSorters;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-@FixMethodOrder(MethodSorters.JVM)
 public abstract class AbstractITCase {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractITCase.class);
@@ -243,7 +240,7 @@ public abstract class AbstractITCase {
 
     protected static SAML2IdPService saml2IdPService;
 
-    @BeforeClass
+    @BeforeAll
     public static void securitySetup() {
         InputStream propStream = null;
         try {
@@ -267,7 +264,7 @@ public abstract class AbstractITCase {
         assertNotNull(JWT_ISSUER);
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void restSetup() {
         clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS);
 

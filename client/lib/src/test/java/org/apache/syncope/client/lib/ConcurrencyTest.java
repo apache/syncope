@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.client.lib;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.rest.api.service.ResourceService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

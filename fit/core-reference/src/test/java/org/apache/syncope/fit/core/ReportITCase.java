@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +50,7 @@ import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ReportITCase extends AbstractITCase {
 
@@ -133,7 +133,7 @@ public class ReportITCase extends AbstractITCase {
 
         try {
             reportService.read(report.getKey());
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -193,7 +193,7 @@ public class ReportITCase extends AbstractITCase {
 
         try {
             execute(reportTO.getKey());
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.Scheduling, e.getType());
             assertTrue(e.getElements().iterator().next().contains("active"));

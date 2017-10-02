@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -86,22 +86,19 @@ import org.apache.syncope.fit.core.reference.TestReconciliationFilterBuilder;
 import org.apache.syncope.fit.core.reference.TestPullActions;
 import org.apache.syncope.fit.core.reference.TestPullRule;
 import org.identityconnectors.framework.common.objects.Name;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:testJDBCEnv.xml" })
+@SpringJUnitConfig(locations = { "classpath:testJDBCEnv.xml" })
 public class PullTaskITCase extends AbstractTaskITCase {
 
     @Autowired
     private DataSource testDataSource;
 
-    @BeforeClass
+    @BeforeAll
     public static void testPullActionsSetup() {
         PullTaskTO pullTask = taskService.read(PULL_TASK_KEY, true);
         pullTask.getActionsClassNames().add(TestPullActions.class.getName());
@@ -121,7 +118,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertFalse(tasks.getResult().isEmpty());
         tasks.getResult().stream().
                 filter(task -> (!(task instanceof PullTaskTO))).
-                forEach(item -> fail());
+                forEach(item -> fail("This should not happen"));
     }
 
     @Test
@@ -255,7 +252,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // Check for ignored user - SYNCOPE-663
             try {
                 userService.read("test2");
-                fail();
+                fail("This should not happen");
             } catch (SyncopeClientException e) {
                 assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
             }
@@ -287,9 +284,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
     @Test
     public void dryRun() {
         ExecTO execution = execProvisioningTask(taskService, PULL_TASK_KEY, 50, true);
-        assertEquals(
-                "Execution of " + execution.getRefDesc() + " failed with message " + execution.getMessage(),
-                "SUCCESS", execution.getStatus());
+        assertEquals("SUCCESS", execution.getStatus());
     }
 
     @Test
@@ -402,9 +397,6 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void reconcileFromScriptedSQL() {
-        System.out.println("QUAAAAAAAAAAAAAAAAAAAAA");
-        LOG.info("QUAAAAAAAAAAAAAAAa");
-                
         // 0. reset sync token and set MappingItemTransformer
         ResourceTO resource = resourceService.read(RESOURCE_NAME_DBSCRIPTED);
         ResourceTO originalResource = SerializationUtils.clone(resource);
@@ -519,7 +511,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             try {
                 userService.read("user1");
-                fail();
+                fail("This should not happen");
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.NotFound, e.getType());
             }
@@ -768,8 +760,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals(1, executed.getExecutions().size());
 
         // asser for just one match
-        assertTrue(executed.getExecutions().get(0).getMessage().substring(0, 55) + "...",
-                executed.getExecutions().get(0).getMessage().contains("[updated/failures]: 1/0"));
+        assertTrue(executed.getExecutions().get(0).getMessage().contains("[updated/failures]: 1/0"),
+                executed.getExecutions().get(0).getMessage().substring(0, 55) + "...");
     }
 
     @Test

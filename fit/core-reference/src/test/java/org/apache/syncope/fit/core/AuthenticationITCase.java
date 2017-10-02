@@ -18,11 +18,12 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.security.AccessControlException;
 import java.util.Map;
@@ -72,16 +73,12 @@ import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.FlowableDetector;
-import org.junit.Assume;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:testJDBCEnv.xml" })
+@SpringJUnitConfig(locations = { "classpath:testJDBCEnv.xml" })
 public class AuthenticationITCase extends AbstractITCase {
 
     @Autowired
@@ -99,7 +96,7 @@ public class AuthenticationITCase extends AbstractITCase {
         // 1. as not authenticated (not allowed)
         try {
             clientFactory.create().self();
-            fail();
+            fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
@@ -181,7 +178,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
         try {
             userService3.read("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee");
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertNotNull(e);
             assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
@@ -253,7 +250,7 @@ public class AuthenticationITCase extends AbstractITCase {
             UserTO user = UserITCase.getUniqueSampleTO("delegated@syncope.apache.org");
             try {
                 delegatedUserService.create(user);
-                fail();
+                fail("This should not happen");
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
             }
@@ -276,7 +273,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
             try {
                 delegatedUserService.update(userPatch);
-                fail();
+                fail("This should not happen");
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
             }
@@ -296,7 +293,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
             try {
                 userService.read(user.getKey());
-                fail();
+                fail("This should not happen");
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.NotFound, e.getType());
             }
@@ -326,13 +323,13 @@ public class AuthenticationITCase extends AbstractITCase {
         // authentications failed ...
         try {
             clientFactory.create(userTO.getUsername(), "wrongpwd1");
-            fail();
+            fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
         try {
             clientFactory.create(userTO.getUsername(), "wrongpwd1");
-            fail();
+            fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
@@ -358,19 +355,19 @@ public class AuthenticationITCase extends AbstractITCase {
         // authentications failed ...
         try {
             clientFactory.create(userTO.getUsername(), "wrongpwd1");
-            fail();
+            fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
         try {
             clientFactory.create(userTO.getUsername(), "wrongpwd1");
-            fail();
+            fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
         try {
             clientFactory.create(userTO.getUsername(), "wrongpwd1");
-            fail();
+            fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
@@ -380,7 +377,7 @@ public class AuthenticationITCase extends AbstractITCase {
         // last authentication before suspension
         try {
             clientFactory.create(userTO.getUsername(), "wrongpwd1");
-            fail();
+            fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
@@ -388,13 +385,13 @@ public class AuthenticationITCase extends AbstractITCase {
         userTO = userService.read(userTO.getKey());
         assertNotNull(userTO);
         assertNotNull(userTO.getFailedLogins());
-        assertEquals(3, userTO.getFailedLogins(), 0);
+        assertEquals(3, userTO.getFailedLogins().intValue());
         assertEquals("suspended", userTO.getStatus());
 
         // Access with correct credentials should fail as user is suspended
         try {
             clientFactory.create(userTO.getUsername(), "password123");
-            fail();
+            fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
@@ -408,7 +405,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals("active", userTO.getStatus());
 
         SyncopeClient goodPwdClient = clientFactory.create(userTO.getUsername(), "password123");
-        assertEquals(0, goodPwdClient.self().getValue().getFailedLogins(), 0);
+        assertEquals(0, goodPwdClient.self().getValue().getFailedLogins().intValue());
     }
 
     @Test
@@ -450,7 +447,7 @@ public class AuthenticationITCase extends AbstractITCase {
         SyncopeClient belliniClient = clientFactory.create("bellini", ADMIN_PWD);
         try {
             belliniClient.getService(AnyObjectService.class).create(folder);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
         }
@@ -479,7 +476,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE434() {
-        Assume.assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
 
         // 1. create user with group 'groupForWorkflowApproval' 
         // (users with group groupForWorkflowApproval are defined in workflow as subject to approval)
@@ -494,7 +491,7 @@ public class AuthenticationITCase extends AbstractITCase {
         // 2. try to authenticate: fail
         try {
             clientFactory.create(userTO.getUsername(), "password123").self();
-            fail();
+            fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
@@ -558,14 +555,14 @@ public class AuthenticationITCase extends AbstractITCase {
         String username = getUUIDString();
         try {
             userService.read(username);
-            fail();
+            fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
 
         try {
             clientFactory.create(username, "anypassword").self();
-            fail();
+            fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e.getMessage());
         }
