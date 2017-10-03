@@ -36,8 +36,8 @@ under the License.
   <bean id="jaxbProvider" class="org.apache.cxf.jaxrs.provider.JAXBElementProvider">
     <property name="namespacePrefixes">
       <map>
-        <entry key="http://syncope.apache.org/2.0">
-          <value>syncope2</value>
+        <entry key="http://syncope.apache.org/2.1">
+          <value>syncope21</value>
         </entry>
       </map>      
     </property>
@@ -88,7 +88,7 @@ under the License.
   
   <bean id="wadlGenerator" class="org.apache.syncope.core.rest.cxf.WadlGenerator">
     <property name="applicationTitle" value="Apache Syncope ${syncope.version}"/>
-    <property name="namespacePrefix" value="syncope2"/>
+    <property name="namespacePrefix" value="syncope21"/>
     <property name="incrementNamespacePrefix" value="false"/>    
     <property name="linkAnyMediaTypeToXmlSchema" value="true"/>
     <property name="useJaxbContextForQnames" value="true"/>

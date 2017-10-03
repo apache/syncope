@@ -24,9 +24,9 @@ import java.util.regex.Pattern;
 
 public final class SyncopeConstants {
 
-    public static final String NS_PREFIX = "syncope2";
+    public static final String NS_PREFIX = "syncope21";
 
-    public static final String NS = "http://syncope.apache.org/2.0";
+    public static final String NS = "http://syncope.apache.org/2.1";
 
     public static final String MASTER_DOMAIN = "Master";
 
