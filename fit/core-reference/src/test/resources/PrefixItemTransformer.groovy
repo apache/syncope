@@ -16,9 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.fit.core.reference;
-
 import java.util.ArrayList;
+import groovy.transform.CompileStatic
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -27,40 +26,42 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 
-public class PrefixItemTransformer implements ItemTransformer {
+@CompileStatic
+class PrefixItemTransformer implements ItemTransformer {
+	
+  public static String PREFIX = "PREFIX_";
 
-    public static final String PREFIX = "PREFIX_";
+  @Override
+  List<PlainAttrValue> beforePropagation(
+    Item item,
+    Entity entity,
+    List<PlainAttrValue> values) {
 
-    @Override
-    public List<PlainAttrValue> beforePropagation(
-            final Item item,
-            final Entity entity,
-            final List<PlainAttrValue> values) {
+    if (values == null || values.isEmpty() || values.get(0).getStringValue() == null) {
+      return values;
+    } else {
+      String value = values.get(0).getStringValue();
+      values.get(0).setStringValue(PREFIX + value);
 
-        if (values == null || values.isEmpty() || values.get(0).getStringValue() == null) {
-            return values;
-        } else {
-            String value = values.get(0).getStringValue();
-            values.get(0).setStringValue(PREFIX + value);
-
-            return values;
-        }
+      return values;
     }
+  }
 
-    @Override
-    public List<Object> beforePull(
-            final Item item,
-            final EntityTO entityTO,
-            final List<Object> values) {
+  @Override
+  List<Object> beforePull(
+    Item item,
+    EntityTO entityTO,
+    List<Object> values) {
 
-        if (values == null || values.isEmpty() || values.get(0) == null) {
-            return values;
-        } else {
-            List<Object> newValues = new ArrayList<>(values);
-            newValues.set(0, StringUtils.substringAfter(values.get(0).toString(), PREFIX));
+    if (values == null || values.isEmpty() || values.get(0) == null) {
+      return values;
+    } else {
+      List<Object> newValues = new ArrayList<>(values);
+      newValues.set(0, StringUtils.substringAfter(values.get(0).toString(), PREFIX));
 
-            return newValues;
-        }
+      return newValues;
     }
+  }
 
 }
+

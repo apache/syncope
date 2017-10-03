@@ -146,7 +146,6 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(ImplementationType.PASSWORD_RULE, classNames);
 
             classNames = new HashSet<>();
-            classNames.add(PrefixItemTransformer.class.getName());
             put(ImplementationType.ITEM_TRANSFORMER, classNames);
 
             classNames = new HashSet<>();
@@ -154,11 +153,9 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(ImplementationType.TASKJOB_DELEGATE, classNames);
 
             classNames = new HashSet<>();
-            classNames.add(TestReconciliationFilterBuilder.class.getName());
             put(ImplementationType.RECON_FILTER_BUILDER, classNames);
 
             classNames = new HashSet<>();
-            classNames.add(DoubleValueLogicActions.class.getName());
             put(ImplementationType.LOGIC_ACTIONS, classNames);
 
             classNames = new HashSet<>();
@@ -179,7 +176,6 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(ImplementationType.PUSH_ACTIONS, classNames);
 
             classNames = new HashSet<>();
-            classNames.add(TestPullRule.class.getName());
             put(ImplementationType.PULL_CORRELATION_RULE, classNames);
 
             classNames = new HashSet<>();

@@ -16,8 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.fit.core.reference;
-
+import groovy.transform.CompileStatic
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -26,15 +25,16 @@ import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
 /**
  * Test pull rule relying on <tt>email</tt> attribute value.
  */
-public class TestPullRule implements PullCorrelationRule {
+@CompileStatic
+class TestPullRule implements PullCorrelationRule {
 
-    @Override
-    public SearchCond getSearchCond(final ConnectorObject connObj) {
-        AttributeCond cond = new AttributeCond();
-        cond.setSchema("email");
-        cond.setType(AttributeCond.Type.EQ);
-        cond.setExpression(connObj.getName().getNameValue());
+  @Override
+  SearchCond getSearchCond(final ConnectorObject connObj) {
+    AttributeCond cond = new AttributeCond();
+    cond.setSchema("email");
+    cond.setType(AttributeCond.Type.EQ);
+    cond.setExpression(connObj.getName().getNameValue());
 
-        return SearchCond.getLeafCond(cond);
-    }
+    return SearchCond.getLeafCond(cond);
+  }
 }

@@ -30,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
@@ -85,10 +86,7 @@ import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.FlowableDetector;
-import org.apache.syncope.fit.core.reference.PrefixItemTransformer;
-import org.apache.syncope.fit.core.reference.TestReconciliationFilterBuilder;
 import org.apache.syncope.fit.core.reference.TestPullActions;
-import org.apache.syncope.fit.core.reference.TestPullRule;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -418,7 +416,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
-    public void reconcileFromScriptedSQL() {
+    public void reconcileFromScriptedSQL() throws IOException {
         // 0. reset sync token and set MappingItemTransformer
         ResourceTO resource = resourceService.read(RESOURCE_NAME_DBSCRIPTED);
         ResourceTO originalResource = SerializationUtils.clone(resource);
@@ -429,11 +427,14 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 filter(object -> "location".equals(object.getIntAttrName())).findFirst().get();
         assertNotNull(mappingItem);
 
+        final String prefix = "PREFIX_";
+
         ImplementationTO transformer = new ImplementationTO();
-        transformer.setKey(PrefixItemTransformer.class.getSimpleName());
-        transformer.setEngine(ImplementationEngine.JAVA);
+        transformer.setKey("PrefixItemTransformer");
+        transformer.setEngine(ImplementationEngine.GROOVY);
         transformer.setType(ImplementationType.ITEM_TRANSFORMER);
-        transformer.setBody(PrefixItemTransformer.class.getName());
+        transformer.setBody(IOUtils.toString(
+                getClass().getResourceAsStream("/PrefixItemTransformer.groovy"), StandardCharsets.UTF_8));
         Response response = implementationService.create(transformer);
         transformer = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
         assertNotNull(transformer);
@@ -455,7 +456,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // 1. create printer on external resource
             AnyObjectTO anyObjectTO = AnyObjectITCase.getSampleTO("pull");
             String originalLocation = anyObjectTO.getPlainAttr("location").get().getValues().get(0);
-            assertFalse(originalLocation.startsWith(PrefixItemTransformer.PREFIX));
+            assertFalse(originalLocation.startsWith(prefix));
 
             anyObjectTO = createAnyObject(anyObjectTO).getEntity();
             assertNotNull(anyObjectTO);
@@ -464,10 +465,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // (location starts with given prefix on external resource)
             ConnObjectTO connObjectTO = resourceService.
                     readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
-            assertFalse(anyObjectTO.getPlainAttr("location").get().getValues().get(0).
-                    startsWith(PrefixItemTransformer.PREFIX));
-            assertTrue(connObjectTO.getAttr("LOCATION").get().getValues().get(0).
-                    startsWith(PrefixItemTransformer.PREFIX));
+            assertFalse(anyObjectTO.getPlainAttr("location").get().getValues().get(0).startsWith(prefix));
+            assertTrue(connObjectTO.getAttr("LOCATION").get().getValues().get(0).startsWith(prefix));
 
             // 3. unlink any existing printer and delete from Syncope (printer is now only on external resource)
             PagedResult<AnyObjectTO> matchingPrinters = anyObjectService.search(
@@ -505,7 +504,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
-    public void filteredReconciliation() {
+    public void filteredReconciliation() throws IOException {
         String user1OnTestPull = UUID.randomUUID().toString();
         String user2OnTestPull = UUID.randomUUID().toString();
 
@@ -521,10 +520,11 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 2. create new pull task for test-db, with reconciliation filter (surname 'Rossi') 
             ImplementationTO reconFilterBuilder = new ImplementationTO();
-            reconFilterBuilder.setKey(TestReconciliationFilterBuilder.class.getSimpleName());
-            reconFilterBuilder.setEngine(ImplementationEngine.JAVA);
+            reconFilterBuilder.setKey("TestReconFilterBuilder");
+            reconFilterBuilder.setEngine(ImplementationEngine.GROOVY);
             reconFilterBuilder.setType(ImplementationType.RECON_FILTER_BUILDER);
-            reconFilterBuilder.setBody(TestReconciliationFilterBuilder.class.getName());
+            reconFilterBuilder.setBody(IOUtils.toString(
+                    getClass().getResourceAsStream("/TestReconFilterBuilder.groovy"), StandardCharsets.UTF_8));
             Response response = implementationService.create(reconFilterBuilder);
             reconFilterBuilder = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
             assertNotNull(reconFilterBuilder);
@@ -749,20 +749,21 @@ public class PullTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
-    public void issueSYNCOPE258() {
+    public void issueSYNCOPE258() throws IOException {
         // -----------------------------
         // Add a custom correlation rule
         // -----------------------------
         ImplementationTO corrRule = null;
         try {
-            corrRule = implementationService.read(TestPullRule.class.getSimpleName());
+            corrRule = implementationService.read("TestPullRule");
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                 corrRule = new ImplementationTO();
-                corrRule.setKey(TestPullRule.class.getSimpleName());
-                corrRule.setEngine(ImplementationEngine.JAVA);
+                corrRule.setKey("TestPullRule");
+                corrRule.setEngine(ImplementationEngine.GROOVY);
                 corrRule.setType(ImplementationType.PULL_CORRELATION_RULE);
-                corrRule.setBody(TestPullRule.class.getName());
+                corrRule.setBody(IOUtils.toString(
+                        getClass().getResourceAsStream("/TestPullRule.groovy"), StandardCharsets.UTF_8));
                 Response response = implementationService.create(corrRule);
                 corrRule = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
                 assertNotNull(corrRule);

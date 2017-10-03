@@ -16,20 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.fit.core.reference;
+package org.apache.syncope.core.persistence.jpa.validation.entity;
 
-import org.identityconnectors.framework.common.objects.AttributeBuilder;
-import org.identityconnectors.framework.common.objects.filter.Filter;
-import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
-import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class TestReconciliationFilterBuilder implements ReconFilterBuilder {
+import javax.validation.Constraint;
+import javax.validation.Payload;
 
-    private static final Filter EQUALS = FilterBuilder.equalTo(AttributeBuilder.build("SURNAME", "Rossi"));
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = ImplementationValidator.class)
+@Documented
+public @interface ImplementationCheck {
 
-    @Override
-    public Filter build() {
-        return EQUALS;
-    }
+    String message() default "{org.apache.syncope.core.persistence.validation.implementation}";
 
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
 }

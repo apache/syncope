@@ -25,9 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
@@ -46,22 +49,22 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
-import org.apache.syncope.fit.core.reference.TestPullRule;
 import org.junit.jupiter.api.Test;
 
 public class PolicyITCase extends AbstractITCase {
 
-    private PullPolicyTO buildPullPolicyTO() {
+    private PullPolicyTO buildPullPolicyTO() throws IOException {
         ImplementationTO corrRule = null;
         try {
-            corrRule = implementationService.read(TestPullRule.class.getSimpleName());
+            corrRule = implementationService.read("TestPullRule");
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                 corrRule = new ImplementationTO();
-                corrRule.setKey(TestPullRule.class.getSimpleName());
-                corrRule.setEngine(ImplementationEngine.JAVA);
+                corrRule.setKey("TestPullRule");
+                corrRule.setEngine(ImplementationEngine.GROOVY);
                 corrRule.setType(ImplementationType.PULL_CORRELATION_RULE);
-                corrRule.setBody(TestPullRule.class.getName());
+                corrRule.setBody(IOUtils.toString(
+                        getClass().getResourceAsStream("/TestPullRule.groovy"), StandardCharsets.UTF_8));
                 Response response = implementationService.create(corrRule);
                 corrRule = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
                 assertNotNull(corrRule);
@@ -127,14 +130,13 @@ public class PolicyITCase extends AbstractITCase {
     }
 
     @Test
-    public void create() {
+    public void create() throws IOException {
         PullPolicyTO policy = buildPullPolicyTO();
 
         PullPolicyTO policyTO = createPolicy(policy);
 
         assertNotNull(policyTO);
-        assertEquals(TestPullRule.class.getSimpleName(),
-                policyTO.getSpecification().getCorrelationRules().get(AnyTypeKind.USER.name()));
+        assertEquals("TestPullRule", policyTO.getSpecification().getCorrelationRules().get(AnyTypeKind.USER.name()));
     }
 
     @Test
@@ -167,7 +169,7 @@ public class PolicyITCase extends AbstractITCase {
     }
 
     @Test
-    public void delete() {
+    public void delete() throws IOException {
         PullPolicyTO policy = buildPullPolicyTO();
 
         PullPolicyTO policyTO = createPolicy(policy);
@@ -185,8 +187,8 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void getPullCorrelationRuleJavaClasses() {
-        assertEquals(1, syncopeService.platform().
-                getJavaImplInfo(ImplementationType.PULL_CORRELATION_RULE).get().getClasses().size());
+        assertTrue(syncopeService.platform().
+                getJavaImplInfo(ImplementationType.PULL_CORRELATION_RULE).get().getClasses().isEmpty());
     }
 
     @Test

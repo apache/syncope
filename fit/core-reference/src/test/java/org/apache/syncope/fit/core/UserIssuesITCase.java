@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
@@ -78,7 +79,6 @@ import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagati
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
-import org.apache.syncope.fit.core.reference.DoubleValueLogicActions;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.jupiter.api.Test;
@@ -798,12 +798,13 @@ public class UserIssuesITCase extends AbstractITCase {
     }
 
     @Test
-    public void issueSYNCOPE420() {
+    public void issueSYNCOPE420() throws IOException {
         ImplementationTO logicActions = new ImplementationTO();
-        logicActions.setKey(DoubleValueLogicActions.class.getSimpleName());
-        logicActions.setEngine(ImplementationEngine.JAVA);
+        logicActions.setKey("DoubleValueLogicActions");
+        logicActions.setEngine(ImplementationEngine.GROOVY);
         logicActions.setType(ImplementationType.LOGIC_ACTIONS);
-        logicActions.setBody(DoubleValueLogicActions.class.getName());
+        logicActions.setBody(org.apache.commons.io.IOUtils.toString(
+                getClass().getResourceAsStream("/DoubleValueLogicActions.groovy"), StandardCharsets.UTF_8));
         Response response = implementationService.create(logicActions);
         logicActions = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
         assertNotNull(logicActions);

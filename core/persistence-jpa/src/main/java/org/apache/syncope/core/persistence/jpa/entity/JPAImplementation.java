@@ -28,9 +28,11 @@ import javax.persistence.Table;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.jpa.validation.entity.ImplementationCheck;
 
 @Entity
 @Table(name = JPAImplementation.TABLE)
+@ImplementationCheck
 @Cacheable
 public class JPAImplementation extends AbstractProvidedKeyEntity implements Implementation {
 

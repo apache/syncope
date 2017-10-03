@@ -736,12 +736,6 @@ under the License.
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa-jdbc</artifactId>
         <version>${openjpa.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.openjpa</groupId>
