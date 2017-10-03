@@ -34,7 +34,9 @@ public final class PlatformInfoAdapter {
         request.setPwdResetRequiringSecurityQuestions(platformInfo.isPwdResetRequiringSecurityQuestions());
         request.setVersion(platformInfo.getVersion());
         request.setCaptchaEnabled(SyncopeEnduserApplication.get().isCaptchaEnabled());
-        request.setMaxUploadFileSizeMB(SyncopeEnduserApplication.get().getMaxUploadFileSizeMB());
+        if (SyncopeEnduserApplication.get().getMaxUploadFileSizeMB() != null) {
+            request.setMaxUploadFileSizeMB(SyncopeEnduserApplication.get().getMaxUploadFileSizeMB());
+        }
         request.setCustomForm(customForm);
 
         return request;

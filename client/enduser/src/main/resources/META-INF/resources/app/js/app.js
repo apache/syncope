@@ -359,7 +359,6 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
       $rootScope.pwdResetRequiringSecurityQuestions = false;
       $rootScope.captchaEnabled = false;
       $rootScope.validationEnabled = true;
-      $rootScope.maxUploadFileSizeMB = 5;
       $rootScope.saml2idps = {
         available: [],
         selected: {}
