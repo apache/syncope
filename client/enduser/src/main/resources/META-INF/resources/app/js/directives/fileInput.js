@@ -47,7 +47,7 @@ angular.module('self')
                   initialPreview: [
                     previewImgComposite
                   ],
-                  'maxFileSize': parseInt($rootScope.maxUploadFileSizeMB) * 1000
+                  'maxFileSize': $rootScope.maxUploadFileSizeMB ? parseInt($rootScope.maxUploadFileSizeMB) * 1000 : undefined
                 });
               }
             };
