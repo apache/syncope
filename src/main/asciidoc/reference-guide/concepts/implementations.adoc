@@ -16,36 +16,13 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-== Concepts
+=== Implementations
 
-include::usersgroupsandanyobjects.adoc[]
+Starting with Apache Syncope 2.1, it is possible to provide implementations suitable for <<customization,customization>>
+as:
 
-include::typemanagement.adoc[]
+. Java classes
+. http://www.groovy-lang.org/[Groovy^] classes
 
-include::externalresources.adoc[]
-
-include::realms.adoc[]
-
-include::entitlements.adoc[]
-
-include::roles.adoc[]
-
-include::provisioning/provisioning.adoc[]
-
-include::policies.adoc[]
-
-include::workflow.adoc[]
-
-include::notifications.adoc[]
-
-include::tasks.adoc[]
-
-include::reports.adoc[]
-
-include::audit.adoc[]
-
-include::domains.adoc[]
-
-include::implementations.adoc[]
-
-include::extensions.adoc[]
+While the former shows some advantages about execution performance, the latter is extremely useful as it allows for
+runtime updates, freeing from the hassle to redeploy when something needs to be changed.

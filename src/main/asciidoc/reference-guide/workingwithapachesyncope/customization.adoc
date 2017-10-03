@@ -177,8 +177,8 @@ When providing custom Java classes implementing the defined interfaces or extend
 implementations, their package *must* be rooted under `org.apache.syncope.core`, otherwise they will not be available
 at runtime.
 
-Besides replacing existing classes as explained <<override-behavior,above>>, new implementations can be provided under
-`core/src/main/java` for the following components:
+Besides replacing existing classes as explained <<override-behavior,above>>, new <<implementations,implementations>> can
+be provided - under `core/src/main/java` if Java - for the following components:
 
 * <<propagationactions,propagation>>, <<pushactions,push>>, <<pullactions,pull>> and <<logicactions,logic>> actions
 * <<push-correlation-rules,push>> / <<pull-correlation-rules,pull>> correlation rules

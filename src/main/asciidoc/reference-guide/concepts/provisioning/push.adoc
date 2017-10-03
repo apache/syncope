@@ -54,7 +54,7 @@ by default, unmatching entities are pushed to Identity Stores, and matching enti
 ===== PushActions
 
 The push process can be decorated with custom logic to be invoked around task execution, by associating
-push tasks to one or more implementations of the
+push tasks to one or more <<implementations,implementations>> of the
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/PushActions.java[PushActions^]
 endif::[]
