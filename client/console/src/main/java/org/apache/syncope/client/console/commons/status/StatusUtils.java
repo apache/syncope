@@ -172,15 +172,10 @@ public class StatusUtils implements Serializable {
         StatusPatch.Builder builder = new StatusPatch.Builder();
 
         for (StatusBean status : statuses) {
-            if (enable == null
-                    || (enable && !status.getStatus().isActive()) || (!enable && status.getStatus().isActive())) {
-
-                if ("syncope".equalsIgnoreCase(status.getResource())) {
-                    builder.onSyncope(true);
-                } else {
-                    builder.resource(status.getResource());
-                }
-
+            if ("syncope".equalsIgnoreCase(status.getResource())) {
+                builder.onSyncope(true);
+            } else {
+                builder.resource(status.getResource());
             }
         }
 
