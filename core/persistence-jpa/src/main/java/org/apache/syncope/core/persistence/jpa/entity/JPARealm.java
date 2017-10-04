@@ -54,7 +54,7 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.RealmCheck;
 
 @Entity
 @Table(name = JPARealm.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "id", "parent_id" }))
+        @UniqueConstraint(columnNames = { "name", "parent_id" }))
 @Cacheable
 @RealmCheck
 public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
