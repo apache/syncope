@@ -281,7 +281,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 LOG.debug("Update {} on {}", strictlyModified, task.getResource().getKey());
 
                 result = connector.update(
-                        beforeObj.getObjectClass(), beforeObj.getUid(), strictlyModified, null, propagationAttempted);
+                        beforeObj.getObjectClass(),
+                        new Uid(beforeObj.getUid().getUidValue()),
+                        strictlyModified,
+                        null,
+                        propagationAttempted);
             }
         }
 
