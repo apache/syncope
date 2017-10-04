@@ -316,10 +316,8 @@ public class GroupITCase extends AbstractITCase {
 
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey()));
 
-        DeassociationPatch deassociationPatch = new DeassociationPatch();
-        deassociationPatch.setKey(actual.getKey());
-        deassociationPatch.setAction(ResourceDeassociationAction.UNLINK);
-        deassociationPatch.getResources().add(RESOURCE_NAME_LDAP);
+        DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(actual.getKey()).
+                action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_LDAP).build();
 
         assertNotNull(groupService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
 
@@ -345,10 +343,8 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        AssociationPatch associationPatch = new AssociationPatch();
-        associationPatch.setKey(actual.getKey());
-        associationPatch.setAction(ResourceAssociationAction.LINK);
-        associationPatch.getResources().add(RESOURCE_NAME_LDAP);
+        AssociationPatch associationPatch = new AssociationPatch.Builder().key(actual.getKey()).
+                action(ResourceAssociationAction.LINK).resource(RESOURCE_NAME_LDAP).build();
 
         assertNotNull(groupService.associate(associationPatch).readEntity(BulkActionResult.class));
 
@@ -414,10 +410,8 @@ public class GroupITCase extends AbstractITCase {
                 assertNotNull(e);
             }
 
-            AssociationPatch associationPatch = new AssociationPatch();
-            associationPatch.setKey(groupTO.getKey());
-            associationPatch.setAction(ResourceAssociationAction.ASSIGN);
-            associationPatch.getResources().add(RESOURCE_NAME_LDAP);
+            AssociationPatch associationPatch = new AssociationPatch.Builder().key(groupTO.getKey()).
+                    action(ResourceAssociationAction.ASSIGN).resource(RESOURCE_NAME_LDAP).build();
 
             assertNotNull(groupService.associate(associationPatch).readEntity(BulkActionResult.class));
 
@@ -443,10 +437,8 @@ public class GroupITCase extends AbstractITCase {
 
             assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey()));
 
-            DeassociationPatch deassociationPatch = new DeassociationPatch();
-            deassociationPatch.setKey(groupTO.getKey());
-            deassociationPatch.setAction(ResourceDeassociationAction.DEPROVISION);
-            deassociationPatch.getResources().add(RESOURCE_NAME_LDAP);
+            DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(groupTO.getKey()).
+                    action(ResourceDeassociationAction.DEPROVISION).resource(RESOURCE_NAME_LDAP).build();
 
             assertNotNull(groupService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
 
@@ -483,10 +475,8 @@ public class GroupITCase extends AbstractITCase {
                 assertNotNull(e);
             }
 
-            AssociationPatch associationPatch = new AssociationPatch();
-            associationPatch.setKey(groupTO.getKey());
-            associationPatch.setAction(ResourceAssociationAction.PROVISION);
-            associationPatch.getResources().add(RESOURCE_NAME_LDAP);
+            AssociationPatch associationPatch = new AssociationPatch.Builder().key(groupTO.getKey()).
+                    action(ResourceAssociationAction.PROVISION).resource(RESOURCE_NAME_LDAP).build();
 
             assertNotNull(groupService.associate(associationPatch).readEntity(BulkActionResult.class));
 
@@ -518,10 +508,8 @@ public class GroupITCase extends AbstractITCase {
                 assertNotNull(e);
             }
 
-            AssociationPatch associationPatch = new AssociationPatch();
-            associationPatch.setKey(groupTO.getKey());
-            associationPatch.setAction(ResourceAssociationAction.PROVISION);
-            associationPatch.getResources().add(RESOURCE_NAME_LDAP);
+            AssociationPatch associationPatch = new AssociationPatch.Builder().key(groupTO.getKey()).
+                    action(ResourceAssociationAction.PROVISION).resource(RESOURCE_NAME_LDAP).build();
 
             assertNotNull(groupService.associate(associationPatch).readEntity(BulkActionResult.class));
 
@@ -531,10 +519,8 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(resourceService.readConnObject(
                     RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey()));
 
-            DeassociationPatch deassociationPatch = new DeassociationPatch();
-            deassociationPatch.setKey(groupTO.getKey());
-            deassociationPatch.setAction(ResourceDeassociationAction.DEPROVISION);
-            deassociationPatch.getResources().add(RESOURCE_NAME_LDAP);
+            DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(groupTO.getKey()).
+                    action(ResourceDeassociationAction.DEPROVISION).resource(RESOURCE_NAME_LDAP).build();
 
             assertNotNull(groupService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
 

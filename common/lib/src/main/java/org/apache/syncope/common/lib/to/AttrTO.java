@@ -21,6 +21,7 @@ package org.apache.syncope.common.lib.to;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import javax.ws.rs.PathParam;
@@ -55,9 +56,7 @@ public class AttrTO extends AbstractBaseBean {
         }
 
         public Builder values(final String... values) {
-            for (String value : values) {
-                instance.getValues().add(value);
-            }
+            instance.getValues().addAll(Arrays.asList(values));
             return this;
         }
 

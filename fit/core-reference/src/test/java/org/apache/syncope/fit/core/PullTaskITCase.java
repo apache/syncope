@@ -444,11 +444,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
                                     is("location").equalTo("pull*").query()).build());
             assertTrue(matchingPrinters.getSize() > 0);
             for (AnyObjectTO printer : matchingPrinters.getResult()) {
-                DeassociationPatch deassociationPatch = new DeassociationPatch();
-                deassociationPatch.setKey(printer.getKey());
-                deassociationPatch.setAction(ResourceDeassociationAction.UNLINK);
-                deassociationPatch.getResources().add(RESOURCE_NAME_DBSCRIPTED);
-                anyObjectService.deassociate(deassociationPatch);
+                anyObjectService.deassociate(new DeassociationPatch.Builder().key(printer.getKey()).
+                        action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_DBSCRIPTED).build());
                 anyObjectService.delete(printer.getKey());
             }
 

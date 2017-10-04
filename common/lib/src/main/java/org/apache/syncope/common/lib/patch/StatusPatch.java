@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.patch;
 
+import java.util.Collection;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
@@ -28,6 +29,59 @@ import org.apache.syncope.common.lib.types.StatusPatchType;
 public class StatusPatch extends PasswordPatch {
 
     private static final long serialVersionUID = 99309988426922612L;
+
+    public static class Builder extends PasswordPatch.Builder {
+
+        @Override
+        protected StatusPatch newInstance() {
+            return new StatusPatch();
+        }
+
+        @Override
+        protected StatusPatch getInstance() {
+            return (StatusPatch) super.getInstance();
+        }
+
+        @Override
+        public StatusPatch build() {
+            return (StatusPatch) super.build();
+        }
+
+        @Override
+        public Builder onSyncope(final boolean onSyncope) {
+            return (Builder) super.onSyncope(onSyncope);
+        }
+
+        @Override
+        public Builder resource(final String resource) {
+            return (Builder) super.resource(resource);
+        }
+
+        @Override
+        public Builder resources(final Collection<String> resources) {
+            return (Builder) super.resources(resources);
+        }
+
+        @Override
+        public Builder resources(final String... resources) {
+            return (Builder) super.resources(resources);
+        }
+
+        public Builder key(final String key) {
+            getInstance().setKey(key);
+            return this;
+        }
+
+        public Builder type(final StatusPatchType type) {
+            getInstance().setType(type);
+            return this;
+        }
+
+        public Builder token(final String token) {
+            getInstance().setToken(token);
+            return this;
+        }
+    }
 
     /**
      * Key of user to for which status update is requested.

@@ -713,10 +713,9 @@ public class UserITCase extends AbstractITCase {
 
         assertEquals("created", userTO.getStatus());
 
-        StatusPatch statusPatch = new StatusPatch();
-        statusPatch.setKey(userTO.getKey());
-        statusPatch.setType(StatusPatchType.ACTIVATE);
-        statusPatch.setToken(userTO.getToken());
+        StatusPatch statusPatch = new StatusPatch.Builder().key(userTO.getKey()).
+                type(StatusPatchType.ACTIVATE).token(userTO.getToken()).build();
+
         userTO = userService.status(statusPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
 
@@ -740,17 +739,16 @@ public class UserITCase extends AbstractITCase {
                 ? "active"
                 : "created", userTO.getStatus());
 
-        StatusPatch statusPatch = new StatusPatch();
-        statusPatch.setKey(userTO.getKey());
-        statusPatch.setType(StatusPatchType.SUSPEND);
+        StatusPatch statusPatch = new StatusPatch.Builder().key(userTO.getKey()).
+                type(StatusPatchType.SUSPEND).token(userTO.getToken()).build();
+
         userTO = userService.status(statusPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        statusPatch = new StatusPatch();
-        statusPatch.setKey(userTO.getKey());
-        statusPatch.setType(StatusPatchType.REACTIVATE);
+        statusPatch = new StatusPatch.Builder().key(userTO.getKey()).type(StatusPatchType.REACTIVATE).build();
+
         userTO = userService.status(statusPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(userTO);
@@ -779,12 +777,11 @@ public class UserITCase extends AbstractITCase {
         String userKey = userTO.getKey();
 
         // Suspend with effect on syncope, ldap and db => user should be suspended in syncope and all resources
-        StatusPatch statusPatch = new StatusPatch();
-        statusPatch.setKey(userKey);
-        statusPatch.setType(StatusPatchType.SUSPEND);
-        statusPatch.setOnSyncope(true);
-        statusPatch.getResources().add(RESOURCE_NAME_TESTDB);
-        statusPatch.getResources().add(RESOURCE_NAME_LDAP);
+        StatusPatch statusPatch = new StatusPatch.Builder().key(userKey).
+                type(StatusPatchType.SUSPEND).
+                onSyncope(true).
+                resources(RESOURCE_NAME_TESTDB, RESOURCE_NAME_LDAP).
+                build();
         userTO = userService.status(statusPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(userTO);
@@ -798,11 +795,11 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(connObjectTO);
 
         // Suspend and reactivate only on ldap => db and syncope should still show suspended
-        statusPatch = new StatusPatch();
-        statusPatch.setKey(userKey);
-        statusPatch.setType(StatusPatchType.SUSPEND);
-        statusPatch.setOnSyncope(false);
-        statusPatch.getResources().add(RESOURCE_NAME_LDAP);
+        statusPatch = new StatusPatch.Builder().key(userKey).
+                type(StatusPatchType.SUSPEND).
+                onSyncope(false).
+                resources(RESOURCE_NAME_LDAP).
+                build();
         userService.status(statusPatch);
         statusPatch.setType(StatusPatchType.REACTIVATE);
         userTO = userService.status(statusPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
@@ -814,12 +811,11 @@ public class UserITCase extends AbstractITCase {
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
         // Reactivate on syncope and db => syncope and db should show the user as active
-        statusPatch = new StatusPatch();
-        statusPatch.setKey(userKey);
-        statusPatch.setType(StatusPatchType.REACTIVATE);
-        statusPatch.setOnSyncope(true);
-        statusPatch.getResources().add(RESOURCE_NAME_TESTDB);
-
+        statusPatch = new StatusPatch.Builder().key(userKey).
+                type(StatusPatchType.REACTIVATE).
+                onSyncope(true).
+                resources(RESOURCE_NAME_TESTDB).
+                build();
         userTO = userService.status(statusPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(userTO);
@@ -1051,10 +1047,8 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(actual);
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
-        DeassociationPatch deassociationPatch = new DeassociationPatch();
-        deassociationPatch.setKey(actual.getKey());
-        deassociationPatch.setAction(ResourceDeassociationAction.UNLINK);
-        deassociationPatch.getResources().add(RESOURCE_NAME_CSV);
+        DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(actual.getKey()).
+                action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_CSV).build();
 
         assertNotNull(userService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
 
@@ -1084,10 +1078,8 @@ public class UserITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        AssociationPatch associationPatch = new AssociationPatch();
-        associationPatch.setKey(actual.getKey());
-        associationPatch.setAction(ResourceAssociationAction.LINK);
-        associationPatch.getResources().add(RESOURCE_NAME_CSV);
+        AssociationPatch associationPatch = new AssociationPatch.Builder().key(actual.getKey()).
+                action(ResourceAssociationAction.LINK).resource(RESOURCE_NAME_CSV).build();
 
         assertNotNull(userService.associate(associationPatch).readEntity(BulkActionResult.class));
 
@@ -1116,10 +1108,8 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(actual);
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
-        DeassociationPatch deassociationPatch = new DeassociationPatch();
-        deassociationPatch.setKey(actual.getKey());
-        deassociationPatch.setAction(ResourceDeassociationAction.UNASSIGN);
-        deassociationPatch.getResources().add(RESOURCE_NAME_CSV);
+        DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(actual.getKey()).
+                action(ResourceDeassociationAction.UNASSIGN).resource(RESOURCE_NAME_CSV).build();
 
         assertNotNull(userService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
 
@@ -1154,11 +1144,8 @@ public class UserITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        AssociationPatch associationPatch = new AssociationPatch();
-        associationPatch.setKey(actual.getKey());
-        associationPatch.setValue("password");
-        associationPatch.setAction(ResourceAssociationAction.ASSIGN);
-        associationPatch.getResources().add(RESOURCE_NAME_CSV);
+        AssociationPatch associationPatch = new AssociationPatch.Builder().key(actual.getKey()).
+                value("password").action(ResourceAssociationAction.ASSIGN).resource(RESOURCE_NAME_CSV).build();
 
         assertNotNull(userService.associate(associationPatch).readEntity(BulkActionResult.class));
 
@@ -1181,10 +1168,8 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(actual);
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
-        DeassociationPatch deassociationPatch = new DeassociationPatch();
-        deassociationPatch.setKey(actual.getKey());
-        deassociationPatch.setAction(ResourceDeassociationAction.DEPROVISION);
-        deassociationPatch.getResources().add(RESOURCE_NAME_CSV);
+        DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(actual.getKey()).
+                action(ResourceDeassociationAction.DEPROVISION).resource(RESOURCE_NAME_CSV).build();
 
         assertNotNull(userService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
 
@@ -1219,11 +1204,8 @@ public class UserITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        AssociationPatch associationPatch = new AssociationPatch();
-        associationPatch.setKey(actual.getKey());
-        associationPatch.setValue("password");
-        associationPatch.setAction(ResourceAssociationAction.PROVISION);
-        associationPatch.getResources().add(RESOURCE_NAME_CSV);
+        AssociationPatch associationPatch = new AssociationPatch.Builder().key(actual.getKey()).
+                value("password").action(ResourceAssociationAction.PROVISION).resource(RESOURCE_NAME_CSV).build();
 
         assertNotNull(userService.associate(associationPatch).readEntity(BulkActionResult.class));
 
@@ -1252,11 +1234,8 @@ public class UserITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        AssociationPatch associationPatch = new AssociationPatch();
-        associationPatch.setKey(actual.getKey());
-        associationPatch.setValue("password");
-        associationPatch.setAction(ResourceAssociationAction.PROVISION);
-        associationPatch.getResources().add(RESOURCE_NAME_CSV);
+        AssociationPatch associationPatch = new AssociationPatch.Builder().key(actual.getKey()).
+                value("password").action(ResourceAssociationAction.PROVISION).resource(RESOURCE_NAME_CSV).build();
 
         assertNotNull(userService.associate(associationPatch).readEntity(BulkActionResult.class));
 
@@ -1265,10 +1244,8 @@ public class UserITCase extends AbstractITCase {
         assertTrue(actual.getResources().isEmpty());
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
-        DeassociationPatch deassociationPatch = new DeassociationPatch();
-        deassociationPatch.setKey(actual.getKey());
-        deassociationPatch.setAction(ResourceDeassociationAction.DEPROVISION);
-        deassociationPatch.getResources().add(RESOURCE_NAME_CSV);
+        DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(actual.getKey()).
+                action(ResourceDeassociationAction.DEPROVISION).resource(RESOURCE_NAME_CSV).build();
 
         assertNotNull(userService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
 

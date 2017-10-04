@@ -83,10 +83,9 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch
         synchronized (this) {
             AnyService<?, ?> service = getService(etag, getAnyServiceClass());
 
-            DeassociationPatch deassociationPatch = new DeassociationPatch();
-            deassociationPatch.setKey(key);
-            deassociationPatch.setAction(ResourceDeassociationAction.UNLINK);
-            deassociationPatch.getResources().addAll(StatusUtils.buildStatusPatch(statuses).getResources());
+            DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(key).
+                    action(ResourceDeassociationAction.UNLINK).
+                    resources(StatusUtils.buildStatusPatch(statuses).getResources()).build();
 
             result = service.deassociate(deassociationPatch).readEntity(BulkActionResult.class);
 
@@ -102,11 +101,10 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch
 
             StatusPatch statusPatch = StatusUtils.buildStatusPatch(statuses);
 
-            AssociationPatch associationPatch = new AssociationPatch();
-            associationPatch.setKey(key);
-            associationPatch.setAction(ResourceAssociationAction.LINK);
-            associationPatch.setOnSyncope(statusPatch.isOnSyncope());
-            associationPatch.getResources().addAll(statusPatch.getResources());
+            AssociationPatch associationPatch = new AssociationPatch.Builder().key(key).
+                    action(ResourceAssociationAction.LINK).
+                    onSyncope(statusPatch.isOnSyncope()).
+                    resources(statusPatch.getResources()).build();
 
             result = service.associate(associationPatch).readEntity(BulkActionResult.class);
 
@@ -120,10 +118,9 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch
         synchronized (this) {
             AnyService<?, ?> service = getService(etag, getAnyServiceClass());
 
-            DeassociationPatch deassociationPatch = new DeassociationPatch();
-            deassociationPatch.setKey(key);
-            deassociationPatch.setAction(ResourceDeassociationAction.DEPROVISION);
-            deassociationPatch.getResources().addAll(StatusUtils.buildStatusPatch(statuses).getResources());
+            DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(key).
+                    action(ResourceDeassociationAction.DEPROVISION).
+                    resources(StatusUtils.buildStatusPatch(statuses).getResources()).build();
 
             result = service.deassociate(deassociationPatch).readEntity(BulkActionResult.class);
 
@@ -139,11 +136,10 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch
 
             StatusPatch statusPatch = StatusUtils.buildStatusPatch(statuses);
 
-            AssociationPatch associationPatch = new AssociationPatch();
-            associationPatch.setKey(key);
-            associationPatch.setAction(ResourceAssociationAction.PROVISION);
-            associationPatch.setOnSyncope(statusPatch.isOnSyncope());
-            associationPatch.getResources().addAll(statusPatch.getResources());
+            AssociationPatch associationPatch = new AssociationPatch.Builder().key(key).
+                    action(ResourceAssociationAction.PROVISION).
+                    onSyncope(statusPatch.isOnSyncope()).
+                    resources(statusPatch.getResources()).build();
 
             result = service.associate(associationPatch).readEntity(BulkActionResult.class);
 
@@ -157,10 +153,9 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch
         synchronized (this) {
             AnyService<?, ?> service = getService(etag, getAnyServiceClass());
 
-            DeassociationPatch deassociationPatch = new DeassociationPatch();
-            deassociationPatch.setKey(key);
-            deassociationPatch.setAction(ResourceDeassociationAction.UNASSIGN);
-            deassociationPatch.getResources().addAll(StatusUtils.buildStatusPatch(statuses).getResources());
+            DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(key).
+                    action(ResourceDeassociationAction.UNASSIGN).
+                    resources(StatusUtils.buildStatusPatch(statuses).getResources()).build();
 
             result = service.deassociate(deassociationPatch).readEntity(BulkActionResult.class);
 
@@ -176,11 +171,10 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch
 
             StatusPatch statusPatch = StatusUtils.buildStatusPatch(statuses);
 
-            AssociationPatch associationPatch = new AssociationPatch();
-            associationPatch.setKey(key);
-            associationPatch.setAction(ResourceAssociationAction.ASSIGN);
-            associationPatch.setOnSyncope(statusPatch.isOnSyncope());
-            associationPatch.getResources().addAll(statusPatch.getResources());
+            AssociationPatch associationPatch = new AssociationPatch.Builder().key(key).
+                    action(ResourceAssociationAction.ASSIGN).
+                    onSyncope(statusPatch.isOnSyncope()).
+                    resources(statusPatch.getResources()).build();
 
             result = service.associate(associationPatch).readEntity(BulkActionResult.class);
 

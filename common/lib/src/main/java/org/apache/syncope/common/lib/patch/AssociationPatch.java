@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.patch;
 
+import java.util.Collection;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
@@ -28,6 +29,59 @@ import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 public class AssociationPatch extends PasswordPatch {
 
     private static final long serialVersionUID = 6295778399633883767L;
+
+    public static class Builder extends PasswordPatch.Builder {
+
+        @Override
+        protected AssociationPatch newInstance() {
+            return new AssociationPatch();
+        }
+
+        @Override
+        protected AssociationPatch getInstance() {
+            return (AssociationPatch) super.getInstance();
+        }
+
+        @Override
+        public AssociationPatch build() {
+            return (AssociationPatch) super.build();
+        }
+
+        @Override
+        public Builder onSyncope(final boolean onSyncope) {
+            return (Builder) super.onSyncope(onSyncope);
+        }
+
+        @Override
+        public Builder resource(final String resource) {
+            return (Builder) super.resource(resource);
+        }
+
+        @Override
+        public Builder resources(final Collection<String> resources) {
+            return (Builder) super.resources(resources);
+        }
+
+        @Override
+        public Builder resources(final String... resources) {
+            return (Builder) super.resources(resources);
+        }
+
+        @Override
+        public Builder value(final String value) {
+            return (Builder) super.value(value);
+        }
+
+        public Builder key(final String key) {
+            getInstance().setKey(key);
+            return this;
+        }
+
+        public Builder action(final ResourceAssociationAction action) {
+            getInstance().setAction(action);
+            return this;
+        }
+    }
 
     private String key;
 
