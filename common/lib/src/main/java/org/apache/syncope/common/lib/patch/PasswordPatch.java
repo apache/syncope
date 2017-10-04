@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.patch;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
@@ -27,7 +28,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.commons.collections4.CollectionUtils;
 
 @XmlRootElement(name = "passwordPatch")
 @XmlType
@@ -56,7 +56,7 @@ public class PasswordPatch extends StringReplacePatchItem {
         }
 
         public Builder resources(final String... resources) {
-            CollectionUtils.addAll(getInstance().getResources(), resources);
+            getInstance().getResources().addAll(Arrays.asList(resources));
             return this;
         }
 

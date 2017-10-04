@@ -104,11 +104,8 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
                 build());
         if (matchingGroups.getSize() > 0) {
             for (GroupTO group : matchingGroups.getResult()) {
-                DeassociationPatch deassociationPatch = new DeassociationPatch();
-                deassociationPatch.setKey(group.getKey());
-                deassociationPatch.setAction(ResourceDeassociationAction.UNLINK);
-                deassociationPatch.getResources().add(RESOURCE_NAME_LDAP);
-                groupService.deassociate(deassociationPatch);
+                groupService.deassociate(new DeassociationPatch.Builder().key(group.getKey()).
+                        action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_LDAP).build());
                 groupService.delete(group.getKey());
             }
         }
@@ -119,11 +116,8 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
                         build());
         if (matchingUsers.getSize() > 0) {
             for (UserTO user : matchingUsers.getResult()) {
-                DeassociationPatch deassociationPatch = new DeassociationPatch();
-                deassociationPatch.setKey(user.getKey());
-                deassociationPatch.setAction(ResourceDeassociationAction.UNLINK);
-                deassociationPatch.getResources().add(RESOURCE_NAME_LDAP);
-                userService.deassociate(deassociationPatch);
+                userService.deassociate(new DeassociationPatch.Builder().key(user.getKey()).
+                        action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_LDAP).build());
                 userService.delete(user.getKey());
             }
         }

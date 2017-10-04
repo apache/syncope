@@ -411,9 +411,6 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void reconcileFromScriptedSQL() {
-        System.out.println("QUAAAAAAAAAAAAAAAAAAAAA");
-        LOG.info("QUAAAAAAAAAAAAAAAa");
-                
         // 0. reset sync token and set MappingItemTransformer
         ResourceTO resource = resourceService.read(RESOURCE_NAME_DBSCRIPTED);
         ResourceTO originalResource = SerializationUtils.clone(resource);
@@ -466,11 +463,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
                                     is("location").equalTo("pull*").query()).build());
             assertTrue(matchingPrinters.getSize() > 0);
             for (AnyObjectTO printer : matchingPrinters.getResult()) {
-                DeassociationPatch deassociationPatch = new DeassociationPatch();
-                deassociationPatch.setKey(printer.getKey());
-                deassociationPatch.setAction(ResourceDeassociationAction.UNLINK);
-                deassociationPatch.getResources().add(RESOURCE_NAME_DBSCRIPTED);
-                anyObjectService.deassociate(deassociationPatch);
+                anyObjectService.deassociate(new DeassociationPatch.Builder().key(printer.getKey()).
+                        action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_DBSCRIPTED).build());
                 anyObjectService.delete(printer.getKey());
             }
 

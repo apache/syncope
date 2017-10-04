@@ -168,9 +168,8 @@ public class VirAttrITCase extends AbstractITCase {
         // ----------------------------------
         // suspend/reactivate user and check virtual attribute value (unchanged)
         // ----------------------------------
-        StatusPatch statusPatch = new StatusPatch();
-        statusPatch.setKey(userTO.getKey());
-        statusPatch.setType(StatusPatchType.SUSPEND);
+        StatusPatch statusPatch = new StatusPatch.Builder().key(userTO.getKey()).
+                type(StatusPatchType.SUSPEND).build();
         userTO = userService.status(statusPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertEquals("suspended", userTO.getStatus());
@@ -178,9 +177,8 @@ public class VirAttrITCase extends AbstractITCase {
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
         assertEquals("virtualvalue2", connObjectTO.getAttr("COMPANYNAME").getValues().get(0));
 
-        statusPatch = new StatusPatch();
-        statusPatch.setKey(userTO.getKey());
-        statusPatch.setType(StatusPatchType.REACTIVATE);
+        statusPatch = new StatusPatch.Builder().key(userTO.getKey()).
+                type(StatusPatchType.REACTIVATE).build();
         userTO = userService.status(statusPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertEquals("active", userTO.getStatus());

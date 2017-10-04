@@ -409,9 +409,8 @@ public class AuthenticationITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        StatusPatch reactivate = new StatusPatch();
-        reactivate.setKey(userTO.getKey());
-        reactivate.setType(StatusPatchType.REACTIVATE);
+        StatusPatch reactivate = new StatusPatch.Builder().key(userTO.getKey()).
+                type(StatusPatchType.REACTIVATE).build();
         userTO = userService.status(reactivate).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(userTO);
@@ -546,10 +545,8 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(user);
 
         // 2. unlink the resource from the created user
-        DeassociationPatch deassociationPatch = new DeassociationPatch();
-        deassociationPatch.setKey(user.getKey());
-        deassociationPatch.setAction(ResourceDeassociationAction.UNLINK);
-        deassociationPatch.getResources().add(RESOURCE_NAME_TESTDB);
+        DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(user.getKey()).
+                action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_TESTDB).build();
         assertNotNull(userService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
 
         // 3. change password on Syncope

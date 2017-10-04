@@ -21,6 +21,7 @@ package org.apache.syncope.common.lib.to;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import javax.ws.rs.PathParam;
@@ -28,7 +29,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.commons.collections4.CollectionUtils;
 
 @XmlRootElement(name = "attribute")
 @XmlType
@@ -56,7 +56,7 @@ public class AttrTO extends AbstractBaseBean {
         }
 
         public Builder values(final String... values) {
-            CollectionUtils.addAll(instance.getValues(), values);
+            instance.getValues().addAll(Arrays.asList(values));
             return this;
         }
 

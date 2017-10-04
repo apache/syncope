@@ -383,10 +383,10 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
             case SUSPEND:
                 if (logic instanceof UserLogic) {
                     for (String key : bulkAction.getTargets()) {
-                        StatusPatch statusPatch = new StatusPatch();
-                        statusPatch.setKey(key);
-                        statusPatch.setType(StatusPatchType.SUSPEND);
-                        statusPatch.setOnSyncope(true);
+                        StatusPatch statusPatch = new StatusPatch.Builder().key(key).
+                                type(StatusPatchType.SUSPEND).
+                                onSyncope(true).
+                                build();
 
                         try {
                             result.getResults().put(
@@ -406,10 +406,10 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
             case REACTIVATE:
                 if (logic instanceof UserLogic) {
                     for (String key : bulkAction.getTargets()) {
-                        StatusPatch statusPatch = new StatusPatch();
-                        statusPatch.setKey(key);
-                        statusPatch.setType(StatusPatchType.REACTIVATE);
-                        statusPatch.setOnSyncope(true);
+                        StatusPatch statusPatch = new StatusPatch.Builder().key(key).
+                                type(StatusPatchType.REACTIVATE).
+                                onSyncope(true).
+                                build();
 
                         try {
                             result.getResults().put(
