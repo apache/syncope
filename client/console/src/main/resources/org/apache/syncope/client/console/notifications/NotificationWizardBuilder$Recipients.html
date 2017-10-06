@@ -17,33 +17,30 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head><title></title></head>
-  <body>
-    <wicket:panel>
-      <div class="form-group">
-        <span wicket:id="staticRecipients">[staticRecipients]</span>
+  <wicket:panel>
+    <div class="form-group">
+      <span wicket:id="staticRecipients">[staticRecipients]</span>
+    </div>
+    <div class="form-group form-group-inline">
+      <span wicket:id="recipients">[recipients]</span>
+    </div>
+    <div class="form-group">
+      <span wicket:id="recipientAttrName">[recipientAttrName]</span>
+    </div>
+    <div class="form-group">
+      <span wicket:id="recipientsProvider">[recipientsProvider]</span>
+    </div>
+    <div id="userFilter" class="form-group box">
+      <div id="title">
+        <span for="userNotifications"><wicket:message key="userNotifications"/></span>
       </div>
-      <div class="form-group form-group-inline">
-        <span wicket:id="recipients">[recipients]</span>
+      <div id="warning">
+        <span for="userNotificationsWarning"><wicket:message key="userNotificationsWarning"/></span>
       </div>
-      <div class="form-group">
-        <span wicket:id="recipientAttrName">[recipientAttrName]</span>
+      <div id="check">
+        <span wicket:id="selfAsRecipient">[selfAsRecipient]</span>
       </div>
-      <div class="form-group">
-        <span wicket:id="recipientsProviderClassName">[recipientsProviderClassName]</span>
-      </div>
-      <div id="userFilter" class="form-group box">
-        <div id="title">
-          <span for="userNotifications"><wicket:message key="userNotifications"/></span>
-        </div>
-        <div id="warning">
-          <span for="userNotificationsWarning"><wicket:message key="userNotificationsWarning"/></span>
-        </div>
-        <div id="check">
-          <span wicket:id="selfAsRecipient">[selfAsRecipient]</span>
-        </div>
-      </div>
-    </wicket:panel>
-  </body>
+    </div>
+  </wicket:panel>
 </html>
 

@@ -37,6 +37,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
+import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.Model;
@@ -92,7 +93,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ResourceProvision>
     /**
      * AuxClasses definition step.
      */
-    private static final class AuxClasses extends WizardStep implements WizardModel.ICondition {
+    private static final class AuxClasses extends WizardStep implements ICondition {
 
         private static final long serialVersionUID = 5315236191866427500L;
 

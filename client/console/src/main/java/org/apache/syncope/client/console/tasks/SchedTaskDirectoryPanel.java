@@ -132,8 +132,8 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("name", this), "name", "name"));
 
-        columns.add(new PropertyColumn<T, String>(new StringResourceModel(
-                "jobDelegateClassName", this), "jobDelegateClassName", "jobDelegateClassName") {
+        columns.add(new PropertyColumn<T, String>(
+                new StringResourceModel("jobDelegate", this), "jobDelegate", "jobDelegate") {
 
             private static final long serialVersionUID = -3223917055078733093L;
 

@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.lang.reflect.Modifier;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.RuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
@@ -66,14 +67,19 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
 
     @Override
     public void update(final Implementation implementation, final ImplementationTO implementationTO) {
-        BeanUtils.copyProperties(implementationTO, implementation);
-
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidImplementation);
 
-        if (implementation.getBody() == null) {
+        if (implementation.getType() != null && implementation.getType() != implementationTO.getType()) {
+            sce.getElements().add("ImplementationType cannot be changed");
+            throw sce;
+        }
+
+        if (StringUtils.isBlank(implementationTO.getBody())) {
             sce.getElements().add("No actual implementation provided");
             throw sce;
         }
+
+        BeanUtils.copyProperties(implementationTO, implementation);
 
         if (implementation.getEngine() == ImplementationEngine.JAVA) {
             Class<?> base = null;

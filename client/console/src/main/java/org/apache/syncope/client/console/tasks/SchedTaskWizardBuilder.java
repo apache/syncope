@@ -19,14 +19,12 @@
 package org.apache.syncope.client.console.tasks;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -35,8 +33,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
-import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.to.AbstractProvisioningTaskTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -60,6 +58,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
     private static final long serialVersionUID = 5945391813567245081L;
 
     private final TaskRestClient taskRestClient = new TaskRestClient();
+
+    private final ImplementationRestClient implRestClient = new ImplementationRestClient();
 
     private PushTaskWrapper wrapper;
 
@@ -113,68 +113,47 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
         private static final long serialVersionUID = -3043839139187792810L;
 
-        private final IModel<List<String>> taskJobClasses = new LoadableDetachableModel<List<String>>() {
+        private final IModel<List<String>> taskJobDelegates = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
-                Optional<JavaImplInfo> taskJobDelegates = SyncopeConsoleSession.get().getPlatformInfo().
-                        getJavaImplInfo(ImplementationType.TASKJOB_DELEGATE);
-                List<String> load = taskJobDelegates.isPresent()
-                        ? new ArrayList<>(taskJobDelegates.get().getClasses())
-                        : new ArrayList<>();
-                Collections.sort(load);
-                return load;
+                return implRestClient.list(ImplementationType.TASKJOB_DELEGATE).stream().
+                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
 
-        private final IModel<List<String>> reconciliationFilterBuilderClasses =
-                new LoadableDetachableModel<List<String>>() {
+        private final IModel<List<String>> reconFilterBuilders = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
-                Optional<JavaImplInfo> reconFilterBuilders = SyncopeConsoleSession.get().getPlatformInfo().
-                        getJavaImplInfo(ImplementationType.RECON_FILTER_BUILDER);
-                List<String> load = reconFilterBuilders.isPresent()
-                        ? new ArrayList<>(reconFilterBuilders.get().getClasses())
-                        : new ArrayList<>();
-                Collections.sort(load);
-                return load;
+                return implRestClient.list(ImplementationType.RECON_FILTER_BUILDER).stream().
+                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
 
-        private final IModel<List<String>> pullActionsClasses = new LoadableDetachableModel<List<String>>() {
+        private final IModel<List<String>> pullActions = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
-                Optional<JavaImplInfo> pullActions = SyncopeConsoleSession.get().getPlatformInfo().
-                        getJavaImplInfo(ImplementationType.PULL_ACTIONS);
-                List<String> load = pullActions.isPresent()
-                        ? new ArrayList<>(pullActions.get().getClasses())
-                        : new ArrayList<>();
-                Collections.sort(load);
-                return load;
+                return implRestClient.list(ImplementationType.PULL_ACTIONS).stream().
+                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
 
-        private final IModel<List<String>> pushActionsClasses = new LoadableDetachableModel<List<String>>() {
+        private final IModel<List<String>> pushActions = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
-                Optional<JavaImplInfo> pushActions = SyncopeConsoleSession.get().getPlatformInfo().
-                        getJavaImplInfo(ImplementationType.PUSH_ACTIONS);
-                List<String> load = pushActions.isPresent()
-                        ? new ArrayList<>(pushActions.get().getClasses())
-                        : new ArrayList<>();
-                Collections.sort(load);
-                return load;
+                return implRestClient.list(ImplementationType.PUSH_ACTIONS).stream().
+                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
 
@@ -194,14 +173,13 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
                     false);
             add(active);
 
-            AjaxDropDownChoicePanel<String> jobDelegateClassName = new AjaxDropDownChoicePanel<>(
-                    "jobDelegateClassName", "jobDelegateClassName",
-                    new PropertyModel<>(taskTO, "jobDelegateClassName"), false);
-            jobDelegateClassName.setChoices(taskJobClasses.getObject());
-            jobDelegateClassName.addRequiredLabel();
-            jobDelegateClassName.setEnabled(taskTO.getKey() == null);
-            jobDelegateClassName.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
-            add(jobDelegateClassName);
+            AjaxDropDownChoicePanel<String> jobDelegate = new AjaxDropDownChoicePanel<>(
+                    "jobDelegate", "jobDelegate", new PropertyModel<>(taskTO, "jobDelegate"), false);
+            jobDelegate.setChoices(taskJobDelegates.getObject());
+            jobDelegate.addRequiredLabel();
+            jobDelegate.setEnabled(taskTO.getKey() == null);
+            jobDelegate.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
+            add(jobDelegate);
 
             // ------------------------------
             // Only for pull tasks
@@ -225,14 +203,14 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
             pullMode.setNullValid(!(taskTO instanceof PullTaskTO));
             pullTaskSpecifics.add(pullMode);
 
-            final AjaxDropDownChoicePanel<String> reconciliationFilterBuilderClassName = new AjaxDropDownChoicePanel<>(
-                    "reconciliationFilterBuilderClassName", "reconciliationFilterBuilderClassName",
-                    new PropertyModel<>(taskTO, "reconciliationFilterBuilderClassName"), false);
-            reconciliationFilterBuilderClassName.setChoices(reconciliationFilterBuilderClasses.getObject());
-            reconciliationFilterBuilderClassName.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
-            reconciliationFilterBuilderClassName.setEnabled(isFiltered);
-            reconciliationFilterBuilderClassName.setRequired(isFiltered);
-            pullTaskSpecifics.add(reconciliationFilterBuilderClassName);
+            final AjaxDropDownChoicePanel<String> reconFilterBuilder = new AjaxDropDownChoicePanel<>(
+                    "reconFilterBuilder", "reconFilterBuilder",
+                    new PropertyModel<>(taskTO, "reconFilterBuilder"), false);
+            reconFilterBuilder.setChoices(reconFilterBuilders.getObject());
+            reconFilterBuilder.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
+            reconFilterBuilder.setEnabled(isFiltered);
+            reconFilterBuilder.setRequired(isFiltered);
+            pullTaskSpecifics.add(reconFilterBuilder);
 
             pullMode.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -240,11 +218,11 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
-                    reconciliationFilterBuilderClassName.setEnabled(
+                    reconFilterBuilder.setEnabled(
                             pullMode.getModelObject() == PullMode.FILTERED_RECONCILIATION);
-                    reconciliationFilterBuilderClassName.setRequired(
+                    reconFilterBuilder.setRequired(
                             pullMode.getModelObject() == PullMode.FILTERED_RECONCILIATION);
-                    target.add(reconciliationFilterBuilderClassName);
+                    target.add(reconFilterBuilder);
                 }
             });
 
@@ -285,19 +263,19 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
             add(provisioningTaskSpecifics.setRenderBodyOnly(true));
 
             if (taskTO instanceof AbstractProvisioningTaskTO) {
-                jobDelegateClassName.setEnabled(false).setVisible(false);
+                jobDelegate.setEnabled(false).setVisible(false);
             } else {
                 provisioningTaskSpecifics.setEnabled(false).setVisible(false);
             }
 
-            AjaxPalettePanel<String> actionsClassNames = new AjaxPalettePanel.Builder<String>().
+            AjaxPalettePanel<String> actions = new AjaxPalettePanel.Builder<String>().
                     setAllowMoveAll(true).setAllowOrder(true).
-                    build("actionsClassNames",
-                            new PropertyModel<List<String>>(taskTO, "actionsClassNames"),
+                    build("actions",
+                            new PropertyModel<List<String>>(taskTO, "actions"),
                             new ListModel<>(taskTO instanceof PushTaskTO
-                                    ? pushActionsClasses.getObject() : pullActionsClasses.getObject()));
-            actionsClassNames.setOutputMarkupId(true);
-            provisioningTaskSpecifics.add(actionsClassNames);
+                                    ? pushActions.getObject() : pullActions.getObject()));
+            actions.setOutputMarkupId(true);
+            provisioningTaskSpecifics.add(actions);
 
             AjaxDropDownChoicePanel<MatchingRule> matchingRule = new AjaxDropDownChoicePanel<>(
                     "matchingRule", "matchingRule", new PropertyModel<>(taskTO, "matchingRule"), false);

@@ -20,25 +20,22 @@ package org.apache.syncope.client.console.reports;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.BeanPanel;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
-import org.apache.syncope.common.lib.info.JavaImplInfo;
-import org.apache.syncope.common.lib.report.AbstractReportletConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.PropertyModel;
@@ -50,27 +47,7 @@ public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletWrapper> 
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private static final ImplementationRestClient IMPLEMENTATION_CLIENT = new ImplementationRestClient();
-
-    public static List<ReportletWrapper> getReportletWrappers(final ReportTO reportTO) {
-        return reportTO.getReportlets().stream().map(reportlet -> {
-            ImplementationTO implementation = IMPLEMENTATION_CLIENT.read(reportlet);
-
-            ReportletWrapper wrapper = null;
-            if (implementation.getEngine() == ImplementationEngine.JAVA) {
-                try {
-                    ReportletConf reportletCOnf = MAPPER.readValue(implementation.getBody(), ReportletConf.class);
-                    wrapper = new ReportletWrapper().
-                            setImplementationKey(implementation.getKey()).
-                            setName(reportletCOnf.getName());
-                } catch (Exception e) {
-                    LOG.error("During deserialization", e);
-                }
-            }
-
-            return wrapper;
-        }).filter(wrapper -> wrapper != null).collect(Collectors.toList());
-    }
+    private final ImplementationRestClient implementationClient = new ImplementationRestClient();
 
     private final ReportRestClient restClient = new ReportRestClient();
 
@@ -86,28 +63,20 @@ public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletWrapper> 
 
     @Override
     protected Serializable onApplyInternal(final ReportletWrapper modelObject) {
-        ImplementationTO reportlet = new ImplementationTO();
-        reportlet.setKey(modelObject.getName());
-        reportlet.setEngine(ImplementationEngine.JAVA);
-        reportlet.setType(ImplementationType.REPORTLET);
-        try {
-            reportlet.setBody(MAPPER.writeValueAsString(modelObject.getConf()));
-
-            reportlet = IMPLEMENTATION_CLIENT.create(reportlet);
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not create reportlet", e);
+        if (modelObject.getImplementationEngine() == ImplementationEngine.JAVA) {
+            ImplementationTO reportlet = implementationClient.read(modelObject.getImplementationKey());
+            try {
+                reportlet.setBody(MAPPER.writeValueAsString(modelObject.getConf()));
+                implementationClient.update(reportlet);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
 
         ReportTO reportTO = restClient.read(report);
-        if (!modelObject.isNew()) {
-            List<ReportletWrapper> wrappers = getReportletWrappers(reportTO);
-            wrappers.removeAll(wrappers.stream().
-                    filter(wrapper -> wrapper.getName().equals(modelObject.getOldName())).collect(Collectors.toSet()));
-            reportTO.getReportlets().clear();
-            reportTO.getReportlets().addAll(wrappers.stream().
-                    map(ReportletWrapper::getImplementationKey).collect(Collectors.toSet()));
+        if (modelObject.isNew()) {
+            reportTO.getReportlets().add(modelObject.getImplementationKey());
         }
-        reportTO.getReportlets().add(reportlet.getKey());
 
         restClient.update(reportTO);
         return modelObject;
@@ -126,45 +95,32 @@ public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletWrapper> 
         private static final long serialVersionUID = -3043839139187792810L;
 
         public Profile(final ReportletWrapper reportlet) {
-
-            final AjaxTextFieldPanel name = new AjaxTextFieldPanel(
-                    "name", "reportlet", new PropertyModel<>(reportlet, "name"), false);
-            name.addRequiredLabel();
-            name.setEnabled(true);
-            add(name);
-
             final AjaxDropDownChoicePanel<String> conf = new AjaxDropDownChoicePanel<>(
-                    "configuration", getString("configuration"), new PropertyModel<String>(reportlet, "conf") {
+                    "reportlet", getString("reportlet"), new PropertyModel<String>(reportlet, "implementationKey"));
 
-                private static final long serialVersionUID = -6427731218492117883L;
+            conf.setChoices(implementationClient.list(ImplementationType.REPORTLET).stream().
+                    map(EntityTO::getKey).sorted().collect(Collectors.toList()));
+            conf.addRequiredLabel();
+            conf.setNullValid(false);
+            conf.setEnabled(reportlet.isNew());
+            conf.add(new AjaxEventBehavior(Constants.ON_CHANGE) {
+
+                private static final long serialVersionUID = -7133385027739964990L;
 
                 @Override
-                public String getObject() {
-                    return reportlet.getConf() == null ? null : reportlet.getConf().getClass().getName();
-                }
-
-                @Override
-                public void setObject(final String object) {
-                    AbstractReportletConf conf = null;
-
-                    try {
-                        conf = AbstractReportletConf.class.cast(Class.forName(object).newInstance());
-                    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                        LOG.warn("Error retrieving reportlet configuration instance", e);
+                protected void onEvent(final AjaxRequestTarget target) {
+                    ImplementationTO implementation = implementationClient.read(conf.getModelObject());
+                    reportlet.setImplementationEngine(implementation.getEngine());
+                    if (implementation.getEngine() == ImplementationEngine.JAVA) {
+                        try {
+                            ReportletConf conf = MAPPER.readValue(implementation.getBody(), ReportletConf.class);
+                            reportlet.setConf(conf);
+                        } catch (Exception e) {
+                            LOG.error("During deserialization", e);
+                        }
                     }
-
-                    reportlet.setConf(conf);
                 }
             });
-
-            Optional<JavaImplInfo> reportlets = SyncopeConsoleSession.get().getPlatformInfo().
-                    getJavaImplInfo(ImplementationType.REPORTLET);
-            List<String> choices = reportlets.isPresent()
-                    ? new ArrayList<>(reportlets.get().getClasses())
-                    : new ArrayList<>();
-            conf.setChoices(choices);
-
-            conf.addRequiredLabel();
             add(conf);
         }
     }
@@ -183,8 +139,7 @@ public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletWrapper> 
                     return reportlet.getConf();
                 }
             };
-
-            add(new BeanPanel<>("bean", bean, reportlet.getSCondWrapper(), "name", "reportletClassName").
+            add(new BeanPanel<>("bean", bean, reportlet.getSCondWrapper(), "name", "reportlet").
                     setRenderBodyOnly(true));
         }
     }

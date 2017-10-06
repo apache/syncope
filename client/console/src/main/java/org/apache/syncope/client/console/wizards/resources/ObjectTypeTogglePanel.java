@@ -34,10 +34,6 @@ public abstract class ObjectTypeTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -1366846136630731264L;
 
-    protected PropertyModel<String> typeModel;
-
-    private final Form<Object> form;
-
     ObjectTypeTogglePanel(
             final String id,
             final ResourceProvision item,
@@ -45,10 +41,10 @@ public abstract class ObjectTypeTogglePanel extends TogglePanel<Serializable> {
             final PageReference pageRef) {
         super(id, pageRef);
 
-        form = new Form<>("objectTypeForm");
+        Form<?> form = new Form<>("objectTypeForm");
         addInnerObject(form);
 
-        typeModel = new PropertyModel<>(item, "anyType");
+        PropertyModel<String> typeModel = new PropertyModel<>(item, "anyType");
 
         form.add(new AjaxDropDownChoicePanel<>(
                 "type", "type", typeModel, false).

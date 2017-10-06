@@ -21,28 +21,25 @@ package org.apache.syncope.client.console.policies;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.BeanPanel;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
-import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
-import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.ComposablePolicy;
 import org.apache.syncope.common.lib.policy.RuleConf;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.core.util.lang.PropertyResolver;
+import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -54,33 +51,7 @@ public class PolicyRuleWizardBuilder extends AjaxWizardBuilder<PolicyRuleWrapper
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private static final ImplementationRestClient IMPLEMENTATION_CLIENT = new ImplementationRestClient();
-
-    @SuppressWarnings("unchecked")
-    public static List<PolicyRuleWrapper> getPolicyRuleWrappers(final AbstractPolicyTO policyTO) {
-        Object rules = PropertyResolver.getValue("rules", policyTO);
-        if (rules instanceof List) {
-            return ((List<String>) rules).stream().map(rule -> {
-                ImplementationTO implementation = IMPLEMENTATION_CLIENT.read(rule);
-
-                PolicyRuleWrapper wrapper = null;
-                if (implementation.getEngine() == ImplementationEngine.JAVA) {
-                    try {
-                        RuleConf ruleConf = MAPPER.readValue(implementation.getBody(), RuleConf.class);
-                        wrapper = new PolicyRuleWrapper().
-                                setImplementationKey(implementation.getKey()).
-                                setName(ruleConf.getName());
-                    } catch (Exception e) {
-                        LOG.error("During deserialization", e);
-                    }
-                }
-
-                return wrapper;
-            }).filter(wrapper -> wrapper != null).collect(Collectors.toList());
-        } else {
-            return null;
-        }
-    }
+    private final ImplementationRestClient implementationClient = new ImplementationRestClient();
 
     private final PolicyRestClient restClient = new PolicyRestClient();
 
@@ -91,9 +62,11 @@ public class PolicyRuleWizardBuilder extends AjaxWizardBuilder<PolicyRuleWrapper
     public PolicyRuleWizardBuilder(
             final String policy,
             final PolicyType type,
-            final PolicyRuleWrapper reportlet,
+            final PolicyRuleWrapper policyWrapper,
             final PageReference pageRef) {
-        super(reportlet, pageRef);
+
+        super(policyWrapper, pageRef);
+
         this.policy = policy;
         this.type = type;
     }
@@ -109,28 +82,19 @@ public class PolicyRuleWizardBuilder extends AjaxWizardBuilder<PolicyRuleWrapper
             throw new IllegalStateException("Non composable policy");
         }
 
-        ImplementationTO rule = new ImplementationTO();
-        rule.setKey(modelObject.getName());
-        rule.setEngine(ImplementationEngine.JAVA);
-        rule.setType(composable instanceof AccountPolicyTO
-                ? ImplementationType.ACCOUNT_RULE : ImplementationType.PASSWORD_RULE);
-        try {
-            rule.setBody(MAPPER.writeValueAsString(modelObject.getConf()));
-
-            rule = IMPLEMENTATION_CLIENT.create(rule);
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not create rule", e);
+        if (modelObject.getImplementationEngine() == ImplementationEngine.JAVA) {
+            ImplementationTO rule = implementationClient.read(modelObject.getImplementationKey());
+            try {
+                rule.setBody(MAPPER.writeValueAsString(modelObject.getConf()));
+                implementationClient.update(rule);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
 
-        if (!modelObject.isNew()) {
-            List<PolicyRuleWrapper> wrappers = getPolicyRuleWrappers(policyTO);
-            wrappers.removeAll(wrappers.stream().
-                    filter(wrapper -> wrapper.getName().equals(modelObject.getOldName())).collect(Collectors.toSet()));
-            composable.getRules().clear();
-            composable.getRules().addAll(wrappers.stream().
-                    map(PolicyRuleWrapper::getImplementationKey).collect(Collectors.toSet()));
+        if (modelObject.isNew()) {
+            composable.getRules().add(modelObject.getImplementationKey());
         }
-        composable.getRules().add(rule.getKey());
 
         restClient.updatePolicy(policyTO);
         return modelObject;
@@ -147,64 +111,60 @@ public class PolicyRuleWizardBuilder extends AjaxWizardBuilder<PolicyRuleWrapper
 
         private static final long serialVersionUID = -3043839139187792810L;
 
+        private final PolicyRuleWrapper rule;
+
         public Profile(final PolicyRuleWrapper rule) {
-            final AjaxTextFieldPanel name = new AjaxTextFieldPanel(
-                    "name", "rule", new PropertyModel<>(rule, "name"), false);
-            name.addRequiredLabel();
-            add(name);
+            this.rule = rule;
 
             final AjaxDropDownChoicePanel<String> conf = new AjaxDropDownChoicePanel<>(
-                    "configuration", "configuration", new PropertyModel<String>(rule, "conf") {
+                    "rule", "rule", new PropertyModel<>(rule, "implementationKey"));
 
-                private static final long serialVersionUID = -6427731218492117883L;
-
-                @Override
-                public String getObject() {
-                    return rule.getConf() == null ? null : rule.getConf().getClass().getName();
-                }
-
-                @Override
-                public void setObject(final String object) {
-                    RuleConf conf = null;
-
-                    try {
-                        conf = RuleConf.class.cast(Class.forName(object).newInstance());
-                    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                        LOG.warn("Error retrieving reportlet configuration instance", e);
-                    }
-
-                    rule.setConf(conf);
-                }
-            });
-
-            Optional<JavaImplInfo> providers;
             List<String> choices;
             switch (type) {
                 case ACCOUNT:
-                    providers = SyncopeConsoleSession.get().getPlatformInfo().
-                            getJavaImplInfo(ImplementationType.ACCOUNT_RULE);
-                    choices = providers.isPresent()
-                            ? new ArrayList<>(providers.get().getClasses())
-                            : new ArrayList<>();
+                    choices = implementationClient.list(ImplementationType.ACCOUNT_RULE).stream().
+                            map(EntityTO::getKey).sorted().collect(Collectors.toList());
                     break;
 
                 case PASSWORD:
-                    providers = SyncopeConsoleSession.get().getPlatformInfo().
-                            getJavaImplInfo(ImplementationType.PASSWORD_RULE);
-                    choices = providers.isPresent()
-                            ? new ArrayList<>(providers.get().getClasses())
-                            : new ArrayList<>();
+                    choices = implementationClient.list(ImplementationType.PASSWORD_RULE).stream().
+                            map(EntityTO::getKey).sorted().collect(Collectors.toList());
                     break;
 
                 default:
                     choices = new ArrayList<>();
             }
 
-            Collections.<String>sort(choices);
             conf.setChoices(choices);
-
             conf.addRequiredLabel();
+            conf.setNullValid(false);
+            conf.setEnabled(rule.isNew());
+            conf.add(new AjaxEventBehavior(Constants.ON_CHANGE) {
+
+                private static final long serialVersionUID = -7133385027739964990L;
+
+                @Override
+                protected void onEvent(final AjaxRequestTarget target) {
+                    ImplementationTO implementation = implementationClient.read(conf.getModelObject());
+                    rule.setImplementationEngine(implementation.getEngine());
+                    if (implementation.getEngine() == ImplementationEngine.JAVA) {
+                        try {
+                            RuleConf ruleConf = MAPPER.readValue(implementation.getBody(), RuleConf.class);
+                            rule.setConf(ruleConf);
+                        } catch (Exception e) {
+                            LOG.error("During deserialization", e);
+                        }
+                    }
+                }
+            });
             add(conf);
+        }
+
+        @Override
+        public void applyState() {
+            if (rule.getImplementationEngine() == ImplementationEngine.GROOVY) {
+                getWizardModel().finish();
+            }
         }
     }
 
@@ -212,10 +172,8 @@ public class PolicyRuleWizardBuilder extends AjaxWizardBuilder<PolicyRuleWrapper
 
         private static final long serialVersionUID = -785981096328637758L;
 
-        private final LoadableDetachableModel<Serializable> bean;
-
         public Configuration(final PolicyRuleWrapper rule) {
-            bean = new LoadableDetachableModel<Serializable>() {
+            LoadableDetachableModel<Serializable> bean = new LoadableDetachableModel<Serializable>() {
 
                 private static final long serialVersionUID = 2092144708018739371L;
 
@@ -224,7 +182,6 @@ public class PolicyRuleWizardBuilder extends AjaxWizardBuilder<PolicyRuleWrapper
                     return rule.getConf();
                 }
             };
-
             add(new BeanPanel<>("bean", bean).setRenderBodyOnly(true));
         }
     }

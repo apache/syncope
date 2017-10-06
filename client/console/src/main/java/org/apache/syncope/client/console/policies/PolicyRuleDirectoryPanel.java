@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.client.console.policies;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -33,6 +35,7 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
+import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -44,6 +47,8 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.policy.ComposablePolicy;
 import org.apache.syncope.common.lib.policy.RuleConf;
+import org.apache.syncope.common.lib.to.ImplementationTO;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -72,6 +77,8 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
 
     private static final long serialVersionUID = 4984337552918213290L;
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     private final BaseModal<T> baseModal;
 
     private final String policy;
@@ -88,7 +95,8 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
 
         enableExitButton();
 
-        this.addNewItemPanelBuilder(new PolicyRuleWizardBuilder(policy, type, new PolicyRuleWrapper(), pageRef), true);
+        this.addNewItemPanelBuilder(
+                new PolicyRuleWizardBuilder(policy, type, new PolicyRuleWrapper(true), pageRef), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.POLICY_UPDATE);
         initResultTable();
@@ -99,7 +107,7 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
         final List<IColumn<PolicyRuleWrapper, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<>(
-                new StringResourceModel("ruleConf", this), "name", "name"));
+                new StringResourceModel("rule", this), "implementationKey", "implementationKey"));
 
         columns.add(new AbstractColumn<PolicyRuleWrapper, String>(
                 new StringResourceModel("configuration", this)) {
@@ -111,7 +119,12 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
                     final Item<ICellPopulator<PolicyRuleWrapper>> cellItem,
                     final String componentId,
                     final IModel<PolicyRuleWrapper> rowModel) {
-                cellItem.add(new Label(componentId, rowModel.getObject().getConf().getClass().getName()));
+
+                if (rowModel.getObject().getConf() == null) {
+                    cellItem.add(new Label(componentId, ""));
+                } else {
+                    cellItem.add(new Label(componentId, rowModel.getObject().getConf().getClass().getName()));
+                }
             }
         });
         return columns;
@@ -131,9 +144,7 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
 
                 PolicyRuleDirectoryPanel.this.getTogglePanel().close(target);
                 send(PolicyRuleDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(
-                                new PolicyRuleWrapper().setConf(clone).setName(null),
-                                target));
+                        new AjaxWizard.EditItemActionEvent<>(new PolicyRuleWrapper(true).setConf(clone), target));
             }
         }, ActionLink.ActionType.CLONE, StandardEntitlement.POLICY_CREATE);
         panel.add(new ActionLink<PolicyRuleWrapper>() {
@@ -143,8 +154,13 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
             @Override
             public void onClick(final AjaxRequestTarget target, final PolicyRuleWrapper ignore) {
                 PolicyRuleDirectoryPanel.this.getTogglePanel().close(target);
-                send(PolicyRuleDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                if (model.getObject().getConf() == null) {
+                    SyncopeConsoleSession.get().info(getString("noConf"));
+                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                } else {
+                    send(PolicyRuleDirectoryPanel.this, Broadcast.EXACT,
+                            new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                }
             }
         }, ActionLink.ActionType.EDIT, StandardEntitlement.POLICY_UPDATE);
         panel.add(new ActionLink<PolicyRuleWrapper>() {
@@ -214,21 +230,46 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
 
         private static final long serialVersionUID = 4725679400450513556L;
 
+        private final ImplementationRestClient implementationClient = new ImplementationRestClient();
+
         private final SortableDataProviderComparator<PolicyRuleWrapper> comparator;
 
         public PolicyRuleDataProvider(final int paginatorRows) {
             super(paginatorRows);
 
             // Default sorting
-            setSort("name", SortOrder.ASCENDING);
+            setSort("implementationKey", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
+        }
+
+        @SuppressWarnings("unchecked")
+        private List<PolicyRuleWrapper> getPolicyRuleWrappers(final ComposablePolicy policy) {
+            return policy.getRules().stream().map(rule -> {
+                ImplementationTO implementation = implementationClient.read(rule);
+
+                PolicyRuleWrapper wrapper = new PolicyRuleWrapper(false).
+                        setImplementationKey(implementation.getKey()).
+                        setImplementationEngine(implementation.getEngine());
+                if (implementation.getEngine() == ImplementationEngine.JAVA) {
+                    try {
+                        RuleConf ruleConf = MAPPER.readValue(implementation.getBody(), RuleConf.class);
+                        wrapper.setConf(ruleConf);
+                    } catch (Exception e) {
+                        LOG.error("During deserialization", e);
+                    }
+                }
+
+                return wrapper;
+            }).collect(Collectors.toList());
         }
 
         @Override
         public Iterator<PolicyRuleWrapper> iterator(final long first, final long count) {
             final T actual = restClient.getPolicy(policy);
 
-            List<PolicyRuleWrapper> rules = PolicyRuleWizardBuilder.getPolicyRuleWrappers(actual);
+            List<PolicyRuleWrapper> rules = actual instanceof ComposablePolicy
+                    ? getPolicyRuleWrappers((ComposablePolicy) actual)
+                    : Collections.emptyList();
 
             Collections.sort(rules, comparator);
             return rules.subList((int) first, (int) (first + count)).iterator();
@@ -237,7 +278,9 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
         @Override
         public long size() {
             final T actual = restClient.getPolicy(policy);
-            return PolicyRuleWizardBuilder.getPolicyRuleWrappers(actual).size();
+            return actual instanceof ComposablePolicy
+                    ? getPolicyRuleWrappers((ComposablePolicy) actual).size()
+                    : 0;
         }
 
         @Override

@@ -21,7 +21,9 @@ package org.apache.syncope.client.console.init;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.syncope.client.console.pages.BaseExtPage;
@@ -32,6 +34,9 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SSOLoginFormPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.syncope.client.console.widgets.BaseExtWidget;
+import org.apache.syncope.common.lib.policy.AccountRuleConf;
+import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.common.lib.report.ReportletConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -42,7 +47,7 @@ public class ClassPathScanImplementationLookup {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClassPathScanImplementationLookup.class);
 
-    private static final String DEFAULT_BASE_PACKAGE = "org.apache.syncope.client.console";
+    private static final String DEFAULT_BASE_PACKAGE = "org.apache.syncope";
 
     private List<Class<? extends BasePage>> pages;
 
@@ -53,6 +58,12 @@ public class ClassPathScanImplementationLookup {
     private List<Class<? extends BaseExtWidget>> extWidgets;
 
     private List<Class<? extends SSOLoginFormPanel>> ssoLoginFormPanels;
+
+    private Map<String, Class<? extends ReportletConf>> reportletConfs;
+
+    private Map<String, Class<? extends AccountRuleConf>> accountRuleConfs;
+
+    private Map<String, Class<? extends PasswordRuleConf>> passwordRuleConfs;
 
     /**
      * This method can be overridden by subclasses to customize classpath scan.
@@ -70,6 +81,9 @@ public class ClassPathScanImplementationLookup {
         extPages = new ArrayList<>();
         extWidgets = new ArrayList<>();
         ssoLoginFormPanels = new ArrayList<>();
+        reportletConfs = new HashMap<>();
+        accountRuleConfs = new HashMap<>();
+        passwordRuleConfs = new HashMap<>();
 
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AssignableTypeFilter(BasePage.class));
@@ -77,6 +91,9 @@ public class ClassPathScanImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtPage.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtWidget.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(SSOLoginFormPanel.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(ReportletConf.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(AccountRuleConf.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(PasswordRuleConf.class));
 
         scanner.findCandidateComponents(getBasePackage()).forEach(bd -> {
             try {
@@ -105,6 +122,12 @@ public class ClassPathScanImplementationLookup {
                         previewers.add((Class<? extends AbstractBinaryPreviewer>) clazz);
                     } else if (SSOLoginFormPanel.class.isAssignableFrom(clazz)) {
                         ssoLoginFormPanels.add((Class<? extends SSOLoginFormPanel>) clazz);
+                    } else if (ReportletConf.class.isAssignableFrom(clazz)) {
+                        reportletConfs.put(clazz.getName(), (Class<? extends ReportletConf>) clazz);
+                    } else if (AccountRuleConf.class.isAssignableFrom(clazz)) {
+                        accountRuleConfs.put(clazz.getName(), (Class<? extends AccountRuleConf>) clazz);
+                    } else if (PasswordRuleConf.class.isAssignableFrom(clazz)) {
+                        passwordRuleConfs.put(clazz.getName(), (Class<? extends PasswordRuleConf>) clazz);
                     }
                 }
             } catch (Throwable t) {
@@ -128,10 +151,17 @@ public class ClassPathScanImplementationLookup {
 
         ssoLoginFormPanels = Collections.unmodifiableList(ssoLoginFormPanels);
 
+        reportletConfs = Collections.unmodifiableMap(reportletConfs);
+        accountRuleConfs = Collections.unmodifiableMap(accountRuleConfs);
+        passwordRuleConfs = Collections.unmodifiableMap(passwordRuleConfs);
+
         LOG.debug("Binary previewers found: {}", previewers);
         LOG.debug("Extension pages found: {}", extPages);
         LOG.debug("Extension widgets found: {}", extWidgets);
         LOG.debug("SSO Login pages found: {}", ssoLoginFormPanels);
+        LOG.debug("Reportlet configurations found: {}", reportletConfs);
+        LOG.debug("Account Rule configurations found: {}", accountRuleConfs);
+        LOG.debug("Password Rule configurations found: {}", passwordRuleConfs);
     }
 
     public Class<? extends AbstractBinaryPreviewer> getPreviewerClass(final String mimeType) {
@@ -152,10 +182,6 @@ public class ClassPathScanImplementationLookup {
         return pages;
     }
 
-    public List<Class<? extends AbstractBinaryPreviewer>> getPreviewerClasses() {
-        return previewers;
-    }
-
     public List<Class<? extends BaseExtPage>> getExtPageClasses() {
         return extPages;
     }
@@ -166,6 +192,18 @@ public class ClassPathScanImplementationLookup {
 
     public List<Class<? extends SSOLoginFormPanel>> getSSOLoginFormPanels() {
         return ssoLoginFormPanels;
+    }
+
+    public Map<String, Class<? extends ReportletConf>> getReportletConfs() {
+        return reportletConfs;
+    }
+
+    public Map<String, Class<? extends AccountRuleConf>> getAccountRuleConfs() {
+        return accountRuleConfs;
+    }
+
+    public Map<String, Class<? extends PasswordRuleConf>> getPasswordRuleConfs() {
+        return passwordRuleConfs;
     }
 
 }

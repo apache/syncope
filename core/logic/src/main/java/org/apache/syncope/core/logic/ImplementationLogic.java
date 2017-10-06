@@ -23,9 +23,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ImplementationTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -63,6 +66,17 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
 
     @PreAuthorize("hasRole('" + StandardEntitlement.IMPLEMENTATION_CREATE + "')")
     public ImplementationTO create(final ImplementationTO implementationTO) {
+        if (StringUtils.isBlank(implementationTO.getKey())) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
+            sce.getElements().add("Implementation key");
+            throw sce;
+        }
+
+        Implementation implementation = implementationDAO.find(implementationTO.getKey());
+        if (implementation != null) {
+            throw new DuplicateException(implementationTO.getKey());
+        }
+
         return binder.getImplementationTO(implementationDAO.save(binder.create(implementationTO)));
     }
 

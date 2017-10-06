@@ -144,7 +144,6 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
-//                target.add(content);
                 templateModal.show(false);
             }
         });
@@ -164,7 +163,6 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
                 importMetadata.toggle(target, true);
             }
         };
-
         ((WebMarkupContainer) get("container:content")).addOrReplace(importMetadataLink);
     }
 
@@ -193,7 +191,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
         columns.add(new BooleanPropertyColumn<>(
                 new ResourceModel("useDeflateEncoding"), "useDeflateEncoding", "useDeflateEncoding"));
         columns.add(new BooleanPropertyColumn<>(
-            new ResourceModel("supportUnsolicited"), "supportUnsolicited", "supportUnsolicited"));
+                new ResourceModel("supportUnsolicited"), "supportUnsolicited", "supportUnsolicited"));
         columns.add(new PropertyColumn<>(
                 new ResourceModel("bindingType"), "bindingType", "bindingType"));
         columns.add(new BooleanPropertyColumn<>(

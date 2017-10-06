@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.client.console.reports;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -33,6 +35,7 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
+import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -42,7 +45,9 @@ import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -68,6 +73,8 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
     private static final long serialVersionUID = 4984337552918213290L;
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     private final BaseModal<ReportTO> baseModal;
 
     private final String report;
@@ -84,7 +91,8 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
         enableExitButton();
 
-        this.addNewItemPanelBuilder(new ReportletWizardBuilder(report, new ReportletWrapper(), pageRef), true);
+        this.addNewItemPanelBuilder(
+                new ReportletWizardBuilder(report, new ReportletWrapper(true), pageRef), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.REPORT_UPDATE);
         initResultTable();
@@ -95,7 +103,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
         final List<IColumn<ReportletWrapper, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<>(
-                new StringResourceModel("reportlet", this), "name", "name"));
+                new StringResourceModel("reportlet", this), "implementationKey", "implementationKey"));
 
         columns.add(new AbstractColumn<ReportletWrapper, String>(
                 new StringResourceModel("configuration", this)) {
@@ -108,7 +116,11 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                     final String componentId,
                     final IModel<ReportletWrapper> rowModel) {
 
-                cellItem.add(new Label(componentId, rowModel.getObject().getConf().getClass().getName()));
+                if (rowModel.getObject().getConf() == null) {
+                    cellItem.add(new Label(componentId, ""));
+                } else {
+                    cellItem.add(new Label(componentId, rowModel.getObject().getConf().getClass().getName()));
+                }
             }
         });
 
@@ -130,8 +142,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
                 send(ReportletDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                new ReportletWrapper().setConf(clone).setName(null),
-                                target));
+                                new ReportletWrapper(true).setConf(clone), target));
             }
         }, ActionLink.ActionType.CLONE, StandardEntitlement.REPORT_CREATE);
         panel.add(new ActionLink<ReportletWrapper>() {
@@ -141,8 +152,12 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
                 ReportletDirectoryPanel.this.getTogglePanel().close(target);
-                send(ReportletDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                if (model.getObject().getConf() == null) {
+                    SyncopeConsoleSession.get().info(getString("noConf"));
+                } else {
+                    send(ReportletDirectoryPanel.this, Broadcast.EXACT,
+                            new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                }
             }
         }, ActionLink.ActionType.EDIT, StandardEntitlement.REPORT_UPDATE);
         panel.add(new ActionLink<ReportletWrapper>() {
@@ -210,21 +225,43 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
         private static final long serialVersionUID = 4725679400450513556L;
 
+        private final ImplementationRestClient implementationClient = new ImplementationRestClient();
+
         private final SortableDataProviderComparator<ReportletWrapper> comparator;
 
         public ReportDataProvider(final int paginatorRows) {
             super(paginatorRows);
 
             //Default sorting
-            setSort("name", SortOrder.ASCENDING);
+            setSort("implementationKey", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
+        }
+
+        private List<ReportletWrapper> getReportletWrappers(final ReportTO reportTO) {
+            return reportTO.getReportlets().stream().map(reportlet -> {
+                ImplementationTO implementation = implementationClient.read(reportlet);
+
+                ReportletWrapper wrapper = new ReportletWrapper(false).
+                        setImplementationKey(implementation.getKey()).
+                        setImplementationEngine(implementation.getEngine());
+                if (implementation.getEngine() == ImplementationEngine.JAVA) {
+                    try {
+                        ReportletConf reportletConf = MAPPER.readValue(implementation.getBody(), ReportletConf.class);
+                        wrapper.setConf(reportletConf);
+                    } catch (Exception e) {
+                        LOG.error("During deserialization", e);
+                    }
+                }
+
+                return wrapper;
+            }).filter(wrapper -> wrapper != null).collect(Collectors.toList());
         }
 
         @Override
         public Iterator<ReportletWrapper> iterator(final long first, final long count) {
             final ReportTO actual = restClient.read(report);
 
-            List<ReportletWrapper> reportlets = ReportletWizardBuilder.getReportletWrappers(actual);
+            List<ReportletWrapper> reportlets = getReportletWrappers(actual);
 
             Collections.sort(reportlets, comparator);
             return reportlets.subList((int) first, (int) (first + count)).iterator();
@@ -233,7 +270,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
         @Override
         public long size() {
             final ReportTO actual = restClient.read(report);
-            return ReportletWizardBuilder.getReportletWrappers(actual).size();
+            return getReportletWrappers(actual).size();
         }
 
         @Override

@@ -18,16 +18,19 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import static org.apache.syncope.client.console.rest.BaseRestClient.getObject;
-import static org.apache.syncope.client.console.rest.BaseRestClient.getService;
-
+import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.ImplementationTO;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
 
 public class ImplementationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -4111950555473526287L;
+
+    public List<ImplementationTO> list(final ImplementationType type) {
+        return getService(ImplementationService.class).list(type);
+    }
 
     public ImplementationTO read(final String key) {
         return getService(ImplementationService.class).read(key);
@@ -38,4 +41,13 @@ public class ImplementationRestClient extends BaseRestClient {
         Response response = service.create(implementation);
         return getObject(service, response.getLocation(), ImplementationTO.class);
     }
+
+    public void update(final ImplementationTO implementation) {
+        getService(ImplementationService.class).update(implementation);
+    }
+
+    public void delete(final String key) {
+        getService(ImplementationService.class).delete(key);
+    }
+
 }

@@ -24,21 +24,21 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.PropertyList;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
+import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
-import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -60,6 +60,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
     private static final MIMETypesLoader MIME_TYPES_LOADER = (MIMETypesLoader) SyncopeConsoleApplication.get().
             getServletContext().getAttribute(ConsoleInitializer.MIMETYPES_LOADER);
+
+    private final ImplementationRestClient implRestClient = new ImplementationRestClient();
 
     private final MultiFieldPanel<String> enumerationValues;
 
@@ -235,26 +237,21 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         }
         );
 
-        IModel<List<String>> validatorsList = new LoadableDetachableModel<List<String>>() {
+        IModel<List<String>> validators = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
-                Optional<JavaImplInfo> validators = SyncopeConsoleSession.get().getPlatformInfo().
-                        getJavaImplInfo(ImplementationType.VALIDATOR);
-                List<String> load = validators.isPresent()
-                        ? new ArrayList<>(validators.get().getClasses())
-                        : new ArrayList<>();
-                Collections.sort(load);
-                return load;
+                return implRestClient.list(ImplementationType.VALIDATOR).stream().
+                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
-        final AjaxDropDownChoicePanel<String> validatorClass = new AjaxDropDownChoicePanel<>("validatorClass",
-                getString("validatorClass"), new PropertyModel<>(schemaTO, "validatorClass"));
-        ((DropDownChoice) validatorClass.getField()).setNullValid(true);
-        validatorClass.setChoices(validatorsList.getObject());
-        schemaForm.add(validatorClass);
+        final AjaxDropDownChoicePanel<String> validator = new AjaxDropDownChoicePanel<>("validator",
+                getString("validator"), new PropertyModel<>(schemaTO, "validator"));
+        ((DropDownChoice) validator.getField()).setNullValid(true);
+        validator.setChoices(validators.getObject());
+        schemaForm.add(validator);
 
         AutoCompleteTextField<String> mandatoryCondition = new AutoCompleteTextField<String>("mandatoryCondition") {
 

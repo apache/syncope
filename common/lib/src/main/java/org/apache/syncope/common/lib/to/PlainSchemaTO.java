@@ -43,7 +43,7 @@ public class PlainSchemaTO extends AbstractSchemaTO {
 
     private String conversionPattern;
 
-    private String validatorClass;
+    private String validator;
 
     private String enumerationValues;
 
@@ -105,12 +105,12 @@ public class PlainSchemaTO extends AbstractSchemaTO {
         this.type = type;
     }
 
-    public String getValidatorClass() {
-        return validatorClass;
+    public String getValidator() {
+        return validator;
     }
 
-    public void setValidatorClass(final String validatorClass) {
-        this.validatorClass = validatorClass;
+    public void setValidator(final String validator) {
+        this.validator = validator;
     }
 
     public String getEnumerationValues() {

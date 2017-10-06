@@ -75,7 +75,7 @@ public class AccountPolicyDirectoryPanel extends PolicyDirectoryPanel<AccountPol
                         ruleCompositionModal, model.getObject().getKey(), PolicyType.ACCOUNT, pageRef)));
 
                 ruleCompositionModal.header(new StringResourceModel(
-                        "policy.rule.conf", AccountPolicyDirectoryPanel.this, Model.of(model.getObject())));
+                        "policy.rules", AccountPolicyDirectoryPanel.this, Model.of(model.getObject())));
 
                 MetaDataRoleAuthorizationStrategy.authorize(
                         ruleCompositionModal.getForm(), ENABLE, StandardEntitlement.POLICY_UPDATE);

@@ -112,11 +112,11 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
         } else if (modelObject instanceof StatusBean) {
             header = ((StatusBean) modelObject).getResource();
         } else if (modelObject instanceof PolicyRuleWrapper) {
-            header = ((PolicyRuleWrapper) modelObject).getName();
+            header = ((PolicyRuleWrapper) modelObject).getImplementationKey();
         } else if (modelObject instanceof PolicyRuleWrapper) {
-            header = ((PolicyRuleWrapper) modelObject).getName();
+            header = ((PolicyRuleWrapper) modelObject).getImplementationKey();
         } else if (modelObject instanceof ReportletWrapper) {
-            header = ((ReportletWrapper) modelObject).getName();
+            header = ((ReportletWrapper) modelObject).getImplementationKey();
         } else if (modelObject instanceof JobTO) {
             header = ((JobTO) modelObject).getRefKey() == null
                     ? ((JobTO) modelObject).getRefDesc() : ((JobTO) modelObject).getRefKey();

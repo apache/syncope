@@ -63,7 +63,7 @@ public class PullPolicyDirectoryPanel extends PolicyDirectoryPanel<PullPolicyTO>
                         new PolicySpecModalPanel(model.getObject(), policySpecModal, pageRef)));
 
                 policySpecModal.header(new StringResourceModel(
-                        "policy.rule.conf", PullPolicyDirectoryPanel.this, Model.of(model.getObject())));
+                        "policy.rules", PullPolicyDirectoryPanel.this, Model.of(model.getObject())));
 
                 MetaDataRoleAuthorizationStrategy.authorize(
                         policySpecModal.getForm(), ENABLE, StandardEntitlement.POLICY_UPDATE);

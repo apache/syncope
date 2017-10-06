@@ -26,28 +26,29 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
 
 public class ReportletWrapper implements Serializable {
 
     private static final long serialVersionUID = 2472755929742424558L;
 
+    private final boolean isNew;
+
     private String implementationKey;
 
-    private String oldname;
-
-    private String name;
+    private ImplementationEngine implementationEngine;
 
     private ReportletConf conf;
 
     private final Map<String, Pair<AbstractFiqlSearchConditionBuilder, List<SearchClause>>> scondWrapper;
 
-    public ReportletWrapper() {
-        this(null);
+    public ReportletWrapper(final boolean isNew) {
+        this.isNew = isNew;
+        this.scondWrapper = new HashMap<>();
     }
 
-    public ReportletWrapper(final String name) {
-        this.oldname = name;
-        this.scondWrapper = new HashMap<>();
+    public boolean isNew() {
+        return isNew;
     }
 
     public String getImplementationKey() {
@@ -59,20 +60,12 @@ public class ReportletWrapper implements Serializable {
         return this;
     }
 
-    public boolean isNew() {
-        return oldname == null;
+    public ImplementationEngine getImplementationEngine() {
+        return implementationEngine;
     }
 
-    public String getOldName() {
-        return this.oldname;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public ReportletWrapper setName(final String name) {
-        this.name = name;
+    public ReportletWrapper setImplementationEngine(final ImplementationEngine implementationEngine) {
+        this.implementationEngine = implementationEngine;
         return this;
     }
 

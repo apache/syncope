@@ -196,9 +196,9 @@ under the License.
   <AccountPolicyRule policy_id="06e2ed52-6966-44aa-a177-a0ca7434201f" implementation_id="DefaultAccountRuleConf2"/>
   <PullPolicy id="4ad10d94-e002-4b3f-b771-16089cc71da9" description="pull policy 1" specification='{"conflictResolutionAction":"IGNORE"}'/>
   <PasswordPolicy id="55e5de0b-c79c-4e66-adda-251b6fb8579a" description="sample password policy" historyLength="0" allowNullPassword="0"/> 
-  <Implementation id="DefaultAccountRuleConf3" type="PASSWORD_RULE" engine="JAVA"
+  <Implementation id="DefaultPasswordRuleConf3" type="PASSWORD_RULE" engine="JAVA"
                   body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
-  <PasswordPolicyRule policy_id="55e5de0b-c79c-4e66-adda-251b6fb8579a" implementation_id="DefaultAccountRuleConf3"/>
+  <PasswordPolicyRule policy_id="55e5de0b-c79c-4e66-adda-251b6fb8579a" implementation_id="DefaultPasswordRuleConf3"/>
   <PullPolicy id="9454b0d7-2610-400a-be82-fc23cf553dd6" description="pull policy for java rule"
               specification='{"conflictResolutionAction":"IGNORE"}'/>
 

@@ -20,33 +20,30 @@ package org.apache.syncope.client.console.policies;
 
 import java.io.Serializable;
 import org.apache.syncope.common.lib.policy.RuleConf;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
 
 public class PolicyRuleWrapper implements Serializable {
 
     private static final long serialVersionUID = 2472755929742424558L;
 
+    private final boolean isNew;
+
     private String implementationKey;
 
-    private String oldname;
-
-    private String name;
+    private ImplementationEngine implementationEngine;
 
     private RuleConf conf;
 
-    public String getImplementationKey() {
-        return implementationKey;
+    public PolicyRuleWrapper(final boolean isNew) {
+        this.isNew = isNew;
     }
 
     public boolean isNew() {
-        return oldname == null;
+        return isNew;
     }
 
-    public String getOldName() {
-        return this.oldname;
-    }
-
-    public String getName() {
-        return this.name;
+    public String getImplementationKey() {
+        return implementationKey;
     }
 
     public PolicyRuleWrapper setImplementationKey(final String implementationKey) {
@@ -54,8 +51,12 @@ public class PolicyRuleWrapper implements Serializable {
         return this;
     }
 
-    public PolicyRuleWrapper setName(final String name) {
-        this.name = name;
+    public ImplementationEngine getImplementationEngine() {
+        return implementationEngine;
+    }
+
+    public PolicyRuleWrapper setImplementationEngine(final ImplementationEngine implementationEngine) {
+        this.implementationEngine = implementationEngine;
         return this;
     }
 

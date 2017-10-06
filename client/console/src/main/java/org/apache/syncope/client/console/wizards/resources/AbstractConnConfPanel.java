@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.extensions.wizard.WizardModel;
+import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
@@ -37,9 +37,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.ResourceModel;
 
-public abstract class AbstractConnConfPanel<T extends AbstractBaseBean>
-        extends WizardStep
-        implements WizardModel.ICondition {
+public abstract class AbstractConnConfPanel<T extends AbstractBaseBean> extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = -2025535531121434050L;
 

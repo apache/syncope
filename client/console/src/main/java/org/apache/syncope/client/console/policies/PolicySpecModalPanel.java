@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -34,6 +33,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -41,7 +41,6 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiPanel;
-import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -60,6 +59,12 @@ import org.apache.wicket.model.PropertyModel;
 public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
 
     private static final long serialVersionUID = 5945391813567245081L;
+
+    private enum CorrelationRuleType {
+        PLAIN_ATTRIBUTES,
+        CUSTOM;
+
+    }
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -83,13 +88,9 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
 
             private static final long serialVersionUID = -8168676563540297301L;
 
-            private List<CorrelationRule> rules =
-                    (policyTO.getSpecification().getCorrelationRules() == null
-                            ? Collections.<String>emptySet()
-                            : policyTO.getSpecification().getCorrelationRules().keySet()).stream().
-                            map(rule -> new CorrelationRule(
-                            rule, policyTO.getSpecification().getCorrelationRules().get(rule))).
-                            collect(Collectors.toList());
+            private List<CorrelationRule> rules = policyTO.getSpecification().getCorrelationRules().keySet().stream().
+                    map(rule -> new CorrelationRule(rule, policyTO.getSpecification().getCorrelationRules().get(rule))).
+                    collect(Collectors.toList());
 
             @Override
             public List<CorrelationRule> getObject() {
@@ -143,7 +144,9 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
 
         private static final long serialVersionUID = -4708008994320210839L;
 
-        public CorrelationRulePanel(final String id, final IModel<CorrelationRule> rule) {
+        private final ImplementationRestClient implRestClient = new ImplementationRestClient();
+
+        CorrelationRulePanel(final String id, final IModel<CorrelationRule> rule) {
             super(id);
 
             AjaxDropDownChoicePanel<String> anyType = new AjaxDropDownChoicePanel<>(
@@ -152,25 +155,21 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
                     setChoices(new AnyTypeRestClient().list());
             add(anyType);
 
-            final AjaxDropDownChoicePanel<String> ruleType = new AjaxDropDownChoicePanel<>(
-                    "ruleType", "rule.type", new PropertyModel<String>(rule.getObject(), "type"), false).
+            final AjaxDropDownChoicePanel<CorrelationRuleType> ruleType = new AjaxDropDownChoicePanel<>(
+                    "ruleType", "rule.type", new PropertyModel<CorrelationRuleType>(rule.getObject(), "type"), false).
                     setNullValid(true).
-                    setChoices(Arrays.asList("PLAIN ATTRIBUTES", "JAVA"));
+                    setChoices(Arrays.stream(CorrelationRuleType.values()).collect(Collectors.toList()));
             add(ruleType);
 
             // ---------------------------------------------------------------
-            // Java rule palette
+            // Custom rule palette
             // ---------------------------------------------------------------
-            Optional<JavaImplInfo> pullCorrelationRules = SyncopeConsoleSession.get().getPlatformInfo().
-                    getJavaImplInfo(ImplementationType.PULL_CORRELATION_RULE);
-            List<String> load = pullCorrelationRules.isPresent()
-                    ? new ArrayList<>(pullCorrelationRules.get().getClasses())
-                    : new ArrayList<>();
-            Collections.sort(load);
-            final AjaxDropDownChoicePanel<String> javaRule = new AjaxDropDownChoicePanel<>(
-                    "javaRule", "rule.java", new PropertyModel<String>(rule.getObject(), "rule")).setChoices(load);
-            javaRule.setOutputMarkupPlaceholderTag(true);
-            add(javaRule.setVisible("JAVA".equals(rule.getObject().getType())));
+            List<String> rules = implRestClient.list(ImplementationType.PULL_CORRELATION_RULE).stream().
+                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
+            final AjaxDropDownChoicePanel<String> customRule = new AjaxDropDownChoicePanel<>(
+                    "customRule", "rule.custom", new PropertyModel<String>(rule.getObject(), "rule")).setChoices(rules);
+            customRule.setOutputMarkupPlaceholderTag(true);
+            add(customRule.setVisible(CorrelationRuleType.CUSTOM == rule.getObject().getType()));
             // ---------------------------------------------------------------
 
             // ---------------------------------------------------------------
@@ -245,7 +244,7 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
                 }
             });
 
-            add(jsonRule.setVisible("PLAIN ATTRIBUTES".equals(rule.getObject().getType())));
+            add(jsonRule.setVisible(CorrelationRuleType.PLAIN_ATTRIBUTES == rule.getObject().getType()));
             // ---------------------------------------------------------------
 
             ruleType.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -254,23 +253,25 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
 
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
-                    switch (ruleType.getModelObject() == null ? StringUtils.EMPTY : ruleType.getModelObject()) {
-                        case "PLAIN ATTRIBUTES":
+                    switch (ruleType.getModelObject()) {
+                        case PLAIN_ATTRIBUTES:
                             jsonRule.setVisible(true);
-                            javaRule.setVisible(false);
+                            customRule.setVisible(false);
                             jsonRule.reload(target);
                             break;
-                        case "JAVA":
+
+                        case CUSTOM:
                             jsonRule.setVisible(false);
-                            javaRule.setVisible(true);
+                            customRule.setVisible(true);
                             break;
+
                         default:
-                            javaRule.setVisible(false);
+                            customRule.setVisible(false);
                             jsonRule.setVisible(false);
 
                     }
                     target.add(jsonRule);
-                    target.add(javaRule);
+                    target.add(customRule);
                 }
             });
         }
@@ -293,25 +294,26 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
         }
     }
 
-    protected static class CorrelationRule implements Serializable {
+    private static class CorrelationRule implements Serializable {
 
         private static final long serialVersionUID = 5250228867297353011L;
 
         private String any;
 
-        private String type;
+        private CorrelationRuleType type;
 
         private String rule;
 
-        public CorrelationRule() {
+        CorrelationRule() {
             this.any = AnyTypeKind.USER.name();
-            this.type = "PLAIN ATTRIBUTES";
+            this.type = CorrelationRuleType.PLAIN_ATTRIBUTES;
             this.rule = "[]";
         }
 
-        public CorrelationRule(final String any, final String rule) {
+        CorrelationRule(final String any, final String rule) {
             this.any = any;
-            this.type = StringUtils.isEmpty(rule) || rule.trim().startsWith("[") ? "PLAIN ATTRIBUTES" : "JAVA";
+            this.type = StringUtils.isEmpty(rule) || rule.trim().startsWith("[") ? CorrelationRuleType.PLAIN_ATTRIBUTES
+                    : CorrelationRuleType.CUSTOM;
             this.rule = rule;
         }
 
@@ -319,7 +321,7 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
             return any;
         }
 
-        public String getType() {
+        public CorrelationRuleType getType() {
             return type;
         }
 
@@ -331,7 +333,7 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
             this.any = any;
         }
 
-        public void setType(final String type) {
+        public void setType(final CorrelationRuleType type) {
             this.type = type;
         }
 

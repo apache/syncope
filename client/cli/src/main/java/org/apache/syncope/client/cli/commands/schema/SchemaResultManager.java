@@ -61,7 +61,7 @@ public class SchemaResultManager extends CommonsResultManager {
         System.out.println("    conversion pattern: " + schemaTO.getConversionPattern());
         System.out.println("    mandatory condition: " + schemaTO.getMandatoryCondition());
         System.out.println("    mime type: " + schemaTO.getMimeType());
-        System.out.println("    validator class: " + schemaTO.getValidatorClass());
+        System.out.println("    validator class: " + schemaTO.getValidator());
         System.out.println("    cipher algorithm: " + (schemaTO.getCipherAlgorithm() == null
                 ? "" : schemaTO.getCipherAlgorithm().getAlgorithm()));
         System.out.println("");

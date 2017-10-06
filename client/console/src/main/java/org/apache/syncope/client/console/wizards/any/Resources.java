@@ -32,13 +32,13 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.wizard.WizardModel;
+import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class Resources extends WizardStep implements WizardModel.ICondition {
+public class Resources extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = 552437609667518888L;
 

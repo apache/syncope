@@ -34,7 +34,8 @@ public interface Reportlet {
      *
      * @param conf configuration
      */
-    void setConf(ReportletConf conf);
+    default void setConf(ReportletConf conf) {
+    }
 
     /**
      * Actual data extraction for reporting.

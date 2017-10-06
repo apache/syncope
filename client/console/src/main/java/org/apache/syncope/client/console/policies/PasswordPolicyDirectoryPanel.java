@@ -72,7 +72,7 @@ public class PasswordPolicyDirectoryPanel extends PolicyDirectoryPanel<PasswordP
                         ruleCompositionModal, model.getObject().getKey(), PolicyType.PASSWORD, pageRef)));
 
                 ruleCompositionModal.header(new StringResourceModel(
-                        "policy.rule.conf", PasswordPolicyDirectoryPanel.this, Model.of(model.getObject())));
+                        "policy.rules", PasswordPolicyDirectoryPanel.this, Model.of(model.getObject())));
 
                 MetaDataRoleAuthorizationStrategy.authorize(
                         ruleCompositionModal.getForm(), ENABLE, StandardEntitlement.POLICY_UPDATE);

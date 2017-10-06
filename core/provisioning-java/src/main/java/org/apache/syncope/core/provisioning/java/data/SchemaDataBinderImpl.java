@@ -37,12 +37,14 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.slf4j.Logger;
@@ -55,7 +57,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(SchemaDataBinder.class);
 
-    private static final String[] IGNORE_PROPERTIES = { "anyTypeClass", "provision", "resource" };
+    private static final String[] IGNORE_PROPERTIES = { "anyTypeClass", "provision", "resource", "validator" };
 
     @Autowired
     private AnyTypeClassDAO anyTypeClassDAO;
@@ -76,6 +78,9 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
     private AnyTypeDAO anyTypeDAO;
 
     @Autowired
+    private ImplementationDAO implementationDAO;
+
+    @Autowired
     private EntityFactory entityFactory;
 
     @Autowired
@@ -90,6 +95,18 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         }
 
         BeanUtils.copyProperties(schemaTO, schema, IGNORE_PROPERTIES);
+
+        if (schemaTO.getValidator() == null) {
+            schema.setValidator(null);
+        } else {
+            Implementation validator = implementationDAO.find(schemaTO.getValidator());
+            if (validator == null) {
+                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                        schemaTO.getValidator());
+            } else {
+                schema.setValidator(validator);
+            }
+        }
 
         PlainSchema merged = plainSchemaDAO.save(schema);
 
@@ -155,6 +172,9 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         PlainSchemaTO schemaTO = new PlainSchemaTO();
         BeanUtils.copyProperties(schema, schemaTO, IGNORE_PROPERTIES);
         schemaTO.setAnyTypeClass(schema.getAnyTypeClass() == null ? null : schema.getAnyTypeClass().getKey());
+        if (schema.getValidator() != null) {
+            schemaTO.setValidator(schema.getValidator().getKey());
+        }
 
         return schemaTO;
     }

@@ -141,8 +141,8 @@ public class NotificationDirectoryPanel
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                            getName() : e.getMessage());
+                    SyncopeConsoleSession.get().error(
+                            StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
