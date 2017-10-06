@@ -169,7 +169,7 @@ Finally, add
 <property name="jpaPropertyMap">
   <map>
     <entry key="openjpa.MetaDataFactory" 
-           value="jpa(URLs=vfs:/content/${project.build.finalName}.war/WEB-INF/classes, Resources=${Master.orm})"/>
+           value="jpa(URLs=vfs:/content/${project.build.finalName}.war/WEB-INF/lib/syncope-core-persistence-jpa-${syncope.version}.jar, Resources=${Master.orm})"/>
   </map>
 </property>
 ....
