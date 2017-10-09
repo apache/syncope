@@ -2,6 +2,26 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.0.6
+================================================================================
+
+** Bug
+    * [SYNCOPE-1205] - Serialization exception in the logs when editing users pending approval
+    * [SYNCOPE-1206] - Dynamic membership updates not considered for provisioning during update
+    * [SYNCOPE-1207] - Audit: incorrect output element reported for Pull Tasks
+    * [SYNCOPE-1210] - Random password generation fails for push tasks
+    * [SYNCOPE-1211] - syncope migration 1.2 to 2.0 users blocked to 200
+    * [SYNCOPE-1213] - Syncope console should advice user about exceeded file size
+    * [SYNCOPE-1214] - Error when sorting Users by Realm
+    * [SYNCOPE-1215] - Multivalue readonly fields allow frontend deletion
+    * [SYNCOPE-1217] - Using the JAVA API is possible to create a Realm with the same name in the same parent realm
+
+** Improvement
+    * [SYNCOPE-1212] - Allow for easier Pull / Push processes customization
+
+** Task
+    * [SYNCOPE-1186] - Remove copy of SAMLSSOResponseValidator and SSOValidatorResponse when CXF 3.1.13 is out
+
 Release Notes - Syncope - Version 2.0.5
 ================================================================================
 
