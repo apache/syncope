@@ -19,6 +19,9 @@
 package org.apache.syncope.core.spring;
 
 import groovy.lang.GroovyClassLoader;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
@@ -39,12 +42,14 @@ public final class ImplementationManager {
 
     private static final GroovyClassLoader GROOVY_CLASSLOADER = new GroovyClassLoader();
 
+    private static final Map<String, Class<?>> CLASS_CACHE = Collections.synchronizedMap(new HashMap<>());
+
     public static Optional<Reportlet> buildReportlet(final Implementation impl)
             throws InstantiationException, IllegalAccessException {
 
         switch (impl.getEngine()) {
             case GROOVY:
-                return Optional.of(ImplementationManager.<Reportlet>buildGroovy(impl.getBody()));
+                return Optional.of(ImplementationManager.<Reportlet>buildGroovy(impl));
 
             case JAVA:
             default:
@@ -78,7 +83,7 @@ public final class ImplementationManager {
 
         switch (impl.getEngine()) {
             case GROOVY:
-                return Optional.of(ImplementationManager.<AccountRule>buildGroovy(impl.getBody()));
+                return Optional.of(ImplementationManager.<AccountRule>buildGroovy(impl));
 
             case JAVA:
             default:
@@ -112,7 +117,7 @@ public final class ImplementationManager {
 
         switch (impl.getEngine()) {
             case GROOVY:
-                return Optional.of(ImplementationManager.<PasswordRule>buildGroovy(impl.getBody()));
+                return Optional.of(ImplementationManager.<PasswordRule>buildGroovy(impl));
 
             case JAVA:
             default:
@@ -146,26 +151,48 @@ public final class ImplementationManager {
 
         switch (impl.getEngine()) {
             case GROOVY:
-                return ImplementationManager.<T>buildGroovy(impl.getBody());
+                return ImplementationManager.<T>buildGroovy(impl);
 
             case JAVA:
             default:
-                return ImplementationManager.<T>buildJava(impl.getBody());
+                return ImplementationManager.<T>buildJava(impl);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T buildGroovy(final String classBody) throws InstantiationException, IllegalAccessException {
-        Class<?> clazz = GROOVY_CLASSLOADER.parseClass(classBody);
+    private static <T> T buildGroovy(final Implementation impl)
+            throws InstantiationException, IllegalAccessException {
+
+        Class<?> clazz;
+        if (CLASS_CACHE.containsKey(impl.getKey())) {
+            clazz = CLASS_CACHE.get(impl.getKey());
+        } else {
+            clazz = GROOVY_CLASSLOADER.parseClass(impl.getBody());
+            CLASS_CACHE.put(impl.getKey(), clazz);
+        }
+
         return (T) ApplicationContextProvider.getBeanFactory().
                 createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T buildJava(final String className) throws ClassNotFoundException {
-        Class<?> clazz = Class.forName(className);
+    private static <T> T buildJava(final Implementation impl)
+            throws ClassNotFoundException {
+
+        Class<?> clazz;
+        if (CLASS_CACHE.containsKey(impl.getKey())) {
+            clazz = CLASS_CACHE.get(impl.getKey());
+        } else {
+            clazz = Class.forName(impl.getBody());
+            CLASS_CACHE.put(impl.getKey(), clazz);
+        }
+
         return (T) ApplicationContextProvider.getBeanFactory().
                 createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+    }
+
+    public static Class<?> purge(final String implementation) {
+        return CLASS_CACHE.remove(implementation);
     }
 
     private ImplementationManager() {
