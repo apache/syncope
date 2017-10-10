@@ -72,7 +72,7 @@ public enum ClientExceptionType {
     RequiredValuesMissing(Response.Status.BAD_REQUEST),
     RESTValidation(Response.Status.BAD_REQUEST),
     GroupOwnership(Response.Status.BAD_REQUEST),
-    InUseByNotifications(Response.Status.BAD_REQUEST),
+    InUse(Response.Status.BAD_REQUEST),
     Scheduling(Response.Status.BAD_REQUEST),
     DelegatedAdministration(Response.Status.FORBIDDEN),
     Unknown(Response.Status.BAD_REQUEST),

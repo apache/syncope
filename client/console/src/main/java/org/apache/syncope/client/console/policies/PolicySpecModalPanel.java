@@ -81,15 +81,15 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
         add(new AjaxDropDownChoicePanel<>(
                 "conflictResolutionAction",
                 "conflictResolutionAction",
-                new PropertyModel<>(policyTO.getSpecification(), "conflictResolutionAction")).
+                new PropertyModel<>(policyTO, "conflictResolutionAction")).
                 setChoices(Arrays.asList((Serializable[]) ConflictResolutionAction.values())));
 
-        model = new PropertyModel<List<CorrelationRule>>(policyTO.getSpecification(), "correlationRules") {
+        model = new PropertyModel<List<CorrelationRule>>(policyTO, "correlationRules") {
 
             private static final long serialVersionUID = -8168676563540297301L;
 
-            private List<CorrelationRule> rules = policyTO.getSpecification().getCorrelationRules().keySet().stream().
-                    map(rule -> new CorrelationRule(rule, policyTO.getSpecification().getCorrelationRules().get(rule))).
+            private List<CorrelationRule> rules = policyTO.getCorrelationRules().keySet().stream().
+                    map(rule -> new CorrelationRule(rule, policyTO.getCorrelationRules().get(rule))).
                     collect(Collectors.toList());
 
             @Override
@@ -99,9 +99,9 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
 
             @Override
             public void setObject(final List<CorrelationRule> object) {
-                policyTO.getSpecification().getCorrelationRules().clear();
+                policyTO.getCorrelationRules().clear();
                 rules.forEach(rule -> {
-                    policyTO.getSpecification().getCorrelationRules().put(rule.getAny(), rule.getRule());
+                    policyTO.getCorrelationRules().put(rule.getAny(), rule.getRule());
                 });
             }
         };
@@ -125,9 +125,9 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         try {
-            getItem().getSpecification().getCorrelationRules().clear();
+            getItem().getCorrelationRules().clear();
             model.getObject().forEach(rule -> {
-                getItem().getSpecification().getCorrelationRules().put(rule.getAny(), rule.getRule());
+                getItem().getCorrelationRules().put(rule.getAny(), rule.getRule());
             });
             restClient.updatePolicy(getItem());
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));

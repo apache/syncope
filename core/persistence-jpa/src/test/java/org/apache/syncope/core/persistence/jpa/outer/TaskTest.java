@@ -279,6 +279,7 @@ public class TaskTest extends AbstractTest {
         assertNotNull(resource);
 
         Implementation pullActions = entityFactory.newEntity(Implementation.class);
+        pullActions.setKey("syncope144");
         pullActions.setEngine(ImplementationEngine.JAVA);
         pullActions.setType(ImplementationType.PULL_ACTIONS);
         pullActions.setBody(PullActions.class.getName());

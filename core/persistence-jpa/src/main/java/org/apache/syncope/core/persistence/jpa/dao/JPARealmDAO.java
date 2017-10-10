@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -149,6 +150,16 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         }).forEachOrdered(realm -> result.addAll(findSamePolicyChildren(realm, policy)));
 
         return result;
+    }
+
+    @Override
+    public List<Realm> findByLogicActions(final Implementation logicActions) {
+        TypedQuery<Realm> query = entityManager().createQuery(
+                "SELECT e FROM " + JPARealm.class.getSimpleName() + " e "
+                + "WHERE :logicActions MEMBER OF e.actions", Realm.class);
+        query.setParameter("logicActions", logicActions);
+
+        return query.getResultList();
     }
 
     private void findAncestors(final List<Realm> result, final Realm realm) {

@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
 import java.util.regex.Pattern;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -39,6 +40,8 @@ public interface RealmDAO extends DAO<Realm> {
     List<Realm> findByResource(ExternalResource resource);
 
     <T extends Policy> List<Realm> findByPolicy(T policy);
+
+    List<Realm> findByLogicActions(Implementation logicActions);
 
     List<Realm> findAncestors(Realm realm);
 

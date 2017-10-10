@@ -26,6 +26,7 @@ import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.jpa.entity.JPANotification;
@@ -52,6 +53,16 @@ public class JPANotificationDAO extends AbstractDAO<Notification> implements Not
                 "SELECT e FROM " + JPANotification.class.getSimpleName() + " e "
                 + "WHERE e.template=:template", Notification.class);
         query.setParameter("template", template);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<Notification> findByRecipientsProvider(final Implementation recipientsProvider) {
+        TypedQuery<Notification> query = entityManager().createQuery(
+                "SELECT e FROM " + JPANotification.class.getSimpleName()
+                + " e WHERE e.recipientsProvider=:recipientsProvider", Notification.class);
+        query.setParameter("recipientsProvider", recipientsProvider);
+
         return query.getResultList();
     }
 

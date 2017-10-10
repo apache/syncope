@@ -27,9 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
-import org.apache.syncope.common.lib.policy.PullPolicySpec;
+import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -39,11 +38,13 @@ import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
+import org.apache.syncope.core.persistence.api.entity.policy.CorrelationRule;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
 
 @Transactional("Master")
 public class PolicyTest extends AbstractTest {
@@ -69,12 +70,9 @@ public class PolicyTest extends AbstractTest {
         PullPolicy policy = policyDAO.find("880f8553-069b-4aed-9930-2cd53873f544");
         assertNotNull(policy);
 
-        PullPolicySpec spec = policy.getSpecification();
-        assertNotNull(spec);
-
-        String rule = spec.getCorrelationRules().get(AnyTypeKind.USER.name());
+        CorrelationRule rule = policy.getCorrelationRule(anyTypeDAO.findUser()).orElse(null);
         assertNotNull(rule);
-        String[] plainSchemas = POJOHelper.deserialize(rule, String[].class);
+        String[] plainSchemas = POJOHelper.deserialize(rule.getImplementation().getBody(), String[].class);
         assertNotNull(plainSchemas);
         assertEquals(2, plainSchemas.length);
         assertTrue(ArrayUtils.contains(plainSchemas, "username"));
@@ -91,25 +89,45 @@ public class PolicyTest extends AbstractTest {
     @Test
     public void create() {
         PullPolicy policy = entityFactory.newEntity(PullPolicy.class);
+        policy.setConflictResolutionAction(ConflictResolutionAction.IGNORE);
+        policy.setDescription("Pull policy");
 
         final String pullURuleName = "net.tirasa.pull.correlation.TirasaURule";
         final String pullGRuleName = "net.tirasa.pull.correlation.TirasaGRule";
 
-        PullPolicySpec pullPolicySpec = new PullPolicySpec();
+        Implementation impl1 = entityFactory.newEntity(Implementation.class);
+        impl1.setKey(pullURuleName);
+        impl1.setEngine(ImplementationEngine.JAVA);
+        impl1.setType(ImplementationType.PULL_CORRELATION_RULE);
+        impl1.setBody(PullCorrelationRule.class.getName());
+        impl1 = implementationDAO.save(impl1);
 
-        pullPolicySpec.getCorrelationRules().put(anyTypeDAO.findUser().getKey(), pullURuleName);
-        pullPolicySpec.getCorrelationRules().put(anyTypeDAO.findGroup().getKey(), pullGRuleName);
+        CorrelationRule rule1 = entityFactory.newEntity(CorrelationRule.class);
+        rule1.setAnyType(anyTypeDAO.findUser());
+        rule1.setPullPolicy(policy);
+        rule1.setImplementation(impl1);
+        policy.add(rule1);
 
-        policy.setSpecification(pullPolicySpec);
-        policy.setDescription("Pull policy");
+        Implementation impl2 = entityFactory.newEntity(Implementation.class);
+        impl2.setKey(pullGRuleName);
+        impl2.setEngine(ImplementationEngine.JAVA);
+        impl2.setType(ImplementationType.PULL_CORRELATION_RULE);
+        impl2.setBody(PullCorrelationRule.class.getName());
+        impl2 = implementationDAO.save(impl2);
+
+        CorrelationRule rule2 = entityFactory.newEntity(CorrelationRule.class);
+        rule2.setAnyType(anyTypeDAO.findGroup());
+        rule2.setPullPolicy(policy);
+        rule2.setImplementation(impl2);
+        policy.add(rule2);
 
         policy = policyDAO.save(policy);
 
         assertNotNull(policy);
         assertEquals(pullURuleName,
-                policy.getSpecification().getCorrelationRules().get(anyTypeDAO.findUser().getKey()));
+                policy.getCorrelationRule(anyTypeDAO.findUser()).get().getImplementation().getKey());
         assertEquals(pullGRuleName,
-                policy.getSpecification().getCorrelationRules().get(anyTypeDAO.findGroup().getKey()));
+                policy.getCorrelationRule(anyTypeDAO.findGroup()).get().getImplementation().getKey());
     }
 
     @Test

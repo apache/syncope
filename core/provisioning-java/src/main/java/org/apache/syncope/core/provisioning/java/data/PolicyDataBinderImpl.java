@@ -19,12 +19,10 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
-import org.apache.syncope.common.lib.policy.PullPolicySpec;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -39,6 +37,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.policy.CorrelationRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,24 +132,35 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             PullPolicy pullPolicy = PullPolicy.class.cast(result);
             PullPolicyTO pullPolicyTO = PullPolicyTO.class.cast(policyTO);
 
-            PullPolicySpec pullPolicySpec = SerializationUtils.clone(pullPolicyTO.getSpecification());
-            pullPolicySpec.getCorrelationRules().clear();
-            pullPolicyTO.getSpecification().getCorrelationRules().entrySet().forEach(entry -> {
+            pullPolicy.setConflictResolutionAction(pullPolicyTO.getConflictResolutionAction());
+
+            pullPolicyTO.getCorrelationRules().entrySet().forEach(entry -> {
                 AnyType anyType = anyTypeDAO.find(entry.getKey());
                 if (anyType == null) {
-                    LOG.debug("Invalid " + AnyType.class.getSimpleName() + " {}, ignoring...",
-                            entry.getKey());
+                    LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey());
                 } else {
-                    Implementation rule = implementationDAO.find(entry.getValue());
-                    if (rule == null) {
+                    CorrelationRule correlationRule = pullPolicy.getCorrelationRule(anyType).orElse(null);
+                    if (correlationRule == null) {
+                        correlationRule = entityFactory.newEntity(CorrelationRule.class);
+                        correlationRule.setAnyType(anyTypeDAO.find(entry.getKey()));
+                        correlationRule.setPullPolicy(pullPolicy);
+                        pullPolicy.add(correlationRule);
+                    }
+
+                    Implementation implementation = implementationDAO.find(entry.getValue());
+                    if (implementation == null) {
                         LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
                                 entry.getValue());
                     } else {
-                        pullPolicySpec.getCorrelationRules().put(anyType.getKey(), rule.getKey());
+                        correlationRule.setImplementation(implementation);
                     }
                 }
             });
-            pullPolicy.setSpecification(pullPolicySpec);
+            // remove all rules not contained in the TO
+            pullPolicy.getCorrelationRules().removeAll(
+                    pullPolicy.getCorrelationRules().stream().filter(anyFilter
+                            -> !pullPolicyTO.getCorrelationRules().containsKey(anyFilter.getAnyType().getKey())).
+                            collect(Collectors.toList()));
         }
 
         if (result != null) {
@@ -199,8 +209,14 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             accountPolicyTO.getPassthroughResources().addAll(
                     accountPolicy.getResources().stream().map(Entity::getKey).collect(Collectors.toList()));
         } else if (policy instanceof PullPolicy) {
-            policyTO = (T) new PullPolicyTO();
-            ((PullPolicyTO) policyTO).setSpecification(((PullPolicy) policy).getSpecification());
+            PullPolicy pullPolicy = PullPolicy.class.cast(policy);
+            PullPolicyTO pullPolicyTO = new PullPolicyTO();
+            policyTO = (T) pullPolicyTO;
+
+            pullPolicyTO.setConflictResolutionAction(((PullPolicy) policy).getConflictResolutionAction());
+            pullPolicy.getCorrelationRules().forEach(rule -> {
+                pullPolicyTO.getCorrelationRules().put(rule.getAnyType().getKey(), rule.getImplementation().getKey());
+            });
         }
 
         if (policyTO != null) {

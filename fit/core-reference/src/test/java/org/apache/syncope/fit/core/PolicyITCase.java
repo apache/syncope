@@ -38,10 +38,8 @@ import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.common.lib.policy.PullPolicySpec;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
@@ -72,11 +70,8 @@ public class PolicyITCase extends AbstractITCase {
         }
         assertNotNull(corrRule);
 
-        PullPolicySpec spec = new PullPolicySpec();
-        spec.getCorrelationRules().put(AnyTypeKind.USER.name(), corrRule.getKey());
-
         PullPolicyTO policy = new PullPolicyTO();
-        policy.setSpecification(spec);
+        policy.getCorrelationRules().put(AnyTypeKind.USER.name(), corrRule.getKey());
         policy.setDescription("Pull policy");
 
         return policy;
@@ -117,26 +112,10 @@ public class PolicyITCase extends AbstractITCase {
     }
 
     @Test
-    public void createMissingDescription() {
-        PullPolicyTO policy = new PullPolicyTO();
-        policy.setSpecification(new PullPolicySpec());
-
-        try {
-            createPolicy(policy);
-            fail("This should not happen");
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidPolicy, e.getType());
-        }
-    }
-
-    @Test
     public void create() throws IOException {
-        PullPolicyTO policy = buildPullPolicyTO();
-
-        PullPolicyTO policyTO = createPolicy(policy);
-
+        PullPolicyTO policyTO = createPolicy(buildPullPolicyTO());
         assertNotNull(policyTO);
-        assertEquals("TestPullRule", policyTO.getSpecification().getCorrelationRules().get(AnyTypeKind.USER.name()));
+        assertEquals("TestPullRule", policyTO.getCorrelationRules().get(AnyTypeKind.USER.name()));
     }
 
     @Test

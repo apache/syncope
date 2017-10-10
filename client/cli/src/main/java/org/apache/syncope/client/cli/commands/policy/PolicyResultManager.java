@@ -103,12 +103,10 @@ public class PolicyResultManager extends CommonsResultManager {
         System.out.println("    description: " + policyTO.getDescription());
         System.out.println("    resources : " + policyTO.getUsedByResources().toString());
         System.out.println("    realms : " + policyTO.getUsedByRealms().toString());
-        if (policyTO.getSpecification() != null) {
-            System.out.println("    conflict resolution action: "
-                    + policyTO.getSpecification().getConflictResolutionAction().name());
-            System.out.println("    correlation rule : "
-                    + policyTO.getSpecification().getCorrelationRules().toString());
-        }
+        System.out.println("    conflict resolution action: "
+                + policyTO.getConflictResolutionAction().name());
+        System.out.println("    correlation rules : "
+                + policyTO.getCorrelationRules().toString());
         System.out.println("");
     }
 

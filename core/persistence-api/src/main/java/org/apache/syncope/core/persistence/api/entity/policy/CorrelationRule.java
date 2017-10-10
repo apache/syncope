@@ -16,24 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.api.entity.policy;
 
-import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.MailTemplate;
-import org.apache.syncope.core.persistence.api.entity.Notification;
 
-public interface NotificationDAO extends DAO<Notification> {
+public interface CorrelationRule extends Entity {
 
-    Notification find(String key);
+    PullPolicy getPullPolicy();
 
-    List<Notification> findByTemplate(MailTemplate template);
+    void setPullPolicy(PullPolicy pullPolicy);
 
-    List<Notification> findByRecipientsProvider(Implementation recipientsProvider);
+    AnyType getAnyType();
 
-    List<Notification> findAll();
+    void setAnyType(AnyType anyType);
 
-    Notification save(Notification notification);
+    Implementation getImplementation();
 
-    void delete(String key);
+    void setImplementation(Implementation implementation);
 }

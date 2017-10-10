@@ -772,7 +772,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertNotNull(corrRule);
 
         PullPolicyTO policyTO = policyService.read("9454b0d7-2610-400a-be82-fc23cf553dd6");
-        policyTO.getSpecification().getCorrelationRules().put(AnyTypeKind.USER.name(), corrRule.getKey());
+        policyTO.getCorrelationRules().put(AnyTypeKind.USER.name(), corrRule.getKey());
         policyService.update(policyTO);
         // -----------------------------
 

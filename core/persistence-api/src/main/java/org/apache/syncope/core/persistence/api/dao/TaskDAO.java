@@ -22,8 +22,12 @@ import java.util.List;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.persistence.api.entity.task.PushTask;
+import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 
 public interface TaskDAO extends DAO<Task> {
@@ -31,6 +35,14 @@ public interface TaskDAO extends DAO<Task> {
     Class<? extends Task> getEntityReference(TaskType type);
 
     <T extends Task> T find(String key);
+
+    List<SchedTask> findByDelegate(Implementation delegate);
+
+    List<PullTask> findByReconFilterBuilder(Implementation reconFilterBuilder);
+
+    List<PullTask> findByPullActions(Implementation pullActions);
+
+    List<PushTask> findByPushActions(Implementation pushActions);
 
     <T extends Task> List<T> findToExec(TaskType type);
 
@@ -60,4 +72,5 @@ public interface TaskDAO extends DAO<Task> {
     void delete(Task task);
 
     void deleteAll(ExternalResource resource, TaskType type);
+
 }

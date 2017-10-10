@@ -21,14 +21,19 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.Collections;
 import java.util.List;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.persistence.api.entity.task.PushTask;
+import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTask;
@@ -79,6 +84,46 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
     @Override
     public <T extends Task> T find(final String key) {
         return (T) entityManager().find(AbstractTask.class, key);
+    }
+
+    @Override
+    public List<SchedTask> findByDelegate(final Implementation delegate) {
+        TypedQuery<SchedTask> query = entityManager().createQuery(
+                "SELECT e FROM " + JPASchedTask.class.getSimpleName()
+                + " e WHERE e.jobDelegate=:delegate", SchedTask.class);
+        query.setParameter("delegate", delegate);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<PullTask> findByReconFilterBuilder(final Implementation reconFilterBuilder) {
+        TypedQuery<PullTask> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAPullTask.class.getSimpleName()
+                + " e WHERE e.reconFilterBuilder=:reconFilterBuilder", PullTask.class);
+        query.setParameter("reconFilterBuilder", reconFilterBuilder);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<PullTask> findByPullActions(final Implementation pullActions) {
+        TypedQuery<PullTask> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAPullTask.class.getSimpleName() + " e "
+                + "WHERE :pullActions MEMBER OF e.actions", PullTask.class);
+        query.setParameter("pullActions", pullActions);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<PushTask> findByPushActions(final Implementation pushActions) {
+        TypedQuery<PushTask> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAPushTask.class.getSimpleName() + " e "
+                + "WHERE :pushActions MEMBER OF e.actions", PushTask.class);
+        query.setParameter("pushActions", pushActions);
+
+        return query.getResultList();
     }
 
     private <T extends Task> StringBuilder buildFindAllQuery(final TaskType type) {

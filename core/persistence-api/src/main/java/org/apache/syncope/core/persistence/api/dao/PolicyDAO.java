@@ -19,15 +19,24 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Policy;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 
 public interface PolicyDAO extends DAO<Policy> {
 
     <T extends Policy> T find(String key);
 
     <T extends Policy> List<T> find(Class<T> reference);
+
+    List<AccountPolicy> findByAccountRule(Implementation accountRule);
+
+    List<PasswordPolicy> findByPasswordRule(Implementation passwordRule);
+
+    List<PullPolicy> findByCorrelationRule(Implementation correlationRule);
 
     List<AccountPolicy> findByResource(ExternalResource resource);
 
@@ -36,4 +45,5 @@ public interface PolicyDAO extends DAO<Policy> {
     <T extends Policy> T save(T policy);
 
     <T extends Policy> void delete(T policy);
+
 }

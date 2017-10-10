@@ -82,9 +82,6 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
     private String conversionPattern;
 
     @Column(nullable = true)
-    private String validatorClass;
-
-    @Column(nullable = true)
     @Lob
     private String enumerationValues;
 

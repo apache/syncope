@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.policy.PullPolicySpec;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
@@ -40,12 +39,12 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Entity;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.policy.CorrelationRule;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
@@ -274,31 +273,6 @@ public class PullUtils {
                 map(Entity::getKey).collect(Collectors.toList());
     }
 
-    private PullCorrelationRule getCorrelationRule(final Provision provision, final PullPolicySpec policySpec) {
-        PullCorrelationRule rule = null;
-
-        String pullCorrelationRule = policySpec.getCorrelationRules().get(provision.getAnyType().getKey());
-        if (pullCorrelationRule != null) {
-            if (pullCorrelationRule.charAt(0) == '[') {
-                rule = new PlainAttrsPullCorrelationRule(
-                        POJOHelper.deserialize(pullCorrelationRule, String[].class), provision);
-            } else {
-                Implementation impl = implementationDAO.find(pullCorrelationRule);
-                if (impl == null) {
-                    LOG.error("Could not find any Implementation matching '{}'", pullCorrelationRule);
-                } else {
-                    try {
-                        rule = ImplementationManager.build(impl);
-                    } catch (Exception e) {
-                        LOG.error("While building {}", impl, e);
-                    }
-                }
-            }
-        }
-
-        return rule;
-    }
-
     /**
      * Find any objects based on mapped uid value (or previous uid value, if updated).
      *
@@ -314,20 +288,28 @@ public class PullUtils {
             final Provision provision,
             final AnyUtils anyUtils) {
 
-        PullPolicySpec pullPolicySpec = null;
-        if (provision.getResource().getPullPolicy() != null) {
-            pullPolicySpec = provision.getResource().getPullPolicy().getSpecification();
-        }
+        Optional<? extends CorrelationRule> correlationRule = provision.getResource().getPullPolicy() == null
+                ? Optional.empty()
+                : provision.getResource().getPullPolicy().getCorrelationRule(provision.getAnyType());
 
-        PullCorrelationRule pullRule = null;
-        if (pullPolicySpec != null) {
-            pullRule = getCorrelationRule(provision, pullPolicySpec);
+        PullCorrelationRule rule = null;
+        if (correlationRule.isPresent()) {
+            if (correlationRule.get().getImplementation().getBody().charAt(0) == '[') {
+                rule = new PlainAttrsPullCorrelationRule(POJOHelper.deserialize(
+                        correlationRule.get().getImplementation().getBody(), String[].class), provision);
+            } else {
+                try {
+                    rule = ImplementationManager.build(correlationRule.get().getImplementation());
+                } catch (Exception e) {
+                    LOG.error("While building {}", correlationRule.get().getImplementation(), e);
+                }
+            }
         }
 
         try {
-            return pullRule == null
+            return rule == null
                     ? findByConnObjectKeyItem(uid, provision, anyUtils)
-                    : findByCorrelationRule(connObj, pullRule, anyUtils.getAnyTypeKind());
+                    : findByCorrelationRule(connObj, rule, anyUtils.getAnyTypeKind());
         } catch (RuntimeException e) {
             return Collections.<String>emptyList();
         }

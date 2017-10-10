@@ -26,10 +26,10 @@ import java.util.UUID;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ImplementationTO;
+import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.TestPullActions;
@@ -65,9 +65,45 @@ public class ImplementationITCase extends AbstractITCase {
         ImplementationTO actual =
                 getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
         assertNotNull(actual);
-
-        implementationTO.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
         assertEquals(actual, implementationTO);
+    }
+
+    @Test
+    public void delete() {
+        ImplementationTO implementationTO = new ImplementationTO();
+        implementationTO.setKey(UUID.randomUUID().toString());
+        implementationTO.setEngine(ImplementationEngine.JAVA);
+        implementationTO.setType(ImplementationType.PULL_ACTIONS);
+        implementationTO.setBody(TestPullActions.class.getName());
+
+        implementationService.create(implementationTO);
+
+        PullTaskTO pullTask = taskService.read(AbstractTaskITCase.PULL_TASK_KEY, false);
+        assertNotNull(pullTask);
+
+        int before = pullTask.getActions().size();
+
+        pullTask.getActions().add(implementationTO.getKey());
+        taskService.update(pullTask);
+
+        pullTask = taskService.read(AbstractTaskITCase.PULL_TASK_KEY, false);
+        assertNotNull(pullTask);
+
+        int after = pullTask.getActions().size();
+        assertEquals(before + 1, after);
+
+        // fails because the implementation is used
+        try {
+            implementationService.delete(implementationTO.getKey());
+            fail("Unexpected");
+        } catch (SyncopeClientException e) {
+            assertEquals(e.getType(), ClientExceptionType.InUse);
+        }
+
+        pullTask.getActions().remove(implementationTO.getKey());
+        taskService.update(pullTask);
+
+        implementationService.delete(implementationTO.getKey());
     }
 
 }

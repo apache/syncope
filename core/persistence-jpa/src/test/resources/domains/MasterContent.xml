@@ -170,15 +170,11 @@ under the License.
                    attribute_id="ae7ae53a-74cf-48b0-9a57-6d2c94928e60" longValue="10"/>
   
   <!-- sample policies -->
-  <PullPolicy id="66691e96-285f-4464-bc19-e68384ea4c85" description="a pull policy"
-              specification='{"conflictResolutionAction":"IGNORE"}'/>
   <PasswordPolicy id="ce93fcda-dc3a-4369-a7b0-a6108c261c85" description="a password policy"
                   historyLength="1" allowNullPassword="1"/>
   <Implementation id="DefaultPasswordRuleConf1" type="PASSWORD_RULE" engine="JAVA"
                   body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":8,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":false,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
   <PasswordPolicyRule policy_id="ce93fcda-dc3a-4369-a7b0-a6108c261c85" implementation_id="DefaultPasswordRuleConf1"/>
-  <PullPolicy id="880f8553-069b-4aed-9930-2cd53873f544" description="another pull policy"
-              specification='{"conflictResolutionAction":"ALL","correlationRules":{"USER":"[\"username\",\"firstname\"]"}}'/>
   <PasswordPolicy id="986d1236-3ac5-4a19-810c-5ab21d79cba1"
                   description="sample password policy" historyLength="0" allowNullPassword="1"/> 
   <Implementation id="DefaultPasswordRuleConf2" type="PASSWORD_RULE"  engine="JAVA"
@@ -194,13 +190,10 @@ under the License.
   <Implementation id="DefaultAccountRuleConf2" type="ACCOUNT_RULE"  engine="JAVA"
                   body='{"@class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":4,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
   <AccountPolicyRule policy_id="06e2ed52-6966-44aa-a177-a0ca7434201f" implementation_id="DefaultAccountRuleConf2"/>
-  <PullPolicy id="4ad10d94-e002-4b3f-b771-16089cc71da9" description="pull policy 1" specification='{"conflictResolutionAction":"IGNORE"}'/>
   <PasswordPolicy id="55e5de0b-c79c-4e66-adda-251b6fb8579a" description="sample password policy" historyLength="0" allowNullPassword="0"/> 
   <Implementation id="DefaultPasswordRuleConf3" type="PASSWORD_RULE" engine="JAVA"
                   body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
   <PasswordPolicyRule policy_id="55e5de0b-c79c-4e66-adda-251b6fb8579a" implementation_id="DefaultPasswordRuleConf3"/>
-  <PullPolicy id="9454b0d7-2610-400a-be82-fc23cf553dd6" description="pull policy for java rule"
-              specification='{"conflictResolutionAction":"IGNORE"}'/>
 
   <RelationshipType id="inclusion" description="Models the act that an object is included in another"/>
   <RelationshipType id="neighborhood" description="Models the act that an object is near another"/>
@@ -637,6 +630,16 @@ under the License.
   
   <GPlainAttr id="22690472-ed3f-4972-8979-4c9251fab044" owner_id="ba9ed509-b1f5-48ab-a334-c8530a6422dc" schema_id="title"/>
   <GPlainAttrValue attribute_id="22690472-ed3f-4972-8979-4c9251fab044" id="e16765e6-f806-469e-ae34-1ddf56f2102a" stringValue="r13"/>
+
+  <!-- pull policies -->
+  <PullPolicy id="66691e96-285f-4464-bc19-e68384ea4c85" description="a pull policy" conflictResolutionAction="IGNORE"/>
+  <PullPolicy id="880f8553-069b-4aed-9930-2cd53873f544" description="another pull policy" conflictResolutionAction="ALL"/>
+  <Implementation id="TestPullCorrelationRule" type="PULL_CORRELATION_RULE" engine="JAVA"
+                  body='["username","firstname"]'/>
+  <CorrelationRule id="10e3d196-7486-4c88-aefd-59e40d93a0c1" pullPolicy_id="880f8553-069b-4aed-9930-2cd53873f544" 
+                   anyType_id="USER" implementation_id="TestPullCorrelationRule"/>
+  <PullPolicy id="4ad10d94-e002-4b3f-b771-16089cc71da9" description="pull policy 1" conflictResolutionAction="IGNORE"/>
+  <PullPolicy id="9454b0d7-2610-400a-be82-fc23cf553dd6" description="pull policy for java rule" conflictResolutionAction="IGNORE"/>
 
   <ConnInstance id="88a7a819-dab5-46b4-9b90-0b9769eabdb8" displayName="ConnInstance100"
                 adminRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"

@@ -138,7 +138,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
 
         List<Notification> notifications = notificationDAO.findByTemplate(mailTemplate);
         if (!notifications.isEmpty()) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InUseByNotifications);
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InUse);
             sce.getElements().addAll(notifications.stream().map(Entity::getKey).collect(Collectors.toList()));
             throw sce;
         }

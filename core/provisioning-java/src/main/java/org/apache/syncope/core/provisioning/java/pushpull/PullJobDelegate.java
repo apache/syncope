@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.collections.IteratorChain;
-import org.apache.syncope.common.lib.policy.PullPolicySpec;
+import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -38,7 +38,6 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.quartz.JobExecutionException;
@@ -182,7 +181,9 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         profile = new ProvisioningProfile<>(connector, pullTask);
         profile.getActions().addAll(actions);
         profile.setDryRun(dryRun);
-        profile.setResAct(getPullPolicySpec(pullTask).getConflictResolutionAction());
+        profile.setResAct(pullTask.getResource().getPullPolicy() == null
+                ? ConflictResolutionAction.IGNORE
+                : pullTask.getResource().getPullPolicy().getConflictResolutionAction());
 
         latestSyncTokens.clear();
 
@@ -326,20 +327,5 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         String result = createReport(profile.getResults(), pullTask.getResource(), dryRun);
         LOG.debug("Pull result: {}", result);
         return result;
-    }
-
-    protected PullPolicySpec getPullPolicySpec(final ProvisioningTask task) {
-        PullPolicySpec pullPolicySpec;
-
-        if (task instanceof PullTask) {
-            pullPolicySpec = task.getResource().getPullPolicy() == null
-                    ? null
-                    : task.getResource().getPullPolicy().getSpecification();
-        } else {
-            pullPolicySpec = null;
-        }
-
-        // step required because the call <policy>.getSpecification() could return a null value
-        return pullPolicySpec == null ? new PullPolicySpec() : pullPolicySpec;
     }
 }

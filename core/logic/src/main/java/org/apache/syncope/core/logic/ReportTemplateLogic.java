@@ -150,7 +150,7 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
 
         List<Report> reports = reportDAO.findByTemplate(reportTemplate);
         if (!reports.isEmpty()) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InUseByNotifications);
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InUse);
             sce.getElements().addAll(reports.stream().map(Entity::getKey).collect(Collectors.toList()));
             throw sce;
         }

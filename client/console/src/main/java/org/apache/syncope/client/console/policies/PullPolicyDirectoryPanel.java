@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.policies;
 
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
-import org.apache.syncope.common.lib.policy.PullPolicySpec;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -42,7 +41,6 @@ public class PullPolicyDirectoryPanel extends PolicyDirectoryPanel<PullPolicyTO>
         super(id, PolicyType.PULL, pageRef);
 
         final PullPolicyTO defaultItem = new PullPolicyTO();
-        defaultItem.setSpecification(new PullPolicySpec());
 
         this.addNewItemPanelBuilder(
                 new PolicyModalPanelBuilder<>(defaultItem, modal, pageRef), true);

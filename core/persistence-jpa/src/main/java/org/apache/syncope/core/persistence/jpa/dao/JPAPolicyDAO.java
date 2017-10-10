@@ -22,6 +22,7 @@ import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
@@ -31,6 +32,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.AbstractPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPACorrelationRule;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
@@ -65,6 +67,36 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
     public <T extends Policy> List<T> find(final Class<T> reference) {
         TypedQuery<T> query = entityManager().createQuery(
                 "SELECT e FROM " + getEntityReference(reference).getSimpleName() + " e", reference);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<AccountPolicy> findByAccountRule(final Implementation accountRule) {
+        TypedQuery<AccountPolicy> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAAccountPolicy.class.getSimpleName() + " e "
+                + "WHERE :accountRule MEMBER OF e.rules", AccountPolicy.class);
+        query.setParameter("accountRule", accountRule);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<PasswordPolicy> findByPasswordRule(final Implementation passwordRule) {
+        TypedQuery<PasswordPolicy> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAPasswordPolicy.class.getSimpleName() + " e "
+                + "WHERE :passwordRule MEMBER OF e.rules", PasswordPolicy.class);
+        query.setParameter("passwordRule", passwordRule);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<PullPolicy> findByCorrelationRule(final Implementation correlationRule) {
+        TypedQuery<PullPolicy> query = entityManager().createQuery(
+                "SELECT DISTINCT e.pullPolicy FROM " + JPACorrelationRule.class.getSimpleName() + " e "
+                + "WHERE e.implementation=:correlationRule", PullPolicy.class);
+        query.setParameter("correlationRule", correlationRule);
 
         return query.getResultList();
     }

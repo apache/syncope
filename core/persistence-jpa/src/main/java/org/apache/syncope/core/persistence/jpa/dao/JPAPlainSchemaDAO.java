@@ -28,6 +28,7 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
@@ -69,6 +70,16 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
 
         TypedQuery<PlainSchema> query = entityManager().createQuery(
                 queryString.substring(0, queryString.length() - 4), PlainSchema.class);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<PlainSchema> findByValidator(final Implementation validator) {
+        TypedQuery<PlainSchema> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAPlainSchema.class.getSimpleName()
+                + " e WHERE e.validator=:validator", PlainSchema.class);
+        query.setParameter("validator", validator);
 
         return query.getResultList();
     }

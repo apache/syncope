@@ -128,8 +128,10 @@ import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnit;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.policy.CorrelationRule;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPACorrelationRule;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResourceHistoryConf;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnitItem;
 
@@ -159,6 +161,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAPushPolicy();
         } else if (reference.equals(PullPolicy.class)) {
             result = (E) new JPAPullPolicy();
+        } else if (reference.equals(CorrelationRule.class)) {
+            result = (E) new JPACorrelationRule();
         } else if (reference.equals(AnyTypeClass.class)) {
             result = (E) new JPAAnyTypeClass();
         } else if (reference.equals(AnyType.class)) {
