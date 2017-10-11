@@ -197,7 +197,7 @@ public class UserIssuesITCase extends AbstractITCase {
     }
 
     @Test
-    public final void issue280() {
+    public void issue280() {
         UserTO userTO = UserITCase.getUniqueSampleTO("issue280@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
@@ -367,7 +367,7 @@ public class UserIssuesITCase extends AbstractITCase {
     @Test()
     public void issueSYNCOPE51() {
         AttrTO defaultCA = configurationService.get("password.cipher.algorithm");
-        final String originalCAValue = defaultCA.getValues().get(0);
+        String originalCAValue = defaultCA.getValues().get(0);
         defaultCA.getValues().set(0, "MD5");
         configurationService.set(defaultCA);
 
@@ -466,23 +466,23 @@ public class UserIssuesITCase extends AbstractITCase {
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB));
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB2));
 
-        final String pwdOnSyncope = userTO.getPassword();
+        String pwdOnSyncope = userTO.getPassword();
 
         ConnObjectTO userOnDb = resourceService.readConnObject(
                 RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey());
-        final AttrTO pwdOnTestDbAttr = userOnDb.getAttr(OperationalAttributes.PASSWORD_NAME).get();
+        AttrTO pwdOnTestDbAttr = userOnDb.getAttr(OperationalAttributes.PASSWORD_NAME).get();
         assertNotNull(pwdOnTestDbAttr);
         assertNotNull(pwdOnTestDbAttr.getValues());
         assertFalse(pwdOnTestDbAttr.getValues().isEmpty());
-        final String pwdOnTestDb = pwdOnTestDbAttr.getValues().iterator().next();
+        String pwdOnTestDb = pwdOnTestDbAttr.getValues().iterator().next();
 
         ConnObjectTO userOnDb2 = resourceService.readConnObject(
                 RESOURCE_NAME_TESTDB2, AnyTypeKind.USER.name(), userTO.getKey());
-        final AttrTO pwdOnTestDb2Attr = userOnDb2.getAttr(OperationalAttributes.PASSWORD_NAME).get();
+        AttrTO pwdOnTestDb2Attr = userOnDb2.getAttr(OperationalAttributes.PASSWORD_NAME).get();
         assertNotNull(pwdOnTestDb2Attr);
         assertNotNull(pwdOnTestDb2Attr.getValues());
         assertFalse(pwdOnTestDb2Attr.getValues().isEmpty());
-        final String pwdOnTestDb2 = pwdOnTestDb2Attr.getValues().iterator().next();
+        String pwdOnTestDb2 = pwdOnTestDb2Attr.getValues().iterator().next();
 
         // 2. request to change password only on testdb (no Syncope, no testdb2)
         UserPatch userPatch = new UserPatch();
@@ -503,7 +503,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 3c. verify that password *has* changed on testdb
         userOnDb = resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey());
-        final AttrTO pwdOnTestDbAttrAfter = userOnDb.getAttr(OperationalAttributes.PASSWORD_NAME).get();
+        AttrTO pwdOnTestDbAttrAfter = userOnDb.getAttr(OperationalAttributes.PASSWORD_NAME).get();
         assertNotNull(pwdOnTestDbAttrAfter);
         assertNotNull(pwdOnTestDbAttrAfter.getValues());
         assertFalse(pwdOnTestDbAttrAfter.getValues().isEmpty());
@@ -511,7 +511,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 3d. verify that password hasn't changed on testdb2
         userOnDb2 = resourceService.readConnObject(RESOURCE_NAME_TESTDB2, AnyTypeKind.USER.name(), userTO.getKey());
-        final AttrTO pwdOnTestDb2AttrAfter = userOnDb2.getAttr(OperationalAttributes.PASSWORD_NAME).get();
+        AttrTO pwdOnTestDb2AttrAfter = userOnDb2.getAttr(OperationalAttributes.PASSWORD_NAME).get();
         assertNotNull(pwdOnTestDb2AttrAfter);
         assertNotNull(pwdOnTestDb2AttrAfter.getValues());
         assertFalse(pwdOnTestDb2AttrAfter.getValues().isEmpty());
@@ -522,7 +522,7 @@ public class UserIssuesITCase extends AbstractITCase {
     public void issueSYNCOPE136AES() {
         // 1. read configured cipher algorithm in order to be able to restore it at the end of test
         AttrTO pwdCipherAlgo = configurationService.get("password.cipher.algorithm");
-        final String origpwdCipherAlgo = pwdCipherAlgo.getValues().get(0);
+        String origpwdCipherAlgo = pwdCipherAlgo.getValues().get(0);
 
         // 2. set AES password cipher algorithm
         pwdCipherAlgo.getValues().set(0, "AES");
@@ -641,6 +641,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         userTO = createUser(userTO).getEntity();
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey()));
 
         // 3. read group on resource, check that user DN is included in uniqueMember
         ConnObjectTO connObj = resourceService.readConnObject(
@@ -664,7 +665,12 @@ public class UserIssuesITCase extends AbstractITCase {
         assertFalse(connObj.getAttr("uniqueMember").get().getValues().
                 contains("uid=" + userTO.getUsername() + ",ou=people,o=isp"));
 
-        // 6. restore original resource-ldap group mapping
+        // 6. user has still the LDAP resource assigned - SYNCOPE-1222
+        userTO = userService.read(userTO.getKey());
+        assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey()));
+
+        // 7. restore original resource-ldap group mapping
         ldap.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getItems().stream().
                 filter(item -> ("uniqueMember".equals(item.getExtAttrName()))).
                 forEachOrdered(item -> {
@@ -781,16 +787,9 @@ public class UserIssuesITCase extends AbstractITCase {
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_TESTDB).build());
         ProvisioningResult<UserTO> result = updateUser(userPatch);
 
-        List<PropagationStatus> propagationStatuses = result.getPropagationStatuses();
-        PropagationStatus ws1PropagationStatus = null;
-        if (propagationStatuses != null) {
-            for (PropagationStatus propStatus : propagationStatuses) {
-                if (RESOURCE_NAME_WS1.equals(propStatus.getResource())) {
-                    ws1PropagationStatus = propStatus;
-                    break;
-                }
-            }
-        }
+        PropagationStatus ws1PropagationStatus = result.getPropagationStatuses().stream().
+                filter(propStatus -> RESOURCE_NAME_WS1.equals(propStatus.getResource())).
+                findFirst().orElse(null);
         assertNotNull(ws1PropagationStatus);
         assertEquals(RESOURCE_NAME_WS1, ws1PropagationStatus.getResource());
         assertNotNull(ws1PropagationStatus.getFailureReason());
@@ -1008,7 +1007,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertEquals(1, user.getResources().size());
 
         // 4. Check that the DB resource has the correct password
-        final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         String value = jdbcTemplate.queryForObject(
                 "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
         assertEquals(Encryptor.getInstance().encode("security123", CipherAlgorithm.SHA1), value.toUpperCase());
@@ -1396,7 +1395,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 3. verify that dynamic membership is set and that resource is consequently assigned
         user = created.getEntity();
-        final String groupKey = group.getKey();
+        String groupKey = group.getKey();
         assertTrue(user.getDynMemberships().stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
         assertTrue(user.getResources().contains(RESOURCE_NAME_TESTDB));
 

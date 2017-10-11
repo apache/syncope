@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java.data;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -365,9 +366,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         // attributes and resources
         propByRes.merge(fill(user, userPatch, anyUtils, scce));
 
-        Set<String> toBeDeprovisioned = new HashSet<>();
-        Set<String> toBeProvisioned = new HashSet<>();
-
         // relationships
         userPatch.getRelationships().stream().
                 filter(patch -> patch.getRelationshipTO() != null).forEachOrdered((patch) -> {
@@ -380,9 +378,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 if (relationship.isPresent()) {
                     user.getRelationships().remove(relationship.get());
                     relationship.get().setLeftEnd(null);
-
-                    toBeDeprovisioned.addAll(
-                            anyObjectDAO.findAllResourceKeys(relationship.get().getRightEnd().getKey()));
                 }
 
                 if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
@@ -396,8 +391,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         newRelationship.setLeftEnd(user);
 
                         user.add(newRelationship);
-
-                        toBeProvisioned.addAll(anyObjectDAO.findAllResourceKeys(otherEnd.getKey()));
                     } else {
                         LOG.error("{} cannot be assigned to {}", otherEnd, user);
 
@@ -410,7 +403,25 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             }
         });
 
+        // prepare for membership-related resource management
         Collection<ExternalResource> resources = userDAO.findAllResources(user);
+
+        Map<String, Set<String>> reasons = new HashMap<>();
+        user.getResources().forEach(resource -> {
+            reasons.put(resource.getKey(), new HashSet<>(Collections.singleton(user.getKey())));
+        });
+        userDAO.findAllGroupKeys(user).forEach(group -> {
+            groupDAO.findAllResourceKeys(group).forEach(resource -> {
+                if (!reasons.containsKey(resource)) {
+                    reasons.put(resource, new HashSet<>());
+                }
+                reasons.get(resource).add(group);
+            });
+        });
+
+        Set<String> toBeDeprovisioned = new HashSet<>();
+        Set<String> toBeProvisioned = new HashSet<>();
+
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // memberships
@@ -427,7 +438,12 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 });
 
                 if (membPatch.getOperation() == PatchOperation.DELETE) {
-                    toBeDeprovisioned.addAll(groupDAO.findAllResourceKeys(membership.get().getRightEnd().getKey()));
+                    groupDAO.findAllResourceKeys(membership.get().getRightEnd().getKey()).stream().
+                            filter(resource -> reasons.containsKey(resource)).
+                            forEach(resource -> {
+                                reasons.get(resource).remove(membership.get().getRightEnd().getKey());
+                                toBeProvisioned.add(resource);
+                            });
                 }
             }
             if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
@@ -494,10 +510,15 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             }
         });
 
+        // finalize resource management
+        reasons.entrySet().stream().
+                filter(entry -> entry.getValue().isEmpty()).
+                forEach(entry -> toBeDeprovisioned.add(entry.getKey()));
+
         propByRes.addAll(ResourceOperation.DELETE, toBeDeprovisioned);
         propByRes.addAll(ResourceOperation.UPDATE, toBeProvisioned);
 
-        // In case of new memberships all current resources need to be updated in order to propagate new group
+        // in case of new memberships all current resources need to be updated in order to propagate new group
         // attribute values.
         if (!toBeDeprovisioned.isEmpty() || !toBeProvisioned.isEmpty()) {
             currentResources.removeAll(toBeDeprovisioned);
