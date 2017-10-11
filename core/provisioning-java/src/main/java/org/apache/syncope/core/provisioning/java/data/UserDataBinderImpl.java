@@ -456,10 +456,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         for (String resource : groupDAO.findAllResourceKeys(membership.getRightEnd().getKey())) {
                             if (reasons.containsKey(resource)) {
                                 reasons.get(resource).remove(membership.getRightEnd().getKey());
-
-                                if (reasons.get(resource).contains(user.getKey())) {
-                                    toBeProvisioned.add(resource);
-                                }
+                                toBeProvisioned.add(resource);
                             }
                         }
                     }
