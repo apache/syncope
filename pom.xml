@@ -369,7 +369,7 @@ under the License.
 
     <jackson.version>2.9.1</jackson.version>
 
-    <spring.version>4.3.11.RELEASE</spring.version>
+    <spring.version>4.3.12.RELEASE</spring.version>
     <spring-security.version>4.2.3.RELEASE</spring-security.version>
 
     <openjpa.version>2.4.2</openjpa.version>
