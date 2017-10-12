@@ -305,4 +305,15 @@ public class SearchCondConverterTest {
         assertEquals(orCond, SearchCondConverter.convert(fiql));
     }
 
+    @Test
+    public void issueSYNCOPE1223() {
+        String fiql = new UserFiqlSearchConditionBuilder().is("ctype").equalTo("ou=sample%252Co=isp").query();
+
+        AttributeCond cond = new AttributeCond(AttributeCond.Type.EQ);
+        cond.setSchema("ctype");
+        cond.setExpression("ou=sample,o=isp");
+
+        assertEquals(SearchCond.getLeafCond(cond), SearchCondConverter.convert(fiql));
+    }
+
 }

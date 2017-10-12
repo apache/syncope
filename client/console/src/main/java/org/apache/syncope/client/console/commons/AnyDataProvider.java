@@ -21,15 +21,24 @@ package org.apache.syncope.client.console.commons;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
     private static final long serialVersionUID = 6267494272884913376L;
+
+    protected static final Logger LOG = LoggerFactory.getLogger(AnyDataProvider.class);
 
     private final SortableAnyProviderComparator<A> comparator;
 
@@ -43,12 +52,15 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
     private final String type;
 
+    private final PageReference pageRef;
+
     public AnyDataProvider(
             final AbstractAnyRestClient<A, ?> restClient,
             final int paginatorRows,
             final boolean filtered,
             final String realm,
-            final String type) {
+            final String type,
+            final PageReference pageRef) {
 
         super(paginatorRows);
 
@@ -74,20 +86,29 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
         this.realm = realm;
         this.type = type;
+        this.pageRef = pageRef;
     }
 
     @Override
     public Iterator<A> iterator(final long first, final long count) {
-        List<A> result;
+        List<A> result = Collections.emptyList();
 
-        final int page = ((int) first / paginatorRows);
+        try {
+            final int page = ((int) first / paginatorRows);
 
-        if (filtered) {
-            result = fiql == null
-                    ? Collections.<A>emptyList()
-                    : restClient.search(realm, fiql, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
-        } else {
-            result = restClient.search(realm, null, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
+            if (filtered) {
+                result = fiql == null
+                        ? Collections.<A>emptyList()
+                        : restClient.search(realm, fiql, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
+            } else {
+                result = restClient.search(realm, null, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
+            }
+        } catch (Exception e) {
+            LOG.error("While searching with FIQL {}", fiql, e);
+            SyncopeConsoleSession.get().error(e.getMessage());
+
+            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(
+                    RequestCycle.get().find(AjaxRequestTarget.class));
         }
 
         Collections.sort(result, comparator);
@@ -96,12 +117,20 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
     @Override
     public long size() {
-        long result;
+        long result = 0;
 
-        if (filtered) {
-            result = fiql == null ? 0 : restClient.searchCount(realm, fiql, type);
-        } else {
-            result = restClient.searchCount(realm, null, type);
+        try {
+            if (filtered) {
+                result = fiql == null ? 0 : restClient.searchCount(realm, fiql, type);
+            } else {
+                result = restClient.searchCount(realm, null, type);
+            }
+        } catch (Exception e) {
+            LOG.error("While requesting for size() with FIQL {}", fiql, e);
+            SyncopeConsoleSession.get().error(e.getMessage());
+
+            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(
+                    RequestCycle.get().find(AjaxRequestTarget.class));
         }
 
         return result;
