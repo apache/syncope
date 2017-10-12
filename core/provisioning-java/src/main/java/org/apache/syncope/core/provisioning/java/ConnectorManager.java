@@ -28,7 +28,6 @@ import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -46,7 +45,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class ConnectorManager implements ConnectorRegistry, ConnectorFactory, SyncopeLoader {
+public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectorManager.class);
 
@@ -57,11 +56,6 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory, Sy
     private ExternalResourceDAO resourceDAO;
 
     private EntityFactory entityFactory;
-
-    @Override
-    public Integer getPriority() {
-        return 100;
-    }
 
     private String getBeanName(final ExternalResource resource) {
         return String.format("connInstance-%s-%S-%s",
