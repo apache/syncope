@@ -319,7 +319,9 @@ public class CLIITCase extends AbstractITCase {
                     "connid"));
             process = PROCESS_BUILDER.start();
             final String result = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
-            assertTrue(result.contains("\"level\" : \"DEBUG\","));
+            assertTrue(result.contains("\"level\" : \"INFO\","));
+            assertTrue(result.contains("\"loggerName\" :"
+                    + " \"org.apache.syncope.core.provisioning.api.ConnIdBundleManager\""));
         } catch (IOException e) {
             fail(e.getMessage());
         } finally {
