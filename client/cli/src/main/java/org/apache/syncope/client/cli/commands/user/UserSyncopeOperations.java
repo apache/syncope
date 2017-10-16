@@ -31,6 +31,8 @@ import org.apache.syncope.common.rest.api.service.UserService;
 
 public class UserSyncopeOperations {
 
+    private static final int PAGE_SIZE = 100;
+
     private final UserService userService = SyncopeServices.get(UserService.class);
 
     public boolean auth(final String username, final String password) {
@@ -72,23 +74,33 @@ public class UserSyncopeOperations {
 
     public Map<String, BulkActionResult.Status> deleteByAttribute(
             final String realm, final String attributeName, final String attributeValue) {
-        final List<UserTO> users = userService.search(new AnyQuery.Builder().realm(realm).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().is(attributeName).equalTo(attributeValue)
-                        .query()).build()).getResult();
-        return deleteBulk(users);
+
+        return bulkDelete(new AnyQuery.Builder().realm(realm).fiql(
+                SyncopeClient.getUserSearchConditionBuilder().is(attributeName).equalTo(attributeValue).query()).
+                build());
     }
 
     public Map<String, BulkActionResult.Status> deleteAll(final String realm) {
-        return deleteBulk(userService.search(new AnyQuery.Builder().realm(realm).details(false).build()).getResult());
+        return bulkDelete(new AnyQuery.Builder().realm(realm).details(false).build());
     }
 
-    private Map<String, BulkActionResult.Status> deleteBulk(final List<UserTO> users) {
-        final BulkAction bulkAction = new BulkAction();
+    private Map<String, BulkActionResult.Status> bulkDelete(final AnyQuery query) {
+        query.setPage(0);
+        query.setSize(0);
+        int count = userService.search(query).getTotalCount();
+
+        BulkAction bulkAction = new BulkAction();
         bulkAction.setType(BulkAction.Type.DELETE);
-        for (UserTO user : users) {
-            bulkAction.getTargets().add(String.valueOf(user.getKey()));
+
+        query.setSize(PAGE_SIZE);
+        for (int page = 1; page <= (count / PAGE_SIZE) + 1; page++) {
+            query.setPage(page);
+
+            for (UserTO user : userService.search(query).getResult()) {
+                bulkAction.getTargets().add(user.getKey());
+            }
         }
-        final BulkActionResult bulkResult = userService.bulk(bulkAction).readEntity(BulkActionResult.class);
-        return bulkResult.getResults();
+
+        return userService.bulk(bulkAction).readEntity(BulkActionResult.class).getResults();
     }
 }
