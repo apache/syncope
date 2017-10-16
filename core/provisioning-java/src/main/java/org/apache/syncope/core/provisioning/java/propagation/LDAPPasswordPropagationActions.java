@@ -108,8 +108,14 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
             return true;
         }
 
-        // Special check for "SHA" (user sync'd from LDAP)
-        return "SHA".equals(connectorAlgorithm) && "SHA1".equals(userAlgorithm.name());
+        // Special check for "SHA" and "SSHA" (user pulled from LDAP)
+        if (("SHA".equals(connectorAlgorithm) && userAlgorithm.name().startsWith("SHA"))
+                || ("SSHA".equals(connectorAlgorithm) && userAlgorithm.name().startsWith("SSHA"))) {
+
+            return true;
+        }
+
+        return false;
     }
 
 }
