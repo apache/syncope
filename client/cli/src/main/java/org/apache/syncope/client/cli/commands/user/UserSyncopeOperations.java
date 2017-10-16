@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.client.cli.commands.user;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
-import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -45,23 +45,40 @@ public class UserSyncopeOperations {
     }
 
     public List<UserTO> searchByRole(final String realm, final String role) {
-        return userService.search(new AnyQuery.Builder().realm(realm).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().inRoles(role).query()).build()).getResult();
+        return search(new AnyQuery.Builder().realm(realm).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().inRoles(role).query()).build());
     }
 
     public List<UserTO> searchByResource(final String realm, final String resource) {
-        return userService.search(new AnyQuery.Builder().realm(realm).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().hasResources(resource).query()).build()).getResult();
+        return search(new AnyQuery.Builder().realm(realm).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().hasResources(resource).query()).build());
     }
 
     public List<UserTO> searchByAttribute(final String realm, final String attributeName, final String attributeValue) {
-        return userService.search(new AnyQuery.Builder().realm(realm).
+        return search(new AnyQuery.Builder().realm(realm).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is(attributeName).equalTo(attributeValue).query()).
-                build()).getResult();
+                build());
     }
 
-    public PagedResult<UserTO> list() {
-        return userService.search(new AnyQuery());
+    public List<UserTO> list() {
+        return search(new AnyQuery());
+    }
+
+    private List<UserTO> search(final AnyQuery query) {
+        query.setPage(0);
+        query.setSize(0);
+        int count = userService.search(query).getTotalCount();
+
+        List<UserTO> result = new ArrayList<>();
+
+        query.setSize(PAGE_SIZE);
+        for (int page = 1; page <= (count / PAGE_SIZE) + 1; page++) {
+            query.setPage(page);
+
+            result.addAll(userService.search(query).getResult());
+        }
+
+        return result;
     }
 
     public UserTO read(final String userKey) {
