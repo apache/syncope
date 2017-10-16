@@ -43,12 +43,12 @@ public class UserDetails extends AbstractUserCommand {
         if (input.parameterNumber() == 0) {
             try {
                 final Map<String, String> details = new LinkedHashMap<>();
-                final List<UserTO> usersTOs = userSyncopeOperations.list().getResult();
+                final List<UserTO> users = userSyncopeOperations.list();
                 int withoutResource = 0;
                 int withoutRole = 0;
                 int activeStatus = 0;
                 int suspendedStatus = 0;
-                for (final UserTO userTO : usersTOs) {
+                for (final UserTO userTO : users) {
                     if (userTO.getResources().isEmpty()) {
                         withoutResource++;
                     }
@@ -61,7 +61,7 @@ public class UserDetails extends AbstractUserCommand {
                         suspendedStatus++;
                     }
                 }
-                details.put("Total number", String.valueOf(usersTOs.size()));
+                details.put("Total number", String.valueOf(users.size()));
                 details.put("Active", String.valueOf(activeStatus));
                 details.put("Suspended", String.valueOf(suspendedStatus));
                 details.put("Without resources", String.valueOf(withoutResource));
