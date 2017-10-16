@@ -99,7 +99,7 @@ public class LDAPPasswordPropagationActions extends DefaultPropagationActions {
                     @Override
                     public boolean evaluate(final ConnConfProperty property) {
                         return "passwordHashAlgorithm".equals(property.getSchema().getName())
-                        && property.getValues() != null && !property.getValues().isEmpty();
+                                && property.getValues() != null && !property.getValues().isEmpty();
                     }
                 });
 
@@ -117,8 +117,10 @@ public class LDAPPasswordPropagationActions extends DefaultPropagationActions {
             return true;
         }
 
-        // Special check for "SHA" (user sync'd from LDAP)
-        if ("SHA".equals(connectorAlgorithm) && "SHA1".equals(userAlgorithm.name())) {
+        // Special check for "SHA" and "SSHA" (user pulled from LDAP)
+        if (("SHA".equals(connectorAlgorithm) && userAlgorithm.name().startsWith("SHA"))
+                || ("SSHA".equals(connectorAlgorithm) && userAlgorithm.name().startsWith("SSHA"))) {
+
             return true;
         }
 
