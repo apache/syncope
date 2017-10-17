@@ -178,7 +178,9 @@ public class MappingManagerImpl implements MappingManager {
                                 values.addAll(alreadyAdded.getValue());
                             }
 
-                            values.addAll(preparedAttr.getRight().getValue());
+                            if (preparedAttr.getRight().getValue() != null) {
+                                values.addAll(preparedAttr.getRight().getValue());
+                            }
 
                             attributes.add(AttributeBuilder.build(preparedAttr.getRight().getName(), values));
                         }
