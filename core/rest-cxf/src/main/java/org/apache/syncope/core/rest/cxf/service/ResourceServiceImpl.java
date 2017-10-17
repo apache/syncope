@@ -130,6 +130,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
         if (StringUtils.isNotBlank(result.getPagedResultsCookie())) {
             result.setNext(builder.
                     replaceQueryParam(PARAM_CONNID_PAGED_RESULTS_COOKIE, result.getPagedResultsCookie()).
+                    replaceQueryParam(PARAM_SIZE, listQuery.getSize()).
                     build());
         }
 
