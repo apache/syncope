@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity.anyobject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -35,6 +36,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
@@ -149,6 +151,16 @@ public class JPAAnyObject
     public boolean add(final ARelationship relationship) {
         checkType(relationship, JPAARelationship.class);
         return this.relationships.add((JPAARelationship) relationship);
+    }
+
+    @Override
+    public Optional<? extends ARelationship> getRelationship(
+            final RelationshipType relationshipType, final String otherEndKey) {
+
+        return getRelationships().stream().filter(relationship -> relationshipType.equals(relationship.getType())
+                && otherEndKey != null
+                && (otherEndKey.equals(relationship.getLeftEnd().getKey())
+                || otherEndKey.equals(relationship.getRightEnd().getKey()))).findFirst();
     }
 
     @Override

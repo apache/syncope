@@ -221,7 +221,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         GroupService.getGroups(realm).then(function (response) {
           $scope.dynamicForm.groups = new Array();
           for (var i in response) {
-            $scope.dynamicForm.groups.push({"rightKey": response[i].key, "groupName": response[i].name});
+            $scope.dynamicForm.groups.push({"groupKey": response[i].key, "groupName": response[i].name});
           }
           $scope.dynamicForm.groups.sort(function (a, b) {
             var x = a.groupName;
@@ -284,7 +284,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           for (var index in $scope.user.memberships) {
             $scope.dynamicForm.selectedGroups.push(
                     {
-                      "rightKey": $scope.user.memberships[index]["rightKey"].toString(),
+                      "groupKey": $scope.user.memberships[index]["groupKey"].toString(),
                       "groupName": $scope.user.memberships[index]["groupName"]
                     });
           }

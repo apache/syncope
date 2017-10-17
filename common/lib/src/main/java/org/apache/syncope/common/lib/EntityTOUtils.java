@@ -40,15 +40,14 @@ public final class EntityTOUtils {
             final Collection<RelationshipTO> relationships) {
 
         Map<Pair<String, String>, RelationshipTO> result = new HashMap<>(relationships.size());
-        relationships.forEach(
-                relationship -> result.put(Pair.of(relationship.getType(), relationship.getRightKey()), relationship));
+        relationships.forEach(rel -> result.put(Pair.of(rel.getType(), rel.getOtherEndKey()), rel));
 
         return Collections.unmodifiableMap(result);
     }
 
     public static Map<String, MembershipTO> buildMembershipMap(final Collection<MembershipTO> memberships) {
         Map<String, MembershipTO> result = new HashMap<>(memberships.size());
-        memberships.forEach(membership -> result.put(membership.getRightKey(), membership));
+        memberships.forEach(memb -> result.put(memb.getGroupKey(), memb));
 
         return Collections.unmodifiableMap(result);
     }

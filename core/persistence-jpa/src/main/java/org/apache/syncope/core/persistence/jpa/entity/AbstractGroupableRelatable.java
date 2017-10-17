@@ -91,14 +91,6 @@ public abstract class AbstractGroupableRelatable<
     }
 
     @Override
-    public Optional<? extends REL> getRelationship(final RelationshipType relationshipType, final String otherEndKey) {
-        return getRelationships().stream().filter(relationship
-                -> otherEndKey != null && otherEndKey.equals(relationship.getRightEnd().getKey())
-                && ((relationshipType == null && relationship.getType() == null)
-                || (relationshipType != null && relationshipType.equals(relationship.getType())))).findFirst();
-    }
-
-    @Override
     public Collection<? extends REL> getRelationships(final RelationshipType relationshipType) {
         return getRelationships().stream().filter(relationship
                 -> relationshipType != null && relationshipType.equals(relationship.getType())).

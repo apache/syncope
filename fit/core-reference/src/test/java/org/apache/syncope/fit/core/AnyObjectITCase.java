@@ -203,7 +203,7 @@ public class AnyObjectITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE756() {
         AnyObjectTO anyObjectTO = getSampleTO("issueSYNCOPE756");
-        anyObjectTO.getRelationships().add(new RelationshipTO.Builder().right(
+        anyObjectTO.getRelationships().add(new RelationshipTO.Builder().otherEnd(
                 AnyTypeKind.USER.name(), "1417acbe-cbf6-4277-9372-e75e04f97000").build());
 
         try {

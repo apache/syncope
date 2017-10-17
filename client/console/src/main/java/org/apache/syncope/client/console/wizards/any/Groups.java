@@ -268,8 +268,8 @@ public class Groups extends WizardStep implements ICondition {
             // set group names in membership TOs and remove membership not assignable
             List<MembershipTO> toBeRemoved = new ArrayList<>();
             GroupableRelatableTO.class.cast(anyTO).getMemberships().forEach(membership -> {
-                if (assignedGroups.containsKey(membership.getRightKey())) {
-                    membership.setGroupName(assignedGroups.get(membership.getRightKey()).getName());
+                if (assignedGroups.containsKey(membership.getGroupKey())) {
+                    membership.setGroupName(assignedGroups.get(membership.getGroupKey()).getName());
                 } else {
                     toBeRemoved.add(membership);
                 }

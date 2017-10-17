@@ -205,7 +205,7 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
 
     protected List<String> getMembershipAuxClasses(final MembershipTO membershipTO, final String anyType) {
         try {
-            final GroupTO groupTO = groupRestClient.read(membershipTO.getRightKey());
+            final GroupTO groupTO = groupRestClient.read(membershipTO.getGroupKey());
             return groupTO.getTypeExtension(anyType).get().getAuxClasses();
         } catch (Exception e) {
             return Collections.emptyList();

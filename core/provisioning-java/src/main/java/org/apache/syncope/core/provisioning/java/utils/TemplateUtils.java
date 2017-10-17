@@ -108,8 +108,8 @@ public class TemplateUtils {
 
     private void fillRelationships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
         template.getRelationships().stream().
-                filter(relationship
-                        -> !any.getRelationship(relationship.getRightKey(), relationship.getRightKey()).isPresent()).
+                filter(relationship -> !any.getRelationship(
+                relationship.getOtherEndKey(), relationship.getOtherEndKey()).isPresent()).
                 forEachOrdered(relationship -> {
                     any.getRelationships().add(relationship);
                 });

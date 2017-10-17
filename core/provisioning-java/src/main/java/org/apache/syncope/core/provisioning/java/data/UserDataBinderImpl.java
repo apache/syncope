@@ -206,9 +206,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         if (user.getRealm() != null) {
             // relationships
             userTO.getRelationships().forEach(relationshipTO -> {
-                AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getRightKey());
+                AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getOtherEndKey());
                 if (otherEnd == null) {
-                    LOG.debug("Ignoring invalid anyObject " + relationshipTO.getRightKey());
+                    LOG.debug("Ignoring invalid anyObject " + relationshipTO.getOtherEndKey());
                 } else if (user.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
                     RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTO.getType());
                     if (relationshipType == null) {
@@ -233,12 +233,12 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
             // memberships
             userTO.getMemberships().forEach(membershipTO -> {
-                Group group = membershipTO.getRightKey() == null
+                Group group = membershipTO.getGroupKey() == null
                         ? groupDAO.findByName(membershipTO.getGroupName())
-                        : groupDAO.find(membershipTO.getRightKey());
+                        : groupDAO.find(membershipTO.getGroupKey());
                 if (group == null) {
                     LOG.debug("Ignoring invalid group "
-                            + membershipTO.getRightKey() + " / " + membershipTO.getGroupName());
+                            + membershipTO.getGroupKey() + " / " + membershipTO.getGroupName());
                 } else if (user.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
                     UMembership membership = entityFactory.newEntity(UMembership.class);
                     membership.setRightEnd(group);
@@ -374,16 +374,16 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 LOG.debug("Ignoring invalid relationship type {}", patch.getRelationshipTO().getType());
             } else {
                 Optional<? extends URelationship> relationship =
-                        user.getRelationship(relationshipType, patch.getRelationshipTO().getRightKey());
+                        user.getRelationship(relationshipType, patch.getRelationshipTO().getOtherEndKey());
                 if (relationship.isPresent()) {
                     user.getRelationships().remove(relationship.get());
                     relationship.get().setLeftEnd(null);
                 }
 
                 if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
-                    AnyObject otherEnd = anyObjectDAO.find(patch.getRelationshipTO().getRightKey());
+                    AnyObject otherEnd = anyObjectDAO.find(patch.getRelationshipTO().getOtherEndKey());
                     if (otherEnd == null) {
-                        LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getRightKey());
+                        LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getOtherEndKey());
                     } else if (user.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
                         URelationship newRelationship = entityFactory.newEntity(URelationship.class);
                         newRelationship.setType(relationshipType);
@@ -605,7 +605,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
             // relationships
             userTO.getRelationships().addAll(
-                    user.getRelationships().stream().map(relationship -> getRelationshipTO(relationship)).
+                    user.getRelationships().stream().map(relationship -> getRelationshipTO(
+                    relationship.getType().getKey(), relationship.getRightEnd())).
                             collect(Collectors.toList()));
 
             // memberships

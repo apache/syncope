@@ -258,7 +258,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB));
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_WS2));
             assertEquals(1, userTO.getMemberships().size());
-            assertEquals("f779c0d4-633b-4be5-8f57-32eb478a3ca5", userTO.getMemberships().get(0).getRightKey());
+            assertEquals("f779c0d4-633b-4be5-8f57-32eb478a3ca5", userTO.getMemberships().get(0).getGroupKey());
 
             // Unmatching --> Assign (link) - SYNCOPE-658
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_CSV));

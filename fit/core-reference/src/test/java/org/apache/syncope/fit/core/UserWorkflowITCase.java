@@ -76,7 +76,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
         assertEquals(1, userTO.getMemberships().size());
-        assertEquals("0cbcabd2-4410-4b6b-8f05-a052b451d18f", userTO.getMemberships().get(0).getRightKey());
+        assertEquals("0cbcabd2-4410-4b6b-8f05-a052b451d18f", userTO.getMemberships().get(0).getGroupKey());
         assertEquals("createApproval", userTO.getStatus());
 
         // 2. request if there is any pending task for user just created
@@ -156,7 +156,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(result);
         userTO = result.getEntity();
         assertEquals(1, userTO.getMemberships().size());
-        assertEquals("0cbcabd2-4410-4b6b-8f05-a052b451d18f", userTO.getMemberships().get(0).getRightKey());
+        assertEquals("0cbcabd2-4410-4b6b-8f05-a052b451d18f", userTO.getMemberships().get(0).getGroupKey());
         assertEquals("createApproval", userTO.getStatus());
         assertEquals(Collections.singleton(RESOURCE_NAME_TESTDB), userTO.getResources());
 
