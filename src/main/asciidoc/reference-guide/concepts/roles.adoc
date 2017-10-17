@@ -95,10 +95,10 @@ For example, the following entitlements are normally required to be granted for 
 `USER_CREATE`, `USER_UPDATE` and `USER_DELETE`:
 
 . `USER_SEARCH`
-. `USER_LIST`
 . `ANYTYPECLASS_READ`
 . `ANYTYPE_LIST`
 . `ANYTYPECLASS_LIST`
+. `RELATIONSHIPTYPE_LIST`
 . `USER_READ`
 . `ANYTYPE_READ`
 . `REALM_LIST`
