@@ -29,23 +29,22 @@
 angular.module("self")
         .filter('propsFilter', function () {
           return function (items, props) {
-            var out = [];            
+            var out = [];
             if (items && items.length && props.selected && props.selected.length) {
-              var selected = props.selected;              
+              var selected = props.selected;
               for (var i = 0; i < items.length; i++) {
                 var item = items[i], itemMisses = true;
                 for (var j = 0; j < selected.length; j++) {
-                  if (item.rightKey == selected[j].rightKey) {
+                  if (item.groupKey == selected[j].groupKey) {
                     itemMisses = false;
                     break;
                   }
                 }
-                if(itemMisses){
+                if (itemMisses) {
                   out.push(item);
                 }
               }
-            }
-            else{
+            } else {
               out = items;
             }
             return out;

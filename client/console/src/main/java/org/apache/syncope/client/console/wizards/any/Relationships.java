@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -95,7 +94,7 @@ public class Relationships extends WizardStep implements WizardModel.ICondition 
     private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
     private final AnyTO anyTO;
-    
+
     private final RelationshipTypeRestClient relationshipTypeRestClient = new RelationshipTypeRestClient();
 
     public Relationships(final AnyWrapper<?> modelObject, final PageReference pageRef) {
@@ -149,7 +148,7 @@ public class Relationships extends WizardStep implements WizardModel.ICondition 
                             public Panel getPanel(final String panelId) {
                                 return new ListViewPanel.Builder<>(RelationshipTO.class, pageRef).
                                         setItems(relationships.get(input)).
-                                        includes("rightType", "rightKey").
+                                        includes("otherEndType", "otherEndKey").
                                         addAction(new ActionLink<RelationshipTO>() {
 
                                             private static final long serialVersionUID = -6847033126124401556L;
@@ -275,15 +274,15 @@ public class Relationships extends WizardStep implements WizardModel.ICondition 
                 }
             });
 
-            final AjaxDropDownChoicePanel<AnyTypeTO> rightType = new AjaxDropDownChoicePanel<>(
-                    "rightType", "rightType", new PropertyModel<AnyTypeTO>(rel, "rightType") {
+            final AjaxDropDownChoicePanel<AnyTypeTO> otherType = new AjaxDropDownChoicePanel<>(
+                    "otherType", "otherType", new PropertyModel<AnyTypeTO>(rel, "otherType") {
 
                 private static final long serialVersionUID = -5861057041758169508L;
 
                 @Override
                 public AnyTypeTO getObject() {
                     for (AnyTypeTO obj : availableTypes) {
-                        if (obj.getKey().equals(rel.getRightType())) {
+                        if (obj.getKey().equals(rel.getOtherEndType())) {
                             return obj;
                         }
                     }
@@ -292,11 +291,11 @@ public class Relationships extends WizardStep implements WizardModel.ICondition 
 
                 @Override
                 public void setObject(final AnyTypeTO object) {
-                    rel.setRightType(object == null ? null : object.getKey());
+                    rel.setOtherEndType(object == null ? null : object.getKey());
                 }
             }, false);
-            rightType.setChoices(availableTypes);
-            rightType.setChoiceRenderer(new IChoiceRenderer<AnyTypeTO>() {
+            otherType.setChoices(availableTypes);
+            otherType.setChoiceRenderer(new IChoiceRenderer<AnyTypeTO>() {
 
                 private static final long serialVersionUID = -734743540442190178L;
 
@@ -321,9 +320,9 @@ public class Relationships extends WizardStep implements WizardModel.ICondition 
                     });
                 }
             });
-            // enable "rightType" dropdown only if "type" option is selected - SYNCOPE-1140
-            rightType.setEnabled(false);
-            add(rightType);
+            // enable "otherType" dropdown only if "type" option is selected - SYNCOPE-1140
+            otherType.setEnabled(false);
+            add(otherType);
 
             final WebMarkupContainer container = new WebMarkupContainer("searchPanelContainer");
             container.setOutputMarkupId(true);
@@ -340,21 +339,21 @@ public class Relationships extends WizardStep implements WizardModel.ICondition 
                 protected void onUpdate(final AjaxRequestTarget target) {
                     Fragment emptyFragment = new Fragment("searchPanel", "emptyFragment", Specification.this);
                     container.addOrReplace(emptyFragment.setRenderBodyOnly(true));
-                    rightType.setModelObject(null);
-                    // enable "rightType" dropdown only if "type" option is selected - SYNCOPE-1140
-                    rightType.setEnabled(type.getModelObject() != null && !type.getModelObject().isEmpty());
-                    target.add(rightType);
+                    otherType.setModelObject(null);
+                    // enable "otherType" dropdown only if "type" option is selected - SYNCOPE-1140
+                    otherType.setEnabled(type.getModelObject() != null && !type.getModelObject().isEmpty());
+                    target.add(otherType);
                     target.add(container);
                 }
             });
 
-            rightType.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            otherType.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
-                    final AnyTypeTO anyType = rightType.getModelObject();
+                    final AnyTypeTO anyType = otherType.getModelObject();
                     if (anyType == null) {
                         Fragment emptyFragment = new Fragment("searchPanel", "emptyFragment", Specification.this);
                         container.addOrReplace(emptyFragment.setRenderBodyOnly(true));
@@ -396,7 +395,7 @@ public class Relationships extends WizardStep implements WizardModel.ICondition 
                         getPayload()).getTarget();
 
                 AnyTO right = AnySelectionDirectoryPanel.ItemSelection.class.cast(event.getPayload()).getSelection();
-                rel.setRightKey(right.getKey());
+                rel.setOtherEndKey(right.getKey());
 
                 Relationships.this.addNewRelationships(rel);
 

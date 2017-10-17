@@ -260,11 +260,11 @@ public class UserReportlet extends AbstractReportlet {
                     atts.clear();
 
                     atts.addAttribute("", "", "anyObjectKey",
-                            ReportXMLConst.XSD_STRING, rel.getRightKey());
+                            ReportXMLConst.XSD_STRING, rel.getOtherEndKey());
                     handler.startElement("", "", "relationship", atts);
 
                     if (conf.getFeatures().contains(Feature.resources)) {
-                        for (URelationship actualRel : user.getRelationships(rel.getRightKey())) {
+                        for (URelationship actualRel : user.getRelationships(rel.getOtherEndKey())) {
                             doExtractResources(
                                     handler, anyObjectDataBinder.getAnyObjectTO(actualRel.getRightEnd(), true));
                         }
@@ -282,15 +282,15 @@ public class UserReportlet extends AbstractReportlet {
                     atts.clear();
 
                     atts.addAttribute("", "", "groupKey",
-                            ReportXMLConst.XSD_STRING, memb.getRightKey());
+                            ReportXMLConst.XSD_STRING, memb.getGroupKey());
                     atts.addAttribute("", "", "groupName", ReportXMLConst.XSD_STRING, memb.getGroupName());
                     handler.startElement("", "", "membership", atts);
 
                     if (conf.getFeatures().contains(Feature.resources)) {
-                        UMembership actualMemb = user.getMembership(memb.getRightKey());
+                        UMembership actualMemb = user.getMembership(memb.getGroupKey());
                         if (actualMemb == null) {
                             LOG.warn("Unexpected: cannot find membership for group {} for user {}",
-                                    memb.getRightKey(), user);
+                                    memb.getGroupKey(), user);
                         } else {
                             doExtractResources(handler, groupDataBinder.getGroupTO(actualMemb.getRightEnd(), true));
                         }

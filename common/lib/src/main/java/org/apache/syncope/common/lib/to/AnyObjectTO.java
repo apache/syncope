@@ -53,12 +53,12 @@ public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
 
     @JsonIgnore
     @Override
-    public RelationshipTO getRelationship(final String type, final String rightKey) {
+    public RelationshipTO getRelationship(final String type, final String otherKey) {
         return IterableUtils.find(relationships, new Predicate<RelationshipTO>() {
 
             @Override
             public boolean evaluate(final RelationshipTO object) {
-                return type.equals(object.getType()) && rightKey.equals(object.getRightKey());
+                return type.equals(object.getType()) && otherKey.equals(object.getOtherEndKey());
             }
         });
     }

@@ -196,12 +196,12 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     @JsonIgnore
     @Override
-    public RelationshipTO getRelationship(final String type, final String rightKey) {
+    public RelationshipTO getRelationship(final String type, final String otherKey) {
         return IterableUtils.find(relationships, new Predicate<RelationshipTO>() {
 
             @Override
-            public boolean evaluate(final RelationshipTO object) {
-                return type.equals(object.getType()) && rightKey.equals(object.getRightKey());
+            public boolean evaluate(final RelationshipTO relationship) {
+                return type.equals(relationship.getType()) && otherKey.equals(relationship.getOtherEndKey());
             }
         });
     }

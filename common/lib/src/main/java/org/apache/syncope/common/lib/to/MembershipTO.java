@@ -28,11 +28,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "membership")
 @XmlType
-public class MembershipTO extends RelationshipTO implements AttributableTO {
+public class MembershipTO extends AbstractBaseBean implements AttributableTO {
 
     private static final long serialVersionUID = 5992828670273935861L;
 
@@ -41,12 +41,12 @@ public class MembershipTO extends RelationshipTO implements AttributableTO {
         private final MembershipTO instance = new MembershipTO();
 
         public Builder group(final String groupKey) {
-            instance.setRightKey(groupKey);
+            instance.setGroupKey(groupKey);
             return this;
         }
 
         public Builder group(final String groupKey, final String groupName) {
-            instance.setRightKey(groupKey);
+            instance.setGroupKey(groupKey);
             instance.setGroupName(groupName);
             return this;
         }
@@ -56,6 +56,8 @@ public class MembershipTO extends RelationshipTO implements AttributableTO {
         }
     }
 
+    private String groupKey;
+
     private String groupName;
 
     private final Set<AttrTO> plainAttrs = new HashSet<>();
@@ -64,33 +66,12 @@ public class MembershipTO extends RelationshipTO implements AttributableTO {
 
     private final Set<AttrTO> virAttrs = new HashSet<>();
 
-    @Override
-    public String getType() {
-        return "Membership";
-    }
-
-    @Override
-    public void setType(final String relationshipType) {
-        // ignore
-    }
-
-    @Override
-    public String getRightType() {
-        return AnyTypeKind.GROUP.name();
-    }
-
-    @Override
-    public void setRightType(final String rightType) {
-        // ignore
-    }
-
-    @JsonIgnore
     public String getGroupKey() {
-        return getRightKey();
+        return groupKey;
     }
 
     public void setGroupKey(final String groupKey) {
-        setRightKey(groupKey);
+        this.groupKey = groupKey;
     }
 
     public String getGroupName() {

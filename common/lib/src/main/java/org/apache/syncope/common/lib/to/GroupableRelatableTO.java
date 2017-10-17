@@ -28,7 +28,7 @@ public interface GroupableRelatableTO {
 
     List<MembershipTO> getDynMemberships();
 
-    RelationshipTO getRelationship(String type, String rightKey);
+    RelationshipTO getRelationship(String type, String otherKey);
 
     List<RelationshipTO> getRelationships();
 }

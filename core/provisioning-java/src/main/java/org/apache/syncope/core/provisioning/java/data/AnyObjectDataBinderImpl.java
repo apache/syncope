@@ -47,10 +47,12 @@ import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
@@ -105,13 +107,17 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             anyObjectTO.getDynRealms().addAll(userDAO.findDynRealms(anyObject.getKey()));
 
             // relationships
-            CollectionUtils.collect(anyObject.getRelationships(), new Transformer<ARelationship, RelationshipTO>() {
+            CollectionUtils.collect(anyObjectDAO.findAllRelationships(anyObject), 
+                    new Transformer<Relationship<Any<?>, Any<?>>, RelationshipTO>() {
 
                 @Override
-                public RelationshipTO transform(final ARelationship relationship) {
-                    return AnyObjectDataBinderImpl.this.getRelationshipTO(relationship);
+                public RelationshipTO transform(final Relationship<Any<?>, Any<?>> relationship) {
+                    return getRelationshipTO(
+                            relationship.getType().getKey(),
+                            relationship.getLeftEnd().getKey().equals(anyObject.getKey())
+                            ? relationship.getRightEnd()
+                            : relationship.getLeftEnd());
                 }
-
             }, anyObjectTO.getRelationships());
 
             // memberships
@@ -180,19 +186,19 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         if (anyObject.getRealm() != null) {
             // relationships
             for (RelationshipTO relationshipTO : anyObjectTO.getRelationships()) {
-                if (StringUtils.isBlank(relationshipTO.getRightType())
-                        || AnyTypeKind.USER.name().equals(relationshipTO.getRightType())
-                        || AnyTypeKind.GROUP.name().equals(relationshipTO.getRightType())) {
+                if (StringUtils.isBlank(relationshipTO.getOtherEndType())
+                        || AnyTypeKind.USER.name().equals(relationshipTO.getOtherEndType())
+                        || AnyTypeKind.GROUP.name().equals(relationshipTO.getOtherEndType())) {
 
                     SyncopeClientException invalidAnyType =
                             SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
                     invalidAnyType.getElements().add(AnyType.class.getSimpleName()
-                            + " not allowed for relationship: " + relationshipTO.getRightType());
+                            + " not allowed for relationship: " + relationshipTO.getOtherEndType());
                     scce.addException(invalidAnyType);
                 } else {
-                    AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getRightKey());
+                    AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getOtherEndKey());
                     if (otherEnd == null) {
-                        LOG.debug("Ignoring invalid anyObject " + relationshipTO.getRightKey());
+                        LOG.debug("Ignoring invalid anyObject " + relationshipTO.getOtherEndKey());
                     } else if (anyObject.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
                         RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTO.getType());
                         if (relationshipType == null) {
@@ -218,12 +224,12 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
             // memberships
             for (MembershipTO membershipTO : anyObjectTO.getMemberships()) {
-                Group group = membershipTO.getRightKey() == null
+                Group group = membershipTO.getGroupKey() == null
                         ? groupDAO.findByName(membershipTO.getGroupName())
-                        : groupDAO.find(membershipTO.getRightKey());
+                        : groupDAO.find(membershipTO.getGroupKey());
                 if (group == null) {
                     LOG.debug("Ignoring invalid group "
-                            + membershipTO.getRightKey() + " / " + membershipTO.getGroupName());
+                            + membershipTO.getGroupKey() + " / " + membershipTO.getGroupName());
                 } else if (anyObject.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
                     AMembership membership = entityFactory.newEntity(AMembership.class);
                     membership.setRightEnd(group);
@@ -290,26 +296,27 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     LOG.debug("Ignoring invalid relationship type {}", patch.getRelationshipTO().getType());
                 } else {
                     ARelationship relationship =
-                            anyObject.getRelationship(relationshipType, patch.getRelationshipTO().getRightKey());
+                            anyObject.getRelationship(relationshipType, patch.getRelationshipTO().getOtherEndKey());
                     if (relationship != null) {
                         anyObject.getRelationships().remove(relationship);
                         relationship.setLeftEnd(null);
+                        relationship.setRightEnd(null);
                     }
 
                     if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
-                        if (StringUtils.isBlank(patch.getRelationshipTO().getRightType())
-                                || AnyTypeKind.USER.name().equals(patch.getRelationshipTO().getRightType())
-                                || AnyTypeKind.GROUP.name().equals(patch.getRelationshipTO().getRightType())) {
+                        if (StringUtils.isBlank(patch.getRelationshipTO().getOtherEndType())
+                                || AnyTypeKind.USER.name().equals(patch.getRelationshipTO().getOtherEndType())
+                                || AnyTypeKind.GROUP.name().equals(patch.getRelationshipTO().getOtherEndType())) {
 
                             SyncopeClientException invalidAnyType =
                                     SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
                             invalidAnyType.getElements().add(AnyType.class.getSimpleName()
-                                    + " not allowed for relationship: " + patch.getRelationshipTO().getRightType());
+                                    + " not allowed for relationship: " + patch.getRelationshipTO().getOtherEndType());
                             scce.addException(invalidAnyType);
                         } else {
-                            AnyObject otherEnd = anyObjectDAO.find(patch.getRelationshipTO().getRightKey());
+                            AnyObject otherEnd = anyObjectDAO.find(patch.getRelationshipTO().getOtherEndKey());
                             if (otherEnd == null) {
-                                LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getRightKey());
+                                LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getOtherEndKey());
                             } else if (anyObject.getRealm().getFullPath().
                                     startsWith(otherEnd.getRealm().getFullPath())) {
 

@@ -155,7 +155,7 @@ public class Groups extends WizardStep implements ICondition {
                             : groupRestClient.search(
                                     anyTO.getRealm(),
                                     SyncopeClient.getGroupSearchConditionBuilder().
-                                    isAssignable().and().is("name").equalTo(filter).query(),
+                                            isAssignable().and().is("name").equalTo(filter).query(),
                                     1, MAX_GROUP_LIST_CARDINALITY,
                                     new SortParam<>("name", true),
                                     null),
@@ -223,7 +223,7 @@ public class Groups extends WizardStep implements ICondition {
                 ? CollectionUtils.isNotEmpty(allDynRealms)
                 : CollectionUtils.isNotEmpty(allDynRealms) || CollectionUtils.isNotEmpty(groupsModel.getObject()))
                 && SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
-                isActionAuthorized(this, RENDER);
+                        isActionAuthorized(this, RENDER);
     }
 
     private class GroupsModel extends ListModel<GroupTO> {
@@ -290,8 +290,8 @@ public class Groups extends WizardStep implements ICondition {
             // set group names in membership TOs and remove membership not assignable
             List<MembershipTO> toBeRemoved = new ArrayList<>();
             for (MembershipTO membership : GroupableRelatableTO.class.cast(anyTO).getMemberships()) {
-                if (assignedGroups.containsKey(membership.getRightKey())) {
-                    membership.setGroupName(assignedGroups.get(membership.getRightKey()).getName());
+                if (assignedGroups.containsKey(membership.getGroupKey())) {
+                    membership.setGroupName(assignedGroups.get(membership.getGroupKey()).getName());
                 } else {
                     toBeRemoved.add(membership);
                 }

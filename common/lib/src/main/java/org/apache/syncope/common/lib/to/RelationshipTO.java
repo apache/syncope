@@ -2,7 +2,7 @@
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyother ownership.  The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -37,9 +37,9 @@ public class RelationshipTO extends AbstractBaseBean {
             return this;
         }
 
-        public Builder right(final String rightType, final String rightKey) {
-            instance.setRightType(rightType);
-            instance.setRightKey(rightKey);
+        public Builder otherEnd(final String otherEndType, final String otherEndKey) {
+            instance.setOtherEndType(otherEndType);
+            instance.setOtherEndKey(otherEndKey);
             return this;
         }
 
@@ -50,9 +50,9 @@ public class RelationshipTO extends AbstractBaseBean {
 
     private String type;
 
-    private String rightType;
+    private String otherEndType;
 
-    private String rightKey;
+    private String otherEndKey;
 
     public String getType() {
         return type;
@@ -62,20 +62,20 @@ public class RelationshipTO extends AbstractBaseBean {
         this.type = type;
     }
 
-    public String getRightType() {
-        return rightType;
+    public String getOtherEndType() {
+        return otherEndType;
     }
 
-    public void setRightType(final String rightType) {
-        this.rightType = rightType;
+    public void setOtherEndType(final String otherEndType) {
+        this.otherEndType = otherEndType;
     }
 
-    public String getRightKey() {
-        return rightKey;
+    public String getOtherEndKey() {
+        return otherEndKey;
     }
 
-    public void setRightKey(final String rightKey) {
-        this.rightKey = rightKey;
+    public void setOtherEndKey(final String otherEndKey) {
+        this.otherEndKey = otherEndKey;
     }
 
 }

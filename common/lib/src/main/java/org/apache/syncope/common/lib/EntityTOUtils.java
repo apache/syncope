@@ -55,7 +55,7 @@ public final class EntityTOUtils {
 
         Map<Pair<String, String>, RelationshipTO> result = new HashMap<>(relationships.size());
         for (RelationshipTO relationship : relationships) {
-            result.put(Pair.of(relationship.getType(), relationship.getRightKey()), relationship);
+            result.put(Pair.of(relationship.getType(), relationship.getOtherEndKey()), relationship);
         }
 
         return Collections.unmodifiableMap(result);
@@ -64,7 +64,7 @@ public final class EntityTOUtils {
     public static Map<String, MembershipTO> buildMembershipMap(final Collection<MembershipTO> memberships) {
         Map<String, MembershipTO> result = new HashMap<>(memberships.size());
         for (MembershipTO membership : memberships) {
-            result.put(membership.getRightKey(), membership);
+            result.put(membership.getGroupKey(), membership);
         }
 
         return Collections.unmodifiableMap(result);

@@ -31,9 +31,9 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
@@ -120,7 +120,7 @@ public class ElasticsearchUtils {
 
             List<Object> relationships = new ArrayList<>();
             List<Object> relationshipTypes = new ArrayList<>();
-            for (ARelationship relationship : anyObjectDAO.findAllRelationships(anyObject)) {
+            for (Relationship<Any<?>, Any<?>> relationship : anyObjectDAO.findAllRelationships(anyObject)) {
                 relationships.add(relationship.getRightEnd().getKey());
                 relationshipTypes.add(relationship.getType().getKey());
             }

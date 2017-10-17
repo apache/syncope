@@ -109,7 +109,7 @@ public class TemplateUtils {
 
     private void fillRelationships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
         for (RelationshipTO relationship : template.getRelationships()) {
-            if (any.getRelationship(relationship.getRightKey(), relationship.getRightKey()) == null) {
+            if (any.getRelationship(relationship.getType(), relationship.getOtherEndKey()) == null) {
                 any.getRelationships().add(relationship);
             }
         }

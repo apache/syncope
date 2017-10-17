@@ -45,9 +45,11 @@ import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -177,13 +179,26 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     }
 
     @Override
-    public List<ARelationship> findAllRelationships(final AnyObject anyObject) {
-        TypedQuery<ARelationship> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAARelationship.class.getSimpleName()
-                + " e WHERE e.rightEnd=:anyObject OR e.leftEnd=:anyObject", ARelationship.class);
-        query.setParameter("anyObject", anyObject);
+    public List<Relationship<Any<?>, Any<?>>> findAllRelationships(final AnyObject anyObject) {
+        List<Relationship<Any<?>, Any<?>>> result = new ArrayList<>();
 
-        return query.getResultList();
+        @SuppressWarnings("unchecked")
+        TypedQuery<Relationship<Any<?>, Any<?>>> aquery =
+                (TypedQuery<Relationship<Any<?>, Any<?>>>) entityManager().createQuery(
+                        "SELECT e FROM " + JPAARelationship.class.getSimpleName()
+                        + " e WHERE e.rightEnd=:anyObject OR e.leftEnd=:anyObject");
+        aquery.setParameter("anyObject", anyObject);
+        result.addAll(aquery.getResultList());
+
+        @SuppressWarnings("unchecked")
+        TypedQuery<Relationship<Any<?>, Any<?>>> uquery =
+                (TypedQuery<Relationship<Any<?>, Any<?>>>) entityManager().createQuery(
+                        "SELECT e FROM " + JPAURelationship.class.getSimpleName()
+                        + " e WHERE e.rightEnd=:anyObject");
+        uquery.setParameter("anyObject", anyObject);
+        result.addAll(uquery.getResultList());
+
+        return result;
     }
 
     @Override

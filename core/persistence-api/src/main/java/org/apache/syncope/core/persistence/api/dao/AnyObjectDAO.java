@@ -23,8 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -45,7 +46,7 @@ public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
     List<Group> findDynGroups(String key);
 
-    List<ARelationship> findAllRelationships(AnyObject anyObject);
+    List<Relationship<Any<?>, Any<?>>> findAllRelationships(AnyObject anyObject);
 
     Collection<Group> findAllGroups(AnyObject anyObject);
 

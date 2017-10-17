@@ -46,6 +46,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
@@ -58,6 +60,7 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -508,6 +511,18 @@ public class JPAUser
     public boolean add(final URelationship relationship) {
         checkType(relationship, JPAURelationship.class);
         return this.relationships.add((JPAURelationship) relationship);
+    }
+
+    @Override
+    public URelationship getRelationship(final RelationshipType relationshipType, final String otherEndKey) {
+        return IterableUtils.find(getRelationships(), new Predicate<URelationship>() {
+
+            @Override
+            public boolean evaluate(final URelationship relationship) {
+                return relationshipType.equals(relationship.getType())
+                        && otherEndKey != null && otherEndKey.equals(relationship.getRightEnd().getKey());
+            }
+        });
     }
 
     @Override

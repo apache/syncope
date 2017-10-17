@@ -122,19 +122,6 @@ public abstract class AbstractGroupableRelatable<
     }
 
     @Override
-    public REL getRelationship(final RelationshipType relationshipType, final String otherEndKey) {
-        return IterableUtils.find(getRelationships(), new Predicate<REL>() {
-
-            @Override
-            public boolean evaluate(final REL relationship) {
-                return otherEndKey != null && otherEndKey.equals(relationship.getRightEnd().getKey())
-                        && ((relationshipType == null && relationship.getType() == null)
-                        || (relationshipType != null && relationshipType.equals(relationship.getType())));
-            }
-        });
-    }
-
-    @Override
     public Collection<? extends REL> getRelationships(final RelationshipType relationshipType) {
         return CollectionUtils.select(getRelationships(), new Predicate<REL>() {
 
