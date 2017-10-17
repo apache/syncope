@@ -126,14 +126,14 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                     ? UnmatchingRule.ASSIGN : pushTaskTO.getUnmatchingRule());
 
             for (Map.Entry<String, String> entry : pushTaskTO.getFilters().entrySet()) {
-                AnyType type = anyTypeDAO.find(entry.getKey());
-                if (type == null) {
+                AnyType anyType = anyTypeDAO.find(entry.getKey());
+                if (anyType == null) {
                     LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey());
                 } else {
-                    PushTaskAnyFilter filter = pushTask.getFilter(type);
+                    PushTaskAnyFilter filter = pushTask.getFilter(anyType);
                     if (filter == null) {
                         filter = entityFactory.newEntity(PushTaskAnyFilter.class);
-                        filter.setAnyType(anyTypeDAO.find(entry.getKey()));
+                        filter.setAnyType(anyType);
                         filter.setPushTask(pushTask);
                         pushTask.add(filter);
                     }
