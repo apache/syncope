@@ -19,9 +19,10 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -46,10 +47,8 @@ public class PlainAttrsPullCorrelationRule implements PullCorrelationRule {
 
     @Override
     public SearchCond getSearchCond(final ConnectorObject connObj) {
-        Map<String, Item> mappingItems = new HashMap<>();
-        for (Item item : provision.getMapping().getItems()) {
-            mappingItems.put(item.getIntAttrName(), item);
-        }
+        Map<String, Item> mappingItems = provision.getMapping().getItems().stream().
+                collect(Collectors.toMap(Item::getIntAttrName, Function.identity()));
 
         // search for anys by attribute(s) specified in the policy
         SearchCond searchCond = null;
