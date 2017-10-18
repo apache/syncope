@@ -209,7 +209,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     new ObjectClass(task.getObjectClassName()), attributes, null, propagationAttempted);
         } else {
             // 1. check if rename is really required
-            Name newName = (Name) AttributeUtil.find(Name.NAME, attributes);
+            Name newName = AttributeUtil.getNameFromAttributes(attributes);
 
             LOG.debug("Rename required with value {}", newName);
 
@@ -238,7 +238,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             if (originalAttrs.equals(attributes)) {
                 LOG.debug("Don't need to propagate anything: {} is equal to {}", originalAttrs, attributes);
-                result = (Uid) AttributeUtil.find(Uid.NAME, attributes);
+                result = AttributeUtil.getUidAttribute(attributes);
             } else {
                 LOG.debug("Attributes that would be updated {}", attributes);
 
