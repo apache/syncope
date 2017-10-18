@@ -47,7 +47,7 @@ public class PlainAttrsPullCorrelationRule implements PullCorrelationRule {
     @Override
     public SearchCond getSearchCond(final ConnectorObject connObj) {
         Map<String, Item> mappingItems = new HashMap<>();
-        for (Item item : MappingUtils.getPullItems(provision.getMapping().getItems())) {
+        for (Item item : provision.getMapping().getItems()) {
             mappingItems.put(item.getIntAttrName(), item);
         }
 
