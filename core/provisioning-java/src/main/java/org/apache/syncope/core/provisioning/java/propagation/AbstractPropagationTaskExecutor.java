@@ -579,10 +579,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 ? task.getConnObjectKey()
                 : task.getOldConnObjectKey();
 
-        List<MappingItem> linkingMappingItems = new ArrayList<>();
-        virSchemaDAO.findByProvision(provision).forEach(schema -> {
-            linkingMappingItems.add(schema.asLinkingMappingItem());
-        });
+        Set<MappingItem> linkingMappingItems = virSchemaDAO.findByProvision(provision).stream().
+                map(schema -> schema.asLinkingMappingItem()).collect(Collectors.toSet());
 
         ConnectorObject obj = null;
         try {

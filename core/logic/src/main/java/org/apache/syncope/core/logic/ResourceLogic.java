@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -319,10 +318,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         Optional<String> connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, init.getRight());
 
         // 3. determine attributes to query
-        Set<MappingItem> linkinMappingItems = new HashSet<>();
-        virSchemaDAO.findByProvision(init.getRight()).forEach(virSchema -> {
-            linkinMappingItems.add(virSchema.asLinkingMappingItem());
-        });
+        Set<MappingItem> linkinMappingItems = virSchemaDAO.findByProvision(init.getRight()).stream().
+                map(virSchema -> virSchema.asLinkingMappingItem()).collect(Collectors.toSet());
         Iterator<MappingItem> mapItems = new IteratorChain<>(
                 init.getRight().getMapping().getItems().iterator(),
                 linkinMappingItems.iterator());
@@ -377,10 +374,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             objectClass = init.getRight().getObjectClass();
             init.getRight().getMapping().getItems();
 
-            Set<MappingItem> linkinMappingItems = new HashSet<>();
-            virSchemaDAO.findByProvision(init.getRight()).forEach(virSchema -> {
-                linkinMappingItems.add(virSchema.asLinkingMappingItem());
-            });
+            Set<MappingItem> linkinMappingItems = virSchemaDAO.findByProvision(init.getRight()).stream().
+                    map(virSchema -> virSchema.asLinkingMappingItem()).collect(Collectors.toSet());
             Iterator<MappingItem> mapItems = new IteratorChain<>(
                     init.getRight().getMapping().getItems().iterator(),
                     linkinMappingItems.iterator());

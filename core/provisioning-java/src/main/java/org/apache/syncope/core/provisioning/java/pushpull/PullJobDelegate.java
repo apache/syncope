@@ -20,12 +20,12 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.collections.IteratorChain;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
@@ -264,13 +264,11 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 }
 
                 try {
-                    Set<MappingItem> linkinMappingItems = new HashSet<>();
-                    virSchemaDAO.findByProvision(provision).forEach(virSchema -> {
-                        linkinMappingItems.add(virSchema.asLinkingMappingItem());
-                    });
+                    Set<MappingItem> linkingMappingItems = virSchemaDAO.findByProvision(provision).stream().
+                            map(schema -> schema.asLinkingMappingItem()).collect(Collectors.toSet());
                     Iterator<MappingItem> mapItems = new IteratorChain<>(
                             provision.getMapping().getItems().iterator(),
-                            linkinMappingItems.iterator());
+                            linkingMappingItems.iterator());
                     OperationOptions options = MappingUtils.buildOperationOptions(mapItems);
 
                     switch (pullTask.getPullMode()) {
