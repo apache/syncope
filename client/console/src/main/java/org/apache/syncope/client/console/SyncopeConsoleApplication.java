@@ -112,7 +112,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     @SuppressWarnings("unchecked")
     protected void populatePageClasses(final Properties props) {
-        Enumeration<String> propNames = (Enumeration<String>) props.<String>propertyNames();
+        Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
         while (propNames.hasMoreElements()) {
             String name = propNames.nextElement();
             if (name.startsWith("page.")) {

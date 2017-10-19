@@ -113,7 +113,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     private ConnectorFactory connFactory;
 
     protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
-        effectiveRealms.stream().anyMatch(ownedRealm -> realm.startsWith(ownedRealm));
         boolean authorized = effectiveRealms.stream().anyMatch(ownedRealm -> realm.startsWith(ownedRealm));
         if (!authorized) {
             throw new DelegatedAdministrationException(realm, ExternalResource.class.getSimpleName(), key);
