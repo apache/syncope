@@ -295,7 +295,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
     }
 
     protected List<ProvisioningReport> update(
-            final SyncDelta delta, final List<String> anys, final Provision provision) throws JobExecutionException {
+            final SyncDelta delta, final List<String> anyKeys, final Provision provision) throws JobExecutionException {
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
@@ -303,12 +303,12 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             return Collections.<ProvisioningReport>emptyList();
         }
 
-        LOG.debug("About to update {}", anys);
+        LOG.debug("About to update {}", anyKeys);
 
         List<ProvisioningReport> results = new ArrayList<>();
 
         SyncDelta workingDelta = delta;
-        for (String key : anys) {
+        for (String key : anyKeys) {
             LOG.debug("About to update {}", key);
 
             ProvisioningReport result = new ProvisioningReport();
@@ -387,7 +387,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
     protected List<ProvisioningReport> deprovision(
             final SyncDelta delta,
-            final List<String> anys,
+            final List<String> anyKeys,
             final Provision provision,
             final boolean unlink)
             throws JobExecutionException {
@@ -400,11 +400,11 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             return Collections.<ProvisioningReport>emptyList();
         }
 
-        LOG.debug("About to deprovision {}", anys);
+        LOG.debug("About to deprovision {}", anyKeys);
 
         final List<ProvisioningReport> results = new ArrayList<>();
 
-        for (String key : anys) {
+        for (String key : anyKeys) {
             LOG.debug("About to unassign resource {}", key);
 
             ProvisioningReport result = new ProvisioningReport();
@@ -500,7 +500,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
     protected List<ProvisioningReport> link(
             final SyncDelta delta,
-            final List<String> anys,
+            final List<String> anyKeys,
             final Provision provision,
             final boolean unlink)
             throws JobExecutionException {
@@ -513,11 +513,11 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             return Collections.<ProvisioningReport>emptyList();
         }
 
-        LOG.debug("About to update {}", anys);
+        LOG.debug("About to update {}", anyKeys);
 
         final List<ProvisioningReport> results = new ArrayList<>();
 
-        for (String key : anys) {
+        for (String key : anyKeys) {
             LOG.debug("About to unassign resource {}", key);
 
             ProvisioningReport result = new ProvisioningReport();
@@ -601,7 +601,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
     protected List<ProvisioningReport> delete(
             final SyncDelta delta,
-            final List<String> anys,
+            final List<String> anyKeys,
             final Provision provision)
             throws JobExecutionException {
 
@@ -611,12 +611,12 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             return Collections.<ProvisioningReport>emptyList();
         }
 
-        LOG.debug("About to delete {}", anys);
+        LOG.debug("About to delete {}", anyKeys);
 
         List<ProvisioningReport> results = new ArrayList<>();
 
         SyncDelta workingDelta = delta;
-        for (String key : anys) {
+        for (String key : anyKeys) {
             Object output;
             Result resultStatus = Result.FAILURE;
 
@@ -669,27 +669,51 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         return results;
     }
 
-    protected ProvisioningReport ignore(
+    protected List<ProvisioningReport> ignore(
             final SyncDelta delta,
+            final List<String> anyKeys,
             final Provision provision,
-            final boolean matching)
+            final boolean matching,
+            final String... message)
             throws JobExecutionException {
 
         LOG.debug("Any to ignore {}", delta.getObject().getUid().getUidValue());
 
-        ProvisioningReport result = new ProvisioningReport();
+        List<ProvisioningReport> results = new ArrayList<>();
 
-        result.setKey(null);
-        result.setName(delta.getObject().getUid().getUidValue());
-        result.setOperation(ResourceOperation.NONE);
-        result.setAnyType(provision.getAnyType().getKey());
-        result.setStatus(ProvisioningReport.Status.SUCCESS);
+        if (anyKeys == null) {
+            ProvisioningReport report = new ProvisioningReport();
+            report.setKey(null);
+            report.setName(delta.getObject().getUid().getUidValue());
+            report.setOperation(ResourceOperation.NONE);
+            report.setAnyType(provision.getAnyType().getKey());
+            report.setStatus(ProvisioningReport.Status.SUCCESS);
+            if (message != null && message.length >= 1) {
+                report.setMessage(message[0]);
+            }
+
+            results.add(report);
+        } else {
+            for (String anyKey : anyKeys) {
+                ProvisioningReport report = new ProvisioningReport();
+                report.setKey(anyKey);
+                report.setName(delta.getObject().getUid().getUidValue());
+                report.setOperation(ResourceOperation.NONE);
+                report.setAnyType(provision.getAnyType().getKey());
+                report.setStatus(ProvisioningReport.Status.SUCCESS);
+                if (message != null && message.length >= 1) {
+                    report.setMessage(message[0]);
+                }
+
+                results.add(report);
+            }
+        }
 
         finalize(matching
                 ? MatchingRule.toEventName(MatchingRule.IGNORE)
                 : UnmatchingRule.toEventName(UnmatchingRule.IGNORE), Result.SUCCESS, null, null, delta);
 
-        return result;
+        return results;
     }
 
     /**
@@ -744,7 +768,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                             break;
 
                         case IGNORE:
-                            profile.getResults().add(ignore(delta, provision, false));
+                            profile.getResults().addAll(ignore(delta, null, provision, false));
                             break;
 
                         default:
@@ -794,7 +818,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                             break;
 
                         case IGNORE:
-                            profile.getResults().add(ignore(delta, provision, true));
+                            profile.getResults().addAll(ignore(delta, anyKeys, provision, true));
                             break;
 
                         default:

@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.api.pushpull;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
@@ -52,7 +51,7 @@ public class ProvisioningProfile<T extends ProvisioningTask, A extends Provision
         return task;
     }
 
-    public Collection<ProvisioningReport> getResults() {
+    public List<ProvisioningReport> getResults() {
         return results;
     }
 
