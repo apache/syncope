@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -17,26 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
-import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+package org.apache.syncope.core.persistence.api.dao;
+
+import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 /**
- * Test pull rule relying on <tt>email</tt> attribute value.
+ * Interface for correlation rule to be evaluated during PullJob execution.
  */
-@CompileStatic
-class TestPullRule implements PullCorrelationRule {
+public interface PullCorrelationRule {
 
-  @Override
-  SearchCond getSearchCond(final ConnectorObject connObj, final Provision provision) {
-    AttributeCond cond = new AttributeCond();
-    cond.setSchema("email");
-    cond.setType(AttributeCond.Type.EQ);
-    cond.setExpression(connObj.getName().getNameValue());
+    default void setConf(PullCorrelationRuleConf conf) {
+    }
 
-    return SearchCond.getLeafCond(cond);
-  }
+    /**
+     * Return a search condition.
+     *
+     * @param connObj connector object.
+     * @param provision resource provision
+     * @return search condition.
+     */
+    SearchCond getSearchCond(ConnectorObject connObj, Provision provision);
 }

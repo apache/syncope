@@ -635,7 +635,7 @@ under the License.
   <PullPolicy id="66691e96-285f-4464-bc19-e68384ea4c85" description="a pull policy" conflictResolutionAction="IGNORE"/>
   <PullPolicy id="880f8553-069b-4aed-9930-2cd53873f544" description="another pull policy" conflictResolutionAction="ALL"/>
   <Implementation id="TestPullCorrelationRule" type="PULL_CORRELATION_RULE" engine="JAVA"
-                  body='["username","firstname"]'/>
+                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf","name":"org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf","schemas":["username","firstname"]}'/>
   <CorrelationRule id="10e3d196-7486-4c88-aefd-59e40d93a0c1" pullPolicy_id="880f8553-069b-4aed-9930-2cd53873f544" 
                    anyType_id="USER" implementation_id="TestPullCorrelationRule"/>
   <PullPolicy id="4ad10d94-e002-4b3f-b771-16089cc71da9" description="pull policy 1" conflictResolutionAction="IGNORE"/>

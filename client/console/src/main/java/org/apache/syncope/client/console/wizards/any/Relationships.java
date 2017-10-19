@@ -136,7 +136,7 @@ public class Relationships extends WizardStep implements ICondition {
                 public Panel getPanel(final String panelId) {
                     return new ListViewPanel.Builder<>(RelationshipTO.class, pageRef).
                             setItems(relationships.get(relationship)).
-                            includes("rightType", "rightKey").
+                            includes("otherEndType", "otherEndKey").
                             addAction(new ActionLink<RelationshipTO>() {
 
                                 private static final long serialVersionUID = -6847033126124401556L;

@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
@@ -47,6 +48,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
+import org.apache.syncope.fit.core.reference.DummyPullCorrelationRule;
 import org.junit.jupiter.api.Test;
 
 public class PolicyITCase extends AbstractITCase {
@@ -166,8 +168,10 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void getPullCorrelationRuleJavaClasses() {
-        assertTrue(syncopeService.platform().
-                getJavaImplInfo(ImplementationType.PULL_CORRELATION_RULE).get().getClasses().isEmpty());
+        Set<String> classes = syncopeService.platform().
+                getJavaImplInfo(ImplementationType.PULL_CORRELATION_RULE).get().getClasses();
+        assertEquals(1, classes.size());
+        assertEquals(DummyPullCorrelationRule.class.getName(), classes.iterator().next());
     }
 
     @Test

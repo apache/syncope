@@ -16,13 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java.pushpull;
+package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
+import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -30,30 +30,33 @@ import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
-import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
+import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
+import org.apache.syncope.core.persistence.api.dao.PullCorrelationRuleConfClass;
 
-public class PlainAttrsPullCorrelationRule implements PullCorrelationRule {
+@PullCorrelationRuleConfClass(DefaultPullCorrelationRuleConf.class)
+public class DefaultPullCorrelationRule implements PullCorrelationRule {
 
-    private final List<String> plainSchemaNames;
+    private DefaultPullCorrelationRuleConf conf;
 
-    private final Provision provision;
-
-    public PlainAttrsPullCorrelationRule(final String[] plainSchemaNames, final Provision provision) {
-        this.plainSchemaNames = Arrays.asList(plainSchemaNames);
-        this.provision = provision;
+    @Override
+    public void setConf(final PullCorrelationRuleConf conf) {
+        if (conf instanceof DefaultPullCorrelationRuleConf) {
+            this.conf = DefaultPullCorrelationRuleConf.class.cast(conf);
+        } else {
+            throw new IllegalArgumentException(
+                    DefaultPullCorrelationRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
+        }
     }
 
     @Override
-    public SearchCond getSearchCond(final ConnectorObject connObj) {
+    public SearchCond getSearchCond(final ConnectorObject connObj, final Provision provision) {
         Map<String, Item> mappingItems = provision.getMapping().getItems().stream().
                 collect(Collectors.toMap(Item::getIntAttrName, Function.identity()));
 
         // search for anys by attribute(s) specified in the policy
         SearchCond searchCond = null;
 
-        for (String schema : plainSchemaNames) {
+        for (String schema : conf.getSchemas()) {
             Item mappingItem = mappingItems.get(schema);
             Attribute attr = mappingItem == null
                     ? null
@@ -63,21 +66,18 @@ public class PlainAttrsPullCorrelationRule implements PullCorrelationRule {
                         "Connector object does not contains the attributes to perform the search: " + schema);
             }
 
-            List<Object> values = attr.getValue();
-            for (ItemTransformer transformer : MappingUtils.getItemTransformers(mappingItem)) {
-                values = transformer.beforePull(mappingItem, null, values);
-            }
-
             AttributeCond.Type type;
             String expression = null;
 
-            if (values == null || values.isEmpty() || (values.size() == 1 && values.get(0) == null)) {
+            if (attr.getValue() == null || attr.getValue().isEmpty()
+                    || (attr.getValue().size() == 1 && attr.getValue().get(0) == null)) {
+
                 type = AttributeCond.Type.ISNULL;
             } else {
                 type = AttributeCond.Type.EQ;
-                expression = values.size() > 1
-                        ? values.toString()
-                        : values.get(0).toString();
+                expression = attr.getValue().size() > 1
+                        ? attr.getValue().toString()
+                        : attr.getValue().get(0).toString();
             }
 
             SearchCond nodeCond;

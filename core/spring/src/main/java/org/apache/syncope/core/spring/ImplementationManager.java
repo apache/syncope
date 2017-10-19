@@ -25,12 +25,14 @@ import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,7 +95,7 @@ public final class ImplementationManager {
                 Class<? extends AccountRule> ruleClass = ApplicationContextProvider.getApplicationContext().
                         getBean(ImplementationLookup.class).getAccountRuleClass(ruleConf.getClass());
                 if (ruleClass == null) {
-                    LOG.warn("Could not find matching password rule for {}", impl.getClass());
+                    LOG.warn("Could not find matching account rule for {}", impl.getClass());
                 } else {
                     // fetch (or create) rule
                     if (ApplicationContextProvider.getBeanFactory().containsSingleton(ruleClass.getName())) {
@@ -135,6 +137,41 @@ public final class ImplementationManager {
                                 getSingleton(ruleClass.getName());
                     } else {
                         rule = (PasswordRule) ApplicationContextProvider.getBeanFactory().
+                                createBean(ruleClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                        ApplicationContextProvider.getBeanFactory().
+                                registerSingleton(ruleClass.getName(), rule);
+                    }
+                    rule.setConf(ruleConf);
+                }
+
+                return Optional.ofNullable(rule);
+        }
+    }
+
+    public static Optional<PullCorrelationRule> buildPullCorrelationRule(final Implementation impl)
+            throws InstantiationException, IllegalAccessException {
+
+        switch (impl.getEngine()) {
+            case GROOVY:
+                return Optional.of(ImplementationManager.<PullCorrelationRule>buildGroovy(impl));
+
+            case JAVA:
+            default:
+                PullCorrelationRule rule = null;
+
+                PullCorrelationRuleConf ruleConf =
+                        POJOHelper.deserialize(impl.getBody(), PullCorrelationRuleConf.class);
+                Class<? extends PullCorrelationRule> ruleClass = ApplicationContextProvider.getApplicationContext().
+                        getBean(ImplementationLookup.class).getPullCorrelationRuleClass(ruleConf.getClass());
+                if (ruleClass == null) {
+                    LOG.warn("Could not find matching pull correlation rule for {}", impl.getClass());
+                } else {
+                    // fetch (or create) rule
+                    if (ApplicationContextProvider.getBeanFactory().containsSingleton(ruleClass.getName())) {
+                        rule = (PullCorrelationRule) ApplicationContextProvider.getBeanFactory().
+                                getSingleton(ruleClass.getName());
+                    } else {
+                        rule = (PullCorrelationRule) ApplicationContextProvider.getBeanFactory().
                                 createBean(ruleClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
                         ApplicationContextProvider.getBeanFactory().
                                 registerSingleton(ruleClass.getName(), rule);

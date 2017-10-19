@@ -443,7 +443,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:wizard:form");
         formTester.setValue("view:name:textField", "test");
-        formTester.select("view:jobDelegateClassName:dropDownChoiceField", 0);
+        formTester.select("view:jobDelegate:dropDownChoiceField", 0);
 
         formTester.submit("buttons:next");
         TESTER.cleanupFeedbackMessages();

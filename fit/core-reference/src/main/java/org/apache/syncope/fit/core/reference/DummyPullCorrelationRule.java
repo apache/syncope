@@ -16,21 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.pushpull;
+package org.apache.syncope.fit.core.reference;
 
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
+import org.apache.syncope.core.persistence.api.dao.PullCorrelationRuleConfClass;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
-/**
- * Interface for correlation rule to be evaluated during PullJob execution.
- */
-public interface PullCorrelationRule {
+@PullCorrelationRuleConfClass(DummyPullCorrelationRuleConf.class)
+public class DummyPullCorrelationRule implements PullCorrelationRule {
 
-    /**
-     * Return a search condition.
-     *
-     * @param connObj connector object.
-     * @return search condition.
-     */
-    SearchCond getSearchCond(ConnectorObject connObj);
+    @Override
+    public SearchCond getSearchCond(final ConnectorObject connObj, final Provision provision) {
+        return new SearchCond();
+    }
+
 }

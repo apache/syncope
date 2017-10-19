@@ -86,6 +86,7 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
                 : implementation.getType() == ImplementationType.REPORTLET
                 || implementation.getType() == ImplementationType.ACCOUNT_RULE
                 || implementation.getType() == ImplementationType.PASSWORD_RULE
+                || implementation.getType() == ImplementationType.PULL_CORRELATION_RULE
                 ? ViewMode.JSON_BODY
                 : ViewMode.JAVA_CLASS;
         this.create = implementation.getKey() == null;
@@ -119,6 +120,11 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
 
                 case PASSWORD_RULE:
                     classes = implementationLookup.getPasswordRuleConfs().keySet().stream().
+                            collect(Collectors.toList());
+                    break;
+
+                case PULL_CORRELATION_RULE:
+                    classes = implementationLookup.getPullCorrelationRuleConfs().keySet().stream().
                             collect(Collectors.toList());
                     break;
 
@@ -264,6 +270,10 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
 
                     case PASSWORD_RULE:
                         clazz = implementationLookup.getPasswordRuleConfs().get(jsonClass.getModelObject());
+                        break;
+
+                    case PULL_CORRELATION_RULE:
+                        clazz = implementationLookup.getPullCorrelationRuleConfs().get(jsonClass.getModelObject());
                         break;
 
                     default:

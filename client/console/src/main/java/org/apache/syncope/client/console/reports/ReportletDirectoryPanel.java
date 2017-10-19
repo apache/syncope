@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -131,20 +130,6 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
     public ActionsPanel<ReportletWrapper> getActions(final IModel<ReportletWrapper> model) {
         final ActionsPanel<ReportletWrapper> panel = super.getActions(model);
 
-        panel.add(new ActionLink<ReportletWrapper>() {
-
-            private static final long serialVersionUID = -3722207913631435501L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
-                ReportletDirectoryPanel.this.getTogglePanel().close(target);
-                ReportletConf clone = SerializationUtils.clone(model.getObject().getConf());
-
-                send(ReportletDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(
-                                new ReportletWrapper(true).setConf(clone), target));
-            }
-        }, ActionLink.ActionType.CLONE, StandardEntitlement.REPORT_CREATE);
         panel.add(new ActionLink<ReportletWrapper>() {
 
             private static final long serialVersionUID = -3722207913631435501L;

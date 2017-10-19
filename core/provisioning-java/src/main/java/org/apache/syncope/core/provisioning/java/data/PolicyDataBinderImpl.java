@@ -27,6 +27,7 @@ import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Entity;
@@ -142,18 +143,16 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                     CorrelationRule correlationRule = pullPolicy.getCorrelationRule(anyType).orElse(null);
                     if (correlationRule == null) {
                         correlationRule = entityFactory.newEntity(CorrelationRule.class);
-                        correlationRule.setAnyType(anyTypeDAO.find(entry.getKey()));
+                        correlationRule.setAnyType(anyType);
                         correlationRule.setPullPolicy(pullPolicy);
                         pullPolicy.add(correlationRule);
                     }
 
                     Implementation implementation = implementationDAO.find(entry.getValue());
                     if (implementation == null) {
-                        LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                                entry.getValue());
-                    } else {
-                        correlationRule.setImplementation(implementation);
+                        throw new NotFoundException("Implementation " + entry.getValue());
                     }
+                    correlationRule.setImplementation(implementation);
                 }
             });
             // remove all rules not contained in the TO

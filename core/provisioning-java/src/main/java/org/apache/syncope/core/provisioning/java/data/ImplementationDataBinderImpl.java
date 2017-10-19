@@ -39,7 +39,7 @@ import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
-import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
+import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -151,11 +151,13 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
                     throw sce;
                 }
             } else if (implementation.getType() == ImplementationType.ACCOUNT_RULE
-                    || implementation.getType() == ImplementationType.PASSWORD_RULE) {
+                    || implementation.getType() == ImplementationType.PASSWORD_RULE
+                    || implementation.getType() == ImplementationType.PULL_CORRELATION_RULE) {
 
                 RuleConf rule = POJOHelper.deserialize(implementation.getBody(), RuleConf.class);
                 if (rule == null) {
-                    sce.getElements().add("Could not deserialize as neither Account nor Password RuleConf");
+                    sce.getElements().
+                            add("Could not deserialize as neither Account, Password nor PullCorrelation RuleConf");
                     throw sce;
                 }
             } else {

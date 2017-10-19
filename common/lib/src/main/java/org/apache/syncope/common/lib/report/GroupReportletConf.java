@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.report;
 
+import org.apache.syncope.common.lib.Schema;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;

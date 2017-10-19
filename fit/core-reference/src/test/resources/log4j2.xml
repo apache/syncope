@@ -41,6 +41,10 @@ under the License.
       <appender-ref ref="main"/>
     </asyncLogger>
 
+    <asyncLogger name="org.apache.wicket" additivity="false" level="ERROR">
+      <appender-ref ref="main"/>
+    </asyncLogger>
+
     <asyncLogger name="org.apache.syncope.fit" additivity="false" level="DEBUG">
       <appender-ref ref="main"/>
     </asyncLogger>

@@ -91,41 +91,6 @@ public class ReportsITCase extends AbstractConsoleITCase {
                 + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "deleteReport"));
     }
 
-    private void deleteReportlet(final String report, final String reportlet) {
-        TESTER.clickLink("body:reportsLI:reports");
-
-        Component result = findComponentByProp(
-                "name", "body:content:tabbedPanel:panel:firstLevelContainer:first:container:"
-                + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", report);
-
-        assertNotNull(result);
-
-        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.clickLink("body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:1:outer:"
-                + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:2:action:action");
-
-        result = findComponentByProp("name", "body:content:tabbedPanel:panel:firstLevelContainer:first:"
-                + "outerObjectsRepeater:0:outer:form:content:container:content:searchContainer:resultTable:tablePanel:"
-                + "groupForm:checkgroup:dataTable", reportlet);
-
-        assertNotNull(result);
-
-        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.getRequest().addParameter("confirm", "true");
-
-        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
-                "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:outer:"
-                + "form:content:outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:actions:"
-                + "actions:actionRepeater:2:action:action"));
-
-        TESTER.assertInfoMessages("Operation executed successfully");
-        TESTER.cleanupFeedbackMessages();
-
-        assertNull(findComponentByProp("name", "body:content:tabbedPanel:panel:firstLevelContainer:first:"
-                + "outerObjectsRepeater:0:outer:form:content:container:content:searchContainer:resultTable:tablePanel:"
-                + "groupForm:checkgroup:dataTable", reportlet));
-    }
-
     @Test
     public void read() {
         Component result = findComponentByProp(
@@ -159,90 +124,6 @@ public class ReportsITCase extends AbstractConsoleITCase {
         assertNotNull(findComponentByProp(
                 "name", "body:content:tabbedPanel:panel:firstLevelContainer:first:container:"
                 + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "reconciliation"));
-    }
-
-    @Test
-    public void cloneReportlets() {
-        final String report = "test";
-        final String reportlet = "myClone";
-
-        Component result = findComponentByProp(
-                "name", "body:content:tabbedPanel:panel:firstLevelContainer:first:container:"
-                + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", report);
-
-        assertNotNull(result);
-
-        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.clickLink("body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:1:outer:"
-                + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:2:action:action");
-
-        result = findComponentByProp("name", "body:content:tabbedPanel:panel:firstLevelContainer:first:"
-                + "outerObjectsRepeater:0:outer:form:content:container:content:searchContainer:resultTable:tablePanel:"
-                + "groupForm:checkgroup:dataTable", "testUserReportlet");
-
-        assertNotNull(result);
-
-        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-
-        TESTER.clickLink("body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:outer:form:"
-                + "content:outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:actions:"
-                + "actions:actionRepeater:0:action:action");
-
-        FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:firstLevelContainer:first:"
-                + "outerObjectsRepeater:0:outer:form:content:container:content:wizard:form");
-
-        formTester.setValue("view:name:textField", reportlet);
-        formTester.submit("buttons:finish");
-
-        TESTER.assertInfoMessages("Operation executed successfully");
-        TESTER.cleanupFeedbackMessages();
-
-        deleteReportlet(report, reportlet);
-
-        TESTER.clickLink("body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:"
-                + "outer:form:content:container:content:exit");
-
-        TESTER.assertRenderedPage(Reports.class);
-    }
-
-    @Test
-    public void createReportlets() {
-        final String report = "test";
-        final String reportlet = "myNewReportlet";
-
-        Component result = findComponentByProp(
-                "name", "body:content:tabbedPanel:panel:firstLevelContainer:first:container:"
-                + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", report);
-
-        assertNotNull(result);
-
-        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.clickLink("body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:1:outer:"
-                + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:2:action:action");
-
-        TESTER.clickLink("body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:"
-                + "outer:form:content:container:content:add");
-
-        FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:firstLevelContainer:first:"
-                + "outerObjectsRepeater:0:outer:form:content:container:content:wizard:form");
-
-        formTester.setValue("view:name:textField", reportlet);
-        formTester.setValue("view:configuration:dropDownChoiceField", "1");
-        formTester.submit("buttons:next");
-
-        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:firstLevelContainer:first:"
-                + "outerObjectsRepeater:0:outer:form:content:container:content:wizard:form");
-        formTester.submit("buttons:finish");
-
-        TESTER.assertInfoMessages("Operation executed successfully");
-        TESTER.cleanupFeedbackMessages();
-
-        deleteReportlet(report, reportlet);
-
-        TESTER.clickLink("body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:"
-                + "outer:form:content:container:content:exit");
-
-        TESTER.assertRenderedPage(Reports.class);
     }
 
     @Test

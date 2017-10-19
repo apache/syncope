@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -66,7 +65,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
+import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.spring.ImplementationManager;
@@ -267,9 +266,12 @@ public class PullUtils {
     }
 
     private List<String> findByCorrelationRule(
-            final ConnectorObject connObj, final PullCorrelationRule rule, final AnyTypeKind type) {
+            final ConnectorObject connObj,
+            final Provision provision,
+            final PullCorrelationRule rule,
+            final AnyTypeKind type) {
 
-        return searchDAO.search(rule.getSearchCond(connObj), type).stream().
+        return searchDAO.search(rule.getSearchCond(connObj, provision), type).stream().
                 map(Entity::getKey).collect(Collectors.toList());
     }
 
@@ -292,24 +294,19 @@ public class PullUtils {
                 ? Optional.empty()
                 : provision.getResource().getPullPolicy().getCorrelationRule(provision.getAnyType());
 
-        PullCorrelationRule rule = null;
+        Optional<PullCorrelationRule> rule = Optional.empty();
         if (correlationRule.isPresent()) {
-            if (correlationRule.get().getImplementation().getBody().charAt(0) == '[') {
-                rule = new PlainAttrsPullCorrelationRule(POJOHelper.deserialize(
-                        correlationRule.get().getImplementation().getBody(), String[].class), provision);
-            } else {
-                try {
-                    rule = ImplementationManager.build(correlationRule.get().getImplementation());
-                } catch (Exception e) {
-                    LOG.error("While building {}", correlationRule.get().getImplementation(), e);
-                }
+            try {
+                rule = ImplementationManager.buildPullCorrelationRule(correlationRule.get().getImplementation());
+            } catch (Exception e) {
+                LOG.error("While building {}", correlationRule.get().getImplementation(), e);
             }
         }
 
         try {
-            return rule == null
-                    ? findByConnObjectKeyItem(uid, provision, anyUtils)
-                    : findByCorrelationRule(connObj, rule, anyUtils.getAnyTypeKind());
+            return rule.isPresent()
+                    ? findByCorrelationRule(connObj, provision, rule.get(), anyUtils.getAnyTypeKind())
+                    : findByConnObjectKeyItem(uid, provision, anyUtils);
         } catch (RuntimeException e) {
             return Collections.<String>emptyList();
         }

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.report;
+package org.apache.syncope.common.lib;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -31,5 +31,7 @@ public @interface Schema {
 
     SchemaType[] type() default { SchemaType.PLAIN };
 
-    AnyTypeKind anyTypeKind();
+    AnyTypeKind anyTypeKind() default AnyTypeKind.USER;
+
+    boolean includeFields() default false;
 }

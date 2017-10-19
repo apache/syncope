@@ -16,17 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
-import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond
-import org.apache.syncope.core.persistence.api.entity.resource.Provision
-import org.identityconnectors.framework.common.objects.ConnectorObject
+package org.apache.syncope.fit.core.reference;
 
-@CompileStatic
-class MyPullCorrelationRule implements PullCorrelationRule {
+import org.apache.syncope.common.lib.policy.AbstractPullCorrelationRuleConf;
+import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 
-  @Override
-  SearchCond getSearchCond(ConnectorObject connObj, Provision provision) {
-    
-  }
+public class DummyPullCorrelationRuleConf
+        extends AbstractPullCorrelationRuleConf implements PullCorrelationRuleConf {
+
+    private static final long serialVersionUID = -2984203196323732531L;
+
 }

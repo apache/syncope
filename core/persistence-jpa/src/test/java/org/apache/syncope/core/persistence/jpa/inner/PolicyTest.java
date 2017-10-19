@@ -26,8 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.UUID;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
+import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
@@ -44,7 +44,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
-import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
+import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 
 @Transactional("Master")
 public class PolicyTest extends AbstractTest {
@@ -72,11 +72,12 @@ public class PolicyTest extends AbstractTest {
 
         CorrelationRule rule = policy.getCorrelationRule(anyTypeDAO.findUser()).orElse(null);
         assertNotNull(rule);
-        String[] plainSchemas = POJOHelper.deserialize(rule.getImplementation().getBody(), String[].class);
-        assertNotNull(plainSchemas);
-        assertEquals(2, plainSchemas.length);
-        assertTrue(ArrayUtils.contains(plainSchemas, "username"));
-        assertTrue(ArrayUtils.contains(plainSchemas, "firstname"));
+        DefaultPullCorrelationRuleConf ruleConf =
+                POJOHelper.deserialize(rule.getImplementation().getBody(), DefaultPullCorrelationRuleConf.class);
+        assertNotNull(ruleConf);
+        assertEquals(2, ruleConf.getSchemas().size());
+        assertTrue(ruleConf.getSchemas().contains("username"));
+        assertTrue(ruleConf.getSchemas().contains("firstname"));
     }
 
     @Test

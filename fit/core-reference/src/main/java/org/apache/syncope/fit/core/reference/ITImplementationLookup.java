@@ -28,7 +28,9 @@ import javax.sql.DataSource;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
+import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.AuditReportletConf;
 import org.apache.syncope.common.lib.report.GroupReportletConf;
 import org.apache.syncope.common.lib.report.ReconciliationReportletConf;
@@ -51,6 +53,7 @@ import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
+import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -59,6 +62,7 @@ import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BasicValidat
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultAccountRule;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPasswordRule;
+import org.apache.syncope.core.persistence.jpa.dao.DefaultPullCorrelationRule;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
@@ -113,6 +117,18 @@ public class ITImplementationLookup implements ImplementationLookup {
         {
             put(TestPasswordRuleConf.class, TestPasswordRule.class);
             put(DefaultPasswordRuleConf.class, DefaultPasswordRule.class);
+        }
+    };
+
+    private static final Map<
+            Class<? extends PullCorrelationRuleConf>, Class<? extends PullCorrelationRule>> CORRELATION_RULE_CLASSES =
+            new HashMap<Class<? extends PullCorrelationRuleConf>, Class<? extends PullCorrelationRule>>() {
+
+        private static final long serialVersionUID = 3109256773218160485L;
+
+        {
+            put(DummyPullCorrelationRuleConf.class, DummyPullCorrelationRule.class);
+            put(DefaultPullCorrelationRuleConf.class, DefaultPullCorrelationRule.class);
         }
     };
 
@@ -176,6 +192,7 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(ImplementationType.PUSH_ACTIONS, classNames);
 
             classNames = new HashSet<>();
+            classNames.add(DummyPullCorrelationRule.class.getName());
             put(ImplementationType.PULL_CORRELATION_RULE, classNames);
 
             classNames = new HashSet<>();
@@ -275,6 +292,13 @@ public class ITImplementationLookup implements ImplementationLookup {
             final Class<? extends PasswordRuleConf> passwordRuleConfClass) {
 
         return PASSWORD_RULE_CLASSES.get(passwordRuleConfClass);
+    }
+
+    @Override
+    public Class<? extends PullCorrelationRule> getPullCorrelationRuleClass(
+            final Class<? extends PullCorrelationRuleConf> pullCorrelationRuleConfClass) {
+
+        return CORRELATION_RULE_CLASSES.get(pullCorrelationRuleConfClass);
     }
 
     @Override

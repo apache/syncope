@@ -152,7 +152,6 @@ public class UsersITCase extends AbstractConsoleITCase {
         formTester.setValue("view:relationships:specification:type:dropDownChoiceField", "1");
         TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:relationships:"
                 + "specification:type:dropDownChoiceField", Constants.ON_CHANGE);
-
         // The ON_CHANGE above should enable this component, but it doesn't; doing it by hand
         Component otherType = findComponentById(
                 TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:relationships:specification",

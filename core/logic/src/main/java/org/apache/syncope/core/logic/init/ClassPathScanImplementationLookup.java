@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.logic.audit.AuditAppender;
@@ -44,12 +45,12 @@ import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
-import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
+import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
+import org.apache.syncope.core.persistence.api.dao.PullCorrelationRuleConfClass;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.java.data.JEXLItemTransformerImpl;
 import org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate;
-import org.apache.syncope.core.provisioning.java.pushpull.PlainAttrsPullCorrelationRule;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.spring.security.JWTSSOProvider;
@@ -77,6 +78,8 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
     private Map<Class<? extends AccountRuleConf>, Class<? extends AccountRule>> accountRuleClasses;
 
     private Map<Class<? extends PasswordRuleConf>, Class<? extends PasswordRule>> passwordRuleClasses;
+
+    private Map<Class<? extends PullCorrelationRuleConf>, Class<? extends PullCorrelationRule>> correlationRuleClasses;
 
     private Set<Class<?>> auditAppenderClasses;
 
@@ -106,6 +109,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         reportletClasses = new HashMap<>();
         accountRuleClasses = new HashMap<>();
         passwordRuleClasses = new HashMap<>();
+        correlationRuleClasses = new HashMap<>();
         auditAppenderClasses = new HashSet<>();
 
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
@@ -113,6 +117,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(Reportlet.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AccountRule.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PasswordRule.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(PullCorrelationRule.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ItemTransformer.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(SchedTaskJobDelegate.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ReconFilterBuilder.class));
@@ -120,7 +125,6 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(PropagationActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PullActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PushActions.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(PullCorrelationRule.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(Validator.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(RecipientsProvider.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AuditAppender.class));
@@ -166,6 +170,16 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     }
                 }
 
+                if (PullCorrelationRule.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                    PullCorrelationRuleConfClass annotation = clazz.getAnnotation(PullCorrelationRuleConfClass.class);
+                    if (annotation == null) {
+                        LOG.warn("Found pull correlation rule {} without declared configuration", clazz.getName());
+                    } else {
+                        classNames.get(ImplementationType.ACCOUNT_RULE).add(clazz.getName());
+                        correlationRuleClasses.put(annotation.value(), (Class<? extends PullCorrelationRule>) clazz);
+                    }
+                }
+
                 if (ItemTransformer.class.isAssignableFrom(clazz) && !isAbstractClazz
                         && !clazz.equals(JEXLItemTransformerImpl.class)) {
 
@@ -200,12 +214,6 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     classNames.get(ImplementationType.PUSH_ACTIONS).add(bd.getBeanClassName());
                 }
 
-                if (PullCorrelationRule.class.isAssignableFrom(clazz) && !isAbstractClazz
-                        && !PlainAttrsPullCorrelationRule.class.isAssignableFrom(clazz)) {
-
-                    classNames.get(ImplementationType.PULL_CORRELATION_RULE).add(bd.getBeanClassName());
-                }
-
                 if (Validator.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     classNames.get(ImplementationType.VALIDATOR).add(bd.getBeanClassName());
                 }
@@ -230,6 +238,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         reportletClasses = Collections.unmodifiableMap(reportletClasses);
         accountRuleClasses = Collections.unmodifiableMap(accountRuleClasses);
         passwordRuleClasses = Collections.unmodifiableMap(passwordRuleClasses);
+        correlationRuleClasses = Collections.unmodifiableMap(correlationRuleClasses);
         auditAppenderClasses = Collections.unmodifiableSet(auditAppenderClasses);
     }
 
@@ -262,6 +271,13 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
             final Class<? extends PasswordRuleConf> passwordRuleConfClass) {
 
         return passwordRuleClasses.get(passwordRuleConfClass);
+    }
+
+    @Override
+    public Class<? extends PullCorrelationRule> getPullCorrelationRuleClass(
+            final Class<? extends PullCorrelationRuleConf> correlationRuleConfClass) {
+
+        return correlationRuleClasses.get(correlationRuleConfClass);
     }
 
     @Override

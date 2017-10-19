@@ -45,7 +45,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.report.Schema;
+import org.apache.syncope.common.lib.Schema;
 import org.apache.syncope.common.lib.report.SearchCondition;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;

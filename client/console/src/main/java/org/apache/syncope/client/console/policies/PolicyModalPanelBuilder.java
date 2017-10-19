@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.client.console.policies;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +33,7 @@ import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -40,7 +43,9 @@ import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
+import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -115,9 +120,7 @@ public class PolicyModalPanelBuilder<T extends AbstractPolicyTO> extends Abstrac
                         "field",
                         new PropertyModel<List<String>>(policyTO, "passthroughResources"),
                         new ListModel<String>(resources.getObject())));
-            }
-
-            if (policyTO instanceof PasswordPolicyTO) {
+            } else if (policyTO instanceof PasswordPolicyTO) {
                 fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
                         "field",
                         "historyLength",
@@ -129,6 +132,12 @@ public class PolicyModalPanelBuilder<T extends AbstractPolicyTO> extends Abstrac
                         "allowNullPassword",
                         new PropertyModel<>(policyTO, "allowNullPassword"),
                         false));
+            } else if (policyTO instanceof PullPolicyTO) {
+                fields.add(new AjaxDropDownChoicePanel<>(
+                        "field",
+                        "conflictResolutionAction",
+                        new PropertyModel<>(policyTO, "conflictResolutionAction")).
+                        setChoices(Arrays.asList((Serializable[]) ConflictResolutionAction.values())));
             }
 
             add(new ListView<Component>("fields", fields) {

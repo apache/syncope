@@ -43,7 +43,6 @@ public class DefaultAccountRule implements AccountRule {
             throw new IllegalArgumentException(
                     DefaultAccountRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
         }
-
     }
 
     @Transactional(readOnly = true)

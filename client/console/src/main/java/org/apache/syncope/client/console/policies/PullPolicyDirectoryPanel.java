@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.policies;
 
+import java.util.List;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
@@ -26,6 +27,8 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
@@ -50,6 +53,12 @@ public class PullPolicyDirectoryPanel extends PolicyDirectoryPanel<PullPolicyTO>
     }
 
     @Override
+    protected void addCustomColumnFields(final List<IColumn<PullPolicyTO, String>> columns) {
+        columns.add(new PropertyColumn<>(new StringResourceModel(
+                "conflictResolutionAction", this), "conflictResolutionAction", "conflictResolutionAction"));
+    }
+
+    @Override
     protected void addCustomActions(final ActionsPanel<PullPolicyTO> panel, final IModel<PullPolicyTO> model) {
         panel.add(new ActionLink<PullPolicyTO>() {
 
@@ -58,7 +67,7 @@ public class PullPolicyDirectoryPanel extends PolicyDirectoryPanel<PullPolicyTO>
             @Override
             public void onClick(final AjaxRequestTarget target, final PullPolicyTO ignore) {
                 target.add(policySpecModal.setContent(
-                        new PolicySpecModalPanel(model.getObject(), policySpecModal, pageRef)));
+                        new PullPolicyModalPanel(model.getObject(), policySpecModal, pageRef)));
 
                 policySpecModal.header(new StringResourceModel(
                         "policy.rules", PullPolicyDirectoryPanel.this, Model.of(model.getObject())));

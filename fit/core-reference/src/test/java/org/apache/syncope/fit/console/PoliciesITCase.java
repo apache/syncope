@@ -25,7 +25,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.Policies;
 import org.apache.syncope.client.console.pages.Realms;
-import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.TextField;
@@ -457,8 +456,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         deleteAccountPolicy(description);
     }
 
-    private void composeDefaultAccountPolicy(final String policyDescription, final String ruleName) {
-
+    private void composeDefaultAccountPolicy(final String policyDescription) {
         Component component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", policyDescription);
 
@@ -477,26 +475,15 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:4:"
                 + "outer:form:content:container:content:wizard:form");
-        formTester.setValue("view:name:textField", ruleName);
-        formTester.setValue("view:configuration:dropDownChoiceField", "0");
+        formTester.setValue("view:rule:dropDownChoiceField", "0");
         formTester.submit("buttons:next");
-
-        TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:"
-                + "container:content:wizard:form:view:bean:propView:1:value:spinner", 0);
 
         formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:4:"
                 + "outer:form:content:container:content:wizard:form");
-        formTester.setValue("view:bean:propView:1:value:spinner", "6");
         formTester.submit("buttons:finish");
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
-
-        component = findComponentByProp("name", "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:"
-                + "content:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
-                ruleName);
-
-        assertNotNull(component);
 
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:container:content:exit");
@@ -508,7 +495,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     public void createComposeDeleteAccountPolicy() {
         final String description = "Account Policy To Be Composed";
         createAccountPolicy(description);
-        composeDefaultAccountPolicy(description, "myrule");
+        composeDefaultAccountPolicy(description);
         deleteAccountPolicy(description);
     }
 
@@ -585,12 +572,8 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:4:"
                 + "outer:form:content:container:content:wizard:form");
-        formTester.setValue("view:name:textField", "myrule");
-        formTester.setValue("view:configuration:dropDownChoiceField", "0");
+        formTester.setValue("view:rule:dropDownChoiceField", "0");
         formTester.submit("buttons:next");
-
-        TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:"
-                + "container:content:wizard:form:view:bean:propView:0:value:spinner", 0);
 
         formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:4:"
                 + "outer:form:content:container:content:wizard:form");
@@ -598,12 +581,6 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
-
-        component = findComponentByProp("name", "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:"
-                + "content:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
-                "myrule");
-
-        assertNotNull(component);
 
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:container:content:exit");
@@ -670,8 +647,8 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         Component component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
-
         assertNotNull(component);
+
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action");
@@ -687,37 +664,21 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer:form:content:"
                 + "correlationRules:multiValueContainer:innerForm:content:panelPlus:add", Constants.ON_CLICK);
 
-        formTester.setValue("content:conflictResolutionAction:dropDownChoiceField", "1");
-        formTester.setValue("content:correlationRules:multiValueContainer:innerForm:content:view:0:panel:"
-                + "jsonRule:paletteField:recorder", "fullname");
+        component = findComponentById(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer:form:content:"
+                + "correlationRules:multiValueContainer:innerForm:content:view:0:panel:rule",
+                "dropDownChoiceField");
+        assertNotNull(component);
+
+        formTester.setValue(component, "0");
+        TESTER.executeAjaxEvent(component, Constants.ON_CHANGE);
+        formTester.setValue(component, "0");
 
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer:dialog:footer:inputs:0:submit");
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
-
-        closeCallBack(modal);
-
-        component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
-                + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
-
-        assertNotNull(component);
-        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
-                + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action");
-
-        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer", Modal.class);
-
-        TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer:form:"
-                + "content:conflictResolutionAction:dropDownChoiceField", ConflictResolutionAction.FIRSTMATCH);
-
-        TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer:form:"
-                + "content:correlationRules:multiValueContainer:innerForm:content:view:0:panel:"
-                + "jsonRule:paletteField:recorder", "fullname");
-
-        TESTER.clickLink(
-                "body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer:dialog:footer:buttons:0:button");
 
         closeCallBack(modal);
 
@@ -729,7 +690,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         final String description = "SYNCOPE-1030";
         // Create account policy
         createAccountPolicy(description);
-        composeDefaultAccountPolicy(description, "issue");
+        composeDefaultAccountPolicy(description);
 
         // goto realms
         TESTER.clickLink("body:realmsLI:realms");
