@@ -32,6 +32,4 @@ public @interface Schema {
     SchemaType[] type() default { SchemaType.PLAIN };
 
     AnyTypeKind anyTypeKind() default AnyTypeKind.USER;
-
-    boolean includeFields() default false;
 }

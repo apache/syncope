@@ -25,8 +25,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.Schema;
-import org.apache.syncope.common.lib.types.SchemaType;
 
 @XmlRootElement(name = "defaultPullCorrelationRuleConf")
 @XmlType
@@ -34,7 +32,6 @@ public class DefaultPullCorrelationRuleConf extends AbstractPullCorrelationRuleC
 
     private static final long serialVersionUID = 429126085793346273L;
 
-    @Schema(type = { SchemaType.PLAIN }, includeFields = true)
     private final List<String> schemas = new ArrayList<>();
 
     @XmlElementWrapper(name = "schemas")
