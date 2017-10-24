@@ -150,10 +150,19 @@ public class RealmITCase extends AbstractITCase {
         // 2. create realm with policy assigned
         RealmTO realm = new RealmTO();
         realm.setName("withppolicy");
-        realm.setAccountPolicy(policy.getKey());
 
         response = realmService.create(SyncopeConstants.ROOT_REALM, realm);
         RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
+        assertNotNull(actuals);
+        assertTrue(actuals.length > 0);
+        realm = actuals[0];
+
+        String existingAccountPolicy = realm.getAccountPolicy();
+
+        realm.setAccountPolicy(policy.getKey());
+        realmService.update(realm);
+
+        actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
         assertNotNull(actuals);
         assertTrue(actuals.length > 0);
         RealmTO actual = actuals[0];
@@ -164,7 +173,7 @@ public class RealmITCase extends AbstractITCase {
 
         // 4. verify
         actual = getRealm(actual.getFullPath()).get();
-        assertNull(actual.getAccountPolicy());
+        assertEquals(existingAccountPolicy, actual.getAccountPolicy());
     }
 
     @Test
