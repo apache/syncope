@@ -31,9 +31,7 @@ for the Master domain.
 . <<JavaEE Container>>-managed, via the JNDI resource matching the name specified for a given <<domains,domain>>, e.g.
 `java:comp/env/jdbc/syncopeMasterDataSource` for the Master domain. +
 Each JavaEE Container provides its own way to accomplish this task:
-  * https://tomcat.apache.org/tomcat-8.0-doc/jdbc-pool.html[Apache Tomcat 8^]
-  * https://tomcat.apache.org/tomcat-8.5-doc/jdbc-pool.html[Apache Tomcat 8.5^]
+  * https://tomcat.apache.org/tomcat-9.0-doc/jdbc-pool.html[Apache Tomcat 9^]
   * https://javaee.github.io/glassfish/doc/4.0/administration-guide.pdf[Glassfish 4.1^]
   * https://payara.gitbooks.io/payara-server/content/documentation/user-guides/connection-pools/connection-pools.html[Payara^]
-  * https://docs.jboss.org/author/display/WFLY9/DataSource+configuration[Wildfly 9^]
-  * https://docs.jboss.org/author/display/WFLY10/DataSource+configuration[Wildfly 10^]
+  * https://docs.jboss.org/author/display/WFLY11/DataSource+configuration[Wildfly 11^]

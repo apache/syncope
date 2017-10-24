@@ -18,7 +18,7 @@
 //
 ==== JavaEE Container
 
-===== Apache Tomcat 8 and 8.5
+===== Apache Tomcat 9
 
 On GNU / Linux - Mac OS X, create `$CATALINA_HOME/bin/setenv.sh` with similar content
 (keep everything on a single line):
@@ -72,7 +72,7 @@ When using a datasource for internal storage, be sure to add
 right after `</context-root>` in `core/src/main/webapp/WEB-INF/glassfish-web.xml`, assuming that your Glassfish instance
 provides a datasource named `jdbc/syncopeMasterDataSource`.
 
-===== Wildfly 9 and 10
+===== Wildfly 11
 
 Add
 
@@ -102,6 +102,12 @@ Add
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-wsdl</artifactId>
       <version>${cxf.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.reactivestreams</groupId>
+      <artifactId>reactive-streams</artifactId>
+      <version>1.0.1</version>
     </dependency>
 ....
 
