@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
+import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.impl.api.local.operations.FilteredResultsHandler;
 
@@ -31,5 +32,9 @@ public interface ReconFilterBuilder {
 
     default Filter build() {
         return PASS_THROUGH;
+    }
+
+    default OperationOptions build(final OperationOptions initialOptions) {
+        return initialOptions;
     }
 }
