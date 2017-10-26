@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
+import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 
 /**
@@ -27,4 +28,6 @@ import org.identityconnectors.framework.common.objects.filter.Filter;
 public interface ReconciliationFilterBuilder {
 
     Filter build();
+
+    OperationOptions build(OperationOptions initialOptions);
 }

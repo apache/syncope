@@ -321,7 +321,14 @@ public class ConnectorFacadeProxy implements Connector {
             final SyncResultsHandler handler,
             final OperationOptions options) {
 
-        search(objectClass, filterBuilder == null ? null : filterBuilder.build(), new ResultsHandler() {
+        Filter filter = null;
+        OperationOptions actualOptions = options;
+        if (filterBuilder != null) {
+            filter = filterBuilder.build();
+            actualOptions = filterBuilder.build(actualOptions);
+        }
+
+        search(objectClass, filter, new ResultsHandler() {
 
             @Transactional
             @Override
@@ -333,7 +340,7 @@ public class ConnectorFacadeProxy implements Connector {
                         setToken(new SyncToken("")).
                         build());
             }
-        }, options);
+        }, actualOptions);
     }
 
     @Override

@@ -22,6 +22,7 @@ import static org.identityconnectors.framework.impl.api.local.operations.Filtere
 
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
+import org.identityconnectors.framework.common.objects.OperationOptions;
 
 /**
  * Default (pass-through) implementation of {@link ReconciliationFilterBuilder}.
@@ -33,6 +34,11 @@ public abstract class DefaultReconciliationFilterBuilder implements Reconciliati
     @Override
     public Filter build() {
         return PASS_THROUGH;
+    }
+
+    @Override
+    public OperationOptions build(final OperationOptions initialOptions) {
+        return initialOptions;
     }
 
 }
