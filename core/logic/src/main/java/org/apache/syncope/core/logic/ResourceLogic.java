@@ -60,6 +60,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -105,6 +106,9 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @Autowired
     private ResourceDataBinder binder;
+
+    @Autowired
+    private ConnInstanceDataBinder connInstanceDataBinder;
 
     @Autowired
     private MappingManager mappingManager;
@@ -409,7 +413,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         connFactory.createConnector(
                 connFactory.buildConnInstanceOverride(
-                        connInstance,
+                        connInstanceDataBinder.getConnInstanceTO(connInstance),
                         resourceTO.getConfOverride(),
                         resourceTO.isOverrideCapabilities() ? resourceTO.getCapabilitiesOverride() : null)).
                 test();

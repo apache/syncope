@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.api;
 
 import java.util.Collection;
+import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -32,15 +33,15 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 public interface ConnectorFactory {
 
     /**
-     * Builds connector instance override over base connector instance, configuration and capabilities override.
+     * Builds connector instance override over base connector instance, configuration and capabilities.
      *
      * @param connInstance base connector instance
      * @param confOverride configuration override
      * @param capabilitiesOverride capabilities override
-     * @return connector instance override over base connector instance, configuration and capabilities override
+     * @return connector instance override over base connector instance, configuration and capabilities
      */
     ConnInstance buildConnInstanceOverride(
-            ConnInstance connInstance,
+            ConnInstanceTO connInstance,
             Collection<ConnConfProperty> confOverride,
             Collection<ConnectorCapability> capabilitiesOverride);
 
