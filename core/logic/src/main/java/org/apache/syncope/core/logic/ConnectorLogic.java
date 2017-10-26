@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -37,6 +38,7 @@ import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -225,13 +227,8 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     public List<ConnIdObjectClassTO> buildObjectClassInfo(
             final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
 
-        ConnInstance connInstance = connInstanceDAO.authFind(connInstanceTO.getKey());
-        if (connInstance == null) {
-            throw new NotFoundException("Connector '" + connInstanceTO.getKey() + "'");
-        }
-
         Set<ObjectClassInfo> objectClassInfo = connFactory.createConnector(
-                connFactory.buildConnInstanceOverride(connInstance, connInstanceTO.getConf(), null)).
+                connFactory.buildConnInstanceOverride(connInstanceTO, Collections.<ConnConfProperty>emptySet(), null)).
                 getObjectClassInfo();
 
         List<ConnIdObjectClassTO> result = new ArrayList<>(objectClassInfo.size());
