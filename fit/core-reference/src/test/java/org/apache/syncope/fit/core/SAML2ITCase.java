@@ -45,7 +45,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
@@ -335,7 +334,7 @@ public class SAML2ITCase extends AbstractITCase {
 
         org.opensaml.saml.saml2.core.Response samlResponse =
                 createResponse(inResponseTo, false, SAML2Constants.CONF_SENDER_VOUCHES,
-                               "urn:org:apache:cxf:fediz:idp:realm-A");
+                        "urn:org:apache:cxf:fediz:idp:realm-A");
 
         Document doc = DOMUtils.newDocument();
         Element responseElement = OpenSAMLUtil.toDom(samlResponse, doc);
@@ -425,7 +424,7 @@ public class SAML2ITCase extends AbstractITCase {
         response.setUrlContext("saml2sp");
 
         org.opensaml.saml.saml2.core.Response samlResponse =
-            createResponse(null, true, SAML2Constants.CONF_BEARER, "urn:org:apache:cxf:fediz:idp:realm-B");
+                createResponse(null, true, SAML2Constants.CONF_BEARER, "urn:org:apache:cxf:fediz:idp:realm-B");
 
         Document doc = DOMUtils.newDocument();
         Element responseElement = OpenSAMLUtil.toDom(samlResponse, doc);
@@ -435,7 +434,7 @@ public class SAML2ITCase extends AbstractITCase {
         response.setSamlResponse(Base64.encodeBase64String(responseStr.getBytes()));
         response.setRelayState("idpInitiated");
         SAML2LoginResponseTO loginResponse =
-            saml2Service.validateLoginResponse(response);
+                saml2Service.validateLoginResponse(response);
         assertNotNull(loginResponse.getAccessToken());
         assertEquals("puccini", loginResponse.getNameID());
     }
@@ -453,7 +452,7 @@ public class SAML2ITCase extends AbstractITCase {
         response.setUrlContext("saml2sp");
 
         org.opensaml.saml.saml2.core.Response samlResponse =
-            createResponse(null, true, SAML2Constants.CONF_BEARER, "urn:org:apache:cxf:fediz:idp:realm-A");
+                createResponse(null, true, SAML2Constants.CONF_BEARER, "urn:org:apache:cxf:fediz:idp:realm-A");
 
         Document doc = DOMUtils.newDocument();
         Element responseElement = OpenSAMLUtil.toDom(samlResponse, doc);
