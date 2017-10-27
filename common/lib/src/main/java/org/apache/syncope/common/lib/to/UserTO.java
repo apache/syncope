@@ -60,6 +60,8 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private String securityAnswer;
 
+    private boolean suspended;
+
     private boolean mustChangePassword;
 
     private final List<RelationshipTO> relationships = new ArrayList<>();
@@ -183,6 +185,14 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     public void setSecurityAnswer(final String securityAnswer) {
         this.securityAnswer = securityAnswer;
+    }
+
+    public boolean isSuspended() {
+        return suspended;
+    }
+
+    public void setSuspended(final boolean suspended) {
+        this.suspended = suspended;
     }
 
     public boolean isMustChangePassword() {

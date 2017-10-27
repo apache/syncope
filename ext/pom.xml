@@ -81,6 +81,7 @@ under the License.
     <module>swagger-ui</module>
     <module>saml2sp</module>
     <module>elasticsearch</module>
+    <module>scimv2</module>
   </modules>
 
 </project>
