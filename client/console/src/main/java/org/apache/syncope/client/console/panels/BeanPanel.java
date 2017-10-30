@@ -65,6 +65,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
+import org.springframework.util.ReflectionUtils.FieldCallback;
+import org.springframework.util.ReflectionUtils.FieldFilter;
 
 public class BeanPanel<T extends Serializable> extends Panel {
 
@@ -100,16 +103,23 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
             @Override
             protected List<String> load() {
-                List<String> result = new ArrayList<>();
+                final List<String> result = new ArrayList<>();
 
                 if (BeanPanel.this.getDefaultModelObject() != null) {
-                    for (Field field : BeanPanel.this.getDefaultModelObject().getClass().getDeclaredFields()) {
-                        if (!BeanPanel.this.excluded.contains(field.getName())) {
+                    ReflectionUtils.doWithFields(BeanPanel.this.getDefaultModelObject().getClass(),
+                            new FieldCallback() {
+
+                        public void doWith(final Field field) throws IllegalArgumentException, IllegalAccessException {
                             result.add(field.getName());
                         }
-                    }
-                }
 
+                    }, new FieldFilter() {
+
+                        public boolean matches(final Field field) {
+                            return !BeanPanel.this.excluded.contains(field.getName());
+                        }
+                    });
+                }
                 return result;
             }
         };
@@ -125,12 +135,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
                 item.add(new Label("fieldName", new ResourceModel(fieldName, fieldName)));
 
-                Field field = null;
-                try {
-                    field = bean.getObject().getClass().getDeclaredField(fieldName);
-                } catch (NoSuchFieldException | SecurityException e) {
-                    LOG.error("Could not find field {} in class {}", fieldName, bean.getObject().getClass(), e);
-                }
+                Field field = ReflectionUtils.findField(bean.getObject().getClass(), fieldName);
 
                 if (field == null) {
                     return;
