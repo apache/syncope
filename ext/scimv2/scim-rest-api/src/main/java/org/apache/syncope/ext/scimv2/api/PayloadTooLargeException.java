@@ -16,27 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.ext.scimv2.api.type;
+package org.apache.syncope.ext.scimv2.api;
 
-public enum Resource {
+import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.core.Response;
 
-    ServiceProviderConfig("urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"),
-    ResourceType("urn:ietf:params:scim:schemas:core:2.0:ResourceType"),
-    Schema("urn:ietf:params:scim:schemas:core:2.0:Schema"),
-    User("urn:ietf:params:scim:schemas:core:2.0:User"),
-    EnterpriseUser("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"),
-    Group("urn:ietf:params:scim:schemas:core:2.0:Group"),
-    ListResponse("urn:ietf:params:scim:api:messages:2.0:ListResponse"),
-    Error("urn:ietf:params:scim:api:messages:2.0:Error");
+public class PayloadTooLargeException extends ClientErrorException {
 
-    private final String schema;
+    private static final long serialVersionUID = -3980136349506530672L;
 
-    Resource(final String schema) {
-        this.schema = schema;
+    public PayloadTooLargeException() {
+        super(Response.Status.REQUEST_ENTITY_TOO_LARGE);
     }
 
-    public String schema() {
-        return schema;
+    public PayloadTooLargeException(final String message) {
+        super(message, Response.Status.REQUEST_ENTITY_TOO_LARGE);
     }
 
 }

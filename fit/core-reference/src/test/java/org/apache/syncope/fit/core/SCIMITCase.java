@@ -61,7 +61,7 @@ public class SCIMITCase extends AbstractITCase {
         assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
 
         Response response = webClient().path("ServiceProviderConfig").get();
-        assertEquals(200, response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(
                 SCIMConstants.APPLICATION_SCIM_JSON,
                 StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
@@ -76,7 +76,7 @@ public class SCIMITCase extends AbstractITCase {
         assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
 
         Response response = webClient().path("ResourceTypes").get();
-        assertEquals(200, response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(
                 SCIMConstants.APPLICATION_SCIM_JSON,
                 StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
@@ -87,7 +87,7 @@ public class SCIMITCase extends AbstractITCase {
         assertEquals(2, resourceTypes.size());
 
         response = webClient().path("ResourceTypes").path("User").get();
-        assertEquals(200, response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         ResourceType user = response.readEntity(ResourceType.class);
         assertNotNull(user);
@@ -100,7 +100,7 @@ public class SCIMITCase extends AbstractITCase {
         assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
 
         Response response = webClient().path("Schemas").get();
-        assertEquals(200, response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(
                 SCIMConstants.APPLICATION_SCIM_JSON,
                 StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
@@ -109,8 +109,11 @@ public class SCIMITCase extends AbstractITCase {
         assertNotNull(schemas);
         assertEquals(3, schemas.size());
 
+        response = webClient().path("Schemas").path("none").get();
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+
         response = webClient().path("Schemas").path(Resource.EnterpriseUser.schema()).get();
-        assertEquals(200, response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         ObjectNode enterpriseUser = response.readEntity(ObjectNode.class);
         assertNotNull(enterpriseUser);
@@ -122,7 +125,7 @@ public class SCIMITCase extends AbstractITCase {
         assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
 
         Response response = webClient().path("Users").path("1417acbe-cbf6-4277-9372-e75e04f97000").get();
-        assertEquals(200, response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(
                 SCIMConstants.APPLICATION_SCIM_JSON,
                 StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
@@ -140,7 +143,7 @@ public class SCIMITCase extends AbstractITCase {
         assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
 
         Response response = webClient().path("Groups").get();
-        assertEquals(200, response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(
                 SCIMConstants.APPLICATION_SCIM_JSON,
                 StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
