@@ -24,7 +24,7 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
 import org.apache.syncope.ext.scimv2.api.service.UserService;
-import org.apache.syncope.ext.scimv2.api.type.ResourceType;
+import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 
 public class UserServiceImpl extends AbstractSCIMService<SCIMUser> implements UserService {
@@ -65,6 +65,6 @@ public class UserServiceImpl extends AbstractSCIMService<SCIMUser> implements Us
             final SortOrder sortOrder,
             final List<String> attributes) {
 
-        return doSearch(ResourceType.User, startIndex, count, filter, sortBy, sortOrder, attributes);
+        return doSearch(Resource.User, startIndex, count, filter, sortBy, sortOrder, attributes);
     }
 }

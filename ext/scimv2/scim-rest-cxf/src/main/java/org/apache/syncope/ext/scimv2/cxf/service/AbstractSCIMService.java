@@ -47,7 +47,7 @@ import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
 import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
 import org.apache.syncope.ext.scimv2.api.service.SCIMService;
 import org.apache.syncope.ext.scimv2.api.type.Function;
-import org.apache.syncope.ext.scimv2.api.type.ResourceType;
+import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +84,7 @@ abstract class AbstractSCIMService<R extends SCIMResource> implements SCIMServic
         return groupLogic;
     }
 
-    protected AbstractAnyLogic<?, ?> anyLogic(final ResourceType type) {
+    protected AbstractAnyLogic<?, ?> anyLogic(final Resource type) {
         switch (type) {
             case User:
                 return userLogic();
@@ -100,11 +100,12 @@ abstract class AbstractSCIMService<R extends SCIMResource> implements SCIMServic
     protected SCIMUser toSCIMUser(final UserTO userTO, final String location) {
         SCIMUser user = new SCIMUser(
                 userTO.getKey(),
-                Collections.singletonList(ResourceType.User.getSchema()),
+                Collections.singletonList(Resource.User.schema()),
                 new Meta(
-                        ResourceType.User,
+                        Resource.User,
                         userTO.getCreationDate(),
-                        userTO.getLastChangeDate(),
+                        userTO.getLastChangeDate() == null
+                        ? userTO.getCreationDate() : userTO.getLastChangeDate(),
                         userTO.getETagValue(),
                         location),
                 userTO.getUsername(),
@@ -135,11 +136,12 @@ abstract class AbstractSCIMService<R extends SCIMResource> implements SCIMServic
     protected SCIMGroup toSCIMGroup(final GroupTO groupTO, final String location) {
         SCIMGroup group = new SCIMGroup(
                 groupTO.getKey(),
-                Collections.singletonList(ResourceType.Group.getSchema()),
+                Collections.singletonList(Resource.Group.schema()),
                 new Meta(
-                        ResourceType.Group,
+                        Resource.Group,
                         groupTO.getCreationDate(),
-                        groupTO.getLastChangeDate(),
+                        groupTO.getLastChangeDate() == null
+                        ? groupTO.getCreationDate() : groupTO.getLastChangeDate(),
                         groupTO.getETagValue(),
                         location),
                 groupTO.getName());
@@ -166,7 +168,7 @@ abstract class AbstractSCIMService<R extends SCIMResource> implements SCIMServic
                         userTO.getKey(),
                         StringUtils.substringBefore(location, "/Groups") + "/Users/" + userTO.getKey(),
                         userTO.getUsername(),
-                        ResourceType.User));
+                        Resource.User));
             });
         }
 
@@ -175,7 +177,7 @@ abstract class AbstractSCIMService<R extends SCIMResource> implements SCIMServic
 
     @SuppressWarnings("unchecked")
     protected ListResponse<R> doSearch(
-            final ResourceType type,
+            final Resource type,
             final Integer startIndex,
             final Integer count,
             final String filter,

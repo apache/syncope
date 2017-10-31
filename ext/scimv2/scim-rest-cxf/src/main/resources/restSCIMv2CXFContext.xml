@@ -49,6 +49,8 @@ under the License.
     <property name="force" value="true"/>
   </bean>
 
+  <bean id="addETagFilter" class="org.apache.syncope.ext.scimv2.cxf.AddETagFilter"/>
+
   <bean id="wadlGenerator" class="org.apache.cxf.jaxrs.model.wadl.WadlGenerator">
     <property name="applicationTitle" value="Apache Syncope SCIMv2 ${syncope.version}"/>
     <property name="namespacePrefix" value="syncope2"/>
@@ -76,6 +78,7 @@ under the License.
     </jaxrs:outInterceptors>
     <jaxrs:providers>
       <ref bean="jsonProvider"/>
+      <ref bean="addETagFilter"/>
       <ref bean="wadlGenerator"/>
     </jaxrs:providers>
   </jaxrs:server>

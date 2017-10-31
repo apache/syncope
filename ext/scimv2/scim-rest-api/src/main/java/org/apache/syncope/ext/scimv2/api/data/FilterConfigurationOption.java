@@ -16,31 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.fit;
+package org.apache.syncope.ext.scimv2.api.data;
 
-import javax.ws.rs.core.Response;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class SCIMDetector {
+public class FilterConfigurationOption extends ConfigurationOption {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SCIMDetector.class);
+    private static final long serialVersionUID = 8218541842239260269L;
 
-    private static Boolean ENABLED;
+    private final int maxResults;
 
-    public static boolean isSCIMAvailable(final WebClient webClient) {
-        synchronized (LOG) {
-            if (ENABLED == null) {
-                try {
-                    Response response = webClient.path("ServiceProviderConfig").get();
-                    ENABLED = response.getStatus() == 200;
-                } catch (Exception e) {
-                    // ignore
-                    ENABLED = false;
-                }
-            }
-        }
-        return ENABLED;
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public FilterConfigurationOption(
+            @JsonProperty("supported") final boolean supported,
+            @JsonProperty("maxResults") final int maxResults) {
+
+        super(supported);
+        this.maxResults = maxResults;
     }
+
+    public int getMaxResults() {
+        return maxResults;
+    }
+
 }

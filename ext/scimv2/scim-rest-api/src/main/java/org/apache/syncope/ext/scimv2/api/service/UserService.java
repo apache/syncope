@@ -32,7 +32,7 @@ import org.apache.cxf.jaxrs.ext.PATCH;
 import org.apache.syncope.ext.scimv2.api.SCIMConstants;
 import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
 
-@Path("Users")
+@Path("v2/Users")
 public interface UserService extends SCIMService<SCIMUser> {
 
     @POST

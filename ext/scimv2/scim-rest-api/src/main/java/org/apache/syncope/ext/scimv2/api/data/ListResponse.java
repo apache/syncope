@@ -23,13 +23,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.syncope.ext.scimv2.api.type.ResourceType;
+import org.apache.syncope.ext.scimv2.api.type.Resource;
 
 public class ListResponse<R extends SCIMResource> extends SCIMBean {
 
     private static final long serialVersionUID = -776611610457583160L;
 
-    private final List<String> schemas = Arrays.asList(ResourceType.ListResponse.getSchema());
+    private final List<String> schemas = Arrays.asList(Resource.ListResponse.schema());
 
     private final int totalResults;
 

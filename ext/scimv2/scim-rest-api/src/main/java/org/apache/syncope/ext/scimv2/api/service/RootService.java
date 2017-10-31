@@ -18,28 +18,42 @@
  */
 package org.apache.syncope.ext.scimv2.api.service;
 
+import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.ext.scimv2.api.SCIMConstants;
+import org.apache.syncope.ext.scimv2.api.data.ResourceType;
+import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
+import org.apache.syncope.ext.scimv2.api.data.ServiceProviderConfig;
 
-@Path("")
-public interface RootService extends SCIMService {
+@Path("v2")
+public interface RootService extends SCIMService<SCIMResource> {
 
     @GET
-    @Path("ServiceProviderConfigs")
+    @Path("ServiceProviderConfig")
     @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
-    Response serviceProviderConfigs();
+    ServiceProviderConfig serviceProviderConfig();
 
     @GET
     @Path("ResourceTypes")
     @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
-    Response resourceTypes();
+    List<ResourceType> resourceTypes();
+
+    @GET
+    @Path("ResourceTypes/{type}")
+    @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
+    ResourceType resourceType(@PathParam("type") String type);
 
     @GET
     @Path("Schemas")
     @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
     Response schemas();
 
+    @GET
+    @Path("Schemas/{schema}")
+    @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
+    Response schema(@PathParam("schema") String schema);
 }

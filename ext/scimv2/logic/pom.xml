@@ -22,25 +22,41 @@ under the License.
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.apache.syncope</groupId>
-    <artifactId>syncope-ext</artifactId>
+    <groupId>org.apache.syncope.ext</groupId>
+    <artifactId>syncope-ext-scimv2</artifactId>
     <version>2.1.0-SNAPSHOT</version>
   </parent>
 
-  <name>Apache Syncope Ext: SCIMv2</name>
-  <description>Apache Syncope Ext: SCIMv2</description>
-  <groupId>org.apache.syncope.ext</groupId>
-  <artifactId>syncope-ext-scimv2</artifactId>
-  <packaging>pom</packaging>
+  <name>Apache Syncope Ext: SCIMv2 Logic</name>
+  <description>Apache Syncope Ext: SCIMv2 Logic</description>
+  <groupId>org.apache.syncope.ext.scimv2</groupId>
+  <artifactId>syncope-ext-scimv2-logic</artifactId>
+  <packaging>jar</packaging>
   
   <properties>
-    <rootpom.basedir>${basedir}/../..</rootpom.basedir>
+    <rootpom.basedir>${basedir}/../../..</rootpom.basedir>
   </properties>
-  
-  <modules>
-    <module>scim-rest-api</module>
-    <module>scim-rest-cxf</module>
-    <module>logic</module>
-  </modules>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-logic</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.syncope.ext.scimv2</groupId>
+      <artifactId>syncope-ext-scimv2-scim-rest-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 </project>
