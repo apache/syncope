@@ -32,7 +32,7 @@ import org.apache.cxf.jaxrs.ext.PATCH;
 import org.apache.syncope.ext.scimv2.api.SCIMConstants;
 import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
 
-@Path("Groups")
+@Path("v2/Groups")
 public interface GroupService extends SCIMService<SCIMGroup> {
 
     @POST

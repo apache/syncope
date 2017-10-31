@@ -1,0 +1,143 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.core.logic;
+
+import java.lang.reflect.Method;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.UriBuilder;
+import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.core.logic.init.SCIMLoader;
+import org.apache.syncope.ext.scimv2.api.data.AuthenticationScheme;
+import org.apache.syncope.ext.scimv2.api.data.BulkConfigurationOption;
+import org.apache.syncope.ext.scimv2.api.data.ConfigurationOption;
+import org.apache.syncope.ext.scimv2.api.data.FilterConfigurationOption;
+import org.apache.syncope.ext.scimv2.api.data.Meta;
+import org.apache.syncope.ext.scimv2.api.data.ResourceType;
+import org.apache.syncope.ext.scimv2.api.data.SchemaExtension;
+import org.apache.syncope.ext.scimv2.api.data.ServiceProviderConfig;
+import org.apache.syncope.ext.scimv2.api.type.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Component;
+
+@Component
+public class RootLogic extends AbstractLogic<AbstractBaseBean> {
+
+    private static final Object MONITOR = new Object();
+
+    private static ServiceProviderConfig SERVICE_PROVIDER_CONFIG;
+
+    private static ResourceType USER;
+
+    private static ResourceType GROUP;
+
+    @Autowired
+    private SCIMLoader loader;
+
+    @PreAuthorize("isAuthenticated()")
+    public ServiceProviderConfig serviceProviderConfig() {
+        synchronized (MONITOR) {
+            if (SERVICE_PROVIDER_CONFIG == null) {
+                SERVICE_PROVIDER_CONFIG = new ServiceProviderConfig(
+                        new ConfigurationOption(true),
+                        new BulkConfigurationOption(
+                                true, loader.getBulkMaxOperations(), loader.getBulkMaxPayloadSize()),
+                        new FilterConfigurationOption(true, loader.getFilterMaxResults()),
+                        new ConfigurationOption(true),
+                        new ConfigurationOption(true),
+                        new ConfigurationOption(true));
+                SERVICE_PROVIDER_CONFIG.getAuthenticationSchemes().add(new AuthenticationScheme(
+                        "JSON Web Token",
+                        "Apache Syncope JWT authentication",
+                        URI.create("http://www.rfc-editor.org/info/rfc6750"),
+                        URI.create("https://syncope.apache.org/docs/"
+                                + "reference-guide.html#rest-authentication-and-authorization"),
+                        "oauthbearertoken",
+                        true));
+                SERVICE_PROVIDER_CONFIG.getAuthenticationSchemes().add(new AuthenticationScheme(
+                        "HTTP Basic",
+                        "Apache Syncope HTTP Basic authentication",
+                        URI.create("http://www.rfc-editor.org/info/rfc2617"),
+                        URI.create("https://syncope.apache.org/docs/"
+                                + "reference-guide.html#rest-authentication-and-authorization"),
+                        "httpbasic",
+                        false));
+            }
+        }
+        return SERVICE_PROVIDER_CONFIG;
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    public List<ResourceType> resourceTypes(final UriBuilder uriBuilder) {
+        synchronized (MONITOR) {
+            if (USER == null) {
+                USER = new ResourceType("User", "User", "/Users", "User Account", Resource.User.schema(),
+                        new Meta(Resource.ResourceType,
+                                null, null, null, uriBuilder.path("User").build().toASCIIString()));
+                USER.getSchemaExtensions().add(new SchemaExtension(Resource.EnterpriseUser.schema(), true));
+            }
+            if (GROUP == null) {
+                GROUP = new ResourceType("Group", "Group", "/Groups", "Group", Resource.Group.schema(),
+                        new Meta(Resource.ResourceType,
+                                null, null, null, uriBuilder.path("Group").build().toASCIIString()));
+            }
+        }
+
+        return Arrays.asList(USER, GROUP);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    public ResourceType resourceType(final UriBuilder uriBuilder, final String type) {
+        if (Resource.User.name().equals(type)) {
+            resourceTypes(uriBuilder);
+            return USER;
+        } else if (Resource.Group.name().equals(type)) {
+            resourceTypes(uriBuilder);
+            return GROUP;
+        } else {
+            throw new IllegalArgumentException("Unsupported resource type: " + type);
+        }
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    public String schemas() {
+        return loader.getSchemas();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    public String schema(final String schema) {
+        String found = loader.getSchema(schema);
+        if (found == null) {
+            throw new NotFoundException("Schema " + schema);
+        }
+
+        return found;
+    }
+
+    @Override
+    protected AbstractBaseBean resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+
+        throw new UnresolvedReferenceException();
+    }
+
+}

@@ -21,16 +21,15 @@ package org.apache.syncope.ext.scimv2.api.data;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
 import java.util.Date;
 import javax.ws.rs.core.EntityTag;
-import org.apache.syncope.ext.scimv2.api.type.ResourceType;
+import org.apache.syncope.ext.scimv2.api.type.Resource;
 
-public class Meta implements Serializable {
+public class Meta extends SCIMBean {
 
     private static final long serialVersionUID = 8976451652101091915L;
 
-    private final ResourceType resourceType;
+    private final Resource resourceType;
 
     private final Date created;
 
@@ -43,7 +42,7 @@ public class Meta implements Serializable {
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public Meta(
-            @JsonProperty("resourceType") final ResourceType resourceType,
+            @JsonProperty("resourceType") final Resource resourceType,
             @JsonProperty("created") final Date created,
             @JsonProperty("lastModified") final Date lastModified,
             @JsonProperty("version") final String version,
@@ -52,11 +51,11 @@ public class Meta implements Serializable {
         this.resourceType = resourceType;
         this.created = created;
         this.lastModified = lastModified;
-        this.version = new EntityTag(version);
+        this.version = version == null ? null : new EntityTag(version, true);
         this.location = location;
     }
 
-    public ResourceType getResourceType() {
+    public Resource getResourceType() {
         return resourceType;
     }
 

@@ -18,24 +18,51 @@
  */
 package org.apache.syncope.ext.scimv2.cxf.service;
 
+import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.core.logic.RootLogic;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.ext.scimv2.api.data.ResourceType;
+import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
+import org.apache.syncope.ext.scimv2.api.data.ServiceProviderConfig;
 import org.apache.syncope.ext.scimv2.api.service.RootService;
 
-public class RootServiceImpl extends AbstractSCIMService implements RootService {
+public class RootServiceImpl extends AbstractSCIMService<SCIMResource> implements RootService {
 
-    @Override
-    public Response serviceProviderConfigs() {
-        return Response.ok().build();
+    private RootLogic rootLogic;
+
+    protected RootLogic rootLogic() {
+        synchronized (this) {
+            if (rootLogic == null) {
+                rootLogic = ApplicationContextProvider.getApplicationContext().getBean(RootLogic.class);
+            }
+        }
+        return rootLogic;
     }
 
     @Override
-    public Response resourceTypes() {
-        return Response.ok().build();
+    public ServiceProviderConfig serviceProviderConfig() {
+        return rootLogic().serviceProviderConfig();
+    }
+
+    @Override
+    public List<ResourceType> resourceTypes() {
+        return rootLogic().resourceTypes(uriInfo.getAbsolutePathBuilder());
+    }
+
+    @Override
+    public ResourceType resourceType(final String type) {
+        return rootLogic().resourceType(uriInfo.getAbsolutePathBuilder(), type);
     }
 
     @Override
     public Response schemas() {
-        return Response.ok().build();
+        return Response.ok(rootLogic().schemas()).build();
+    }
+
+    @Override
+    public Response schema(final String schema) {
+        return Response.ok(rootLogic().schema(schema)).build();
     }
 
 }

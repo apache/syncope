@@ -16,31 +16,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.fit;
+package org.apache.syncope.ext.scimv2.api.data;
 
-import javax.ws.rs.core.Response;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class SCIMDetector {
+public class SchemaExtension extends SCIMBean {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SCIMDetector.class);
+    private static final long serialVersionUID = -2891887818183122384L;
 
-    private static Boolean ENABLED;
+    private final String schema;
 
-    public static boolean isSCIMAvailable(final WebClient webClient) {
-        synchronized (LOG) {
-            if (ENABLED == null) {
-                try {
-                    Response response = webClient.path("ServiceProviderConfig").get();
-                    ENABLED = response.getStatus() == 200;
-                } catch (Exception e) {
-                    // ignore
-                    ENABLED = false;
-                }
-            }
-        }
-        return ENABLED;
+    private final boolean required;
+
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public SchemaExtension(
+            @JsonProperty("schema") final String schema,
+            @JsonProperty("required") final boolean required) {
+
+        this.schema = schema;
+        this.required = required;
     }
+
+    public String getSchema() {
+        return schema;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
 }

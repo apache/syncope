@@ -24,7 +24,7 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
 import org.apache.syncope.ext.scimv2.api.service.GroupService;
-import org.apache.syncope.ext.scimv2.api.type.ResourceType;
+import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 
 public class GroupServiceImpl extends AbstractSCIMService<SCIMGroup> implements GroupService {
@@ -65,7 +65,7 @@ public class GroupServiceImpl extends AbstractSCIMService<SCIMGroup> implements 
             final SortOrder sortOrder,
             final List<String> attributes) {
 
-        return doSearch(ResourceType.Group, startIndex, count, filter, sortBy, sortOrder, attributes);
+        return doSearch(Resource.Group, startIndex, count, filter, sortBy, sortOrder, attributes);
     }
 
 }

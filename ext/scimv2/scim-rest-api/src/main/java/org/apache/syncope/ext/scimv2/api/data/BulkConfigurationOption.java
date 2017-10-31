@@ -18,32 +18,34 @@
  */
 package org.apache.syncope.ext.scimv2.api.data;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.syncope.ext.scimv2.api.type.Resource;
 
-@JsonPropertyOrder({ "value", "$ref", "display", "type" })
-public class Member extends Reference {
+public class BulkConfigurationOption extends ConfigurationOption {
 
-    private static final long serialVersionUID = 75245960461062907L;
+    private static final long serialVersionUID = 8218541842239260269L;
 
-    @JsonIgnore
-    private final Resource type;
+    private final int maxOperations;
 
-    public Member(
-            @JsonProperty("value") final String value,
-            @JsonProperty("$ref") final String ref,
-            @JsonProperty("display") final String display,
-            @JsonProperty("type") final Resource type) {
+    private final int maxPayloadSize;
 
-        super(value, ref, display);
-        this.type = type;
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public BulkConfigurationOption(
+            @JsonProperty("supported") final boolean supported,
+            @JsonProperty("maxOperations") final int maxOperations,
+            @JsonProperty("maxPayloadSize") final int maxPayloadSize) {
+
+        super(supported);
+        this.maxOperations = maxOperations;
+        this.maxPayloadSize = maxPayloadSize;
     }
 
-    @JsonProperty
-    public String getType() {
-        return type == null ? null : type.name();
+    public int getMaxOperations() {
+        return maxOperations;
+    }
+
+    public int getMaxPayloadSize() {
+        return maxPayloadSize;
     }
 
 }

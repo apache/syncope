@@ -95,6 +95,8 @@ under the License.
     </dir>
     <dir name="${basedir}/../../ext/scimv2/scim-rest-cxf/target/classes">
     </dir>
+    <dir name="${basedir}/../../ext/scimv2/logic/target/classes">
+    </dir>
   </classpath>
 
   <web>
