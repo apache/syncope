@@ -16,27 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.ext.scimv2.api.type;
+package org.apache.syncope.ext.scimv2.api;
 
-public enum Resource {
+import javax.ws.rs.BadRequestException;
+import org.apache.syncope.ext.scimv2.api.type.ErrorType;
 
-    ServiceProviderConfig("urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"),
-    ResourceType("urn:ietf:params:scim:schemas:core:2.0:ResourceType"),
-    Schema("urn:ietf:params:scim:schemas:core:2.0:Schema"),
-    User("urn:ietf:params:scim:schemas:core:2.0:User"),
-    EnterpriseUser("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"),
-    Group("urn:ietf:params:scim:schemas:core:2.0:Group"),
-    ListResponse("urn:ietf:params:scim:api:messages:2.0:ListResponse"),
-    Error("urn:ietf:params:scim:api:messages:2.0:Error");
+public class SCIMBadRequestException extends BadRequestException {
 
-    private final String schema;
+    private static final long serialVersionUID = -2588839750716910491L;
 
-    Resource(final String schema) {
-        this.schema = schema;
+    private final ErrorType errorType;
+
+    public SCIMBadRequestException(final ErrorType errorType) {
+        super();
+        this.errorType = errorType;
     }
 
-    public String schema() {
-        return schema;
+    public SCIMBadRequestException(final ErrorType errorType, final String detail) {
+        super(detail);
+        this.errorType = errorType;
+    }
+
+    public ErrorType getErrorType() {
+        return errorType;
     }
 
 }

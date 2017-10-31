@@ -35,6 +35,8 @@ under the License.
   
   <bean id="jsonProvider" class="org.apache.syncope.ext.scimv2.cxf.JacksonSCIMJsonProvider"/>
 
+  <bean id="exceptionMapper" class="org.apache.syncope.ext.scimv2.cxf.SCIMExceptionMapper"/>
+
   <bean id="validationProvider" class="org.apache.cxf.validation.BeanValidationProvider"/>
   <bean id="validationInInterceptor" class="org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor">
     <property name="provider" ref="validationProvider"/>
@@ -78,6 +80,7 @@ under the License.
     </jaxrs:outInterceptors>
     <jaxrs:providers>
       <ref bean="jsonProvider"/>
+      <ref bean="exceptionMapper"/>
       <ref bean="addETagFilter"/>
       <ref bean="wadlGenerator"/>
     </jaxrs:providers>

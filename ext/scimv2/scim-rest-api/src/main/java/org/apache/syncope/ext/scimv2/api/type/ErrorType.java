@@ -18,25 +18,16 @@
  */
 package org.apache.syncope.ext.scimv2.api.type;
 
-public enum Resource {
-
-    ServiceProviderConfig("urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"),
-    ResourceType("urn:ietf:params:scim:schemas:core:2.0:ResourceType"),
-    Schema("urn:ietf:params:scim:schemas:core:2.0:Schema"),
-    User("urn:ietf:params:scim:schemas:core:2.0:User"),
-    EnterpriseUser("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"),
-    Group("urn:ietf:params:scim:schemas:core:2.0:Group"),
-    ListResponse("urn:ietf:params:scim:api:messages:2.0:ListResponse"),
-    Error("urn:ietf:params:scim:api:messages:2.0:Error");
-
-    private final String schema;
-
-    Resource(final String schema) {
-        this.schema = schema;
-    }
-
-    public String schema() {
-        return schema;
-    }
+public enum ErrorType {
+    invalidFilter,
+    tooMany,
+    uniqueness,
+    mutability,
+    invalidSyntax,
+    invalidPath,
+    noTarget,
+    invalidValue,
+    invalidVers,
+    sensitive;
 
 }
