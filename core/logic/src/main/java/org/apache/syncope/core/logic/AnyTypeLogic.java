@@ -27,6 +27,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
@@ -45,6 +46,9 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
+
+    @Autowired
+    private AnyObjectDAO anyObjectDAO;
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPE_READ + "')")
     @Transactional(readOnly = true)
@@ -84,6 +88,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
         AnyType anyType = anyTypeDAO.find(anyTypeTO.getKey());
         if (anyType == null) {
             LOG.error("Could not find anyType '" + anyTypeTO.getKey() + "'");
+
             throw new NotFoundException(anyTypeTO.getKey());
         }
 
@@ -103,6 +108,13 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
         }
 
         try {
+            Integer anyObjects = anyObjectDAO.countByType().get(anyType);
+            if (anyObjects != null && anyObjects > 0) {
+                LOG.error("{} AnyObject instances found for {}, aborting", anyObjects, anyType);
+
+                throw new IllegalArgumentException("AnyObject instances found for " + key);
+            }
+
             return binder.delete(anyType);
         } catch (IllegalArgumentException e) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
