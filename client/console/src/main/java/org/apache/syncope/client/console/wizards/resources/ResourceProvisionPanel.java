@@ -90,7 +90,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         actionTogglePanel = new ActionLinksTogglePanel<>("toggle", pageRef);
         add(actionTogglePanel);
 
-        wizard = new ProvisionWizardBuilder(resourceTO, pageRef);
+        wizard = new ProvisionWizardBuilder(resourceTO, adminRealm, pageRef);
 
         final ListViewPanel.Builder<ResourceProvision> builder = new ListViewPanel.Builder<ResourceProvision>(
                 ResourceProvision.class, pageRef) {
