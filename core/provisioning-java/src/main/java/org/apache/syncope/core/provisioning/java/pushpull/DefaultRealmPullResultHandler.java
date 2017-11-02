@@ -232,7 +232,7 @@ public class DefaultRealmPullResultHandler
         Result resultStatus;
 
         try {
-            Realm realm = realmDAO.save(binder.create(profile.getTask().getDestinatioRealm().getFullPath(), realmTO));
+            Realm realm = realmDAO.save(binder.create(profile.getTask().getDestinatioRealm(), realmTO));
 
             PropagationByResource propByRes = new PropagationByResource();
             for (String resource : realm.getResourceKeys()) {

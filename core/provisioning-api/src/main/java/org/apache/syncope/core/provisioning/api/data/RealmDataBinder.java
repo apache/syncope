@@ -24,7 +24,7 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 
 public interface RealmDataBinder {
 
-    Realm create(String parentPath, RealmTO realmTO);
+    Realm create(Realm parent, RealmTO realmTO);
 
     PropagationByResource update(Realm realm, RealmTO realmTO);
 

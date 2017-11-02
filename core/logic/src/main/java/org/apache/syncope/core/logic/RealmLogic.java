@@ -85,12 +85,37 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REALM_CREATE + "')")
     public ProvisioningResult<RealmTO> create(final String parentPath, final RealmTO realmTO) {
-        String fullPath = StringUtils.appendIfMissing(parentPath, "/") + realmTO.getName();
+        Realm parent;
+        if (StringUtils.isBlank(realmTO.getParent())) {
+            parent = realmDAO.findByFullPath(parentPath);
+            if (parent == null) {
+                LOG.error("Could not find parent realm " + parentPath);
+
+                throw new NotFoundException(parentPath);
+            }
+
+            realmTO.setParent(parent.getFullPath());
+        } else {
+            parent = realmDAO.find(realmTO.getParent());
+            if (parent == null) {
+                LOG.error("Could not find parent realm " + realmTO.getParent());
+
+                throw new NotFoundException(realmTO.getParent());
+            }
+
+            if (!parent.getFullPath().equals(parentPath)) {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPath);
+                sce.getElements().add("Mismatching parent realm: " + parentPath + " Vs " + parent.getFullPath());
+                throw sce;
+            }
+        }
+
+        String fullPath = StringUtils.appendIfMissing(parent.getFullPath(), "/") + realmTO.getName();
         if (realmDAO.findByFullPath(fullPath) != null) {
             throw new DuplicateException(fullPath);
         }
 
-        Realm realm = realmDAO.save(binder.create(parentPath, realmTO));
+        Realm realm = realmDAO.save(binder.create(parent, realmTO));
 
         PropagationByResource propByRes = new PropagationByResource();
         realm.getResourceKeys().forEach(resource -> {
