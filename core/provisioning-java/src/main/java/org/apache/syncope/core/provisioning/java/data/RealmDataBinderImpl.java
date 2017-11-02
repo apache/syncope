@@ -100,11 +100,11 @@ public class RealmDataBinderImpl implements RealmDataBinder {
     }
 
     @Override
-    public Realm create(final String parentPath, final RealmTO realmTO) {
+    public Realm create(final Realm parent, final RealmTO realmTO) {
         Realm realm = entityFactory.newEntity(Realm.class);
 
         realm.setName(realmTO.getName());
-        realm.setParent(realmDAO.findByFullPath(parentPath));
+        realm.setParent(parent);
 
         if (realmTO.getPasswordPolicy() != null) {
             Policy policy = policyDAO.find(realmTO.getPasswordPolicy());
