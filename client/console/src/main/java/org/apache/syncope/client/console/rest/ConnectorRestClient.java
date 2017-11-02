@@ -77,9 +77,13 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public List<String> getExtAttrNames(
-            final String objectClass, final String connectorKey, final Collection<ConnConfProperty> conf) {
+            final String adminRealm,
+            final String objectClass,
+            final String connectorKey,
+            final Collection<ConnConfProperty> conf) {
 
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
+        connInstanceTO.setAdminRealm(adminRealm);
         connInstanceTO.setKey(connectorKey);
         connInstanceTO.getConf().addAll(conf);
 

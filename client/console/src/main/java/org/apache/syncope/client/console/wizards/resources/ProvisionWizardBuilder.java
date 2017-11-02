@@ -53,6 +53,8 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ResourceProvision>
 
     private final ResourceTO resourceTO;
 
+    private final String adminRealm;
+
     protected AjaxTextFieldPanel clazz;
 
     /**
@@ -183,11 +185,13 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ResourceProvision>
      * Construct.
      *
      * @param resourceTO external resource to be updated.
+     * @param adminRealm admin realm
      * @param pageRef Caller page reference.
      */
-    public ProvisionWizardBuilder(final ResourceTO resourceTO, final PageReference pageRef) {
+    public ProvisionWizardBuilder(final ResourceTO resourceTO, final String adminRealm, final PageReference pageRef) {
         super(new ResourceProvision(), pageRef);
         this.resourceTO = resourceTO;
+        this.adminRealm = adminRealm;
     }
 
     @Override
@@ -206,7 +210,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ResourceProvision>
             modelObject.getProvisionTO().setMapping(new MappingTO());
         }
         mapping.add(new ResourceMappingPanel(
-                "mapping", resourceTO, modelObject, itemTransformers, jexlTransformers));
+                "mapping", resourceTO, adminRealm, modelObject, itemTransformers, jexlTransformers));
 
         wizardModel.add(mapping);
 
