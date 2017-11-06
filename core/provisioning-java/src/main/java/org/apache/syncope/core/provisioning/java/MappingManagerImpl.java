@@ -191,18 +191,18 @@ public class MappingManagerImpl implements MappingManager {
             }
         }
 
-        Attribute connObjectKeyExtAttr =
-                AttributeUtil.find(MappingUtils.getConnObjectKeyItem(provision).getExtAttrName(), attributes);
-        if (connObjectKeyExtAttr != null) {
-            attributes.remove(connObjectKeyExtAttr);
-            attributes.add(AttributeBuilder.build(
-                    MappingUtils.getConnObjectKeyItem(provision).getExtAttrName(), connObjectKey));
-        }
-        Name name = MappingUtils.evaluateNAME(any, provision, connObjectKey);
-        attributes.add(name);
-        if (connObjectKey != null && !connObjectKey.equals(name.getNameValue()) && connObjectKeyExtAttr == null) {
-            attributes.add(AttributeBuilder.build(
-                    MappingUtils.getConnObjectKeyItem(provision).getExtAttrName(), connObjectKey));
+        MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+        if (connObjectKeyItem != null) {
+            Attribute connObjectKeyExtAttr = AttributeUtil.find(connObjectKeyItem.getExtAttrName(), attributes);
+            if (connObjectKeyExtAttr != null) {
+                attributes.remove(connObjectKeyExtAttr);
+                attributes.add(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKey));
+            }
+            Name name = MappingUtils.evaluateNAME(any, provision, connObjectKey);
+            attributes.add(name);
+            if (connObjectKey != null && !connObjectKey.equals(name.getNameValue()) && connObjectKeyExtAttr == null) {
+                attributes.add(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKey));
+            }
         }
 
         if (enable != null) {
