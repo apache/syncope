@@ -46,7 +46,7 @@ import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 
 /**
- * Converts CXF's <tt>SearchCondition</tt> into internal <tt>SearchCond</tt>.
+ * Visits CXF's {@link SearchBean} and produces {@link SearchCond}.
  */
 public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean, SearchCond> {
 
