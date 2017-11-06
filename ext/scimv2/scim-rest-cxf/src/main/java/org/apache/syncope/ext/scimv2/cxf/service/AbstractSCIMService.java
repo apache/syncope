@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.UserLogic;
+import org.apache.syncope.core.logic.scim.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -189,11 +190,9 @@ abstract class AbstractSCIMService<R extends SCIMResource> implements SCIMServic
             throw new UnsupportedOperationException();
         }
 
-        int page = startIndex == null || startIndex <= 1 ? 1 : (startIndex / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
-
         Pair<Integer, ? extends List<? extends AnyTO>> result = anyLogic(type).search(
-                null,
-                page,
+                StringUtils.isBlank(filter) ? null : SearchCondConverter.convert(filter),
+                startIndex == null || startIndex <= 1 ? 1 : (startIndex / AnyDAO.DEFAULT_PAGE_SIZE) + 1,
                 AnyDAO.DEFAULT_PAGE_SIZE,
                 Collections.<OrderByClause>emptyList(),
                 SyncopeConstants.ROOT_REALM,
