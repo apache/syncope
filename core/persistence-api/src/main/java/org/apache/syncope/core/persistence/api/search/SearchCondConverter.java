@@ -35,12 +35,11 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 public final class SearchCondConverter {
 
     /**
-     * Parses a FIQL expression into Syncope's <tt>SearchCond</tt>, using CXF's <tt>FiqlParser</tt>.
+     * Parses a FIQL expression into Syncope's {@link SearchCond}, using {@link SyncopeFiqlParser}.
      *
      * @param fiql FIQL string
      * @param realms optional realm to provide to {@link SearchCondVisitor}
      * @return {@link SearchCond} instance for given FIQL expression
-     * @see SyncopeFiqlParser
      */
     public static SearchCond convert(final String fiql, final String... realms) {
         SyncopeFiqlParser<SearchBean> parser = new SyncopeFiqlParser<>(
