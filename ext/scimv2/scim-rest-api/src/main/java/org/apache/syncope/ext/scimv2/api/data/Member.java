@@ -37,7 +37,7 @@ public class Member extends Reference {
             @JsonProperty("display") final String display,
             @JsonProperty("type") final Resource type) {
 
-        super(value, ref, display);
+        super(value, display, ref);
         this.type = type;
     }
 

@@ -39,7 +39,7 @@ public class Group extends Reference {
             @JsonProperty("display") final String display,
             @JsonProperty("type") final Function type) {
 
-        super(value, ref, display);
+        super(value, display, ref);
         this.type = type;
     }
 

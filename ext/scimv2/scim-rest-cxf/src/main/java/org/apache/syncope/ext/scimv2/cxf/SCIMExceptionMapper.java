@@ -41,6 +41,7 @@ import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.apache.syncope.ext.scimv2.api.ConflictException;
 import org.apache.syncope.ext.scimv2.api.PayloadTooLargeException;
+import org.apache.syncope.ext.scimv2.api.SCIMBadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.SCIMError;
 import org.apache.syncope.ext.scimv2.api.type.ErrorType;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
@@ -108,9 +109,7 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
                 && ENTITYEXISTS_EXCLASS.isAssignableFrom(ex.getCause().getClass())) {
 
             builder = builder(ClientExceptionType.EntityExists, ExceptionUtils.getRootCauseMessage(ex));
-        } else if (ex instanceof DataIntegrityViolationException
-                || JPASYSTEM_EXCLASS.isAssignableFrom(ex.getClass())) {
-
+        } else if (ex instanceof DataIntegrityViolationException || JPASYSTEM_EXCLASS.isAssignableFrom(ex.getClass())) {
             builder = builder(ClientExceptionType.DataIntegrityViolation, ExceptionUtils.getRootCauseMessage(ex));
         } else if (CONNECTOR_EXCLASS.isAssignableFrom(ex.getClass())) {
             builder = builder(ClientExceptionType.ConnectorException, ExceptionUtils.getRootCauseMessage(ex));
@@ -125,7 +124,8 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
             }
             // ...or just report as InternalServerError
             if (builder == null) {
-                builder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+                builder = Response.status(Response.Status.INTERNAL_SERVER_ERROR).
+                        entity(ExceptionUtils.getRootCauseMessage(ex));
             }
         }
 
@@ -188,6 +188,8 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
             return builder(ClientExceptionType.InvalidValues, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof MalformedPathException) {
             return builder(ClientExceptionType.InvalidPath, ExceptionUtils.getRootCauseMessage(ex));
+        } else if (ex instanceof SCIMBadRequestException) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(new SCIMError((SCIMBadRequestException) ex));
         }
 
         return null;

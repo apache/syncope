@@ -466,6 +466,8 @@ under the License.
     <tycho.version>0.23.1</tycho.version>
     <netbeans.version>RELEASE82</netbeans.version>
 
+    <antlr4.version>4.7</antlr4.version>
+
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
 
@@ -1656,6 +1658,12 @@ under the License.
         <version>${netbeans.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr4-runtime</artifactId>
+        <version>${antlr4.version}</version>
+      </dependency>
+
       <!-- TEST -->
       <dependency>
         <groupId>com.github.detro</groupId>
@@ -1985,6 +1993,12 @@ under the License.
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
           <version>1.6.0</version>
+        </plugin>
+        
+        <plugin>
+          <groupId>org.antlr</groupId>
+          <artifactId>antlr4-maven-plugin</artifactId>
+          <version>${antlr4.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>

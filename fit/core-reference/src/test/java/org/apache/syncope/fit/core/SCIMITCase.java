@@ -26,13 +26,18 @@ import static org.junit.Assert.assertTrue;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.ext.scimv2.api.SCIMConstants;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.ResourceType;
@@ -49,6 +54,16 @@ import org.junit.Test;
 public class SCIMITCase extends AbstractITCase {
 
     public static final String SCIM_ADDRESS = "http://localhost:9080/syncope/scim/v2";
+
+    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
+
+        @Override
+        protected SimpleDateFormat initialValue() {
+            SimpleDateFormat sdf = new SimpleDateFormat();
+            sdf.applyPattern(SyncopeConstants.DEFAULT_DATE_PATTERN);
+            return sdf;
+        }
+    };
 
     private WebClient webClient() {
         return WebClient.create(SCIM_ADDRESS, Arrays.asList(new JacksonSCIMJsonProvider())).
@@ -158,5 +173,46 @@ public class SCIMITCase extends AbstractITCase {
             assertNotNull(group.getId());
             assertNotNull(group.getDisplayName());
         }
+    }
+
+    @Test
+    public void search() {
+        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
+
+        // eq
+        Response response = webClient().path("Groups").query("filter", "displayName eq \"additional\"").get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(
+                SCIMConstants.APPLICATION_SCIM_JSON,
+                StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
+
+        ListResponse<SCIMGroup> groups = response.readEntity(new GenericType<ListResponse<SCIMGroup>>() {
+        });
+        assertNotNull(groups);
+        assertEquals(1, groups.getTotalResults());
+
+        SCIMGroup additional = groups.getResources().get(0);
+        assertEquals("additional", additional.getDisplayName());
+
+        // gt
+        UserTO newUser = userService.create(UserITCase.getUniqueSampleTO("scimsearch@syncope.apache.org")).readEntity(
+                new GenericType<ProvisioningResult<UserTO>>() {
+        }).getEntity();
+
+        Date value = new Date(newUser.getCreationDate().getTime() - 1000);
+        response = webClient().path("Users").query("filter", "meta.created gt \""
+                + DATE_FORMAT.get().format(value) + "\"").get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(
+                SCIMConstants.APPLICATION_SCIM_JSON,
+                StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
+
+        ListResponse<SCIMUser> users = response.readEntity(new GenericType<ListResponse<SCIMUser>>() {
+        });
+        assertNotNull(users);
+        assertEquals(1, users.getTotalResults());
+
+        SCIMUser newSCIMUser = users.getResources().get(0);
+        assertEquals(newUser.getUsername(), newSCIMUser.getUserName());
     }
 }
