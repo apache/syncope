@@ -180,4 +180,12 @@ default:
 
 log.ok(action + " script done");
 
+// ----------------
+// Add paged result cookie
+// ----------------
+def pagedResultCookieLine = [:]
+pagedResultCookieLine.put(OperationOptions.OP_PAGED_RESULTS_COOKIE, pagedResultsCookie);
+result.add(pagedResultCookieLine);
+// ----------------
+
 return result;
