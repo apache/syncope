@@ -318,7 +318,10 @@ public class Topology extends BasePage {
                         final ConnInstanceTO conn = item.getModelObject();
 
                         final TopologyNode topologynode = new TopologyNode(
-                                conn.getKey(), conn.getDisplayName(), TopologyNode.Kind.CONNECTOR);
+                                conn.getKey(),
+                                StringUtils.isBlank(conn.getDisplayName()) // [SYNCOPE-1233]
+                                ? conn.getBundleName() : conn.getDisplayName(),
+                                TopologyNode.Kind.CONNECTOR);
 
                         // Define the parent note
                         final TopologyNode parent = servers.get(conn.getLocation());

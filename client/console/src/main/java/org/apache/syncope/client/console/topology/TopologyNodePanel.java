@@ -23,6 +23,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.topology.TopologyNode.Kind;
 import org.apache.syncope.client.console.topology.TopologyTogglePanel.UpdateEvent;
+import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
@@ -120,7 +121,11 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
             final AjaxRequestTarget target = updateEvent.getTarget();
 
             if (node.getKind() == Kind.CONNECTOR && key.equalsIgnoreCase(node.getKey())) {
-                String displayName = new ConnectorRestClient().read(key).getDisplayName();
+                ConnInstanceTO conn = new ConnectorRestClient().read(key);
+
+                String displayName =
+                        // [SYNCOPE-1233]
+                        StringUtils.isBlank(conn.getDisplayName()) ? conn.getBundleName() : conn.getDisplayName();
 
                 final String resourceName = displayName.length() > 14
                         ? displayName.subSequence(0, 10) + "..."
