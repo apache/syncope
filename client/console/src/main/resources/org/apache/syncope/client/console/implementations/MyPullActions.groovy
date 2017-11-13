@@ -32,76 +32,73 @@ import org.quartz.JobExecutionException
 class MyPullActions implements PullActions {
   
   @Override
-  SyncDelta beforeProvision(
+  SyncDelta preprocess(SyncDelta delta) {
+    return delta;
+  }
+  
+  @Override
+  void beforeProvision(
     ProvisioningProfile profile,
     SyncDelta delta,
     EntityTO entity) throws JobExecutionException {
 
-    return delta;
   }
 
   @Override
-  SyncDelta beforeAssign(
+  void beforeAssign(
     ProvisioningProfile profile,
     SyncDelta delta,
     EntityTO entity) throws JobExecutionException {
 
-    return delta;
   }
 
   @Override
-  SyncDelta beforeUnassign(
+  void beforeUnassign(
     ProvisioningProfile profile,
     SyncDelta delta,
     EntityTO entity) throws JobExecutionException {
 
-    return delta;
   }
 
   @Override
-  SyncDelta beforeDeprovision(
+  void beforeDeprovision(
     ProvisioningProfile profile,
     SyncDelta delta,
     EntityTO entity) throws JobExecutionException {
 
-    return delta;
   }
 
   @Override
-  SyncDelta beforeUnlink(
+  void beforeUnlink(
     ProvisioningProfile profile,
     SyncDelta delta,
     EntityTO entity) throws JobExecutionException {
 
-    return delta;
   }
 
   @Override
-  SyncDelta beforeLink(
+  void beforeLink(
     ProvisioningProfile profile,
     SyncDelta delta,
     EntityTO entity) throws JobExecutionException {
 
-    return delta;
   }
 
   @Override
-  <P extends AnyPatch> SyncDelta beforeUpdate(
+  <P extends AnyPatch> void beforeUpdate(
     ProvisioningProfile profile,
     SyncDelta delta,
     EntityTO entity,
     P anyPatch) throws JobExecutionException {
 
-    return delta;
   }
 
   @Override
-  SyncDelta beforeDelete(
+  void beforeDelete(
     ProvisioningProfile profile,
     SyncDelta delta,
     EntityTO entity) throws JobExecutionException {
 
-    return delta;
   }
 
   @Override

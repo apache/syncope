@@ -55,7 +55,7 @@ public class LDAPPasswordPullActions implements PullActions {
 
     @Transactional(readOnly = true)
     @Override
-    public SyncDelta beforeProvision(
+    public void beforeProvision(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final EntityTO entity) throws JobExecutionException {
@@ -64,13 +64,11 @@ public class LDAPPasswordPullActions implements PullActions {
             String password = ((UserTO) entity).getPassword();
             parseEncodedPassword(password);
         }
-
-        return delta;
     }
 
     @Transactional(readOnly = true)
     @Override
-    public <M extends AnyPatch> SyncDelta beforeUpdate(
+    public <M extends AnyPatch> void beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final EntityTO entityTO,
@@ -80,8 +78,6 @@ public class LDAPPasswordPullActions implements PullActions {
             PasswordPatch modPassword = ((UserPatch) anyPatch).getPassword();
             parseEncodedPassword(modPassword == null ? null : modPassword.getValue());
         }
-
-        return delta;
     }
 
     private void parseEncodedPassword(final String password) {
