@@ -40,7 +40,7 @@ public class TestPullActions extends DefaultPullActions {
     private int counter;
 
     @Override
-    public SyncDelta beforeProvision(
+    public void beforeProvision(
             final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity)
             throws JobExecutionException {
 
@@ -62,24 +62,20 @@ public class TestPullActions extends DefaultPullActions {
             attrTO.getValues().clear();
             attrTO.getValues().add(String.valueOf(counter++));
         }
-
-        return delta;
     }
 
     @Override
-    public SyncDelta beforeAssign(
+    public void beforeAssign(
             final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity)
             throws JobExecutionException {
 
         if (entity instanceof UserTO && "test2".equals(UserTO.class.cast(entity).getUsername())) {
             throw new IgnoreProvisionException();
         }
-
-        return delta;
     }
 
     @Override
-    public <M extends AnyPatch> SyncDelta beforeUpdate(
+    public <M extends AnyPatch> void beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final EntityTO entityTO,
@@ -100,7 +96,5 @@ public class TestPullActions extends DefaultPullActions {
 
         fullnamePatch.getAttrTO().getValues().clear();
         fullnamePatch.getAttrTO().getValues().add(String.valueOf(counter++));
-
-        return delta;
     }
 }

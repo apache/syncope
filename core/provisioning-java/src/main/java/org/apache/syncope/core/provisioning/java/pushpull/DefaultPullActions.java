@@ -33,73 +33,70 @@ import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 public abstract class DefaultPullActions implements PullActions {
 
     @Override
+    public SyncDelta preprocess(final SyncDelta delta) {
+        return delta;
+    }
+
+    @Override
     public void beforeAll(final ProvisioningProfile<?, ?> profile) throws JobExecutionException {
     }
 
     @Override
-    public <P extends AnyPatch> SyncDelta beforeUpdate(
+    public <P extends AnyPatch> void beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final EntityTO entity,
             final P anyPatch) throws JobExecutionException {
 
-        return delta;
     }
 
     @Override
-    public SyncDelta beforeDelete(
+    public void beforeDelete(
             final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity)
             throws JobExecutionException {
 
-        return delta;
     }
 
     @Override
-    public SyncDelta beforeAssign(
+    public void beforeAssign(
             final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity)
             throws JobExecutionException {
 
-        return delta;
     }
 
     @Override
-    public SyncDelta beforeProvision(
+    public void beforeProvision(
             final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity)
             throws JobExecutionException {
 
-        return delta;
     }
 
     @Override
-    public SyncDelta beforeLink(
+    public void beforeLink(
             final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity)
             throws JobExecutionException {
 
-        return delta;
     }
 
     @Override
-    public SyncDelta beforeUnassign(
+    public void beforeUnassign(
             final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity)
             throws JobExecutionException {
 
-        return delta;
     }
 
     @Override
-    public SyncDelta beforeDeprovision(
+    public void beforeDeprovision(
             final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity)
             throws JobExecutionException {
 
-        return delta;
     }
 
     @Override
-    public SyncDelta beforeUnlink(
+    public void beforeUnlink(
             final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity)
             throws JobExecutionException {
 
-        return delta;
     }
 
     @Override

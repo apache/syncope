@@ -153,12 +153,11 @@ public class DefaultRealmPullResultHandler
             result.setKey(null);
             finalize(UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), Result.SUCCESS, null, null, delta);
         } else {
-            SyncDelta actionedDelta = delta;
             for (PullActions action : profile.getActions()) {
-                actionedDelta = action.beforeAssign(profile, actionedDelta, realmTO);
+                action.beforeAssign(profile, delta, realmTO);
             }
 
-            create(realmTO, actionedDelta, UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), result);
+            create(realmTO, delta, UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), result);
         }
 
         return Collections.singletonList(result);
@@ -192,12 +191,11 @@ public class DefaultRealmPullResultHandler
             result.setKey(null);
             finalize(UnmatchingRule.toEventName(UnmatchingRule.PROVISION), Result.SUCCESS, null, null, delta);
         } else {
-            SyncDelta actionedDelta = delta;
             for (PullActions action : profile.getActions()) {
-                actionedDelta = action.beforeProvision(profile, actionedDelta, realmTO);
+                action.beforeProvision(profile, delta, realmTO);
             }
 
-            create(realmTO, actionedDelta, UnmatchingRule.toEventName(UnmatchingRule.PROVISION), result);
+            create(realmTO, delta, UnmatchingRule.toEventName(UnmatchingRule.PROVISION), result);
         }
 
         return Collections.singletonList(result);
@@ -286,7 +284,6 @@ public class DefaultRealmPullResultHandler
 
         List<ProvisioningReport> results = new ArrayList<>();
 
-        SyncDelta workingDelta = delta;
         for (String key : keys) {
             LOG.debug("About to update {}", key);
 
@@ -315,7 +312,7 @@ public class DefaultRealmPullResultHandler
                 } else {
                     try {
                         for (PullActions action : profile.getActions()) {
-                            workingDelta = action.beforeUpdate(profile, workingDelta, before, null);
+                            action.beforeUpdate(profile, delta, before, null);
                         }
 
                         PropagationByResource propByRes = binder.update(realm, before);
@@ -326,7 +323,7 @@ public class DefaultRealmPullResultHandler
                         taskExecutor.execute(tasks, false);
 
                         for (PullActions action : profile.getActions()) {
-                            action.after(profile, workingDelta, updated, result);
+                            action.after(profile, delta, updated, result);
                         }
 
                         output = updated;
@@ -337,20 +334,20 @@ public class DefaultRealmPullResultHandler
                     } catch (PropagationException e) {
                         // A propagation failure doesn't imply a pull failure.
                         // The propagation exception status will be reported into the propagation task execution.
-                        LOG.error("Could not propagate Realm {}", workingDelta.getUid().getUidValue(), e);
+                        LOG.error("Could not propagate Realm {}", delta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
                     } catch (Exception e) {
-                        throwIgnoreProvisionException(workingDelta, e);
+                        throwIgnoreProvisionException(delta, e);
 
                         result.setStatus(ProvisioningReport.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
-                        LOG.error("Could not update Realm {}", workingDelta.getUid().getUidValue(), e);
+                        LOG.error("Could not update Realm {}", delta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
                     }
                 }
-                finalize(MatchingRule.toEventName(MatchingRule.UPDATE), resultStatus, before, output, workingDelta);
+                finalize(MatchingRule.toEventName(MatchingRule.UPDATE), resultStatus, before, output, delta);
             }
             results.add(result);
         }
@@ -373,7 +370,6 @@ public class DefaultRealmPullResultHandler
 
         final List<ProvisioningReport> results = new ArrayList<>();
 
-        SyncDelta workingDelta = delta;
         for (String key : keys) {
             LOG.debug("About to unassign resource {}", key);
 
@@ -403,11 +399,11 @@ public class DefaultRealmPullResultHandler
                     try {
                         if (unlink) {
                             for (PullActions action : profile.getActions()) {
-                                workingDelta = action.beforeUnassign(profile, workingDelta, before);
+                                action.beforeUnassign(profile, delta, before);
                             }
                         } else {
                             for (PullActions action : profile.getActions()) {
-                                workingDelta = action.beforeDeprovision(profile, workingDelta, before);
+                                action.beforeDeprovision(profile, delta, before);
                             }
                         }
 
@@ -423,7 +419,7 @@ public class DefaultRealmPullResultHandler
                         }
 
                         for (PullActions action : profile.getActions()) {
-                            action.after(profile, workingDelta, RealmTO.class.cast(output), result);
+                            action.after(profile, delta, RealmTO.class.cast(output), result);
                         }
 
                         resultStatus = Result.SUCCESS;
@@ -432,11 +428,11 @@ public class DefaultRealmPullResultHandler
                     } catch (PropagationException e) {
                         // A propagation failure doesn't imply a pull failure.
                         // The propagation exception status will be reported into the propagation task execution.
-                        LOG.error("Could not propagate Realm {}", workingDelta.getUid().getUidValue(), e);
+                        LOG.error("Could not propagate Realm {}", delta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
                     } catch (Exception e) {
-                        throwIgnoreProvisionException(workingDelta, e);
+                        throwIgnoreProvisionException(delta, e);
 
                         result.setStatus(ProvisioningReport.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
@@ -470,7 +466,6 @@ public class DefaultRealmPullResultHandler
 
         final List<ProvisioningReport> results = new ArrayList<>();
 
-        SyncDelta workingDelta = delta;
         for (String key : keys) {
             LOG.debug("About to unassign resource {}", key);
 
@@ -499,11 +494,11 @@ public class DefaultRealmPullResultHandler
                     try {
                         if (unlink) {
                             for (PullActions action : profile.getActions()) {
-                                workingDelta = action.beforeUnlink(profile, workingDelta, before);
+                                action.beforeUnlink(profile, delta, before);
                             }
                         } else {
                             for (PullActions action : profile.getActions()) {
-                                workingDelta = action.beforeLink(profile, workingDelta, before);
+                                action.beforeLink(profile, delta, before);
                             }
                         }
 
@@ -512,10 +507,10 @@ public class DefaultRealmPullResultHandler
                         } else {
                             realm.add(profile.getTask().getResource());
                         }
-                        output = update(workingDelta, Collections.singletonList(key));
+                        output = update(delta, Collections.singletonList(key));
 
                         for (PullActions action : profile.getActions()) {
-                            action.after(profile, workingDelta, RealmTO.class.cast(output), result);
+                            action.after(profile, delta, RealmTO.class.cast(output), result);
                         }
 
                         resultStatus = Result.SUCCESS;
@@ -524,22 +519,22 @@ public class DefaultRealmPullResultHandler
                     } catch (PropagationException e) {
                         // A propagation failure doesn't imply a pull failure.
                         // The propagation exception status will be reported into the propagation task execution.
-                        LOG.error("Could not propagate Realm {}", workingDelta.getUid().getUidValue(), e);
+                        LOG.error("Could not propagate Realm {}", delta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
                     } catch (Exception e) {
-                        throwIgnoreProvisionException(workingDelta, e);
+                        throwIgnoreProvisionException(delta, e);
 
                         result.setStatus(ProvisioningReport.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
-                        LOG.error("Could not update Realm {}", workingDelta.getUid().getUidValue(), e);
+                        LOG.error("Could not update Realm {}", delta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
                     }
                 }
                 finalize(unlink
                         ? MatchingRule.toEventName(MatchingRule.UNLINK)
-                        : MatchingRule.toEventName(MatchingRule.LINK), resultStatus, before, output, workingDelta);
+                        : MatchingRule.toEventName(MatchingRule.LINK), resultStatus, before, output, delta);
             }
             results.add(result);
         }
@@ -560,7 +555,6 @@ public class DefaultRealmPullResultHandler
 
         List<ProvisioningReport> results = new ArrayList<>();
 
-        SyncDelta workingDelta = delta;
         for (String key : keys) {
             Object output;
             Result resultStatus = Result.FAILURE;
@@ -584,7 +578,7 @@ public class DefaultRealmPullResultHandler
 
                 if (!profile.isDryRun()) {
                     for (PullActions action : profile.getActions()) {
-                        workingDelta = action.beforeDelete(profile, workingDelta, before);
+                        action.beforeDelete(profile, delta, before);
                     }
 
                     try {
@@ -622,10 +616,10 @@ public class DefaultRealmPullResultHandler
                         resultStatus = Result.SUCCESS;
 
                         for (PullActions action : profile.getActions()) {
-                            action.after(profile, workingDelta, before, result);
+                            action.after(profile, delta, before, result);
                         }
                     } catch (Exception e) {
-                        throwIgnoreProvisionException(workingDelta, e);
+                        throwIgnoreProvisionException(delta, e);
 
                         result.setStatus(ProvisioningReport.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
@@ -633,7 +627,7 @@ public class DefaultRealmPullResultHandler
                         output = e;
                     }
 
-                    finalize(ResourceOperation.DELETE.name().toLowerCase(), resultStatus, before, output, workingDelta);
+                    finalize(ResourceOperation.DELETE.name().toLowerCase(), resultStatus, before, output, delta);
                 }
 
                 results.add(result);
@@ -675,13 +669,21 @@ public class DefaultRealmPullResultHandler
         LOG.debug("Process {} for {} as {}",
                 delta.getDeltaType(), delta.getUid().getUidValue(), delta.getObject().getObjectClass());
 
-        String uid = delta.getPreviousUid() == null
-                ? delta.getUid().getUidValue()
-                : delta.getPreviousUid().getUidValue();
+        SyncDelta processed = delta;
+        for (PullActions action : profile.getActions()) {
+            processed = action.preprocess(processed);
+        }
 
-        List<String> keys = pullUtils.findExisting(uid, delta.getObject(), orgUnit);
+        LOG.debug("Transformed {} for {} as {}",
+                processed.getDeltaType(), processed.getUid().getUidValue(), processed.getObject().getObjectClass());
+
+        String uid = processed.getPreviousUid() == null
+                ? processed.getUid().getUidValue()
+                : processed.getPreviousUid().getUidValue();
+
+        List<String> keys = pullUtils.findExisting(uid, processed.getObject(), orgUnit);
         LOG.debug("Match found for {} as {}: {}",
-                delta.getUid().getUidValue(), delta.getObject().getObjectClass(), keys);
+                processed.getUid().getUidValue(), processed.getObject().getObjectClass(), keys);
 
         if (keys.size() > 1) {
             switch (profile.getResAct()) {
@@ -702,19 +704,19 @@ public class DefaultRealmPullResultHandler
         }
 
         try {
-            if (SyncDeltaType.CREATE_OR_UPDATE == delta.getDeltaType()) {
+            if (SyncDeltaType.CREATE_OR_UPDATE == processed.getDeltaType()) {
                 if (keys.isEmpty()) {
                     switch (profile.getTask().getUnmatchingRule()) {
                         case ASSIGN:
-                            profile.getResults().addAll(assign(delta, orgUnit));
+                            profile.getResults().addAll(assign(processed, orgUnit));
                             break;
 
                         case PROVISION:
-                            profile.getResults().addAll(provision(delta, orgUnit));
+                            profile.getResults().addAll(provision(processed, orgUnit));
                             break;
 
                         case IGNORE:
-                            profile.getResults().add(ignore(delta, false));
+                            profile.getResults().add(ignore(processed, false));
                             break;
 
                         default:
@@ -723,39 +725,39 @@ public class DefaultRealmPullResultHandler
                 } else {
                     switch (profile.getTask().getMatchingRule()) {
                         case UPDATE:
-                            profile.getResults().addAll(update(delta, keys));
+                            profile.getResults().addAll(update(processed, keys));
                             break;
 
                         case DEPROVISION:
-                            profile.getResults().addAll(deprovision(delta, keys, false));
+                            profile.getResults().addAll(deprovision(processed, keys, false));
                             break;
 
                         case UNASSIGN:
-                            profile.getResults().addAll(deprovision(delta, keys, true));
+                            profile.getResults().addAll(deprovision(processed, keys, true));
                             break;
 
                         case LINK:
-                            profile.getResults().addAll(link(delta, keys, false));
+                            profile.getResults().addAll(link(processed, keys, false));
                             break;
 
                         case UNLINK:
-                            profile.getResults().addAll(link(delta, keys, true));
+                            profile.getResults().addAll(link(processed, keys, true));
                             break;
 
                         case IGNORE:
-                            profile.getResults().add(ignore(delta, true));
+                            profile.getResults().add(ignore(processed, true));
                             break;
 
                         default:
                         // do nothing
                     }
                 }
-            } else if (SyncDeltaType.DELETE == delta.getDeltaType()) {
+            } else if (SyncDeltaType.DELETE == processed.getDeltaType()) {
                 if (keys.isEmpty()) {
-                    finalize(ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, delta);
+                    finalize(ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, processed);
                     LOG.debug("No match found for deletion");
                 } else {
-                    profile.getResults().addAll(delete(delta, keys));
+                    profile.getResults().addAll(delete(processed, keys));
                 }
             }
         } catch (IllegalStateException | IllegalArgumentException e) {

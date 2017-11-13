@@ -62,7 +62,7 @@ public class MigrationPullActions extends SchedulingPullActions {
     private final Map<String, Set<String>> memberships = new HashMap<>();
 
     @Override
-    public SyncDelta beforeProvision(
+    public void beforeProvision(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final EntityTO entity) throws JobExecutionException {
@@ -75,8 +75,6 @@ public class MigrationPullActions extends SchedulingPullActions {
             ((AnyTO) entity).getResources().addAll(
                     CollectionUtils.collect(resourcesAttr.getValue(), TransformerUtils.stringValueTransformer()));
         }
-
-        return delta;
     }
 
     @Transactional
