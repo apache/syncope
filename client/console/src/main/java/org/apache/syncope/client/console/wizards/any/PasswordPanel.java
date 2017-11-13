@@ -59,7 +59,7 @@ public class PasswordPanel extends Panel {
 
             AjaxTextFieldPanel passwordField = new AjaxTextFieldPanel(
                     "password", "password", new PropertyModel<>(wrapper.getInnerObject(), "password"), false);
-            passwordField.setRequired(true);
+            passwordField.setRequired(false); // [SYNCOPE-1227]
             passwordField.setMarkupId("password");
             passwordField.setPlaceholder("password");
             form.add(passwordField);
