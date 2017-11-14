@@ -42,6 +42,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.Acti
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
@@ -138,22 +139,41 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
 
                         BulkActionResult res = null;
                         try {
-                            if (items.iterator().next() instanceof StatusBean) {
+                            T singleItem = items.iterator().next();
+                            if (singleItem instanceof StatusBean) {
                                 throw new IllegalArgumentException("Invalid items");
                             }
 
-                            final BulkAction bulkAction = new BulkAction();
-                            bulkAction.setType(BulkAction.Type.valueOf(actionToBeAddresed.name()));
-                            for (T item : items) {
-                                try {
-                                    bulkAction.getTargets().add(getTargetId(item, keyFieldName).toString());
-                                } catch (IllegalAccessException | InvocationTargetException e) {
-                                    LOG.error("Error retrieving item id {}", keyFieldName, e);
+                            if (singleItem instanceof ExecTO) {
+                                res = new BulkActionResult();
+                                for (T item : items) {
+                                    ExecTO exec = ExecTO.class.cast(item);
+                                    String key = exec.getKey();
+
+                                    try {
+                                        bulkActionExecutor.getClass().getMethod("deleteExecution",
+                                                String.class).invoke(bulkActionExecutor, exec.getKey());
+                                        res.getResults().put(String.valueOf(key), BulkActionResult.Status.SUCCESS);
+                                    } catch (Exception e) {
+                                        LOG.error("Error deleting execution {} of task {}", exec.getKey(), key, e);
+                                        res.getResults().put(String.valueOf(key), BulkActionResult.Status.FAILURE);
+                                    }
                                 }
+                            } else {
+                                final BulkAction bulkAction = new BulkAction();
+                                bulkAction.setType(BulkAction.Type.valueOf(actionToBeAddresed.name()));
+                                for (T item : items) {
+                                    try {
+                                        bulkAction.getTargets().add(getTargetId(item, keyFieldName).toString());
+                                    } catch (IllegalAccessException | InvocationTargetException e) {
+                                        LOG.error("Error retrieving item id {}", keyFieldName, e);
+                                    }
+                                }
+                                res = BulkActionResult.class.cast(
+                                        bulkActionExecutor.getClass().getMethod("bulkAction",
+                                                BulkAction.class).invoke(bulkActionExecutor, bulkAction));
                             }
-                            res = BulkActionResult.class.cast(
-                                    bulkActionExecutor.getClass().getMethod("bulkAction", BulkAction.class).invoke(
-                                    bulkActionExecutor, bulkAction));
+
                         } catch (IllegalArgumentException biae) {
                             if (!(items.iterator().next() instanceof StatusBean)) {
                                 throw new IllegalArgumentException("Invalid items");
