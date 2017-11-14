@@ -90,6 +90,7 @@ import org.apache.syncope.common.rest.api.service.ResourceHistoryService;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPService;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
+import org.apache.syncope.common.rest.api.service.SCIMConfService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -243,6 +244,8 @@ public abstract class AbstractITCase {
 
     protected static SAML2IdPService saml2IdPService;
 
+    protected static SCIMConfService scimConfService;
+
     @BeforeAll
     public static void securitySetup() {
         InputStream propStream = null;
@@ -311,6 +314,7 @@ public abstract class AbstractITCase {
         camelRouteService = adminClient.getService(CamelRouteService.class);
         saml2SpService = adminClient.getService(SAML2SPService.class);
         saml2IdPService = adminClient.getService(SAML2IdPService.class);
+        scimConfService = adminClient.getService(SCIMConfService.class);
     }
 
     protected static String getUUIDString() {

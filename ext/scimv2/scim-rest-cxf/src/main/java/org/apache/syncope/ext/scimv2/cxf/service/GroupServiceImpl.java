@@ -27,7 +27,7 @@ import org.apache.syncope.ext.scimv2.api.service.GroupService;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 
-public class GroupServiceImpl extends AbstractSCIMService<SCIMGroup> implements GroupService {
+public class GroupServiceImpl extends AbstractService<SCIMGroup> implements GroupService {
 
     @Override
     public Response create() {
@@ -38,7 +38,7 @@ public class GroupServiceImpl extends AbstractSCIMService<SCIMGroup> implements 
 
     @Override
     public SCIMGroup read(final String id) {
-        return toSCIMGroup(groupLogic().read(id), uriInfo.getAbsolutePathBuilder().build().toASCIIString());
+        return binder().toSCIMGroup(groupLogic().read(id), uriInfo.getAbsolutePathBuilder().build().toASCIIString());
     }
 
     @Override

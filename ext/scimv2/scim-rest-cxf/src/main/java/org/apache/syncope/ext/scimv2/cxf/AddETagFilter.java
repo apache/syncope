@@ -46,7 +46,7 @@ public class AddETagFilter implements ContainerResponseFilter {
                 if (lastModified != null) {
                     String etagValue = String.valueOf(lastModified.getTime());
                     if (StringUtils.isNotBlank(etagValue)) {
-                        resCtx.getHeaders().add(HttpHeaders.ETAG, new EntityTag(etagValue).toString());
+                        resCtx.getHeaders().add(HttpHeaders.ETAG, new EntityTag(etagValue, true).toString());
                     }
                 }
             }

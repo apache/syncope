@@ -24,18 +24,61 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonPropertyOrder({ "schemas", "id", "externalId", "userName", "active", "groups", "roles", "meta" })
+@JsonPropertyOrder({ "schemas", "id", "externalId",
+    "userName", "password", "active",
+    "name", "displayName", "nickName", "profileUrl", "title", "userType", "preferredLanguage", "locale", "timezone",
+    "emails", "phoneNumbers", "ims", "photos", "addresses", "x509Certificates",
+    "groups", "entitlements", "roles",
+    "enterpriseInfo",
+    "meta" })
 public class SCIMUser extends SCIMResource {
 
     private static final long serialVersionUID = -2935466041674390279L;
 
     private final String userName;
 
+    private String password;
+
     private final boolean active;
+
+    private SCIMUserName name;
+
+    private String displayName;
+
+    private String nickName;
+
+    private String profileUrl;
+
+    private String title;
+
+    private String userType;
+
+    private String preferredLanguage;
+
+    private String locale;
+
+    private String timezone;
+
+    private final List<SCIMComplexValue> emails = new ArrayList<>();
+
+    private final List<SCIMComplexValue> phoneNumbers = new ArrayList<>();
+
+    private final List<SCIMComplexValue> ims = new ArrayList<>();
+
+    private final List<SCIMComplexValue> photos = new ArrayList<>();
+
+    private final List<SCIMUserAddress> addresses = new ArrayList<>();
+
+    private final List<Value> x509Certificates = new ArrayList<>();
 
     private final List<Group> groups = new ArrayList<>();
 
-    private final List<Display> roles = new ArrayList<>();
+    private final List<Value> entitlements = new ArrayList<>();
+
+    private final List<Value> roles = new ArrayList<>();
+
+    @JsonProperty("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User")
+    private SCIMEnterpriseInfo enterpriseInfo;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public SCIMUser(
@@ -54,16 +97,132 @@ public class SCIMUser extends SCIMResource {
         return userName;
     }
 
+    public void setPassword(final String password) {
+        this.password = password;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
     public boolean isActive() {
         return active;
+    }
+
+    public SCIMUserName getName() {
+        return name;
+    }
+
+    public void setName(final SCIMUserName name) {
+        this.name = name;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(final String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(final String nickName) {
+        this.nickName = nickName;
+    }
+
+    public String getProfileUrl() {
+        return profileUrl;
+    }
+
+    public void setProfileUrl(final String profileUrl) {
+        this.profileUrl = profileUrl;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(final String title) {
+        this.title = title;
+    }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(final String userType) {
+        this.userType = userType;
+    }
+
+    public String getPreferredLanguage() {
+        return preferredLanguage;
+    }
+
+    public void setPreferredLanguage(final String preferredLanguage) {
+        this.preferredLanguage = preferredLanguage;
+    }
+
+    public String getLocale() {
+        return locale;
+    }
+
+    public void setLocale(final String locale) {
+        this.locale = locale;
+    }
+
+    public String getTimezone() {
+        return timezone;
+    }
+
+    public void setTimezone(final String timezone) {
+        this.timezone = timezone;
+    }
+
+    public List<SCIMComplexValue> getEmails() {
+        return emails;
+    }
+
+    public List<SCIMComplexValue> getPhoneNumbers() {
+        return phoneNumbers;
+    }
+
+    public List<SCIMComplexValue> getIms() {
+        return ims;
+    }
+
+    public List<SCIMComplexValue> getPhotos() {
+        return photos;
+    }
+
+    public List<SCIMUserAddress> getAddresses() {
+        return addresses;
+    }
+
+    public List<Value> getX509Certificates() {
+        return x509Certificates;
     }
 
     public List<Group> getGroups() {
         return groups;
     }
 
-    public List<Display> getRoles() {
+    public List<Value> getEntitlements() {
+        return entitlements;
+    }
+
+    public List<Value> getRoles() {
         return roles;
+    }
+
+    public SCIMEnterpriseInfo getEnterpriseInfo() {
+        return enterpriseInfo;
+    }
+
+    public void setEnterpriseInfo(final SCIMEnterpriseInfo enterpriseInfo) {
+        this.enterpriseInfo = enterpriseInfo;
     }
 
 }

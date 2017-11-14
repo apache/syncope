@@ -20,16 +20,21 @@ package org.apache.syncope.ext.scimv2.api.data;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 
+@JsonPropertyOrder(
+        { "schemas", "patch", "bulk", "filter", "changePassword", "sort", "etag", "authenticationSchemes", "meta" })
 public class ServiceProviderConfig extends SCIMBean {
 
     private static final long serialVersionUID = 1027738509789460252L;
 
     private final List<String> schemas = Arrays.asList(Resource.ServiceProviderConfig.schema());
+
+    private final Meta meta;
 
     private final ConfigurationOption patch;
 
@@ -47,6 +52,7 @@ public class ServiceProviderConfig extends SCIMBean {
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public ServiceProviderConfig(
+            @JsonProperty("meta") final Meta meta,
             @JsonProperty("patch") final ConfigurationOption patch,
             @JsonProperty("bulk") final BulkConfigurationOption bulk,
             @JsonProperty("filter") final FilterConfigurationOption filter,
@@ -54,6 +60,7 @@ public class ServiceProviderConfig extends SCIMBean {
             @JsonProperty("sort") final ConfigurationOption sort,
             @JsonProperty("etag") final ConfigurationOption etag) {
 
+        this.meta = meta;
         this.patch = patch;
         this.bulk = bulk;
         this.filter = filter;
@@ -64,6 +71,10 @@ public class ServiceProviderConfig extends SCIMBean {
 
     public List<String> getSchemas() {
         return schemas;
+    }
+
+    public Meta getMeta() {
+        return meta;
     }
 
     public ConfigurationOption getPatch() {

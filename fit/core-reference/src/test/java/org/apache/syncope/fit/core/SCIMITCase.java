@@ -21,6 +21,7 @@ package org.apache.syncope.fit.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -37,6 +38,8 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.scim.SCIMConf;
+import org.apache.syncope.common.lib.scim.SCIMUserConf;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.ext.scimv2.api.SCIMConstants;
@@ -151,6 +154,34 @@ public class SCIMITCase extends AbstractITCase {
         assertEquals("rossini", user.getUserName());
         assertFalse(user.getGroups().isEmpty());
         assertFalse(user.getRoles().isEmpty());
+    }
+
+    @Test
+    public void conf() {
+        assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
+
+        SCIMConf conf = scimConfService.get();
+        assertNotNull(conf);
+
+        SCIMUserConf userConf = conf.getUserConf();
+        if (userConf == null) {
+            userConf = new SCIMUserConf();
+            conf.setUserConf(userConf);
+        }
+        assertNull(userConf.getDisplayName());
+        userConf.setDisplayName("cn");
+
+        scimConfService.set(conf);
+
+        Response response = webClient().path("Users").path("1417acbe-cbf6-4277-9372-e75e04f97000").get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(
+                SCIMConstants.APPLICATION_SCIM_JSON,
+                StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
+
+        SCIMUser user = response.readEntity(SCIMUser.class);
+        assertNotNull(user);
+        assertEquals("Rossini, Gioacchino", user.getDisplayName());
     }
 
     @Test

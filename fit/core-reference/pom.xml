@@ -165,7 +165,25 @@ under the License.
       <artifactId>syncope-ext-saml2sp-client-console</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
-    </dependency>  
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.scimv2</groupId>
+      <artifactId>syncope-ext-scimv2-rest-cxf</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.scimv2</groupId>
+      <artifactId>syncope-ext-scimv2-scim-rest-cxf</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.scimv2</groupId>
+      <artifactId>syncope-ext-scimv2-client-console</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
@@ -1056,6 +1074,11 @@ under the License.
           <version>${project.version}</version>
         </dependency>
         
+        <dependency>
+          <groupId>org.apache.syncope.ext.scimv2</groupId>
+          <artifactId>syncope-ext-scimv2-rest-cxf</artifactId>
+          <version>${project.version}</version>
+        </dependency>
         <dependency>
           <groupId>org.apache.syncope.ext.scimv2</groupId>
           <artifactId>syncope-ext-scimv2-scim-rest-cxf</artifactId>

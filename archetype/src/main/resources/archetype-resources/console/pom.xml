@@ -141,6 +141,12 @@ under the License.
         </dependency>
         
         <dependency>
+          <groupId>org.apache.syncope.ext.scimv2</groupId>
+          <artifactId>syncope-ext-scimv2-client-console</artifactId>
+          <version>${syncope.version}</version>
+        </dependency>
+
+        <dependency>
           <groupId>org.flowable</groupId>
           <artifactId>flowable-ui-modeler-app</artifactId>            
           <type>war</type>

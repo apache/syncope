@@ -20,16 +20,23 @@ package org.apache.syncope.ext.scimv2.api.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-abstract class Reference extends Display {
+abstract class Reference extends Value {
 
     private static final long serialVersionUID = -6190164044699376089L;
+
+    private final String display;
 
     @JsonProperty("$ref")
     private final String ref;
 
     Reference(final String value, final String display, final String ref) {
-        super(value, display);
+        super(value);
+        this.display = display;
         this.ref = ref;
+    }
+
+    public String getDisplay() {
+        return display;
     }
 
     public String getRef() {

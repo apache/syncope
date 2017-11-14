@@ -38,9 +38,13 @@ under the License.
   </properties>
   
   <modules>
+    <module>common-lib</module>
+    <module>rest-api</module>
+    <module>rest-cxf</module>
     <module>scim-rest-api</module>
     <module>scim-rest-cxf</module>
     <module>logic</module>
+    <module>client-console</module>
   </modules>
 
 </project>
