@@ -33,7 +33,7 @@ import org.apache.syncope.ext.scimv2.api.SCIMConstants;
 import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
 
 @Path("v2/Users")
-public interface UserService extends SCIMService<SCIMUser> {
+public interface UserService extends SearchService<SCIMUser> {
 
     @POST
     @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })

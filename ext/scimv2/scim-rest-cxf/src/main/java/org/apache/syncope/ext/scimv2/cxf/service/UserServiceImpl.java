@@ -27,7 +27,7 @@ import org.apache.syncope.ext.scimv2.api.service.UserService;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 
-public class UserServiceImpl extends AbstractSCIMService<SCIMUser> implements UserService {
+public class UserServiceImpl extends AbstractService<SCIMUser> implements UserService {
 
     @Override
     public Response create() {
@@ -38,7 +38,7 @@ public class UserServiceImpl extends AbstractSCIMService<SCIMUser> implements Us
 
     @Override
     public SCIMUser read(final String id) {
-        return toSCIMUser(userLogic().read(id), uriInfo.getAbsolutePathBuilder().build().toASCIIString());
+        return binder().toSCIMUser(userLogic().read(id), uriInfo.getAbsolutePathBuilder().build().toASCIIString());
     }
 
     @Override

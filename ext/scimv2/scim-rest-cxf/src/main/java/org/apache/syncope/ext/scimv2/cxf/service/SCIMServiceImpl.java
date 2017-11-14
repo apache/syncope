@@ -20,49 +20,49 @@ package org.apache.syncope.ext.scimv2.cxf.service;
 
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.core.logic.RootLogic;
+import org.apache.syncope.core.logic.SCIMLogic;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.ext.scimv2.api.data.ResourceType;
 import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
 import org.apache.syncope.ext.scimv2.api.data.ServiceProviderConfig;
-import org.apache.syncope.ext.scimv2.api.service.RootService;
+import org.apache.syncope.ext.scimv2.api.service.SCIMService;
 
-public class RootServiceImpl extends AbstractSCIMService<SCIMResource> implements RootService {
+public class SCIMServiceImpl extends AbstractService<SCIMResource> implements SCIMService {
 
-    private RootLogic rootLogic;
+    private SCIMLogic scimLogic;
 
-    protected RootLogic rootLogic() {
+    private SCIMLogic scimLogic() {
         synchronized (this) {
-            if (rootLogic == null) {
-                rootLogic = ApplicationContextProvider.getApplicationContext().getBean(RootLogic.class);
+            if (scimLogic == null) {
+                scimLogic = ApplicationContextProvider.getApplicationContext().getBean(SCIMLogic.class);
             }
         }
-        return rootLogic;
+        return scimLogic;
     }
 
     @Override
     public ServiceProviderConfig serviceProviderConfig() {
-        return rootLogic().serviceProviderConfig();
+        return scimLogic().serviceProviderConfig(uriInfo.getAbsolutePathBuilder());
     }
 
     @Override
     public List<ResourceType> resourceTypes() {
-        return rootLogic().resourceTypes(uriInfo.getAbsolutePathBuilder());
+        return scimLogic().resourceTypes(uriInfo.getAbsolutePathBuilder());
     }
 
     @Override
     public ResourceType resourceType(final String type) {
-        return rootLogic().resourceType(uriInfo.getAbsolutePathBuilder(), type);
+        return scimLogic().resourceType(uriInfo.getAbsolutePathBuilder(), type);
     }
 
     @Override
     public Response schemas() {
-        return Response.ok(rootLogic().schemas()).build();
+        return Response.ok(scimLogic().schemas()).build();
     }
 
     @Override
     public Response schema(final String schema) {
-        return Response.ok(rootLogic().schema(schema)).build();
+        return Response.ok(scimLogic().schema(schema)).build();
     }
 
 }

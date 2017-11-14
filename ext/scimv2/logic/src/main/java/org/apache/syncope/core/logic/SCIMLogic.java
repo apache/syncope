@@ -18,14 +18,21 @@
  */
 package org.apache.syncope.core.logic;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.UriBuilder;
 import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.syncope.core.logic.init.SCIMLoader;
+import org.apache.syncope.common.lib.scim.SCIMConf;
+import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.ext.scimv2.api.data.AuthenticationScheme;
 import org.apache.syncope.ext.scimv2.api.data.BulkConfigurationOption;
 import org.apache.syncope.ext.scimv2.api.data.ConfigurationOption;
@@ -40,7 +47,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RootLogic extends AbstractLogic<AbstractBaseBean> {
+public class SCIMLogic extends AbstractLogic<AbstractBaseBean> {
+
+    private static final String SCHEMAS_JSON = "schemas.json";
 
     private static final Object MONITOR = new Object();
 
@@ -50,18 +59,52 @@ public class RootLogic extends AbstractLogic<AbstractBaseBean> {
 
     private static ResourceType GROUP;
 
+    private static String SCHEMAS;
+
+    private static final Map<String, String> SCHEMA_MAP = new HashMap<>();
+
     @Autowired
-    private SCIMLoader loader;
+    private SCIMConfManager confManager;
+
+    private void init() {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode tree = mapper.readTree(getClass().getResourceAsStream("/" + SCHEMAS_JSON));
+            if (!tree.isArray()) {
+                throw new IOException("JSON node is not a tree");
+            }
+
+            ArrayNode schemaArray = (ArrayNode) tree;
+            SCHEMAS = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tree);
+
+            for (JsonNode schema : schemaArray) {
+                SCHEMA_MAP.put(schema.get("id").asText(), mapper.writeValueAsString(schema));
+            }
+        } catch (IOException e) {
+            LOG.error("Could not parse the default schema definitions", e);
+        }
+    }
 
     @PreAuthorize("isAuthenticated()")
-    public ServiceProviderConfig serviceProviderConfig() {
+    public ServiceProviderConfig serviceProviderConfig(final UriBuilder uriBuilder) {
         synchronized (MONITOR) {
+            if (SCHEMAS == null) {
+                init();
+            }
+
             if (SERVICE_PROVIDER_CONFIG == null) {
+                SCIMConf conf = confManager.get();
+
                 SERVICE_PROVIDER_CONFIG = new ServiceProviderConfig(
+                        new Meta(
+                                Resource.ServiceProviderConfig,
+                                conf.getCreationDate(),
+                                conf.getLastChangeDate(),
+                                conf.getETagValue(),
+                                uriBuilder.build().toASCIIString()),
                         new ConfigurationOption(true),
-                        new BulkConfigurationOption(
-                                true, loader.getBulkMaxOperations(), loader.getBulkMaxPayloadSize()),
-                        new FilterConfigurationOption(true, loader.getFilterMaxResults()),
+                        new BulkConfigurationOption(true, conf.getBulkMaxOperations(), conf.getBulkMaxPayloadSize()),
+                        new FilterConfigurationOption(true, conf.getFilterMaxResults()),
                         new ConfigurationOption(true),
                         new ConfigurationOption(true),
                         new ConfigurationOption(true));
@@ -120,12 +163,24 @@ public class RootLogic extends AbstractLogic<AbstractBaseBean> {
 
     @PreAuthorize("isAuthenticated()")
     public String schemas() {
-        return loader.getSchemas();
+        synchronized (MONITOR) {
+            if (SCHEMAS == null) {
+                init();
+            }
+        }
+
+        return SCHEMAS;
     }
 
     @PreAuthorize("isAuthenticated()")
     public String schema(final String schema) {
-        String found = loader.getSchema(schema);
+        synchronized (MONITOR) {
+            if (SCHEMAS == null) {
+                init();
+            }
+        }
+
+        String found = SCHEMA_MAP.get(schema);
         if (found == null) {
             throw new NotFoundException("Schema " + schema);
         }

@@ -28,35 +28,26 @@ import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.GroupLogic;
+import org.apache.syncope.core.logic.SCIMDataBinder;
 import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.core.logic.scim.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
-import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.ext.scimv2.api.data.Display;
-import org.apache.syncope.ext.scimv2.api.data.Group;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
-import org.apache.syncope.ext.scimv2.api.data.Member;
-import org.apache.syncope.ext.scimv2.api.data.Meta;
-import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
 import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
-import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
-import org.apache.syncope.ext.scimv2.api.service.SCIMService;
-import org.apache.syncope.ext.scimv2.api.type.Function;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.syncope.ext.scimv2.api.service.SearchService;
 
-abstract class AbstractSCIMService<R extends SCIMResource> implements SCIMService<R> {
+abstract class AbstractService<R extends SCIMResource> implements SearchService<R> {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractSCIMService.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractService.class);
 
     @Context
     protected UriInfo uriInfo;
@@ -67,6 +58,8 @@ abstract class AbstractSCIMService<R extends SCIMResource> implements SCIMServic
     private UserLogic userLogic;
 
     private GroupLogic groupLogic;
+
+    private SCIMDataBinder binder;
 
     protected UserLogic userLogic() {
         synchronized (this) {
@@ -86,6 +79,15 @@ abstract class AbstractSCIMService<R extends SCIMResource> implements SCIMServic
         return groupLogic;
     }
 
+    protected SCIMDataBinder binder() {
+        synchronized (this) {
+            if (binder == null) {
+                binder = ApplicationContextProvider.getApplicationContext().getBean(SCIMDataBinder.class);
+            }
+        }
+        return binder;
+    }
+
     protected AbstractAnyLogic<?, ?> anyLogic(final Resource type) {
         switch (type) {
             case User:
@@ -97,84 +99,6 @@ abstract class AbstractSCIMService<R extends SCIMResource> implements SCIMServic
             default:
                 throw new UnsupportedOperationException();
         }
-    }
-
-    protected SCIMUser toSCIMUser(final UserTO userTO, final String location) {
-        SCIMUser user = new SCIMUser(
-                userTO.getKey(),
-                Collections.singletonList(Resource.User.schema()),
-                new Meta(
-                        Resource.User,
-                        userTO.getCreationDate(),
-                        userTO.getLastChangeDate() == null
-                        ? userTO.getCreationDate() : userTO.getLastChangeDate(),
-                        userTO.getETagValue(),
-                        location),
-                userTO.getUsername(),
-                !userTO.isSuspended());
-
-        for (MembershipTO membership : userTO.getMemberships()) {
-            user.getGroups().add(new Group(
-                    membership.getGroupKey(),
-                    StringUtils.substringBefore(location, "/Users") + "/Groups/" + membership.getGroupKey(),
-                    membership.getGroupName(),
-                    Function.direct));
-        }
-        for (MembershipTO membership : userTO.getDynMemberships()) {
-            user.getGroups().add(new Group(
-                    membership.getGroupKey(),
-                    StringUtils.substringBefore(location, "/Users") + "/Groups/" + membership.getGroupKey(),
-                    membership.getGroupName(),
-                    Function.indirect));
-        }
-
-        for (String role : userTO.getRoles()) {
-            user.getRoles().add(new Display(role, null));
-        }
-
-        return user;
-    }
-
-    protected SCIMGroup toSCIMGroup(final GroupTO groupTO, final String location) {
-        SCIMGroup group = new SCIMGroup(
-                groupTO.getKey(),
-                Collections.singletonList(Resource.Group.schema()),
-                new Meta(
-                        Resource.Group,
-                        groupTO.getCreationDate(),
-                        groupTO.getLastChangeDate() == null
-                        ? groupTO.getCreationDate() : groupTO.getLastChangeDate(),
-                        groupTO.getETagValue(),
-                        location),
-                groupTO.getName());
-
-        MembershipCond membCond = new MembershipCond();
-        membCond.setGroup(groupTO.getKey());
-        SearchCond searchCond = SearchCond.getLeafCond(membCond);
-
-        int count = userLogic().
-                search(searchCond, 1, 1, Collections.<OrderByClause>emptyList(), SyncopeConstants.ROOT_REALM, false).
-                getLeft();
-
-        for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-            List<UserTO> users = userLogic().search(
-                    searchCond,
-                    page,
-                    AnyDAO.DEFAULT_PAGE_SIZE,
-                    Collections.<OrderByClause>emptyList(),
-                    SyncopeConstants.ROOT_REALM,
-                    false).
-                    getRight();
-            for (UserTO userTO : users) {
-                group.getMembers().add(new Member(
-                        userTO.getKey(),
-                        StringUtils.substringBefore(location, "/Groups") + "/Users/" + userTO.getKey(),
-                        userTO.getUsername(),
-                        Resource.User));
-            }
-        }
-
-        return group;
     }
 
     @SuppressWarnings("unchecked")
@@ -205,11 +129,11 @@ abstract class AbstractSCIMService<R extends SCIMResource> implements SCIMServic
         for (AnyTO anyTO : result.getRight()) {
             SCIMResource resource = null;
             if (anyTO instanceof UserTO) {
-                resource = toSCIMUser(
+                resource = binder().toSCIMUser(
                         (UserTO) anyTO,
                         uriInfo.getAbsolutePathBuilder().path(anyTO.getKey()).build().toASCIIString());
             } else if (anyTO instanceof GroupTO) {
-                resource = toSCIMGroup(
+                resource = binder().toSCIMGroup(
                         (GroupTO) anyTO,
                         uriInfo.getAbsolutePathBuilder().path(anyTO.getKey()).build().toASCIIString());
             }

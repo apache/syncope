@@ -33,7 +33,7 @@ import org.apache.syncope.ext.scimv2.api.SCIMConstants;
 import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
 
 @Path("v2/Groups")
-public interface GroupService extends SCIMService<SCIMGroup> {
+public interface GroupService extends SearchService<SCIMGroup> {
 
     @POST
     @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })

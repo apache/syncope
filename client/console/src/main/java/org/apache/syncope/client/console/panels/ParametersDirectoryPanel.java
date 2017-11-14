@@ -100,7 +100,7 @@ public class ParametersDirectoryPanel
                 target.add(container);
             }
         });
-
+        modalDetails.size(Modal.Size.Medium);
         addInnerObject(modalDetails);
 
         this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AttrTO>(new AttrTO(), pageRef) {

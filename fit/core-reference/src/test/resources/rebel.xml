@@ -91,6 +91,12 @@ under the License.
     </dir>
     <dir name="${basedir}/../../ext/elasticsearch/persistence-jpa/target/classes">
     </dir>
+    <dir name="${basedir}/../../ext/scimv2/common-lib/target/classes">
+    </dir>
+    <dir name="${basedir}/../../ext/scimv2/rest-api/target/classes">
+    </dir>
+    <dir name="${basedir}/../../ext/scimv2/rest-cxf/target/classes">
+    </dir>
     <dir name="${basedir}/../../ext/scimv2/scim-rest-api/target/classes">
     </dir>
     <dir name="${basedir}/../../ext/scimv2/scim-rest-cxf/target/classes">

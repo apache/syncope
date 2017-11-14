@@ -16,31 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.ext.scimv2.api.data;
+package org.apache.syncope.common.lib.scim.types;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-public class Display extends SCIMBean {
-
-    private static final long serialVersionUID = 5337055958765320091L;
-
-    private final String value;
-
-    private final String display;
-
-    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public Display(@JsonProperty("value") final String value, @JsonProperty("display") final String display) {
-        this.value = value;
-        this.display = display;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public String getDisplay() {
-        return display;
-    }
+public enum IMCanonicalType {
+    aim,
+    gtalk,
+    icq,
+    xmpp,
+    msn,
+    skype,
+    qq,
+    yahoo
 
 }

@@ -21,7 +21,7 @@ package org.apache.syncope.ext.scimv2.api.data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.io.Serializable;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 abstract class SCIMBean implements Serializable {
 
     private static final long serialVersionUID = 7604407251038024743L;
