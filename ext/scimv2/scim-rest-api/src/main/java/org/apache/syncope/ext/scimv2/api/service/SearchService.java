@@ -19,12 +19,16 @@
 package org.apache.syncope.ext.scimv2.api.service;
 
 import java.util.List;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import org.apache.syncope.ext.scimv2.api.SCIMConstants;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
+import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
 import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 
 public interface SearchService<R extends SCIMResource> {
@@ -32,10 +36,17 @@ public interface SearchService<R extends SCIMResource> {
     @GET
     @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
     ListResponse<R> search(
-            @QueryParam("startIndex") Integer startIndex,
-            @QueryParam("count") Integer count,
+            @QueryParam("attributes") List<String> attributes,
+            @QueryParam("excludedAttributes") List<String> excludedAttributes,
             @QueryParam("filter") String filter,
             @QueryParam("sortBy") String sortBy,
             @QueryParam("sortOrder") SortOrder sortOrder,
-            @QueryParam("attributes") List<String> attributes);
+            @QueryParam("startIndex") Integer startIndex,
+            @QueryParam("count") Integer count);
+
+    @POST
+    @Path(".search")
+    @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
+    @Consumes({ SCIMConstants.APPLICATION_SCIM_JSON })
+    ListResponse<R> search(SCIMSearchRequest request);
 }

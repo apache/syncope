@@ -71,6 +71,7 @@ public class SCIMITCase extends AbstractITCase {
     private WebClient webClient() {
         return WebClient.create(SCIM_ADDRESS, Arrays.asList(new JacksonSCIMJsonProvider())).
                 accept(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
+                type(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
                 header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT());
     }
 
@@ -223,6 +224,25 @@ public class SCIMITCase extends AbstractITCase {
         assertEquals(1, groups.getTotalResults());
 
         SCIMGroup additional = groups.getResources().get(0);
+        assertEquals("additional", additional.getDisplayName());
+
+        // eq via POST
+        String request = "{"
+                + "     \"schemas\": [\"urn:ietf:params:scim:api:messages:2.0:SearchRequest\"],"
+                + "     \"filter\": \"displayName eq \\\"additional\\\"\""
+                + "   }";
+        response = webClient().path("Groups").path("/.search").post(request);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(
+                SCIMConstants.APPLICATION_SCIM_JSON,
+                StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
+
+        groups = response.readEntity(new GenericType<ListResponse<SCIMGroup>>() {
+        });
+        assertNotNull(groups);
+        assertEquals(1, groups.getTotalResults());
+
+        additional = groups.getResources().get(0);
         assertEquals("additional", additional.getDisplayName());
 
         // gt

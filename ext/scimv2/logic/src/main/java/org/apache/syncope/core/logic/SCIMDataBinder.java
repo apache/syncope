@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.logic;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -98,9 +99,15 @@ public class SCIMDataBinder {
     public SCIMUser toSCIMUser(final UserTO userTO, final String location) {
         SCIMConf conf = confManager.get();
 
+        List<String> schemas = new ArrayList<>();
+        schemas.add(Resource.User.schema());
+        if (conf.getEnterpriseUserConf() != null) {
+            schemas.add(Resource.EnterpriseUser.schema());
+        }
+
         SCIMUser user = new SCIMUser(
                 userTO.getKey(),
-                Collections.singletonList(Resource.User.schema()),
+                schemas,
                 new Meta(
                         Resource.User,
                         userTO.getCreationDate(),
@@ -353,7 +360,6 @@ public class SCIMDataBinder {
     public SCIMGroup toSCIMGroup(final GroupTO groupTO, final String location) {
         SCIMGroup group = new SCIMGroup(
                 groupTO.getKey(),
-                Collections.singletonList(Resource.Group.schema()),
                 new Meta(
                         Resource.Group,
                         groupTO.getCreationDate(),
