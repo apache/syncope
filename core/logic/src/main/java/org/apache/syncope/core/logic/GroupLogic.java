@@ -276,7 +276,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_UPDATE),
                 group.getRealm());
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
-
+        
         GroupPatch patch = new GroupPatch();
         patch.setKey(key);
         patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
@@ -286,6 +286,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 return new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build();
             }
         }));
+        // [SYNCOPE-1235]
+        patch.setUDynMembershipCond(group.getUDynMembershipCond());
 
         return binder.getGroupTO(provisioningManager.unlink(patch));
     }
@@ -334,6 +336,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 return new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build();
             }
         }));
+        // [SYNCOPE-1235]
+        patch.setUDynMembershipCond(group.getUDynMembershipCond());
 
         return update(patch, nullPriorityAsync);
     }
