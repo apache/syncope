@@ -286,8 +286,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 return new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build();
             }
         }));
-        // [SYNCOPE-1235]
         patch.setUDynMembershipCond(group.getUDynMembershipCond());
+        patch.getADynMembershipConds().putAll(group.getADynMembershipConds());
 
         return binder.getGroupTO(provisioningManager.unlink(patch));
     }
@@ -336,7 +336,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 return new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build();
             }
         }));
-        // [SYNCOPE-1235]
+        patch.getADynMembershipConds().putAll(group.getADynMembershipConds());
         patch.setUDynMembershipCond(group.getUDynMembershipCond());
 
         return update(patch, nullPriorityAsync);
