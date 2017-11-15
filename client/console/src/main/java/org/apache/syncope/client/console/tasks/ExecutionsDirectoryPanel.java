@@ -129,15 +129,15 @@ public abstract class ExecutionsDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
+                ExecutionsDirectoryPanel.this.getTogglePanel().close(target);
                 try {
                     restClient.deleteExecution(taskExecutionTO.getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
                 } catch (SyncopeClientException scce) {
                     SyncopeConsoleSession.get().error(scce.getMessage());
                 }
-                target.add(ExecutionsDirectoryPanel.this);
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                ExecutionsDirectoryPanel.this.getTogglePanel().close(target);
             }
         }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE, true);
 
