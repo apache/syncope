@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
+import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
 import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
 import org.apache.syncope.ext.scimv2.api.service.UserService;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
@@ -58,13 +59,28 @@ public class UserServiceImpl extends AbstractService<SCIMUser> implements UserSe
 
     @Override
     public ListResponse<SCIMUser> search(
-            final Integer startIndex,
-            final Integer count,
+            final List<String> attributes,
+            final List<String> excludedAttributes,
             final String filter,
             final String sortBy,
             final SortOrder sortOrder,
-            final List<String> attributes) {
+            final Integer startIndex,
+            final Integer count) {
 
-        return doSearch(Resource.User, startIndex, count, filter, sortBy, sortOrder, attributes);
+        SCIMSearchRequest request = new SCIMSearchRequest(filter, sortBy, sortOrder, startIndex, count);
+        if (attributes != null) {
+            request.getAttributes().addAll(attributes);
+        }
+        if (excludedAttributes != null) {
+            request.getExcludedAttributes().addAll(excludedAttributes);
+        }
+
+        return doSearch(Resource.User, request);
     }
+
+    @Override
+    public ListResponse<SCIMUser> search(final SCIMSearchRequest request) {
+        return doSearch(Resource.User, request);
+    }
+
 }

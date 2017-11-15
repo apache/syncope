@@ -22,7 +22,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import org.apache.syncope.ext.scimv2.api.type.Resource;
 
 @JsonPropertyOrder({ "schemas", "id", "externalId", "displayName", "members", "meta" })
 public class SCIMGroup extends SCIMResource {
@@ -36,11 +38,10 @@ public class SCIMGroup extends SCIMResource {
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public SCIMGroup(
             @JsonProperty("id") final String id,
-            @JsonProperty("schemas") final List<String> schemas,
             @JsonProperty("meta") final Meta meta,
             @JsonProperty("displayName") final String displayName) {
 
-        super(id, schemas, meta);
+        super(id, Collections.singletonList(Resource.Group.schema()), meta);
         this.displayName = displayName;
     }
 

@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
+import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 import org.slf4j.Logger;
@@ -104,27 +105,26 @@ abstract class AbstractService<R extends SCIMResource> implements SearchService<
     @SuppressWarnings("unchecked")
     protected ListResponse<R> doSearch(
             final Resource type,
-            final Integer startIndex,
-            final Integer count,
-            final String filter,
-            final String sortBy,
-            final SortOrder sortOrder,
-            final List<String> attributes) {
+            final SCIMSearchRequest request) {
 
         if (type == null) {
             throw new UnsupportedOperationException();
         }
 
+        int startIndex = request.getStartIndex() == null || request.getStartIndex() <= 1
+                ? 1
+                : (request.getStartIndex() / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
+
         Pair<Integer, ? extends List<? extends AnyTO>> result = anyLogic(type).search(
-                StringUtils.isBlank(filter) ? null : SearchCondConverter.convert(filter),
-                startIndex == null || startIndex <= 1 ? 1 : (startIndex / AnyDAO.DEFAULT_PAGE_SIZE) + 1,
+                StringUtils.isBlank(request.getFilter()) ? null : SearchCondConverter.convert(request.getFilter()),
+                startIndex,
                 AnyDAO.DEFAULT_PAGE_SIZE,
                 Collections.<OrderByClause>emptyList(),
                 SyncopeConstants.ROOT_REALM,
                 false);
 
         ListResponse<R> response = new ListResponse<>(
-                result.getLeft(), startIndex == null || startIndex <= 1 ? 1 : startIndex, AnyDAO.DEFAULT_PAGE_SIZE);
+                result.getLeft(), startIndex == 1 ? 1 : startIndex - 1, AnyDAO.DEFAULT_PAGE_SIZE);
 
         for (AnyTO anyTO : result.getRight()) {
             SCIMResource resource = null;
@@ -148,13 +148,28 @@ abstract class AbstractService<R extends SCIMResource> implements SearchService<
 
     @Override
     public ListResponse<R> search(
-            final Integer startIndex,
-            final Integer count,
+            final List<String> attributes,
+            final List<String> excludedAttributes,
             final String filter,
             final String sortBy,
             final SortOrder sortOrder,
-            final List<String> attributes) {
+            final Integer startIndex,
+            final Integer count) {
 
-        return doSearch(null, startIndex, count, filter, sortBy, sortOrder, attributes);
+        SCIMSearchRequest request = new SCIMSearchRequest(filter, sortBy, sortOrder, startIndex, count);
+        if (attributes != null) {
+            request.getAttributes().addAll(attributes);
+        }
+        if (excludedAttributes != null) {
+            request.getExcludedAttributes().addAll(excludedAttributes);
+        }
+
+        return doSearch(null, request);
     }
+
+    @Override
+    public ListResponse<R> search(final SCIMSearchRequest request) {
+        return doSearch(null, request);
+    }
+
 }

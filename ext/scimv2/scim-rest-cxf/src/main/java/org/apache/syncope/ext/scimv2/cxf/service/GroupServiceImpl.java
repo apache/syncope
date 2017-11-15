@@ -23,6 +23,7 @@ import java.util.UUID;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
+import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
 import org.apache.syncope.ext.scimv2.api.service.GroupService;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.api.type.SortOrder;
@@ -58,14 +59,27 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
 
     @Override
     public ListResponse<SCIMGroup> search(
-            final Integer startIndex,
-            final Integer count,
+            final List<String> attributes,
+            final List<String> excludedAttributes,
             final String filter,
             final String sortBy,
             final SortOrder sortOrder,
-            final List<String> attributes) {
+            final Integer startIndex,
+            final Integer count) {
 
-        return doSearch(Resource.Group, startIndex, count, filter, sortBy, sortOrder, attributes);
+        SCIMSearchRequest request = new SCIMSearchRequest(filter, sortBy, sortOrder, startIndex, count);
+        if (attributes != null) {
+            request.getAttributes().addAll(attributes);
+        }
+        if (excludedAttributes != null) {
+            request.getExcludedAttributes().addAll(excludedAttributes);
+        }
+
+        return doSearch(Resource.Group, request);
     }
 
+    @Override
+    public ListResponse<SCIMGroup> search(final SCIMSearchRequest request) {
+        return doSearch(Resource.Group, request);
+    }
 }
