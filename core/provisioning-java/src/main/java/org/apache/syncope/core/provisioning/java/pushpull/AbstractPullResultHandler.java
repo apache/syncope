@@ -727,7 +727,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
         SyncDelta processed = delta;
         for (PullActions action : profile.getActions()) {
-            processed = action.preprocess(processed);
+            processed = action.preprocess(profile, processed);
         }
 
         LOG.debug("Transformed {} for {} as {}",

@@ -33,7 +33,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 public abstract class DefaultPullActions implements PullActions {
 
     @Override
-    public SyncDelta preprocess(final SyncDelta delta) {
+    public SyncDelta preprocess(final ProvisioningProfile<?, ?> profile, final SyncDelta delta) {
         return delta;
     }
 
