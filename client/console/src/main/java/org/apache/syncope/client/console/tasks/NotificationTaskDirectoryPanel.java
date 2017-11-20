@@ -218,7 +218,7 @@ public abstract class NotificationTaskDirectoryPanel
 
         @Override
         public long size() {
-            return restClient.listNotificationTasks(notification, anyTypeKind, entityKey, 1, -1, getSort()).size();
+            return restClient.count(anyTypeKind, entityKey, notification);
         }
 
         @Override

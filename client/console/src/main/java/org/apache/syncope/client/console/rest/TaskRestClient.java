@@ -71,6 +71,13 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                 getTotalCount();
     }
 
+    public int count(final AnyTypeKind anyTypeKind, final String entityKey, final String notification) {
+        return getService(TaskService.class).list(
+                new TaskQuery.Builder(TaskType.NOTIFICATION).notification(notification).
+                        anyTypeKind(anyTypeKind).entityKey(entityKey).page(1).size(1).build()).
+                getTotalCount();
+    }
+
     @Override
     public int countExecutions(final String taskKey) {
         return getService(TaskService.class).
