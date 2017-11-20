@@ -229,7 +229,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
                             ? groupDAO
                             : anyObjectDAO;
             authorized = anyDAO.findDynRealms(key).stream().
-                    filter(dynRealm -> effectiveRealms.contains(dynRealm)).findFirst().isPresent();
+                    anyMatch(dynRealm -> effectiveRealms.contains(dynRealm));
         }
         if (!authorized) {
             throw new DelegatedAdministrationException(
