@@ -25,8 +25,11 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlEngine;
@@ -38,6 +41,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -56,6 +60,10 @@ public final class JexlUtils {
     private static final Logger LOG = LoggerFactory.getLogger(JexlUtils.class);
 
     private static final String[] IGNORE_FIELDS = { "password", "clearPassword", "serialVersionUID", "class" };
+
+    private static final Map<Class<?>, Set<PropertyDescriptor>> FIELD_CACHE =
+            Collections.<Class<?>, Set<PropertyDescriptor>>synchronizedMap(
+                    new HashMap<Class<?>, Set<PropertyDescriptor>>());
 
     private static JexlEngine JEXL_ENGINE;
 
@@ -113,56 +121,77 @@ public final class JexlUtils {
         return result;
     }
 
-    public static JexlContext addFieldsToContext(final Object object, final JexlContext jexlContext) {
-        JexlContext context = jexlContext == null ? new MapContext() : jexlContext;
+    public static void addFieldsToContext(final Object object, final JexlContext jexlContext) {
+        Set<PropertyDescriptor> cached = FIELD_CACHE.get(object.getClass());
+        if (cached == null) {
+            cached = new HashSet<>();
+            FIELD_CACHE.put(object.getClass(), cached);
 
-        try {
-            for (PropertyDescriptor desc : Introspector.getBeanInfo(object.getClass()).getPropertyDescriptors()) {
-                Class<?> type = desc.getPropertyType();
-                String fieldName = desc.getName();
+            try {
+                for (PropertyDescriptor desc : Introspector.getBeanInfo(object.getClass()).getPropertyDescriptors()) {
+                    if ((!desc.getName().startsWith("pc"))
+                            && (!ArrayUtils.contains(IGNORE_FIELDS, desc.getName()))
+                            && (!Iterable.class.isAssignableFrom(desc.getPropertyType()))
+                            && (!desc.getPropertyType().isArray())) {
 
-                if ((!fieldName.startsWith("pc"))
-                        && (!ArrayUtils.contains(IGNORE_FIELDS, fieldName))
-                        && (!Iterable.class.isAssignableFrom(type))
-                        && (!type.isArray())) {
-
-                    try {
-                        Object fieldValue;
-                        if (desc.getReadMethod() == null) {
-                            final Field field = object.getClass().getDeclaredField(fieldName);
-                            field.setAccessible(true);
-                            fieldValue = field.get(object);
-                        } else {
-                            fieldValue = desc.getReadMethod().invoke(object);
-                        }
-
-                        context.set(fieldName, fieldValue == null
-                                ? StringUtils.EMPTY
-                                : (type.equals(Date.class)
-                                ? FormatUtils.format((Date) fieldValue, false)
-                                : fieldValue));
-
-                        LOG.debug("Add field {} with value {}", fieldName, fieldValue);
-                    } catch (Exception iae) {
-                        LOG.error("Reading '{}' value error", fieldName, iae);
+                        cached.add(desc);
                     }
                 }
+            } catch (IntrospectionException ie) {
+                LOG.error("Reading class attributes error", ie);
             }
-        } catch (IntrospectionException ie) {
-            LOG.error("Reading class attributes error", ie);
         }
 
-        if (object instanceof Any) {
-            Any<?> any = (Any<?>) object;
-            if (any.getRealm() != null) {
-                context.set("realm", any.getRealm().getFullPath());
+        for (PropertyDescriptor desc : cached) {
+            String fieldName = desc.getName();
+            Class<?> fieldType = desc.getPropertyType();
+
+            try {
+                Object fieldValue;
+                if (desc.getReadMethod() == null) {
+                    final Field field = object.getClass().getDeclaredField(fieldName);
+                    field.setAccessible(true);
+                    fieldValue = field.get(object);
+                } else {
+                    fieldValue = desc.getReadMethod().invoke(object);
+                }
+                fieldValue = fieldValue == null
+                        ? StringUtils.EMPTY
+                        : (fieldType.equals(Date.class)
+                        ? FormatUtils.format((Date) fieldValue, false)
+                        : fieldValue);
+
+                jexlContext.set(fieldName, fieldValue);
+
+                LOG.debug("Add field {} with value {}", fieldName, fieldValue);
+            } catch (Exception iae) {
+                LOG.error("Reading '{}' value error", fieldName, iae);
             }
+        }
+
+        if (object instanceof Any && ((Any<?>) object).getRealm() != null) {
+            jexlContext.set("realm", ((Any<?>) object).getRealm().getFullPath());
+        } else if (object instanceof AnyTO && ((AnyTO) object).getRealm() != null) {
+            jexlContext.set("realm", ((AnyTO) object).getRealm());
         } else if (object instanceof Realm) {
-            Realm realm = (Realm) object;
-            context.set("fullPath", realm.getFullPath());
+            jexlContext.set("fullPath", ((Realm) object).getFullPath());
+        } else if (object instanceof RealmTO) {
+            jexlContext.set("fullPath", ((RealmTO) object).getFullPath());
         }
+    }
 
-        return context;
+    public static void addAttrTOsToContext(final Collection<AttrTO> attrs, final JexlContext jexlContext) {
+        for (AttrTO attr : attrs) {
+            if (attr.getSchema() != null) {
+                String expressionValue = attr.getValues().isEmpty()
+                        ? StringUtils.EMPTY
+                        : attr.getValues().get(0);
+
+                LOG.debug("Add attribute {} with value {}", attr.getSchema(), expressionValue);
+
+                jexlContext.set(attr.getSchema(), expressionValue);
+            }
+        }
     }
 
     public static void addPlainAttrsToContext(
@@ -197,44 +226,6 @@ public final class JexlUtils {
         addDerAttrsToContext(any, jexlContext);
 
         return Boolean.parseBoolean(evaluate(mandatoryCondition, jexlContext));
-    }
-
-    public static String evaluate(final String expression, final AnyTO anyTO, final JexlContext context) {
-        addFieldsToContext(anyTO, context);
-
-        for (AttrTO plainAttr : anyTO.getPlainAttrs()) {
-            List<String> values = plainAttr.getValues();
-            String expressionValue = values.isEmpty()
-                    ? StringUtils.EMPTY
-                    : values.get(0);
-
-            LOG.debug("Add plain attribute {} with value {}", plainAttr.getSchema(), expressionValue);
-
-            context.set(plainAttr.getSchema(), expressionValue);
-        }
-        for (AttrTO derAttr : anyTO.getDerAttrs()) {
-            List<String> values = derAttr.getValues();
-            String expressionValue = values.isEmpty()
-                    ? StringUtils.EMPTY
-                    : values.get(0);
-
-            LOG.debug("Add derived attribute {} with value {}", derAttr.getSchema(), expressionValue);
-
-            context.set(derAttr.getSchema(), expressionValue);
-        }
-        for (AttrTO virAttr : anyTO.getVirAttrs()) {
-            List<String> values = virAttr.getValues();
-            String expressionValue = values.isEmpty()
-                    ? StringUtils.EMPTY
-                    : values.get(0);
-
-            LOG.debug("Add virtual attribute {} with value {}", virAttr.getSchema(), expressionValue);
-
-            context.set(virAttr.getSchema(), expressionValue);
-        }
-
-        // Evaluate expression using the context prepared before
-        return evaluate(expression, context);
     }
 
     /**

@@ -51,13 +51,13 @@ public class TemplateUtils {
     @Autowired
     private GroupDAO groupDAO;
 
-    private AttrTO evaluateAttr(final AnyTO anyTO, final AttrTO template) {
+    private AttrTO evaluateAttr(final AttrTO template, final MapContext jexlContext) {
         AttrTO result = new AttrTO();
         result.setSchema(template.getSchema());
 
         if (template.getValues() != null && !template.getValues().isEmpty()) {
             for (String value : template.getValues()) {
-                String evaluated = JexlUtils.evaluate(value, anyTO, new MapContext());
+                String evaluated = JexlUtils.evaluate(value, jexlContext);
                 if (StringUtils.isNotBlank(evaluated)) {
                     result.getValues().add(evaluated);
                 }
@@ -68,8 +68,14 @@ public class TemplateUtils {
     }
 
     private void fill(final AnyTO anyTO, final AnyTO template) {
+        MapContext jexlContext = new MapContext();
+        JexlUtils.addFieldsToContext(anyTO, jexlContext);
+        JexlUtils.addAttrTOsToContext(anyTO.getPlainAttrs(), jexlContext);
+        JexlUtils.addAttrTOsToContext(anyTO.getDerAttrs(), jexlContext);
+        JexlUtils.addAttrTOsToContext(anyTO.getVirAttrs(), jexlContext);
+
         if (template.getRealm() != null) {
-            String evaluated = JexlUtils.evaluate(template.getRealm(), anyTO, new MapContext());
+            String evaluated = JexlUtils.evaluate(template.getRealm(), jexlContext);
             if (StringUtils.isNotBlank(evaluated)) {
                 anyTO.setRealm(evaluated);
             }
@@ -81,7 +87,11 @@ public class TemplateUtils {
                     && (!currentAttrMap.containsKey(templatePlainAttr.getSchema())
                     || currentAttrMap.get(templatePlainAttr.getSchema()).getValues().isEmpty())) {
 
-                anyTO.getPlainAttrs().add(evaluateAttr(anyTO, templatePlainAttr));
+                AttrTO evaluated = evaluateAttr(templatePlainAttr, jexlContext);
+                if (!evaluated.getValues().isEmpty()) {
+                    anyTO.getPlainAttrs().add(evaluated);
+                    jexlContext.set(evaluated.getSchema(), evaluated.getValues().get(0));
+                }
             }
         }
 
@@ -98,7 +108,11 @@ public class TemplateUtils {
                     && (!currentAttrMap.containsKey(templateVirAttr.getSchema())
                     || currentAttrMap.get(templateVirAttr.getSchema()).getValues().isEmpty())) {
 
-                anyTO.getVirAttrs().add(evaluateAttr(anyTO, templateVirAttr));
+                AttrTO evaluated = evaluateAttr(templateVirAttr, jexlContext);
+                if (!evaluated.getValues().isEmpty()) {
+                    anyTO.getVirAttrs().add(evaluated);
+                    jexlContext.set(evaluated.getSchema(), evaluated.getValues().get(0));
+                }
             }
         }
 
@@ -134,19 +148,25 @@ public class TemplateUtils {
     public <T extends AnyTO> void apply(final T anyTO, final AnyTO template) {
         fill(anyTO, template);
 
+        MapContext jexlContext = new MapContext();
+        JexlUtils.addFieldsToContext(anyTO, jexlContext);
+        JexlUtils.addAttrTOsToContext(anyTO.getPlainAttrs(), jexlContext);
+        JexlUtils.addAttrTOsToContext(anyTO.getDerAttrs(), jexlContext);
+        JexlUtils.addAttrTOsToContext(anyTO.getVirAttrs(), jexlContext);
+
         if (template instanceof AnyObjectTO) {
             fillRelationships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
             fillMemberships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
         } else if (template instanceof UserTO) {
             if (StringUtils.isNotBlank(((UserTO) template).getUsername())) {
-                String evaluated = JexlUtils.evaluate(((UserTO) template).getUsername(), anyTO, new MapContext());
+                String evaluated = JexlUtils.evaluate(((UserTO) template).getUsername(), jexlContext);
                 if (StringUtils.isNotBlank(evaluated)) {
                     ((UserTO) anyTO).setUsername(evaluated);
                 }
             }
 
             if (StringUtils.isNotBlank(((UserTO) template).getPassword())) {
-                String evaluated = JexlUtils.evaluate(((UserTO) template).getPassword(), anyTO, new MapContext());
+                String evaluated = JexlUtils.evaluate(((UserTO) template).getPassword(), jexlContext);
                 if (StringUtils.isNotBlank(evaluated)) {
                     ((UserTO) anyTO).setPassword(evaluated);
                 }
@@ -156,7 +176,7 @@ public class TemplateUtils {
             fillMemberships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
         } else if (template instanceof GroupTO) {
             if (StringUtils.isNotBlank(((GroupTO) template).getName())) {
-                String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), anyTO, new MapContext());
+                String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), jexlContext);
                 if (StringUtils.isNotBlank(evaluated)) {
                     ((GroupTO) anyTO).setName(evaluated);
                 }
