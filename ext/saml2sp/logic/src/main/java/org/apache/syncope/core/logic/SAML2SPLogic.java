@@ -109,6 +109,7 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.Encryptor;
+import org.opensaml.core.xml.schema.XSAny;
 import org.springframework.util.ResourceUtils;
 
 @Component
@@ -462,10 +463,12 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
             for (Attribute attr : attrStmt.getAttributes()) {
                 if (!attr.getAttributeValues().isEmpty()) {
                     String attrName = attr.getFriendlyName() == null ? attr.getName() : attr.getFriendlyName();
-                    if (attrName.equals(idp.getConnObjectKeyItem().getExtAttrName())
-                            && attr.getAttributeValues().get(0) instanceof XSString) {
-
-                        keyValue = ((XSString) attr.getAttributeValues().get(0)).getValue();
+                    if (attrName.equals(idp.getConnObjectKeyItem().getExtAttrName())) {
+                        if (attr.getAttributeValues().get(0) instanceof XSString) {
+                            keyValue = ((XSString) attr.getAttributeValues().get(0)).getValue();
+                        } else if (attr.getAttributeValues().get(0) instanceof XSAny) {
+                            keyValue = ((XSAny) attr.getAttributeValues().get(0)).getTextContent();
+                        }
                     }
 
                     AttrTO attrTO = new AttrTO();
@@ -697,5 +700,4 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
         throw new UnresolvedReferenceException();
     }
-
 }
