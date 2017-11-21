@@ -78,7 +78,7 @@ public final class MappingUtils {
                 || item.getPurpose() == MappingPurpose.BOTH).collect(Collectors.toList());
     }
 
-    private static Name evaluateNAME(final String evalConnObjectLink, final String connObjectKey) {
+    private static Name getName(final String evalConnObjectLink, final String connObjectKey) {
         // If connObjectLink evaluates to an empty string, just use the provided connObjectKey as Name(),
         // otherwise evaluated connObjectLink expression is taken as Name().
         Name name;
@@ -126,7 +126,7 @@ public final class MappingUtils {
             evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext);
         }
 
-        return evaluateNAME(evalConnObjectLink, connObjectKey);
+        return getName(evalConnObjectLink, connObjectKey);
     }
 
     /**
@@ -156,7 +156,7 @@ public final class MappingUtils {
             evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext);
         }
 
-        return evaluateNAME(evalConnObjectLink, connObjectKey);
+        return getName(evalConnObjectLink, connObjectKey);
     }
 
     public static List<ItemTransformer> getItemTransformers(final Item item) {
