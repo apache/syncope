@@ -22,12 +22,12 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -163,7 +163,8 @@ public class Topology extends BasePage {
             }
         });
 
-        body.add(new TopologyWebSocketBehavior());
+        final TopologyWebSocketBehavior websocket = new TopologyWebSocketBehavior();
+        body.add(websocket);
 
         togglePanel = new TopologyTogglePanel("toggle", getPageReference());
         body.add(togglePanel);
@@ -373,14 +374,15 @@ public class Topology extends BasePage {
         // -----------------------------------------
         // Add Resources
         // -----------------------------------------
-        final Collection<String> administrableConns = new HashSet<>();
+        final Set<String> adminConns = new HashSet<>();
         for (List<ConnInstanceTO> connInstances : connModel.getObject().values()) {
-            administrableConns.addAll(CollectionUtils.collect(connInstances, EntityTOUtils.keyTransformer()));
+            adminConns.addAll(CollectionUtils.collect(connInstances, EntityTOUtils.keyTransformer()));
         }
 
+        final Set<String> adminRes = new HashSet<>();
         final List<String> connToBeProcessed = new ArrayList<>();
         for (final ResourceTO resourceTO : resModel.getObject()) {
-            if (administrableConns.contains(resourceTO.getConnector())) {
+            if (adminConns.contains(resourceTO.getConnector())) {
                 final TopologyNode topologynode = new TopologyNode(
                         resourceTO.getKey(), resourceTO.getKey(), TopologyNode.Kind.RESOURCE);
 
@@ -394,6 +396,8 @@ public class Topology extends BasePage {
                 }
 
                 remoteConnections.put(topologynode.getKey(), topologynode);
+
+                adminRes.add(resourceTO.getKey());
 
                 if (!connToBeProcessed.contains(resourceTO.getConnector())) {
                     connToBeProcessed.add(resourceTO.getConnector());
@@ -483,6 +487,10 @@ public class Topology extends BasePage {
 
             @Override
             protected void onTimer(final AjaxRequestTarget target) {
+                if (websocket.connCheckDone(adminConns) && websocket.resCheckDone(adminRes)) {
+                    stop(target);
+                }
+
                 target.appendJavaScript("checkConnection()");
 
                 if (getUpdateInterval().seconds() < 5.0) {

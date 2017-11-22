@@ -21,6 +21,8 @@ package org.apache.syncope.client.console.topology;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -47,13 +49,15 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private final Map<String, String> resources = new HashMap<>();
+    private final Map<String, String> resources =
+            Collections.<String, String>synchronizedMap(new HashMap<String, String>());
 
-    private final Set<String> runningResCheck = new HashSet<>();
+    private final Set<String> runningResCheck = Collections.synchronizedSet(new HashSet<String>());
 
-    private final Map<String, String> connectors = new HashMap<>();
+    private final Map<String, String> connectors =
+            Collections.<String, String>synchronizedMap(new HashMap<String, String>());
 
-    private final Set<String> runningConnCheck = new HashSet<>();
+    private final Set<String> runningConnCheck = Collections.synchronizedSet(new HashSet<String>());
 
     private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
 
@@ -75,12 +79,10 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
                                 "{ \"status\": \"%s\", \"target\": \"%s\"}", TopologyNode.Status.UNKNOWN, ckey));
                     }
 
-                    synchronized (runningConnCheck) {
-                        if (runningConnCheck.contains(ckey)) {
-                            LOG.debug("Running connection check for connector {}", ckey);
-                        } else {
-                            runningConnCheck.add(ckey);
-                        }
+                    if (runningConnCheck.contains(ckey)) {
+                        LOG.debug("Running connection check for connector {}", ckey);
+                    } else {
+                        runningConnCheck.add(ckey);
                     }
 
                     SyncopeConsoleSession.get().execute(new ConnCheck(ckey));
@@ -96,12 +98,10 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
                                 "{ \"status\": \"%s\", \"target\": \"%s\"}", TopologyNode.Status.UNKNOWN, rkey));
                     }
 
-                    synchronized (runningResCheck) {
-                        if (runningResCheck.contains(rkey)) {
-                            LOG.debug("Running connection check for resource {}", rkey);
-                        } else {
-                            runningResCheck.add(rkey);
-                        }
+                    if (runningResCheck.contains(rkey)) {
+                        LOG.debug("Running connection check for resource {}", rkey);
+                    } else {
+                        runningResCheck.add(rkey);
                     }
 
                     SyncopeConsoleSession.get().execute(new ResCheck(rkey));
@@ -118,6 +118,14 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
         } catch (IOException e) {
             LOG.error("Eror managing websocket message", e);
         }
+    }
+
+    public boolean connCheckDone(final Collection<String> connectors) {
+        return this.connectors.keySet().containsAll(connectors);
+    }
+
+    public boolean resCheckDone(final Collection<String> resources) {
+        return this.resources.keySet().containsAll(resources);
     }
 
     class ConnCheck implements Runnable {
@@ -151,10 +159,8 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
                     res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}", TopologyNode.Status.FAILURE, key);
                 }
 
-                synchronized (runningConnCheck) {
-                    connectors.put(key, res);
-                    runningConnCheck.remove(key);
-                }
+                connectors.put(key, res);
+                runningConnCheck.remove(key);
             } finally {
                 ThreadContext.detach();
             }
@@ -192,10 +198,8 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
                     res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}", TopologyNode.Status.FAILURE, key);
                 }
 
-                synchronized (runningResCheck) {
-                    resources.put(key, res);
-                    runningResCheck.remove(key);
-                }
+                resources.put(key, res);
+                runningResCheck.remove(key);
             } finally {
                 ThreadContext.detach();
             }
