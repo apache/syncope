@@ -19,7 +19,7 @@
 package org.apache.syncope.core.workflow.flowable;
 
 import org.apache.syncope.core.persistence.api.entity.Entity;
-import org.flowable.engine.impl.variable.SerializableType;
+import org.flowable.variable.service.impl.types.SerializableType;
 
 /**
  * Flowable variable type for handling Syncope entities as Flowable variables.

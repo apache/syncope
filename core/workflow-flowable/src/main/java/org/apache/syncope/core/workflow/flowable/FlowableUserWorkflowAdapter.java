@@ -67,13 +67,13 @@ import org.flowable.engine.form.FormProperty;
 import org.flowable.engine.form.FormType;
 import org.flowable.engine.form.TaskFormData;
 import org.flowable.engine.history.HistoricActivityInstance;
-import org.flowable.engine.history.HistoricTaskInstance;
 import org.flowable.engine.impl.persistence.entity.HistoricFormPropertyEntity;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.Model;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
-import org.flowable.engine.task.Task;
+import org.flowable.task.api.Task;
+import org.flowable.task.api.history.HistoricTaskInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 

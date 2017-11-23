@@ -382,9 +382,9 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <groovy.version>2.4.12</groovy.version>
+    <groovy.version>2.5.0-beta-2</groovy.version>
 
-    <flowable.version>6.1.2</flowable.version>
+    <flowable.version>6.2.0</flowable.version>
 
     <camel.version>2.19.3</camel.version>	
 
@@ -407,7 +407,7 @@ under the License.
 
     <h2.version>1.4.196</h2.version>
 
-    <junit.version>5.0.2</junit.version>
+    <junit.version>5.1.0-M1</junit.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -1835,7 +1835,7 @@ under the License.
             <dependency>
               <groupId>org.junit.platform</groupId>
               <artifactId>junit-platform-surefire-provider</artifactId>
-              <version>1.0.2</version>
+              <version>1.1.0-M1</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -1853,7 +1853,7 @@ under the License.
             <dependency>
               <groupId>org.junit.platform</groupId>
               <artifactId>junit-platform-surefire-provider</artifactId>
-              <version>1.0.2</version>
+              <version>1.1.0-M1</version>
             </dependency>
           </dependencies>
           <executions>
