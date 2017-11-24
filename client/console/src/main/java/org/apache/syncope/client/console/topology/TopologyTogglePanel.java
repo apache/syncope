@@ -156,7 +156,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
         target.add(container);
 
-        this.toggle(target, true);
+        toggle(target, node, true);
     }
 
     private Fragment getEmptyFragment() {
