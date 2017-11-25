@@ -166,13 +166,12 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
             }
         });
 
-        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo =
-                FormLayoutInfoUtils.fetch(CollectionUtils.collect(anyTypes, EntityTOUtils.keyTransformer()));
+        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo
+                = FormLayoutInfoUtils.fetch(CollectionUtils.collect(anyTypes, EntityTOUtils.keyTransformer()));
 
         for (final AnyTypeTO anyType : anyTypes) {
             tabs.add(new ITabComponent(
-                    new Model<>(anyType.getKey()),
-                    StandardEntitlement.ANYTYPE_READ, String.format("%s_SEARCH", anyType)) {
+                    new Model<>(anyType.getKey()), String.format("%s_SEARCH", anyType.getKey())) {
 
                 private static final long serialVersionUID = 1169585538404171118L;
 
