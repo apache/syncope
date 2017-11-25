@@ -181,7 +181,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 // is important to set the schema info only after values setting
                 attrTO.setSchemaInfo(schema);
             } else {
-                attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
+                attrTO = attrMap.get(schema.getKey());
             }
             attrs.add(attrTO);
         }
