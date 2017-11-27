@@ -23,6 +23,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import org.apache.pdfbox.cos.COSObject;
 import org.apache.pdfbox.io.MemoryUsageSetting;
@@ -38,7 +39,6 @@ import org.apache.wicket.markup.html.image.NonCachingImage;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.request.resource.DynamicImageResource;
 import org.apache.wicket.request.resource.IResource;
-import org.apache.wicket.util.io.IOUtils;
 import org.apache.wicket.util.time.Time;
 
 @BinaryPreview(mimeTypes = { "application/pdf" })
@@ -62,9 +62,9 @@ public class BinaryPDFPreviewer extends AbstractBinaryPreviewer {
     public Component preview(final byte[] uploadedBytes) {
         firstPage = null;
 
-        PDDocument document = null;
-        try {
-            document = PDDocument.load(new ByteArrayInputStream(uploadedBytes), MemoryUsageSetting.setupTempFileOnly());
+        try (InputStream bais = new ByteArrayInputStream(uploadedBytes);
+                PDDocument document = PDDocument.load(bais, MemoryUsageSetting.setupTempFileOnly())) {
+
             document.setResourceCache(new DefaultResourceCache() {
 
                 @Override
@@ -79,8 +79,6 @@ public class BinaryPDFPreviewer extends AbstractBinaryPreviewer {
             }
         } catch (IOException e) {
             LOG.error("While generating thumbnail from first page", e);
-        } finally {
-            IOUtils.closeQuietly(document);
         }
 
         Fragment fragment;

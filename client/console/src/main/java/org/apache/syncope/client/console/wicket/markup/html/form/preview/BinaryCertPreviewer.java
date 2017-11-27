@@ -19,10 +19,8 @@
 package org.apache.syncope.client.console.wicket.markup.html.form.preview;
 
 import java.io.ByteArrayInputStream;
-import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +29,6 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.util.io.IOUtils;
 
 @BinaryPreview(mimeTypes = { "application/x-x509-ca-cert", "application/x-x509-user-cert", "application/pkix-cert" })
 public class BinaryCertPreviewer extends AbstractBinaryPreviewer {
@@ -44,14 +41,13 @@ public class BinaryCertPreviewer extends AbstractBinaryPreviewer {
 
     @Override
     public Component preview(final byte[] uploadedBytes) {
-        Label commonNameLabel = new Label("certCommonName", new Model<String>());
+        Label commonNameLabel = new Label("certCommonName", new Model<>());
         if (uploadedBytes.length == 0) {
             LOG.info("Enpty certificate");
             return commonNameLabel;
         }
 
-        ByteArrayInputStream certificateStream = new ByteArrayInputStream(uploadedBytes);
-        try {
+        try (ByteArrayInputStream certificateStream = new ByteArrayInputStream(uploadedBytes)) {
             X509Certificate certificate = (X509Certificate) CertificateFactory.getInstance("X.509").
                     generateCertificate(certificateStream);
 
@@ -67,12 +63,11 @@ public class BinaryCertPreviewer extends AbstractBinaryPreviewer {
                 }
             }
             commonNameLabel.setDefaultModelObject(commonNameBuilder.toString());
-        } catch (CertificateException | InvalidNameException e) {
+        } catch (Exception e) {
             LOG.error("Error evaluating certificate file", e);
             commonNameLabel.setDefaultModelObject(getString(Constants.ERROR));
-        } finally {
-            IOUtils.closeQuietly(certificateStream);
         }
+
         return this.addOrReplace(commonNameLabel);
     }
 }

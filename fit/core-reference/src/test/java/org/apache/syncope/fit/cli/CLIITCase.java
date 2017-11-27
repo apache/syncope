@@ -57,10 +57,8 @@ public class CLIITCase extends AbstractITCase {
     @BeforeClass
     public static void install() {
         Properties props = new Properties();
-        InputStream propStream = null;
         Process process = null;
-        try {
-            propStream = CLIITCase.class.getResourceAsStream("/cli-test.properties");
+        try (InputStream propStream = CLIITCase.class.getResourceAsStream("/cli-test.properties")) {
             props.load(propStream);
 
             File workDir = new File(props.getProperty("cli-work.dir"));
@@ -77,7 +75,6 @@ public class CLIITCase extends AbstractITCase {
         } catch (IOException | InterruptedException e) {
             fail(e.getMessage());
         } finally {
-            IOUtils.closeQuietly(propStream);
             if (process != null) {
                 process.destroy();
             }

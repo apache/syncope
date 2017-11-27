@@ -30,7 +30,6 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
-import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
@@ -183,8 +182,8 @@ public class ReportJobDelegate {
         } finally {
             try {
                 zos.closeEntry();
-                IOUtils.closeQuietly(zos);
-                IOUtils.closeQuietly(baos);
+                zos.close();
+                baos.close();
             } catch (IOException e) {
                 LOG.error("While closing StreamResult's backend", e);
             }

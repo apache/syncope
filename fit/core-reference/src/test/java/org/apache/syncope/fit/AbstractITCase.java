@@ -38,7 +38,6 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -248,9 +247,7 @@ public abstract class AbstractITCase {
 
     @BeforeClass
     public static void securitySetup() {
-        InputStream propStream = null;
-        try {
-            propStream = Encryptor.class.getResourceAsStream("/security.properties");
+        try (InputStream propStream = Encryptor.class.getResourceAsStream("/security.properties")) {
             Properties props = new Properties();
             props.load(propStream);
 
@@ -260,8 +257,6 @@ public abstract class AbstractITCase {
             JWT_ISSUER = props.getProperty("jwtIssuer");
         } catch (Exception e) {
             LOG.error("Could not read secretKey", e);
-        } finally {
-            IOUtils.closeQuietly(propStream);
         }
 
         assertNotNull(ANONYMOUS_UNAME);

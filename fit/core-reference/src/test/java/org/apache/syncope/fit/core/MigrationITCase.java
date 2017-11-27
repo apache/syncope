@@ -29,7 +29,6 @@ import java.util.Properties;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
@@ -100,14 +99,15 @@ public class MigrationITCase extends AbstractTaskITCase {
 
     @BeforeClass
     public static void setup() throws IOException {
-        InputStream propStream = null;
         try {
             Properties props = new Properties();
-            propStream = MigrationITCase.class.getResourceAsStream("/test.properties");
+            InputStream propStream = MigrationITCase.class.getResourceAsStream("/test.properties");
             props.load(propStream);
-            IOUtils.closeQuietly(propStream);
+            propStream.close();
+
             propStream = MigrationITCase.class.getResourceAsStream("/connid.properties");
             props.load(propStream);
+            propStream.close();
 
             basedir = props.getProperty("basedir");
 
@@ -120,8 +120,6 @@ public class MigrationITCase extends AbstractTaskITCase {
             connIdDbVersion = props.getProperty("connid.database.version");
         } catch (Exception e) {
             LOG.error("Could not load /connid.properties", e);
-        } finally {
-            IOUtils.closeQuietly(propStream);
         }
 
         assertNotNull(basedir);
