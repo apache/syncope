@@ -120,6 +120,10 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
         selectedDerSchemas =
                 prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefDerivedAttributeView(type));
 
+        // remove old schemas from selected lists
+        selectedPlainSchemas.retainAll(pSchemaNames);
+        selectedDerSchemas.retainAll(dSchemaNames);
+        
         final WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         add(container);
