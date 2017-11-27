@@ -192,9 +192,15 @@ public class PullTaskITCase extends AbstractTaskITCase {
         } catch (IOException e) {
             fail(e.getMessage());
         } finally {
-            IOUtils.closeQuietly(propStream);
-            IOUtils.closeQuietly(srcStream);
-            IOUtils.closeQuietly(dstStream);
+            if (propStream != null) {
+                propStream.close();
+            }
+            if (srcStream != null) {
+                srcStream.close();
+            }
+            if (dstStream != null) {
+                dstStream.close();
+            }
         }
 
         // -----------------------------

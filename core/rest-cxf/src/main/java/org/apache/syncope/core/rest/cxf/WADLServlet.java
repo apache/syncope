@@ -103,13 +103,10 @@ public class WADLServlet extends HttpServlet {
         } else if ("/syncope.wadl".equals(request.getServletPath())) {
             response.setContentType(MediaType.APPLICATION_XML);
 
-            InputStream in = new ByteArrayInputStream(wadl.getBytes());
-            OutputStream out = response.getOutputStream();
-            try {
+            try (InputStream in = new ByteArrayInputStream(wadl.getBytes());
+                    OutputStream out = response.getOutputStream()) {
+
                 IOUtils.copy(in, out);
-            } finally {
-                IOUtils.closeQuietly(in);
-                IOUtils.closeQuietly(out);
             }
         } else {
             throw new ServerException("URL not supported: " + request.getRequestURI());

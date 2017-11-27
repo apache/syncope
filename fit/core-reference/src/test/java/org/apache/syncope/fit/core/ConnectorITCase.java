@@ -39,7 +39,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -79,10 +78,8 @@ public class ConnectorITCase extends AbstractITCase {
 
     @BeforeAll
     public static void setUpConnIdBundles() throws IOException {
-        InputStream propStream = null;
-        try {
+        try (InputStream propStream = ConnectorITCase.class.getResourceAsStream("/connid.properties")) {
             Properties props = new Properties();
-            propStream = ConnectorITCase.class.getResourceAsStream("/connid.properties");
             props.load(propStream);
 
             for (String location : props.getProperty("connid.locations").split(",")) {
@@ -97,8 +94,6 @@ public class ConnectorITCase extends AbstractITCase {
             testJDBCURL = props.getProperty("testdb.url");
         } catch (Exception e) {
             LOG.error("Could not load /connid.properties", e);
-        } finally {
-            IOUtils.closeQuietly(propStream);
         }
         assertNotNull(connectorServerLocation);
         assertNotNull(connIdSoapVersion);

@@ -868,14 +868,10 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     protected void exportProcessResource(final String deploymentId, final String resourceName, final OutputStream os) {
-        InputStream procDefIS = engine.getRepositoryService().
-                getResourceAsStream(deploymentId, resourceName);
-        try {
+        try (InputStream procDefIS = engine.getRepositoryService().getResourceAsStream(deploymentId, resourceName)) {
             IOUtils.copy(procDefIS, os);
         } catch (IOException e) {
             LOG.error("While exporting {}", resourceName, e);
-        } finally {
-            IOUtils.closeQuietly(procDefIS);
         }
     }
 

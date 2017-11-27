@@ -37,7 +37,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 
 public class FileSystemUtils {
@@ -135,20 +134,17 @@ public class FileSystemUtils {
     }
 
     public static void writeXML(final Document doc, final OutputStream out) throws IOException, TransformerException {
-        try {
-            final TransformerFactory factory = TransformerFactory.newInstance();
-            factory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            final Transformer transformer = factory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-            transformer.transform(new DOMSource(doc),
-                    new StreamResult(new OutputStreamWriter(out, Charset.forName("UTF-8"))));
-        } finally {
-            IOUtils.closeQuietly(out);
-        }
+        final TransformerFactory factory = TransformerFactory.newInstance();
+        factory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        final Transformer transformer = factory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+        transformer.transform(new DOMSource(doc),
+                new StreamResult(new OutputStreamWriter(out, Charset.forName("UTF-8"))));
+        out.close();
     }
 
     public static void delete(final File file) {

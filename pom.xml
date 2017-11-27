@@ -367,13 +367,13 @@ under the License.
 
     <cxf.version>3.2.1</cxf.version>
 
-    <jackson.version>2.9.1</jackson.version>
+    <jackson.version>2.9.2</jackson.version>
 
     <spring.version>5.0.1.RELEASE</spring.version>
     <spring-security.version>4.2.3.RELEASE</spring-security.version>
 
     <openjpa.version>3.0.0-SNAPSHOT</openjpa.version>
-    <hikaricp.version>2.7.2</hikaricp.version>
+    <hikaricp.version>2.7.4</hikaricp.version>
     <bval.version>1.1.2</bval.version>
 
     <jasypt.version>1.9.2</jasypt.version>
@@ -386,17 +386,17 @@ under the License.
 
     <flowable.version>6.2.0</flowable.version>
 
-    <camel.version>2.19.3</camel.version>	
+    <camel.version>2.20.1</camel.version>	
 
     <slf4j.version>1.7.25</slf4j.version>
     <opensaml.version>3.3.0</opensaml.version>
 
-    <elasticsearch.version>5.6.2</elasticsearch.version>
+    <elasticsearch.version>6.0.0</elasticsearch.version>
 
     <log4j.version>2.10.0</log4j.version>
     <disruptor.version>3.3.7</disruptor.version>
 
-    <commons-io.version>2.5</commons-io.version>
+    <commons-io.version>2.6</commons-io.version>
     <commons-email.version>1.5</commons-email.version>
     <commons-jexl.version>3.1</commons-jexl.version>
     <commons-lang.version>3.7</commons-lang.version>
@@ -415,7 +415,7 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
     <flowable-modeler.directory>${project.build.directory}/flowable-modeler</flowable-modeler.directory>    
 
-    <swagger-core.version>1.5.16</swagger-core.version>    
+    <swagger-core.version>1.5.17</swagger-core.version>    
     <swagger-ui.version>2.2.10</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
@@ -426,7 +426,7 @@ under the License.
     
     <bootstrap.version>3.3.7</bootstrap.version>
     <bootstrap-select.version>1.12.2</bootstrap-select.version>
-    <bootstrap-fileinput.version>4.4.2</bootstrap-fileinput.version>
+    <bootstrap-fileinput.version>4.4.6</bootstrap-fileinput.version>
     <bootbox.version>4.4.0</bootbox.version>
     <font-awesome.version>4.7.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
@@ -1240,7 +1240,7 @@ under the License.
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
-        <version>2.0.7</version>
+        <version>2.0.8</version>
       </dependency>
       
       <dependency>
@@ -1587,7 +1587,7 @@ under the License.
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
-        <version>1.5.5</version>
+        <version>1.5.6</version>
         <scope>test</scope>
         <exclusions>
           <exclusion>
@@ -2216,24 +2216,24 @@ under the License.
             <link>http://www.slf4j.org/api/</link>
             <link>http://connid.tirasa.net/apidocs/1.4/</link>
             <link>http://cxf.apache.org/javadoc/latest-3.2.x/</link>
-            <link>http://fasterxml.github.io/jackson-core/javadoc/2.8/</link>
-            <link>http://fasterxml.github.io/jackson-databind/javadoc/2.8/</link>
-            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.8/</link>
-            <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.8/</link>
-            <link>http://fasterxml.github.io/jackson-dataformat-yaml/javadoc/2.8/</link>
-            <link>http://fasterxml.github.io/jackson-datatype-joda/javadoc/2.8/</link>
-            <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/2.18.3/</link>
-            <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/2.18.3/</link>
-            <link>https://ci.apache.org/projects/wicket/apidocs/7.x/</link>
+            <link>http://fasterxml.github.io/jackson-core/javadoc/2.9/</link>
+            <link>http://fasterxml.github.io/jackson-databind/javadoc/2.9/</link>
+            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.9/</link>
+            <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.9/</link>
+            <link>http://fasterxml.github.io/jackson-dataformat-yaml/javadoc/2.9/</link>
+            <link>http://fasterxml.github.io/jackson-datatype-joda/javadoc/2.9/</link>
+            <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/2.20.1/</link>
+            <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/2.20.1/</link>
+            <link>https://ci.apache.org/projects/wicket/apidocs/8.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
-            <link>https://commons.apache.org/proper/commons-io/javadocs/api-2.5/</link>
+            <link>https://commons.apache.org/proper/commons-io/javadocs/api-2.6/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>http://docs.spring.io/spring/docs/4.3.x/javadoc-api/</link>
+            <link>http://docs.spring.io/spring/docs/5.0.x/javadoc-api/</link>
             <link>http://docs.spring.io/spring-security/site/docs/4.2.x/apidocs/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/service/local/repositories/releases/archive/org/opensaml/opensaml-saml-api/3.3.0/opensaml-saml-api-3.3.0-javadoc.jar/!/index.html</link>
             <link>https://build.shibboleth.net/nexus/service/local/repositories/releases/archive/org/opensaml/opensaml-core/3.3.0/opensaml-core-3.3.0-javadoc.jar/!/index.html</link>
-            <link>https://www.javadoc.io/doc/org.elasticsearch/elasticsearch/5.6.2</link>
+            <link>https://www.javadoc.io/doc/org.elasticsearch/elasticsearch/6.0.0</link>
           </links>
         </configuration>
         <reportSets>

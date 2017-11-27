@@ -22,7 +22,7 @@ import java.net.InetAddress;
 import java.util.Map;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
@@ -54,7 +54,7 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<Client>, Disp
 
                 for (Map.Entry<String, Integer> entry : addresses.entrySet()) {
                     tClient.addTransportAddress(
-                            new InetSocketTransportAddress(InetAddress.getByName(entry.getKey()), entry.getValue()));
+                            new TransportAddress(InetAddress.getByName(entry.getKey()), entry.getValue()));
                 }
 
                 client = tClient;

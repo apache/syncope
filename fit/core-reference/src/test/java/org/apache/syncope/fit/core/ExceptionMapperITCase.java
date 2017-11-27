@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -43,14 +42,10 @@ public class ExceptionMapperITCase extends AbstractITCase {
 
     @BeforeAll
     public static void setUpErrorMessages() throws IOException {
-        InputStream propStream = null;
-        try {
-            propStream = ExceptionMapperITCase.class.getResourceAsStream("/errorMessages.properties");
+        try (InputStream propStream = ExceptionMapperITCase.class.getResourceAsStream("/errorMessages.properties")) {
             ERROR_MESSAGES.load(propStream);
         } catch (Exception e) {
             LOG.error("Could not load /errorMessages.properties", e);
-        } finally {
-            IOUtils.closeQuietly(propStream);
         }
     }
 

@@ -29,7 +29,6 @@ import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Store;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -48,14 +47,10 @@ public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase 
     @BeforeAll
     public static void startGreenMail() {
         Properties props = new Properties();
-        InputStream propStream = null;
-        try {
-            propStream = ExceptionMapperITCase.class.getResourceAsStream("/mail.properties");
+        try (InputStream propStream = ExceptionMapperITCase.class.getResourceAsStream("/mail.properties")) {
             props.load(propStream);
         } catch (Exception e) {
             LOG.error("Could not load /mail.properties", e);
-        } finally {
-            IOUtils.closeQuietly(propStream);
         }
 
         SMTP_HOST = props.getProperty("smtpHost");

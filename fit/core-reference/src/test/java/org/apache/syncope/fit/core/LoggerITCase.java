@@ -34,7 +34,6 @@ import java.util.Properties;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.log.EventCategoryTO;
@@ -246,10 +245,8 @@ public class LoggerITCase extends AbstractITCase {
 
     @Test
     public void customAuditAppender() throws IOException, InterruptedException {
-        InputStream propStream = null;
-        try {
+        try (InputStream propStream = getClass().getResourceAsStream("/core-test.properties")) {
             Properties props = new Properties();
-            propStream = getClass().getResourceAsStream("/core-test.properties");
             props.load(propStream);
 
             String auditFilePath = props.getProperty("test.log.dir")
@@ -321,8 +318,6 @@ public class LoggerITCase extends AbstractITCase {
             assertTrue(StringUtils.isEmpty(FileUtils.readFileToString(auditTempFile, Charset.defaultCharset())));
         } catch (IOException e) {
             fail("Unable to read/write log files" + e.getMessage());
-        } finally {
-            IOUtils.closeQuietly(propStream);
         }
     }
 
