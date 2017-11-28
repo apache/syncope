@@ -56,7 +56,7 @@ abstract class AbstractCamelProvisioningManager {
     protected void sendMessage(final String uri, final Object obj) {
         Exchange exchange = new DefaultExchange(contextFactory.getContext());
 
-        DefaultMessage message = new DefaultMessage();
+        DefaultMessage message = new DefaultMessage(camelContext);
         message.setBody(obj);
         exchange.setIn(message);
 
@@ -72,7 +72,7 @@ abstract class AbstractCamelProvisioningManager {
             LOG.debug("Added property {}", property.getKey());
         }
 
-        DefaultMessage message = new DefaultMessage();
+        DefaultMessage message = new DefaultMessage(camelContext);
         message.setBody(body);
         exchange.setIn(message);
         ProducerTemplate template = contextFactory.getContext().createProducerTemplate();
