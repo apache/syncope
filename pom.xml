@@ -1418,7 +1418,7 @@ under the License.
       <dependency>
         <groupId>org.webjars.bower</groupId>
         <artifactId>angular</artifactId>
-        <version>${angular.version}-1</version>
+        <version>${angular.version}</version>
       </dependency>
       <dependency>
         <groupId>org.webjars.bower</groupId>
