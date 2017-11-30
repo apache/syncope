@@ -405,7 +405,7 @@ public class MappingManagerImpl implements MappingManager {
 
             if (intAttrName.getEnclosingGroup() != null) {
                 Group group = groupDAO.findByName(intAttrName.getEnclosingGroup());
-                if (group == null || groupableRelatable.getMembership(group.getKey()) == null) {
+                if (group == null || !groupableRelatable.getMembership(group.getKey()).isPresent()) {
                     LOG.warn("No membership for {} in {}, ignoring",
                             intAttrName.getEnclosingGroup(), groupableRelatable);
                 } else {
