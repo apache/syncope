@@ -454,7 +454,7 @@ under the License.
     <fileSaver.version>0.0.2</fileSaver.version>
     
     <izpack.version>5.1.2</izpack.version>
-    <httpclient.version>4.5.3</httpclient.version>
+    <httpclient.version>4.5.4</httpclient.version>
     <maven-invoker.version>3.0.0</maven-invoker.version>
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
     <maven-jar-plugin-version>3.0.0</maven-jar-plugin-version>
