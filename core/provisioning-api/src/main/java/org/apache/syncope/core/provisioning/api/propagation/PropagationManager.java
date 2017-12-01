@@ -23,10 +23,10 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 
 public interface PropagationManager {
@@ -41,7 +41,7 @@ public interface PropagationManager {
      * @param noPropResourceKeys external resources performing not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getCreateTasks(
+    List<PropagationTaskTO> getCreateTasks(
             AnyTypeKind kind,
             String key,
             PropagationByResource propByRes,
@@ -59,7 +59,7 @@ public interface PropagationManager {
      * @param noPropResourceKeys external resources not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getUserCreateTasks(
+    List<PropagationTaskTO> getUserCreateTasks(
             String key,
             String password,
             Boolean enable,
@@ -79,7 +79,7 @@ public interface PropagationManager {
      * @param noPropResourceKeys external resource keys not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getUpdateTasks(
+    List<PropagationTaskTO> getUpdateTasks(
             AnyTypeKind kind,
             String key,
             boolean changePwd,
@@ -96,7 +96,7 @@ public interface PropagationManager {
      * @param noPropResourceKeys external resources not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getUserUpdateTasks(
+    List<PropagationTaskTO> getUserUpdateTasks(
             WorkflowResult<Pair<UserPatch, Boolean>> wfResult,
             boolean changePwd,
             Collection<String> noPropResourceKeys);
@@ -108,7 +108,7 @@ public interface PropagationManager {
      * @param wfResult user to be propagated (and info associated), as per result from workflow
      * @return list of propagation tasks
      */
-    List<PropagationTask> getUserUpdateTasks(WorkflowResult<Pair<UserPatch, Boolean>> wfResult);
+    List<PropagationTaskTO> getUserUpdateTasks(WorkflowResult<Pair<UserPatch, Boolean>> wfResult);
 
     /**
      * Create the delete tasks for the any object from each resource associated, unless in {@code noPropResourceKeys}.
@@ -119,7 +119,7 @@ public interface PropagationManager {
      * @param noPropResourceKeys external resource keys not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getDeleteTasks(
+    List<PropagationTaskTO> getDeleteTasks(
             AnyTypeKind kind,
             String key,
             PropagationByResource propByRes,
@@ -133,7 +133,7 @@ public interface PropagationManager {
      * @param noPropResourceKeys external resource keys not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> createTasks(
+    List<PropagationTaskTO> createTasks(
             Realm realm,
             PropagationByResource propByRes,
             Collection<String> noPropResourceKeys);

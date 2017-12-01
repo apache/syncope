@@ -21,8 +21,8 @@ package org.apache.syncope.core.provisioning.api.propagation;
 import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.common.lib.to.PropagationStatus;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 /**
@@ -36,7 +36,7 @@ public interface PropagationReporter {
      * @param failingResource failing resource name
      * @param tasks propagation tasks performed before failure
      */
-    void onPriorityResourceFailure(String failingResource, Collection<PropagationTask> tasks);
+    void onPriorityResourceFailure(String failingResource, Collection<PropagationTaskTO> tasks);
 
     /**
      * Report propagation status after executions in case of success or non-blocking failure
@@ -49,7 +49,7 @@ public interface PropagationReporter {
      * @param afterObj retrieved connector object after operation execution
      */
     void onSuccessOrNonPriorityResourceFailures(
-            PropagationTask propagationTask,
+            PropagationTaskTO propagationTask,
             PropagationTaskExecStatus execStatus,
             String failureReason,
             ConnectorObject beforeObj,

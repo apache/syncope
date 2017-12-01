@@ -27,11 +27,11 @@ import org.apache.camel.Exchange;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
@@ -92,7 +92,7 @@ public class StatusProducer extends AbstractProducer {
 
             PropagationByResource propByRes = new PropagationByResource();
             propByRes.addAll(ResourceOperation.UPDATE, statusPatch.getResources());
-            List<PropagationTask> tasks = getPropagationManager().getUpdateTasks(
+            List<PropagationTaskTO> tasks = getPropagationManager().getUpdateTasks(
                     AnyTypeKind.USER,
                     statusPatch.getKey(),
                     false,

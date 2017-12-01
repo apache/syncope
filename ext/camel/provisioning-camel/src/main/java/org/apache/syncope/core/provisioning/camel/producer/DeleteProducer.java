@@ -25,10 +25,10 @@ import java.util.Set;
 
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
@@ -58,7 +58,7 @@ public class DeleteProducer extends AbstractProducer {
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 
         if (null != getAnyTypeKind()) {
-            List<PropagationTask> tasks;
+            List<PropagationTaskTO> tasks;
             PropagationReporter propagationReporter;
             switch (getAnyTypeKind()) {
                 case USER:

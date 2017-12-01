@@ -19,9 +19,9 @@
 package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.util.Collection;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskCallable;
@@ -48,7 +48,7 @@ public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
 
     protected AbstractPropagationTaskExecutor executor;
 
-    protected PropagationTask task;
+    protected PropagationTaskTO taskTO;
 
     protected PropagationReporter reporter;
 
@@ -67,8 +67,8 @@ public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
     }
 
     @Override
-    public void setTask(final PropagationTask task) {
-        this.task = task;
+    public void setTaskTO(final PropagationTaskTO taskTO) {
+        this.taskTO = taskTO;
     }
 
     @Override
@@ -84,11 +84,11 @@ public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
         auth.setDetails(new SyncopeAuthenticationDetails(domain));
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        LOG.debug("Execution started for {}", task);
+        LOG.debug("Execution started for {}", taskTO);
 
-        TaskExec execution = executor.execute(task, reporter);
+        TaskExec execution = executor.execute(taskTO, reporter);
 
-        LOG.debug("Execution completed for {}, {}", task, execution);
+        LOG.debug("Execution completed for {}, {}", taskTO, execution);
 
         return execution;
     }

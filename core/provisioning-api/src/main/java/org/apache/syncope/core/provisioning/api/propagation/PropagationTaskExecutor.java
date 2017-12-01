@@ -19,13 +19,13 @@
 package org.apache.syncope.core.provisioning.api.propagation;
 
 import java.util.Collection;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 
 /**
  * Execute propagation tasks.
  *
- * @see PropagationTask
+ * @see PropagationTaskTO
  */
 public interface PropagationTaskExecutor {
 
@@ -47,7 +47,7 @@ public interface PropagationTaskExecutor {
      * @param task to be executed
      * @return the generated TaskExec
      */
-    TaskExec execute(PropagationTask task);
+    TaskExec execute(PropagationTaskTO task);
 
     /**
      * Execute a collection of PropagationTask objects.
@@ -58,5 +58,5 @@ public interface PropagationTaskExecutor {
      * @param nullPriorityAsync asynchronously executes tasks related to resources with no priority
      * @return reporter to report propagation execution status
      */
-    PropagationReporter execute(Collection<PropagationTask> tasks, boolean nullPriorityAsync);
+    PropagationReporter execute(Collection<PropagationTaskTO> tasks, boolean nullPriorityAsync);
 }

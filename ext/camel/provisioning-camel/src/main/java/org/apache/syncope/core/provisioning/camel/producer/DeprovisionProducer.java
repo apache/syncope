@@ -23,12 +23,12 @@ import java.util.List;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 
@@ -62,7 +62,7 @@ public class DeprovisionProducer extends AbstractProducer {
 
         if (null != getAnyTypeKind()) {
             PropagationByResource propByRes = new PropagationByResource();
-            List<PropagationTask> tasks;
+            List<PropagationTaskTO> tasks;
             PropagationReporter propagationReporter;
             switch (getAnyTypeKind()) {
                 case USER:

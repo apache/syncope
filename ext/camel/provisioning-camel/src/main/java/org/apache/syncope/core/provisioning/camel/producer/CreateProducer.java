@@ -30,9 +30,9 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 
@@ -54,7 +54,7 @@ public class CreateProducer extends AbstractProducer {
                 WorkflowResult<Pair<String, Boolean>> created =
                         (WorkflowResult<Pair<String, Boolean>>) exchange.getIn().getBody();
 
-                List<PropagationTask> tasks = getPropagationManager().getUserCreateTasks(
+                List<PropagationTaskTO> tasks = getPropagationManager().getUserCreateTasks(
                         created.getResult().getKey(),
                         ((UserTO) actual).getPassword(),
                         created.getResult().getValue(),
@@ -76,7 +76,7 @@ public class CreateProducer extends AbstractProducer {
                         groupOwnerMap.put(created.getResult(), groupOwner.getValues().iterator().next());
                     }
 
-                    List<PropagationTask> tasks = getPropagationManager().getCreateTasks(
+                    List<PropagationTaskTO> tasks = getPropagationManager().getCreateTasks(
                             AnyTypeKind.GROUP,
                             created.getResult(),
                             created.getPropByRes(),
@@ -86,7 +86,7 @@ public class CreateProducer extends AbstractProducer {
 
                     exchange.getOut().setBody(Pair.of(created.getResult(), null));
                 } else {
-                    List<PropagationTask> tasks = getPropagationManager().getCreateTasks(
+                    List<PropagationTaskTO> tasks = getPropagationManager().getCreateTasks(
                             actual instanceof AnyObjectTO ? AnyTypeKind.ANY_OBJECT : AnyTypeKind.GROUP,
                             created.getResult(),
                             created.getPropByRes(),

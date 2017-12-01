@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -65,6 +67,7 @@ import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -156,7 +159,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected VirAttrCache virAttrCache;
 
     @Override
-    public TaskExec execute(final PropagationTask task) {
+    public TaskExec execute(final PropagationTaskTO task) {
         return execute(task, null);
     }
 
@@ -360,7 +363,22 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return result;
     }
 
-    protected TaskExec execute(final PropagationTask task, final PropagationReporter reporter) {
+    protected TaskExec execute(final PropagationTaskTO taskTO, final PropagationReporter reporter) {
+        PropagationTask task = entityFactory.newEntity(PropagationTask.class);
+        task.setResource(resourceDAO.find(taskTO.getResource()));
+        task.setObjectClassName(taskTO.getObjectClassName());
+        task.setAnyTypeKind(taskTO.getAnyTypeKind());
+        task.setAnyType(taskTO.getAnyType());
+        task.setEntityKey(taskTO.getEntityKey());
+        task.setOperation(taskTO.getOperation());
+        task.setConnObjectKey(taskTO.getConnObjectKey());
+        task.setOldConnObjectKey(taskTO.getOldConnObjectKey());
+        Set<Attribute> attributes = new HashSet<>();
+        if (StringUtils.isNotBlank(taskTO.getAttributes())) {
+            attributes.addAll(Arrays.asList(POJOHelper.deserialize(taskTO.getAttributes(), Attribute[].class)));
+        }
+        task.setAttributes(attributes);
+
         List<PropagationActions> actions = getPropagationActions(task.getResource());
 
         String resource = task.getResource().getKey();
@@ -488,9 +506,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 execution.setTask(task);
                 task.add(execution);
 
-                // ensure that the resource instance is refreshed, as it might have been read from another thread
-                task.setResource(resourceDAO.find(task.getResource().getKey()));
-
                 taskDAO.save(task);
                 // needed to generate a value for the execution key
                 taskDAO.flush();
@@ -498,7 +513,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             if (reporter != null) {
                 reporter.onSuccessOrNonPriorityResourceFailures(
-                        task,
+                        taskTO,
                         PropagationTaskExecStatus.valueOf(execution.getStatus()),
                         failureReason,
                         beforeObj,
@@ -519,7 +534,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         if (notificationsAvailable || auditRequested) {
             ExecTO execTO = taskDataBinder.getExecTO(execution);
-            PropagationTaskTO taskTO = taskDataBinder.getTaskTO(task, taskUtilsFactory.getInstance(task), false);
             notificationManager.createTasks(AuditElements.EventCategoryType.PROPAGATION, anyTypeKind, resource,
                     operation,
                     result,
@@ -538,10 +552,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     protected abstract void doExecute(
-            Collection<PropagationTask> tasks, PropagationReporter reporter, boolean nullPriorityAsync);
+            Collection<PropagationTaskTO> tasks, PropagationReporter reporter, boolean nullPriorityAsync);
 
     @Override
-    public PropagationReporter execute(final Collection<PropagationTask> tasks, final boolean nullPriorityAsync) {
+    public PropagationReporter execute(final Collection<PropagationTaskTO> tasks, final boolean nullPriorityAsync) {
         PropagationReporter reporter = new DefaultPropagationReporter();
         try {
             doExecute(tasks, reporter, nullPriorityAsync);

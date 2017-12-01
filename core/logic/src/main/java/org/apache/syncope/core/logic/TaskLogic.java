@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -45,7 +46,6 @@ import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
@@ -197,10 +197,12 @@ public class TaskLogic extends AbstractExecutableLogic<AbstractTaskTO> {
             throw sce;
         }
 
+        TaskUtils taskUtil = taskUtilsFactory.getInstance(task);
+
         ExecTO result = null;
-        switch (taskUtilsFactory.getInstance(task).getType()) {
+        switch (taskUtil.getType()) {
             case PROPAGATION:
-                TaskExec propExec = taskExecutor.execute((PropagationTask) task);
+                TaskExec propExec = taskExecutor.execute((PropagationTaskTO) binder.getTaskTO(task, taskUtil, false));
                 result = binder.getExecTO(propExec);
                 break;
 

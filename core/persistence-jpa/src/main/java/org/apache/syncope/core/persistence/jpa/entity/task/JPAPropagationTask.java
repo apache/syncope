@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.DiscriminatorValue;
@@ -26,7 +27,6 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -113,7 +113,7 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
     public Set<Attribute> getAttributes() {
         Set<Attribute> result = new HashSet<>();
         if (StringUtils.isNotBlank(this.attributes)) {
-            CollectionUtils.addAll(result, POJOHelper.deserialize(this.attributes, Attribute[].class));
+            result.addAll(Arrays.asList(POJOHelper.deserialize(this.attributes, Attribute[].class)));
         }
 
         return result;
