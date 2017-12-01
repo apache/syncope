@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -40,7 +41,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
@@ -236,7 +236,7 @@ public class DefaultRealmPullResultHandler
             for (String resource : realm.getResourceKeys()) {
                 propByRes.add(ResourceOperation.CREATE, resource);
             }
-            List<PropagationTask> tasks = propagationManager.createTasks(realm, propByRes, null);
+            List<PropagationTaskTO> tasks = propagationManager.createTasks(realm, propByRes, null);
             taskExecutor.execute(tasks, false);
 
             RealmTO actual = binder.getRealmTO(realm, true);
@@ -319,7 +319,7 @@ public class DefaultRealmPullResultHandler
                         realm = realmDAO.save(realm);
                         RealmTO updated = binder.getRealmTO(realm, true);
 
-                        List<PropagationTask> tasks = propagationManager.createTasks(realm, propByRes, null);
+                        List<PropagationTaskTO> tasks = propagationManager.createTasks(realm, propByRes, null);
                         taskExecutor.execute(tasks, false);
 
                         for (PullActions action : profile.getActions()) {
@@ -607,7 +607,7 @@ public class DefaultRealmPullResultHandler
                         for (String resource : realm.getResourceKeys()) {
                             propByRes.add(ResourceOperation.DELETE, resource);
                         }
-                        List<PropagationTask> tasks = propagationManager.createTasks(realm, propByRes, null);
+                        List<PropagationTaskTO> tasks = propagationManager.createTasks(realm, propByRes, null);
                         taskExecutor.execute(tasks, false);
 
                         realmDAO.delete(realm);

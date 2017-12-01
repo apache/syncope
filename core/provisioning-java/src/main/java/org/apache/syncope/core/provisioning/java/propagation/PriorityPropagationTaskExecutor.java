@@ -31,11 +31,13 @@ import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
@@ -59,18 +61,18 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
      * Creates new instances of {@link PropagationTaskCallable} for usage with
      * {@link java.util.concurrent.CompletionService}.
      *
-     * @param task to be executed
+     * @param taskTO to be executed
      * @param reporter to report propagation execution status
      * @return new {@link PropagationTaskCallable} instance for usage with
      * {@link java.util.concurrent.CompletionService}
      */
     protected PropagationTaskCallable newPropagationTaskCallable(
-            final PropagationTask task, final PropagationReporter reporter) {
+            final PropagationTaskTO taskTO, final PropagationReporter reporter) {
 
         PropagationTaskCallable callable = (PropagationTaskCallable) ApplicationContextProvider.getBeanFactory().
                 createBean(DefaultPropagationTaskCallable.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
         callable.setExecutor(this);
-        callable.setTask(task);
+        callable.setTaskTO(taskTO);
         callable.setReporter(reporter);
 
         return callable;
@@ -78,16 +80,19 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
 
     @Override
     protected void doExecute(
-            final Collection<PropagationTask> tasks,
+            final Collection<PropagationTaskTO> tasks,
             final PropagationReporter reporter,
             final boolean nullPriorityAsync) {
 
-        List<PropagationTask> prioritizedTasks = tasks.stream().
-                filter(task -> task.getResource().getPropagationPriority() != null).collect(Collectors.toList());
-        Collections.sort(prioritizedTasks, new PriorityComparator());
+        Map<PropagationTaskTO, ExternalResource> taskToResource = tasks.stream().
+                collect(Collectors.toMap(Function.identity(), task -> resourceDAO.find(task.getResource())));
+
+        List<PropagationTaskTO> prioritizedTasks = tasks.stream().
+                filter(task -> taskToResource.get(task).getPropagationPriority() != null).collect(Collectors.toList());
+        Collections.sort(prioritizedTasks, new PriorityComparator(taskToResource));
         LOG.debug("Propagation tasks sorted by priority, for serial execution: {}", prioritizedTasks);
 
-        Collection<PropagationTask> concurrentTasks = tasks.stream().
+        Collection<PropagationTaskTO> concurrentTasks = tasks.stream().
                 filter(task -> !prioritizedTasks.contains(task)).collect(Collectors.toSet());
         LOG.debug("Propagation tasks for concurrent execution: {}", concurrentTasks);
 
@@ -103,14 +108,13 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 execStatus = PropagationTaskExecStatus.FAILURE;
             }
             if (execStatus != PropagationTaskExecStatus.SUCCESS) {
-                throw new PropagationException(
-                        task.getResource().getKey(), execution == null ? null : execution.getMessage());
+                throw new PropagationException(task.getResource(), execution == null ? null : execution.getMessage());
             }
         });
 
         // then process non-priority resources concurrently...
         final CompletionService<TaskExec> completionService = new ExecutorCompletionService<>(executor);
-        Map<PropagationTask, Future<TaskExec>> nullPriority = new HashMap<>(concurrentTasks.size());
+        Map<PropagationTaskTO, Future<TaskExec>> nullPriority = new HashMap<>(concurrentTasks.size());
         concurrentTasks.forEach(task -> {
             try {
                 nullPriority.put(
@@ -155,14 +159,20 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
     /**
      * Compare propagation tasks according to related ExternalResource's priority.
      */
-    protected static class PriorityComparator implements Comparator<PropagationTask>, Serializable {
+    protected static class PriorityComparator implements Comparator<PropagationTaskTO>, Serializable {
 
         private static final long serialVersionUID = -1969355670784448878L;
 
+        private final Map<PropagationTaskTO, ExternalResource> taskToResource;
+
+        public PriorityComparator(final Map<PropagationTaskTO, ExternalResource> taskToResource) {
+            this.taskToResource = taskToResource;
+        }
+
         @Override
-        public int compare(final PropagationTask task1, final PropagationTask task2) {
-            int prop1 = task1.getResource().getPropagationPriority();
-            int prop2 = task2.getResource().getPropagationPriority();
+        public int compare(final PropagationTaskTO task1, final PropagationTaskTO task2) {
+            int prop1 = taskToResource.get(task1).getPropagationPriority();
+            int prop2 = taskToResource.get(task2).getPropagationPriority();
 
             return prop1 > prop2
                     ? 1

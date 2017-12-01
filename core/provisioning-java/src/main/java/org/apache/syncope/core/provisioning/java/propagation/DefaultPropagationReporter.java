@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.to.PropagationStatus;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
@@ -46,14 +47,14 @@ public class DefaultPropagationReporter implements PropagationReporter {
 
     @Override
     public void onSuccessOrNonPriorityResourceFailures(
-            final PropagationTask propagationTask,
+            final PropagationTaskTO taskTO,
             final PropagationTaskExecStatus executionStatus,
             final String failureReason,
             final ConnectorObject beforeObj,
             final ConnectorObject afterObj) {
 
         PropagationStatus status = new PropagationStatus();
-        status.setResource(propagationTask.getResource().getKey());
+        status.setResource(taskTO.getResource());
         status.setStatus(executionStatus);
         status.setFailureReason(failureReason);
 
@@ -69,15 +70,15 @@ public class DefaultPropagationReporter implements PropagationReporter {
     }
 
     @Override
-    public void onPriorityResourceFailure(final String failingResource, final Collection<PropagationTask> tasks) {
+    public void onPriorityResourceFailure(final String failingResource, final Collection<PropagationTaskTO> tasks) {
         LOG.debug("Propagation error: {} priority resource failed to propagate", failingResource);
 
-        Optional<PropagationTask> propagationTask = tasks.stream().
-                filter(task -> task.getResource().getKey().equals(failingResource)).findFirst();
+        Optional<PropagationTaskTO> propagationTask = tasks.stream().
+                filter(task -> task.getResource().equals(failingResource)).findFirst();
 
         if (propagationTask.isPresent()) {
             PropagationStatus status = new PropagationStatus();
-            status.setResource(propagationTask.get().getResource().getKey());
+            status.setResource(propagationTask.get().getResource());
             status.setStatus(PropagationTaskExecStatus.FAILURE);
             status.setFailureReason(
                     "Propagation error: " + failingResource + " priority resource failed to propagate.");

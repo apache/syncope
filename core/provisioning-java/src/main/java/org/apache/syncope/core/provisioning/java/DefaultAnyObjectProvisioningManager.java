@@ -27,11 +27,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -75,7 +75,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
 
         WorkflowResult<String> created = awfAdapter.create(anyObjectTO);
 
-        List<PropagationTask> tasks = propagationManager.getCreateTasks(
+        List<PropagationTaskTO> tasks = propagationManager.getCreateTasks(
                 AnyTypeKind.ANY_OBJECT,
                 created.getResult(),
                 created.getPropByRes(),
@@ -100,7 +100,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
 
         WorkflowResult<AnyObjectPatch> updated = awfAdapter.update(anyObjectPatch);
 
-        List<PropagationTask> tasks = propagationManager.getUpdateTasks(
+        List<PropagationTaskTO> tasks = propagationManager.getUpdateTasks(
                 AnyTypeKind.ANY_OBJECT,
                 updated.getResult().getKey(),
                 false,
@@ -131,7 +131,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
         // information could only be available after awfAdapter.delete(), which
         // will also effectively remove user from db, thus making virtually
         // impossible by NotificationManager to fetch required user information
-        List<PropagationTask> tasks = propagationManager.getDeleteTasks(
+        List<PropagationTaskTO> tasks = propagationManager.getDeleteTasks(
                 AnyTypeKind.ANY_OBJECT,
                 key,
                 propByRes,
@@ -164,7 +164,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(ResourceOperation.UPDATE, resources);
 
-        List<PropagationTask> tasks = propagationManager.getUpdateTasks(
+        List<PropagationTaskTO> tasks = propagationManager.getUpdateTasks(
                 AnyTypeKind.ANY_OBJECT,
                 key,
                 false,
@@ -184,7 +184,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(ResourceOperation.DELETE, resources);
 
-        List<PropagationTask> tasks = propagationManager.getDeleteTasks(
+        List<PropagationTaskTO> tasks = propagationManager.getDeleteTasks(
                 AnyTypeKind.ANY_OBJECT,
                 key,
                 propByRes,

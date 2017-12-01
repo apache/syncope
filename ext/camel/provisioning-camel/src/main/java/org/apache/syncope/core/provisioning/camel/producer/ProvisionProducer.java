@@ -28,10 +28,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
@@ -70,7 +70,7 @@ public class ProvisionProducer extends AbstractProducer {
             WorkflowResult<Pair<UserPatch, Boolean>> wfResult = new WorkflowResult<>(
                     ImmutablePair.of(userPatch, (Boolean) null), propByRes, "update");
 
-            List<PropagationTask> tasks = getPropagationManager().getUserUpdateTasks(wfResult, changePwd, null);
+            List<PropagationTaskTO> tasks = getPropagationManager().getUserUpdateTasks(wfResult, changePwd, null);
             PropagationReporter propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
 
             exchange.getOut().setBody(propagationReporter.getStatuses());
@@ -83,7 +83,7 @@ public class ProvisionProducer extends AbstractProducer {
                 anyTypeKind = getAnyTypeKind();
             }
 
-            List<PropagationTask> tasks = getPropagationManager().getUpdateTasks(
+            List<PropagationTaskTO> tasks = getPropagationManager().getUpdateTasks(
                     anyTypeKind,
                     key,
                     false,
