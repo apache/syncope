@@ -66,7 +66,7 @@ public class FlowableDefinitionLoader implements SyncopeLoader {
             List<ProcessDefinition> processes = entry.getValue().getRepositoryService().
                     createProcessDefinitionQuery().processDefinitionKey(FlowableUserWorkflowAdapter.WF_PROCESS_ID).
                     list();
-            LOG.debug(FlowableUserWorkflowAdapter.WF_PROCESS_ID + " Activiti processes in repository: {}", processes);
+            LOG.debug(FlowableUserWorkflowAdapter.WF_PROCESS_ID + " Flowable processes in repository: {}", processes);
 
             // Only loads process definition from file if not found in repository
             if (processes.isEmpty()) {
@@ -79,7 +79,7 @@ public class FlowableDefinitionLoader implements SyncopeLoader {
 
                 FlowableDeployUtils.deployModel(entry.getValue(), procDef);
 
-                LOG.debug("Activiti Workflow definition loaded for domain {}", entry.getKey());
+                LOG.debug("Flowable Workflow definition loaded for domain {}", entry.getKey());
             }
 
             // jump to the next ID block
