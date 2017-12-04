@@ -483,13 +483,17 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                     key = ((UserTO) args[i]).getKey();
                 } else if (args[i] instanceof UserPatch) {
                     key = ((UserPatch) args[i]).getKey();
+                } else if (args[i] instanceof StatusPatch) {
+                    key = ((StatusPatch) args[i]).getKey();
                 }
             }
+        } else if ("requestPasswordReset".equals(method.getName())) {
+            key = userDAO.findKey((String) args[0]);
         }
 
         if (key != null) {
             try {
-                return binder.getUserTO((String) key);
+                return binder.getUserTO(key);
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);
