@@ -19,6 +19,8 @@
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.apache.wicket.Component;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -50,5 +52,20 @@ public class NonI18nPalette<T> extends Palette<T> {
     @Override
     protected Component newSelectedHeader(final String componentId) {
         return super.newSelectedHeader(componentId);
-    }   
+    }
+
+    @Override
+    protected Map<String, String> getAdditionalAttributesForChoices(final Object choice) {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("title", choice.toString());
+        return map;
+    }
+
+    @Override
+    protected Map<String, String> getAdditionalAttributesForSelection(final Object choice) {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("title", choice.toString());
+        return map;
+    }
+
 }
