@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -146,7 +147,7 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
             final Map<String, Object> jobMap)
             throws SchedulerException {
 
-        if (isRunningHere(new JobKey(jobName, Scheduler.DEFAULT_GROUP))) {
+        if (isRunning(new JobKey(jobName, Scheduler.DEFAULT_GROUP))) {
             LOG.debug("Job {} already running, cancel", jobName);
             return;
         }
@@ -306,6 +307,8 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
             } catch (SchedulerException e) {
                 LOG.error("Could not put Quartz instance {} in standby", instanceId, e);
             }
+
+            return;
         }
 
         final Pair<String, Long> conf = AuthContextUtils.execWithAuthContext(SyncopeConstants.MASTER_DOMAIN, () -> {
@@ -329,22 +332,36 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
                 Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
                 tasks.addAll(taskDAO.<PullTask>findAll(TaskType.PULL));
                 tasks.addAll(taskDAO.<PushTask>findAll(TaskType.PUSH));
-                tasks.forEach(task -> {
+
+                boolean loadException = false;
+                for (Iterator<SchedTask> it = tasks.iterator(); it.hasNext() && !loadException;) {
+                    SchedTask task = it.next();
                     try {
                         register(task, task.getStartAt(), conf.getRight());
                     } catch (Exception e) {
                         LOG.error("While loading job instance for task " + task.getKey(), e);
+                        loadException = true;
                     }
-                });
+                }
 
-                // 2. jobs for Reports
-                reportDAO.findAll().forEach(report -> {
-                    try {
-                        register(report, null, conf.getRight());
-                    } catch (Exception e) {
-                        LOG.error("While loading job instance for report " + report.getName(), e);
+                if (loadException) {
+                    LOG.debug("Errors while loading job instances for tasks, aborting");
+                } else {
+                    // 2. jobs for Reports
+                    for (Iterator<Report> it = reportDAO.findAll().iterator(); it.hasNext() && !loadException;) {
+                        Report report = it.next();
+                        try {
+                            register(report, null, conf.getRight());
+                        } catch (Exception e) {
+                            LOG.error("While loading job instance for report " + report.getName(), e);
+                            loadException = true;
+                        }
                     }
-                });
+
+                    if (loadException) {
+                        LOG.debug("Errors while loading job instances for reports, aborting");
+                    }
+                }
 
                 return null;
             });
