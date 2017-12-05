@@ -133,6 +133,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
                 label.setDefaultModelObject(resourceName);
                 target.add(label);
+                node.setDisplayName(displayName);
             }
         }
     }

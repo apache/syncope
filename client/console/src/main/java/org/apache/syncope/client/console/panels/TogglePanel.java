@@ -66,6 +66,8 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
     private static final long serialVersionUID = -2025535531121434056L;
 
     protected static final Logger LOG = LoggerFactory.getLogger(TogglePanel.class);
+    
+    protected static final int HEADER_FIRST_ABBREVIATION = 25;
 
     private enum Status {
         INACTIVE,

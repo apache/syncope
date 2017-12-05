@@ -125,9 +125,9 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
         } else {
             header = new ResourceModel("actions", StringUtils.EMPTY).getObject();
         }
-        setHeader(target, StringUtils.abbreviate(header, 25));
+        setHeader(target, StringUtils.abbreviate(header, HEADER_FIRST_ABBREVIATION));
     }
-        
+
     public void toggleWithContent(
             final AjaxRequestTarget target, final ActionsPanel<T> actionsPanel, final T modelObject) {
         updateHeader(target, modelObject);
@@ -147,7 +147,7 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
 
         container.addOrReplace(frag);
         target.add(this.container);
-        
+
         toggle(target, modelObject, true);
     }
 
