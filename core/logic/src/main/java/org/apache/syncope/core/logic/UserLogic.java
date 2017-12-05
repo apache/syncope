@@ -475,7 +475,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     protected UserTO resolveReference(final Method method, final Object... args) throws UnresolvedReferenceException {
         String key = null;
 
-        if (!"confirmPasswordReset".equals(method.getName()) && ArrayUtils.isNotEmpty(args)) {
+        if ("requestPasswordReset".equals(method.getName())) {
+            key = userDAO.findKey((String) args[0]);
+        } else if (!"confirmPasswordReset".equals(method.getName()) && ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof String) {
                     key = (String) args[i];
@@ -487,8 +489,6 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                     key = ((StatusPatch) args[i]).getKey();
                 }
             }
-        } else if ("requestPasswordReset".equals(method.getName())) {
-            key = userDAO.findKey((String) args[0]);
         }
 
         if (key != null) {
