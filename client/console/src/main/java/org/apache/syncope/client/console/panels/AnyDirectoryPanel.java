@@ -128,7 +128,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
 
         initResultTable();
 
-        // cahnge close callback in order to update header after model update
+        // change close callback in order to update header after model update
         modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
