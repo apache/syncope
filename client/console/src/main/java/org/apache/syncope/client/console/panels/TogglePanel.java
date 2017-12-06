@@ -66,7 +66,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
     private static final long serialVersionUID = -2025535531121434056L;
 
     protected static final Logger LOG = LoggerFactory.getLogger(TogglePanel.class);
-    
+
     protected static final int HEADER_FIRST_ABBREVIATION = 25;
 
     private enum Status {
@@ -211,7 +211,8 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
         } else if (modelObject instanceof EntityTO) {
             key = ((EntityTO) modelObject).getKey();
         } else if (modelObject instanceof StatusBean) {
-            key = ((StatusBean) modelObject).getKey();
+            key = StringUtils.isNotBlank(((StatusBean) modelObject).getResource())
+                    ? ((StatusBean) modelObject).getResource() : ((StatusBean) modelObject).getKey();
         } else if (modelObject instanceof PolicyRuleDirectoryPanel.PolicyRuleWrapper) {
             key = ((PolicyRuleDirectoryPanel.PolicyRuleWrapper) modelObject).getName();
         } else if (modelObject instanceof PolicyRuleDirectoryPanel.PolicyRuleWrapper) {
