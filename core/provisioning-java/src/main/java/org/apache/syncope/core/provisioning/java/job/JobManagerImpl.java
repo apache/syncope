@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -115,7 +116,8 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
             return false;
         }
 
-        Connection conn = DataSourceUtils.getConnection(domainsHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN));
+        DataSource dataSource = domainsHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN);
+        Connection conn = DataSourceUtils.getConnection(dataSource);
         PreparedStatement stmt = null;
         ResultSet resultSet = null;
         try {
@@ -132,7 +134,7 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
         } finally {
             IOUtil.quietClose(resultSet);
             IOUtil.quietClose(stmt);
-            IOUtil.quietClose(conn);
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
