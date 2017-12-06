@@ -16,50 +16,50 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-// Copy to clipboard
 if (typeof copyToClipboard === 'undefined') {
   copyToClipboard = function (element, tag_value_to_copy, fake_textarea_ID, feedback_selector) {
-    // creating new textarea element and giveing it id 't'
+    var $elem = $(element);
+
+    // creating new textarea element and giveing it an ID
     var temp = document.createElement('textarea');
     temp.id = fake_textarea_ID;
+    temp.style.display = 'block';
 
-    // Optional step to make less noise in the page, if any!
+    // Make less noise in the page
     temp.style.height = 0;
 
-    // You have to append it to your page somewhere, I chose <body>
+    // Append it to the page somewhere, in this case <body>
     $(document.body).append(temp);
 
-    // Copy whatever is in your div to our new textarea
-    temp.value = $(element).attr(tag_value_to_copy);
+    // Copy whatever is in the div to our new textarea
+    temp.value = $elem.attr(tag_value_to_copy);
 
-    // Now copy whatever inside the textarea to clipboard
-    var selector = document.querySelector("#" + fake_textarea_ID);
-    selector.select();
+    // Copy whatever inside the textarea to clipboard
+    $(temp).focus().select();
 
-    document.execCommand('copy');
+    document.execCommand('SelectAll');
+    document.execCommand("Copy", false, null);
 
     // Remove the textarea
     $(temp).remove();
 
-    $(feedback_selector).fadeIn();
+    $elem.siblings(feedback_selector).fadeIn();
 
-    // Remove Message of feedback
-    setTimeout(function () {
-      $(feedback_selector).fadeOut();
+    // Remove feedback element
+    window.setTimeout(function () {
+      $elem.siblings(feedback_selector).fadeOut();
     }, 1000);
   };
 
-  $(document).off('click', '.label-with-key:visible');
-  $(document).on('click', '.label-with-key:visible', function (e) {
+  function doCopyToClipboard(el) {
     var feedback_selector = '.copy-clipboard-feedback';
     var fake_textarea_selector = 'tttt';
     var tag_value_to_copy = 'data-value';
 
     if (!$(feedback_selector + ":visible").length) {
-      copyToClipboard(this, tag_value_to_copy, fake_textarea_selector, feedback_selector);
+      copyToClipboard(el, tag_value_to_copy, fake_textarea_selector, feedback_selector);
     }
-    e.stopPropagation();
-  });
+  }
 }
 
 
