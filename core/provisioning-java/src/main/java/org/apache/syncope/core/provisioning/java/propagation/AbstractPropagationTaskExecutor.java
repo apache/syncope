@@ -185,7 +185,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      * Transform a {@link Collection} of {@link Attribute} instances into a {@link Map}.
      * The key to each element in the map is the {@code name} of an {@link Attribute}.
      * The value of each element in the map is the {@link Attribute} instance with that name.
-     * <br/>
+     *
      * Different from the original because:
      * <ul>
      * <li>map keys are transformed toUpperCase()</li>
