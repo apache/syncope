@@ -60,6 +60,7 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
      *
      * @param id panel id
      * @param resourceTO external resource to be updated
+     * @param adminRealm admin realm
      * @param provision external resource provisioning configuration instance
      * @param itemTransformers mapping item transformers toggle panel
      * @param jexlTransformers JEXL transformers toggle panel

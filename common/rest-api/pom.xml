@@ -87,21 +87,6 @@ under the License.
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>build-for-wadl</id>
-                <phase>pre-site</phase>                
-                <goals>
-                  <goal>compile</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-                  
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
             <inherited>true</inherited>
             <executions>

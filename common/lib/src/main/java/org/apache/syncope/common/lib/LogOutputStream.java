@@ -57,7 +57,7 @@ public class LogOutputStream extends OutputStream {
      * detected.
      *
      * @param cc data to log (byte).
-     * @see java.io.OutputStream#write(int)
+     * @see OutputStream#write(int)
      */
     @Override
     public void write(final int cc) {
@@ -75,7 +75,7 @@ public class LogOutputStream extends OutputStream {
     /**
      * Flush this log stream.
      *
-     * @see java.io.OutputStream#flush()
+     * @see OutputStream#flush()
      */
     @Override
     public void flush() {
@@ -87,8 +87,8 @@ public class LogOutputStream extends OutputStream {
     /**
      * Writes all remaining data from the buffer.
      *
-     * @throws java.io.IOException
-     * @see java.io.OutputStream#close()
+     * @exception IOException if an I/O error occurs
+     * @see OutputStream#close()
      */
     @Override
     public void close() throws IOException {
@@ -104,7 +104,7 @@ public class LogOutputStream extends OutputStream {
      * @param b the array containing the data
      * @param off the offset into the array where data starts
      * @param len the length of block
-     * @see java.io.OutputStream#write(byte[], int, int)
+     * @see OutputStream#write(byte[], int, int)
      */
     @Override
     public void write(final byte[] b, final int off, final int len) {

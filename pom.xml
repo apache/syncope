@@ -2220,7 +2220,7 @@ under the License.
             <link>http://fasterxml.github.io/jackson-databind/javadoc/2.9/</link>
             <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.9/</link>
             <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.9/</link>
-            <link>http://fasterxml.github.io/jackson-dataformat-yaml/javadoc/2.9/</link>
+            <link>http://fasterxml.github.io/jackson-dataformat-yaml/javadoc/2.9.pr1/</link>
             <link>http://fasterxml.github.io/jackson-datatype-joda/javadoc/2.9/</link>
             <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/2.20.1/</link>
             <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/2.20.1/</link>
@@ -2231,9 +2231,8 @@ under the License.
             <link>http://docs.spring.io/spring/docs/5.0.x/javadoc-api/</link>
             <link>http://docs.spring.io/spring-security/site/docs/4.2.x/apidocs/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
-            <link>https://build.shibboleth.net/nexus/service/local/repositories/releases/archive/org/opensaml/opensaml-saml-api/3.3.0/opensaml-saml-api-3.3.0-javadoc.jar/!/index.html</link>
-            <link>https://build.shibboleth.net/nexus/service/local/repositories/releases/archive/org/opensaml/opensaml-core/3.3.0/opensaml-core-3.3.0-javadoc.jar/!/index.html</link>
-            <link>https://www.javadoc.io/doc/org.elasticsearch/elasticsearch/6.0.1</link>
+            <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.0/apidocs/</link>
+            <link>https://www.javadoc.io/doc/org.elasticsearch/elasticsearch/6.0.1/</link>
           </links>
         </configuration>
         <reportSets>
