@@ -26,11 +26,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.ext.scimv2.api.SCIMConstants;
 import org.apache.syncope.ext.scimv2.api.data.ResourceType;
-import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
 import org.apache.syncope.ext.scimv2.api.data.ServiceProviderConfig;
 
 @Path("v2")
-public interface SCIMService extends SearchService<SCIMResource> {
+public interface SCIMService {
 
     @GET
     @Path("ServiceProviderConfig")

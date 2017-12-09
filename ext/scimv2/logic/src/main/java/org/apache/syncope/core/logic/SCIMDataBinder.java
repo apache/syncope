@@ -99,7 +99,32 @@ public class SCIMDataBinder {
         }
     }
 
-    public SCIMUser toSCIMUser(final UserTO userTO, final String location) {
+    private boolean output(
+            final List<String> attributes,
+            final List<String> excludedAttributes,
+            final String schema) {
+
+        return (attributes.isEmpty() || attributes.contains(schema))
+                && (excludedAttributes.isEmpty() || !excludedAttributes.contains(schema));
+    }
+
+    private <T> T output(
+            final List<String> attributes,
+            final List<String> excludedAttributes,
+            final String schema,
+            final T value) {
+
+        return output(attributes, excludedAttributes, schema)
+                ? value
+                : null;
+    }
+
+    public SCIMUser toSCIMUser(
+            final UserTO userTO,
+            final String location,
+            final List<String> attributes,
+            final List<String> excludedAttributes) {
+
         SCIMConf conf = confManager.get();
 
         List<String> schemas = new ArrayList<>();
@@ -118,7 +143,7 @@ public class SCIMDataBinder {
                         ? userTO.getCreationDate() : userTO.getLastChangeDate(),
                         userTO.getETagValue(),
                         location),
-                userTO.getUsername(),
+                output(attributes, excludedAttributes, "userName", userTO.getUsername()),
                 !userTO.isSuspended());
 
         Map<String, AttrTO> attrs = new HashMap<>();
@@ -127,7 +152,7 @@ public class SCIMDataBinder {
         attrs.putAll(EntityTOUtils.buildAttrMap(userTO.getVirAttrs()));
 
         if (conf.getUserConf() != null) {
-            if (conf.getUserConf().getName() != null) {
+            if (output(attributes, excludedAttributes, "name") && conf.getUserConf().getName() != null) {
                 SCIMUserName name = new SCIMUserName();
 
                 if (conf.getUserConf().getName().getFamilyName() != null
@@ -168,91 +193,111 @@ public class SCIMDataBinder {
                 }
             }
 
-            if (conf.getUserConf().getDisplayName() != null
+            if (output(attributes, excludedAttributes, "displayName")
+                    && conf.getUserConf().getDisplayName() != null
                     && attrs.containsKey(conf.getUserConf().getDisplayName())) {
 
                 user.setDisplayName(attrs.get(conf.getUserConf().getDisplayName()).getValues().get(0));
             }
 
-            if (conf.getUserConf().getNickName() != null
+            if (output(attributes, excludedAttributes, "nickName")
+                    && conf.getUserConf().getNickName() != null
                     && attrs.containsKey(conf.getUserConf().getNickName())) {
 
                 user.setNickName(attrs.get(conf.getUserConf().getNickName()).getValues().get(0));
             }
 
-            if (conf.getUserConf().getProfileUrl() != null
+            if (output(attributes, excludedAttributes, "profileUrl")
+                    && conf.getUserConf().getProfileUrl() != null
                     && attrs.containsKey(conf.getUserConf().getProfileUrl())) {
 
                 user.setProfileUrl(attrs.get(conf.getUserConf().getProfileUrl()).getValues().get(0));
             }
 
-            if (conf.getUserConf().getTitle() != null
+            if (output(attributes, excludedAttributes, "title")
+                    && conf.getUserConf().getTitle() != null
                     && attrs.containsKey(conf.getUserConf().getTitle())) {
 
                 user.setTitle(attrs.get(conf.getUserConf().getTitle()).getValues().get(0));
             }
 
-            if (conf.getUserConf().getUserType() != null
+            if (output(attributes, excludedAttributes, "userType")
+                    && conf.getUserConf().getUserType() != null
                     && attrs.containsKey(conf.getUserConf().getUserType())) {
 
                 user.setUserType(attrs.get(conf.getUserConf().getUserType()).getValues().get(0));
             }
 
-            if (conf.getUserConf().getPreferredLanguage() != null
+            if (output(attributes, excludedAttributes, "preferredLanguage")
+                    && conf.getUserConf().getPreferredLanguage() != null
                     && attrs.containsKey(conf.getUserConf().getPreferredLanguage())) {
 
                 user.setPreferredLanguage(attrs.get(conf.getUserConf().getPreferredLanguage()).getValues().get(0));
             }
 
-            if (conf.getUserConf().getLocale() != null
+            if (output(attributes, excludedAttributes, "locale")
+                    && conf.getUserConf().getLocale() != null
                     && attrs.containsKey(conf.getUserConf().getLocale())) {
 
                 user.setLocale(attrs.get(conf.getUserConf().getLocale()).getValues().get(0));
             }
 
-            if (conf.getUserConf().getTimezone() != null
+            if (output(attributes, excludedAttributes, "timezone")
+                    && conf.getUserConf().getTimezone() != null
                     && attrs.containsKey(conf.getUserConf().getTimezone())) {
 
                 user.setTimezone(attrs.get(conf.getUserConf().getTimezone()).getValues().get(0));
             }
 
-            fill(attrs, conf.getUserConf().getEmails(), user.getEmails());
-            fill(attrs, conf.getUserConf().getPhoneNumbers(), user.getPhoneNumbers());
-            fill(attrs, conf.getUserConf().getIms(), user.getIms());
-            fill(attrs, conf.getUserConf().getPhotos(), user.getPhotos());
-            for (SCIMUserAddressConf addressConf : conf.getUserConf().getAddresses()) {
-                SCIMUserAddress address = new SCIMUserAddress();
+            if (output(attributes, excludedAttributes, "emails")) {
+                fill(attrs, conf.getUserConf().getEmails(), user.getEmails());
+            }
+            if (output(attributes, excludedAttributes, "phoneNumbers")) {
+                fill(attrs, conf.getUserConf().getPhoneNumbers(), user.getPhoneNumbers());
+            }
+            if (output(attributes, excludedAttributes, "ims")) {
+                fill(attrs, conf.getUserConf().getIms(), user.getIms());
+            }
+            if (output(attributes, excludedAttributes, "photos")) {
+                fill(attrs, conf.getUserConf().getPhotos(), user.getPhotos());
+            }
+            if (output(attributes, excludedAttributes, "addresses")) {
+                for (SCIMUserAddressConf addressConf : conf.getUserConf().getAddresses()) {
+                    SCIMUserAddress address = new SCIMUserAddress();
 
-                if (addressConf.getFormatted() != null && attrs.containsKey(addressConf.getFormatted())) {
-                    address.setFormatted(attrs.get(addressConf.getFormatted()).getValues().get(0));
-                }
-                if (addressConf.getStreetAddress() != null && attrs.containsKey(addressConf.getStreetAddress())) {
-                    address.setStreetAddress(attrs.get(addressConf.getStreetAddress()).getValues().get(0));
-                }
-                if (addressConf.getLocality() != null && attrs.containsKey(addressConf.getLocality())) {
-                    address.setLocality(attrs.get(addressConf.getLocality()).getValues().get(0));
-                }
-                if (addressConf.getRegion() != null && attrs.containsKey(addressConf.getRegion())) {
-                    address.setRegion(attrs.get(addressConf.getRegion()).getValues().get(0));
-                }
-                if (addressConf.getCountry() != null && attrs.containsKey(addressConf.getCountry())) {
-                    address.setCountry(attrs.get(addressConf.getCountry()).getValues().get(0));
-                }
-                if (addressConf.getType() != null) {
-                    address.setType(addressConf.getType().name());
-                }
-                if (addressConf.isPrimary()) {
-                    address.setPrimary(true);
-                }
+                    if (addressConf.getFormatted() != null && attrs.containsKey(addressConf.getFormatted())) {
+                        address.setFormatted(attrs.get(addressConf.getFormatted()).getValues().get(0));
+                    }
+                    if (addressConf.getStreetAddress() != null && attrs.containsKey(addressConf.getStreetAddress())) {
+                        address.setStreetAddress(attrs.get(addressConf.getStreetAddress()).getValues().get(0));
+                    }
+                    if (addressConf.getLocality() != null && attrs.containsKey(addressConf.getLocality())) {
+                        address.setLocality(attrs.get(addressConf.getLocality()).getValues().get(0));
+                    }
+                    if (addressConf.getRegion() != null && attrs.containsKey(addressConf.getRegion())) {
+                        address.setRegion(attrs.get(addressConf.getRegion()).getValues().get(0));
+                    }
+                    if (addressConf.getCountry() != null && attrs.containsKey(addressConf.getCountry())) {
+                        address.setCountry(attrs.get(addressConf.getCountry()).getValues().get(0));
+                    }
+                    if (addressConf.getType() != null) {
+                        address.setType(addressConf.getType().name());
+                    }
+                    if (addressConf.isPrimary()) {
+                        address.setPrimary(true);
+                    }
 
-                if (!address.isEmpty()) {
-                    user.getAddresses().add(address);
+                    if (!address.isEmpty()) {
+                        user.getAddresses().add(address);
+                    }
                 }
             }
 
-            for (String certificate : conf.getUserConf().getX509Certificates()) {
-                if (attrs.containsKey(certificate)) {
-                    user.getX509Certificates().add(new Value(attrs.get(certificate).getValues().get(0)));
+            if (output(attributes, excludedAttributes, "x509Certificates")) {
+                for (String certificate : conf.getUserConf().getX509Certificates()) {
+                    if (attrs.containsKey(certificate)) {
+                        user.getX509Certificates().add(new Value(attrs.get(certificate).getValues().get(0)));
+                    }
                 }
             }
         }
@@ -260,37 +305,44 @@ public class SCIMDataBinder {
         if (conf.getEnterpriseUserConf() != null) {
             SCIMEnterpriseInfo enterpriseInfo = new SCIMEnterpriseInfo();
 
-            if (conf.getEnterpriseUserConf().getEmployeeNumber() != null
+            if (output(attributes, excludedAttributes, "employeeNumber")
+                    && conf.getEnterpriseUserConf().getEmployeeNumber() != null
                     && attrs.containsKey(conf.getEnterpriseUserConf().getEmployeeNumber())) {
 
                 enterpriseInfo.setEmployeeNumber(
                         attrs.get(conf.getEnterpriseUserConf().getEmployeeNumber()).getValues().get(0));
             }
-            if (conf.getEnterpriseUserConf().getCostCenter() != null
+            if (output(attributes, excludedAttributes, "costCenter")
+                    && conf.getEnterpriseUserConf().getCostCenter() != null
                     && attrs.containsKey(conf.getEnterpriseUserConf().getCostCenter())) {
 
                 enterpriseInfo.setCostCenter(
                         attrs.get(conf.getEnterpriseUserConf().getCostCenter()).getValues().get(0));
             }
-            if (conf.getEnterpriseUserConf().getOrganization() != null
+            if (output(attributes, excludedAttributes, "organization")
+                    && conf.getEnterpriseUserConf().getOrganization() != null
                     && attrs.containsKey(conf.getEnterpriseUserConf().getOrganization())) {
 
                 enterpriseInfo.setOrganization(
                         attrs.get(conf.getEnterpriseUserConf().getOrganization()).getValues().get(0));
             }
-            if (conf.getEnterpriseUserConf().getDivision() != null
+            if (output(attributes, excludedAttributes, "division")
+                    && conf.getEnterpriseUserConf().getDivision() != null
                     && attrs.containsKey(conf.getEnterpriseUserConf().getDivision())) {
 
                 enterpriseInfo.setDivision(
                         attrs.get(conf.getEnterpriseUserConf().getDivision()).getValues().get(0));
             }
-            if (conf.getEnterpriseUserConf().getDepartment() != null
+            if (output(attributes, excludedAttributes, "department")
+                    && conf.getEnterpriseUserConf().getDepartment() != null
                     && attrs.containsKey(conf.getEnterpriseUserConf().getDepartment())) {
 
                 enterpriseInfo.setDepartment(
                         attrs.get(conf.getEnterpriseUserConf().getDepartment()).getValues().get(0));
             }
-            if (conf.getEnterpriseUserConf().getManager() != null) {
+            if (output(attributes, excludedAttributes, "manager")
+                    && conf.getEnterpriseUserConf().getManager() != null) {
+
                 SCIMUserManager manager = new SCIMUserManager();
 
                 if (conf.getEnterpriseUserConf().getManager().getManager() != null
@@ -319,7 +371,7 @@ public class SCIMDataBinder {
                             }
                         }
                     } catch (Exception e) {
-                        LOG.error("Could not read attribute {}",
+                        LOG.error("Could not read user {}",
                                 conf.getEnterpriseUserConf().getManager().getManager(), e);
                     }
                 }
@@ -334,33 +386,45 @@ public class SCIMDataBinder {
             }
         }
 
-        for (MembershipTO membership : userTO.getMemberships()) {
-            user.getGroups().add(new Group(
-                    membership.getGroupKey(),
-                    StringUtils.substringBefore(location, "/Users") + "/Groups/" + membership.getGroupKey(),
-                    membership.getGroupName(),
-                    Function.direct));
-        }
-        for (MembershipTO membership : userTO.getDynMemberships()) {
-            user.getGroups().add(new Group(
-                    membership.getGroupKey(),
-                    StringUtils.substringBefore(location, "/Users") + "/Groups/" + membership.getGroupKey(),
-                    membership.getGroupName(),
-                    Function.indirect));
-        }
-
-        for (SyncopeGrantedAuthority authority : authDataAccessor.getAuthorities(userTO.getUsername())) {
-            user.getEntitlements().add(new Value(authority.getAuthority() + " on Realm(s) " + authority.getRealms()));
+        if (output(attributes, excludedAttributes, "groups")) {
+            for (MembershipTO membership : userTO.getMemberships()) {
+                user.getGroups().add(new Group(
+                        membership.getGroupKey(),
+                        StringUtils.substringBefore(location, "/Users") + "/Groups/" + membership.getGroupKey(),
+                        membership.getGroupName(),
+                        Function.direct));
+            }
+            for (MembershipTO membership : userTO.getDynMemberships()) {
+                user.getGroups().add(new Group(
+                        membership.getGroupKey(),
+                        StringUtils.substringBefore(location, "/Users") + "/Groups/" + membership.getGroupKey(),
+                        membership.getGroupName(),
+                        Function.indirect));
+            }
         }
 
-        for (String role : userTO.getRoles()) {
-            user.getRoles().add(new Value(role));
+        if (output(attributes, excludedAttributes, "entitlements")) {
+            for (SyncopeGrantedAuthority authority : authDataAccessor.getAuthorities(userTO.getUsername())) {
+                user.getEntitlements().add(
+                        new Value(authority.getAuthority() + " on Realm(s) " + authority.getRealms()));
+            }
+        }
+
+        if (output(attributes, excludedAttributes, "roles")) {
+            for (String role : userTO.getRoles()) {
+                user.getRoles().add(new Value(role));
+            }
         }
 
         return user;
     }
 
-    public SCIMGroup toSCIMGroup(final GroupTO groupTO, final String location) {
+    public SCIMGroup toSCIMGroup(
+            final GroupTO groupTO,
+            final String location,
+            final List<String> attributes,
+            final List<String> excludedAttributes) {
+
         SCIMGroup group = new SCIMGroup(
                 groupTO.getKey(),
                 new Meta(
@@ -370,7 +434,7 @@ public class SCIMDataBinder {
                         ? groupTO.getCreationDate() : groupTO.getLastChangeDate(),
                         groupTO.getETagValue(),
                         location),
-                groupTO.getName());
+                output(attributes, excludedAttributes, "name", groupTO.getName()));
 
         MembershipCond membCond = new MembershipCond();
         membCond.setGroup(groupTO.getKey());

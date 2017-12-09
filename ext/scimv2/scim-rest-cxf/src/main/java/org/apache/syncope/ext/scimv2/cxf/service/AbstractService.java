@@ -41,12 +41,10 @@ import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
 import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
-import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.ext.scimv2.api.service.SearchService;
 
-abstract class AbstractService<R extends SCIMResource> implements SearchService<R> {
+abstract class AbstractService<R extends SCIMResource> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractService.class);
 
@@ -131,11 +129,15 @@ abstract class AbstractService<R extends SCIMResource> implements SearchService<
             if (anyTO instanceof UserTO) {
                 resource = binder().toSCIMUser(
                         (UserTO) anyTO,
-                        uriInfo.getAbsolutePathBuilder().path(anyTO.getKey()).build().toASCIIString());
+                        uriInfo.getAbsolutePathBuilder().path(anyTO.getKey()).build().toASCIIString(),
+                        request.getAttributes(),
+                        request.getExcludedAttributes());
             } else if (anyTO instanceof GroupTO) {
                 resource = binder().toSCIMGroup(
                         (GroupTO) anyTO,
-                        uriInfo.getAbsolutePathBuilder().path(anyTO.getKey()).build().toASCIIString());
+                        uriInfo.getAbsolutePathBuilder().path(anyTO.getKey()).build().toASCIIString(),
+                        request.getAttributes(),
+                        request.getExcludedAttributes());
             }
 
             if (resource != null) {
@@ -144,32 +146,6 @@ abstract class AbstractService<R extends SCIMResource> implements SearchService<
         }
 
         return response;
-    }
-
-    @Override
-    public ListResponse<R> search(
-            final List<String> attributes,
-            final List<String> excludedAttributes,
-            final String filter,
-            final String sortBy,
-            final SortOrder sortOrder,
-            final Integer startIndex,
-            final Integer count) {
-
-        SCIMSearchRequest request = new SCIMSearchRequest(filter, sortBy, sortOrder, startIndex, count);
-        if (attributes != null) {
-            request.getAttributes().addAll(attributes);
-        }
-        if (excludedAttributes != null) {
-            request.getExcludedAttributes().addAll(excludedAttributes);
-        }
-
-        return doSearch(null, request);
-    }
-
-    @Override
-    public ListResponse<R> search(final SCIMSearchRequest request) {
-        return doSearch(null, request);
     }
 
 }

@@ -45,6 +45,7 @@ import org.apache.syncope.ext.scimv2.api.SCIMConstants;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.ResourceType;
 import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
+import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
 import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
 import org.apache.syncope.ext.scimv2.api.data.ServiceProviderConfig;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
@@ -155,6 +156,20 @@ public class SCIMITCase extends AbstractITCase {
         assertEquals("rossini", user.getUserName());
         assertFalse(user.getGroups().isEmpty());
         assertFalse(user.getRoles().isEmpty());
+
+        response = webClient().path("Users").path("1417acbe-cbf6-4277-9372-e75e04f97000").
+                query("attributes", "groups").get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(
+                SCIMConstants.APPLICATION_SCIM_JSON,
+                StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
+
+        user = response.readEntity(SCIMUser.class);
+        assertNotNull(user);
+        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", user.getId());
+        assertNull(user.getUserName());
+        assertFalse(user.getGroups().isEmpty());
+        assertTrue(user.getRoles().isEmpty());
     }
 
     @Test
@@ -227,10 +242,7 @@ public class SCIMITCase extends AbstractITCase {
         assertEquals("additional", additional.getDisplayName());
 
         // eq via POST
-        String request = "{"
-                + "     \"schemas\": [\"urn:ietf:params:scim:api:messages:2.0:SearchRequest\"],"
-                + "     \"filter\": \"displayName eq \\\"additional\\\"\""
-                + "   }";
+        SCIMSearchRequest request = new SCIMSearchRequest("displayName eq \"additional\"", null, null, null, null);
         response = webClient().path("Groups").path("/.search").post(request);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(
