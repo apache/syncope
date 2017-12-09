@@ -21,7 +21,6 @@ package org.apache.syncope.ext.scimv2.api.service;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -33,17 +32,12 @@ import org.apache.syncope.ext.scimv2.api.SCIMConstants;
 import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
 
 @Path("v2/Groups")
-public interface GroupService extends SearchService<SCIMGroup> {
+public interface GroupService extends ReadService<SCIMGroup> {
 
     @POST
     @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
     @Consumes({ SCIMConstants.APPLICATION_SCIM_JSON })
     Response create();
-
-    @GET
-    @Path("{id}")
-    @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
-    SCIMGroup read(@NotNull @PathParam("id") String id);
 
     @PUT
     @Path("{id}")

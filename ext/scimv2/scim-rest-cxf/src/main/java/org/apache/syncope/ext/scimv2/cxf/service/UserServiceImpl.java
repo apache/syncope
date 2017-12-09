@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.ext.scimv2.cxf.service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.Arrays;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
 import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
@@ -32,35 +33,40 @@ public class UserServiceImpl extends AbstractService<SCIMUser> implements UserSe
 
     @Override
     public Response create() {
-        return Response.
-                created(uriInfo.getAbsolutePathBuilder().path(UUID.randomUUID().toString()).build()).
-                build();
+        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
     }
 
     @Override
-    public SCIMUser read(final String id) {
-        return binder().toSCIMUser(userLogic().read(id), uriInfo.getAbsolutePathBuilder().build().toASCIIString());
+    public SCIMUser get(final String id,
+            final String attributes,
+            final String excludedAttributes) {
+
+        return binder().toSCIMUser(
+                userLogic().read(id),
+                uriInfo.getAbsolutePathBuilder().build().toASCIIString(),
+                Arrays.asList(ArrayUtils.nullToEmpty(StringUtils.split(attributes, ','))),
+                Arrays.asList(ArrayUtils.nullToEmpty(StringUtils.split(excludedAttributes, ','))));
     }
 
     @Override
     public Response replace(final String id) {
-        return Response.ok().build();
+        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
     }
 
     @Override
     public Response delete(final String id) {
-        return Response.noContent().build();
+        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
     }
 
     @Override
     public Response update(final String id) {
-        return Response.ok().build();
+        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
     }
 
     @Override
     public ListResponse<SCIMUser> search(
-            final List<String> attributes,
-            final List<String> excludedAttributes,
+            final String attributes,
+            final String excludedAttributes,
             final String filter,
             final String sortBy,
             final SortOrder sortOrder,
@@ -69,10 +75,12 @@ public class UserServiceImpl extends AbstractService<SCIMUser> implements UserSe
 
         SCIMSearchRequest request = new SCIMSearchRequest(filter, sortBy, sortOrder, startIndex, count);
         if (attributes != null) {
-            request.getAttributes().addAll(attributes);
+            request.getAttributes().addAll(
+                    Arrays.asList(ArrayUtils.nullToEmpty(StringUtils.split(attributes, ','))));
         }
         if (excludedAttributes != null) {
-            request.getExcludedAttributes().addAll(excludedAttributes);
+            request.getExcludedAttributes().addAll(
+                    Arrays.asList(ArrayUtils.nullToEmpty(StringUtils.split(excludedAttributes, ','))));
         }
 
         return doSearch(Resource.User, request);
