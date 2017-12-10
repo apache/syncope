@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.common.lib.scim;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SCIMUserNameConf implements Serializable {
 
@@ -35,6 +39,32 @@ public class SCIMUserNameConf implements Serializable {
     private String honorificPrefix;
 
     private String honorificSuffix;
+
+    @JsonIgnore
+    public Map<String, String> asMap() {
+        Map<String, String> map = new HashMap<>();
+
+        if (formatted != null) {
+            map.put("formatted", formatted);
+        }
+        if (familyName != null) {
+            map.put("familyName", familyName);
+        }
+        if (givenName != null) {
+            map.put("givenName", givenName);
+        }
+        if (middleName != null) {
+            map.put("middleName", middleName);
+        }
+        if (honorificPrefix != null) {
+            map.put("honorificPrefix", honorificPrefix);
+        }
+        if (honorificSuffix != null) {
+            map.put("honorificSuffix", honorificSuffix);
+        }
+
+        return Collections.unmodifiableMap(map);
+    }
 
     public String getFormatted() {
         return formatted;

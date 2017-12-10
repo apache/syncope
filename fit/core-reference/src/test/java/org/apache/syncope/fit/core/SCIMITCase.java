@@ -204,7 +204,10 @@ public class SCIMITCase extends AbstractITCase {
     public void list() throws IOException {
         assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
 
-        Response response = webClient().path("Groups").get();
+        Response response = webClient().path("Groups").
+                query("sortBy", "displayName").
+                query("count", 11).
+                get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(
                 SCIMConstants.APPLICATION_SCIM_JSON,
@@ -214,8 +217,9 @@ public class SCIMITCase extends AbstractITCase {
         });
         assertNotNull(result);
         assertTrue(result.getTotalResults() > 0);
-        assertFalse(result.getResources().isEmpty());
+        assertEquals(11, result.getItemsPerPage());
 
+        assertFalse(result.getResources().isEmpty());
         result.getResources().forEach(group -> {
             assertNotNull(group.getId());
             assertNotNull(group.getDisplayName());

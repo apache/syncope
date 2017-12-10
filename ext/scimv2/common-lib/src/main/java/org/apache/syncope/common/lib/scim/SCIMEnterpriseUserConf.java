@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.common.lib.scim;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SCIMEnterpriseUserConf implements Serializable {
 
@@ -35,6 +39,29 @@ public class SCIMEnterpriseUserConf implements Serializable {
     private String department;
 
     private SCIMManagerConf manager;
+
+    @JsonIgnore
+    public Map<String, String> asMap() {
+        Map<String, String> map = new HashMap<>();
+
+        if (employeeNumber != null) {
+            map.put("employeeNumber", employeeNumber);
+        }
+        if (costCenter != null) {
+            map.put("costCenter", costCenter);
+        }
+        if (organization != null) {
+            map.put("organization", organization);
+        }
+        if (division != null) {
+            map.put("division", division);
+        }
+        if (department != null) {
+            map.put("department", department);
+        }
+
+        return Collections.unmodifiableMap(map);
+    }
 
     public String getEmployeeNumber() {
         return employeeNumber;

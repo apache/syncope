@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.common.lib.scim;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.syncope.common.lib.scim.types.AddressCanonicalType;
 
 public class SCIMUserAddressConf implements Serializable {
@@ -40,6 +44,32 @@ public class SCIMUserAddressConf implements Serializable {
     private AddressCanonicalType type;
 
     private boolean primary;
+
+    @JsonIgnore
+    public Map<String, String> asMap() {
+        Map<String, String> map = new HashMap<>();
+
+        if (formatted != null) {
+            map.put("formatted", formatted);
+        }
+        if (streetAddress != null) {
+            map.put("streetAddress", streetAddress);
+        }
+        if (locality != null) {
+            map.put("locality", locality);
+        }
+        if (region != null) {
+            map.put("region", region);
+        }
+        if (postalCode != null) {
+            map.put("postalCode", postalCode);
+        }
+        if (country != null) {
+            map.put("country", country);
+        }
+
+        return Collections.unmodifiableMap(map);
+    }
 
     public String getFormatted() {
         return formatted;

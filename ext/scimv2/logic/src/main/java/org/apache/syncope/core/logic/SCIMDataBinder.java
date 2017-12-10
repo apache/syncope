@@ -431,32 +431,34 @@ public class SCIMDataBinder {
                         ? groupTO.getCreationDate() : groupTO.getLastChangeDate(),
                         groupTO.getETagValue(),
                         location),
-                output(attributes, excludedAttributes, "name", groupTO.getName()));
+                output(attributes, excludedAttributes, "displayName", groupTO.getName()));
 
         MembershipCond membCond = new MembershipCond();
         membCond.setGroup(groupTO.getKey());
         SearchCond searchCond = SearchCond.getLeafCond(membCond);
 
-        int count = userLogic.
-                search(searchCond, 1, 1, Collections.<OrderByClause>emptyList(), SyncopeConstants.ROOT_REALM, false).
-                getLeft();
+        if (output(attributes, excludedAttributes, "members")) {
+            int count = userLogic.search(searchCond,
+                    1, 1, Collections.<OrderByClause>emptyList(),
+                    SyncopeConstants.ROOT_REALM, false).getLeft();
 
-        for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-            List<UserTO> users = userLogic.search(
-                    searchCond,
-                    page,
-                    AnyDAO.DEFAULT_PAGE_SIZE,
-                    Collections.<OrderByClause>emptyList(),
-                    SyncopeConstants.ROOT_REALM,
-                    false).
-                    getRight();
-            users.forEach(userTO -> {
-                group.getMembers().add(new Member(
-                        userTO.getKey(),
-                        StringUtils.substringBefore(location, "/Groups") + "/Users/" + userTO.getKey(),
-                        userTO.getUsername(),
-                        Resource.User));
-            });
+            for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                List<UserTO> users = userLogic.search(
+                        searchCond,
+                        page,
+                        AnyDAO.DEFAULT_PAGE_SIZE,
+                        Collections.<OrderByClause>emptyList(),
+                        SyncopeConstants.ROOT_REALM,
+                        false).
+                        getRight();
+                users.forEach(userTO -> {
+                    group.getMembers().add(new Member(
+                            userTO.getKey(),
+                            StringUtils.substringBefore(location, "/Groups") + "/Users/" + userTO.getKey(),
+                            userTO.getUsername(),
+                            Resource.User));
+                });
+            }
         }
 
         return group;
