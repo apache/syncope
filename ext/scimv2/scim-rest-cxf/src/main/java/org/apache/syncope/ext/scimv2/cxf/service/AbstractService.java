@@ -33,7 +33,9 @@ import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.SCIMDataBinder;
 import org.apache.syncope.core.logic.UserLogic;
+import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.logic.scim.SearchCondConverter;
+import org.apache.syncope.core.logic.scim.SearchCondVisitor;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -41,6 +43,7 @@ import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
 import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
+import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +62,8 @@ abstract class AbstractService<R extends SCIMResource> {
     private GroupLogic groupLogic;
 
     private SCIMDataBinder binder;
+
+    private SCIMConfManager confManager;
 
     protected UserLogic userLogic() {
         synchronized (this) {
@@ -100,6 +105,15 @@ abstract class AbstractService<R extends SCIMResource> {
         }
     }
 
+    protected SCIMConfManager confManager() {
+        synchronized (this) {
+            if (confManager == null) {
+                confManager = ApplicationContextProvider.getApplicationContext().getBean(SCIMConfManager.class);
+            }
+        }
+        return confManager;
+    }
+
     @SuppressWarnings("unchecked")
     protected ListResponse<R> doSearch(
             final Resource type,
@@ -109,20 +123,38 @@ abstract class AbstractService<R extends SCIMResource> {
             throw new UnsupportedOperationException();
         }
 
+        SearchCondVisitor visitor = new SearchCondVisitor(type, confManager().get());
+
         int startIndex = request.getStartIndex() == null || request.getStartIndex() <= 1
                 ? 1
                 : (request.getStartIndex() / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
 
+        int itemsPerPage = request.getCount() == null ? AnyDAO.DEFAULT_PAGE_SIZE : request.getCount();
+
+        List<OrderByClause> sort;
+        if (request.getSortBy() == null) {
+            sort = Collections.<OrderByClause>emptyList();
+        } else {
+            OrderByClause clause = new OrderByClause();
+            clause.setField(visitor.createAttributeCond(request.getSortBy()).getSchema());
+            clause.setDirection(request.getSortOrder() == null || request.getSortOrder() == SortOrder.ascending
+                    ? OrderByClause.Direction.ASC
+                    : OrderByClause.Direction.DESC);
+            sort = Collections.singletonList(clause);
+        }
+
         Pair<Integer, ? extends List<? extends AnyTO>> result = anyLogic(type).search(
-                StringUtils.isBlank(request.getFilter()) ? null : SearchCondConverter.convert(request.getFilter()),
+                StringUtils.isBlank(request.getFilter())
+                ? null
+                : SearchCondConverter.convert(visitor, request.getFilter()),
                 startIndex,
-                AnyDAO.DEFAULT_PAGE_SIZE,
-                Collections.<OrderByClause>emptyList(),
+                itemsPerPage,
+                sort,
                 SyncopeConstants.ROOT_REALM,
                 false);
 
         ListResponse<R> response = new ListResponse<>(
-                result.getLeft(), startIndex == 1 ? 1 : startIndex - 1, AnyDAO.DEFAULT_PAGE_SIZE);
+                result.getLeft(), startIndex == 1 ? 1 : startIndex - 1, itemsPerPage);
 
         for (AnyTO anyTO : result.getRight()) {
             SCIMResource resource = null;

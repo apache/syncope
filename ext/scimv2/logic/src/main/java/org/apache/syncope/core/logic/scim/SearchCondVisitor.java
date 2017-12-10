@@ -18,7 +18,17 @@
  */
 package org.apache.syncope.core.logic.scim;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.scim.SCIMComplexConf;
+import org.apache.syncope.common.lib.scim.SCIMConf;
+import org.apache.syncope.common.lib.scim.SCIMUserAddressConf;
+import org.apache.syncope.common.lib.scim.SCIMUserConf;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -29,41 +39,101 @@ import org.apache.syncope.ext.scimv2.api.type.Resource;
  */
 public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
 
+    private static final List<String> MULTIVALUE = Arrays.asList(
+            "emails", "phoneNumbers", "ims", "photos", "addresses");
+
+    private final Resource resource;
+
+    private final SCIMConf conf;
+
+    public SearchCondVisitor(final Resource resource, final SCIMConf conf) {
+        this.resource = resource;
+        this.conf = conf;
+    }
+
     @Override
     public SearchCond visitScimFilter(final SCIMFilterParser.ScimFilterContext ctx) {
         return visit(ctx.expression(0));
     }
 
-    private AttributeCond createAttributeCond(final String schema) {
-        AttributeCond attributeCond;
-        if ("userName".equalsIgnoreCase(schema)
-                || (Resource.User.schema() + ":userName").equalsIgnoreCase(schema)) {
+    private boolean schemaEquals(final Resource resource, final String value, final String schema) {
+        return resource == null
+                ? value.contains(":")
+                ? StringUtils.substringAfterLast(value, ":").equalsIgnoreCase(schema)
+                : value.equalsIgnoreCase(schema)
+                : value.equalsIgnoreCase(schema) || (resource.schema() + ":" + value).equalsIgnoreCase(schema);
+    }
 
+    public AttributeCond createAttributeCond(final String schema) {
+        AttributeCond attributeCond = null;
+
+        if (schemaEquals(Resource.User, "userName", schema)) {
             attributeCond = new AnyCond();
             attributeCond.setSchema("username");
-        } else if ("displayName".equalsIgnoreCase(schema)
-                || (Resource.Group.schema() + ":displayName").equalsIgnoreCase(schema)) {
-
+        } else if (resource == Resource.Group && schemaEquals(Resource.Group, "displayName", schema)) {
             attributeCond = new AnyCond();
             attributeCond.setSchema("name");
-        } else if ("meta.created".equals(schema)) {
+        } else if (schemaEquals(null, "meta.created", schema)) {
             attributeCond = new AnyCond();
             attributeCond.setSchema("creationDate");
-        } else if ("meta.lastModified".equals(schema)) {
+        } else if (schemaEquals(null, "meta.lastModified", schema)) {
             attributeCond = new AnyCond();
             attributeCond.setSchema("lastChangeDate");
-        } else {
-            attributeCond = new AttributeCond();
-            attributeCond.setSchema(schema);
+        }
+
+        if (resource == Resource.User) {
+            if (conf.getUserConf() != null) {
+                if (conf.getUserConf().getName() != null) {
+                    for (Map.Entry<String, String> entry : conf.getUserConf().getName().asMap().entrySet()) {
+                        if (schemaEquals(Resource.User, "name." + entry.getKey(), schema)) {
+                            attributeCond = new AttributeCond();
+                            attributeCond.setSchema(entry.getValue());
+                        }
+                    }
+                }
+
+                for (Map.Entry<String, String> entry : conf.getUserConf().asMap().entrySet()) {
+                    if (schemaEquals(Resource.User, entry.getKey(), schema)) {
+                        attributeCond = new AttributeCond();
+                        attributeCond.setSchema(entry.getValue());
+                    }
+                }
+
+                for (SCIMUserAddressConf address : conf.getUserConf().getAddresses()) {
+                    for (Map.Entry<String, String> entry : address.asMap().entrySet()) {
+                        if (schemaEquals(Resource.User, "addresses." + entry.getKey(), schema)) {
+                            attributeCond = new AttributeCond();
+                            attributeCond.setSchema(entry.getValue());
+                        }
+                    }
+                }
+            }
+
+            if (conf.getEnterpriseUserConf() != null) {
+                for (Map.Entry<String, String> entry : conf.getEnterpriseUserConf().asMap().entrySet()) {
+                    if (schemaEquals(Resource.EnterpriseUser, entry.getKey(), schema)) {
+                        attributeCond = new AttributeCond();
+                        attributeCond.setSchema(entry.getValue());
+                    }
+                }
+
+                if (conf.getEnterpriseUserConf().getManager() != null
+                        && conf.getEnterpriseUserConf().getManager().getManager() != null) {
+
+                    attributeCond = new AttributeCond();
+                    attributeCond.setSchema(conf.getEnterpriseUserConf().getManager().getManager());
+                }
+            }
+        }
+
+        if (attributeCond == null) {
+            throw new IllegalArgumentException("Could not match " + schema + " for " + resource);
         }
 
         return attributeCond;
     }
 
-    private SearchCond transform(final String operator, final String left, final String right) {
-        AttributeCond attributeCond = createAttributeCond(left);
-        attributeCond.setExpression(StringUtils.strip(right, "\""));
-
+    private SearchCond setOperator(final AttributeCond attributeCond, final String operator) {
         switch (operator) {
             case "eq":
             default:
@@ -104,12 +174,127 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
             case "le":
                 attributeCond.setType(AttributeCond.Type.LE);
                 break;
-
         }
 
         return "ne".equals(operator)
                 ? SearchCond.getNotLeafCond(attributeCond)
                 : SearchCond.getLeafCond(attributeCond);
+    }
+
+    private <E extends Enum<?>> SearchCond complex(
+            final String operator, final String left, final String right, final List<SCIMComplexConf<E>> items) {
+
+        if (left.endsWith(".type")) {
+            SCIMComplexConf<E> item = IterableUtils.find(items, new Predicate<SCIMComplexConf<E>>() {
+
+                @Override
+                public boolean evaluate(final SCIMComplexConf<E> object) {
+                    return object.getType().name().equals(StringUtils.strip(right, "\""));
+                }
+            });
+            if (item != null) {
+                AttributeCond attributeCond = new AttributeCond();
+                attributeCond.setSchema(item.getValue());
+                attributeCond.setType(AttributeCond.Type.ISNOTNULL);
+                return SearchCond.getLeafCond(attributeCond);
+            }
+        } else if (!conf.getUserConf().getEmails().isEmpty()
+                && (MULTIVALUE.contains(left) || left.endsWith(".value"))) {
+
+            List<SearchCond> orConds = new ArrayList<>();
+            for (SCIMComplexConf<E> item : items) {
+                AttributeCond cond = new AttributeCond();
+                cond.setSchema(item.getValue());
+                cond.setExpression(StringUtils.strip(right, "\""));
+                orConds.add(setOperator(cond, operator));
+            }
+            if (!orConds.isEmpty()) {
+                return SearchCond.getOrCond(orConds);
+            }
+        }
+
+        return null;
+    }
+
+    private SearchCond addresses(
+            final String operator, final String left, final String right, final List<SCIMUserAddressConf> items) {
+
+        if (left.endsWith(".type") && "eq".equals(operator)) {
+            SCIMUserAddressConf item = IterableUtils.find(items, new Predicate<SCIMUserAddressConf>() {
+
+                @Override
+                public boolean evaluate(final SCIMUserAddressConf object) {
+                    return object.getType().name().equals(StringUtils.strip(right, "\""));
+                }
+            });
+            if (item != null) {
+                AttributeCond attributeCond = new AttributeCond();
+                attributeCond.setSchema(item.getFormatted());
+                attributeCond.setType(AttributeCond.Type.ISNOTNULL);
+                return SearchCond.getLeafCond(attributeCond);
+            }
+        } else if (!conf.getUserConf().getEmails().isEmpty()
+                && (MULTIVALUE.contains(left) || left.endsWith(".value"))) {
+
+            List<SearchCond> orConds = new ArrayList<>();
+            for (SCIMUserAddressConf item : items) {
+                AttributeCond cond = new AttributeCond();
+                cond.setSchema(item.getFormatted());
+                cond.setExpression(StringUtils.strip(right, "\""));
+                orConds.add(setOperator(cond, operator));
+            }
+            if (!orConds.isEmpty()) {
+                return SearchCond.getOrCond(orConds);
+            }
+        }
+
+        return null;
+    }
+
+    private SearchCond transform(final String operator, final String left, final String right) {
+        SearchCond result = null;
+
+        if (MULTIVALUE.contains(StringUtils.substringBefore(left, "."))) {
+            if (conf.getUserConf() == null) {
+                throw new IllegalArgumentException("No " + SCIMUserConf.class.getName() + " provided, cannot continue");
+            }
+
+            switch (StringUtils.substringBefore(left, ".")) {
+                case "emails":
+                    result = complex(operator, left, right, conf.getUserConf().getEmails());
+                    break;
+
+                case "phoneNumbers":
+                    result = complex(operator, left, right, conf.getUserConf().getPhoneNumbers());
+                    break;
+
+                case "ims":
+                    result = complex(operator, left, right, conf.getUserConf().getIms());
+                    break;
+
+                case "photos":
+                    result = complex(operator, left, right, conf.getUserConf().getPhotos());
+                    break;
+
+                case "addresses":
+                    result = addresses(operator, left, right, conf.getUserConf().getAddresses());
+                    break;
+
+                default:
+            }
+        }
+
+        if (result == null) {
+            AttributeCond attributeCond = createAttributeCond(left);
+            attributeCond.setExpression(StringUtils.strip(right, "\""));
+            result = setOperator(attributeCond, operator);
+        }
+
+        if (result == null) {
+            throw new IllegalArgumentException(
+                    "Could not handle (" + left + " " + operator + " " + right + ") for " + resource);
+        }
+        return result;
     }
 
     @Override

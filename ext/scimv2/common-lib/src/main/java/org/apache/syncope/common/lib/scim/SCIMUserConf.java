@@ -18,9 +18,13 @@
  */
 package org.apache.syncope.common.lib.scim;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.syncope.common.lib.scim.types.EmailCanonicalType;
 import org.apache.syncope.common.lib.scim.types.IMCanonicalType;
 import org.apache.syncope.common.lib.scim.types.PhoneNumberCanonicalType;
@@ -59,6 +63,38 @@ public class SCIMUserConf implements Serializable {
     private final List<SCIMUserAddressConf> addresses = new ArrayList<>();
 
     private final List<String> x509Certificates = new ArrayList<>();
+
+    @JsonIgnore
+    public Map<String, String> asMap() {
+        Map<String, String> map = new HashMap<>();
+
+        if (displayName != null) {
+            map.put("displayName", displayName);
+        }
+        if (nickName != null) {
+            map.put("nickName", nickName);
+        }
+        if (profileUrl != null) {
+            map.put("profileUrl", profileUrl);
+        }
+        if (title != null) {
+            map.put("title", title);
+        }
+        if (userType != null) {
+            map.put("userType", userType);
+        }
+        if (preferredLanguage != null) {
+            map.put("preferredLanguage", preferredLanguage);
+        }
+        if (locale != null) {
+            map.put("locale", locale);
+        }
+        if (timezone != null) {
+            map.put("timezone", timezone);
+        }
+
+        return Collections.unmodifiableMap(map);
+    }
 
     public SCIMUserNameConf getName() {
         return name;

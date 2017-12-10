@@ -33,7 +33,7 @@ public final class SearchCondConverter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchCondConverter.class);
 
-    public static SearchCond convert(final String filter) {
+    public static SearchCond convert(final SearchCondVisitor visitor, final String filter) {
         SCIMFilterParser parser = new SCIMFilterParser(new CommonTokenStream(
                 new SCIMFilterLexer(CharStreams.fromString(filter))));
         parser.setBuildParseTree(true);
@@ -43,7 +43,7 @@ public final class SearchCondConverter {
         parser.setErrorHandler(new SCIMFilterErrorHandler());
 
         try {
-            return new SearchCondVisitor().visit(parser.scimFilter());
+            return visitor.visit(parser.scimFilter());
         } catch (Exception e) {
             LOG.error("Could not parse {}", filter, e);
             throw new SCIMBadRequestException(ErrorType.invalidFilter, e.getMessage());
