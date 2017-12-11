@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -392,6 +393,46 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         });
 
         return result;
+    }
+
+    @Override
+    public int countAMembers(final Group group) {
+        Query query = entityManager().createNativeQuery(
+            "SELECT COUNT(anyObject_id) FROM " + JPAAMembership.TABLE + " WHERE group_id=?");
+        query.setParameter(1, group.getKey());
+
+        return ((Number) query.getSingleResult()).intValue();
+    }
+
+    @Override
+    public int countUMembers(final Group group) {
+        Query query = entityManager().createNativeQuery(
+            "SELECT COUNT(user_id) FROM " + JPAUMembership.TABLE + " WHERE group_id=?");
+        query.setParameter(1, group.getKey());
+
+        return ((Number) query.getSingleResult()).intValue();
+    }
+
+    @Override
+    public int countADynMembers(final Group group) {
+        Query query = entityManager().createNativeQuery(
+            "SELECT COUNT(any_id) FROM " + ADYNMEMB_TABLE + " WHERE group_id=?");
+        query.setParameter(1, group.getKey());
+
+        return ((Number) query.getSingleResult()).intValue();
+    }
+
+    @Override
+    public int countUDynMembers(final Group group) {
+        if (group.getUDynMembership() == null) {
+            return 0;
+        }
+
+        Query query = entityManager().createNativeQuery(
+                "SELECT COUNT(any_id) FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
+        query.setParameter(1, group.getKey());
+
+        return ((Number) query.getSingleResult()).intValue();
     }
 
     @Override

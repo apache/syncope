@@ -49,6 +49,14 @@ public interface GroupDAO extends AnyDAO<Group> {
 
     List<String> findADynMembers(Group group);
 
+    int countAMembers(Group group);
+
+    int countUMembers(Group group);
+
+    int countADynMembers(Group group);
+
+    int countUDynMembers(Group group);
+
     Collection<String> findAllResourceKeys(final String key);
 
     void clearADynMembers(Group group);

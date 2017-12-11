@@ -47,6 +47,14 @@ public class GroupTO extends AnyTO {
 
     private String udynMembershipCond;
 
+    private int staticUserMembershipCount;
+
+    private int dynamicUserMembershipCount;
+
+    private int staticAnyObjectMembershipCount;
+
+    private int dynamicAnyObjectMembershipCount;
+
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     @JsonIgnore
     private final Map<String, String> adynMembershipConds = new HashMap<>();
@@ -93,6 +101,38 @@ public class GroupTO extends AnyTO {
 
     public void setUDynMembershipCond(final String uDynMembershipCond) {
         this.udynMembershipCond = uDynMembershipCond;
+    }
+
+    public int getStaticUserMembershipCount() {
+        return staticUserMembershipCount;
+    }
+
+    public void setStaticUserMembershipCount(final int staticUserMembershipCount) {
+        this.staticUserMembershipCount = staticUserMembershipCount;
+    }
+
+    public int getDynamicUserMembershipCount() {
+        return dynamicUserMembershipCount;
+    }
+
+    public void setDynamicUserMembershipCount(final int dynamicUserMembershipCount) {
+        this.dynamicUserMembershipCount = dynamicUserMembershipCount;
+    }
+
+    public int getStaticAnyObjectMembershipCount() {
+        return staticAnyObjectMembershipCount;
+    }
+
+    public void setStaticAnyObjectMembershipCount(final int staticAnyObjectMembershipCount) {
+        this.staticAnyObjectMembershipCount = staticAnyObjectMembershipCount;
+    }
+
+    public int getDynamicAnyObjectMembershipCount() {
+        return dynamicAnyObjectMembershipCount;
+    }
+
+    public void setDynamicAnyObjectMembershipCount(final int dynamicAnyObjectMembershipCount) {
+        this.dynamicAnyObjectMembershipCount = dynamicAnyObjectMembershipCount;
     }
 
     @JsonProperty

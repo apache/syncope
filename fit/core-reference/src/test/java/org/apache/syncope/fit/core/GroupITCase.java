@@ -189,6 +189,7 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(groupTO);
         assertNotNull(groupTO.getPlainAttrs());
         assertFalse(groupTO.getPlainAttrs().isEmpty());
+        assertEquals(2, groupTO.getStaticUserMembershipCount());
     }
 
     @Test
@@ -629,6 +630,7 @@ public class GroupITCase extends AbstractITCase {
         List<MembershipTO> memberships = userService.read(
                 "c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships();
         assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
+        assertEquals(1, groupService.read(group.getKey()).getDynamicUserMembershipCount());
 
         GroupPatch patch = new GroupPatch();
         patch.setKey(group.getKey());
@@ -636,6 +638,7 @@ public class GroupITCase extends AbstractITCase {
         groupService.update(patch);
 
         assertTrue(userService.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships().isEmpty());
+        assertEquals(0, groupService.read(group.getKey()).getDynamicUserMembershipCount());
     }
 
     @Test
@@ -699,6 +702,53 @@ public class GroupITCase extends AbstractITCase {
         assertFalse(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
         memberships = anyObjectService.read(newAny.getKey()).getDynMemberships();
         assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
+    }
+
+    @Test
+    public void aDynMembershipCount() {
+        // Create a new printer as a dynamic member of a new group
+        GroupTO group = getBasicSampleTO("aDynamicMembership");
+        String fiql = SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").is("location").equalTo("home").query();
+        group.getADynMembershipConds().put("PRINTER", fiql);
+        group = createGroup(group).getEntity();
+
+        AnyObjectTO printer = new AnyObjectTO();
+        printer.setRealm(SyncopeConstants.ROOT_REALM);
+        printer.setName("Printer_" + getUUIDString());
+        printer.setType("PRINTER");
+        AttrTO location = new AttrTO.Builder().schema("location").value("home").build();
+        printer.getPlainAttrs().add(location);
+        printer = createAnyObject(printer).getEntity();
+
+        group = groupService.read(group.getKey());
+        assertEquals(0, group.getStaticAnyObjectMembershipCount());
+        assertEquals(1, group.getDynamicAnyObjectMembershipCount());
+
+        anyObjectService.delete(printer.getKey());
+        groupService.delete(group.getKey());
+    }
+
+    @Test
+    public void aStaticMembershipCount() {
+        // Create a new printer as a static member of a new group
+        GroupTO group = getBasicSampleTO("aStaticMembership");
+        group = createGroup(group).getEntity();
+
+        AnyObjectTO printer = new AnyObjectTO();
+        printer.setRealm(SyncopeConstants.ROOT_REALM);
+        printer.setName("Printer_" + getUUIDString());
+        printer.setType("PRINTER");
+        MembershipTO membership = new MembershipTO();
+        membership.setGroupKey(group.getKey());
+        printer.getMemberships().add(membership);
+        printer = createAnyObject(printer).getEntity();
+
+        group = groupService.read(group.getKey());
+        assertEquals(0, group.getDynamicAnyObjectMembershipCount());
+        assertEquals(1, group.getStaticAnyObjectMembershipCount());
+
+        anyObjectService.delete(printer.getKey());
+        groupService.delete(group.getKey());
     }
 
     @Test
