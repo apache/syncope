@@ -345,8 +345,8 @@ public class SCIMDataBinder {
                             && attrs.containsKey(conf.getEnterpriseUserConf().getManager().getManager())) {
 
                         try {
-                            UserTO userManager = userLogic.read(
-                                    attrs.get(conf.getEnterpriseUserConf().getManager().getManager()).getValues().get(0));
+                            UserTO userManager = userLogic.read(attrs.get(
+                                    conf.getEnterpriseUserConf().getManager().getManager()).getValues().get(0));
                             manager.setValue(userManager.getKey());
                             manager.setRef(
                                     StringUtils.substringBefore(location, "/Users") + "/Users/" + userManager.getKey());
