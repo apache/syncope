@@ -140,3 +140,28 @@ https://github.com/apache/syncope/tree/2_0_X/ext/elasticsearch[source tree^]
 endif::[]
 .
 ====
+
+==== SCIM
+
+http://www.simplecloud.info/[SCIM^] (System for Cross-domain Identity Management) 2.0 is the open API for managing
+identities, published under the IETF:
+
+. https://tools.ietf.org/html/rfc7642[Definitions, Overview, Concepts, and Requirements^]
+. https://tools.ietf.org/html/rfc7643[Core Schema^]
+. https://tools.ietf.org/html/rfc7644[Protocol^]
+
+This extension enables an additional `/scim` REST endpoint, implementing the communication according to the SCIM 2.0
+standard.
+
+[NOTE]
+.Extension Sources
+====
+The source code of this extension is available from the Apache Syncope
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/scimv2[source tree^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/2_0_X/ext/scimv2[source tree^]
+endif::[]
+.
+====
