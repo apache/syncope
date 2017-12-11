@@ -151,7 +151,7 @@ identities, published under the IETF:
 . https://tools.ietf.org/html/rfc7644[Protocol^]
 
 This extension enables an additional `/scim` REST endpoint, implementing the communication according to the SCIM 2.0
-standard.
+standard, in order to provision User, Enterprise User and Group SCIM entities to Apache Syncope.
 
 [NOTE]
 .Extension Sources
