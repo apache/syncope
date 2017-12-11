@@ -417,6 +417,25 @@ classpath*:/provisioning*Context.xml
 classpath*:/workflow*Context.xml
 ....
 
+[discrete]
+===== Enable the <<SCIM>> extension
+
+Add the following dependencies to `core/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.ext.scimv2</groupId>
+  <artifactId>syncope-ext-scimv2-rest-cxf</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.syncope.ext.scimv2</groupId>
+  <artifactId>syncope-ext-scimv2-scim-rest-cxf</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+----
+
 [[customization-console]]
 ==== Console
 
@@ -454,6 +473,20 @@ Add the following dependencies to `console/pom.xml`:
 ----
 
 Copy `console/src/main/resources/all/saml2sp-agent.properties` to `console/src/main/resources/saml2sp-agent.properties`.
+
+[discrete]
+===== Enable the <<SCIM>> extension
+
+Add the following dependencies to `console/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.ext.scimv2</groupId>
+  <artifactId>syncope-ext-scimv2-client-console</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+----
 
 [[customization-enduser]]
 ==== Enduser
