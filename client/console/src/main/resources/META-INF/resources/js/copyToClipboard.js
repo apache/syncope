@@ -29,16 +29,29 @@ if (typeof copyToClipboard === 'undefined') {
     temp.style.height = 0;
 
     // Append it to the page somewhere, in this case <body>
-    $(document.body).append(temp);
+    $elem.append(temp);
 
     // Copy whatever is in the div to our new textarea
     temp.value = $elem.attr(tag_value_to_copy);
+    $(temp).text(temp.value);
 
     // Copy whatever inside the textarea to clipboard
     $(temp).focus().select();
-
     document.execCommand('SelectAll');
-    document.execCommand("Copy", false, null);
+    document.execCommand("copy", false, null);
+
+    if ($.browser.mozilla && !$.browser.chrome) {
+      try {
+        var range = document.createRange();
+        range.selectNodeContents(temp);
+        var selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        document.execCommand("Copy", false, null);
+      } catch (e) {
+      }
+    }
 
     // Remove the textarea
     $(temp).remove();
