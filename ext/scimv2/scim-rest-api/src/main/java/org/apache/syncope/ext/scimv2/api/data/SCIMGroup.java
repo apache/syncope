@@ -31,7 +31,7 @@ public class SCIMGroup extends SCIMResource {
 
     private static final long serialVersionUID = -2935466041674390279L;
 
-    private final String displayName;
+    private String displayName;
 
     private final List<Member> members = new ArrayList<>();
 
@@ -42,6 +42,10 @@ public class SCIMGroup extends SCIMResource {
             @JsonProperty("displayName") final String displayName) {
 
         super(id, Collections.singletonList(Resource.Group.schema()), meta);
+        this.displayName = displayName;
+    }
+
+    public void setDisplayName(final String displayName) {
         this.displayName = displayName;
     }
 

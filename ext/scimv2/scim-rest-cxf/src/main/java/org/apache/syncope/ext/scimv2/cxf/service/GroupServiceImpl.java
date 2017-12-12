@@ -19,21 +19,64 @@
 package org.apache.syncope.ext.scimv2.cxf.service;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.patch.MembershipPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
+import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
+import org.apache.syncope.ext.scimv2.api.data.Member;
 import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
 import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
 import org.apache.syncope.ext.scimv2.api.service.GroupService;
+import org.apache.syncope.ext.scimv2.api.type.ErrorType;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 
 public class GroupServiceImpl extends AbstractService<SCIMGroup> implements GroupService {
 
     @Override
-    public Response create() {
-        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+    public Response create(final SCIMGroup group) {
+        // first create group, no members assigned
+        ProvisioningResult<GroupTO> result = groupLogic().create(binder().toGroupTO(group), false);
+
+        // then assign members
+        for (Member member : group.getMembers()) {
+            UserPatch patch = new UserPatch();
+            patch.setKey(member.getValue());
+            patch.getMemberships().add(new MembershipPatch.Builder().
+                    operation(PatchOperation.ADD_REPLACE).group(result.getEntity().getKey()).build());
+
+            try {
+                userLogic().update(patch, false);
+            } catch (Exception e) {
+                LOG.error("While setting membership of {} to {}", result.getEntity().getKey(), member.getValue(), e);
+            }
+        }
+
+        return createResponse(
+                result.getEntity().getKey(),
+                binder().toSCIMGroup(
+                        result.getEntity(),
+                        uriInfo.getAbsolutePathBuilder().path(result.getEntity().getKey()).build().toASCIIString(),
+                        Collections.<String>emptyList(),
+                        Collections.<String>emptyList()));
     }
 
     @Override
@@ -49,18 +92,96 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
     }
 
     @Override
-    public Response replace(final String id) {
+    public Response update(final String id) {
         return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+    }
+
+    @Override
+    public Response replace(final String id, final SCIMGroup group) {
+        if (!id.equals(group.getId())) {
+            throw new BadRequestException(ErrorType.invalidPath, "Expected " + id + ", found " + group.getId());
+        }
+
+        ResponseBuilder builder = checkETag(Resource.Group, id);
+        if (builder != null) {
+            return builder.build();
+        }
+
+        // save current group members
+        Set<String> beforeMembers = new HashSet<>();
+
+        MembershipCond membCond = new MembershipCond();
+        membCond.setGroup(id);
+        SearchCond searchCond = SearchCond.getLeafCond(membCond);
+        int count = userLogic().search(searchCond,
+                1, 1, Collections.<OrderByClause>emptyList(),
+                SyncopeConstants.ROOT_REALM, false).getLeft();
+        for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+            beforeMembers.addAll(userLogic().search(
+                    searchCond,
+                    page,
+                    AnyDAO.DEFAULT_PAGE_SIZE,
+                    Collections.<OrderByClause>emptyList(),
+                    SyncopeConstants.ROOT_REALM,
+                    false).
+                    getRight().stream().map(EntityTO::getKey).collect(Collectors.toSet()));
+        }
+
+        // update group, don't change members
+        ProvisioningResult<GroupTO> result = groupLogic().update(
+                AnyOperations.diff(binder().toGroupTO(group), groupLogic().read(id), false), false);
+
+        // assign new members
+        Set<String> afterMembers = new HashSet<>();
+        group.getMembers().forEach(member -> {
+            afterMembers.add(member.getValue());
+
+            if (!beforeMembers.contains(member.getValue())) {
+                UserPatch patch = new UserPatch();
+                patch.setKey(member.getValue());
+                patch.getMemberships().add(new MembershipPatch.Builder().
+                        operation(PatchOperation.ADD_REPLACE).group(result.getEntity().getKey()).build());
+
+                try {
+                    userLogic().update(patch, false);
+                } catch (Exception e) {
+                    LOG.error("While setting membership of {} to {}",
+                            result.getEntity().getKey(), member.getValue(), e);
+                }
+            }
+        });
+        // remove unconfirmed members
+        beforeMembers.stream().filter(member -> !afterMembers.contains(member)).forEach(user -> {
+            UserPatch patch = new UserPatch();
+            patch.setKey(user);
+            patch.getMemberships().add(new MembershipPatch.Builder().
+                    operation(PatchOperation.DELETE).group(result.getEntity().getKey()).build());
+
+            try {
+                userLogic().update(patch, false);
+            } catch (Exception e) {
+                LOG.error("While removing membership of {} from {}", result.getEntity().getKey(), user, e);
+            }
+        });
+
+        return updateResponse(
+                result.getEntity().getKey(),
+                binder().toSCIMGroup(
+                        result.getEntity(),
+                        uriInfo.getAbsolutePathBuilder().path(result.getEntity().getKey()).build().toASCIIString(),
+                        Collections.<String>emptyList(),
+                        Collections.<String>emptyList()));
     }
 
     @Override
     public Response delete(final String id) {
-        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
-    }
+        ResponseBuilder builder = checkETag(Resource.Group, id);
+        if (builder != null) {
+            return builder.build();
+        }
 
-    @Override
-    public Response update(final String id) {
-        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+        anyLogic(Resource.Group).delete(id, false);
+        return Response.noContent().build();
     }
 
     @Override

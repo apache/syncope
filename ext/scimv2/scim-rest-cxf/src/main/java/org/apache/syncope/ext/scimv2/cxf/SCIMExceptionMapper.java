@@ -23,7 +23,6 @@ import java.util.Set;
 import javax.validation.ValidationException;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -36,12 +35,11 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntit
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.workflow.api.WorkflowException;
-import org.apache.syncope.ext.scimv2.api.ConflictException;
-import org.apache.syncope.ext.scimv2.api.PayloadTooLargeException;
-import org.apache.syncope.ext.scimv2.api.SCIMBadRequestException;
+import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.SCIMError;
 import org.apache.syncope.ext.scimv2.api.type.ErrorType;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
@@ -89,13 +87,14 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
 
         if (ex instanceof AccessDeniedException
                 || ex instanceof ForbiddenException
-                || ex instanceof NotAuthorizedException
-                || ex instanceof NotFoundException
-                || ex instanceof ConflictException
-                || ex instanceof PayloadTooLargeException) {
+                || ex instanceof NotAuthorizedException) {
 
             // leaves the default exception processing
             builder = null;
+        } else if (ex instanceof NotFoundException) {
+            return Response.status(Response.Status.NOT_FOUND).entity(new SCIMError(null,
+                    Response.Status.NOT_FOUND.getStatusCode(), ExceptionUtils.getRootCauseMessage(ex))).
+                    build();
         } else if (ex instanceof SyncopeClientException) {
             SyncopeClientException sce = (SyncopeClientException) ex;
             builder = builder(sce.getType(), ExceptionUtils.getRootCauseMessage(ex));
@@ -188,8 +187,8 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
             return builder(ClientExceptionType.InvalidValues, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof MalformedPathException) {
             return builder(ClientExceptionType.InvalidPath, ExceptionUtils.getRootCauseMessage(ex));
-        } else if (ex instanceof SCIMBadRequestException) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(new SCIMError((SCIMBadRequestException) ex));
+        } else if (ex instanceof BadRequestException) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(new SCIMError((BadRequestException) ex));
         }
 
         return null;
@@ -198,15 +197,13 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
     private ResponseBuilder builder(final ClientExceptionType hType, final String msg) {
         ResponseBuilder builder = Response.status(hType.getResponseStatus());
 
-        if (hType.getResponseStatus() == Response.Status.BAD_REQUEST) {
-            ErrorType scimType = null;
-            if (hType.name().startsWith("Invalid") || hType == ClientExceptionType.RESTValidation) {
-                scimType = ErrorType.invalidValue;
-            }
-
-            builder = builder.entity(new SCIMError(scimType, msg));
+        ErrorType scimType = null;
+        if (hType.name().startsWith("Invalid") || hType == ClientExceptionType.RESTValidation) {
+            scimType = ErrorType.invalidValue;
+        } else if (hType == ClientExceptionType.DataIntegrityViolation) {
+            scimType = ErrorType.uniqueness;
         }
 
-        return builder;
+        return builder.entity(new SCIMError(scimType, hType.getResponseStatus().getStatusCode(), msg));
     }
 }

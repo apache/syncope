@@ -37,22 +37,22 @@ public interface GroupService extends ReadService<SCIMGroup> {
     @POST
     @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
     @Consumes({ SCIMConstants.APPLICATION_SCIM_JSON })
-    Response create();
-
-    @PUT
-    @Path("{id}")
-    @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
-    @Consumes({ SCIMConstants.APPLICATION_SCIM_JSON })
-    Response replace(@NotNull @PathParam("id") String id);
-
-    @DELETE
-    @Path("{id}")
-    @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
-    Response delete(@NotNull @PathParam("id") String id);
+    Response create(SCIMGroup group);
 
     @PATCH
     @Path("{id}")
     @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
     @Consumes({ SCIMConstants.APPLICATION_SCIM_JSON })
     Response update(@NotNull @PathParam("id") String id);
+
+    @PUT
+    @Path("{id}")
+    @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
+    @Consumes({ SCIMConstants.APPLICATION_SCIM_JSON })
+    Response replace(@NotNull @PathParam("id") String id, SCIMGroup group);
+
+    @DELETE
+    @Path("{id}")
+    @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
+    Response delete(@NotNull @PathParam("id") String id);
 }

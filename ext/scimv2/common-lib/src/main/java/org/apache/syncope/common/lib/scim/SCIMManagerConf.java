@@ -24,16 +24,16 @@ public class SCIMManagerConf implements Serializable {
 
     private static final long serialVersionUID = -1443695570207406613L;
 
-    private String manager;
+    private String key;
 
     private String displayName;
 
-    public String getManager() {
-        return manager;
+    public String getKey() {
+        return key;
     }
 
-    public void setManager(final String manager) {
-        this.manager = manager;
+    public void setKey(final String key) {
+        this.key = key;
     }
 
     public String getDisplayName() {

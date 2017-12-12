@@ -19,8 +19,12 @@
 package org.apache.syncope.ext.scimv2.cxf.service;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -37,6 +41,9 @@ import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.logic.scim.SearchCondConverter;
 import org.apache.syncope.core.logic.scim.SearchCondVisitor;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
@@ -57,6 +64,10 @@ abstract class AbstractService<R extends SCIMResource> {
     @Context
     protected MessageContext messageContext;
 
+    private UserDAO userDAO;
+
+    private GroupDAO groupDAO;
+
     private UserLogic userLogic;
 
     private GroupLogic groupLogic;
@@ -64,6 +75,24 @@ abstract class AbstractService<R extends SCIMResource> {
     private SCIMDataBinder binder;
 
     private SCIMConfManager confManager;
+
+    protected UserDAO userDAO() {
+        synchronized (this) {
+            if (userDAO == null) {
+                userDAO = ApplicationContextProvider.getApplicationContext().getBean(UserDAO.class);
+            }
+        }
+        return userDAO;
+    }
+
+    protected GroupDAO groupDAO() {
+        synchronized (this) {
+            if (groupDAO == null) {
+                groupDAO = ApplicationContextProvider.getApplicationContext().getBean(GroupDAO.class);
+            }
+        }
+        return groupDAO;
+    }
 
     protected UserLogic userLogic() {
         synchronized (this) {
@@ -92,6 +121,19 @@ abstract class AbstractService<R extends SCIMResource> {
         return binder;
     }
 
+    protected AnyDAO<?> anyDAO(final Resource type) {
+        switch (type) {
+            case User:
+                return userDAO();
+
+            case Group:
+                return groupDAO();
+
+            default:
+                throw new UnsupportedOperationException();
+        }
+    }
+
     protected AbstractAnyLogic<?, ?> anyLogic(final Resource type) {
         switch (type) {
             case User:
@@ -112,6 +154,28 @@ abstract class AbstractService<R extends SCIMResource> {
             }
         }
         return confManager;
+    }
+
+    protected Response createResponse(final String key, final SCIMResource resource) {
+        return Response.created(uriInfo.getAbsolutePathBuilder().path(key).build()).
+                entity(resource).
+                build();
+    }
+
+    protected Response updateResponse(final String key, final SCIMResource resource) {
+        return Response.ok(uriInfo.getAbsolutePathBuilder().path(key).build()).
+                entity(resource).
+                build();
+    }
+
+    protected ResponseBuilder checkETag(final Resource resource, final String key) {
+        Date lastChange = anyDAO(resource).findLastChange(key);
+        if (lastChange == null) {
+            throw new NotFoundException("Resource" + key + " not found");
+        }
+
+        return messageContext.getRequest().
+                evaluatePreconditions(new EntityTag(String.valueOf(lastChange.getTime()), true));
     }
 
     @SuppressWarnings("unchecked")

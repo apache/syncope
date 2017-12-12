@@ -117,10 +117,10 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
                 }
 
                 if (conf.getEnterpriseUserConf().getManager() != null
-                        && conf.getEnterpriseUserConf().getManager().getManager() != null) {
+                        && conf.getEnterpriseUserConf().getManager().getKey() != null) {
 
                     attributeCond = new AttributeCond();
-                    attributeCond.setSchema(conf.getEnterpriseUserConf().getManager().getManager());
+                    attributeCond.setSchema(conf.getEnterpriseUserConf().getManager().getKey());
                 }
             }
         }
