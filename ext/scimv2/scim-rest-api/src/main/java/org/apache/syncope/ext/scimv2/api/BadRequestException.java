@@ -18,21 +18,20 @@
  */
 package org.apache.syncope.ext.scimv2.api;
 
-import javax.ws.rs.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.type.ErrorType;
 
-public class SCIMBadRequestException extends BadRequestException {
+public class BadRequestException extends RuntimeException {
 
     private static final long serialVersionUID = -2588839750716910491L;
 
     private final ErrorType errorType;
 
-    public SCIMBadRequestException(final ErrorType errorType) {
+    public BadRequestException(final ErrorType errorType) {
         super();
         this.errorType = errorType;
     }
 
-    public SCIMBadRequestException(final ErrorType errorType, final String detail) {
+    public BadRequestException(final ErrorType errorType, final String detail) {
         super(detail);
         this.errorType = errorType;
     }

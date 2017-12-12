@@ -24,30 +24,43 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.scim.SCIMComplexConf;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMUserConf;
+import org.apache.syncope.common.lib.scim.SCIMUserNameConf;
+import org.apache.syncope.common.lib.scim.types.EmailCanonicalType;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.ext.scimv2.api.SCIMConstants;
+import org.apache.syncope.ext.scimv2.api.data.Group;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
+import org.apache.syncope.ext.scimv2.api.data.Member;
 import org.apache.syncope.ext.scimv2.api.data.ResourceType;
+import org.apache.syncope.ext.scimv2.api.data.SCIMComplexValue;
+import org.apache.syncope.ext.scimv2.api.data.SCIMError;
 import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
 import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
 import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
+import org.apache.syncope.ext.scimv2.api.data.SCIMUserName;
 import org.apache.syncope.ext.scimv2.api.data.ServiceProviderConfig;
+import org.apache.syncope.ext.scimv2.api.data.Value;
+import org.apache.syncope.ext.scimv2.api.type.ErrorType;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.cxf.JacksonSCIMJsonProvider;
 import org.apache.syncope.fit.AbstractITCase;
@@ -59,6 +72,8 @@ public class SCIMITCase extends AbstractITCase {
 
     public static final String SCIM_ADDRESS = "http://localhost:9080/syncope/scim/v2";
 
+    private static final SCIMConf CONF;
+
     private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
 
         @Override
@@ -68,6 +83,27 @@ public class SCIMITCase extends AbstractITCase {
             return sdf;
         }
     };
+
+    static {
+        CONF = new SCIMConf();
+        CONF.setUserConf(new SCIMUserConf());
+
+        CONF.getUserConf().setDisplayName("cn");
+
+        CONF.getUserConf().setName(new SCIMUserNameConf());
+        CONF.getUserConf().getName().setGivenName("firstname");
+        CONF.getUserConf().getName().setFamilyName("surname");
+        CONF.getUserConf().getName().setFormatted("fullname");
+
+        SCIMComplexConf<EmailCanonicalType> email = new SCIMComplexConf<>();
+        email.setValue("userId");
+        email.setType(EmailCanonicalType.work);
+        CONF.getUserConf().getEmails().add(email);
+        email = new SCIMComplexConf<>();
+        email.setValue("email");
+        email.setType(EmailCanonicalType.home);
+        CONF.getUserConf().getEmails().add(email);
+    }
 
     private WebClient webClient() {
         return WebClient.create(SCIM_ADDRESS, Arrays.asList(new JacksonSCIMJsonProvider())).
@@ -144,7 +180,13 @@ public class SCIMITCase extends AbstractITCase {
     public void read() throws IOException {
         Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
 
-        Response response = webClient().path("Users").path("1417acbe-cbf6-4277-9372-e75e04f97000").get();
+        Response response = webClient().path("Users").path("missing").get();
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+
+        SCIMError error = response.readEntity(SCIMError.class);
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), error.getStatus());
+
+        response = webClient().path("Users").path("1417acbe-cbf6-4277-9372-e75e04f97000").get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(
                 SCIMConstants.APPLICATION_SCIM_JSON,
@@ -179,15 +221,7 @@ public class SCIMITCase extends AbstractITCase {
         SCIMConf conf = scimConfService.get();
         assertNotNull(conf);
 
-        SCIMUserConf userConf = conf.getUserConf();
-        if (userConf == null) {
-            userConf = new SCIMUserConf();
-            conf.setUserConf(userConf);
-        }
-        assertNull(userConf.getDisplayName());
-        userConf.setDisplayName("cn");
-
-        scimConfService.set(conf);
+        scimConfService.set(CONF);
 
         Response response = webClient().path("Users").path("1417acbe-cbf6-4277-9372-e75e04f97000").get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -230,8 +264,16 @@ public class SCIMITCase extends AbstractITCase {
     public void search() {
         Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
 
+        // invalid filter
+        Response response = webClient().path("Groups").query("filter", "invalid").get();
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+
+        SCIMError error = response.readEntity(SCIMError.class);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), error.getStatus());
+        assertEquals(ErrorType.invalidFilter, error.getScimType());
+
         // eq
-        Response response = webClient().path("Groups").query("filter", "displayName eq \"additional\"").get();
+        response = webClient().path("Groups").query("filter", "displayName eq \"additional\"").get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(
                 SCIMConstants.APPLICATION_SCIM_JSON,
@@ -281,5 +323,194 @@ public class SCIMITCase extends AbstractITCase {
 
         SCIMUser newSCIMUser = users.getResources().get(0);
         assertEquals(newUser.getUsername(), newSCIMUser.getUserName());
+    }
+
+    private SCIMUser getSampleUser(final String username) {
+        SCIMUser user = new SCIMUser(null, Collections.singletonList(Resource.User.schema()), null, username, true);
+
+        SCIMUserName name = new SCIMUserName();
+        name.setGivenName(username);
+        name.setFamilyName("surname");
+        name.setFormatted(username);
+        user.setName(name);
+
+        SCIMComplexValue userId = new SCIMComplexValue();
+        userId.setType(EmailCanonicalType.work.name());
+        userId.setValue(username + "@syncope.apache.org");
+        user.getEmails().add(userId);
+
+        SCIMComplexValue email = new SCIMComplexValue();
+        email.setType(EmailCanonicalType.home.name());
+        email.setValue(username + "@syncope.apache.org");
+        user.getEmails().add(email);
+
+        return user;
+    }
+
+    @Test
+    public void createUser() throws JsonProcessingException {
+        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
+
+        scimConfService.set(CONF);
+
+        SCIMUser user = getSampleUser(UUID.randomUUID().toString());
+        user.getRoles().add(new Value("User reviewer"));
+        user.getGroups().add(new Group("37d15e4c-cdc1-460b-a591-8505c8133806", null, null, null));
+
+        Response response = webClient().path("Users").post(user);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        user = response.readEntity(SCIMUser.class);
+        assertNotNull(user.getId());
+        assertTrue(response.getLocation().toASCIIString().endsWith(user.getId()));
+
+        UserTO userTO = userService.read(user.getId());
+        assertEquals(user.getUserName(), userTO.getUsername());
+        assertTrue(user.isActive());
+        assertEquals(user.getDisplayName(), userTO.getDerAttr("cn").getValues().get(0));
+        assertEquals(user.getName().getGivenName(), userTO.getPlainAttr("firstname").getValues().get(0));
+        assertEquals(user.getName().getFamilyName(), userTO.getPlainAttr("surname").getValues().get(0));
+        assertEquals(user.getName().getFormatted(), userTO.getPlainAttr("fullname").getValues().get(0));
+        assertEquals(user.getEmails().get(0).getValue(), userTO.getPlainAttr("userId").getValues().get(0));
+        assertEquals(user.getEmails().get(1).getValue(), userTO.getPlainAttr("email").getValues().get(0));
+        assertEquals(user.getRoles().get(0).getValue(), userTO.getRoles().get(0));
+        assertEquals(user.getGroups().get(0).getValue(), userTO.getMemberships().get(0).getGroupKey());
+    }
+
+    @Test
+    public void replaceUser() {
+        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
+
+        scimConfService.set(CONF);
+
+        SCIMUser user = getSampleUser(UUID.randomUUID().toString());
+
+        Response response = webClient().path("Users").post(user);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        user = response.readEntity(SCIMUser.class);
+        assertNotNull(user.getId());
+
+        user.getName().setFormatted("new" + user.getUserName());
+
+        response = webClient().path("Users").path(user.getId()).put(user);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        user = response.readEntity(SCIMUser.class);
+        assertTrue(user.getName().getFormatted().startsWith("new"));
+    }
+
+    @Test
+    public void deleteUser() {
+        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
+
+        scimConfService.set(CONF);
+
+        SCIMUser user = getSampleUser(UUID.randomUUID().toString());
+
+        Response response = webClient().path("Users").post(user);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        user = response.readEntity(SCIMUser.class);
+        assertNotNull(user.getId());
+
+        response = webClient().path("Users").path(user.getId()).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        response = webClient().path("Users").path(user.getId()).delete();
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+        response = webClient().path("Users").path(user.getId()).get();
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void createGroup() {
+        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
+
+        String displayName = UUID.randomUUID().toString();
+
+        SCIMGroup group = new SCIMGroup(null, null, displayName);
+        group.getMembers().add(new Member("1417acbe-cbf6-4277-9372-e75e04f97000", null, null));
+        assertNull(group.getId());
+        assertEquals(displayName, group.getDisplayName());
+
+        Response response = webClient().path("Groups").post(group);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        group = response.readEntity(SCIMGroup.class);
+        assertNotNull(group.getId());
+        assertTrue(response.getLocation().toASCIIString().endsWith(group.getId()));
+        assertEquals(1, group.getMembers().size());
+        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", group.getMembers().get(0).getValue());
+
+        response = webClient().path("Users").path("1417acbe-cbf6-4277-9372-e75e04f97000").get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        SCIMUser user = response.readEntity(SCIMUser.class);
+        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", user.getId());
+
+        response = webClient().path("Groups").post(group);
+        assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
+
+        SCIMError error = response.readEntity(SCIMError.class);
+        assertEquals(Response.Status.CONFLICT.getStatusCode(), error.getStatus());
+        assertEquals(ErrorType.uniqueness, error.getScimType());
+    }
+
+    @Test
+    public void replaceGroup() {
+        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
+
+        SCIMGroup group = new SCIMGroup(null, null, UUID.randomUUID().toString());
+        group.getMembers().add(new Member("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee", null, null));
+        Response response = webClient().path("Groups").post(group);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        group = response.readEntity(SCIMGroup.class);
+        assertNotNull(group.getId());
+        assertEquals(1, group.getMembers().size());
+        assertEquals("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee", group.getMembers().get(0).getValue());
+
+        group.setDisplayName("other" + group.getId());
+        group.getMembers().add(new Member("c9b2dec2-00a7-4855-97c0-d854842b4b24", null, null));
+
+        response = webClient().path("Groups").path(group.getId()).put(group);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        group = response.readEntity(SCIMGroup.class);
+        assertTrue(group.getDisplayName().startsWith("other"));
+        assertEquals(2, group.getMembers().size());
+
+        group.getMembers().clear();
+        group.getMembers().add(new Member("c9b2dec2-00a7-4855-97c0-d854842b4b24", null, null));
+
+        response = webClient().path("Groups").path(group.getId()).put(group);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        group = response.readEntity(SCIMGroup.class);
+        assertEquals(1, group.getMembers().size());
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", group.getMembers().get(0).getValue());
+    }
+
+    @Test
+    public void deleteGroup() {
+        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
+
+        SCIMGroup group = new SCIMGroup(null, null, UUID.randomUUID().toString());
+        Response response = webClient().path("Groups").post(group);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        group = response.readEntity(SCIMGroup.class);
+        assertNotNull(group.getId());
+
+        response = webClient().path("Groups").path(group.getId()).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        response = webClient().path("Groups").path(group.getId()).delete();
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+        response = webClient().path("Groups").path(group.getId()).get();
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 }

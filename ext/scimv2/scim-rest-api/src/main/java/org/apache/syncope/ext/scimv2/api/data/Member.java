@@ -18,32 +18,20 @@
  */
 package org.apache.syncope.ext.scimv2.api.data;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.syncope.ext.scimv2.api.type.Resource;
 
-@JsonPropertyOrder({ "value", "$ref", "display", "type" })
+@JsonPropertyOrder({ "value", "$ref", "display" })
 public class Member extends Reference {
 
     private static final long serialVersionUID = 75245960461062907L;
 
-    @JsonIgnore
-    private final Resource type;
-
     public Member(
             @JsonProperty("value") final String value,
             @JsonProperty("$ref") final String ref,
-            @JsonProperty("display") final String display,
-            @JsonProperty("type") final Resource type) {
+            @JsonProperty("display") final String display) {
 
         super(value, display, ref);
-        this.type = type;
-    }
-
-    @JsonProperty
-    public String getType() {
-        return type == null ? null : type.name();
     }
 
 }

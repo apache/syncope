@@ -85,7 +85,17 @@ under the License.
       <artifactId>syncope-ext-saml2sp-persistence-jpa</artifactId>
       <version>${project.version}</version>
     </dependency>
-        
+    <dependency>
+      <groupId>org.apache.syncope.ext.scimv2</groupId>
+      <artifactId>syncope-ext-scimv2-rest-cxf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.scimv2</groupId>
+      <artifactId>syncope-ext-scimv2-scim-rest-cxf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.syncope.ext</groupId>
       <artifactId>syncope-ext-swagger-ui</artifactId>
@@ -191,7 +201,7 @@ under the License.
         <filtering>true</filtering>
       </resource>
       <resource>
-	<directory>${project.basedir}/../../ext/saml2sp/logic/src/main/resources</directory>
+        <directory>${project.basedir}/../../ext/saml2sp/logic/src/main/resources</directory>
         <includes>
           <include>saml2sp-logic.properties</include>
         </includes>

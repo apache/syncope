@@ -21,7 +21,7 @@ package org.apache.syncope.core.logic.scim;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.ext.scimv2.api.SCIMBadRequestException;
+import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.type.ErrorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +45,8 @@ public final class SearchCondConverter {
         try {
             return visitor.visit(parser.scimFilter());
         } catch (Exception e) {
-            LOG.error("Could not parse {}", filter, e);
-            throw new SCIMBadRequestException(ErrorType.invalidFilter, e.getMessage());
+            LOG.error("Could not parse '{}'", filter, e);
+            throw new BadRequestException(ErrorType.invalidFilter, "Could not parse '" + filter + "'");
         }
     }
 

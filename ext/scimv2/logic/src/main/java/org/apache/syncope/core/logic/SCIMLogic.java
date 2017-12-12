@@ -28,11 +28,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.UriBuilder;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.ext.scimv2.api.data.AuthenticationScheme;
 import org.apache.syncope.ext.scimv2.api.data.BulkConfigurationOption;
 import org.apache.syncope.ext.scimv2.api.data.ConfigurationOption;
@@ -182,7 +182,7 @@ public class SCIMLogic extends AbstractLogic<AbstractBaseBean> {
 
         String found = SCHEMA_MAP.get(schema);
         if (found == null) {
-            throw new NotFoundException("Schema " + schema);
+            throw new NotFoundException("Schema " + schema + " not found");
         }
 
         return found;

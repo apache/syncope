@@ -19,21 +19,35 @@
 package org.apache.syncope.ext.scimv2.cxf.service;
 
 import java.util.Arrays;
+import java.util.Collections;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
 import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
 import org.apache.syncope.ext.scimv2.api.service.UserService;
+import org.apache.syncope.ext.scimv2.api.type.ErrorType;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 
 public class UserServiceImpl extends AbstractService<SCIMUser> implements UserService {
 
     @Override
-    public Response create() {
-        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+    public Response create(final SCIMUser user) {
+        ProvisioningResult<UserTO> result = userLogic().create(binder().toUserTO(user), false);
+        return createResponse(
+                result.getEntity().getKey(),
+                binder().toSCIMUser(
+                        result.getEntity(),
+                        uriInfo.getAbsolutePathBuilder().path(result.getEntity().getKey()).build().toASCIIString(),
+                        Collections.<String>emptyList(),
+                        Collections.<String>emptyList()));
     }
 
     @Override
@@ -49,18 +63,41 @@ public class UserServiceImpl extends AbstractService<SCIMUser> implements UserSe
     }
 
     @Override
-    public Response replace(final String id) {
+    public Response update(final String id) {
         return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+    }
+
+    @Override
+    public Response replace(final String id, final SCIMUser user) {
+        if (!id.equals(user.getId())) {
+            throw new BadRequestException(ErrorType.invalidPath, "Expected " + id + ", found " + user.getId());
+        }
+
+        ResponseBuilder builder = checkETag(Resource.User, id);
+        if (builder != null) {
+            return builder.build();
+        }
+
+        ProvisioningResult<UserTO> result = userLogic().update(
+                AnyOperations.diff(binder().toUserTO(user), userLogic().read(id), false), false);
+        return updateResponse(
+                result.getEntity().getKey(),
+                binder().toSCIMUser(
+                        result.getEntity(),
+                        uriInfo.getAbsolutePathBuilder().path(result.getEntity().getKey()).build().toASCIIString(),
+                        Collections.<String>emptyList(),
+                        Collections.<String>emptyList()));
     }
 
     @Override
     public Response delete(final String id) {
-        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
-    }
+        ResponseBuilder builder = checkETag(Resource.User, id);
+        if (builder != null) {
+            return builder.build();
+        }
 
-    @Override
-    public Response update(final String id) {
-        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+        anyLogic(Resource.User).delete(id, false);
+        return Response.noContent().build();
     }
 
     @Override
