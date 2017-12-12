@@ -48,7 +48,7 @@ under the License.
 
     <property name="history" value="${historyLevel}"/>
 
-    <property name="idmProcessEngineConfigurator" ref="syncopeIdmEngineConfigurator"/>
+    <property name="idmEngineConfigurator" ref="syncopeIdmEngineConfigurator"/>
     <property name="customPreVariableTypes">
       <list>
         <bean class="org.apache.syncope.core.workflow.flowable.SyncopeEntitiesVariableType"/>
