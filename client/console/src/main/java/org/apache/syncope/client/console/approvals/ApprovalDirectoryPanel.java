@@ -211,9 +211,10 @@ public class ApprovalDirectoryPanel
                     previousUserTO.setKey(formTO.getUserPatch().getKey());
                     newUserTO = AnyOperations.patch(previousUserTO, formTO.getUserPatch());
                 } else {
-                    formTO.getUserTO().setKey(formTO.getUserPatch().getKey());
-                    newUserTO = AnyOperations.patch(formTO.getUserTO(), formTO.getUserPatch());
                     previousUserTO = formTO.getUserTO();
+                    formTO.getUserTO().setKey(formTO.getUserPatch().getKey());
+                    formTO.getUserTO().setPassword(null);
+                    newUserTO = AnyOperations.patch(formTO.getUserTO(), formTO.getUserPatch()); 
                 }
 
                 AjaxWizard.EditItemActionEvent<UserTO> editItemActionEvent =
