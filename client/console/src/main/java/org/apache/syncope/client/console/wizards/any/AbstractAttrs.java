@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -167,28 +166,8 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
                     return whichAttrs.contains(schemaTO.getKey());
                 }
             });
-
-            // 2. sort remainig attributes according to configuration, e.g. attrLayout
-            final Map<String, Integer> attrLayoutMap = new HashMap<>(whichAttrs.size());
-            for (int i = 0; i < whichAttrs.size(); i++) {
-                attrLayoutMap.put(whichAttrs.get(i), i);
-            }
-            Collections.sort(allSchemas, new Comparator<S>() {
-
-                @Override
-                public int compare(final S schema1, final S schema2) {
-                    int value = 0;
-
-                    if (attrLayoutMap.get(schema1.getKey()) > attrLayoutMap.get(schema2.getKey())) {
-                        value = 1;
-                    } else if (attrLayoutMap.get(schema1.getKey()) < attrLayoutMap.get(schema2.getKey())) {
-                        value = -1;
-                    }
-
-                    return value;
-                }
-            });
         }
+        
         for (S schemaTO : allSchemas) {
             scs.put(schemaTO.getKey(), schemaTO);
         }
@@ -235,7 +214,7 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
         return null;
     }
 
-    protected static class AttrComparator implements Comparator<AttrTO>, Serializable {
+    protected class AttrComparator implements Comparator<AttrTO>, Serializable {
 
         /**
          *
@@ -249,6 +228,17 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
             }
             if (right == null || StringUtils.isEmpty(right.getSchema())) {
                 return 1;
+            } else if (AbstractAttrs.this.reoderSchemas()) {
+                int leftIndex = AbstractAttrs.this.whichAttrs.indexOf(left.getSchema());
+                int rightIndex = AbstractAttrs.this.whichAttrs.indexOf(right.getSchema());
+
+                if (leftIndex > rightIndex) {
+                    return 1;
+                } else if (leftIndex < rightIndex) {
+                    return -1;
+                } else {
+                    return 0;
+                }
             } else {
                 return left.getSchema().compareTo(right.getSchema());
             }
