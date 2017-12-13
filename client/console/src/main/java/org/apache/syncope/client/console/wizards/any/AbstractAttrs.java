@@ -160,11 +160,11 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
             // 1. remove attributes not selected for display
             allSchemas.removeAll(allSchemas.stream().
                     filter(schemaTO -> !whichAttrs.contains(schemaTO.getKey())).collect(Collectors.toSet()));
-        
+        }
+
         allSchemas.forEach(schemaTO -> {
             scs.put(schemaTO.getKey(), schemaTO);
-            });
-        }
+        });
     }
 
     @Override
