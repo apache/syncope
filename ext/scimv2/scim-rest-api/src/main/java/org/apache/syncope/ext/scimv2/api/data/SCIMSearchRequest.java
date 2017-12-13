@@ -85,12 +85,12 @@ public class SCIMSearchRequest extends SCIMBean {
         return sortOrder;
     }
 
-    public Integer getStartIndex() {
-        return startIndex;
+    public int getStartIndex() {
+        return startIndex == null ? 1 : startIndex;
     }
 
-    public Integer getCount() {
-        return count;
+    public int getCount() {
+        return count == null ? 25 : count;
     }
 
 }

@@ -102,7 +102,7 @@ public class SCIMLogic extends AbstractLogic<AbstractBaseBean> {
                                 conf.getLastChangeDate(),
                                 conf.getETagValue(),
                                 uriBuilder.build().toASCIIString()),
-                        new ConfigurationOption(true),
+                        new ConfigurationOption(false),
                         new BulkConfigurationOption(false, conf.getBulkMaxOperations(), conf.getBulkMaxPayloadSize()),
                         new FilterConfigurationOption(true, conf.getFilterMaxResults()),
                         new ConfigurationOption(true),
