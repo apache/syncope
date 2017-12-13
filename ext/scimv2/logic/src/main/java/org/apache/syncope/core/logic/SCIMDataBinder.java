@@ -445,6 +445,7 @@ public class SCIMDataBinder {
         UserTO userTO = new UserTO();
         userTO.setRealm(SyncopeConstants.ROOT_REALM);
         userTO.setKey(user.getId());
+        userTO.setPassword(user.getPassword());
         userTO.setUsername(user.getUserName());
 
         SCIMConf conf = confManager.get();

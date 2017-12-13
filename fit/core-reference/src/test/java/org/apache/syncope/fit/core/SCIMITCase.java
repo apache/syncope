@@ -124,7 +124,11 @@ public class SCIMITCase extends AbstractITCase {
 
         ServiceProviderConfig serviceProviderConfig = response.readEntity(ServiceProviderConfig.class);
         assertNotNull(serviceProviderConfig);
+        assertFalse(serviceProviderConfig.getPatch().isSupported());
+        assertFalse(serviceProviderConfig.getBulk().isSupported());
+        assertTrue(serviceProviderConfig.getChangePassword().isSupported());
         assertTrue(serviceProviderConfig.getEtag().isSupported());
+        assertTrue(serviceProviderConfig.getSort().isSupported());
     }
 
     @Test
@@ -238,7 +242,12 @@ public class SCIMITCase extends AbstractITCase {
     public void list() throws IOException {
         assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
 
-        Response response = webClient().path("Groups").
+        Response response = webClient().path("Groups").query("count", 1100000).get();
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        SCIMError error = response.readEntity(SCIMError.class);
+        assertEquals(ErrorType.tooMany, error.getScimType());
+
+        response = webClient().path("Groups").
                 query("sortBy", "displayName").
                 query("count", 11).
                 get();
@@ -327,6 +336,7 @@ public class SCIMITCase extends AbstractITCase {
 
     private SCIMUser getSampleUser(final String username) {
         SCIMUser user = new SCIMUser(null, Collections.singletonList(Resource.User.schema()), null, username, true);
+        user.setPassword("password123");
 
         SCIMUserName name = new SCIMUserName();
         name.setGivenName(username);

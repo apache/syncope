@@ -46,9 +46,11 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
 import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
+import org.apache.syncope.ext.scimv2.api.type.ErrorType;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 import org.slf4j.Logger;
@@ -187,13 +189,17 @@ abstract class AbstractService<R extends SCIMResource> {
             throw new UnsupportedOperationException();
         }
 
+        if (request.getCount() > confManager().get().getFilterMaxResults()) {
+            throw new BadRequestException(ErrorType.tooMany, "Too many results requested");
+        }
+
         SearchCondVisitor visitor = new SearchCondVisitor(type, confManager().get());
 
-        int startIndex = request.getStartIndex() == null || request.getStartIndex() <= 1
+        int startIndex = request.getStartIndex() <= 1
                 ? 1
                 : (request.getStartIndex() / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
 
-        int itemsPerPage = request.getCount() == null ? AnyDAO.DEFAULT_PAGE_SIZE : request.getCount();
+        int itemsPerPage = request.getCount() <= 1 ? AnyDAO.DEFAULT_PAGE_SIZE : request.getCount();
 
         List<OrderByClause> sort;
         if (request.getSortBy() == null) {
@@ -216,6 +222,10 @@ abstract class AbstractService<R extends SCIMResource> {
                 sort,
                 SyncopeConstants.ROOT_REALM,
                 false);
+
+        if (result.getLeft() > confManager().get().getFilterMaxResults()) {
+            throw new BadRequestException(ErrorType.tooMany, "Too many results found");
+        }
 
         ListResponse<R> response = new ListResponse<>(
                 result.getLeft(), startIndex == 1 ? 1 : startIndex - 1, itemsPerPage);
