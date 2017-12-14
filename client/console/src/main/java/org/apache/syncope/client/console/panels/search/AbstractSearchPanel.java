@@ -24,7 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
@@ -35,6 +37,7 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.event.IEventSink;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -79,6 +82,8 @@ public abstract class AbstractSearchPanel extends Panel {
 
     protected final boolean enableSearch;
 
+    protected final GroupRestClient groupRestClient = new GroupRestClient();
+
     public abstract static class Builder<T extends AbstractSearchPanel> implements Serializable {
 
         private static final long serialVersionUID = 6308997285778809578L;
@@ -122,6 +127,12 @@ public abstract class AbstractSearchPanel extends Panel {
 
         super(id);
         populate();
+        Pair<IModel<Map<String, String>>, Integer> groupInfo =
+                Pair.of(groupNames, groupRestClient.search("/",
+                        null,
+                        1,
+                        1,
+                        new SortParam<>("name", true)).getTotalCount());
 
         this.model = builder.model;
         this.typeKind = kind;
@@ -138,7 +149,7 @@ public abstract class AbstractSearchPanel extends Panel {
         final SearchClausePanel searchClausePanel = new SearchClausePanel("panel", "panel",
                 Model.of(new SearchClause()),
                 required,
-                types, anames, dnames, groupNames, roleNames, resourceNames);
+                types, anames, dnames, groupInfo, roleNames, resourceNames);
 
         if (enableSearch) {
             searchClausePanel.enableSearch(builder.resultContainer);

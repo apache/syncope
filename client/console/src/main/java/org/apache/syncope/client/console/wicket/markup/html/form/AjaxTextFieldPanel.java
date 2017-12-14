@@ -59,6 +59,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
         final AutoCompleteSettings settings = new AutoCompleteSettings();
         settings.setShowCompleteListOnFocusGain(true);
         settings.setShowListOnEmptyInput(true);
+        settings.setCssClassName("custom-autocomplete-box");
 
         field = new AutoCompleteTextField<String>("textField", model, settings) {
 
