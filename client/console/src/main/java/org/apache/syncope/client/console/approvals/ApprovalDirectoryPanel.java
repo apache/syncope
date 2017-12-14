@@ -214,7 +214,7 @@ public class ApprovalDirectoryPanel
                     previousUserTO = formTO.getUserTO();
                     formTO.getUserTO().setKey(formTO.getUserPatch().getKey());
                     formTO.getUserTO().setPassword(null);
-                    newUserTO = AnyOperations.patch(formTO.getUserTO(), formTO.getUserPatch()); 
+                    newUserTO = AnyOperations.patch(formTO.getUserTO(), formTO.getUserPatch());
                 }
 
                 AjaxWizard.EditItemActionEvent<UserTO> editItemActionEvent =
@@ -352,7 +352,10 @@ public class ApprovalDirectoryPanel
                     actual.setEntity(inner);
                 } else {
                     actual = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
-                    claimForm(restClient.getFormForUser(actual.getEntity().getKey()).getTaskId());
+                    WorkflowFormTO workFlowTO = restClient.getFormForUser(actual.getEntity().getKey());
+                    if (workFlowTO != null) {
+                        claimForm(workFlowTO.getTaskId());
+                    }
                 }
 
             }

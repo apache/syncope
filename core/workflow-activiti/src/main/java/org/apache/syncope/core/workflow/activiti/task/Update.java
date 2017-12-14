@@ -63,6 +63,7 @@ public class Update extends AbstractActivitiServiceTask {
 
         // report updated user and propagation by resource as result
         engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.USER, user);
+        engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.USER_TO, updated);
         engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.USER_PATCH, userPatch);
         engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.PROP_BY_RESOURCE, propByRes);
     }

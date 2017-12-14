@@ -63,6 +63,7 @@ public class Update extends AbstractFlowableServiceTask {
 
         // report updated user and propagation by resource as result
         engine.getRuntimeService().setVariable(executionId, FlowableUserWorkflowAdapter.USER, user);
+        engine.getRuntimeService().setVariable(executionId, FlowableUserWorkflowAdapter.USER_TO, updated);
         engine.getRuntimeService().setVariable(executionId, FlowableUserWorkflowAdapter.USER_PATCH, userPatch);
         engine.getRuntimeService().setVariable(executionId, FlowableUserWorkflowAdapter.PROP_BY_RESOURCE, propByRes);
     }
