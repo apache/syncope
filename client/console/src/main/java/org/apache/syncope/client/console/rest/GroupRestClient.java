@@ -69,6 +69,23 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO, GroupPatch> 
         return result;
     }
 
+    public PagedResult<GroupTO> search(
+            final String realm,
+            final String fiql,
+            final int page,
+            final int size,
+            final SortParam<String> sort) {
+
+        PagedResult<GroupTO> res;
+        do {
+            res = getService(GroupService.class).
+                    search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
+                            orderBy(toOrderBy(sort)).details(false).build());
+        } while (page == -1 && size == -1 && res.getNext() != null);
+
+        return res;
+    }
+
     public void bulkMembersAction(final String key, final BulkMembersActionType actionType) {
         getService(GroupService.class).bulkMembersAction(key, actionType);
     }

@@ -23,21 +23,28 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.boot
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.search.SearchClause.Comparator;
 import org.apache.syncope.client.console.panels.search.SearchClause.Operator;
 import org.apache.syncope.client.console.panels.search.SearchClause.Type;
+import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.RelationshipTypeRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxEventBehavior;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
+import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.wicket.AttributeModifier;
@@ -50,6 +57,7 @@ import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEventSink;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
@@ -74,7 +82,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private final IModel<List<String>> dnames;
 
-    private final IModel<Map<String, String>> groupNames;
+    private final Pair<IModel<Map<String, String>>, Integer> groupInfo;
 
     private final IModel<List<String>> roleNames;
 
@@ -94,6 +102,8 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private IEventSink resultContainer;
 
+    private final GroupRestClient groupRestClient = new GroupRestClient();
+
     public SearchClausePanel(
             final String id,
             final String name,
@@ -102,7 +112,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             final IModel<List<SearchClause.Type>> types,
             final IModel<Map<String, PlainSchemaTO>> anames,
             final IModel<List<String>> dnames,
-            final IModel<Map<String, String>> groupNames,
+            final Pair<IModel<Map<String, String>>, Integer> groupInfo,
             final IModel<List<String>> roleNames,
             final IModel<List<String>> resourceNames) {
 
@@ -114,7 +124,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         this.types = types;
         this.anames = anames;
         this.dnames = dnames;
-        this.groupNames = groupNames;
+        this.groupInfo = groupInfo;
         this.roleNames = roleNames;
         this.resourceNames = resourceNames;
 
@@ -133,7 +143,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         };
 
         searchButtonFragment = new Fragment("operator", "searchButtonFragment", this);
-        searchButtonFragment.add(searchButton.setEnabled(false));
+        searchButtonFragment.add(searchButton.setEnabled(false).setVisible(false));
 
         operatorFragment = new Fragment("operator", "operatorFragment", this);
 
@@ -199,7 +209,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         return names;
 
                     case GROUP_MEMBERSHIP:
-                        final List<String> groups = groupNames.getObject().keySet().
+                        final List<String> groups = groupInfo.getLeft().getObject().values().
                                 stream().collect(Collectors.toList());
                         Collections.sort(groups);
                         return groups;
@@ -229,6 +239,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
     public void enableSearch(final IEventSink resultContainer) {
         this.resultContainer = resultContainer;
         this.searchButton.setEnabled(true);
+        this.searchButton.setVisible(true);
 
         field.add(AttributeModifier.replace(
                 "onkeydown",
@@ -354,19 +365,88 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             operatorContainer.add(searchButtonFragment);
         }
 
-        final AjaxDropDownChoicePanel<String> property = new AjaxDropDownChoicePanel<>(
-                "property", "property", new PropertyModel<>(searchClause, "property"));
-        property.hideLabel().setRequired(required).setOutputMarkupId(true);
-        property.setChoices(properties);
-        property.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        final AjaxTextFieldPanel property = new AjaxTextFieldPanel(
+                "property",
+                "property",
+                new PropertyModel<String>(searchClause, "property"),
+                false);
+        property.hideLabel().setOutputMarkupId(true).setEnabled(true);
+        property.setChoices(properties.getObject());
+        field.add(property);
 
-            private static final long serialVersionUID = -1107858522700306810L;
+        property.getField().add(AttributeModifier.replace(
+                "onkeydown",
+                Model.of("if(event.keyCode == 13) { event.preventDefault(); }")));
+
+        property.getField().add(new IndicatorAjaxEventBehavior("onkeyup") {
+
+            private static final long serialVersionUID = -7866120562087857309L;
 
             @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
+            protected void onEvent(final AjaxRequestTarget target) {
+                if (field.getModel().getObject() == null || field.getModel().getObject().getType() == null) {
+                    return;
+                }
+
+                if (field.getModel().getObject().getType() == Type.GROUP_MEMBERSHIP) {
+                    target.focusComponent(null);
+                    property.getField().inputChanged();
+                    property.getField().validate();
+                    if (property.getField().isValid()) {
+                        property.getField().valid();
+                        property.getField().updateModel();
+                        String[] inputAsArray = property.getField().getInputAsArray();
+
+                        if (StringUtils.isBlank(property.getField().getInput())
+                                || inputAsArray.length == 0) {
+                            property.setChoices(properties.getObject());
+                        } else {
+                            String inputValue = (inputAsArray.length > 1 && inputAsArray[1] != null)
+                                    ? inputAsArray[1]
+                                    : property.getField().getInput();
+                            inputValue = (inputValue.startsWith("*") && !inputValue.endsWith("*"))
+                                    ? inputValue + "*"
+                                    : (!inputValue.startsWith("*") && inputValue.endsWith("*"))
+                                    ? "*" + inputValue
+                                    : (inputValue.startsWith("*") && inputValue.endsWith("*")
+                                    ? inputValue : "*" + inputValue + "*");
+
+                            if (groupInfo.getRight() > AnyObjectSearchPanel.MAX_GROUP_LIST_CARDINALITY) {
+                                List<GroupTO> filteredGroups =
+                                        groupRestClient.search("/",
+                                                SyncopeClient.getGroupSearchConditionBuilder().
+                                                        is("name").equalToIgnoreCase(inputValue).
+                                                        query(),
+                                                1,
+                                                AnyObjectSearchPanel.MAX_GROUP_LIST_CARDINALITY,
+                                                new SortParam<>("name", true),
+                                                null);
+                                Collection<String> newList =
+                                        CollectionUtils.collect(filteredGroups,
+                                                new Transformer<GroupTO, String>() {
+
+                                            @Override
+                                            public String transform(final GroupTO input) {
+                                                return input.getName();
+                                            }
+                                        });
+
+                                final List<String> names = new ArrayList<>(newList);
+                                Collections.sort(names);
+                                property.setChoices(names);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
+                super.updateAjaxAttributes(attributes);
+
+                attributes.getAjaxCallListeners().clear();
             }
         });
-        field.add(property);
 
         final AjaxDropDownChoicePanel<SearchClause.Comparator> comparator = new AjaxDropDownChoicePanel<>(
                 "comparator", "comparator", new PropertyModel<>(searchClause, "comparator"));
@@ -459,12 +539,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 }
 
                 if (type.getModelObject() == SearchClause.Type.RELATIONSHIP) {
-                    if (comparator.getModelObject() == SearchClause.Comparator.EQUALS
-                            || comparator.getModelObject() == SearchClause.Comparator.NOT_EQUALS) {
-                        property.setEnabled(false);
-                    } else {
-                        property.setEnabled(true);
-                    }
+                    property.setEnabled(true);
 
                     final SearchClause searchClause = new SearchClause();
                     searchClause.setType(Type.valueOf(type.getDefaultModelObjectAsString()));
@@ -483,7 +558,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private void setFieldAccess(
             final Type type,
-            final AjaxDropDownChoicePanel<String> property,
+            final AjaxTextFieldPanel property,
             final FieldPanel<Comparator> comparator,
             final FieldPanel<String> value) {
 
@@ -504,19 +579,28 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         value.setEnabled(false);
                         value.setModelObject(StringUtils.EMPTY);
                     }
-                    property.setChoiceRenderer(new DefaultChoiceRender());
+
+                    // reload properties list
+                    properties.detach();
+                    property.setChoices(properties.getObject());
                     break;
 
                 case ROLE_MEMBERSHIP:
-                    property.setChoiceRenderer(new DefaultChoiceRender());
                     value.setEnabled(false);
                     value.setModelObject(StringUtils.EMPTY);
+
+                    // reload properties list
+                    properties.detach();
+                    property.setChoices(properties.getObject());
                     break;
 
                 case GROUP_MEMBERSHIP:
-                    property.setChoiceRenderer(new GroupChoiceRender());
                     value.setEnabled(false);
                     value.setModelObject(StringUtils.EMPTY);
+
+                    // reload properties list
+                    properties.detach();
+                    property.setChoices(properties.getObject());
                     break;
 
                 case GROUP_MEMBER:
@@ -526,23 +610,22 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     break;
 
                 case RESOURCE:
-                    property.setChoiceRenderer(new DefaultChoiceRender());
                     value.setEnabled(false);
                     value.setModelObject(StringUtils.EMPTY);
+
+                    // reload properties list
+                    properties.detach();
+                    property.setChoices(properties.getObject());
                     break;
 
                 case RELATIONSHIP:
-                    property.setChoiceRenderer(new DefaultChoiceRender());
-                    if (comparator.getModelObject() == SearchClause.Comparator.IS_NULL
-                            || comparator.getModelObject() == SearchClause.Comparator.IS_NOT_NULL) {
-                        value.setEnabled(false);
-                        value.setModelObject(StringUtils.EMPTY);
-                        property.setEnabled(true);
-                    } else {
-                        value.setEnabled(true);
-                        property.setEnabled(false);
-                        property.setModelObject(null);
-                    }
+                    value.setEnabled(true);
+                    value.setModelObject(StringUtils.EMPTY);
+                    property.setEnabled(true);
+
+                    // reload properties list
+                    properties.detach();
+                    property.setChoices(properties.getObject());
                     break;
 
                 default:
@@ -625,7 +708,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                                 break;
 
                             case NOT_EQUALS:
-                                display = "NOT WITH";
+                                display = "WITHOUT";
                                 break;
 
                             default:
@@ -662,7 +745,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                                 break;
 
                             case NOT_EQUALS:
-                                display = "NOT WITH";
+                                display = "WITHOUT";
                                 break;
 
                             default:
@@ -697,7 +780,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         break;
                     case "HAS NOT":
                     case "NOT IN":
-                    case "NOT WITH":
+                    case "WITHOUT":
                         res = SearchClause.Comparator.NOT_EQUALS;
                         break;
                     case "NULL":
@@ -739,7 +822,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
     @Override
     public FieldPanel<SearchClause> clone() {
         final SearchClausePanel panel = new SearchClausePanel(
-                getId(), name, null, required, types, anames, dnames, groupNames, roleNames, resourceNames);
+                getId(), name, null, required, types, anames, dnames, groupInfo, roleNames, resourceNames);
         panel.setReadOnly(this.isReadOnly());
         panel.setRequired(this.isRequired());
         if (searchButton.isEnabled()) {
@@ -784,7 +867,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
         @Override
         public Object getDisplayValue(final String object) {
-            return groupNames.getObject().get(object);
+            return groupInfo.getLeft().getObject().get(object);
         }
     }
 
