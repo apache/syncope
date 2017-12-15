@@ -23,6 +23,8 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -67,7 +69,8 @@ public class GroupResource extends BaseResource {
                     1,
                     30).getResult();
             groupResponse.setTotGroups(totGroups);
-            groupResponse.setGroupTOs(groupTOs);
+            groupResponse.setGroupTOs(groupTOs.stream().collect(
+                    Collectors.toMap(GroupTO::getKey, GroupTO::getName)));
 
             response.setTextEncoding(StandardCharsets.UTF_8.name());
             response.setWriteCallback(new AbstractResource.WriteCallback() {
@@ -91,15 +94,15 @@ public class GroupResource extends BaseResource {
 
     private class GroupResponse {
 
-        private List<GroupTO> groups;
+        private Map<String, String> groups;
 
         private int totGroups;
 
-        public List<GroupTO> getGroupTOs() {
-            return Collections.unmodifiableList(groups);
+        public Map<String, String> getGroupTOs() {
+            return Collections.unmodifiableMap(groups);
         }
 
-        public void setGroupTOs(final List<GroupTO> groups) {
+        public void setGroupTOs(final Map<String, String> groups) {
             this.groups = groups;
         }
 
