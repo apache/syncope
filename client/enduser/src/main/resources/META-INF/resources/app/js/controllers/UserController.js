@@ -235,8 +235,8 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           $scope.dynamicForm.totGroups = response.totGroups;
           for (var i in response.groupTOs) {
             newGroups.push({
-              "groupKey": response["groupTOs"][i].key,
-              "groupName": response["groupTOs"][i].name
+              "groupKey": i,
+              "groupName": response["groupTOs"][i]
             });
           }
           newGroups.sort(function (a, b) {
