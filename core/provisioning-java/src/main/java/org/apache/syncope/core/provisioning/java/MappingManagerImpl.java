@@ -20,12 +20,14 @@ package org.apache.syncope.core.provisioning.java;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -65,7 +67,6 @@ import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
@@ -442,28 +443,13 @@ public class MappingManagerImpl implements MappingManager {
                     values.add(attrValue);
                     break;
 
+                case "realm":
+                    attrValue.setStringValue(reference.getRealm().getFullPath());
+                    values.add(attrValue);
+                    break;
+
                 case "password":
                     // ignore
-                    break;
-
-                case "username":
-                    if (reference instanceof User) {
-                        attrValue = entityFactory.newEntity(UPlainAttrValue.class);
-                        attrValue.setStringValue(((User) reference).getUsername());
-                        values.add(attrValue);
-                    }
-                    break;
-
-                case "name":
-                    if (reference instanceof Group) {
-                        attrValue = entityFactory.newEntity(UPlainAttrValue.class);
-                        attrValue.setStringValue(((Group) reference).getName());
-                        values.add(attrValue);
-                    } else if (reference instanceof AnyObject) {
-                        attrValue = entityFactory.newEntity(UPlainAttrValue.class);
-                        attrValue.setStringValue(((AnyObject) reference).getName());
-                        values.add(attrValue);
-                    }
                     break;
 
                 case "userOwner":
@@ -486,19 +472,44 @@ public class MappingManagerImpl implements MappingManager {
                         }
 
                         if (StringUtils.isNotBlank(groupOwnerValue)) {
-                            attrValue = entityFactory.newEntity(UPlainAttrValue.class);
                             attrValue.setStringValue(groupOwnerValue);
                             values.add(attrValue);
                         }
                     }
                     break;
 
+                case "suspended":
+                    if (reference instanceof User) {
+                        attrValue.setBooleanValue(((User) reference).isSuspended());
+                        values.add(attrValue);
+                    }
+                    break;
+
+                case "mustChangePassword":
+                    if (reference instanceof User) {
+                        attrValue.setBooleanValue(((User) reference).isMustChangePassword());
+                        values.add(attrValue);
+                    }
+                    break;
+
                 default:
                     try {
-                        attrValue.setStringValue(FieldUtils.readField(
-                                reference, intAttrName.getField(), true).toString());
+                        Object fieldValue = FieldUtils.readField(reference, intAttrName.getField(), true);
+                        if (fieldValue instanceof Date) {
+                            // needed because ConnId does not natively supports the Date type
+                            attrValue.setStringValue(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.
+                                    format((Date) fieldValue));
+                        } else if (Boolean.TYPE.isInstance(fieldValue)) {
+                            attrValue.setBooleanValue((Boolean) fieldValue);
+                        } else if (Double.TYPE.isInstance(fieldValue) || Float.TYPE.isInstance(fieldValue)) {
+                            attrValue.setDoubleValue((Double) fieldValue);
+                        } else if (Long.TYPE.isInstance(fieldValue) || Integer.TYPE.isInstance(fieldValue)) {
+                            attrValue.setLongValue((Long) fieldValue);
+                        } else {
+                            attrValue.setStringValue(fieldValue.toString());
+                        }
                         values.add(attrValue);
-                    } catch (IllegalAccessException e) {
+                    } catch (Exception e) {
                         LOG.error("Could not read value of '{}' from {}", intAttrName.getField(), reference, e);
                     }
             }
