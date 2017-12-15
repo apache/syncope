@@ -463,24 +463,16 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Transactional
     @Override
     public Pair<Set<String>, Set<String>> refreshDynMemberships(final AnyObject anyObject) {
-        Query dynGroupsQuery = entityManager().createNativeQuery(
-                "SELECT group_id FROM " + ADYNMEMB_TABLE + " WHERE any_id=?");
-        dynGroupsQuery.setParameter(1, anyObject.getKey());
-        @SuppressWarnings("unchecked")
-        List<String> dynGroups = dynGroupsQuery.getResultList();
-
         Set<String> before = new HashSet<>();
-        for (String dynGroup : dynGroups) {
-            before.add(dynGroup);
-        }
-
         Set<String> after = new HashSet<>();
         for (ADynGroupMembership memb : findWithADynMemberships(anyObject.getType())) {
             Query delete = entityManager().createNativeQuery(
                     "DELETE FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
             delete.setParameter(1, memb.getGroup().getKey());
             delete.setParameter(2, anyObject.getKey());
-            delete.executeUpdate();
+            if (delete.executeUpdate() > 0) {
+                before.add(memb.getGroup().getKey());
+            }
 
             if (jpaAnySearchDAO().matches(
                     anyObject,
@@ -559,24 +551,16 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Transactional
     @Override
     public Pair<Set<String>, Set<String>> refreshDynMemberships(final User user) {
-        Query dynGroupsQuery = entityManager().createNativeQuery(
-                "SELECT group_id FROM " + UDYNMEMB_TABLE + " WHERE any_id=?");
-        dynGroupsQuery.setParameter(1, user.getKey());
-        @SuppressWarnings("unchecked")
-        List<String> dynGroups = dynGroupsQuery.getResultList();
-
         Set<String> before = new HashSet<>();
-        for (String dynGroup : dynGroups) {
-            before.add(dynGroup);
-        }
-
         Set<String> after = new HashSet<>();
         for (UDynGroupMembership memb : findWithUDynMemberships()) {
             Query delete = entityManager().createNativeQuery(
                     "DELETE FROM " + UDYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
             delete.setParameter(1, memb.getGroup().getKey());
             delete.setParameter(2, user.getKey());
-            delete.executeUpdate();
+            if (delete.executeUpdate() > 0) {
+                before.add(memb.getGroup().getKey());
+            }
 
             if (jpaAnySearchDAO().matches(
                     user,
