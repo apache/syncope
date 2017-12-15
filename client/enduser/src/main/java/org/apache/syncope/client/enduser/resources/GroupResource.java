@@ -70,7 +70,7 @@ public class GroupResource extends BaseResource {
                     30).getResult();
             groupResponse.setTotGroups(totGroups);
 
-            HashMap<String, String> groups = new HashMap<>();
+            Map<String, String> groups = new HashMap<>();
             for (GroupTO groupTO : groupTOs) {
                 groups.put(groupTO.getKey(), groupTO.getName());
             }
