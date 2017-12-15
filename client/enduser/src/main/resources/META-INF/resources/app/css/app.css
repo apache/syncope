@@ -69,7 +69,22 @@ under the License.
 }
 
 .treasure-overlay-spinner-container{
-  z-index : 5;
+  z-index : 10001;
+}
+
+treasure-overlay-spinner.treasure-overlay-spinner-active .treasure-overlay-spinner-content {
+  height: 100%;
+}
+treasure-overlay-spinner.treasure-overlay-spinner-active {
+  height: 100%;
+  top: 0;
+  bottom: 0;
+  position: absolute;
+  right: 0;
+  left: 0;
+}
+treasure-overlay-spinner .treasure-overlay-spinner-container {
+  background: rgba(0, 0, 0, 0.5490196078431373);
 }
 
 treasure-overlay-spinner.treasure-overlay-spinner-active-remove{

@@ -626,7 +626,7 @@ public class GroupITCase extends AbstractITCase {
         }
 
         assertFalse(anonymous.getService(SyncopeService.class).
-                searchAssignableGroups("/even", 1, 100).getResult().isEmpty());
+                searchAssignableGroups("/even", null, 1, 100).getResult().isEmpty());
     }
 
     @Test

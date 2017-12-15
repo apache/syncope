@@ -21,6 +21,7 @@ package org.apache.syncope.client.enduser.resources;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
@@ -31,6 +32,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.request.resource.AbstractResource;
+import org.apache.wicket.util.string.StringValue;
 
 @Resource(key = "groups", path = "/api/groups")
 public class GroupResource extends BaseResource {
@@ -53,14 +55,26 @@ public class GroupResource extends BaseResource {
 
             String realm = URLDecoder.decode(attributes.getParameters().get("realm").
                     toString(SyncopeConstants.ROOT_REALM), "UTF-8");
+            StringValue term = attributes.getParameters().get("term");
+
+            final GroupResponse groupResponse = new GroupResponse();
+            final int totGroups = SyncopeEnduserSession.get().
+                    getService(SyncopeService.class).numbers().getTotalGroups();
             final List<GroupTO> groupTOs = SyncopeEnduserSession.get().
-                    getService(SyncopeService.class).searchAssignableGroups(realm, 1, 30).getResult();
+                    getService(SyncopeService.class).searchAssignableGroups(
+                    realm,
+                    term.isNull() || term.isEmpty() ? null : URLDecoder.decode(term.toString(), "UTF-8"),
+                    1,
+                    30).getResult();
+            groupResponse.setTotGroups(totGroups);
+            groupResponse.setGroupTOs(groupTOs);
+
             response.setTextEncoding(StandardCharsets.UTF_8.name());
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 
                 @Override
                 public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(MAPPER.writeValueAsString(groupTOs));
+                    attributes.getResponse().write(MAPPER.writeValueAsString(groupResponse));
                 }
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());
@@ -75,4 +89,27 @@ public class GroupResource extends BaseResource {
         return response;
     }
 
+    private class GroupResponse {
+
+        private List<GroupTO> groups;
+
+        private int totGroups;
+
+        public List<GroupTO> getGroupTOs() {
+            return Collections.unmodifiableList(groups);
+        }
+
+        public void setGroupTOs(final List<GroupTO> groups) {
+            this.groups = groups;
+        }
+
+        public int getTotGroups() {
+            return totGroups;
+        }
+
+        public void setTotGroups(final int totGroups) {
+            this.totGroups = totGroups;
+        }
+
+    }
 }

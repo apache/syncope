@@ -20,7 +20,7 @@ under the License.
   <ui-select on-select="addGroup($item, $model)" on-remove="removeGroup($item, $model)" multiple
              validate-dropdown="groups" dynamic-form="dynamicForm"
              ng-model="dynamicForm.selectedGroups" theme="select2" class="attribute-ui-select" 
-             ng-disabled="inputDisabled">
+             ng-disabled="inputDisabled" ng-keyup="onGroupsSearch(dynamicForm.totGroups)">
     <ui-select-match placeholder="{{'GROUPS_PLACEHOLDER'| translate}}" class="ui-select-match">
       {{$item.groupName}}
     </ui-select-match>
