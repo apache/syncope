@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -61,7 +62,9 @@ import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -359,10 +362,34 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public Pair<Integer, List<GroupTO>> searchAssignableGroups(final String realm, final int page, final int size) {
+    public Pair<Integer, List<GroupTO>> searchAssignableGroups(
+            final String realm,
+            final String term,
+            final int page,
+            final int size) {
+
         AssignableCond assignableCond = new AssignableCond();
         assignableCond.setRealmFullPath(realm);
-        SearchCond searchCond = SearchCond.getLeafCond(assignableCond);
+
+        SearchCond searchCond;
+        if (StringUtils.isNotBlank(term)) {
+            AnyCond termCond = new AnyCond(AttributeCond.Type.ILIKE);
+            termCond.setSchema("name");
+
+            String termSearchableValue = (term.startsWith("*") && !term.endsWith("*"))
+                    ? term + "%"
+                    : (!term.startsWith("*") && term.endsWith("*"))
+                    ? "%" + term
+                    : (term.startsWith("*") && term.endsWith("*")
+                    ? term : "%" + term + "%");
+            termCond.setExpression(termSearchableValue);
+
+            searchCond = SearchCond.getAndCond(
+                    SearchCond.getLeafCond(assignableCond),
+                    SearchCond.getLeafCond(termCond));
+        } else {
+            searchCond = SearchCond.getLeafCond(assignableCond);
+        }
 
         int count = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.GROUP);
 

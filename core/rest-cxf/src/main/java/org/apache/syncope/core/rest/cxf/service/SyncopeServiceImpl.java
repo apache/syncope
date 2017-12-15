@@ -56,10 +56,10 @@ public class SyncopeServiceImpl extends AbstractServiceImpl implements SyncopeSe
 
     @Override
     public PagedResult<GroupTO> searchAssignableGroups(
-            final String realm, final int page, final int size) {
+            final String realm, final String term, final int page, final int size) {
 
         Pair<Integer, List<GroupTO>> result = logic.searchAssignableGroups(
-                StringUtils.prependIfMissing(realm, SyncopeConstants.ROOT_REALM), page, size);
+                StringUtils.prependIfMissing(realm, SyncopeConstants.ROOT_REALM), term, page, size);
         return buildPagedResult(result.getRight(), page, size, result.getLeft());
     }
 

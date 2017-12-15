@@ -23,6 +23,7 @@ angular.module('self')
         .factory('GroupService', ['$resource', '$q', '$http',
           function ($group, $q, $http) {
             var groupService = {};
+
             groupService.getGroups = function (realm) {
               return  $http.get("../api/groups?realm=" + encodeURI(realm))
                       .then(function (response) {
@@ -32,6 +33,17 @@ angular.module('self')
                         return $q.reject(response.data || response.statusText);
                       });
             };
+
+            groupService.getSearchedGroups = function (realm, term) {
+              return  $http.get("../api/groups?realm=" + encodeURI(realm) + "&term=" + encodeURI(term))
+                      .then(function (response) {
+                        return response.data;
+                      }, function (response) {
+                        console.error("Something went wrong during groups retrieval, exit with status: ", response);
+                        return $q.reject(response.data || response.statusText);
+                      });
+            };
+
             return groupService;
           }]);
 
