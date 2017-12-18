@@ -195,12 +195,12 @@ under the License.
         <dependency>
           <groupId>org.apache.syncope.ext.scimv2</groupId>
           <artifactId>syncope-ext-scimv2-rest-cxf</artifactId>
-          <version>${project.version}</version>
+          <version>${syncope.version}</version>
         </dependency>
         <dependency>
           <groupId>org.apache.syncope.ext.scimv2</groupId>
           <artifactId>syncope-ext-scimv2-scim-rest-cxf</artifactId>
-          <version>${project.version}</version>
+          <version>${syncope.version}</version>
         </dependency>
 
         <dependency>
