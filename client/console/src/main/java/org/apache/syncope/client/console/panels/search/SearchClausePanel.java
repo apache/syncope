@@ -389,52 +389,43 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 }
 
                 if (field.getModel().getObject().getType() == Type.GROUP_MEMBERSHIP) {
-                    target.focusComponent(null);
-                    property.getField().inputChanged();
-                    property.getField().validate();
-                    if (property.getField().isValid()) {
-                        property.getField().valid();
-                        property.getField().updateModel();
-                        String[] inputAsArray = property.getField().getInputAsArray();
+                    String[] inputAsArray = property.getField().getInputAsArray();
 
-                        if (StringUtils.isBlank(property.getField().getInput())
-                                || inputAsArray.length == 0) {
-                            property.setChoices(properties.getObject());
-                        } else {
-                            String inputValue = (inputAsArray.length > 1 && inputAsArray[1] != null)
-                                    ? inputAsArray[1]
-                                    : property.getField().getInput();
-                            inputValue = (inputValue.startsWith("*") && !inputValue.endsWith("*"))
-                                    ? inputValue + "*"
-                                    : (!inputValue.startsWith("*") && inputValue.endsWith("*"))
-                                    ? "*" + inputValue
-                                    : (inputValue.startsWith("*") && inputValue.endsWith("*")
-                                    ? inputValue : "*" + inputValue + "*");
+                    if (StringUtils.isBlank(property.getField().getInput())
+                            || inputAsArray.length == 0) {
+                        property.setChoices(properties.getObject());
+                    } else {
+                        String inputValue = (inputAsArray.length > 1 && inputAsArray[1] != null)
+                                ? inputAsArray[1]
+                                : property.getField().getInput();
+                        inputValue = (inputValue.startsWith("*") && !inputValue.endsWith("*"))
+                                ? inputValue + "*"
+                                : (!inputValue.startsWith("*") && inputValue.endsWith("*"))
+                                ? "*" + inputValue
+                                : (inputValue.startsWith("*") && inputValue.endsWith("*")
+                                ? inputValue : "*" + inputValue + "*");
 
-                            if (groupInfo.getRight() > AnyObjectSearchPanel.MAX_GROUP_LIST_CARDINALITY) {
-                                List<GroupTO> filteredGroups =
-                                        groupRestClient.search("/",
-                                                SyncopeClient.getGroupSearchConditionBuilder().
-                                                        is("name").equalToIgnoreCase(inputValue).
-                                                        query(),
-                                                1,
-                                                AnyObjectSearchPanel.MAX_GROUP_LIST_CARDINALITY,
-                                                new SortParam<>("name", true),
-                                                null);
-                                Collection<String> newList =
-                                        CollectionUtils.collect(filteredGroups,
-                                                new Transformer<GroupTO, String>() {
+                        if (groupInfo.getRight() > AnyObjectSearchPanel.MAX_GROUP_LIST_CARDINALITY) {
+                            List<GroupTO> filteredGroups = groupRestClient.search("/",
+                                    SyncopeClient.getGroupSearchConditionBuilder().
+                                            is("name").equalToIgnoreCase(inputValue).
+                                            query(),
+                                    1,
+                                    AnyObjectSearchPanel.MAX_GROUP_LIST_CARDINALITY,
+                                    new SortParam<>("name", true),
+                                    null);
+                            Collection<String> newList = CollectionUtils.collect(filteredGroups,
+                                    new Transformer<GroupTO, String>() {
 
-                                            @Override
-                                            public String transform(final GroupTO input) {
-                                                return input.getName();
-                                            }
-                                        });
+                                @Override
+                                public String transform(final GroupTO input) {
+                                    return input.getName();
+                                }
+                            });
 
-                                final List<String> names = new ArrayList<>(newList);
-                                Collections.sort(names);
-                                property.setChoices(names);
-                            }
+                            final List<String> names = new ArrayList<>(newList);
+                            Collections.sort(names);
+                            property.setChoices(names);
                         }
                     }
                 }
@@ -443,8 +434,15 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             @Override
             protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
                 super.updateAjaxAttributes(attributes);
-
                 attributes.getAjaxCallListeners().clear();
+            }
+        }, new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+
             }
         });
 
@@ -513,7 +511,11 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 SearchClausePanel.this.clause.setObject(searchClause);
 
                 setFieldAccess(searchClause.getType(), property, comparator, value);
+
+                // reset property value in case and just in case of change of type
+                property.setModelObject(StringUtils.EMPTY);
                 target.add(property);
+
                 target.add(comparator);
                 target.add(value);
             }
@@ -606,7 +608,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 case GROUP_MEMBER:
                     value.setEnabled(true);
                     property.setEnabled(false);
-                    property.setModelObject(null);
+                    property.setModelObject(StringUtils.EMPTY);
                     break;
 
                 case RESOURCE:
