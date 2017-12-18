@@ -171,8 +171,11 @@ public class ConnObjectUtils {
 
         T anyTO = getAnyTOFromConnObject(obj, pullTask, provision, anyUtils);
 
-        // (for users) if password was not set above, generate
-        if (anyTO instanceof UserTO && StringUtils.isBlank(((UserTO) anyTO).getPassword())) {
+        // (for users) if password was not set above, generate if resource is configured for that
+        if (anyTO instanceof UserTO
+                && StringUtils.isBlank(((UserTO) anyTO).getPassword())
+                && provision.getResource().isRandomPwdIfNotProvided()) {
+
             UserTO userTO = (UserTO) anyTO;
 
             List<PasswordRuleConf> ruleConfs = new ArrayList<>();
