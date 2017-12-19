@@ -29,7 +29,7 @@ import org.apache.syncope.core.persistence.api.entity.Schema;
 
 public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
-    int DEFAULT_PAGE_SIZE = 10;
+    int DEFAULT_PAGE_SIZE = 500;
 
     String findKey(String name);
 

@@ -43,6 +43,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -51,6 +52,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -296,36 +298,49 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
         // refresh dynamic memberships
         if (merged.getUDynMembership() != null) {
-            List<User> matching = searchDAO().search(
-                    buildDynMembershipCond(merged.getUDynMembership().getFIQLCond(), merged.getRealm()),
-                    AnyTypeKind.USER);
+            for (int page = 1; page <= (countUDynMembers(group) / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                List<User> matching = searchDAO().search(
+                        Collections.<String>singleton(merged.getRealm().getFullPath()),
+                        buildDynMembershipCond(merged.getUDynMembership().getFIQLCond(), merged.getRealm()),
+                        page,
+                        AnyDAO.DEFAULT_PAGE_SIZE,
+                        Collections.<OrderByClause>emptyList(),
+                        AnyTypeKind.USER);
 
-            clearUDynMembers(merged);
+                clearUDynMembers(merged);
 
-            for (User user : matching) {
-                Query insert = entityManager().createNativeQuery("INSERT INTO " + UDYNMEMB_TABLE + " VALUES(?, ?)");
-                insert.setParameter(1, user.getKey());
-                insert.setParameter(2, merged.getKey());
-                insert.executeUpdate();
+                for (User user : matching) {
+                    Query insert = entityManager().createNativeQuery("INSERT INTO " + UDYNMEMB_TABLE + " VALUES(?, ?)");
+                    insert.setParameter(1, user.getKey());
+                    insert.setParameter(2, merged.getKey());
+                    insert.executeUpdate();
 
-                publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user, AuthContextUtils.getDomain()));
+                    publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user, AuthContextUtils.getDomain()));
+                }
             }
         }
         for (ADynGroupMembership memb : merged.getADynMemberships()) {
-            List<AnyObject> matching = searchDAO().search(
-                    buildDynMembershipCond(memb.getFIQLCond(), merged.getRealm()),
-                    AnyTypeKind.ANY_OBJECT);
+            for (int page = 1; page <= (countADynMembers(group) / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                List<AnyObject> matching = searchDAO().search(
+                        Collections.<String>singleton(merged.getRealm().getFullPath()),
+                        buildDynMembershipCond(memb.getFIQLCond(), merged.getRealm()),
+                        page,
+                        AnyDAO.DEFAULT_PAGE_SIZE,
+                        Collections.<OrderByClause>emptyList(),
+                        AnyTypeKind.ANY_OBJECT);
 
-            clearADynMembers(merged);
+                clearADynMembers(merged);
 
-            for (AnyObject anyObject : matching) {
-                Query insert = entityManager().createNativeQuery("INSERT INTO " + ADYNMEMB_TABLE + " VALUES(?, ?, ?)");
-                insert.setParameter(1, anyObject.getType().getKey());
-                insert.setParameter(2, anyObject.getKey());
-                insert.setParameter(3, merged.getKey());
-                insert.executeUpdate();
+                for (AnyObject anyObject : matching) {
+                    Query insert = entityManager().createNativeQuery(
+                            "INSERT INTO " + ADYNMEMB_TABLE + " VALUES(?, ?, ?)");
+                    insert.setParameter(1, anyObject.getType().getKey());
+                    insert.setParameter(2, anyObject.getKey());
+                    insert.setParameter(3, merged.getKey());
+                    insert.executeUpdate();
 
-                publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, anyObject, AuthContextUtils.getDomain()));
+                    publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, anyObject, AuthContextUtils.getDomain()));
+                }
             }
         }
 
