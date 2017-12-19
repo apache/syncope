@@ -57,6 +57,9 @@ under the License.
   <bean id="testconnectorserver.csvdir.bundle" class="java.lang.String">
     <constructor-arg value="net.tirasa.connid.bundles.csvdir-${connid.csvdir.version}.jar"/>
   </bean>  
+  <bean id="testconnectorserver.ad.bundle" class="java.lang.String">
+    <constructor-arg value="net.tirasa.connid.bundles.ad-${connid.ad.version}.jar"/>
+  </bean>
   <bean id="testconnectorserver.ldap.bundle" class="java.lang.String">
     <constructor-arg value="net.tirasa.connid.bundles.ldap-${connid.ldap.version}.jar"/>
   </bean>
