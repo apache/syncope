@@ -354,6 +354,9 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
 
     @Override
     public <T extends Any<?>> boolean matches(final T any, final SearchCond cond) {
-        return search(cond, any.getType().getKind()).contains(any);
+        AnyCond keycond = new AnyCond(AttributeCond.Type.EQ);
+        keycond.setSchema("key");
+        keycond.setExpression(any.getKey());
+        return !search(SearchCond.getAndCond(SearchCond.getLeafCond(keycond), cond), any.getType().getKind()).isEmpty();
     }
 }
