@@ -32,13 +32,13 @@ import org.springframework.beans.factory.FactoryBean;
  */
 public class ElasticsearchClientFactoryBean implements FactoryBean<Client>, DisposableBean {
 
-    private Map<String, Object> settings;
+    private Map<String, String> settings;
 
     private Map<String, Integer> addresses;
 
     private Client client;
 
-    public void setSettings(final Map<String, Object> settings) {
+    public void setSettings(final Map<String, String> settings) {
         this.settings = settings;
     }
 
@@ -50,7 +50,12 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<Client>, Disp
     public Client getObject() throws Exception {
         synchronized (this) {
             if (client == null) {
-                PreBuiltTransportClient tClient = new PreBuiltTransportClient(Settings.builder().put(settings).build());
+                Settings.Builder builder = Settings.builder();
+                settings.entrySet().forEach(entry -> {
+                    builder.put(entry.getKey(), entry.getValue());
+                });
+
+                PreBuiltTransportClient tClient = new PreBuiltTransportClient(builder.build());
 
                 for (Map.Entry<String, Integer> entry : addresses.entrySet()) {
                     tClient.addTransportAddress(
