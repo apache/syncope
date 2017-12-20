@@ -298,7 +298,9 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
         // refresh dynamic memberships
         if (merged.getUDynMembership() != null) {
-            for (int page = 1; page <= (countUDynMembers(group) / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+            clearUDynMembers(merged);
+            int count = countUDynMembers(group);
+            for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                 List<User> matching = searchDAO().search(
                         Collections.<String>singleton(merged.getRealm().getFullPath()),
                         buildDynMembershipCond(merged.getUDynMembership().getFIQLCond(), merged.getRealm()),
@@ -306,8 +308,6 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                         AnyDAO.DEFAULT_PAGE_SIZE,
                         Collections.<OrderByClause>emptyList(),
                         AnyTypeKind.USER);
-
-                clearUDynMembers(merged);
 
                 for (User user : matching) {
                     Query insert = entityManager().createNativeQuery("INSERT INTO " + UDYNMEMB_TABLE + " VALUES(?, ?)");
@@ -320,7 +320,9 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             }
         }
         for (ADynGroupMembership memb : merged.getADynMemberships()) {
-            for (int page = 1; page <= (countADynMembers(group) / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+            clearADynMembers(merged);
+            int count = countADynMembers(group);
+            for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                 List<AnyObject> matching = searchDAO().search(
                         Collections.<String>singleton(merged.getRealm().getFullPath()),
                         buildDynMembershipCond(memb.getFIQLCond(), merged.getRealm()),
@@ -328,8 +330,6 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                         AnyDAO.DEFAULT_PAGE_SIZE,
                         Collections.<OrderByClause>emptyList(),
                         AnyTypeKind.ANY_OBJECT);
-
-                clearADynMembers(merged);
 
                 for (AnyObject anyObject : matching) {
                     Query insert = entityManager().createNativeQuery(
