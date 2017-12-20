@@ -25,12 +25,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeAll;
@@ -118,9 +120,10 @@ public class ExceptionMapperITCase extends AbstractITCase {
         try {
             createGroup(groupTO2);
             fail("This should not happen");
-        } catch (Exception e) {
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.EntityExists, e.getType());
             String message = ERROR_MESSAGES.getProperty("errMessage.UniqueConstraintViolation");
-            assertEquals("DataIntegrityViolation [" + message + "]", e.getMessage());
+            assertEquals("EntityExists [" + message + "]", e.getMessage());
         }
     }
 
