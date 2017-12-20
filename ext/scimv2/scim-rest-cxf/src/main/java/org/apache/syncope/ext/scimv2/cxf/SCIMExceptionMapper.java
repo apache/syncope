@@ -200,7 +200,7 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
         ErrorType scimType = null;
         if (hType.name().startsWith("Invalid") || hType == ClientExceptionType.RESTValidation) {
             scimType = ErrorType.invalidValue;
-        } else if (hType == ClientExceptionType.DataIntegrityViolation) {
+        } else if (hType == ClientExceptionType.EntityExists) {
             scimType = ErrorType.uniqueness;
         }
 
