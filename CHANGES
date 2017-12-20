@@ -2,6 +2,46 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.0.7
+================================================================================
+
+** Bug
+    * [SYNCOPE-1222] - Unwanted delete from External Resources on Membership removal
+    * [SYNCOPE-1223] - Cannot search for values containing comma
+    * [SYNCOPE-1224] - CLI: user "all" operations limited to 25 users
+    * [SYNCOPE-1226] - List the attributes to be displayed show deleted attributes
+    * [SYNCOPE-1227] - Password template not nullable after setting
+    * [SYNCOPE-1229] - Pull task execution bulk delete fails
+    * [SYNCOPE-1230] - Bad toggle handling during task execution delete
+    * [SYNCOPE-1231] - Hidden columns in bulk action resul modal page
+    * [SYNCOPE-1232] - AnyType removal does not check for existing AnyObjects
+    * [SYNCOPE-1233] - NullPointerException in Topology after creating a connector with no displayName using pure REST call
+    * [SYNCOPE-1235] - Unlink or unassign Group from External Resource resets dynamic membership conditions
+    * [SYNCOPE-1236] - Pagination error for executed tasks
+    * [SYNCOPE-1239] - Missing specified plain attr values if plain attr step is the last one of the any management wizard
+    * [SYNCOPE-1241] - Under high load propagation after pull might fail
+    * [SYNCOPE-1244] - Error creating bean with name 'logicInitializer' on startup related to quartz clustering 
+    * [SYNCOPE-1246] - Group membership search stucks with several thousands of groups
+    * [SYNCOPE-1247] - Group search and auto-completion does not work with several thousands of groups
+    * [SYNCOPE-1248] - Password policy history error when the user is updated before being approved
+    * [SYNCOPE-1250] - Missing attributes layout order
+    * [SYNCOPE-1251] - UserTO variable is not updated during Update Activiti Task
+    * [SYNCOPE-1252] - Search failing for non-string attributes from Admin Console
+    * [SYNCOPE-1253] - Pulled users have password set even if no mapping was provided
+
+** Improvement
+    * [SYNCOPE-1138] - Update RelationshipTO to also report the "left" end of a relationship
+    * [SYNCOPE-1228] - Parent should be passed once for Realm create
+    * [SYNCOPE-1234] - SyncDelta pre-processing
+    * [SYNCOPE-1237] - Copy table row element key to clipboard by clicking on its name in toggle menu
+    * [SYNCOPE-1238] - Terminate Topology background checks once completed
+    * [SYNCOPE-1242] - Simple way to see elements full text value in Palette Panels
+    * [SYNCOPE-1243] - Add information to GroupTO about user and AnyObject membership counts
+
+** New Feature
+    * [SYNCOPE-152] - Support SCIM REST API
+    * [SYNCOPE-1249] - Support for mustChangePassword mapping
+
 Release Notes - Syncope - Version 2.0.6
 ================================================================================
 
