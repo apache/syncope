@@ -22,10 +22,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,8 +100,8 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
             }
 
             @Override
-            protected Serializable onApplyInternal(final AjaxRequestTarget target) {
-                final Serializable res = AjaxWizardBuilder.this.onApplyInternal(modelObject);
+            protected Pair<Serializable, Serializable> onApplyInternal(final AjaxRequestTarget target) {
+                Serializable res = AjaxWizardBuilder.this.onApplyInternal(modelObject);
 
                 Serializable payload;
                 switch (mode) {
@@ -116,11 +116,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
                         payload = null;
                 }
 
-                if (payload != null) {
-                    send(pageRef.getPage(), Broadcast.BUBBLE, payload);
-                }
-
-                return res;
+                return Pair.of(payload, res);
             }
         }.setEventSink(eventSink).addOuterObject(outerObjects);
     }

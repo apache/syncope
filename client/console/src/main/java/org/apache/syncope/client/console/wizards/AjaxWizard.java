@@ -22,7 +22,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.wicket.Component;
@@ -41,7 +48,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.syncope.client.console.panels.SubmitableModalPanel;
 import org.apache.syncope.client.console.panels.WizardModalPanel;
+import org.apache.wicket.Application;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.Session;
+import org.apache.wicket.ThreadContext;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
@@ -149,7 +159,13 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
     protected abstract void onCancelInternal();
 
-    protected abstract Serializable onApplyInternal(final AjaxRequestTarget target);
+    /**
+     * Apply operation
+     *
+     * @param target request target
+     * @return a pair of payload (maybe null) and resulting object.
+     */
+    protected abstract Pair<Serializable, Serializable> onApplyInternal(final AjaxRequestTarget target);
 
     /**
      * @see org.apache.wicket.extensions.wizard.Wizard#onCancel()
@@ -179,12 +195,21 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
     public final void onFinish() {
         final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
         try {
-            final Serializable res = onApplyInternal(target);
+            final Serializable res = onApply(target);
             if (eventSink == null) {
                 send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemFinishEvent<>(item, target).setResult(res));
             } else {
                 send(eventSink, Broadcast.EXACT, new NewItemFinishEvent<>(item, target).setResult(res));
             }
+        } catch (TimeoutException te) {
+            LOG.warn("Operation applying took to long", te);
+            if (eventSink == null) {
+                send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemCancelEvent<>(item, target));
+            } else {
+                send(eventSink, Broadcast.EXACT, new NewItemCancelEvent<>(item, target));
+            }
+            SyncopeConsoleSession.get().warn(getString("timeout"));
+            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         } catch (Exception e) {
             LOG.error("Wizard error on finish", e);
             SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
@@ -337,11 +362,68 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        onApplyInternal(target);
+        try {
+            onApply(target);
+        } catch (TimeoutException te) {
+            LOG.warn("Operation applying took to long", te);
+            send(eventSink, Broadcast.EXACT, new NewItemCancelEvent<>(item, target));
+            SyncopeConsoleSession.get().warn(getString("timeout"));
+            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+        }
     }
 
     @Override
     public void onError(final AjaxRequestTarget target, final Form<?> form) {
         ((BasePage) getPage()).getNotificationPanel().refresh(target);
+    }
+
+    private Serializable onApply(final AjaxRequestTarget target) throws TimeoutException {
+        try {
+            final Future<Pair<Serializable, Serializable>> executor
+                    = SyncopeConsoleSession.get().execute(new ApplyFuture(target));
+
+            final Pair<Serializable, Serializable> res
+                    = executor.get(SyncopeConsoleApplication.get().getMaxWaitTimeInSeconds(), TimeUnit.SECONDS);
+
+            if (res.getLeft() != null) {
+                send(pageRef.getPage(), Broadcast.BUBBLE, res.getLeft());
+            }
+
+            return res.getRight();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private class ApplyFuture implements Callable<Pair<Serializable, Serializable>>, Serializable {
+
+        private static final long serialVersionUID = -4657123322652656848L;
+
+        private final AjaxRequestTarget target;
+
+        private final Application application;
+
+        private final RequestCycle requestCycle;
+
+        private final Session session;
+
+        ApplyFuture(final AjaxRequestTarget target) {
+            this.target = target;
+            this.application = Application.get();
+            this.requestCycle = RequestCycle.get();
+            this.session = Session.exists() ? Session.get() : null;
+        }
+
+        @Override
+        public Pair<Serializable, Serializable> call() throws Exception {
+            try {
+                ThreadContext.setApplication(this.application);
+                ThreadContext.setRequestCycle(this.requestCycle);
+                ThreadContext.setSession(this.session);
+                return AjaxWizard.this.onApplyInternal(this.target);
+            } finally {
+                ThreadContext.detach();
+            }
+        }
     }
 }

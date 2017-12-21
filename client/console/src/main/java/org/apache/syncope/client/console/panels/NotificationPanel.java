@@ -47,7 +47,7 @@ public class NotificationPanel extends Panel implements IFeedback, IGenericCompo
                 "[ { type: 'success', template: $('#successTemplate').html() },"
                 + " { type: 'info', template: $('#successTemplate').html() },"
                 + " { type: 'error', template: $('#errorTemplate').html() },"
-                + " { type: 'warning', template: $('#errorTemplate').html() } ] ");
+                + " { type: 'warning', template: $('#warningTemplate').html() } ] ");
 
         notification = new Notification(Constants.FEEDBACK, options) {
 
@@ -66,6 +66,10 @@ public class NotificationPanel extends Panel implements IFeedback, IGenericCompo
         for (FeedbackMessage message : this.getModelObject()) {
             if (message.isError()) {
                 this.notification.error(handler, message.getMessage());
+            } else if (message.isWarning()) {
+                // this is necessary before check for success and info in order to show warnings: isSuccess and isInfo
+                // return true also in case of warnings ...
+                this.notification.warn(handler, message.getMessage());
             } else if (message.isSuccess() || message.isInfo()) {
                 this.notification.success(handler, message.getMessage());
             } else {

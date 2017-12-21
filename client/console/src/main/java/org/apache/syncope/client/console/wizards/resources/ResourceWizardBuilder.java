@@ -81,13 +81,13 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
 
     @Override
     protected ResourceTO onApplyInternal(final Serializable modelObject) {
-        final ResourceTO resourceTO = ResourceTO.class.cast(modelObject);
+        ResourceTO resourceTO = ResourceTO.class.cast(modelObject);
         if (createFlag) {
-            return resourceRestClient.create(resourceTO);
+            resourceTO = resourceRestClient.create(resourceTO);
         } else {
             resourceRestClient.update(resourceTO);
-            return resourceTO;
         }
+        return resourceTO;
     }
 
     @Override
