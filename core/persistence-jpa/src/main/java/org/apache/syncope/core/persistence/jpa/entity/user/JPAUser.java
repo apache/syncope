@@ -263,6 +263,7 @@ public class JPAUser
         try {
             this.password = ENCRYPTOR.encode(password, cipherAlgoritm);
             this.cipherAlgorithm = cipherAlgoritm;
+            setMustChangePassword(false);
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
             this.password = null;
