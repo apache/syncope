@@ -26,7 +26,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
@@ -120,6 +122,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     public void execute(final Runnable command) {
         executorService.execute(command);
+    }
+
+    public <T> Future<T> execute(final Callable<T> command) {
+        return executorService.submit(command);
     }
 
     public PlatformInfo getPlatformInfo() {

@@ -109,6 +109,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     private Integer maxUploadFileSizeMB;
 
+    private Integer maxWaitTime;
+
     private List<String> domains;
 
     private Map<String, Class<? extends BasePage>> pageClasses;
@@ -161,6 +163,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         maxUploadFileSizeMB = props.getProperty("maxUploadFileSizeMB") == null
                 ? null
                 : Integer.valueOf(props.getProperty("maxUploadFileSizeMB"));
+
+        maxWaitTime = Integer.valueOf(props.getProperty("maxWaitTimeOnApplyChanges", "30"));
 
         String csrf = props.getProperty("csrf");
 
@@ -312,6 +316,10 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     public Integer getMaxUploadFileSizeMB() {
         return maxUploadFileSizeMB;
+    }
+
+    public Integer getMaxWaitTimeInSeconds() {
+        return maxWaitTime;
     }
 
     public SyncopeClientFactoryBean newClientFactory() {
