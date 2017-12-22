@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.apache.syncope.ide.eclipse.tests
 Bundle-SymbolicName: org.apache.syncope.ide.eclipse.tests;singleton:=true
-Bundle-Version: 2.0.7
+Bundle-Version: 2.0.8.qualifier
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: 
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
