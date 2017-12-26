@@ -120,7 +120,7 @@ public class MultitenancyITCase extends AbstractITCase {
         user.setUsername(getUUIDString());
         user.setPassword("password");
 
-        Response response = adminClient.getService(UserService.class).create(user);
+        Response response = adminClient.getService(UserService.class).create(user, true);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
 
         user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {

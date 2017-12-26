@@ -84,19 +84,21 @@ public interface SchemaService extends JAXRSService {
      *
      * @param type type for schemas to be updated
      * @param schemaTO updated schema to be stored
+     * @return an empty response if operation was successful
      */
     @PUT
     @Path("{type}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void update(@NotNull @PathParam("type") SchemaType type, @NotNull AbstractSchemaTO schemaTO);
+    Response update(@NotNull @PathParam("type") SchemaType type, @NotNull AbstractSchemaTO schemaTO);
 
     /**
      * Deletes the schema matching the given type and key.
      *
      * @param type type for schema to be deleted
      * @param key name of schema to be deleted
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{type}/{key}")
-    void delete(@NotNull @PathParam("type") SchemaType type, @NotNull @PathParam("key") String key);
+    Response delete(@NotNull @PathParam("type") SchemaType type, @NotNull @PathParam("key") String key);
 }

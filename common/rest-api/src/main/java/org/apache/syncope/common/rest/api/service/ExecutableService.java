@@ -31,6 +31,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -68,10 +69,11 @@ public interface ExecutableService extends JAXRSService {
      * Deletes the executable execution matching the provided key.
      *
      * @param executionKey key of executable execution to be deleted
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("executions/{executionKey}")
-    void deleteExecution(@NotNull @PathParam("executionKey") String executionKey);
+    Response deleteExecution(@NotNull @PathParam("executionKey") String executionKey);
 
     /**
      * Deletes the executions belonging matching the given query.
@@ -110,8 +112,9 @@ public interface ExecutableService extends JAXRSService {
      *
      * @param key executable key
      * @param action action to execute
+     * @return an empty response if operation was successful
      */
     @POST
     @Path("jobs/{key}")
-    void actionJob(@NotNull @PathParam("key") String key, @QueryParam("action") JobAction action);
+    Response actionJob(@NotNull @PathParam("key") String key, @QueryParam("action") JobAction action);
 }

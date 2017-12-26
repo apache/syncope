@@ -28,6 +28,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.log.EventCategoryTO;
 import org.apache.syncope.common.lib.log.LogAppender;
 import org.apache.syncope.common.lib.log.LogStatementTO;
@@ -99,20 +100,22 @@ public interface LoggerService extends JAXRSService {
      *
      * @param type LoggerType to be selected
      * @param logger Logger to be created or updated
+     * @return an empty response if operation was successful
      */
     @PUT
     @Path("{type}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void update(@NotNull @PathParam("type") LoggerType type, @NotNull LoggerTO logger);
+    Response update(@NotNull @PathParam("type") LoggerType type, @NotNull LoggerTO logger);
 
     /**
      * Deletes the logger with matching name.
      *
      * @param type LoggerType to be selected
      * @param name Logger name to be deleted
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{type}/{name}")
-    void delete(@NotNull @PathParam("type") LoggerType type, @NotNull @PathParam("name") String name);
+    Response delete(@NotNull @PathParam("type") LoggerType type, @NotNull @PathParam("name") String name);
 
 }

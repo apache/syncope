@@ -20,10 +20,8 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.List;
 import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
-import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.patch.StatusPatch;
@@ -36,11 +34,11 @@ import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
-public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch> extends BaseRestClient {
+public abstract class AbstractAnyRestClient<TO extends AnyTO> extends BaseRestClient {
 
     private static final long serialVersionUID = 1962529678091410544L;
 
-    protected abstract Class<? extends AnyService<TO, P>> getAnyServiceClass();
+    protected abstract Class<? extends AnyService<TO>> getAnyServiceClass();
 
     public abstract int searchCount(String realm, String fiql, String type);
 
@@ -48,23 +46,6 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch
 
     public TO read(final String key) {
         return getService(getAnyServiceClass()).read(key);
-    }
-
-    public ProvisioningResult<TO> create(final TO to) {
-        Response response = getService(getAnyServiceClass()).create(to);
-        return response.readEntity(new GenericType<ProvisioningResult<TO>>() {
-        });
-    }
-
-    public ProvisioningResult<TO> update(final String etag, final P patch) {
-        ProvisioningResult<TO> result;
-        synchronized (this) {
-            result = getService(etag, getAnyServiceClass()).update(patch).
-                    readEntity(new GenericType<ProvisioningResult<TO>>() {
-                    });
-            resetClient(getAnyServiceClass());
-        }
-        return result;
     }
 
     public ProvisioningResult<TO> delete(final String etag, final String key) {
@@ -81,7 +62,7 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch
     public BulkActionResult unlink(final String etag, final String key, final List<StatusBean> statuses) {
         BulkActionResult result;
         synchronized (this) {
-            AnyService<?, ?> service = getService(etag, getAnyServiceClass());
+            AnyService<?> service = getService(etag, getAnyServiceClass());
 
             DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(key).
                     action(ResourceDeassociationAction.UNLINK).
@@ -97,7 +78,7 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch
     public BulkActionResult link(final String etag, final String key, final List<StatusBean> statuses) {
         BulkActionResult result;
         synchronized (this) {
-            AnyService<?, ?> service = getService(etag, getAnyServiceClass());
+            AnyService<?> service = getService(etag, getAnyServiceClass());
 
             StatusPatch statusPatch = StatusUtils.buildStatusPatch(statuses);
 
@@ -116,7 +97,7 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch
     public BulkActionResult deprovision(final String etag, final String key, final List<StatusBean> statuses) {
         BulkActionResult result;
         synchronized (this) {
-            AnyService<?, ?> service = getService(etag, getAnyServiceClass());
+            AnyService<?> service = getService(etag, getAnyServiceClass());
 
             DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(key).
                     action(ResourceDeassociationAction.DEPROVISION).
@@ -132,7 +113,7 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch
     public BulkActionResult provision(final String etag, final String key, final List<StatusBean> statuses) {
         BulkActionResult result;
         synchronized (this) {
-            AnyService<?, ?> service = getService(etag, getAnyServiceClass());
+            AnyService<?> service = getService(etag, getAnyServiceClass());
 
             StatusPatch statusPatch = StatusUtils.buildStatusPatch(statuses);
 
@@ -151,7 +132,7 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch
     public BulkActionResult unassign(final String etag, final String key, final List<StatusBean> statuses) {
         BulkActionResult result;
         synchronized (this) {
-            AnyService<?, ?> service = getService(etag, getAnyServiceClass());
+            AnyService<?> service = getService(etag, getAnyServiceClass());
 
             DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(key).
                     action(ResourceDeassociationAction.UNASSIGN).
@@ -167,7 +148,7 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch
     public BulkActionResult assign(final String etag, final String key, final List<StatusBean> statuses) {
         BulkActionResult result;
         synchronized (this) {
-            AnyService<?, ?> service = getService(etag, getAnyServiceClass());
+            AnyService<?> service = getService(etag, getAnyServiceClass());
 
             StatusPatch statusPatch = StatusUtils.buildStatusPatch(statuses);
 

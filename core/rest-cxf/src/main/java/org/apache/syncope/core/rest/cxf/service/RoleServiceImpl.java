@@ -62,13 +62,15 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     }
 
     @Override
-    public void update(final RoleTO roleTO) {
+    public Response update(final RoleTO roleTO) {
         logic.update(roleTO);
+        return Response.noContent().build();
     }
 
     @Override
-    public void delete(final String key) {
+    public Response delete(final String key) {
         logic.delete(key);
+        return Response.noContent().build();
     }
 
     @Override
@@ -87,9 +89,10 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     }
 
     @Override
-    public void setConsoleLayoutInfo(final String key, final InputStream consoleLayoutIn) {
+    public Response setConsoleLayoutInfo(final String key, final InputStream consoleLayoutIn) {
         try {
             logic.setConsoleLayoutInfo(key, IOUtils.toString(consoleLayoutIn, StandardCharsets.UTF_8.name()));
+            return Response.noContent().build();
         } catch (final IOException e) {
             LOG.error("While setting console layout info for role {}", key, e);
             throw new InternalServerErrorException("Could not read entity", e);
@@ -97,8 +100,9 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     }
 
     @Override
-    public void removeConsoleLayoutInfo(final String key) {
+    public Response removeConsoleLayoutInfo(final String key) {
         logic.setConsoleLayoutInfo(key, null);
+        return Response.noContent().build();
     }
 
 }

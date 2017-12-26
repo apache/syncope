@@ -262,7 +262,7 @@ public class AuthenticationITCase extends AbstractITCase {
             // 4. as delegated, create user under realm / -> fail
             UserTO user = UserITCase.getUniqueSampleTO("delegated@syncope.apache.org");
             try {
-                delegatedUserService.create(user);
+                delegatedUserService.create(user, true);
                 fail();
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
@@ -271,7 +271,7 @@ public class AuthenticationITCase extends AbstractITCase {
             // 5. set realm to /even/two -> succeed
             user.setRealm("/even/two");
 
-            Response response = delegatedUserService.create(user);
+            Response response = delegatedUserService.create(user, true);
             assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
 
             user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {

@@ -63,8 +63,9 @@ public class ReportTemplateServiceImpl extends AbstractServiceImpl implements Re
     }
 
     @Override
-    public void delete(final String key) {
+    public Response delete(final String key) {
         logic.delete(key);
+        return Response.noContent().build();
     }
 
     @Override
@@ -83,9 +84,10 @@ public class ReportTemplateServiceImpl extends AbstractServiceImpl implements Re
     }
 
     @Override
-    public void setFormat(final String key, final ReportTemplateFormat format, final InputStream templateIn) {
+    public Response setFormat(final String key, final ReportTemplateFormat format, final InputStream templateIn) {
         try {
             logic.setFormat(key, format, IOUtils.toString(templateIn, StandardCharsets.UTF_8.name()));
+            return Response.noContent().build();
         } catch (final IOException e) {
             LOG.error("While setting format {} for report template {}", format, key, e);
             throw new InternalServerErrorException("Could not read entity", e);
@@ -93,7 +95,8 @@ public class ReportTemplateServiceImpl extends AbstractServiceImpl implements Re
     }
 
     @Override
-    public void removeFormat(final String key, final ReportTemplateFormat format) {
+    public Response removeFormat(final String key, final ReportTemplateFormat format) {
         logic.setFormat(key, format, null);
+        return Response.noContent().build();
     }
 }

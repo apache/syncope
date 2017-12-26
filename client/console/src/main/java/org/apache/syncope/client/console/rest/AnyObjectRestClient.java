@@ -18,9 +18,14 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import static org.apache.syncope.client.console.rest.BaseRestClient.getService;
+
 import java.util.List;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyService;
@@ -29,13 +34,30 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 /**
  * Console client for invoking Rest any type class services.
  */
-public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO, AnyObjectPatch> {
+public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
 
     private static final long serialVersionUID = -8874495991295283249L;
 
     @Override
-    protected Class<? extends AnyService<AnyObjectTO, AnyObjectPatch>> getAnyServiceClass() {
+    protected Class<? extends AnyService<AnyObjectTO>> getAnyServiceClass() {
         return AnyObjectService.class;
+    }
+
+    public ProvisioningResult<AnyObjectTO> create(final AnyObjectTO anyObjectTO) {
+        Response response = getService(AnyObjectService.class).create(anyObjectTO);
+        return response.readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
+        });
+    }
+
+    public ProvisioningResult<AnyObjectTO> update(final String etag, final AnyObjectPatch patch) {
+        ProvisioningResult<AnyObjectTO> result;
+        synchronized (this) {
+            result = getService(etag, AnyObjectService.class).update(patch).
+                    readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
+                    });
+            resetClient(getAnyServiceClass());
+        }
+        return result;
     }
 
     @Override
@@ -52,6 +74,6 @@ public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO, AnyO
 
         return getService(AnyObjectService.class).search(
                 new AnyQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
-                orderBy(toOrderBy(sort)).details(false).build()).getResult();
+                        orderBy(toOrderBy(sort)).details(false).build()).getResult();
     }
 }

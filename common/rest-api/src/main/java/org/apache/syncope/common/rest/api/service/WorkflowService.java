@@ -83,11 +83,12 @@ public interface WorkflowService extends JAXRSService {
      * @param anyType any object type
      * @param key workflow definition key
      * @param definition workflow definition for matching kind
+     * @return an empty response if operation was successful
      */
     @PUT
     @Path("{anyType}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void set(
+    Response set(
             @NotNull @PathParam("anyType") String anyType,
             @NotNull @PathParam("key") String key,
             @NotNull String definition);
@@ -97,10 +98,11 @@ public interface WorkflowService extends JAXRSService {
      *
      * @param anyType any object type
      * @param key workflow definition key
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{anyType}/{key}")
-    void delete(
+    Response delete(
             @NotNull @PathParam("anyType") String anyType,
             @NotNull @PathParam("key") String key);
 }

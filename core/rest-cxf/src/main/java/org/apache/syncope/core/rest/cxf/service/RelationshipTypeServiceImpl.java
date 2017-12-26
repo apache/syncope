@@ -54,13 +54,15 @@ public class RelationshipTypeServiceImpl extends AbstractServiceImpl implements 
     }
 
     @Override
-    public void update(final RelationshipTypeTO anyTypeTO) {
+    public Response update(final RelationshipTypeTO anyTypeTO) {
         logic.update(anyTypeTO);
+        return Response.noContent().build();
     }
 
     @Override
-    public void delete(final String key) {
+    public Response delete(final String key) {
         logic.delete(key);
+        return Response.noContent().build();
     }
 
 }

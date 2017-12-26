@@ -42,7 +42,7 @@ public class AnyStatusModal<T extends AnyTO> extends StatusModal<T> {
 
     @Override
     protected DirectoryPanel<
-        StatusBean, StatusBean, DirectoryDataProvider<StatusBean>, AbstractAnyRestClient<?, ?>> getStatusDirectoryPanel(
+        StatusBean, StatusBean, DirectoryDataProvider<StatusBean>, AbstractAnyRestClient<?>> getStatusDirectoryPanel(
             final MultilevelPanel mlp,
             final BaseModal<?> baseModal,
             final PageReference pageReference,

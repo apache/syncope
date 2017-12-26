@@ -20,6 +20,7 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.Date;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -62,6 +63,23 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserPatch> imple
     public Response create(final UserTO userTO, final boolean storePassword) {
         ProvisioningResult<UserTO> created = logic.create(userTO, storePassword, isNullPriorityAsync());
         return createResponse(created);
+    }
+
+    @Override
+    public Response update(final UserTO userTO) {
+        userTO.setKey(getActualKey(userTO.getKey()));
+        UserTO before = logic.read(userTO.getKey());
+
+        checkETag(before.getETagValue());
+
+        ProvisioningResult<UserTO> updated =
+                logic.update(AnyOperations.diff(userTO, before, false), isNullPriorityAsync());
+        return modificationResponse(updated);
+    }
+
+    @Override
+    public Response update(final UserPatch userPatch) {
+        return doUpdate(userPatch);
     }
 
     @Override

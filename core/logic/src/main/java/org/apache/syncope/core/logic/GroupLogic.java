@@ -188,7 +188,6 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_CREATE + "')")
-    @Override
     public ProvisioningResult<GroupTO> create(final GroupTO groupTO, final boolean nullPriorityAsync) {
         Pair<GroupTO, List<LogicActions>> before = beforeCreate(groupTO);
 
@@ -276,7 +275,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_UPDATE),
                 group.getRealm());
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
-        
+
         GroupPatch patch = new GroupPatch();
         patch.setKey(key);
         patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {

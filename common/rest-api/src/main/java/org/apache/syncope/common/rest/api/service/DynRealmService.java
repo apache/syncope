@@ -72,19 +72,21 @@ public interface DynRealmService extends JAXRSService {
      * Updates the dynamic realm matching the provided key.
      *
      * @param dynDynRealmTO dynamic realm to be stored
+     * @return an empty response if operation was successful
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void update(@NotNull DynRealmTO dynDynRealmTO);
+    Response update(@NotNull DynRealmTO dynDynRealmTO);
 
     /**
      * Deletes the dynamic realm matching the provided key.
      *
      * @param key dynamic realm key to be deleted
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") String key);
+    Response delete(@NotNull @PathParam("key") String key);
 
 }

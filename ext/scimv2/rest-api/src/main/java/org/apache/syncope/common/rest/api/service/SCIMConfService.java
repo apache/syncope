@@ -25,6 +25,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 
 /**
@@ -46,8 +47,9 @@ public interface SCIMConfService extends JAXRSService {
      * Sets SCIM configuration.
      *
      * @param conf SCIM configuration
+     * @return Response.noContent().build();
      */
     @PUT
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void set(@NotNull SCIMConf conf);
+    Response set(@NotNull SCIMConf conf);
 }

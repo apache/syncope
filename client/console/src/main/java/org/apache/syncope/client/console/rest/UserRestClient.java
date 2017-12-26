@@ -42,12 +42,12 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 /**
  * Console client for invoking rest users services.
  */
-public class UserRestClient extends AbstractAnyRestClient<UserTO, UserPatch> {
+public class UserRestClient extends AbstractAnyRestClient<UserTO> {
 
     private static final long serialVersionUID = -1575748964398293968L;
 
     @Override
-    protected Class<? extends AnyService<UserTO, UserPatch>> getAnyServiceClass() {
+    protected Class<? extends AnyService<UserTO>> getAnyServiceClass() {
         return UserService.class;
     }
 
@@ -55,6 +55,17 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO, UserPatch> {
         Response response = getService(UserService.class).create(userTO, storePassword);
         return response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         });
+    }
+
+    public ProvisioningResult<UserTO> update(final String etag, final UserPatch patch) {
+        ProvisioningResult<UserTO> result;
+        synchronized (this) {
+            result = getService(etag, UserService.class).update(patch).
+                    readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                    });
+            resetClient(getAnyServiceClass());
+        }
+        return result;
     }
 
     @Override

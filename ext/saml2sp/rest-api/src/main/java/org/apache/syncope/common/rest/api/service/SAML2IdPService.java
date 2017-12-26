@@ -84,18 +84,20 @@ public interface SAML2IdPService extends JAXRSService {
      * Updates the SAML 2.0 Identity Provider with matching entityID.
      *
      * @param saml2IdpTO idp configuration to be stored
+     * @return an empty response if operation was successful
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void update(@NotNull SAML2IdPTO saml2IdpTO);
+    Response update(@NotNull SAML2IdPTO saml2IdpTO);
 
     /**
      * Deletes the SAML 2.0 Identity Provider with matching entityID.
      *
      * @param key SAML 2.0 Identity Provider's entityID
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{key}")
-    void delete(@PathParam("key") String key);
+    Response delete(@PathParam("key") String key);
 }

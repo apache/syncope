@@ -27,6 +27,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
 
 /**
@@ -50,17 +51,19 @@ public interface ConnectorHistoryService extends JAXRSService {
      * Restores the connector configuration history instance matching the provided key.
      *
      * @param key connector configuration history instance key to be restored
+     * @return an empty response if operation was successful
      */
     @POST
     @Path("{key}")
-    void restore(@NotNull @PathParam("key") String key);
+    Response restore(@NotNull @PathParam("key") String key);
 
     /**
      * Deletes the connector configuration history instance matching the provided key.
      *
      * @param key connector configuration history instance key to be deleted
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") String key);
+    Response delete(@NotNull @PathParam("key") String key);
 }

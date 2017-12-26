@@ -313,9 +313,9 @@ public class SCIMITCase extends AbstractITCase {
         assertEquals("additional", additional.getDisplayName());
 
         // gt
-        UserTO newUser = userService.create(UserITCase.getUniqueSampleTO("scimsearch@syncope.apache.org")).readEntity(
-                new GenericType<ProvisioningResult<UserTO>>() {
-        }).getEntity();
+        UserTO newUser = userService.create(UserITCase.getUniqueSampleTO("scimsearch@syncope.apache.org"), true).
+                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                }).getEntity();
 
         Date value = new Date(newUser.getCreationDate().getTime() - 1000);
         response = webClient().path("Users").query("filter", "meta.created gt \""

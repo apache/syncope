@@ -59,8 +59,9 @@ public class AccessTokenServiceImpl extends AbstractServiceImpl implements Acces
     }
 
     @Override
-    public void logout() {
+    public Response logout() {
         logic.logout();
+        return Response.noContent().build();
     }
 
     @Override
@@ -73,8 +74,9 @@ public class AccessTokenServiceImpl extends AbstractServiceImpl implements Acces
     }
 
     @Override
-    public void delete(final String key) {
+    public Response delete(final String key) {
         logic.delete(key);
+        return Response.noContent().build();
     }
 
 }

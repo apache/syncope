@@ -54,13 +54,15 @@ public class DomainServiceImpl extends AbstractServiceImpl implements DomainServ
     }
 
     @Override
-    public void update(final DomainTO anyTypeTO) {
+    public Response update(final DomainTO anyTypeTO) {
         logic.update(anyTypeTO);
+        return Response.noContent().build();
     }
 
     @Override
-    public void delete(final String key) {
+    public Response delete(final String key) {
         logic.delete(key);
+        return Response.noContent().build();
     }
 
 }

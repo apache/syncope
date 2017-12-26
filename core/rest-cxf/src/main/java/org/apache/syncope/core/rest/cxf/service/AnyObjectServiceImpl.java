@@ -18,12 +18,15 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
@@ -58,6 +61,29 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
         AnyObjectPatch patch = new AnyObjectPatch();
         patch.setKey(key);
         return patch;
+    }
+
+    @Override
+    public Response create(final AnyObjectTO anyObjectTO) {
+        ProvisioningResult<AnyObjectTO> created = logic.create(anyObjectTO, isNullPriorityAsync());
+        return createResponse(created);
+    }
+
+    @Override
+    public Response update(final AnyObjectTO anyObjectTO) {
+        anyObjectTO.setKey(getActualKey(anyObjectTO.getKey()));
+        AnyObjectTO before = logic.read(anyObjectTO.getKey());
+
+        checkETag(before.getETagValue());
+
+        ProvisioningResult<AnyObjectTO> updated =
+                logic.update(AnyOperations.diff(anyObjectTO, before, false), isNullPriorityAsync());
+        return modificationResponse(updated);
+    }
+
+    @Override
+    public Response update(final AnyObjectPatch anyObjectPatch) {
+        return doUpdate(anyObjectPatch);
     }
 
     @Override

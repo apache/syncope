@@ -72,18 +72,20 @@ public interface AnyTypeService extends JAXRSService {
      * Updates the anyType matching the provided key.
      *
      * @param anyTypeTO anyType to be stored
+     * @return an empty response if operation was successful
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void update(@NotNull AnyTypeTO anyTypeTO);
+    Response update(@NotNull AnyTypeTO anyTypeTO);
 
     /**
      * Deletes the anyType matching the provided key.
      *
      * @param key anyType key to be deleted
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") String key);
+    Response delete(@NotNull @PathParam("key") String key);
 }

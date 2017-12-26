@@ -54,13 +54,15 @@ public class DynRealmServiceImpl extends AbstractServiceImpl implements DynRealm
     }
 
     @Override
-    public void update(final DynRealmTO roleTO) {
+    public Response update(final DynRealmTO roleTO) {
         logic.update(roleTO);
+        return Response.noContent().build();
     }
 
     @Override
-    public void delete(final String key) {
+    public Response delete(final String key) {
         logic.delete(key);
+        return Response.noContent().build();
     }
 
 }

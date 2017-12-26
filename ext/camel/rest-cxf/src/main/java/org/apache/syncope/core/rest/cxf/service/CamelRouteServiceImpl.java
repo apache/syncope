@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.List;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.CamelMetrics;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -44,13 +45,15 @@ public class CamelRouteServiceImpl extends AbstractServiceImpl implements CamelR
     }
 
     @Override
-    public void update(final CamelRouteTO route) {
+    public Response update(final CamelRouteTO route) {
         logic.update(route);
+        return Response.noContent().build();
     }
 
     @Override
-    public void restartContext() {
+    public Response restartContext() {
         logic.restartContext();
+        return Response.noContent().build();
     }
 
     @Override

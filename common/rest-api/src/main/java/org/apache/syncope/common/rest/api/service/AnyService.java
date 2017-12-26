@@ -31,8 +31,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.cxf.jaxrs.ext.PATCH;
-import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -42,7 +40,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 
-public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSService {
+public interface AnyService<TO extends AnyTO> extends JAXRSService {
 
     /**
      * Reads the list of attributes owned by the given any object for the given schema type.
@@ -103,31 +101,6 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     PagedResult<TO> search(@BeanParam AnyQuery anyQuery);
 
     /**
-     * Creates a new any object.
-     *
-     * @param anyTO any object to be created
-     * @return Response object featuring Location header of created any object as well as the any
-     * object itself enriched with propagation status information - ProvisioningResult as Entity
-     */
-    @POST
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response create(@NotNull TO anyTO);
-
-    /**
-     * Updates any object matching the provided key.
-     *
-     * @param anyPatch modification to be applied to any object matching the provided key
-     * @return Response object featuring the updated any object enriched with propagation status information
-     * - ProvisioningResult as Entity
-     */
-    @PATCH
-    @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response update(@NotNull P anyPatch);
-
-    /**
      * Adds or replaces the attribute, owned by the given any object, for the given schema type and schema.
      *
      * @param key any object key or name
@@ -145,30 +118,18 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
             @NotNull AttrTO attrTO);
 
     /**
-     * Updates any object matching the provided key.
-     *
-     * @param anyTO complete update
-     * @return Response object featuring the updated any object enriched with propagation status information
-     * - ProvisioningResult as Entity
-     */
-    @PUT
-    @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response update(@NotNull TO anyTO);
-
-    /**
      * Deletes the attribute, owned by the given any object, for the given schema type and schema.
      *
      * @param key any object key or name
      * @param schemaType schema type
      * @param schema schema
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{key}/{schemaType}/{schema}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void delete(
+    Response delete(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("schemaType") SchemaType schemaType,
             @NotNull @PathParam("schema") String schema);

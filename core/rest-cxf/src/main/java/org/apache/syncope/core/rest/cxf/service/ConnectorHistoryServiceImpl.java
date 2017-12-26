@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.List;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
 import org.apache.syncope.common.rest.api.service.ConnectorHistoryService;
 import org.apache.syncope.core.logic.ConnectorHistoryLogic;
@@ -37,13 +38,15 @@ public class ConnectorHistoryServiceImpl extends AbstractServiceImpl implements 
     }
 
     @Override
-    public void restore(final String key) {
+    public Response restore(final String key) {
         logic.restore(key);
+        return Response.noContent().build();
     }
 
     @Override
-    public void delete(final String key) {
+    public Response delete(final String key) {
         logic.delete(key);
+        return Response.noContent().build();
     }
 
 }

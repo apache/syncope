@@ -19,9 +19,12 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.List;
+import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.BulkMembersActionType;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
@@ -55,6 +58,29 @@ public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupPatch> im
         GroupPatch patch = new GroupPatch();
         patch.setKey(key);
         return patch;
+    }
+
+    @Override
+    public Response create(final GroupTO groupTO) {
+        ProvisioningResult<GroupTO> created = logic.create(groupTO, isNullPriorityAsync());
+        return createResponse(created);
+    }
+
+    @Override
+    public Response update(final GroupTO groupTO) {
+        groupTO.setKey(getActualKey(groupTO.getKey()));
+        GroupTO before = logic.read(groupTO.getKey());
+
+        checkETag(before.getETagValue());
+
+        ProvisioningResult<GroupTO> updated =
+                logic.update(AnyOperations.diff(groupTO, before, false), isNullPriorityAsync());
+        return modificationResponse(updated);
+    }
+
+    @Override
+    public Response update(final GroupPatch groupPatch) {
+        return doUpdate(groupPatch);
     }
 
     @Override

@@ -77,19 +77,21 @@ public interface PolicyService extends JAXRSService {
      * Updates policy matching the given key.
      *
      * @param policyTO Policy to replace existing policy
+     * @return an empty response if operation was successful
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void update(@NotNull AbstractPolicyTO policyTO);
+    Response update(@NotNull AbstractPolicyTO policyTO);
 
     /**
      * Delete policy matching the given key.
      *
      * @param key key of policy to be deleted
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") String key);
+    Response delete(@NotNull @PathParam("key") String key);
 
 }

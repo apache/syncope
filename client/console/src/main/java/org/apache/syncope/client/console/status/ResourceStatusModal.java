@@ -55,6 +55,8 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
         List<String> availableAnyTypes = CollectionUtils.collect(
                 resource.getProvisions(), new SerializableTransformer<ProvisionTO, String>() {
 
+            private static final long serialVersionUID = -5381554547270182818L;
+
             @Override
             public String transform(final ProvisionTO provision) {
                 return provision.getAnyType();
@@ -82,7 +84,7 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
 
     @Override
     protected DirectoryPanel<
-        StatusBean, StatusBean, DirectoryDataProvider<StatusBean>, AbstractAnyRestClient<?, ?>> getStatusDirectoryPanel(
+        StatusBean, StatusBean, DirectoryDataProvider<StatusBean>, AbstractAnyRestClient<?>> getStatusDirectoryPanel(
             final MultilevelPanel mlp,
             final BaseModal<?> baseModal,
             final PageReference pageReference,

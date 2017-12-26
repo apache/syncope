@@ -22,11 +22,13 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.cxf.jaxrs.ext.PATCH;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -35,7 +37,7 @@ import org.apache.syncope.common.lib.to.UserTO;
  * REST operations for users.
  */
 @Path("users")
-public interface UserService extends AnyService<UserTO, UserPatch> {
+public interface UserService extends AnyService<UserTO> {
 
     /**
      * Creates a new user.
@@ -51,6 +53,32 @@ public interface UserService extends AnyService<UserTO, UserPatch> {
     Response create(
             @NotNull UserTO userTO,
             @DefaultValue("true") @QueryParam("storePassword") boolean storePassword);
+
+    /**
+     * Updates user matching the provided key.
+     *
+     * @param userPatch modification to be applied to user matching the provided key
+     * @return Response object featuring the updated user enriched with propagation status information
+     * - ProvisioningResult as Entity
+     */
+    @PATCH
+    @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    Response update(@NotNull UserPatch userPatch);
+
+    /**
+     * Updates user matching the provided key.
+     *
+     * @param userTO complete update
+     * @return Response object featuring the updated user enriched with propagation status information
+     * - ProvisioningResult as Entity
+     */
+    @PUT
+    @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    Response update(@NotNull UserTO userTO);
 
     /**
      * Performs a status update on given user.

@@ -63,8 +63,9 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
     }
 
     @Override
-    public void delete(final String key) {
+    public Response delete(final String key) {
         logic.delete(key);
+        return Response.noContent().build();
     }
 
     @SuppressWarnings("unchecked")
@@ -89,9 +90,10 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
     }
 
     @Override
-    public void update(final AbstractTaskTO taskTO) {
+    public Response update(final AbstractTaskTO taskTO) {
         if (taskTO instanceof SchedTaskTO) {
             logic.updateSchedTask((SchedTaskTO) taskTO);
+            return Response.noContent().build();
         } else {
             throw new BadRequestException();
         }
