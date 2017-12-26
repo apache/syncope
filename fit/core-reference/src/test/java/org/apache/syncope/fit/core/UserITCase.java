@@ -882,7 +882,7 @@ public class UserITCase extends AbstractITCase {
         user.getResources().add(RESOURCE_NAME_TESTDB2);
         user.getResources().add(RESOURCE_NAME_LDAP);
 
-        ProvisioningResult<UserTO> result = asyncService.create(user).readEntity(
+        ProvisioningResult<UserTO> result = asyncService.create(user, true).readEntity(
                 new GenericType<ProvisioningResult<UserTO>>() {
         });
         assertNotNull(result);
@@ -1289,7 +1289,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getResources().add("rest-target-resource");
 
         // 1. create
-        ProvisioningResult<UserTO> result = userService.create(userTO).readEntity(
+        ProvisioningResult<UserTO> result = userService.create(userTO, true).readEntity(
                 new GenericType<ProvisioningResult<UserTO>>() {
         });
         assertEquals(1, result.getPropagationStatuses().size());

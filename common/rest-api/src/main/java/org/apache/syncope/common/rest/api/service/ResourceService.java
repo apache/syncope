@@ -111,11 +111,12 @@ public interface ResourceService extends JAXRSService {
      * Updates the resource matching the given name.
      *
      * @param resourceTO resource to be stored
+     * @return an empty response if operation was successful
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void update(@NotNull ResourceTO resourceTO);
+    Response update(@NotNull ResourceTO resourceTO);
 
     /**
      * Queries the connector underlying the given resource for the latest sync token value associated to the given any
@@ -123,41 +124,49 @@ public interface ResourceService extends JAXRSService {
      *
      * @param key resource
      * @param anyTypeKey any type
+     * @return an empty response if operation was successful
      */
     @POST
     @Path("{key}/{anyTypeKey}")
-    void setLatestSyncToken(@NotNull @PathParam("key") String key, @NotNull @PathParam("anyTypeKey") String anyTypeKey);
+    Response setLatestSyncToken(
+            @NotNull @PathParam("key") String key,
+            @NotNull @PathParam("anyTypeKey") String anyTypeKey);
 
     /**
      * Removes the sync token value associated to the given any type from the given resource.
      *
      * @param key resource
      * @param anyTypeKey any type
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{key}/{anyTypeKey}")
-    void removeSyncToken(@NotNull @PathParam("key") String key, @NotNull @PathParam("anyTypeKey") String anyTypeKey);
+    Response removeSyncToken(
+            @NotNull @PathParam("key") String key,
+            @NotNull @PathParam("anyTypeKey") String anyTypeKey);
 
     /**
      * Deletes the resource matching the given name.
      *
      * @param key name of resource to be deleted
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void delete(@NotNull @PathParam("key") String key);
+    Response delete(@NotNull @PathParam("key") String key);
 
     /**
      * Checks whether the connection to resource could be established.
      *
      * @param resourceTO resource to be checked
+     * @return an empty response if operation was successful
      */
     @POST
     @Path("check")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void check(@NotNull ResourceTO resourceTO);
+    Response check(@NotNull ResourceTO resourceTO);
 
     /**
      * De-associate any objects from the given resource.

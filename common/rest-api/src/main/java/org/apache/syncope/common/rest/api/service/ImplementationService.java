@@ -75,18 +75,20 @@ public interface ImplementationService extends JAXRSService {
      * Updates an existing implementation.
      *
      * @param implementationTO implementation.
+     * @return an empty response if operation was successful
      */
     @PUT
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void update(@NotNull ImplementationTO implementationTO);
+    Response update(@NotNull ImplementationTO implementationTO);
 
     /**
      * Deletes the implementation matching the given key.
      *
      * @param key key for implementation to be deleted
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") String key);
+    Response delete(@NotNull @PathParam("key") String key);
 
 }

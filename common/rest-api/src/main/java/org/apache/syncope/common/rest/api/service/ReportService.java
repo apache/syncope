@@ -74,20 +74,22 @@ public interface ReportService extends ExecutableService {
      * Updates report with matching key.
      *
      * @param reportTO report to be stored
+     * @return an empty response if operation was successful
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void update(@NotNull ReportTO reportTO);
+    Response update(@NotNull ReportTO reportTO);
 
     /**
      * Deletes report with matching key.
      *
      * @param key Deletes report with matching key
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") String key);
+    Response delete(@NotNull @PathParam("key") String key);
 
     /**
      * Exports the report execution with matching key in the requested format.

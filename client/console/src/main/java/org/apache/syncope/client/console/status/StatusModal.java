@@ -52,7 +52,7 @@ public abstract class StatusModal<T extends Serializable> extends Panel implemen
     }
 
     protected abstract DirectoryPanel<
-        StatusBean, StatusBean, DirectoryDataProvider<StatusBean>, AbstractAnyRestClient<?, ?>> getStatusDirectoryPanel(
+        StatusBean, StatusBean, DirectoryDataProvider<StatusBean>, AbstractAnyRestClient<?>> getStatusDirectoryPanel(
             final MultilevelPanel mlp,
             final BaseModal<?> baseModal,
             final PageReference pageReference,

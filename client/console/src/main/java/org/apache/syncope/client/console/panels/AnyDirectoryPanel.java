@@ -61,7 +61,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.springframework.util.ReflectionUtils;
 
-public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRestClient<A, ?>>
+public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRestClient<A>>
         extends DirectoryPanel<A, AnyWrapper<A>, AnyDataProvider<A>, E> {
 
     private static final long serialVersionUID = -1100228004207271270L;
@@ -234,7 +234,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
         List<AnyTypeClassTO> getAnyTypeClassTOs();
     }
 
-    public abstract static class Builder<A extends AnyTO, E extends AbstractAnyRestClient<A, ?>>
+    public abstract static class Builder<A extends AnyTO, E extends AbstractAnyRestClient<A>>
             extends DirectoryPanel.Builder<A, AnyWrapper<A>, E>
             implements AnyDirectoryPanelBuilder {
 

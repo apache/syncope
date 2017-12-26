@@ -57,10 +57,12 @@ public interface AccessTokenService extends JAXRSService {
 
     /**
      * Invalidates the access token of the requesting user.
+     *
+     * @return an empty response if operation was successful
      */
     @POST
     @Path("logout")
-    void logout();
+    Response logout();
 
     /**
      * Returns a paged list of existing access tokens matching the given query.
@@ -75,8 +77,9 @@ public interface AccessTokenService extends JAXRSService {
      * Invalidates the access token matching the provided key.
      *
      * @param key access token key
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{key}")
-    void delete(@PathParam("key") String key);
+    Response delete(@PathParam("key") String key);
 }

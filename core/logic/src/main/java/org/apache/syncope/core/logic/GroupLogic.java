@@ -173,7 +173,6 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_CREATE + "')")
-    @Override
     public ProvisioningResult<GroupTO> create(final GroupTO groupTO, final boolean nullPriorityAsync) {
         Pair<GroupTO, List<LogicActions>> before = beforeCreate(groupTO);
 

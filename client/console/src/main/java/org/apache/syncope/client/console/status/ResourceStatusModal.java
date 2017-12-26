@@ -74,7 +74,7 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
 
     @Override
     protected DirectoryPanel<
-        StatusBean, StatusBean, DirectoryDataProvider<StatusBean>, AbstractAnyRestClient<?, ?>> getStatusDirectoryPanel(
+        StatusBean, StatusBean, DirectoryDataProvider<StatusBean>, AbstractAnyRestClient<?>> getStatusDirectoryPanel(
             final MultilevelPanel mlp,
             final BaseModal<?> baseModal,
             final PageReference pageReference,

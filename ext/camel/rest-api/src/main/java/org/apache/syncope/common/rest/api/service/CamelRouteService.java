@@ -29,6 +29,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.CamelMetrics;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -64,18 +65,21 @@ public interface CamelRouteService extends JAXRSService {
      * Update the given route.
      *
      * @param route to be updated
+     * @return an empty response if operation was successful
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void update(@NotNull CamelRouteTO route);
+    Response update(@NotNull CamelRouteTO route);
 
     /**
      * Restart the underlying Apache Camel context.
+     *
+     * @return an empty response if operation was successful
      */
     @POST
     @Path("restartContext")
-    void restartContext();
+    Response restartContext();
 
     /**
      * Provides Camel metrics.

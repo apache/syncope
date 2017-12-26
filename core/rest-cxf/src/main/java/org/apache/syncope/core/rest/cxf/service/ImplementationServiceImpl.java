@@ -55,13 +55,15 @@ public class ImplementationServiceImpl extends AbstractServiceImpl implements Im
     }
 
     @Override
-    public void update(final ImplementationTO implementationTO) {
+    public Response update(final ImplementationTO implementationTO) {
         logic.update(implementationTO);
+        return Response.noContent().build();
     }
 
     @Override
-    public void delete(final String key) {
+    public Response delete(final String key) {
         logic.delete(key);
+        return Response.noContent().build();
     }
 
 }

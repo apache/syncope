@@ -72,18 +72,20 @@ public interface DomainService extends JAXRSService {
      * Updates the domain matching the provided key.
      *
      * @param domainTO domain to be stored
+     * @return an empty response if operation was successful
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void update(@NotNull DomainTO domainTO);
+    Response update(@NotNull DomainTO domainTO);
 
     /**
      * Deletes the domain matching the provided key.
      *
      * @param key domain key to be deleted
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") String key);
+    Response delete(@NotNull @PathParam("key") String key);
 }

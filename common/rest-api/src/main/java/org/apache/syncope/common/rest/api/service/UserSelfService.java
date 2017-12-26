@@ -116,10 +116,11 @@ public interface UserSelfService extends JAXRSService {
      *
      * @param username username for which the security answer is provided
      * @param securityAnswer actual answer text
+     * @return an empty response if operation was successful
      */
     @POST
     @Path("requestPasswordReset")
-    void requestPasswordReset(@NotNull @QueryParam("username") String username, String securityAnswer);
+    Response requestPasswordReset(@NotNull @QueryParam("username") String username, String securityAnswer);
 
     /**
      * Reset the password value for the user matching the provided token, if available and still valid.
@@ -129,8 +130,9 @@ public interface UserSelfService extends JAXRSService {
      *
      * @param token password reset token
      * @param password new password to be set
+     * @return an empty response if operation was successful
      */
     @POST
     @Path("confirmPasswordReset")
-    void confirmPasswordReset(@NotNull @QueryParam("token") String token, String password);
+    Response confirmPasswordReset(@NotNull @QueryParam("token") String token, String password);
 }

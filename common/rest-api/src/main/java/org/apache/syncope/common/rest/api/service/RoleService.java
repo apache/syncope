@@ -73,20 +73,22 @@ public interface RoleService extends JAXRSService {
      * Updates the role matching the provided key.
      *
      * @param roleTO role to be stored
+     * @return an empty response if operation was successful
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void update(@NotNull RoleTO roleTO);
+    Response update(@NotNull RoleTO roleTO);
 
     /**
      * Deletes the role matching the provided key.
      *
      * @param key role key to be deleted
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") String key);
+    Response delete(@NotNull @PathParam("key") String key);
 
     /**
      * Gets the console layout information as JSON string for the role with the given key, if available.
@@ -104,18 +106,20 @@ public interface RoleService extends JAXRSService {
      *
      * @param key role key
      * @param consoleLayoutInfoIn console layout information to be set
+     * @return an empty response if operation was successful
      */
     @PUT
     @Path("{key}/consoleLayout")
     @Consumes({ MediaType.APPLICATION_JSON })
-    void setConsoleLayoutInfo(@NotNull @PathParam("key") String key, InputStream consoleLayoutInfoIn);
+    Response setConsoleLayoutInfo(@NotNull @PathParam("key") String key, InputStream consoleLayoutInfoIn);
 
     /**
      * Removes the console layout information for the role with the given key, if available.
      *
      * @param key role key
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{key}/consoleLayout")
-    void removeConsoleLayoutInfo(@NotNull @PathParam("key") String key);
+    Response removeConsoleLayoutInfo(@NotNull @PathParam("key") String key);
 }

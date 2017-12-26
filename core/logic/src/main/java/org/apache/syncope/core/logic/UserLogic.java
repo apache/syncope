@@ -125,12 +125,6 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_CREATE + "')")
-    @Override
-    public ProvisioningResult<UserTO> create(final UserTO userTO, final boolean nullPriorityAsync) {
-        return doCreate(userTO, true, false, nullPriorityAsync);
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_CREATE + "')")
     public ProvisioningResult<UserTO> create(
             final UserTO userTO, final boolean storePassword, final boolean nullPriorityAsync) {
 

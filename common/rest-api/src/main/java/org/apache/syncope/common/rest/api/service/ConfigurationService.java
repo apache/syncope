@@ -70,19 +70,21 @@ public interface ConfigurationService extends JAXRSService {
      * Creates / updates the configuration parameter with the given schema.
      *
      * @param value parameter value
+     * @return an empty response if operation was successful
      */
     @PUT
     @Path("{schema}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void set(@NotNull AttrTO value);
+    Response set(@NotNull AttrTO value);
 
     /**
      * Deletes the configuration parameter with matching schema.
      *
      * @param schema configuration parameter schema
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{schema}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void delete(@NotNull @PathParam("schema") String schema);
+    Response delete(@NotNull @PathParam("schema") String schema);
 }

@@ -247,15 +247,13 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
 
     public abstract TO read(String key);
 
-    public abstract ProvisioningResult<TO> create(TO anyTO, boolean nullPriorityAsync);
-
-    public abstract ProvisioningResult<TO> update(P anyPatch, boolean nullPriorityAsync);
-
-    public abstract ProvisioningResult<TO> delete(String key, boolean nullPriorityAsync);
-
     public abstract Pair<Integer, List<TO>> search(
             SearchCond searchCond,
             int page, int size, List<OrderByClause> orderBy,
             String realm,
             boolean details);
+
+    public abstract ProvisioningResult<TO> update(P anyPatch, boolean nullPriorityAsync);
+
+    public abstract ProvisioningResult<TO> delete(String key, boolean nullPriorityAsync);
 }

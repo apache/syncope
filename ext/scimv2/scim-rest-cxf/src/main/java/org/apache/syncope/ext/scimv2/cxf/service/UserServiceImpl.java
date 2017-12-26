@@ -40,7 +40,7 @@ public class UserServiceImpl extends AbstractService<SCIMUser> implements UserSe
 
     @Override
     public Response create(final SCIMUser user) {
-        ProvisioningResult<UserTO> result = userLogic().create(binder().toUserTO(user), false);
+        ProvisioningResult<UserTO> result = userLogic().create(binder().toUserTO(user), true, false);
         return createResponse(
                 result.getEntity().getKey(),
                 binder().toSCIMUser(

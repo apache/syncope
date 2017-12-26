@@ -61,13 +61,15 @@ public class SAML2IdPServiceImpl extends AbstractServiceImpl implements SAML2IdP
     }
 
     @Override
-    public void update(final SAML2IdPTO saml2IdpTO) {
+    public Response update(final SAML2IdPTO saml2IdpTO) {
         logic.update(saml2IdpTO);
+        return Response.noContent().build();
     }
 
     @Override
-    public void delete(final String key) {
+    public Response delete(final String key) {
         logic.delete(key);
+        return Response.noContent().build();
     }
 
 }

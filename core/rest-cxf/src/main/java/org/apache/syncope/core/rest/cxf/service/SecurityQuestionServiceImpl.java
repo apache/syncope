@@ -55,13 +55,15 @@ public class SecurityQuestionServiceImpl extends AbstractServiceImpl implements 
     }
 
     @Override
-    public void update(final SecurityQuestionTO securityQuestionTO) {
+    public Response update(final SecurityQuestionTO securityQuestionTO) {
         logic.update(securityQuestionTO);
+        return Response.noContent().build();
     }
 
     @Override
-    public void delete(final String key) {
+    public Response delete(final String key) {
         logic.delete(key);
+        return Response.noContent().build();
     }
 
     @Override

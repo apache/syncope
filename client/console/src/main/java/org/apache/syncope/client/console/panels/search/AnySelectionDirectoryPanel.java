@@ -35,7 +35,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.model.IModel;
 
-public abstract class AnySelectionDirectoryPanel<A extends AnyTO, E extends AbstractAnyRestClient<A, ?>>
+public abstract class AnySelectionDirectoryPanel<A extends AnyTO, E extends AbstractAnyRestClient<A>>
         extends AnyDirectoryPanel<A, E> {
 
     private static final long serialVersionUID = -1100228004207271272L;
@@ -71,7 +71,7 @@ public abstract class AnySelectionDirectoryPanel<A extends AnyTO, E extends Abst
         return Collections.<ActionType>emptyList();
     }
 
-    public abstract static class Builder<A extends AnyTO, E extends AbstractAnyRestClient<A, ?>>
+    public abstract static class Builder<A extends AnyTO, E extends AbstractAnyRestClient<A>>
             extends AnyDirectoryPanel.Builder<A, E> {
 
         private static final long serialVersionUID = 5460024856989891156L;

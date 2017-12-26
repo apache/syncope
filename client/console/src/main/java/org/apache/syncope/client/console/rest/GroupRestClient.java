@@ -20,9 +20,12 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.BulkMembersActionType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
@@ -32,13 +35,30 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 /**
  * Console client for invoking Rest Group's services.
  */
-public class GroupRestClient extends AbstractAnyRestClient<GroupTO, GroupPatch> {
+public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
 
     private static final long serialVersionUID = -8549081557283519638L;
 
     @Override
-    protected Class<? extends AnyService<GroupTO, GroupPatch>> getAnyServiceClass() {
+    protected Class<? extends AnyService<GroupTO>> getAnyServiceClass() {
         return GroupService.class;
+    }
+
+    public ProvisioningResult<GroupTO> create(final GroupTO groupTO) {
+        Response response = getService(GroupService.class).create(groupTO);
+        return response.readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
+        });
+    }
+
+    public ProvisioningResult<GroupTO> update(final String etag, final GroupPatch patch) {
+        ProvisioningResult<GroupTO> result;
+        synchronized (this) {
+            result = getService(etag, GroupService.class).update(patch).
+                    readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
+                    });
+            resetClient(getAnyServiceClass());
+        }
+        return result;
     }
 
     @Override

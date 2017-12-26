@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.rest.api.service.SCIMConfService;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
@@ -34,8 +35,9 @@ public class SCIMConfServiceImpl extends AbstractServiceImpl implements SCIMConf
     }
 
     @Override
-    public void set(final SCIMConf conf) {
+    public Response set(final SCIMConf conf) {
         manager.set(conf);
+        return Response.noContent().build();
     }
 
 }

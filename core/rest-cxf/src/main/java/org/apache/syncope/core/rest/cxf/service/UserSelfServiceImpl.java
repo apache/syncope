@@ -89,7 +89,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     }
 
     @Override
-    public void requestPasswordReset(final String username, final String securityAnswer) {
+    public Response requestPasswordReset(final String username, final String securityAnswer) {
         if (!syncopeLogic.isPwdResetAllowed()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.DelegatedAdministration);
             sce.getElements().add("Password reset forbidden by configuration");
@@ -97,10 +97,11 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
         }
 
         logic.requestPasswordReset(username, securityAnswer);
+        return Response.noContent().build();
     }
 
     @Override
-    public void confirmPasswordReset(final String token, final String password) {
+    public Response confirmPasswordReset(final String token, final String password) {
         if (!syncopeLogic.isPwdResetAllowed()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.DelegatedAdministration);
             sce.getElements().add("Password reset forbidden by configuration");
@@ -108,6 +109,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
         }
 
         logic.confirmPasswordReset(token, password);
+        return Response.noContent().build();
     }
 
 }

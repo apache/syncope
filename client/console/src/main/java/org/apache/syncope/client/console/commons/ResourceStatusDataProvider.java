@@ -48,7 +48,7 @@ public class ResourceStatusDataProvider extends DirectoryDataProvider<StatusBean
 
     private final SortableDataProviderComparator<StatusBean> comparator;
 
-    private final AbstractAnyRestClient<? extends AnyTO, ?> restClient;
+    private final AbstractAnyRestClient<? extends AnyTO> restClient;
 
     protected String fiql;
 

@@ -85,20 +85,22 @@ public interface TaskService extends ExecutableService {
      * Updates the task matching the provided key.
      *
      * @param taskTO updated task to be stored
+     * @return an empty response if operation was successful
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void update(@NotNull AbstractTaskTO taskTO);
+    Response update(@NotNull AbstractTaskTO taskTO);
 
     /**
      * Deletes the task matching the provided key.
      *
      * @param key key of task to be deleted
+     * @return an empty response if operation was successful
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") String key);
+    Response delete(@NotNull @PathParam("key") String key);
 
     /**
      * Executes the provided bulk action.

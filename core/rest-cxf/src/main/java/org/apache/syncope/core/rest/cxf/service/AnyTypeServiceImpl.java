@@ -54,13 +54,15 @@ public class AnyTypeServiceImpl extends AbstractServiceImpl implements AnyTypeSe
     }
 
     @Override
-    public void update(final AnyTypeTO anyTypeTO) {
+    public Response update(final AnyTypeTO anyTypeTO) {
         logic.update(anyTypeTO);
+        return Response.noContent().build();
     }
 
     @Override
-    public void delete(final String key) {
+    public Response delete(final String key) {
         logic.delete(key);
+        return Response.noContent().build();
     }
 
 }

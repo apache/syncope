@@ -26,7 +26,6 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
@@ -57,7 +56,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 
 public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         extends AbstractServiceImpl
-        implements AnyService<TO, P> {
+        implements AnyService<TO> {
 
     protected abstract AnyDAO<?> getAnyDAO();
 
@@ -65,7 +64,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
     protected abstract P newPatch(String key);
 
-    private String getActualKey(final String key) {
+    protected String getActualKey(final String key) {
         String actualKey = key;
         if (!SyncopeConstants.UUID_PATTERN.matcher(key).matches()) {
             actualKey = getAnyDAO().findKey(key);
@@ -152,12 +151,6 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         return buildPagedResult(result.getRight(), anyQuery.getPage(), anyQuery.getSize(), result.getLeft());
     }
 
-    @Override
-    public Response create(final TO anyTO) {
-        ProvisioningResult<TO> created = getAnyLogic().create(anyTO, isNullPriorityAsync());
-        return createResponse(created);
-    }
-
     protected Date findLastChange(final String key) {
         Date lastChange = getAnyDAO().findLastChange(key);
         if (lastChange == null) {
@@ -167,8 +160,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         return lastChange;
     }
 
-    @Override
-    public Response update(final P anyPatch) {
+    protected Response doUpdate(final P anyPatch) {
         anyPatch.setKey(getActualKey(anyPatch.getKey()));
         Date etagDate = findLastChange(anyPatch.getKey());
         checkETag(String.valueOf(etagDate.getTime()));
@@ -199,7 +191,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
             default:
         }
 
-        update(patch);
+        doUpdate(patch);
     }
 
     @Override
@@ -210,22 +202,11 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     @Override
-    public Response update(final TO anyTO) {
-        anyTO.setKey(getActualKey(anyTO.getKey()));
-        TO before = getAnyLogic().read(anyTO.getKey());
-
-        checkETag(before.getETagValue());
-
-        ProvisioningResult<TO> updated = getAnyLogic().update(AnyOperations.<TO, P>diff(anyTO, before, false),
-                isNullPriorityAsync());
-        return modificationResponse(updated);
-    }
-
-    @Override
-    public void delete(final String key, final SchemaType schemaType, final String schema) {
+    public Response delete(final String key, final SchemaType schemaType, final String schema) {
         String actualKey = getActualKey(key);
         addUpdateOrReplaceAttr(
                 actualKey, schemaType, new AttrTO.Builder().schema(schema).build(), PatchOperation.DELETE);
+        return Response.noContent().build();
     }
 
     @Override

@@ -42,7 +42,7 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
     private final SortableAnyProviderComparator<A> comparator;
 
-    private final AbstractAnyRestClient<A, ?> restClient;
+    private final AbstractAnyRestClient<A> restClient;
 
     protected String fiql;
 
@@ -55,7 +55,7 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
     private final PageReference pageRef;
 
     public AnyDataProvider(
-            final AbstractAnyRestClient<A, ?> restClient,
+            final AbstractAnyRestClient<A> restClient,
             final int paginatorRows,
             final boolean filtered,
             final String realm,
