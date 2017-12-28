@@ -235,7 +235,7 @@ public final class SearchUtils implements Serializable {
 
                     case GROUP_MEMBERSHIP:
                         if (StringUtils.isNotBlank(clause.getProperty())) {
-                            String groupKey = clause.getProperty().split(" ")[0];
+                            String groupKey = clause.getProperty();
 
                             if (builder instanceof UserFiqlSearchConditionBuilder) {
                                 condition = clause.getComparator() == SearchClause.Comparator.EQUALS
