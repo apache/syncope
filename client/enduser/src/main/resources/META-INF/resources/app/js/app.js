@@ -343,7 +343,8 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
         availableLanguages: [
           {id: '1', name: 'Italiano', code: 'it', format: 'dd/MM/yyyy HH:mm'},
           {id: '2', name: 'English', code: 'en', format: 'MM/dd/yyyy HH:mm'},
-          {id: '3', name: 'Deutsch', code: 'de', format: 'dd/MM/yyyy HH:mm'}
+          {id: '3', name: 'Deutsch', code: 'de', format: 'dd/MM/yyyy HH:mm'},
+          {id: '4', name: '日本語', code: 'ja', format: 'yyyy/MM/dd HH:mm'}
         ]
       };
       $rootScope.languages.selectedLanguage = $rootScope.languages.availableLanguages[1];

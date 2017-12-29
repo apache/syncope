@@ -78,7 +78,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     public static final List<Locale> SUPPORTED_LOCALES = Collections.unmodifiableList(Arrays.asList(
             new Locale[] {
-                Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru")
+                Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE
             }));
 
     public static SyncopeConsoleApplication get() {
