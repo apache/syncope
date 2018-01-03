@@ -70,7 +70,9 @@ under the License.
           </a>
         </div>
         <div class="text-center" ng-show="$root.isPwdResetAllowed()">
-          <a href="javascript:void(0);" class="btn btn-link" ng-click="passwordReset()" id="passwordreset">Password Reset</a>
+          <a href="javascript:void(0);" class="btn btn-link" ng-click="passwordReset()" id="passwordreset">
+            {{ 'PASSWORDRESET' | translate}}
+          </a>
         </div>
       </div> <!-- /#login -->
     </div>
