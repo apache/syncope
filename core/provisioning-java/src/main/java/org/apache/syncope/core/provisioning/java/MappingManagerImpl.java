@@ -50,7 +50,6 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
@@ -130,9 +129,6 @@ public class MappingManagerImpl implements MappingManager {
 
     @Autowired
     private PasswordGenerator passwordGenerator;
-
-    @Autowired
-    private EntityFactory entityFactory;
 
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
