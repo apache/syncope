@@ -29,7 +29,7 @@ describe('syncope enduser user edit', function () {
     element(by.model('credentials.password')).sendKeys('password');
     element.all(by.options('language.name for language in languages.availableLanguages track by language.id')).
             then(function (language) {
-              expect(language.length).toBe(3);
+              expect(language.length).toBe(4);
             });
     element.all(by.options('language.name for language in languages.availableLanguages track by language.id')).
             get(1).click();
