@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -74,6 +75,12 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     public Response update(final UserTO user) {
         Pair<String, UserTO> self = logic.selfRead();
         return update(AnyOperations.diff(user, self.getValue(), false));
+    }
+
+    @Override
+    public Response status(final StatusPatch statusPatch) {
+        ProvisioningResult<UserTO> updated = logic.selfStatus(statusPatch, isNullPriorityAsync());
+        return modificationResponse(updated);
     }
 
     @Override

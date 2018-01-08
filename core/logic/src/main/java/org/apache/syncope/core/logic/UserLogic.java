@@ -246,6 +246,19 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 Collections.<String>emptySet());
     }
 
+    @PreAuthorize("isAuthenticated()")
+    public ProvisioningResult<UserTO> selfStatus(final StatusPatch statusPatch, final boolean nullPriorityAsync) {
+        statusPatch.setKey(userDAO.findKey(AuthContextUtils.getUsername()));
+        Pair<String, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusPatch, nullPriorityAsync);
+
+        return afterUpdate(
+                binder.returnUserTO(binder.getUserTO(updated.getKey())),
+                updated.getRight(),
+                Collections.<LogicActions>emptyList(),
+                false,
+                Collections.<String>emptySet());
+    }
+
     @PreAuthorize("hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "')")
     public ProvisioningResult<UserTO> changePassword(final String password, final boolean nullPriorityAsync) {
         UserPatch userPatch = new UserPatch();
