@@ -31,6 +31,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.ext.PATCH;
+import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 
@@ -87,6 +88,19 @@ public interface UserSelfService extends JAXRSService {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(@NotNull UserTO user);
+
+    /**
+     * Self-perform a status update.
+     *
+     * @param statusPatch status update details
+     * @return Response object featuring the updated user enriched with propagation status information
+     * - ProvisioningResult as Entity
+     */
+    @POST
+    @Path("{key}/status")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    Response status(@NotNull StatusPatch statusPatch);
 
     /**
      * Self-deletes user.
