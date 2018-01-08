@@ -47,17 +47,9 @@ under the License.
       background: #fafafa;
     }
     
-    // <ApacheSyncope>
-    .download-url-input {
-      pointer-events:none !important;
-    }
-    .download-url-button {
-      pointer-events:none !important;
-    }
     .download-url-wrapper {
       display: none !important;
     }
-    // </ApacheSyncope>
   </style>
 </head>
 
@@ -105,28 +97,19 @@ under the License.
 window.onload = function() {
   
   // Build a system
-  // <ApacheSyncope>
-  /*const ui = SwaggerUIBundle({
-    url: window.location.href.substring(0, window.location.href.lastIndexOf('/')) + "/../rest/openapi.json",
-    dom_id: '#swagger-ui',
-    deepLinking: true,
-    presets: [
-      SwaggerUIBundle.presets.apis,
-      SwaggerUIStandalonePreset
-    ],
-    plugins: [
-      SwaggerUIBundle.plugins.DownloadUrl
-    ],
-    layout: "StandaloneLayout"
-  })*/
   const ui = SwaggerUIBundle({
-    url: window.location.href.substring(0, window.location.href.lastIndexOf('/')) + "/../rest/openapi.json",
-    dom_id: '#swagger-ui',
-    deepLinking: true,
+    // <ApacheSyncope>
+    urls: [{
+      url: window.location.href.substring(0, window.location.href.lastIndexOf('/')) + "/../rest/openapi.json",
+      name: "Apache Syncope"
+    }],
     docExpansion: 'none',
     displayOperationId: true,
     operationsSorter: 'alpha',
     tagSorter: 'alpha',
+    // </ApacheSyncope>
+    dom_id: '#swagger-ui',
+    deepLinking: true,
     presets: [
       SwaggerUIBundle.presets.apis,
       SwaggerUIStandalonePreset
@@ -136,7 +119,6 @@ window.onload = function() {
     ],
     layout: "StandaloneLayout"
   })
-  // </ApacheSyncope>
 
   window.ui = ui
 }
