@@ -79,8 +79,14 @@ case "UPDATE":
     
     String payload = mapper.writeValueAsString(node);
 
-    webClient.path("/users/" + uid);
+    // this if update works with PUT
+    webClient.path("users").path(uid);
     webClient.put(payload);
+    
+    // this instead if update works with PATCH
+    //webClient.path("users").path(uid);
+    //WebClient.getConfig(webClient).getRequestContext().put("use.async.http.conduit", true);
+    //webClient.invoke("PATCH", payload);
 
   default:
     break
