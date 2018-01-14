@@ -373,7 +373,7 @@ under the License.
     <spring-security.version>5.0.0.RELEASE</spring-security.version>
 
     <openjpa.version>3.0.0-SNAPSHOT</openjpa.version>
-    <hikaricp.version>2.7.5</hikaricp.version>
+    <hikaricp.version>2.7.6</hikaricp.version>
     <bval.version>1.1.2</bval.version>
 
     <jasypt.version>1.9.2</jasypt.version>
