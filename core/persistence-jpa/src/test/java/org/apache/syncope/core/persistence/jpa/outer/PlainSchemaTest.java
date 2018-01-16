@@ -217,7 +217,7 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test
     public void deleteFirstname() {
-        assertEquals(5, resourceDAO.find("resource-db-pull").
+        assertEquals(6, resourceDAO.find("resource-db-pull").
                 getProvision(anyTypeDAO.findUser()).getMapping().getItems().size());
 
         plainSchemaDAO.delete("firstname");
@@ -225,7 +225,7 @@ public class PlainSchemaTest extends AbstractTest {
 
         plainSchemaDAO.flush();
 
-        assertEquals(4, resourceDAO.find("resource-db-pull").
+        assertEquals(5, resourceDAO.find("resource-db-pull").
                 getProvision(anyTypeDAO.findUser()).getMapping().getItems().size());
     }
 }

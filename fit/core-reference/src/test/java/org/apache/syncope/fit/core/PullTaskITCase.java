@@ -508,9 +508,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
         try {
             // 1. create 2 users on testpull
             jdbcTemplate.execute("INSERT INTO testpull VALUES ("
-                    + "'" + user1OnTestPull + "', 'user1', 'Doe', 'mail1@apache.org', NULL)");
+                    + "'" + user1OnTestPull + "', 'user1', 'Doe', false, 'mail1@apache.org', NULL)");
             jdbcTemplate.execute("INSERT INTO testpull VALUES ("
-                    + "'" + user2OnTestPull + "', 'user2', 'Rossi', 'mail2@apache.org', NULL)");
+                    + "'" + user2OnTestPull + "', 'user2', 'Rossi', false, 'mail2@apache.org', NULL)");
 
             // 2. create new pull task for test-db, with reconciliation filter (surname 'Rossi') 
             task = taskService.read("7c2242f4-14af-4ab5-af31-cdae23783655", true);
@@ -601,10 +601,10 @@ public class PullTaskITCase extends AbstractTaskITCase {
             jdbcTemplate.execute("DELETE FROM testpull");
             jdbcTemplate.execute("INSERT INTO testpull VALUES "
                     + "(1040, 'syncTokenWithErrors1', 'Surname1', "
-                    + "'syncTokenWithErrors1@syncope.apache.org', '2014-05-23 13:53:24.293')");
+                    + "false, 'syncTokenWithErrors1@syncope.apache.org', '2014-05-23 13:53:24.293')");
             jdbcTemplate.execute("INSERT INTO testpull VALUES "
                     + "(1041, 'syncTokenWithErrors2', 'Surname2', "
-                    + "'syncTokenWithErrors1@syncope.apache.org', '2015-05-23 13:53:24.293')");
+                    + "false, 'syncTokenWithErrors1@syncope.apache.org', '2015-05-23 13:53:24.293')");
 
             ExecTO exec = execProvisioningTask(taskService, pullTask.getKey(), 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
@@ -709,7 +709,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         // 1. populate the external table
         jdbcTemplate.execute("INSERT INTO testpull VALUES"
-                + "('" + id + "', 'issuesyncope230', 'Surname', 'syncope230@syncope.apache.org', NULL)");
+                + "('" + id + "', 'issuesyncope230', 'Surname', false, 'syncope230@syncope.apache.org', NULL)");
 
         // 2. execute PullTask for resource-db-pull (table TESTPULL on external H2)
         execProvisioningTask(taskService, "7c2242f4-14af-4ab5-af31-cdae23783655", 50, false);
