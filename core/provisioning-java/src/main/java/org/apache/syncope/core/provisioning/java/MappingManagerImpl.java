@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -654,6 +655,12 @@ public class MappingManagerImpl implements MappingManager {
                         ((AnyObjectTO) anyTO).setName(values.isEmpty() || values.get(0) == null
                                 ? null
                                 : values.get(0).toString());
+                    }
+                    break;
+
+                case "mustChangePassword":
+                    if (anyTO instanceof UserTO && !values.isEmpty() && values.get(0) != null) {
+                        ((UserTO) anyTO).setMustChangePassword(BooleanUtils.toBoolean(values.get(0).toString()));
                     }
                     break;
 

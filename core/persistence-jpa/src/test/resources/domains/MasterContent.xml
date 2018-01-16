@@ -1105,6 +1105,9 @@ under the License.
   <MappingItem id="e7215305-93c9-460b-b862-46f7b60de72d" connObjectKey="0" mapping_id="cda910bd-fc28-4f63-890e-66edc62d428b"
                extAttrName="EMAIL" intAttrName="userId" 
                mandatoryCondition="false" password="0" purpose="PULL"/>
+  <MappingItem id="fb59d169-cf59-43f6-a517-adfd9aacc609" connObjectKey="0" mapping_id="cda910bd-fc28-4f63-890e-66edc62d428b"
+               extAttrName="MUSTCHANGEPASSWORD" intAttrName="mustChangePassword" 
+               mandatoryCondition="false" password="0" purpose="PULL"/>
               
   <Provision id="6d7cb60a-c4ad-4a70-94ae-e5b88eb24930" resource_id="resource-db-virattr" anyType_id="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="45280585-308f-4571-9788-c7a4734b3614" provision_id="6d7cb60a-c4ad-4a70-94ae-e5b88eb24930"/>
