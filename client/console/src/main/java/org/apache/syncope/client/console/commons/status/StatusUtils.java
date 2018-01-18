@@ -170,7 +170,7 @@ public class StatusUtils implements Serializable {
 
     public static StatusPatch buildStatusPatch(final Collection<StatusBean> statuses, final Boolean enable) {
         StatusPatch.Builder builder = new StatusPatch.Builder();
-
+        builder.onSyncope(false);
         for (StatusBean status : statuses) {
             if ("syncope".equalsIgnoreCase(status.getResource())) {
                 builder.onSyncope(true);
