@@ -81,7 +81,7 @@ public class RESTITCase extends AbstractITCase {
         // service with invalid JWT string: 401 unauthorized
         try {
             clientFactory.create(RandomStringUtils.random(20, true, true)).self();
-            fail();
+            fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
