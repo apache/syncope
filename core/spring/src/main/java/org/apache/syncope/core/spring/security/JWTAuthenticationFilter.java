@@ -24,7 +24,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
-
+import org.apache.cxf.rs.security.jose.jws.JwsException;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,10 +94,10 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         String stringToken = parts[1];
         LOG.debug("JWT received: {}", stringToken);
 
-        JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(stringToken);
         try {
             credentialChecker.checkIsDefaultJWSKeyInUse();
 
+            JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(stringToken);
             JWTSSOProvider jwtSSOProvider = dataAccessor.getJWTSSOProvider(consumer.getJwtClaims().getIssuer());
             if (!consumer.verifySignatureWith(jwtSSOProvider)) {
                 throw new BadCredentialsException("Invalid signature found in JWT");
@@ -108,6 +108,10 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             chain.doFilter(request, response);
+        } catch (JwsException e) {
+            SecurityContextHolder.clearContext();
+            this.authenticationEntryPoint.commence(
+                    request, response, new BadCredentialsException("Invalid JWT: " + stringToken, e));
         } catch (AuthenticationException e) {
             SecurityContextHolder.clearContext();
             this.authenticationEntryPoint.commence(request, response, e);
