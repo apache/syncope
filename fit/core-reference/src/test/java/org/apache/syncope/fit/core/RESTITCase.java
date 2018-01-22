@@ -37,6 +37,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.BasicAuthenticationHandler;
@@ -73,6 +74,14 @@ public class RESTITCase extends AbstractITCase {
         try {
             clientFactory.create("bellini", "passwor");
             fail("This should not happen");
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
+
+        // service with invalid JWT string: 401 unauthorized
+        try {
+            clientFactory.create(RandomStringUtils.random(20, true, true)).self();
+            fail();
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
