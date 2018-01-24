@@ -419,7 +419,7 @@ under the License.
     <activiti-modeler.directory>${project.build.directory}/activiti-modeler</activiti-modeler.directory>
     <flowable-modeler.directory>${project.build.directory}/flowable-modeler</flowable-modeler.directory>
 
-    <swagger-core.version>1.5.18</swagger-core.version>    
+    <swagger-core.version>1.5.17</swagger-core.version>    
     <swagger-ui.version>3.9.2</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
