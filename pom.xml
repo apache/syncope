@@ -369,7 +369,7 @@ under the License.
 
     <jackson.version>2.9.3</jackson.version>
 
-    <spring.version>4.3.13.RELEASE</spring.version>
+    <spring.version>4.3.14.RELEASE</spring.version>
     <spring-security.version>4.2.3.RELEASE</spring-security.version>
 
     <openjpa.version>2.4.2</openjpa.version>
@@ -419,8 +419,8 @@ under the License.
     <activiti-modeler.directory>${project.build.directory}/activiti-modeler</activiti-modeler.directory>
     <flowable-modeler.directory>${project.build.directory}/flowable-modeler</flowable-modeler.directory>
 
-    <swagger-core.version>1.5.17</swagger-core.version>    
-    <swagger-ui.version>3.9.1</swagger-ui.version>
+    <swagger-core.version>1.5.18</swagger-core.version>    
+    <swagger-ui.version>3.9.2</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
     <jquery.version>2.2.4</jquery.version>
@@ -487,7 +487,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>8.5.24</tomcat.version>
+    <tomcat.version>8.5.27</tomcat.version>
 
     <phantomjs.driver.version>1.2.0</phantomjs.driver.version>
     <phantomjs.version>2.1.1</phantomjs.version>
