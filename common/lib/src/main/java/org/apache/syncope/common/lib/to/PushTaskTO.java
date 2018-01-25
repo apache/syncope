@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +38,6 @@ public class PushTaskTO extends AbstractProvisioningTaskTO {
     private String sourceRealm;
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    @JsonIgnore
     private final Map<String, String> filters = new HashMap<>();
 
     public String getSourceRealm() {

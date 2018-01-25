@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +43,6 @@ public class PullPolicySpec extends AbstractBaseBean {
      * </ol>
      */
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    @JsonIgnore
     private final Map<String, String> correlationRules = new HashMap<>();
 
     public ConflictResolutionAction getConflictResolutionAction() {
