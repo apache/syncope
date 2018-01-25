@@ -56,7 +56,6 @@ public class GroupTO extends AnyTO {
     private int dynamicAnyObjectMembershipCount;
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    @JsonIgnore
     private final Map<String, String> adynMembershipConds = new HashMap<>();
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();

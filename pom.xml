@@ -367,10 +367,10 @@ under the License.
 
     <cxf.version>3.2.2-SNAPSHOT</cxf.version>
 
-    <jackson.version>2.9.3</jackson.version>
+    <jackson.version>2.9.4</jackson.version>
 
     <spring.version>5.0.3.RELEASE</spring.version>
-    <spring-security.version>5.0.0.RELEASE</spring-security.version>
+    <spring-security.version>5.0.1.RELEASE</spring-security.version>
 
     <openjpa.version>3.0.0-SNAPSHOT</openjpa.version>
     <hikaricp.version>2.7.6</hikaricp.version>

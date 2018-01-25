@@ -68,7 +68,6 @@ public enum ClientExceptionType {
     InvalidPullTask(Response.Status.BAD_REQUEST),
     InvalidValues(Response.Status.BAD_REQUEST),
     NotFound(Response.Status.NOT_FOUND),
-    RejectedUserCreate(Response.Status.BAD_REQUEST),
     RequiredValuesMissing(Response.Status.BAD_REQUEST),
     RESTValidation(Response.Status.BAD_REQUEST),
     GroupOwnership(Response.Status.BAD_REQUEST),

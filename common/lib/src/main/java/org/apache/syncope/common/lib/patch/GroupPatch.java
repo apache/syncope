@@ -48,7 +48,6 @@ public class GroupPatch extends AnyPatch {
     private String udynMembershipCond;
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    @JsonIgnore
     private final Map<String, String> adynMembershipConds = new HashMap<>();
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();

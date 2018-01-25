@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,7 +55,6 @@ public class RealmTO extends AbstractBaseBean implements EntityTO, TemplatableTO
     private final List<String> actions = new ArrayList<>();
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    @JsonIgnore
     private final Map<String, AnyTO> templates = new HashMap<>();
 
     private final Set<String> resources = new HashSet<>();

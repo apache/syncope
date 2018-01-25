@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib.info;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,17 +69,14 @@ public class NumbersInfo extends AbstractBaseBean {
     private int totalUsers;
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    @JsonIgnore
     private final Map<String, Integer> usersByRealm = new HashMap<>();
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    @JsonIgnore
     private final Map<String, Integer> usersByStatus = new HashMap<>();
 
     private int totalGroups;
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    @JsonIgnore
     private final Map<String, Integer> groupsByRealm = new HashMap<>();
 
     private String anyType1;
@@ -88,7 +84,6 @@ public class NumbersInfo extends AbstractBaseBean {
     private Integer totalAny1;
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    @JsonIgnore
     private final Map<String, Integer> any1ByRealm = new HashMap<>();
 
     private String anyType2;
@@ -96,7 +91,6 @@ public class NumbersInfo extends AbstractBaseBean {
     private Integer totalAny2;
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    @JsonIgnore
     private final Map<String, Integer> any2ByRealm = new HashMap<>();
 
     private int totalResources;
@@ -104,7 +98,6 @@ public class NumbersInfo extends AbstractBaseBean {
     private int totalRoles;
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    @JsonIgnore
     private final Map<String, Boolean> confCompleteness = new HashMap<>();
 
     public int getTotalUsers() {

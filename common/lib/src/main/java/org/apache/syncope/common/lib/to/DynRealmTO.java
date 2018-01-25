@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +37,6 @@ public class DynRealmTO extends AbstractBaseBean implements EntityTO {
     private String key;
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    @JsonIgnore
     private final Map<String, String> dynMembershipConds = new HashMap<>();
 
     @Override
