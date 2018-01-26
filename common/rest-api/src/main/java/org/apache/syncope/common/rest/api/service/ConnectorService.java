@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -39,6 +41,9 @@ import org.apache.syncope.common.lib.to.ConnInstanceTO;
 /**
  * REST operations for connector bundles and instances.
  */
+@Api(tags = "Connectors", authorizations = {
+    @Authorization(value = "BasicAuthentication")
+    , @Authorization(value = "Bearer") })
 @Path("connectors")
 public interface ConnectorService extends JAXRSService {
 

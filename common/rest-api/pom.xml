@@ -49,6 +49,11 @@ under the License.
     </dependency>
     
     <dependency>
+      <groupId>io.swagger</groupId>
+      <artifactId>swagger-annotations</artifactId>
+    </dependency>      
+
+    <dependency>
       <groupId>org.apache.syncope.common</groupId>
       <artifactId>syncope-common-lib</artifactId>
       <version>${project.version}</version>

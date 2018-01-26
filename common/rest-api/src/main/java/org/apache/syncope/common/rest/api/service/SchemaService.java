@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -38,6 +40,9 @@ import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 /**
  * REST operations for attribute schemas.
  */
+@Api(tags = "Schemas", authorizations = {
+    @Authorization(value = "BasicAuthentication")
+    , @Authorization(value = "Bearer") })
 @Path("schemas")
 public interface SchemaService extends JAXRSService {
 

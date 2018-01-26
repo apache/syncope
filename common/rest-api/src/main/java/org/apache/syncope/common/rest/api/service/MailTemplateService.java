@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
 import java.io.InputStream;
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -37,6 +39,9 @@ import org.apache.syncope.common.lib.types.MailTemplateFormat;
 /**
  * REST operations for mail templates.
  */
+@Api(tags = "MailTemplates", authorizations = {
+    @Authorization(value = "BasicAuthentication")
+    , @Authorization(value = "Bearer") })
 @Path("mailTemplates")
 public interface MailTemplateService extends JAXRSService {
 

@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
 import java.io.InputStream;
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -37,6 +39,9 @@ import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 /**
  * REST operations for report templates.
  */
+@Api(tags = "ReportTemplates", authorizations = {
+    @Authorization(value = "BasicAuthentication")
+    , @Authorization(value = "Bearer") })
 @Path("reportTemplates")
 public interface ReportTemplateService extends JAXRSService {
 

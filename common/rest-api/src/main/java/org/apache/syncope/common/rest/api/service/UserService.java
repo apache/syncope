@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -36,6 +38,9 @@ import org.apache.syncope.common.lib.to.UserTO;
 /**
  * REST operations for users.
  */
+@Api(tags = "Users", authorizations = {
+    @Authorization(value = "BasicAuthentication")
+    , @Authorization(value = "Bearer") })
 @Path("users")
 public interface UserService extends AnyService<UserTO> {
 

@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +39,9 @@ import org.apache.syncope.common.lib.to.SAML2IdPTO;
 /**
  * REST operations for SAML 2.0 Identity Providers.
  */
+@Api(tags = "SAML2IdP", authorizations = {
+    @Authorization(value = "BasicAuthentication")
+    , @Authorization(value = "Bearer") })
 @Path("saml2sp/identityProviders")
 public interface SAML2IdPService extends JAXRSService {
 

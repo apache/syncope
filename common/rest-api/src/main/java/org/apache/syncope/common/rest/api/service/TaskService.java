@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -42,6 +44,9 @@ import org.apache.syncope.common.rest.api.beans.TaskQuery;
 /**
  * REST operations for tasks.
  */
+@Api(tags = "Tasks", authorizations = {
+    @Authorization(value = "BasicAuthentication")
+    , @Authorization(value = "Bearer") })
 @Path("tasks")
 public interface TaskService extends ExecutableService {
 
