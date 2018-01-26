@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.DefaultValue;
@@ -38,6 +40,9 @@ import org.apache.syncope.common.lib.to.TypeExtensionTO;
 /**
  * General info about this Apache Syncope deployment.
  */
+@Api(tags = "Syncope", authorizations = {
+    @Authorization(value = "BasicAuthentication")
+    , @Authorization(value = "Bearer") })
 @Path("")
 public interface SyncopeService extends JAXRSService {
 

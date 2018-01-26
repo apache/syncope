@@ -103,7 +103,12 @@ under the License.
       </list>
     </property>
   </bean>
-  
+
+  <bean id="basicAuth" class="io.swagger.models.auth.BasicAuthDefinition"/>
+  <bean id="bearer" class="io.swagger.models.auth.ApiKeyAuthDefinition">
+    <property name="name" value="Authorization"/>
+    <property name="in" value="HEADER"/>
+  </bean>
   <bean id="swagger2customizer" class="org.apache.syncope.core.rest.cxf.SyncopeSwagger2Customizer">
     <property name="dynamicBasePath" value="true"/>
     <property name="replaceTags" value="true"/>
@@ -126,6 +131,13 @@ under the License.
     <property name="activateOnlyIfJaxrsSupported" value="true"/>
     
     <property name="customizer" ref="swagger2customizer"/>
+
+    <property name="securityDefinitions">
+      <map>
+        <entry key="BasicAuthentication" value-ref="basicAuth"/>
+        <entry key="Bearer" value-ref="bearer"/>
+      </map>
+    </property>
   </bean>
 
   <jaxrs:server id="restContainer" address="/"

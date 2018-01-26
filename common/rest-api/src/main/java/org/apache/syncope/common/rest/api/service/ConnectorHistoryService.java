@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.DELETE;
@@ -33,6 +35,9 @@ import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
 /**
  * REST operations for connector configuration versioning.
  */
+@Api(tags = "ConnectorHistory", authorizations = {
+    @Authorization(value = "BasicAuthentication")
+    , @Authorization(value = "Bearer") })
 @Path("connectorsHistory")
 public interface ConnectorHistoryService extends JAXRSService {
 

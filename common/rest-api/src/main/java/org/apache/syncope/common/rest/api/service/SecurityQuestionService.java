@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Authorization;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -35,6 +37,9 @@ import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 /**
  * REST operations for configuration.
  */
+@Api(tags = "SecurityQuestions", authorizations = {
+    @Authorization(value = "BasicAuthentication")
+    , @Authorization(value = "Bearer") })
 @Path("securityQuestions")
 public interface SecurityQuestionService extends JAXRSService {
 
