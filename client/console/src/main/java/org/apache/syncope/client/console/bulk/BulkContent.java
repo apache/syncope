@@ -259,8 +259,8 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                     } catch (IllegalArgumentException | NoSuchMethodException | SecurityException
                             | IllegalAccessException | InvocationTargetException e) {
                         LOG.error("Bulk action failure", e);
-                        SyncopeConsoleSession.get().error("Operation " + actionToBeAddresed.getActionId()
-                                + " not supported");
+                        SyncopeConsoleSession.get().error(
+                                "Operation " + actionToBeAddresed.getActionId() + " not supported");
                     }
                     ((BasePage) getPage()).getNotificationPanel().refresh(target);
                 }
