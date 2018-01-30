@@ -44,6 +44,7 @@ import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -173,12 +174,13 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                             model.getObject().getETagValue(),
                             !model.getObject().isMustChangePassword(),
                             model.getObject().getKey());
+
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
-                    LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                            getName() : e.getMessage());
+                    LOG.error("While actioning object {}", model.getObject().getKey(), e);
+                    SyncopeConsoleSession.get().error(
+                            StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -205,8 +207,33 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
                     displayAttributeModal.show(true);
                 }
-            }, ActionType.PASSWORD_RESET,
+            }, ActionType.PASSWORD_MANAGEMENT,
                     new StringBuilder().append(StandardEntitlement.USER_UPDATE).toString()).setRealm(realm);
+
+            if (SyncopeConsoleSession.get().getPlatformInfo().isPwdResetAllowed()
+                    && !SyncopeConsoleSession.get().getPlatformInfo().isPwdResetRequiringSecurityQuestions()) {
+
+                panel.add(new ActionLink<UserTO>() {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                        try {
+                            SyncopeConsoleSession.get().getAnonymousClient().getService(UserSelfService.class).
+                                    requestPasswordReset(model.getObject().getUsername(), null);
+
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            target.add(container);
+                        } catch (Exception e) {
+                            LOG.error("While actioning object {}", model.getObject().getKey(), e);
+                            SyncopeConsoleSession.get().error(
+                                    StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                        }
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    }
+                }, ActionType.REQUEST_PASSWORD_RESET, StandardEntitlement.USER_UPDATE).setRealm(realm);
+            }
 
             panel.add(new ActionLink<UserTO>() {
 
@@ -293,12 +320,13 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                 try {
                     restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
+
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
                     LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                            getName() : e.getMessage());
+                    SyncopeConsoleSession.get().error(
+                            StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
