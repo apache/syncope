@@ -263,7 +263,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
 
     @Override
     public BinaryFieldPanel clone() {
-        LOG.info("Custom clone for binary field panel...");
+        LOG.debug("Custom clone for binary field panel...");
         return new BinaryFieldPanel(getId(), this.name, this.model, this.mimeType, this.fileKey);
     }
 
