@@ -84,9 +84,19 @@ public class BinaryFieldPanel extends FieldPanel<String> {
 
     private final Bytes maxUploadSize;
 
-    public BinaryFieldPanel(final String id, final String name, final IModel<String> model, final String mimeType,
+    private final IModel<String> model;
+
+    private final String fileKey;
+
+    public BinaryFieldPanel(
+            final String id,
+            final String name,
+            final IModel<String> model,
+            final String mimeType,
             final String fileKey) {
         super(id, name, model);
+        this.model = model;
+        this.fileKey = fileKey;
         this.mimeType = mimeType;
 
         previewer = PREVIEW_UTILS.getPreviewer(mimeType);
@@ -253,7 +263,8 @@ public class BinaryFieldPanel extends FieldPanel<String> {
 
     @Override
     public BinaryFieldPanel clone() {
-        return (BinaryFieldPanel) super.clone();
+        LOG.info("Custom clone for binary field panel...");
+        return new BinaryFieldPanel(getId(), this.name, this.model, this.mimeType, this.fileKey);
     }
 
     @Override
