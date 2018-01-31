@@ -391,7 +391,7 @@ under the License.
     <slf4j.version>1.7.25</slf4j.version>
     <opensaml.version>3.3.0</opensaml.version>
 
-    <elasticsearch.version>6.1.2</elasticsearch.version>
+    <elasticsearch.version>6.1.3</elasticsearch.version>
 
     <log4j.version>2.10.0</log4j.version>
     <disruptor.version>3.3.7</disruptor.version>
@@ -2237,7 +2237,7 @@ under the License.
             <link>http://docs.spring.io/spring-security/site/docs/4.2.x/apidocs/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.0/apidocs/</link>
-            <link>https://www.javadoc.io/doc/org.elasticsearch/elasticsearch/6.1.2/</link>
+            <link>https://www.javadoc.io/doc/org.elasticsearch/elasticsearch/6.1.3/</link>
           </links>
         </configuration>
         <reportSets>
