@@ -358,7 +358,7 @@ under the License.
 
     <connid.version>1.4.3.0</connid.version>
     <connid.soap.version>1.4.1</connid.soap.version>
-    <connid.rest.version>1.0.1</connid.rest.version>
+    <connid.rest.version>1.0.2</connid.rest.version>
     <connid.database.version>2.2.5</connid.database.version>
     <connid.csvdir.version>0.8.7</connid.csvdir.version>
     <connid.ldap.version>1.5.2</connid.ldap.version>
