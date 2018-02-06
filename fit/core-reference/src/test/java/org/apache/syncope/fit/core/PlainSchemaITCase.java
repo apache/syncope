@@ -25,11 +25,15 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.patch.AttrPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -39,10 +43,12 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
+import org.apache.cxf.helpers.IOUtils;
 
 public class PlainSchemaITCase extends AbstractITCase {
 
@@ -139,6 +145,95 @@ public class PlainSchemaITCase extends AbstractITCase {
         schemaTO.setMimeType("application/x-x509-ca-cert");
 
         createSchema(SchemaType.PLAIN, schemaTO);
+    }
+
+    @Test
+    public void testBinaryValidation() throws IOException {
+        // pdf - with validator
+        PlainSchemaTO schemaTOpdf = new PlainSchemaTO();
+        schemaTOpdf.setKey("BinaryPDF");
+        schemaTOpdf.setType(AttrSchemaType.Binary);
+        schemaTOpdf.setMimeType("application/pdf");
+        schemaTOpdf.setValidator("BinaryValidator");
+        schemaTOpdf.setAnyTypeClass("minimal user");
+
+        createSchema(SchemaType.PLAIN, schemaTOpdf);
+
+        // json - with validator
+        PlainSchemaTO schemaTOjson = new PlainSchemaTO();
+        schemaTOjson.setKey("BinaryJSON");
+        schemaTOjson.setType(AttrSchemaType.Binary);
+        schemaTOjson.setMimeType("application/json");
+        schemaTOjson.setValidator("BinaryValidator");
+        schemaTOjson.setAnyTypeClass("minimal user");
+
+        createSchema(SchemaType.PLAIN, schemaTOjson);
+
+        // json - no validator
+        PlainSchemaTO schemaTOjson2 = new PlainSchemaTO();
+        schemaTOjson2.setKey("BinaryJSON2");
+        schemaTOjson2.setType(AttrSchemaType.Binary);
+        schemaTOjson2.setMimeType("application/json");
+        schemaTOjson2.setAnyTypeClass("minimal user");
+
+        createSchema(SchemaType.PLAIN, schemaTOjson2);
+
+        UserTO userTO = UserITCase.getUniqueSampleTO("test@syncope.apache.org");
+
+        userTO = createUser(userTO).getEntity();
+        assertNotNull(userTO);
+
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        // validation OK - application/pdf -> application/pdf
+        userPatch.getPlainAttrs().add(new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).
+                attrTO(attrTO("BinaryPDF",
+                        Base64.getEncoder().encodeToString(
+                                IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.pdf"))))).
+                build());
+
+        updateUser(userPatch);
+        assertNotNull(userService.read(userTO.getKey()).getPlainAttr("BinaryPDF"));
+
+        userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        // validation KO - text/html -> application/pdf
+        try {
+            userPatch.getPlainAttrs().add(new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).
+                    attrTO(attrTO("BinaryPDF",
+                            Base64.getEncoder().encodeToString(
+                                    IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.html"))))).
+                    build());
+
+            updateUser(userPatch);
+            fail("This should not be reacheable");
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidValues, e.getType());
+        }
+
+        userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        // validation ok - application/json -> application/json
+        userPatch.getPlainAttrs().add(new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).
+                attrTO(attrTO("BinaryJSON",
+                        Base64.getEncoder().encodeToString(
+                                IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.json"))))).
+                build());
+
+        updateUser(userPatch);
+        assertNotNull(userService.read(userTO.getKey()).getPlainAttr("BinaryJSON"));
+
+        userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        // no validation - application/xml -> application/json
+        userPatch.getPlainAttrs().add(new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).
+                attrTO(attrTO("BinaryJSON2",
+                        Base64.getEncoder().encodeToString(
+                                IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.xml"))))).
+                build());
+
+        updateUser(userPatch);
+        assertNotNull(userService.read(userTO.getKey()).getPlainAttr("BinaryJSON2"));
     }
 
     @Test

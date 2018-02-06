@@ -67,6 +67,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
     private final MultiFieldPanel<String> enumerationKeys;
 
+    private final AjaxDropDownChoicePanel<String> validator;
+
     public PlainSchemaDetails(
             final String id,
             final PageReference pageReference,
@@ -233,6 +235,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
                         binaryParams, mimeType);
                 target.add(conversionParams);
                 target.add(typeParams);
+                target.add(validator);
             }
         }
         );
@@ -247,8 +250,9 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
                         map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
-        final AjaxDropDownChoicePanel<String> validator = new AjaxDropDownChoicePanel<>("validator",
+        validator = new AjaxDropDownChoicePanel<>("validator",
                 getString("validator"), new PropertyModel<>(schemaTO, "validator"));
+        validator.setOutputMarkupId(true);
         ((DropDownChoice) validator.getField()).setNullValid(true);
         validator.setChoices(validators.getObject());
         schemaForm.add(validator);
@@ -330,6 +334,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             binaryParams.setVisible(false);
             mimeType.setModelObject(null);
             mimeType.setChoices(null);
+
+            PlainSchemaTO.class.cast(schema).setValidator(null);
         } else if (AttrSchemaType.Enum.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -356,6 +362,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             binaryParams.setVisible(false);
             mimeType.setModelObject(null);
             mimeType.setChoices(null);
+
+            PlainSchemaTO.class.cast(schema).setValidator(null);
         } else if (AttrSchemaType.Encrypted.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -378,6 +386,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             binaryParams.setVisible(false);
             mimeType.setModelObject(null);
             mimeType.setChoices(null);
+
+            PlainSchemaTO.class.cast(schema).setValidator(null);
         } else if (AttrSchemaType.Binary.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -401,6 +411,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
             binaryParams.setVisible(true);
             mimeType.setChoices(MIME_TYPES_LOADER.getMimeTypes());
+
+            PlainSchemaTO.class.cast(schema).setValidator("BinaryValidator");
         } else {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -425,6 +437,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             binaryParams.setVisible(false);
             mimeType.setModelObject(null);
             mimeType.setChoices(null);
+
+            PlainSchemaTO.class.cast(schema).setValidator(null);
         }
     }
 }

@@ -103,6 +103,11 @@ under the License.
       <artifactId>syncope-core-spring</artifactId>
       <version>${project.version}</version>
     </dependency>
+    
+    <dependency>
+      <groupId>org.apache.tika</groupId>
+      <artifactId>tika-core</artifactId>
+    </dependency>
         
     <!-- TEST -->
     <dependency> 

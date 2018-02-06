@@ -188,9 +188,12 @@ abstract class AbstractAnyDataBinder {
                 try {
                     attr.add(value, anyUtils);
                 } catch (InvalidPlainAttrValueException e) {
-                    LOG.warn("Invalid value for attribute " + schema.getKey() + ": " + value, e);
+                    String valueToPrint = value.length() > 40
+                            ? value.substring(0, 20) + "..."
+                            : value;
+                    LOG.warn("Invalid value for attribute " + schema.getKey() + ": " + valueToPrint, e);
 
-                    invalidValues.getElements().add(schema.getKey() + ": " + value + " - " + e.getMessage());
+                    invalidValues.getElements().add(schema.getKey() + ": " + valueToPrint + " - " + e.getMessage());
                 }
             }
         });

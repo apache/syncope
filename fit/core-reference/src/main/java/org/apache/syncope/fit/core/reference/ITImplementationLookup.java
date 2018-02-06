@@ -59,6 +59,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.AlwaysTrueValidator;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BasicValidator;
+import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValidator;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultAccountRule;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPasswordRule;
@@ -199,6 +200,7 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames.add(BasicValidator.class.getName());
             classNames.add(EmailAddressValidator.class.getName());
             classNames.add(AlwaysTrueValidator.class.getName());
+            classNames.add(BinaryValidator.class.getName());
             put(ImplementationType.VALIDATOR, classNames);
 
             classNames = new HashSet<>();
