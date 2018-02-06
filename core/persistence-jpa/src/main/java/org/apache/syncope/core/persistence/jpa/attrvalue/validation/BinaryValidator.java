@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.attrvalue.validation;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -73,11 +73,9 @@ public class BinaryValidator extends AbstractValidator {
 
     private boolean isValidJSON(final String value) {
         try {
-            final JsonParser parser = MAPPER.getFactory().createParser(value);
-            while (parser.nextToken() != null) {
-            }
+            MAPPER.readTree(value);
             return true;
-        } catch (Exception e) {
+        } catch (IOException e) {
             return false;
         }
     }
