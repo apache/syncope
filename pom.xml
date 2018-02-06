@@ -1017,6 +1017,12 @@ under the License.
       </dependency>
 
       <dependency>
+        <groupId>org.apache.tika</groupId>
+        <artifactId>tika-core</artifactId>
+        <version>${tika.version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>net.tirasa.connid</groupId>
         <artifactId>connector-framework</artifactId>
         <version>${connid.version}</version>
@@ -1581,12 +1587,6 @@ under the License.
         <version>${httpclient.version}</version>
       </dependency>
       
-      <dependency>
-        <groupId>org.apache.tika</groupId>
-        <artifactId>tika-core</artifactId>
-        <version>${tika.version}</version>
-      </dependency>
-
       <dependency>
         <groupId>org.netbeans.api</groupId>
         <artifactId>org-netbeans-api-annotations-common</artifactId>
@@ -2297,6 +2297,7 @@ under the License.
             <link>https://commons.apache.org/proper/commons-io/javadocs/api-2.6/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
             <link>https://commons.apache.org/proper/commons-collections/javadocs/api-release/</link>
+            <link>https://tika.apache.org/1.17/api/</link>
             <link>http://docs.spring.io/spring/docs/4.3.x/javadoc-api/</link>
             <link>http://docs.spring.io/spring-security/site/docs/4.2.x/apidocs/</link>
             <link>http://activiti.org/javadocs/</link>

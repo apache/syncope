@@ -35,11 +35,11 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPan
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.EntityTOUtils;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -61,7 +61,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
 
     public VirSchemaDetails(final String id,
             final PageReference pageReference,
-            final AbstractSchemaTO schemaTO) {
+            final VirSchemaTO schemaTO) {
 
         super(id, pageReference, schemaTO);
 
