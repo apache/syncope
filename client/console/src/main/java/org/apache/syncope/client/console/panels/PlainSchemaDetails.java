@@ -62,6 +62,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
     private final MultiFieldPanel<String> enumerationKeys;
 
+    private final AjaxDropDownChoicePanel<String> validatorClass;
+
     public PlainSchemaDetails(
             final String id,
             final PageReference pageReference,
@@ -228,6 +230,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
                         binaryParams, mimeType);
                 target.add(conversionParams);
                 target.add(typeParams);
+                target.add(validatorClass);
             }
         }
         );
@@ -241,8 +244,9 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
                 return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getValidators());
             }
         };
-        final AjaxDropDownChoicePanel<String> validatorClass = new AjaxDropDownChoicePanel<>("validatorClass",
+        validatorClass = new AjaxDropDownChoicePanel<>("validatorClass",
                 getString("validatorClass"), new PropertyModel<String>(schemaTO, "validatorClass"));
+        validatorClass.setOutputMarkupId(true);
         ((DropDownChoice) validatorClass.getField()).setNullValid(true);
         validatorClass.setChoices(validatorsList.getObject());
         schemaForm.add(validatorClass);
@@ -324,6 +328,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             binaryParams.setVisible(false);
             mimeType.setModelObject(null);
             mimeType.setChoices(null);
+
+            PlainSchemaTO.class.cast(schema).setValidatorClass(null);
         } else if (AttrSchemaType.Enum.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -350,6 +356,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             binaryParams.setVisible(false);
             mimeType.setModelObject(null);
             mimeType.setChoices(null);
+
+            PlainSchemaTO.class.cast(schema).setValidatorClass(null);
         } else if (AttrSchemaType.Encrypted.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -372,6 +380,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             binaryParams.setVisible(false);
             mimeType.setModelObject(null);
             mimeType.setChoices(null);
+
+            PlainSchemaTO.class.cast(schema).setValidatorClass(null);
         } else if (AttrSchemaType.Binary.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -395,6 +405,9 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
             binaryParams.setVisible(true);
             mimeType.setChoices(MIME_TYPES_LOADER.getMimeTypes());
+
+            PlainSchemaTO.class.cast(schema).
+                    setValidatorClass("org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValidator");
         } else {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -419,6 +432,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             binaryParams.setVisible(false);
             mimeType.setModelObject(null);
             mimeType.setChoices(null);
+
+            PlainSchemaTO.class.cast(schema).setValidatorClass(null);
         }
     }
 }
