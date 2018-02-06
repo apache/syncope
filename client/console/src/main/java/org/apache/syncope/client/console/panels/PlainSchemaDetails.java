@@ -72,7 +72,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
     public PlainSchemaDetails(
             final String id,
             final PageReference pageReference,
-            final AbstractSchemaTO schemaTO) {
+            final PlainSchemaTO schemaTO) {
+
         super(id, pageReference, schemaTO);
 
         final AjaxDropDownChoicePanel<AttrSchemaType> type = new AjaxDropDownChoicePanel<>(
@@ -115,19 +116,19 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
                     @Override
                     public String getValues() {
-                        return PlainSchemaTO.class.cast(schemaTO).getEnumerationValues();
+                        return schemaTO.getEnumerationValues();
                     }
 
                     @Override
                     public void setValues(final List<String> list) {
-                        PlainSchemaTO.class.cast(schemaTO).setEnumerationValues(getEnumValuesAsString(list));
+                        schemaTO.setEnumerationValues(getEnumValuesAsString(list));
                     }
                 };
             }
 
             @Override
             public void setObject(final List<String> object) {
-                PlainSchemaTO.class.cast(schemaTO).setEnumerationValues(PropertyList.getEnumValuesAsString(object));
+                schemaTO.setEnumerationValues(PropertyList.getEnumValuesAsString(object));
             }
         }) {
 
@@ -154,19 +155,19 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
                     @Override
                     public String getValues() {
-                        return PlainSchemaTO.class.cast(schemaTO).getEnumerationKeys();
+                        return schemaTO.getEnumerationKeys();
                     }
 
                     @Override
                     public void setValues(final List<String> list) {
-                        PlainSchemaTO.class.cast(schemaTO).setEnumerationKeys(PropertyList.getEnumValuesAsString(list));
+                        schemaTO.setEnumerationKeys(PropertyList.getEnumValuesAsString(list));
                     }
                 };
             }
 
             @Override
             public void setObject(final List<String> object) {
-                PlainSchemaTO.class.cast(schemaTO).setEnumerationKeys(PropertyList.getEnumValuesAsString(object));
+                schemaTO.setEnumerationKeys(PropertyList.getEnumValuesAsString(object));
             }
         }) {
 

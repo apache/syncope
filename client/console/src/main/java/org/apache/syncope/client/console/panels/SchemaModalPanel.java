@@ -22,6 +22,9 @@ import java.util.Arrays;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.DerSchemaTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.form.Form;
@@ -75,14 +78,16 @@ public class SchemaModalPanel extends AbstractModalPanel<AbstractSchemaTO> {
 
         switch (schemaType) {
             case DERIVED:
-                panel = new DerSchemaDetails(id, pageRef, schemaTO);
+                panel = new DerSchemaDetails(id, pageRef, (DerSchemaTO) schemaTO);
                 break;
+
             case VIRTUAL:
-                panel = new VirSchemaDetails(id, pageRef, schemaTO);
+                panel = new VirSchemaDetails(id, pageRef, (VirSchemaTO) schemaTO);
                 break;
+
             case PLAIN:
             default:
-                panel = new PlainSchemaDetails(id, pageRef, schemaTO);
+                panel = new PlainSchemaDetails(id, pageRef, (PlainSchemaTO) schemaTO);
         }
         panel.setOutputMarkupId(true);
         return panel;

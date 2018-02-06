@@ -20,9 +20,9 @@ package org.apache.syncope.core.persistence.jpa.attrvalue.validation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import javax.ws.rs.core.MediaType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.tika.Tika;
 
 public class BinaryValidator extends AbstractValidator {
@@ -31,17 +31,24 @@ public class BinaryValidator extends AbstractValidator {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
+    private static final Tika TIKA = new Tika();
+
+    static {
+        TIKA.setMaxStringLength(-1);
+    }
+
     @Override
     protected void doValidate(final PlainAttrValue attrValue) {
         // check Binary schemas MIME Type mismatches
         if (attrValue.getBinaryValue() != null) {
-            PlainSchema currentSchema = attrValue.getAttr().getSchema();
             byte[] binaryValue = attrValue.getBinaryValue();
-            String mimeType = detectSchemaMimeType(binaryValue);
+            String mimeType = TIKA.detect(binaryValue);
+
             boolean valid = true;
-            if (!mimeType.equals(currentSchema.getMimeType())) {
-                if (mimeType.equals("text/plain")
-                        && currentSchema.getMimeType().equals("application/json")) {
+            if (!mimeType.equals(attrValue.getAttr().getSchema().getMimeType())) {
+                if (MediaType.TEXT_PLAIN.equals(mimeType)
+                        && MediaType.APPLICATION_JSON.equals(attrValue.getAttr().getSchema().getMimeType())) {
+
                     String decoded = new String(binaryValue).trim();
                     valid = (decoded.startsWith("{") && decoded.endsWith("}"))
                             || (decoded.startsWith("[") && decoded.endsWith("]"))
@@ -52,19 +59,10 @@ public class BinaryValidator extends AbstractValidator {
             }
             if (!valid) {
                 throw new InvalidPlainAttrValueException(
-                        "Found MIME type: '"
-                        + mimeType
-                        + "', expecting: '"
-                        + currentSchema.getMimeType()
-                        + "'");
+                        "Found MIME type: '" + mimeType + "', expecting: '"
+                        + attrValue.getAttr().getSchema().getMimeType() + "'");
             }
         }
-    }
-
-    private String detectSchemaMimeType(final byte[] value) {
-        Tika tika = new Tika();
-        tika.setMaxStringLength(-1);
-        return tika.detect(value);
     }
 
     private boolean isValidJSON(final String value) {
@@ -72,6 +70,7 @@ public class BinaryValidator extends AbstractValidator {
             MAPPER.readTree(value);
             return true;
         } catch (IOException e) {
+            LOG.debug("Invalid JSON string: {}", value, e);
             return false;
         }
     }
