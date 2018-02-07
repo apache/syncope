@@ -74,6 +74,7 @@ public interface ImplementationService extends JAXRSService {
      */
     @POST
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull ImplementationTO implementationTO);
 
     /**
@@ -84,6 +85,7 @@ public interface ImplementationService extends JAXRSService {
      */
     @PUT
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(@NotNull ImplementationTO implementationTO);
 
     /**
@@ -94,6 +96,7 @@ public interface ImplementationService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete(@NotNull @PathParam("key") String key);
 
 }
