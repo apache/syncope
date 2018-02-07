@@ -32,6 +32,7 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.Transformer;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
@@ -594,6 +595,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         UserTO userTO = new UserTO();
 
         BeanUtils.copyProperties(user, userTO, IGNORE_PROPERTIES);
+        userTO.setSuspended(BooleanUtils.isTrue(user.isSuspended()));
 
         if (user.getSecurityQuestion() != null) {
             userTO.setSecurityQuestion(user.getSecurityQuestion().getKey());
