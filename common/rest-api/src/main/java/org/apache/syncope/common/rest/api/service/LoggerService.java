@@ -110,6 +110,7 @@ public interface LoggerService extends JAXRSService {
     @PUT
     @Path("{type}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(@NotNull @PathParam("type") LoggerType type, @NotNull LoggerTO logger);
 
     /**
@@ -121,6 +122,7 @@ public interface LoggerService extends JAXRSService {
      */
     @DELETE
     @Path("{type}/{name}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete(@NotNull @PathParam("type") LoggerType type, @NotNull @PathParam("name") String name);
 
 }

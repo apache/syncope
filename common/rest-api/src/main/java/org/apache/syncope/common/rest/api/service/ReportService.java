@@ -73,6 +73,7 @@ public interface ReportService extends ExecutableService {
      */
     @POST
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull ReportTO reportTO);
 
     /**
@@ -84,6 +85,7 @@ public interface ReportService extends ExecutableService {
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(@NotNull ReportTO reportTO);
 
     /**
@@ -94,6 +96,7 @@ public interface ReportService extends ExecutableService {
      */
     @DELETE
     @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete(@NotNull @PathParam("key") String key);
 
     /**

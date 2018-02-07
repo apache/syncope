@@ -60,6 +60,7 @@ public interface ResourceHistoryService extends JAXRSService {
      */
     @POST
     @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response restore(@NotNull @PathParam("key") String key);
 
     /**
@@ -70,5 +71,6 @@ public interface ResourceHistoryService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete(@NotNull @PathParam("key") String key);
 }

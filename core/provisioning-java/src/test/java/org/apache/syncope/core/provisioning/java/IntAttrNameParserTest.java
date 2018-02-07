@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
+import java.text.ParseException;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
@@ -37,7 +38,7 @@ public class IntAttrNameParserTest extends AbstractTest {
     private IntAttrNameParser intAttrNameParser;
 
     @Test
-    public void ownFields() {
+    public void ownFields() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("key", AnyTypeKind.USER);
         assertNotNull(intAttrName);
         assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
@@ -78,7 +79,7 @@ public class IntAttrNameParserTest extends AbstractTest {
     }
 
     @Test
-    public void ownSchema() {
+    public void ownSchema() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("email", AnyTypeKind.USER);
         assertNotNull(intAttrName);
         assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
@@ -111,7 +112,7 @@ public class IntAttrNameParserTest extends AbstractTest {
     }
 
     @Test
-    public void enclosingGroup() {
+    public void enclosingGroup() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("groups[readers].cn", AnyTypeKind.USER);
         assertNotNull(intAttrName);
         assertEquals(AnyTypeKind.GROUP, intAttrName.getAnyTypeKind());
@@ -124,7 +125,7 @@ public class IntAttrNameParserTest extends AbstractTest {
     }
 
     @Test
-    public void relatedAnyObject() {
+    public void relatedAnyObject() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("anyObjects[hp].name", AnyTypeKind.USER);
         assertNotNull(intAttrName);
         assertEquals(AnyTypeKind.ANY_OBJECT, intAttrName.getAnyTypeKind());
@@ -137,7 +138,7 @@ public class IntAttrNameParserTest extends AbstractTest {
     }
 
     @Test
-    public void membership() {
+    public void membership() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("memberships[top].cn", AnyTypeKind.USER);
         assertNotNull(intAttrName);
         assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
@@ -154,7 +155,7 @@ public class IntAttrNameParserTest extends AbstractTest {
         try {
             intAttrNameParser.parse("memberships.cn", AnyTypeKind.USER);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (ParseException e) {
             assertNotNull(e);
         }
     }

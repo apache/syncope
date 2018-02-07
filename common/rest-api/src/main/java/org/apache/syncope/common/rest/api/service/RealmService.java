@@ -74,6 +74,7 @@ public interface RealmService extends JAXRSService {
     @POST
     @Path("{parentPath:.*}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull @PathParam("parentPath") String parentPath, @NotNull RealmTO realmTO);
 
     /**
@@ -86,6 +87,7 @@ public interface RealmService extends JAXRSService {
     @PUT
     @Path("{fullPath:.*}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(@NotNull RealmTO realmTO);
 
     /**
@@ -97,5 +99,6 @@ public interface RealmService extends JAXRSService {
      */
     @DELETE
     @Path("{fullPath:.*}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete(@NotNull @PathParam("fullPath") String fullPath);
 }

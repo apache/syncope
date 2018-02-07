@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.text.ParseException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -81,9 +82,10 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
             final AnyTypeClassTO allowedSchemas) {
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
-        SyncopeClientException invalidMapping = SyncopeClientException.build(ClientExceptionType.InvalidMapping);
-        SyncopeClientException requiredValuesMissing = SyncopeClientException.build(
-                ClientExceptionType.RequiredValuesMissing);
+        SyncopeClientException invalidMapping =
+                SyncopeClientException.build(ClientExceptionType.InvalidMapping);
+        SyncopeClientException requiredValuesMissing =
+                SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         for (ItemTO itemTO : idpTO.getItems()) {
             if (itemTO == null) {
@@ -93,9 +95,14 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
                 requiredValuesMissing.getElements().add("intAttrName");
                 scce.addException(requiredValuesMissing);
             } else {
-                IntAttrName intAttrName = intAttrNameParser.parse(itemTO.getIntAttrName(), AnyTypeKind.USER);
+                IntAttrName intAttrName = null;
+                try {
+                    intAttrName = intAttrNameParser.parse(itemTO.getIntAttrName(), AnyTypeKind.USER);
+                } catch (ParseException e) {
+                    LOG.error("Invalid intAttrName '{}' specified, ignoring", itemTO.getIntAttrName(), e);
+                }
 
-                if (intAttrName.getSchemaType() == null && intAttrName.getField() == null) {
+                if (intAttrName == null || intAttrName.getSchemaType() == null && intAttrName.getField() == null) {
                     LOG.error("'{}' not existing", itemTO.getIntAttrName());
                     invalidMapping.getElements().add("'" + itemTO.getIntAttrName() + "' not existing");
                 } else {

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -384,11 +385,15 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 requiredValuesMissing.getElements().add("intAttrName");
                 scce.addException(requiredValuesMissing);
             } else {
-                IntAttrName intAttrName = intAttrNameParser.parse(
-                        itemTO.getIntAttrName(),
-                        mapping.getProvision().getAnyType().getKind());
+                IntAttrName intAttrName = null;
+                try {
+                    intAttrName = intAttrNameParser.parse(
+                            itemTO.getIntAttrName(), mapping.getProvision().getAnyType().getKind());
+                } catch (ParseException e) {
+                    LOG.error("Invalid intAttrName '{}'", itemTO.getIntAttrName(), e);
+                }
 
-                if (intAttrName.getSchemaType() == null && intAttrName.getField() == null) {
+                if (intAttrName == null || intAttrName.getSchemaType() == null && intAttrName.getField() == null) {
                     LOG.error("'{}' not existing", itemTO.getIntAttrName());
                     invalidMapping.getElements().add("'" + itemTO.getIntAttrName() + "' not existing");
                 } else {

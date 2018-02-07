@@ -72,6 +72,7 @@ public interface RoleService extends JAXRSService {
      */
     @POST
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull RoleTO roleTO);
 
     /**
@@ -83,6 +84,7 @@ public interface RoleService extends JAXRSService {
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(@NotNull RoleTO roleTO);
 
     /**
@@ -93,6 +95,7 @@ public interface RoleService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete(@NotNull @PathParam("key") String key);
 
     /**
@@ -116,6 +119,7 @@ public interface RoleService extends JAXRSService {
     @PUT
     @Path("{key}/consoleLayout")
     @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response setConsoleLayoutInfo(@NotNull @PathParam("key") String key, InputStream consoleLayoutInfoIn);
 
     /**
@@ -126,5 +130,6 @@ public interface RoleService extends JAXRSService {
      */
     @DELETE
     @Path("{key}/consoleLayout")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response removeConsoleLayoutInfo(@NotNull @PathParam("key") String key);
 }

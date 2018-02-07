@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Date;
@@ -92,14 +93,14 @@ public class UserTest extends AbstractTest {
         assertEquals("did not get expected number of users", 1, list.size());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void findByInvalidDerAttrValue() {
-        userDAO.findByDerAttrValue("cn", "Antonio, Maria, Rossi");
+        assertTrue(userDAO.findByDerAttrValue("cn", "Antonio, Maria, Rossi").isEmpty());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void findByInvalidDerAttrExpression() {
-        userDAO.findByDerAttrValue("noschema", "Antonio, Maria");
+        assertTrue(userDAO.findByDerAttrValue("noschema", "Antonio, Maria").isEmpty());
     }
 
     @Test

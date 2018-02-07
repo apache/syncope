@@ -71,6 +71,7 @@ public interface SecurityQuestionService extends JAXRSService {
      */
     @POST
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull SecurityQuestionTO securityQuestionTO);
 
     /**
@@ -82,6 +83,7 @@ public interface SecurityQuestionService extends JAXRSService {
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(@NotNull SecurityQuestionTO securityQuestionTO);
 
     /**
@@ -92,6 +94,7 @@ public interface SecurityQuestionService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete(@NotNull @PathParam("key") String key);
 
     /**

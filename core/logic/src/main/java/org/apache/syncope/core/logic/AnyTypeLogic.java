@@ -115,17 +115,19 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
             throw new NotFoundException(key);
         }
 
+        Integer anyObjects = anyObjectDAO.countByType().get(anyType);
+        if (anyObjects != null && anyObjects > 0) {
+            LOG.error("{} AnyObject instances found for {}, aborting", anyObjects, anyType);
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
+            sce.getElements().add("AnyObject instances found for " + key);
+            throw sce;
+        }
+
         try {
-            Integer anyObjects = anyObjectDAO.countByType().get(anyType);
-            if (anyObjects != null && anyObjects > 0) {
-                LOG.error("{} AnyObject instances found for {}, aborting", anyObjects, anyType);
-
-                throw new IllegalArgumentException("AnyObject instances found for " + key);
-            }
-
             return binder.delete(anyType);
         } catch (IllegalArgumentException e) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
             sce.getElements().add(e.getMessage());
             throw sce;
         }

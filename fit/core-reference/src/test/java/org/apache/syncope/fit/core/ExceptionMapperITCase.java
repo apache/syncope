@@ -29,11 +29,17 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.beans.TaskQuery;
+import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -144,6 +150,53 @@ public class ExceptionMapperITCase extends AbstractITCase {
             fail();
         } catch (SyncopeClientCompositeException e) {
             assertEquals(2, e.getExceptions().size());
+        }
+    }
+
+    @Test
+    public void invalidRequests() {
+        try {
+            taskService.list(new TaskQuery.Builder(TaskType.NOTIFICATION).resource(RESOURCE_NAME_LDAP).build());
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidRequest, e.getType());
+        }
+        try {
+            taskService.list(new TaskQuery.Builder(TaskType.PULL).anyTypeKind(AnyTypeKind.ANY_OBJECT).build());
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidRequest, e.getType());
+        }
+        try {
+            taskService.list(new TaskQuery.Builder(TaskType.PULL).
+                    notification("e00945b5-1184-4d43-8e45-4318a8dcdfd4").build());
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidRequest, e.getType());
+        }
+
+        try {
+            anyTypeService.delete(AnyTypeKind.USER.name());
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidRequest, e.getType());
+        }
+
+        try {
+            clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(AccessTokenService.class).login();
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidRequest, e.getType());
+        }
+
+        try {
+            ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+            ItemTO mapping = ldap.getProvisions().get(0).getMapping().getItems().get(0);
+            mapping.setIntAttrName("memberships.cn");
+            resourceService.update(ldap);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidMapping, e.getType());
         }
     }
 }

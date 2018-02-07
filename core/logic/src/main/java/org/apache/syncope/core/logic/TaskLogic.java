@@ -159,20 +159,30 @@ public class TaskLogic extends AbstractExecutableLogic<AbstractTaskTO> {
             final List<OrderByClause> orderByClauses,
             final boolean details) {
 
-        int count = taskDAO.count(
-                type, resourceDAO.find(resource), notificationDAO.find(notification), anyTypeKind, entityKey);
-
-        List<T> result = CollectionUtils.collect(taskDAO.findAll(
-                type, resourceDAO.find(resource), notificationDAO.find(notification), anyTypeKind, entityKey,
-                page, size, orderByClauses), new Transformer<Task, T>() {
-
-            @Override
-            public T transform(final Task task) {
-                return (T) binder.getTaskTO(task, taskUtilsFactory.getInstance(type), details);
+        try {
+            if (type == null) {
+                throw new IllegalArgumentException("type is required");
             }
-        }, new ArrayList<T>());
 
-        return Pair.of(count, result);
+            int count = taskDAO.count(
+                    type, resourceDAO.find(resource), notificationDAO.find(notification), anyTypeKind, entityKey);
+
+            List<T> result = CollectionUtils.collect(taskDAO.findAll(
+                    type, resourceDAO.find(resource), notificationDAO.find(notification), anyTypeKind, entityKey,
+                    page, size, orderByClauses), new Transformer<Task, T>() {
+
+                @Override
+                public T transform(final Task task) {
+                    return (T) binder.getTaskTO(task, taskUtilsFactory.getInstance(type), details);
+                }
+            }, new ArrayList<T>());
+
+            return Pair.of(count, result);
+        } catch (IllegalArgumentException e) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            sce.getElements().add(e.getMessage());
+            throw sce;
+        }
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")

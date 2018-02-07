@@ -104,6 +104,7 @@ public interface GroupService extends AnyService<GroupTO> {
      */
     @POST
     @Path("{key}/members/{actionType}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     ExecTO bulkMembersAction(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("actionType") BulkMembersActionType actionType);

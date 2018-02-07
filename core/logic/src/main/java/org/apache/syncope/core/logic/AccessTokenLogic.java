@@ -27,8 +27,10 @@ import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -72,7 +74,9 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
     @PreAuthorize("isAuthenticated()")
     public Pair<String, Date> login() {
         if (anonymousUser.equals(AuthContextUtils.getUsername())) {
-            throw new IllegalArgumentException(anonymousUser + " cannot be granted an access token");
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            sce.getElements().add(anonymousUser + " cannot be granted an access token");
+            throw sce;
         }
 
         return binder.create(

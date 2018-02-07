@@ -110,6 +110,7 @@ public interface ResourceService extends JAXRSService {
      */
     @POST
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull ResourceTO resourceTO);
 
     /**
@@ -121,6 +122,7 @@ public interface ResourceService extends JAXRSService {
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(@NotNull ResourceTO resourceTO);
 
     /**
@@ -133,6 +135,7 @@ public interface ResourceService extends JAXRSService {
      */
     @POST
     @Path("{key}/{anyTypeKey}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response setLatestSyncToken(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("anyTypeKey") String anyTypeKey);
@@ -146,6 +149,7 @@ public interface ResourceService extends JAXRSService {
      */
     @DELETE
     @Path("{key}/{anyTypeKey}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response removeSyncToken(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("anyTypeKey") String anyTypeKey);
@@ -159,6 +163,7 @@ public interface ResourceService extends JAXRSService {
     @DELETE
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete(@NotNull @PathParam("key") String key);
 
     /**

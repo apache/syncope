@@ -44,66 +44,29 @@ public class TaskQuery extends AbstractQuery {
         }
 
         public Builder resource(final String resource) {
-            switch (getInstance().getType()) {
-                case PROPAGATION:
-                case PULL:
-                case PUSH:
-                    getInstance().setResource(resource);
-                    return this;
-
-                default:
-                    throw new IllegalArgumentException("resource not allowed for " + getInstance().getType());
-            }
+            getInstance().setResource(resource);
+            return this;
         }
 
         public Builder notification(final String notification) {
-            switch (getInstance().getType()) {
-                case NOTIFICATION:
-                    getInstance().setNotification(notification);
-                    return this;
-
-                default:
-                    throw new IllegalArgumentException("notification not allowed for " + getInstance().getType());
-            }
+            getInstance().setNotification(notification);
+            return this;
         }
 
         public Builder anyTypeKind(final AnyTypeKind anyTypeKind) {
-            switch (getInstance().getType()) {
-                case PROPAGATION:
-                case NOTIFICATION:
-                    getInstance().setAnyTypeKind(anyTypeKind);
-                    return this;
-
-                default:
-                    throw new IllegalArgumentException("anyTypeKind not allowed for " + getInstance().getType());
-            }
+            getInstance().setAnyTypeKind(anyTypeKind);
+            return this;
         }
 
         public Builder entityKey(final String entityKey) {
-            switch (getInstance().getType()) {
-                case PROPAGATION:
-                case NOTIFICATION:
-                    getInstance().setEntityKey(entityKey);
-                    return this;
-
-                default:
-                    throw new IllegalArgumentException("entityKey not allowed for " + getInstance().getType());
-            }
+            getInstance().setEntityKey(entityKey);
+            return this;
         }
 
         public Builder details(final boolean details) {
             getInstance().setDetails(details);
             return this;
         }
-
-        @Override
-        public TaskQuery build() {
-            if (getInstance().type == null) {
-                throw new IllegalArgumentException("type is required");
-            }
-            return super.build();
-        }
-
     }
 
     private TaskType type;

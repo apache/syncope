@@ -83,6 +83,7 @@ public interface ReportTemplateService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete(@NotNull @PathParam("key") String key);
 
     /**
@@ -91,7 +92,6 @@ public interface ReportTemplateService extends JAXRSService {
      * @param key report template
      * @param format template format
      * @return report template with matching key and format, if available
-     * @return an empty response if operation was successful
      */
     @GET
     @Path("{key}/{format}")

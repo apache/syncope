@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.text.ParseException;
 import java.util.Map;
 import java.util.regex.Matcher;
 import org.apache.commons.collections4.CollectionUtils;
@@ -144,6 +145,12 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
         });
 
         // 3. verify recipientAttrName
-        intAttrNameParser.parse(notification.getRecipientAttrName(), AnyTypeKind.USER);
+        try {
+            intAttrNameParser.parse(notification.getRecipientAttrName(), AnyTypeKind.USER);
+        } catch (ParseException e) {
+            sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            sce.getElements().add(e.getMessage());
+            throw sce;
+        }
     }
 }

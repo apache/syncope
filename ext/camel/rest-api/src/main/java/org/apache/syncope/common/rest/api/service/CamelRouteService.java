@@ -75,6 +75,7 @@ public interface CamelRouteService extends JAXRSService {
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(@NotNull CamelRouteTO route);
 
     /**
@@ -84,6 +85,7 @@ public interface CamelRouteService extends JAXRSService {
      */
     @POST
     @Path("restartContext")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response restartContext();
 
     /**

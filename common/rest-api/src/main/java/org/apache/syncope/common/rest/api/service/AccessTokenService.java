@@ -22,11 +22,14 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -49,6 +52,7 @@ public interface AccessTokenService extends JAXRSService {
         @Authorization(value = "BasicAuthentication") })
     @POST
     @Path("login")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response login();
 
     /**
@@ -61,6 +65,7 @@ public interface AccessTokenService extends JAXRSService {
         @Authorization(value = "Bearer") })
     @POST
     @Path("refresh")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response refresh();
 
     /**
@@ -72,6 +77,7 @@ public interface AccessTokenService extends JAXRSService {
         @Authorization(value = "Bearer") })
     @POST
     @Path("logout")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response logout();
 
     /**
@@ -84,6 +90,8 @@ public interface AccessTokenService extends JAXRSService {
         @Authorization(value = "BasicAuthentication")
         , @Authorization(value = "Bearer") })
     @GET
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     PagedResult<AccessTokenTO> list(@BeanParam AccessTokenQuery query);
 
     /**
@@ -97,5 +105,6 @@ public interface AccessTokenService extends JAXRSService {
         , @Authorization(value = "Bearer") })
     @DELETE
     @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete(@PathParam("key") String key);
 }

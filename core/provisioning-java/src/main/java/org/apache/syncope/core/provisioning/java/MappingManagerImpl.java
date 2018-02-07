@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -296,8 +297,13 @@ public class MappingManagerImpl implements MappingManager {
     private Pair<String, Attribute> prepareAttr(
             final Provision provision, final Item mapItem, final Any<?> any, final String password) {
 
-        IntAttrName intAttrName =
-                intAttrNameParser.parse(mapItem.getIntAttrName(), provision.getAnyType().getKind());
+        IntAttrName intAttrName;
+        try {
+            intAttrName = intAttrNameParser.parse(mapItem.getIntAttrName(), provision.getAnyType().getKind());
+        } catch (ParseException e) {
+            LOG.error("Invalid intAttrName '{}' specified, ignoring", mapItem.getIntAttrName(), e);
+            return null;
+        }
 
         boolean readOnlyVirSchema = false;
         Schema schema = null;
@@ -588,20 +594,27 @@ public class MappingManagerImpl implements MappingManager {
     private String getGroupOwnerValue(final Provision provision, final Any<?> any) {
         Pair<String, Attribute> preparedAttr =
                 prepareAttr(provision, MappingUtils.getConnObjectKeyItem(provision), any, null);
-        String connObjectKey = preparedAttr.getKey();
 
-        return MappingUtils.evaluateNAME(any, provision, connObjectKey).getNameValue();
+        return preparedAttr == null
+                ? null
+                : MappingUtils.evaluateNAME(any, provision, preparedAttr.getKey()).getNameValue();
     }
 
     @Transactional(readOnly = true)
     @Override
     public String getConnObjectKeyValue(final Any<?> any, final Provision provision) {
         MappingItem mapItem = provision.getMapping().getConnObjectKeyItem();
-        List<PlainAttrValue> values = getIntValues(
-                provision,
-                mapItem,
-                intAttrNameParser.parse(mapItem.getIntAttrName(), provision.getAnyType().getKind()),
-                any);
+        List<PlainAttrValue> values;
+        try {
+            values = getIntValues(
+                    provision,
+                    mapItem,
+                    intAttrNameParser.parse(mapItem.getIntAttrName(), provision.getAnyType().getKind()),
+                    any);
+        } catch (ParseException e) {
+            LOG.error("Invalid intAttrName '{}' specified, ignoring", mapItem.getIntAttrName(), e);
+            values = Collections.emptyList();
+        }
         return values.isEmpty()
                 ? null
                 : values.get(0).getValueAsString();
@@ -627,8 +640,13 @@ public class MappingManagerImpl implements MappingManager {
         }
         values = ListUtils.emptyIfNull(values);
 
-        IntAttrName intAttrName =
-                intAttrNameParser.parse(mapItem.getIntAttrName(), anyUtils.getAnyTypeKind());
+        IntAttrName intAttrName;
+        try {
+            intAttrName = intAttrNameParser.parse(mapItem.getIntAttrName(), anyUtils.getAnyTypeKind());
+        } catch (ParseException e) {
+            LOG.error("Invalid intAttrName '{}' specified, ignoring", mapItem.getIntAttrName(), e);
+            return;
+        }
 
         if (intAttrName.getField() != null) {
             switch (intAttrName.getField()) {

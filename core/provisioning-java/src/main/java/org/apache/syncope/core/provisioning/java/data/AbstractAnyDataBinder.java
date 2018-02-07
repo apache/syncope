@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -205,9 +206,13 @@ abstract class AbstractAnyDataBinder {
         List<String> missingAttrNames = new ArrayList<>();
 
         for (Item mapItem : MappingUtils.getPropagationItems(provision.getMapping().getItems())) {
-            IntAttrName intAttrName =
-                    intAttrNameParser.parse(mapItem.getIntAttrName(), provision.getAnyType().getKind());
-            if (intAttrName.getSchemaType() != null) {
+            IntAttrName intAttrName = null;
+            try {
+                intAttrName = intAttrNameParser.parse(mapItem.getIntAttrName(), provision.getAnyType().getKind());
+            } catch (ParseException e) {
+                LOG.error("Invalid intAttrName '{}', ignoring", mapItem.getIntAttrName(), e);
+            }
+            if (intAttrName != null && intAttrName.getSchemaType() != null) {
                 List<PlainAttrValue> values = mappingManager.getIntValues(provision, mapItem, intAttrName, any);
                 if (values.isEmpty() && JexlUtils.evaluateMandatoryCondition(mapItem.getMandatoryCondition(), any)) {
                     missingAttrNames.add(mapItem.getIntAttrName());

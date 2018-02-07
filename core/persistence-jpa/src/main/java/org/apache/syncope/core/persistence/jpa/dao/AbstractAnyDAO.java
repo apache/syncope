@@ -342,8 +342,8 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         List<String> attrValues = split(value, literals);
 
         if (attrValues.size() != identifiers.size()) {
-            LOG.error("Ambiguous JEXL expression resolution.");
-            throw new IllegalArgumentException("literals and values have different size");
+            LOG.error("Ambiguous JEXL expression resolution: literals and values have different size");
+            return Collections.emptySet();
         }
 
         // clauses to be used with INTERSECTed queries
@@ -358,53 +358,51 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         // Create several clauses: one for eanch identifiers
         for (int i = 0; i < identifiers.size(); i++) {
             if (!used.contains(identifiers.get(i))) {
-
                 // verify schema existence and get schema type
                 PlainSchema schema = plainSchemaDAO().find(identifiers.get(i));
                 if (schema == null) {
-                    LOG.error("Invalid schema id '{}'", identifiers.get(i));
-                    throw new IllegalArgumentException("Invalid schema id " + identifiers.get(i));
+                    LOG.error("Invalid schema '{}', ignoring", identifiers.get(i));
+                } else {
+                    // clear builder
+                    bld.delete(0, bld.length());
+
+                    bld.append("(");
+
+                    // set schema name
+                    bld.append("s.id = '").append(identifiers.get(i)).append("'");
+
+                    bld.append(" AND ");
+
+                    bld.append("s.id = a.schema_id").append(" AND ");
+
+                    bld.append("a.id = v.attribute_id");
+
+                    bld.append(" AND ");
+
+                    // use a value clause different for eanch different schema type
+                    switch (schema.getType()) {
+                        case Boolean:
+                            bld.append("v.booleanValue = '").append(attrValues.get(i)).append("'");
+                            break;
+                        case Long:
+                            bld.append("v.longValue = ").append(attrValues.get(i));
+                            break;
+                        case Double:
+                            bld.append("v.doubleValue = ").append(attrValues.get(i));
+                            break;
+                        case Date:
+                            bld.append("v.dateValue = '").append(attrValues.get(i)).append("'");
+                            break;
+                        default:
+                            bld.append("v.stringValue = '").append(attrValues.get(i)).append("'");
+                    }
+
+                    bld.append(")");
+
+                    used.add(identifiers.get(i));
+
+                    clauses.add(bld.toString());
                 }
-
-                // clear builder
-                bld.delete(0, bld.length());
-
-                bld.append("(");
-
-                // set schema name
-                bld.append("s.id = '").append(identifiers.get(i)).append("'");
-
-                bld.append(" AND ");
-
-                bld.append("s.id = a.schema_id").append(" AND ");
-
-                bld.append("a.id = v.attribute_id");
-
-                bld.append(" AND ");
-
-                // use a value clause different for eanch different schema type
-                switch (schema.getType()) {
-                    case Boolean:
-                        bld.append("v.booleanValue = '").append(attrValues.get(i)).append("'");
-                        break;
-                    case Long:
-                        bld.append("v.longValue = ").append(attrValues.get(i));
-                        break;
-                    case Double:
-                        bld.append("v.doubleValue = ").append(attrValues.get(i));
-                        break;
-                    case Date:
-                        bld.append("v.dateValue = '").append(attrValues.get(i)).append("'");
-                        break;
-                    default:
-                        bld.append("v.stringValue = '").append(attrValues.get(i)).append("'");
-                }
-
-                bld.append(")");
-
-                used.add(identifiers.get(i));
-
-                clauses.add(bld.toString());
             }
         }
 
@@ -442,13 +440,15 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
             }
         }
 
-        Query query = entityManager().createNativeQuery(querystring.toString());
-
         List<A> result = new ArrayList<>();
-        for (Object anyKey : query.getResultList()) {
-            A any = find(anyKey.toString());
-            if (!result.contains(any)) {
-                result.add(any);
+        if (querystring.length() > 0) {
+            Query query = entityManager().createNativeQuery(querystring.toString());
+
+            for (Object anyKey : query.getResultList()) {
+                A any = find(anyKey.toString());
+                if (!result.contains(any)) {
+                    result.add(any);
+                }
             }
         }
 
