@@ -580,6 +580,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         UserTO userTO = new UserTO();
 
         BeanUtils.copyProperties(user, userTO, IGNORE_PROPERTIES);
+        userTO.setSuspended(BooleanUtils.isTrue(user.isSuspended()));
 
         if (user.getSecurityQuestion() != null) {
             userTO.setSecurityQuestion(user.getSecurityQuestion().getKey());
