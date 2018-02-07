@@ -73,6 +73,7 @@ public interface ExecutableService extends JAXRSService {
      */
     @DELETE
     @Path("executions/{executionKey}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response deleteExecution(@NotNull @PathParam("executionKey") String executionKey);
 
     /**
@@ -83,7 +84,7 @@ public interface ExecutableService extends JAXRSService {
      */
     @DELETE
     @Path("{key}/executions")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     BulkActionResult deleteExecutions(@BeanParam BulkExecDeleteQuery query);
 
     /**

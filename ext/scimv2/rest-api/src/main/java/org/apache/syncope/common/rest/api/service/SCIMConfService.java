@@ -52,9 +52,10 @@ public interface SCIMConfService extends JAXRSService {
      * Sets SCIM configuration.
      *
      * @param conf SCIM configuration
-     * @return Response.noContent().build();
+     * @return an empty response if operation was successful
      */
     @PUT
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response set(@NotNull SCIMConf conf);
 }

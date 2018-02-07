@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -193,9 +194,15 @@ public class PullUtils {
 
         List<String> result = new ArrayList<>();
 
-        IntAttrName intAttrName = intAttrNameParser.parse(
-                connObjectKeyItem.get().getIntAttrName(),
-                provision.getAnyType().getKind());
+        IntAttrName intAttrName;
+        try {
+            intAttrName = intAttrNameParser.parse(
+                    connObjectKeyItem.get().getIntAttrName(),
+                    provision.getAnyType().getKind());
+        } catch (ParseException e) {
+            LOG.error("Invalid intAttrName '{}' specified, ignoring", connObjectKeyItem.get().getIntAttrName(), e);
+            return result;
+        }
 
         if (intAttrName.getField() != null) {
             switch (intAttrName.getField()) {

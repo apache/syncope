@@ -93,6 +93,7 @@ public interface WorkflowService extends JAXRSService {
     @PUT
     @Path("{anyType}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response set(
             @NotNull @PathParam("anyType") String anyType,
             @NotNull @PathParam("key") String key,
@@ -107,6 +108,7 @@ public interface WorkflowService extends JAXRSService {
      */
     @DELETE
     @Path("{anyType}/{key}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete(
             @NotNull @PathParam("anyType") String anyType,
             @NotNull @PathParam("key") String key);

@@ -75,6 +75,7 @@ public interface NotificationService extends JAXRSService {
      */
     @POST
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull NotificationTO notificationTO);
 
     /**
@@ -86,6 +87,7 @@ public interface NotificationService extends JAXRSService {
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(@NotNull NotificationTO notificationTO);
 
     /**
@@ -96,6 +98,7 @@ public interface NotificationService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete(@NotNull @PathParam("key") String key);
 
     /**
@@ -116,5 +119,6 @@ public interface NotificationService extends JAXRSService {
      */
     @POST
     @Path("job")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response actionJob(@QueryParam("action") JobAction action);
 }

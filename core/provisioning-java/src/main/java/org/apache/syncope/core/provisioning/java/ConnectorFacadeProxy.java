@@ -146,7 +146,7 @@ public class ConnectorFacadeProxy implements Connector {
                 if (e.getCause() instanceof RuntimeException) {
                     throw (RuntimeException) e.getCause();
                 } else {
-                    throw new IllegalArgumentException(e.getCause());
+                    throw new RuntimeException(e.getCause());
                 }
             }
         } else {
@@ -180,7 +180,7 @@ public class ConnectorFacadeProxy implements Connector {
                 if (e.getCause() instanceof RuntimeException) {
                     throw (RuntimeException) e.getCause();
                 } else {
-                    throw new IllegalArgumentException(e.getCause());
+                    throw new RuntimeException(e.getCause());
                 }
             }
         } else {
@@ -216,7 +216,7 @@ public class ConnectorFacadeProxy implements Connector {
                 if (e.getCause() instanceof RuntimeException) {
                     throw (RuntimeException) e.getCause();
                 } else {
-                    throw new IllegalArgumentException(e.getCause());
+                    throw new RuntimeException(e.getCause());
                 }
             }
         } else {
@@ -250,7 +250,7 @@ public class ConnectorFacadeProxy implements Connector {
                 if (e.getCause() instanceof RuntimeException) {
                     throw (RuntimeException) e.getCause();
                 } else {
-                    throw new IllegalArgumentException(e.getCause());
+                    throw new RuntimeException(e.getCause());
                 }
             }
         } else {
@@ -289,7 +289,7 @@ public class ConnectorFacadeProxy implements Connector {
                 if (e.getCause() instanceof RuntimeException) {
                     throw (RuntimeException) e.getCause();
                 } else {
-                    throw new IllegalArgumentException(e.getCause());
+                    throw new RuntimeException(e.getCause());
                 }
             }
         } else {
@@ -346,7 +346,7 @@ public class ConnectorFacadeProxy implements Connector {
             if (e.getCause() instanceof RuntimeException) {
                 throw (RuntimeException) e.getCause();
             } else {
-                throw new IllegalArgumentException(e.getCause());
+                throw new RuntimeException(e.getCause());
             }
         }
     }
@@ -364,7 +364,7 @@ public class ConnectorFacadeProxy implements Connector {
             if (e.getCause() instanceof RuntimeException) {
                 throw (RuntimeException) e.getCause();
             } else {
-                throw new IllegalArgumentException(e.getCause());
+                throw new RuntimeException(e.getCause());
             }
         }
     }
@@ -382,7 +382,7 @@ public class ConnectorFacadeProxy implements Connector {
             if (e.getCause() instanceof RuntimeException) {
                 throw (RuntimeException) e.getCause();
             } else {
-                throw new IllegalArgumentException(e.getCause());
+                throw new RuntimeException(e.getCause());
             }
         }
     }
@@ -412,7 +412,7 @@ public class ConnectorFacadeProxy implements Connector {
             if (e.getCause() instanceof RuntimeException) {
                 throw (RuntimeException) e.getCause();
             } else {
-                throw new IllegalArgumentException(e.getCause());
+                throw new RuntimeException(e.getCause());
             }
         }
     }

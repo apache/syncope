@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Date;
@@ -95,16 +95,12 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void findByInvalidDerAttrValue() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            userDAO.findByDerAttrValue("cn", "Antonio, Maria, Rossi");
-        });
+        assertTrue(userDAO.findByDerAttrValue("cn", "Antonio, Maria, Rossi").isEmpty());
     }
 
     @Test
     public void findByInvalidDerAttrExpression() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            userDAO.findByDerAttrValue("noschema", "Antonio, Maria");
-        });
+        assertTrue(userDAO.findByDerAttrValue("noschema", "Antonio, Maria").isEmpty());
     }
 
     @Test

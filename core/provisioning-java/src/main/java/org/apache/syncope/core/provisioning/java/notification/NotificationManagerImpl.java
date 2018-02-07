@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.notification;
 
 import java.io.StringWriter;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -377,7 +378,13 @@ public class NotificationManagerImpl implements NotificationManager {
     private String getRecipientEmail(final String recipientAttrName, final User user) {
         String email = null;
 
-        IntAttrName intAttrName = intAttrNameParser.parse(recipientAttrName, AnyTypeKind.USER);
+        IntAttrName intAttrName;
+        try {
+            intAttrName = intAttrNameParser.parse(recipientAttrName, AnyTypeKind.USER);
+        } catch (ParseException e) {
+            LOG.error("Invalid intAttrName '{}' specified as recipient, ignoring", recipientAttrName, e);
+            return email;
+        }
 
         if ("username".equals(intAttrName.getField())) {
             email = user.getUsername();

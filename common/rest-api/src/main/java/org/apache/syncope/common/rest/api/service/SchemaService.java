@@ -82,6 +82,7 @@ public interface SchemaService extends JAXRSService {
     @POST
     @Path("{type}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull @PathParam("type") SchemaType type, @NotNull AbstractSchemaTO schemaTO);
 
     /**
@@ -94,6 +95,7 @@ public interface SchemaService extends JAXRSService {
     @PUT
     @Path("{type}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(@NotNull @PathParam("type") SchemaType type, @NotNull AbstractSchemaTO schemaTO);
 
     /**
@@ -105,5 +107,6 @@ public interface SchemaService extends JAXRSService {
      */
     @DELETE
     @Path("{type}/{key}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete(@NotNull @PathParam("type") SchemaType type, @NotNull @PathParam("key") String key);
 }

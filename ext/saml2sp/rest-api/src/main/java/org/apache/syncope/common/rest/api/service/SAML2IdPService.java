@@ -83,6 +83,7 @@ public interface SAML2IdPService extends JAXRSService {
      */
     @POST
     @Consumes({ MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response importFromMetadata(@NotNull InputStream input);
 
     /**
@@ -94,6 +95,7 @@ public interface SAML2IdPService extends JAXRSService {
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(@NotNull SAML2IdPTO saml2IdpTO);
 
     /**
@@ -104,5 +106,6 @@ public interface SAML2IdPService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete(@PathParam("key") String key);
 }

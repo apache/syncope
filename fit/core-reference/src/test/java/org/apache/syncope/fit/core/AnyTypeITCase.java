@@ -126,16 +126,6 @@ public class AnyTypeITCase extends AbstractITCase {
     }
 
     @Test
-    public void deleteInvalid() {
-        try {
-            anyTypeService.delete(AnyTypeKind.USER.name());
-            fail("This should not happen");
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidAnyType, e.getType());
-        }
-    }
-
-    @Test
     public void deleteTypeClass() {
         AnyTypeClassTO newClass = new AnyTypeClassTO();
         newClass.setKey("new class" + getUUIDString());

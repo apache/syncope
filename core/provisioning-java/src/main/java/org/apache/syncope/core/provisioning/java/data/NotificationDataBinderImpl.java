@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -148,7 +149,13 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
                 collect(Collectors.toList()));
 
         // 3. verify recipientAttrName
-        intAttrNameParser.parse(notification.getRecipientAttrName(), AnyTypeKind.USER);
+        try {
+            intAttrNameParser.parse(notification.getRecipientAttrName(), AnyTypeKind.USER);
+        } catch (ParseException e) {
+            SyncopeClientException invalidRequest = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            invalidRequest.getElements().add(e.getMessage());
+            throw invalidRequest;
+        }
 
         if (notificationTO.getRecipientsProvider() == null) {
             notification.setRecipientsProvider(null);

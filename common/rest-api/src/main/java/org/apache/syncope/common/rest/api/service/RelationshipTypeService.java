@@ -71,6 +71,7 @@ public interface RelationshipTypeService extends JAXRSService {
      */
     @POST
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull RelationshipTypeTO relationshipTypeTO);
 
     /**
@@ -82,6 +83,7 @@ public interface RelationshipTypeService extends JAXRSService {
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(@NotNull RelationshipTypeTO relationshipTypeTO);
 
     /**
@@ -92,5 +94,6 @@ public interface RelationshipTypeService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete(@NotNull @PathParam("key") String key);
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.logic.saml2;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -115,8 +116,14 @@ public class SAML2UserManager {
             }
         }
 
-        IntAttrName intAttrName = intAttrNameParser.parse(
-                idp.getConnObjectKeyItem().get().getIntAttrName(), AnyTypeKind.USER);
+        IntAttrName intAttrName;
+        try {
+            intAttrName = intAttrNameParser.parse(idp.getConnObjectKeyItem().get().getIntAttrName(), AnyTypeKind.USER);
+        } catch (ParseException e) {
+            LOG.error("Invalid intAttrName '{}' specified, ignoring",
+                    idp.getConnObjectKeyItem().get().getIntAttrName(), e);
+            return result;
+        }
 
         if (intAttrName.getField() != null) {
             switch (intAttrName.getField()) {
@@ -200,8 +207,6 @@ public class SAML2UserManager {
         }
 
         idp.getItems().forEach(item -> {
-            IntAttrName intAttrName = intAttrNameParser.parse(item.getIntAttrName(), AnyTypeKind.USER);
-
             List<String> values = Collections.emptyList();
             Optional<AttrTO> samlAttr = responseTO.getAttr(item.getExtAttrName());
             if (samlAttr.isPresent() && !samlAttr.get().getValues().isEmpty()) {
@@ -217,7 +222,14 @@ public class SAML2UserManager {
                 }
             }
 
-            if (intAttrName.getField() != null) {
+            IntAttrName intAttrName = null;
+            try {
+                intAttrName = intAttrNameParser.parse(item.getIntAttrName(), AnyTypeKind.USER);
+            } catch (ParseException e) {
+                LOG.error("Invalid intAttrName '{}' specified, ignoring", item.getIntAttrName(), e);
+            }
+
+            if (intAttrName != null && intAttrName.getField() != null) {
                 switch (intAttrName.getField()) {
                     case "username":
                         if (!values.isEmpty()) {
@@ -228,7 +240,7 @@ public class SAML2UserManager {
                     default:
                         LOG.warn("Unsupported: {}", intAttrName.getField());
                 }
-            } else if (intAttrName.getSchemaType() != null) {
+            } else if (intAttrName != null && intAttrName.getSchemaType() != null) {
                 switch (intAttrName.getSchemaType()) {
                     case PLAIN:
                         Optional<AttrTO> attr = userTO.getPlainAttr(intAttrName.getSchemaName());

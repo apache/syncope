@@ -80,6 +80,7 @@ public interface ConfigurationService extends JAXRSService {
     @PUT
     @Path("{schema}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response set(@NotNull AttrTO value);
 
     /**
@@ -90,6 +91,6 @@ public interface ConfigurationService extends JAXRSService {
      */
     @DELETE
     @Path("{schema}")
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete(@NotNull @PathParam("schema") String schema);
 }

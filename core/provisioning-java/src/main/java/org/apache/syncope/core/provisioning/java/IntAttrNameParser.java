@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
+import java.text.ParseException;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -88,7 +89,7 @@ public class IntAttrNameParser {
     }
 
     @Transactional(readOnly = true)
-    public IntAttrName parse(final String intAttrName, final AnyTypeKind provisionAnyTypeKind) {
+    public IntAttrName parse(final String intAttrName, final AnyTypeKind provisionAnyTypeKind) throws ParseException {
         IntAttrName result = new IntAttrName();
 
         if (intAttrName.indexOf('.') == -1) {
@@ -113,7 +114,7 @@ public class IntAttrNameParser {
                         result.setMembershipOfGroup(matcher.group(1));
                         setFieldOrSchemaName(matcher.group(2), result.getAnyTypeKind(), result);
                     } else {
-                        throw new IllegalArgumentException("Unparsable expression: " + intAttrName);
+                        throw new ParseException("Unparsable expression: " + intAttrName, 0);
                     }
                 }
             }

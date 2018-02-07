@@ -156,6 +156,7 @@ public interface UserSelfService extends JAXRSService {
      */
     @POST
     @Path("requestPasswordReset")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response requestPasswordReset(@NotNull @QueryParam("username") String username, String securityAnswer);
 
     /**
@@ -170,5 +171,6 @@ public interface UserSelfService extends JAXRSService {
      */
     @POST
     @Path("confirmPasswordReset")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response confirmPasswordReset(@NotNull @QueryParam("token") String token, String password);
 }
