@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.Authorization;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -33,9 +34,10 @@ import org.apache.syncope.common.lib.scim.SCIMConf;
 /**
  * REST operations for SCIM 2.0 configuration.
  */
-@Api(tags = "SCIMConf", authorizations = {
-    @Authorization(value = "BasicAuthentication")
-    , @Authorization(value = "Bearer") })
+@Tag(name = "SCIMConf")
+@SecurityRequirements({
+    @SecurityRequirement(name = "BasicAuthentication")
+    , @SecurityRequirement(name = "Bearer") })
 @Path("scimv2conf")
 public interface SCIMConfService extends JAXRSService {
 

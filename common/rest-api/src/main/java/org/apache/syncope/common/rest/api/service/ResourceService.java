@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.Authorization;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -43,9 +44,10 @@ import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
 /**
  * REST operations for external resources.
  */
-@Api(tags = "Resources", authorizations = {
-    @Authorization(value = "BasicAuthentication")
-    , @Authorization(value = "Bearer") })
+@Tag(name = "Resources")
+@SecurityRequirements({
+    @SecurityRequirement(name = "BasicAuthentication")
+    , @SecurityRequirement(name = "Bearer") })
 @Path("resources")
 public interface ResourceService extends JAXRSService {
 

@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.Authorization;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.DefaultValue;
@@ -40,9 +41,10 @@ import org.apache.syncope.common.lib.to.TypeExtensionTO;
 /**
  * General info about this Apache Syncope deployment.
  */
-@Api(tags = "Syncope", authorizations = {
-    @Authorization(value = "BasicAuthentication")
-    , @Authorization(value = "Bearer") })
+@Tag(name = "Syncope")
+@SecurityRequirements({
+    @SecurityRequirement(name = "BasicAuthentication")
+    , @SecurityRequirement(name = "Bearer") })
 @Path("")
 public interface SyncopeService extends JAXRSService {
 

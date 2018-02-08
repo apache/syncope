@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Authorization;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -38,7 +38,7 @@ import org.apache.syncope.common.rest.api.beans.AccessTokenQuery;
 /**
  * REST operations for access tokens.
  */
-@Api(tags = "AccessTokens")
+@Tag(name = "AccessTokens")
 @Path("accessTokens")
 public interface AccessTokenService extends JAXRSService {
 
@@ -48,8 +48,8 @@ public interface AccessTokenService extends JAXRSService {
      *
      * @return empty response bearing the X-Syncope-Token header value, in case of successful authentication
      */
-    @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication") })
+    @Operation(security = {
+        @SecurityRequirement(name = "BasicAuthentication") })
     @POST
     @Path("login")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -61,8 +61,8 @@ public interface AccessTokenService extends JAXRSService {
      *
      * @return an empty response bearing the X-Syncope-Token header value, with extended lifetime
      */
-    @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "Bearer") })
+    @Operation(security = {
+        @SecurityRequirement(name = "Bearer") })
     @POST
     @Path("refresh")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -73,8 +73,8 @@ public interface AccessTokenService extends JAXRSService {
      *
      * @return an empty response if operation was successful
      */
-    @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "Bearer") })
+    @Operation(security = {
+        @SecurityRequirement(name = "Bearer") })
     @POST
     @Path("logout")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -86,9 +86,9 @@ public interface AccessTokenService extends JAXRSService {
      * @param query query conditions
      * @return paged list of existing access tokens matching the given query
      */
-    @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication")
-        , @Authorization(value = "Bearer") })
+    @Operation(security = {
+        @SecurityRequirement(name = "BasicAuthentication")
+        , @SecurityRequirement(name = "Bearer") })
     @GET
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -100,9 +100,9 @@ public interface AccessTokenService extends JAXRSService {
      * @param key access token key
      * @return an empty response if operation was successful
      */
-    @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication")
-        , @Authorization(value = "Bearer") })
+    @Operation(security = {
+        @SecurityRequirement(name = "BasicAuthentication")
+        , @SecurityRequirement(name = "Bearer") })
     @DELETE
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

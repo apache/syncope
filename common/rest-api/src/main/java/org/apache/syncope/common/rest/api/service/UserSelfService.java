@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Authorization;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -41,7 +41,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 /**
  * REST operations for user self-management.
  */
-@Api(tags = "UserSelf")
+@Tag(name = "UserSelf")
 @Path("users/self")
 public interface UserSelfService extends JAXRSService {
 
@@ -51,9 +51,9 @@ public interface UserSelfService extends JAXRSService {
      * @return calling user data, including owned entitlements as header value
      * {@link org.apache.syncope.common.rest.api.RESTHeaders#OWNED_ENTITLEMENTS}
      */
-    @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication")
-        , @Authorization(value = "Bearer") })
+    @Operation(security = {
+        @SecurityRequirement(name = "BasicAuthentication")
+        , @SecurityRequirement(name = "Bearer") })
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response read();
@@ -78,9 +78,9 @@ public interface UserSelfService extends JAXRSService {
      * @param patch modification to be applied to self
      * @return Response object featuring the updated user - ProvisioningResult as Entity
      */
-    @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication")
-        , @Authorization(value = "Bearer") })
+    @Operation(security = {
+        @SecurityRequirement(name = "BasicAuthentication")
+        , @SecurityRequirement(name = "Bearer") })
     @PATCH
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -93,9 +93,9 @@ public interface UserSelfService extends JAXRSService {
      * @param user complete update
      * @return Response object featuring the updated user - ProvisioningResult as Entity
      */
-    @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication")
-        , @Authorization(value = "Bearer") })
+    @Operation(security = {
+        @SecurityRequirement(name = "BasicAuthentication")
+        , @SecurityRequirement(name = "Bearer") })
     @PUT
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -109,9 +109,9 @@ public interface UserSelfService extends JAXRSService {
      * @return Response object featuring the updated user enriched with propagation status information
      * - ProvisioningResult as Entity
      */
-    @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication")
-        , @Authorization(value = "Bearer") })
+    @Operation(security = {
+        @SecurityRequirement(name = "BasicAuthentication")
+        , @SecurityRequirement(name = "Bearer") })
     @POST
     @Path("{key}/status")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -123,9 +123,9 @@ public interface UserSelfService extends JAXRSService {
      *
      * @return Response object featuring the deleted user - ProvisioningResult as Entity
      */
-    @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication")
-        , @Authorization(value = "Bearer") })
+    @Operation(security = {
+        @SecurityRequirement(name = "BasicAuthentication")
+        , @SecurityRequirement(name = "Bearer") })
     @DELETE
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete();
@@ -137,9 +137,9 @@ public interface UserSelfService extends JAXRSService {
      *
      * @return Response object featuring the updated user - ProvisioningResult as Entity
      */
-    @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication")
-        , @Authorization(value = "Bearer") })
+    @Operation(security = {
+        @SecurityRequirement(name = "BasicAuthentication")
+        , @SecurityRequirement(name = "Bearer") })
     @POST
     @Path("changePassword")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

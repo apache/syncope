@@ -18,22 +18,23 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
-import io.swagger.models.parameters.HeaderParameter;
-import io.swagger.models.parameters.Parameter;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.HeaderParameter;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.cxf.jaxrs.swagger.Swagger2Customizer;
+import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 
-public class SyncopeSwagger2Customizer extends Swagger2Customizer {
+public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
 
     private List<String> domains;
 
-    public SyncopeSwagger2Customizer() {
+    public SyncopeOpenApiCustomizer() {
         super();
 
         URL[] javaDocURLs = JavaDocUtils.getJavaDocURLs();
@@ -47,7 +48,7 @@ public class SyncopeSwagger2Customizer extends Swagger2Customizer {
         if (domains == null) {
             domains = new ArrayList<>(
                     ApplicationContextProvider.getApplicationContext().
-                    getBean(DomainsHolder.class).getDomains().keySet());
+                            getBean(DomainsHolder.class).getDomains().keySet());
         }
 
         boolean domainHeaderParameterFound = false;
@@ -62,9 +63,12 @@ public class SyncopeSwagger2Customizer extends Swagger2Customizer {
             HeaderParameter domainHeaderParameter = new HeaderParameter();
             domainHeaderParameter.setName(RESTHeaders.DOMAIN);
             domainHeaderParameter.setRequired(true);
-            domainHeaderParameter.setType("string");
-            domainHeaderParameter.setEnum(domains);
-            domainHeaderParameter.setDefault(SyncopeConstants.MASTER_DOMAIN);
+
+            Schema<String> schema = new Schema<>();
+            schema.setType("string");
+            schema.setEnum(domains);
+            schema.setDefault(SyncopeConstants.MASTER_DOMAIN);
+            domainHeaderParameter.setSchema(schema);
 
             parameters.add(domainHeaderParameter);
         }

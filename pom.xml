@@ -417,8 +417,8 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
     <flowable-modeler.directory>${project.build.directory}/flowable-modeler</flowable-modeler.directory>    
 
-    <swagger-core.version>1.5.17</swagger-core.version>    
-    <swagger-ui.version>3.9.3</swagger-ui.version>
+    <swagger-core.version>2.0.0-rc4</swagger-core.version>    
+    <swagger-ui.version>3.9.2</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
     <jquery.version>2.2.4</jquery.version>
@@ -576,7 +576,7 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-rs-service-description-swagger</artifactId>
+        <artifactId>cxf-rt-rs-service-description-openapi-v3</artifactId>
         <version>${cxf.version}</version>
       </dependency>
       <dependency>
@@ -608,44 +608,20 @@ under the License.
 
       <!-- Swagger -->      
       <dependency>
-        <groupId>io.swagger</groupId>
+        <groupId>io.swagger.core.v3</groupId>
         <artifactId>swagger-annotations</artifactId>
-        <version>${swagger-core.version}</version>
-      </dependency>      
-      <dependency>
-        <groupId>io.swagger</groupId>
-        <artifactId>swagger-jaxrs</artifactId>
         <version>${swagger-core.version}</version>
         <exclusions>
           <exclusion>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>jsr311-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-xml</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
           </exclusion>
-          <exclusion>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-joda</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>annotations</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-          </exclusion>
         </exclusions>
+      </dependency>      
+      <dependency>
+        <groupId>io.swagger.core.v3</groupId>
+        <artifactId>swagger-jaxrs2</artifactId>
+        <version>${swagger-core.version}</version>
       </dependency>
       <dependency>
         <groupId>org.webjars</groupId>
