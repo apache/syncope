@@ -26,7 +26,7 @@ On GNU / Linux - Mac OS X, create `$CATALINA_HOME/bin/setenv.sh` with similar co
 ....
 JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server \
 -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m \
--XX:MaxPermSize=256m -XX:+DisableExplicitGC"
+-XX:MaxPermSize=256m -XX:+DisableExplicitGC -Djava.security.egd=file:/dev/./urandom"
 ....
 
 On MS Windows, create `%CATALINA_HOME%\bin\setenv.bat` with similar content (keep everything on a single line):
@@ -73,6 +73,15 @@ When using a datasource for internal storage, be sure to add
 
 right after `</context-root>` in `core/src/main/webapp/WEB-INF/glassfish-web.xml`, assuming that your Glassfish instance
 provides a datasource named `jdbc/syncopeMasterDataSource`.
+
+[TIP]
+====
+For better performance under GNU / Linux, do not forget to include
+....
+-Djava.security.egd=file:/dev/./urandom
+....
+among JVM options.
+====
 
 ===== Wildfly 9 and 10
 
@@ -175,3 +184,12 @@ Finally, add
 ....
 
 in `core/src/main/resources/domains/MasterDomain.xml` for the `MasterEntityManagerFactory` bean.
+
+[TIP]
+====
+For better performance under GNU / Linux, do not forget to include
+....
+-Djava.security.egd=file:/dev/./urandom
+....
+among JVM options.
+====
