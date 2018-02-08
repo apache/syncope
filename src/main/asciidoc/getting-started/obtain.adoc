@@ -127,7 +127,8 @@ sudo ln -s /usr/share/java/postgresql-jdbc4.jar /usr/share/tomcat8/lib/
 [source,bash]
 ----
 JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server \
-  -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC"
+  -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC \
+  -Djava.security.egd=file:/dev/./urandom"
 ----
 +
 Install::
