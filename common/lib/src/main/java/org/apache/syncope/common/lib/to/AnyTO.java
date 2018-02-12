@@ -20,7 +20,10 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,16 +31,23 @@ import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 
 @XmlType
 @XmlSeeAlso({ UserTO.class, GroupTO.class, AnyObjectTO.class })
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "@class")
+@JsonPropertyOrder(value = { "@class", "key", "type", "realm", "username", "name" })
+@ApiModel(subTypes = { UserTO.class, GroupTO.class, AnyObjectTO.class }, discriminator = "@class")
 public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, AttributableTO {
 
     private static final long serialVersionUID = -754311920679872084L;
+
+    @XmlTransient
+    @JsonProperty("@class")
+    private String discriminator;
 
     private String key;
 
@@ -59,6 +69,14 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
 
     private final Set<String> resources = new HashSet<>();
 
+    @ApiModelProperty(name = "@class", required = true, readOnly = false)
+    public abstract String getDiscriminator();
+
+    public void setDiscriminator(final String discriminator) {
+        // do nothing
+    }
+
+    @ApiModelProperty(readOnly = true)
     @Override
     public String getKey() {
         return key;
@@ -69,6 +87,7 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
         this.key = key;
     }
 
+    @ApiModelProperty(readOnly = true)
     public String getType() {
         return type;
     }
@@ -85,6 +104,7 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
         this.realm = realm;
     }
 
+    @ApiModelProperty(readOnly = true)
     @XmlElementWrapper(name = "dynRealms")
     @XmlElement(name = "dynRealmF")
     @JsonProperty("dynRealms")
@@ -92,6 +112,7 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
         return dynRealms;
     }
 
+    @ApiModelProperty(readOnly = true)
     public String getStatus() {
         return status;
     }

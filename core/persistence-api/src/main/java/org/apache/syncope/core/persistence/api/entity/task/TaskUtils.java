@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity.task;
 
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 
 public interface TaskUtils {
@@ -27,10 +27,10 @@ public interface TaskUtils {
 
     <T extends Task> T newTask();
 
-    <T extends AbstractTaskTO> T newTaskTO();
+    <T extends TaskTO> T newTaskTO();
 
     <T extends Task> Class<T> taskClass();
 
-    <T extends AbstractTaskTO> Class<T> taskTOClass();
+    <T extends TaskTO> Class<T> taskTOClass();
 
 }

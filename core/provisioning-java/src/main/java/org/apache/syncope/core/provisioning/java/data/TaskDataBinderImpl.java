@@ -24,8 +24,8 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AbstractProvisioningTaskTO;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -109,7 +109,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     @Autowired
     private TaskUtilsFactory taskUtilsFactory;
 
-    private void fill(final ProvisioningTask task, final AbstractProvisioningTaskTO taskTO) {
+    private void fill(final ProvisioningTask task, final ProvisioningTaskTO taskTO) {
         if (task instanceof PushTask && taskTO instanceof PushTaskTO) {
             PushTask pushTask = (PushTask) task;
             final PushTaskTO pushTaskTO = (PushTaskTO) taskTO;
@@ -205,7 +205,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
     @Override
     public SchedTask createSchedTask(final SchedTaskTO taskTO, final TaskUtils taskUtils) {
-        Class<? extends AbstractTaskTO> taskTOClass = taskUtils.taskTOClass();
+        Class<? extends TaskTO> taskTOClass = taskUtils.taskTOClass();
         if (taskTOClass == null || !taskTOClass.equals(taskTO.getClass())) {
             throw new IllegalArgumentException(String.format("Expected %s, found %s", taskTOClass, taskTO.getClass()));
         }
@@ -219,8 +219,8 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
         if (taskUtils.getType() == TaskType.SCHEDULED) {
             task.setJobDelegateClassName(taskTO.getJobDelegateClassName());
-        } else if (taskTO instanceof AbstractProvisioningTaskTO) {
-            AbstractProvisioningTaskTO provisioningTaskTO = (AbstractProvisioningTaskTO) taskTO;
+        } else if (taskTO instanceof ProvisioningTaskTO) {
+            ProvisioningTaskTO provisioningTaskTO = (ProvisioningTaskTO) taskTO;
 
             ExternalResource resource = resourceDAO.find(provisioningTaskTO.getResource());
             if (resource == null) {
@@ -236,7 +236,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
     @Override
     public void updateSchedTask(final SchedTask task, final SchedTaskTO taskTO, final TaskUtils taskUtils) {
-        Class<? extends AbstractTaskTO> taskTOClass = taskUtils.taskTOClass();
+        Class<? extends TaskTO> taskTOClass = taskUtils.taskTOClass();
         if (taskTOClass == null || !taskTOClass.equals(taskTO.getClass())) {
             throw new IllegalArgumentException(String.format("Expected %s, found %s", taskTOClass, taskTO.getClass()));
         }
@@ -252,7 +252,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         task.setActive(taskTO.isActive());
 
         if (task instanceof ProvisioningTask) {
-            fill((ProvisioningTask) task, (AbstractProvisioningTaskTO) taskTO);
+            fill((ProvisioningTask) task, (ProvisioningTaskTO) taskTO);
         }
     }
 
@@ -303,7 +303,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     }
 
     @Override
-    public <T extends AbstractTaskTO> T getTaskTO(final Task task, final TaskUtils taskUtils, final boolean details) {
+    public <T extends TaskTO> T getTaskTO(final Task task, final TaskUtils taskUtils, final boolean details) {
         T taskTO = taskUtils.newTaskTO();
         BeanUtils.copyProperties(task, taskTO, IGNORE_TASK_PROPERTIES);
 

@@ -20,6 +20,8 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,6 +36,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "user")
 @XmlType
+@ApiModel(parent = AnyTO.class)
 public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private static final long serialVersionUID = 7791304495192615740L;
@@ -71,6 +74,13 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private final List<MembershipTO> dynMemberships = new ArrayList<>();
 
+    @JsonProperty("@class")
+    @ApiModelProperty(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.UserTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
+
     @Override
     public String getType() {
         return AnyTypeKind.USER.name();
@@ -96,6 +106,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return roles;
     }
 
+    @ApiModelProperty(readOnly = true)
     @XmlElementWrapper(name = "dynRoles")
     @XmlElement(name = "role")
     @JsonProperty("dynRoles")
@@ -103,6 +114,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return dynRoles;
     }
 
+    @ApiModelProperty(readOnly = true)
     public String getToken() {
         return token;
     }
@@ -111,6 +123,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         this.token = token;
     }
 
+    @ApiModelProperty(readOnly = true)
     public Date getTokenExpireTime() {
         if (tokenExpireTime != null) {
             return new Date(tokenExpireTime.getTime());
@@ -126,6 +139,8 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         }
     }
 
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     public String getUsername() {
         return username;
     }
@@ -134,6 +149,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         this.username = username;
     }
 
+    @ApiModelProperty(readOnly = true)
     public Date getChangePwdDate() {
         if (changePwdDate != null) {
             return new Date(changePwdDate.getTime());
@@ -141,10 +157,12 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return null;
     }
 
+    @ApiModelProperty(readOnly = true)
     public Integer getFailedLogins() {
         return failedLogins;
     }
 
+    @ApiModelProperty(readOnly = true)
     public Date getLastLoginDate() {
         if (lastLoginDate != null) {
             return new Date(lastLoginDate.getTime());
@@ -188,6 +206,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         this.securityAnswer = securityAnswer;
     }
 
+    @ApiModelProperty(readOnly = true)
     public boolean isSuspended() {
         return suspended;
     }
@@ -196,6 +215,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         this.suspended = suspended;
     }
 
+    @ApiModelProperty(readOnly = true)
     public boolean isMustChangePassword() {
         return mustChangePassword;
     }
@@ -244,6 +264,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return memberships;
     }
 
+    @ApiModelProperty(readOnly = true)
     @XmlElementWrapper(name = "dynMemberships")
     @XmlElement(name = "dynMembership")
     @JsonProperty("dynMemberships")

@@ -30,7 +30,7 @@ import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.ComposablePolicy;
 import org.apache.syncope.common.lib.policy.RuleConf;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -68,7 +68,7 @@ public class PolicyRuleWizardBuilder
         BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(modelObject.getConf());
         wrapper.setPropertyValue("name", modelObject.getName());
 
-        AbstractPolicyTO policyTO = restClient.getPolicy(policy);
+        PolicyTO policyTO = restClient.getPolicy(policy);
 
         final ComposablePolicy<RuleConf> composable;
         if (policyTO instanceof ComposablePolicy) {

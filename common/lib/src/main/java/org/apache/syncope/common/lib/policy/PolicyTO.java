@@ -19,7 +19,10 @@
 package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.PathParam;
@@ -27,17 +30,24 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.to.EntityTO;
 
-@XmlRootElement(name = "abstractPolicy")
+@XmlRootElement(name = "policy")
 @XmlType
 @XmlSeeAlso({ AccountPolicyTO.class, PasswordPolicyTO.class, PullPolicyTO.class })
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public abstract class AbstractPolicyTO extends AbstractBaseBean implements EntityTO {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "@class")
+@JsonPropertyOrder(value = { "@class", "key", "description" })
+@ApiModel(subTypes = { AccountPolicyTO.class, PasswordPolicyTO.class, PullPolicyTO.class }, discriminator = "@class")
+public abstract class PolicyTO extends AbstractBaseBean implements EntityTO {
 
     private static final long serialVersionUID = -2903888572649721035L;
+
+    @XmlTransient
+    @JsonProperty("@class")
+    private String discriminator;
 
     private String key;
 
@@ -47,6 +57,14 @@ public abstract class AbstractPolicyTO extends AbstractBaseBean implements Entit
 
     private final List<String> usedByRealms = new ArrayList<>();
 
+    @ApiModelProperty(name = "@class", required = true, readOnly = false)
+    public abstract String getDiscriminator();
+
+    public void setDiscriminator(final String discriminator) {
+        // do nothing
+    }
+
+    @ApiModelProperty(readOnly = true)
     @Override
     public String getKey() {
         return key;
@@ -58,6 +76,8 @@ public abstract class AbstractPolicyTO extends AbstractBaseBean implements Entit
         this.key = key;
     }
 
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     public String getDescription() {
         return description;
     }
@@ -66,6 +86,7 @@ public abstract class AbstractPolicyTO extends AbstractBaseBean implements Entit
         this.description = description;
     }
 
+    @ApiModelProperty(readOnly = true)
     @XmlElementWrapper(name = "usedByResources")
     @XmlElement(name = "resource")
     @JsonProperty("usedByResources")
@@ -73,6 +94,7 @@ public abstract class AbstractPolicyTO extends AbstractBaseBean implements Entit
         return usedByResources;
     }
 
+    @ApiModelProperty(readOnly = true)
     @XmlElementWrapper(name = "usedByRealms")
     @XmlElement(name = "group")
     @JsonProperty("usedByRealms")

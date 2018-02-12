@@ -19,11 +19,15 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
@@ -32,15 +36,28 @@ import org.apache.syncope.common.lib.types.PullMode;
 @XmlRootElement(name = "pullTask")
 @XmlType
 @XmlAccessorType(XmlAccessType.FIELD)
-public class PullTaskTO extends AbstractProvisioningTaskTO implements TemplatableTO {
+@ApiModel(parent = ProvisioningTaskTO.class)
+public class PullTaskTO extends ProvisioningTaskTO implements TemplatableTO {
 
     private static final long serialVersionUID = -2143537546915809017L;
 
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     private PullMode pullMode;
 
     private String reconciliationFilterBuilderClassName;
 
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     private String destinationRealm;
+
+    @XmlTransient
+    @JsonProperty("@class")
+    @ApiModelProperty(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.PullTaskTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     private final Map<String, AnyTO> templates = new HashMap<>();

@@ -20,17 +20,21 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 
 @XmlRootElement(name = "anyObject")
 @XmlType
+@ApiModel(parent = AnyTO.class)
 public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
 
     private static final long serialVersionUID = 8841697496476959639L;
@@ -42,6 +46,14 @@ public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
     private final List<MembershipTO> memberships = new ArrayList<>();
 
     private final List<MembershipTO> dynMemberships = new ArrayList<>();
+
+    @XmlTransient
+    @JsonProperty("@class")
+    @ApiModelProperty(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.AnyObjectTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
 
     public String getName() {
         return name;
@@ -91,6 +103,7 @@ public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
         return memberships;
     }
 
+    @ApiModelProperty(readOnly = true)
     @XmlElementWrapper(name = "dynMemberships")
     @XmlElement(name = "dynMembership")
     @JsonProperty("dynMemberships")

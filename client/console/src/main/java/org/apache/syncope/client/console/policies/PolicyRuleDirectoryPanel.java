@@ -45,7 +45,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.RuleConf;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
@@ -70,7 +70,7 @@ import org.apache.wicket.model.StringResourceModel;
  *
  * @param <T> policy type.
  */
-public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends DirectoryPanel<
+public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel<
         PolicyRuleWrapper, PolicyRuleWrapper, DirectoryDataProvider<PolicyRuleWrapper>, PolicyRestClient>
         implements ModalPanel {
 

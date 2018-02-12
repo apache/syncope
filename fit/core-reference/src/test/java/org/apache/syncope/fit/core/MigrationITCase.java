@@ -31,7 +31,7 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -426,7 +426,7 @@ public class MigrationITCase extends AbstractTaskITCase {
     public void migrateFromSyncope12() throws InterruptedException {
         // 1. cleanup
         try {
-            for (AbstractTaskTO task : taskService.list(
+            for (TaskTO task : taskService.list(
                     new TaskQuery.Builder(TaskType.PULL).resource(RESOURCE_KEY).build()).getResult()) {
 
                 if (PULL_TASK_NAME.equals(PullTaskTO.class.cast(task).getName())) {

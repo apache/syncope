@@ -42,7 +42,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -60,7 +60,7 @@ import org.apache.wicket.model.StringResourceModel;
  *
  * @param <T> policy type.
  */
-public abstract class PolicyDirectoryPanel<T extends AbstractPolicyTO>
+public abstract class PolicyDirectoryPanel<T extends PolicyTO>
         extends DirectoryPanel<T, T, DirectoryDataProvider<T>, PolicyRestClient> {
 
     private static final long serialVersionUID = 4984337552918213290L;
@@ -140,7 +140,7 @@ public abstract class PolicyDirectoryPanel<T extends AbstractPolicyTO>
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final AbstractPolicyTO ignore) {
+            public void onClick(final AjaxRequestTarget target, final PolicyTO ignore) {
                 send(PolicyDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
                                 restClient.getPolicy(model.getObject().getKey()), target));
@@ -152,8 +152,8 @@ public abstract class PolicyDirectoryPanel<T extends AbstractPolicyTO>
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final AbstractPolicyTO ignore) {
-                final AbstractPolicyTO clone = SerializationUtils.clone(model.getObject());
+            public void onClick(final AjaxRequestTarget target, final PolicyTO ignore) {
+                final PolicyTO clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
                 send(PolicyDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(clone, target));
@@ -167,7 +167,7 @@ public abstract class PolicyDirectoryPanel<T extends AbstractPolicyTO>
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final AbstractPolicyTO ignore) {
+            public void onClick(final AjaxRequestTarget target, final PolicyTO ignore) {
                 final T policyTO = model.getObject();
                 try {
                     restClient.delete(policyTO.getKey());

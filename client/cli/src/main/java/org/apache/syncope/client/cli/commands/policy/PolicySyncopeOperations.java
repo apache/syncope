@@ -20,7 +20,7 @@ package org.apache.syncope.client.cli.commands.policy;
 
 import java.util.List;
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.service.PolicyService;
 
@@ -28,11 +28,11 @@ public class PolicySyncopeOperations {
 
     private final PolicyService policyService = SyncopeServices.get(PolicyService.class);
 
-    public <T extends AbstractPolicyTO> T read(final String policyKey) {
+    public <T extends PolicyTO> T read(final String policyKey) {
         return policyService.read(policyKey);
     }
 
-    public <T extends AbstractPolicyTO> List<T> list(final String policyType) {
+    public <T extends PolicyTO> List<T> list(final String policyType) {
         return policyService.list(PolicyType.valueOf(policyType));
     }
 

@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -110,7 +110,7 @@ public final class JPATaskUtils implements TaskUtils {
     }
 
     @Override
-    public <T extends AbstractTaskTO> Class<T> taskTOClass() {
+    public <T extends TaskTO> Class<T> taskTOClass() {
         Class<T> result = null;
 
         switch (type) {
@@ -141,7 +141,7 @@ public final class JPATaskUtils implements TaskUtils {
     }
 
     @Override
-    public <T extends AbstractTaskTO> T newTaskTO() {
+    public <T extends TaskTO> T newTaskTO() {
         final Class<T> taskClass = taskTOClass();
         try {
             return taskClass == null ? null : taskClass.newInstance();

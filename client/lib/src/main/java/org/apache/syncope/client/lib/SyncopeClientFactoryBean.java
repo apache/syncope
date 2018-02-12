@@ -34,7 +34,7 @@ import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.cxf.staxutils.DocumentDepthProperties;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.rest.api.DateParamConverterProvider;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
@@ -102,7 +102,7 @@ public class SyncopeClientFactoryBean {
         defaultJAXBProvider.setMarshallerProperties(marshallerProperties);
 
         Map<String, String> collectionWrapperMap = new HashMap<>();
-        collectionWrapperMap.put(AbstractPolicyTO.class.getName(), "policies");
+        collectionWrapperMap.put(PolicyTO.class.getName(), "policies");
         defaultJAXBProvider.setCollectionWrapperMap(collectionWrapperMap);
 
         return defaultJAXBProvider;

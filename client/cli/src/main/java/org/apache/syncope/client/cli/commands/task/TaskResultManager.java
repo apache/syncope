@@ -21,61 +21,61 @@ package org.apache.syncope.client.cli.commands.task;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
-import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.TaskType;
 
 public class TaskResultManager extends CommonsResultManager {
 
-    public void printTasks(final List<AbstractTaskTO> taskTOs) {
+    public void printTasks(final List<TaskTO> taskTOs) {
         System.out.println("");
-        for (final AbstractTaskTO taskTO : taskTOs) {
+        for (final TaskTO taskTO : taskTOs) {
             if (taskTO instanceof NotificationTaskTO) {
                 printNotificationTask((NotificationTaskTO) taskTO);
             } else if (taskTO instanceof PropagationTaskTO) {
                 printPropagationTask((PropagationTaskTO) taskTO);
             } else if (taskTO instanceof PushTaskTO) {
                 printPushTask((PushTaskTO) taskTO);
-            } else if (taskTO instanceof SchedTaskTO) {
-                printScheduledTask((SchedTaskTO) taskTO);
+            } else if (taskTO instanceof ProvisioningTaskTO) {
+                printScheduledTask((ProvisioningTaskTO) taskTO);
             } else if (taskTO instanceof PullTaskTO) {
                 printPullTask((PullTaskTO) taskTO);
             }
         }
     }
 
-    public void printTasksType(final String taskTypeString, final List<AbstractTaskTO> taskTOs) {
+    public void printTasksType(final String taskTypeString, final List<TaskTO> taskTOs) {
         System.out.println("");
         switch (TaskType.valueOf(taskTypeString)) {
             case NOTIFICATION:
-                for (final AbstractTaskTO taskTO : taskTOs) {
+                for (final TaskTO taskTO : taskTOs) {
                     printNotificationTask(((NotificationTaskTO) taskTO));
                 }
                 break;
             case PROPAGATION:
-                for (final AbstractTaskTO taskTO : taskTOs) {
+                for (final TaskTO taskTO : taskTOs) {
                     printPropagationTask((PropagationTaskTO) taskTO);
                 }
                 break;
             case PUSH:
-                for (final AbstractTaskTO taskTO : taskTOs) {
+                for (final TaskTO taskTO : taskTOs) {
                     printPushTask((PushTaskTO) taskTO);
                 }
                 break;
             case SCHEDULED:
-                for (final AbstractTaskTO taskTO : taskTOs) {
-                    printScheduledTask((SchedTaskTO) taskTO);
+                for (final TaskTO taskTO : taskTOs) {
+                    printScheduledTask((ProvisioningTaskTO) taskTO);
                 }
                 break;
             case PULL:
-                for (final AbstractTaskTO taskTO : taskTOs) {
+                for (final TaskTO taskTO : taskTOs) {
                     printPullTask((PullTaskTO) taskTO);
                 }
                 break;
@@ -141,7 +141,7 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("");
     }
 
-    private void printScheduledTask(final SchedTaskTO schedTaskTO) {
+    private void printScheduledTask(final ProvisioningTaskTO schedTaskTO) {
         System.out.println(" - Scheduled task key: " + schedTaskTO.getKey());
         System.out.println("     name: " + schedTaskTO.getName());
         System.out.println("     cron expression: " + schedTaskTO.getCronExpression());

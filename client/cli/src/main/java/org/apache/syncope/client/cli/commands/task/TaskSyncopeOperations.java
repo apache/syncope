@@ -20,7 +20,7 @@ package org.apache.syncope.client.cli.commands.task;
 
 import java.util.List;
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -36,7 +36,7 @@ public class TaskSyncopeOperations {
         return taskService.listJobs();
     }
 
-    public <T extends AbstractTaskTO> T read(final String taskKey) {
+    public <T extends TaskTO> T read(final String taskKey) {
         return taskService.read(taskKey, true);
     }
 
@@ -44,11 +44,11 @@ public class TaskSyncopeOperations {
         taskService.delete(taskKey);
     }
 
-    public List<AbstractTaskTO> list(final String type) {
+    public List<TaskTO> list(final String type) {
         return taskService.list(new TaskQuery.Builder(TaskType.valueOf(type)).build()).getResult();
     }
 
-    public List<AbstractTaskTO> listPropagationTask() {
+    public List<TaskTO> listPropagationTask() {
         return taskService.list(new TaskQuery.Builder(TaskType.PROPAGATION).build()).getResult();
     }
 

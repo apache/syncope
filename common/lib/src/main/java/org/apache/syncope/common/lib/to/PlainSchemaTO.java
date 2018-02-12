@@ -18,16 +18,21 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 
-@XmlRootElement(name = "schema")
+@XmlRootElement(name = "plainSchema")
 @XmlType
-public class PlainSchemaTO extends AbstractSchemaTO {
+@ApiModel(parent = SchemaTO.class)
+public class PlainSchemaTO extends SchemaTO {
 
     private static final long serialVersionUID = -8133983392476990308L;
 
@@ -54,6 +59,14 @@ public class PlainSchemaTO extends AbstractSchemaTO {
     private CipherAlgorithm cipherAlgorithm;
 
     private String mimeType;
+
+    @XmlTransient
+    @JsonProperty("@class")
+    @ApiModelProperty(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.PlainSchemaTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
 
     public String getConversionPattern() {
         return conversionPattern;

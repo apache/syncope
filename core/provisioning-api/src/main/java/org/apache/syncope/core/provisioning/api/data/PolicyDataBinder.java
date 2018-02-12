@@ -18,15 +18,15 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 
 public interface PolicyDataBinder {
 
-    <T extends Policy> T create(AbstractPolicyTO policyTO);
+    <T extends Policy> T create(PolicyTO policyTO);
 
-    <T extends Policy> T update(T policy, AbstractPolicyTO policyTO);
+    <T extends Policy> T update(T policy, PolicyTO policyTO);
 
-    <T extends AbstractPolicyTO> T getPolicyTO(Policy policy);
+    <T extends PolicyTO> T getPolicyTO(Policy policy);
 
 }

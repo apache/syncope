@@ -49,7 +49,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.report.Schema;
 import org.apache.syncope.common.lib.report.SearchCondition;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -191,7 +191,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     if (listItemType.equals(String.class) && schemaAnnot != null) {
                         SchemaRestClient schemaRestClient = new SchemaRestClient();
 
-                        final List<AbstractSchemaTO> choices = new ArrayList<>();
+                        final List<SchemaTO> choices = new ArrayList<>();
 
                         for (SchemaType type : schemaAnnot.type()) {
                             switch (type) {
@@ -214,15 +214,13 @@ public class BeanPanel<T extends Serializable> extends Panel {
                             }
                         }
 
-                        panel = new AjaxPalettePanel.Builder<String>().setName(fieldName).build(
-                                "value",
+                        panel = new AjaxPalettePanel.Builder<String>().setName(fieldName).build("value",
                                 new PropertyModel<List<String>>(bean.getObject(), fieldName),
                                 new ListModel<>(
-                                        CollectionUtils.collect(
-                                                choices, new Transformer<AbstractSchemaTO, String>() {
+                                        CollectionUtils.collect(choices, new Transformer<SchemaTO, String>() {
 
                                             @Override
-                                            public String transform(final AbstractSchemaTO input) {
+                                            public String transform(final SchemaTO input) {
                                                 return input.getKey();
                                             }
                                         }, new ArrayList<String>()))).hideLabel();

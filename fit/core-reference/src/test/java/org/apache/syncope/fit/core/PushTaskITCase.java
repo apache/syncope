@@ -31,7 +31,7 @@ import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -90,7 +90,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
     public void list() {
         PagedResult<PushTaskTO> tasks = taskService.list(new TaskQuery.Builder(TaskType.PUSH).build());
         assertFalse(tasks.getResult().isEmpty());
-        for (AbstractTaskTO task : tasks.getResult()) {
+        for (TaskTO task : tasks.getResult()) {
             if (!(task instanceof PushTaskTO)) {
                 fail();
             }

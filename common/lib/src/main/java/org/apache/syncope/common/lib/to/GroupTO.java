@@ -20,6 +20,8 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +29,7 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.collections4.IterableUtils;
@@ -36,6 +39,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "group")
 @XmlType
+@ApiModel(parent = AnyTO.class)
 public class GroupTO extends AnyTO {
 
     private static final long serialVersionUID = -7785920258290147542L;
@@ -60,6 +64,14 @@ public class GroupTO extends AnyTO {
     private final Map<String, String> adynMembershipConds = new HashMap<>();
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
+
+    @XmlTransient
+    @JsonProperty("@class")
+    @ApiModelProperty(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.GroupTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
 
     @Override
     public String getType() {
@@ -103,6 +115,7 @@ public class GroupTO extends AnyTO {
         this.udynMembershipCond = uDynMembershipCond;
     }
 
+    @ApiModelProperty(readOnly = true)
     public int getStaticUserMembershipCount() {
         return staticUserMembershipCount;
     }
@@ -111,6 +124,7 @@ public class GroupTO extends AnyTO {
         this.staticUserMembershipCount = staticUserMembershipCount;
     }
 
+    @ApiModelProperty(readOnly = true)
     public int getDynamicUserMembershipCount() {
         return dynamicUserMembershipCount;
     }
@@ -119,6 +133,7 @@ public class GroupTO extends AnyTO {
         this.dynamicUserMembershipCount = dynamicUserMembershipCount;
     }
 
+    @ApiModelProperty(readOnly = true)
     public int getStaticAnyObjectMembershipCount() {
         return staticAnyObjectMembershipCount;
     }
@@ -127,6 +142,7 @@ public class GroupTO extends AnyTO {
         this.staticAnyObjectMembershipCount = staticAnyObjectMembershipCount;
     }
 
+    @ApiModelProperty(readOnly = true)
     public int getDynamicAnyObjectMembershipCount() {
         return dynamicAnyObjectMembershipCount;
     }

@@ -19,7 +19,10 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,15 +31,24 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "abstractTask")
+@XmlRootElement(name = "task")
 @XmlType
-@XmlSeeAlso({ PropagationTaskTO.class, SchedTaskTO.class, NotificationTaskTO.class })
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public abstract class AbstractTaskTO extends AbstractStartEndBean implements EntityTO {
+@XmlSeeAlso({ PropagationTaskTO.class, ProvisioningTaskTO.class, NotificationTaskTO.class })
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "@class")
+@JsonPropertyOrder(value = { "@class", "key" })
+@ApiModel(
+        subTypes = { PropagationTaskTO.class, ProvisioningTaskTO.class, NotificationTaskTO.class },
+        discriminator = "@class")
+public abstract class TaskTO extends AbstractStartEndBean implements EntityTO {
 
     private static final long serialVersionUID = 386450127003321197L;
+
+    @XmlTransient
+    @JsonProperty("@class")
+    private String discriminator;
 
     private String key;
 
@@ -44,6 +56,14 @@ public abstract class AbstractTaskTO extends AbstractStartEndBean implements Ent
 
     private final List<ExecTO> executions = new ArrayList<>();
 
+    @ApiModelProperty(name = "@class", required = true, readOnly = false)
+    public abstract String getDiscriminator();
+
+    public void setDiscriminator(final String discriminator) {
+        // do nothing
+    }
+
+    @ApiModelProperty(readOnly = true)
     @Override
     public String getKey() {
         return key;
@@ -55,6 +75,7 @@ public abstract class AbstractTaskTO extends AbstractStartEndBean implements Ent
         this.key = key;
     }
 
+    @ApiModelProperty(readOnly = true)
     public String getLatestExecStatus() {
         return latestExecStatus;
     }
@@ -63,6 +84,7 @@ public abstract class AbstractTaskTO extends AbstractStartEndBean implements Ent
         this.latestExecStatus = latestExecStatus;
     }
 
+    @ApiModelProperty(readOnly = true)
     @XmlElementWrapper(name = "executions")
     @XmlElement(name = "execution")
     @JsonProperty("executions")

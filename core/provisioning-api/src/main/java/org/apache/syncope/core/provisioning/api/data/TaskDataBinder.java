@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
@@ -36,6 +36,6 @@ public interface TaskDataBinder {
 
     ExecTO getExecTO(TaskExec execution);
 
-    <T extends AbstractTaskTO> T getTaskTO(Task task, TaskUtils taskUtil, boolean details);
+    <T extends TaskTO> T getTaskTO(Task task, TaskUtils taskUtil, boolean details);
 
 }

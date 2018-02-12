@@ -19,6 +19,8 @@
 package org.apache.syncope.common.lib.patch;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.HashSet;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
@@ -28,6 +30,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "anyObjectPatch")
 @XmlType
+@ApiModel(parent = AnyPatch.class)
 public class AnyObjectPatch extends AnyPatch {
 
     private static final long serialVersionUID = -1644118942622556097L;
@@ -37,6 +40,13 @@ public class AnyObjectPatch extends AnyPatch {
     private final Set<RelationshipPatch> relationships = new HashSet<>();
 
     private final Set<MembershipPatch> memberships = new HashSet<>();
+
+    @JsonProperty("@class")
+    @ApiModelProperty(name = "@class", required = true, example = "org.apache.syncope.common.lib.patch.AnyObjectPatch")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
 
     public StringReplacePatchItem getName() {
         return name;

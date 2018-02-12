@@ -21,7 +21,7 @@ package org.apache.syncope.client.cli.commands.policy;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
@@ -29,9 +29,9 @@ import org.apache.syncope.common.lib.types.PolicyType;
 
 public class PolicyResultManager extends CommonsResultManager {
 
-    public void printPolicies(final List<AbstractPolicyTO> policyTOs) {
+    public void printPolicies(final List<PolicyTO> policyTOs) {
         System.out.println("");
-        for (AbstractPolicyTO policyTO : policyTOs) {
+        for (PolicyTO policyTO : policyTOs) {
             if (policyTO instanceof AccountPolicyTO) {
                 printAccountPolicy((AccountPolicyTO) policyTO);
             } else if (policyTO instanceof PasswordPolicyTO) {
@@ -42,27 +42,27 @@ public class PolicyResultManager extends CommonsResultManager {
         }
     }
 
-    public void printPoliciesByType(final String policyTypeString, final List<AbstractPolicyTO> policyTOs) {
+    public void printPoliciesByType(final String policyTypeString, final List<PolicyTO> policyTOs) {
         System.out.println("");
         final PolicyType policyType = PolicyType.valueOf(policyTypeString);
         switch (policyType) {
             case ACCOUNT:
-                for (final AbstractPolicyTO policyTO : policyTOs) {
+                for (final PolicyTO policyTO : policyTOs) {
                     printAccountPolicy((AccountPolicyTO) policyTO);
                 }
                 break;
             case PASSWORD:
-                for (final AbstractPolicyTO policyTO : policyTOs) {
+                for (final PolicyTO policyTO : policyTOs) {
                     printPasswordPolicy((PasswordPolicyTO) policyTO);
                 }
                 break;
             case PUSH:
-                for (final AbstractPolicyTO policyTO : policyTOs) {
+                for (final PolicyTO policyTO : policyTOs) {
                     System.out.println(policyTO);
                 }
                 break;
             case PULL:
-                for (final AbstractPolicyTO policyTO : policyTOs) {
+                for (final PolicyTO policyTO : policyTOs) {
                     printPullPolicy((PullPolicyTO) policyTO);
                 }
                 break;

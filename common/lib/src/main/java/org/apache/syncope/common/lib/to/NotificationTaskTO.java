@@ -19,18 +19,22 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.HashSet;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
 @XmlRootElement(name = "notificationTask")
 @XmlType
-public class NotificationTaskTO extends AbstractTaskTO {
+@ApiModel(parent = TaskTO.class)
+public class NotificationTaskTO extends TaskTO {
 
     private static final long serialVersionUID = 371671242591093846L;
 
@@ -54,6 +58,15 @@ public class NotificationTaskTO extends AbstractTaskTO {
 
     private TraceLevel traceLevel;
 
+    @XmlTransient
+    @JsonProperty("@class")
+    @ApiModelProperty(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.NotificationTaskTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
+
+    @ApiModelProperty(readOnly = true)
     public String getNotification() {
         return notification;
     }
@@ -62,6 +75,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         this.notification = notification;
     }
 
+    @ApiModelProperty(readOnly = true)
     public AnyTypeKind getAnyTypeKind() {
         return anyTypeKind;
     }
@@ -70,6 +84,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         this.anyTypeKind = anyTypeKind;
     }
 
+    @ApiModelProperty(readOnly = true)
     public String getEntityKey() {
         return entityKey;
     }
@@ -78,6 +93,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         this.entityKey = entityKey;
     }
 
+    @ApiModelProperty(readOnly = true)
     @XmlElementWrapper(name = "recipients")
     @XmlElement(name = "recipient")
     @JsonProperty("recipients")
@@ -85,6 +101,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         return recipients;
     }
 
+    @ApiModelProperty(readOnly = true)
     public String getSender() {
         return sender;
     }
@@ -93,6 +110,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         this.sender = sender;
     }
 
+    @ApiModelProperty(readOnly = true)
     public String getSubject() {
         return subject;
     }
@@ -101,6 +119,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         this.subject = subject;
     }
 
+    @ApiModelProperty(readOnly = true)
     public String getTextBody() {
         return textBody;
     }
@@ -109,6 +128,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         this.textBody = textBody;
     }
 
+    @ApiModelProperty(readOnly = true)
     public String getHtmlBody() {
         return htmlBody;
     }
@@ -117,6 +137,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         this.htmlBody = htmlBody;
     }
 
+    @ApiModelProperty(readOnly = true)
     public boolean isExecuted() {
         return executed;
     }
@@ -125,6 +146,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         this.executed = executed;
     }
 
+    @ApiModelProperty(readOnly = true)
     public TraceLevel getTraceLevel() {
         return traceLevel;
     }

@@ -18,10 +18,15 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
-@XmlRootElement(name = "virtualSchema")
-public class VirSchemaTO extends AbstractSchemaTO {
+@XmlRootElement(name = "virSchema")
+@ApiModel(parent = SchemaTO.class)
+public class VirSchemaTO extends SchemaTO {
 
     private static final long serialVersionUID = -8198557479659701343L;
 
@@ -32,6 +37,14 @@ public class VirSchemaTO extends AbstractSchemaTO {
     private String anyType;
 
     private String extAttrName;
+
+    @XmlTransient
+    @JsonProperty("@class")
+    @ApiModelProperty(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.VirSchemaTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
 
     public boolean isReadonly() {
         return readonly;

@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.to;
 
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.Date;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.StringUtils;
@@ -64,6 +65,7 @@ public class AbstractAnnotatedBean extends AbstractBaseBean {
      */
     private Date lastChangeDate;
 
+    @ApiModelProperty(readOnly = true)
     public String getCreator() {
         return creator;
     }
@@ -72,6 +74,7 @@ public class AbstractAnnotatedBean extends AbstractBaseBean {
         this.creator = creator;
     }
 
+    @ApiModelProperty(readOnly = true)
     public Date getCreationDate() {
         if (creationDate != null) {
             return new Date(creationDate.getTime());
@@ -87,6 +90,7 @@ public class AbstractAnnotatedBean extends AbstractBaseBean {
         }
     }
 
+    @ApiModelProperty(readOnly = true)
     public String getLastModifier() {
         return lastModifier;
     }
@@ -95,6 +99,7 @@ public class AbstractAnnotatedBean extends AbstractBaseBean {
         this.lastModifier = lastModifier;
     }
 
+    @ApiModelProperty(readOnly = true)
     public Date getLastChangeDate() {
         if (lastChangeDate != null) {
             return new Date(lastChangeDate.getTime());

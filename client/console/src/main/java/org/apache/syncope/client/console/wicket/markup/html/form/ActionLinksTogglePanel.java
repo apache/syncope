@@ -37,11 +37,11 @@ import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
-import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.wicket.PageReference;
@@ -93,8 +93,8 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             header = ((ReportTO) modelObject).getName();
         } else if (modelObject instanceof AttrTO) {
             header = ((AttrTO) modelObject).getSchema();
-        } else if (modelObject instanceof AbstractPolicyTO) {
-            header = ((AbstractPolicyTO) modelObject).getDescription();
+        } else if (modelObject instanceof PolicyTO) {
+            header = ((PolicyTO) modelObject).getDescription();
         } else if (modelObject instanceof SecurityQuestionTO) {
             header = ((SecurityQuestionTO) modelObject).getContent();
         } else if (modelObject instanceof AccessTokenTO) {
@@ -103,8 +103,8 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             header = ((ExecTO) modelObject).getKey();
         } else if (modelObject instanceof WorkflowDefinitionTO) {
             header = ((WorkflowDefinitionTO) modelObject).getName();
-        } else if (modelObject instanceof SchedTaskTO) {
-            header = ((SchedTaskTO) modelObject).getName();
+        } else if (modelObject instanceof ProvisioningTaskTO) {
+            header = ((ProvisioningTaskTO) modelObject).getName();
         } else if (modelObject instanceof WorkflowFormTO) {
             header = ((WorkflowFormTO) modelObject).getKey();
         } else if (modelObject instanceof EntityTO) {

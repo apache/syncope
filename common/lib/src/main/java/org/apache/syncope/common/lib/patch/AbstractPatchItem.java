@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.lib.patch;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
@@ -39,6 +41,8 @@ public abstract class AbstractPatchItem<T> extends AbstractPatch {
 
     private T value;
 
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     public T getValue() {
         return value;
     }

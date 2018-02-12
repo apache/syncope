@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.client.cli.view.Table;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
@@ -31,7 +31,7 @@ import org.apache.syncope.common.lib.types.SchemaType;
 
 public class SchemaResultManager extends CommonsResultManager {
 
-    public void toView(final String schemaTypeString, final List<? extends AbstractSchemaTO> schemaTOs) {
+    public void toView(final String schemaTypeString, final List<? extends SchemaTO> schemaTOs) {
         switch (SchemaType.valueOf(schemaTypeString)) {
             case PLAIN:
                 printPlainSchemasDetailed(schemaTOs);
@@ -47,9 +47,9 @@ public class SchemaResultManager extends CommonsResultManager {
         }
     }
 
-    private void printPlainSchemasDetailed(final List<? extends AbstractSchemaTO> schemaTOs) {
+    private void printPlainSchemasDetailed(final List<? extends SchemaTO> schemaTOs) {
         System.out.println("");
-        for (final AbstractSchemaTO schemaTO : schemaTOs) {
+        for (final SchemaTO schemaTO : schemaTOs) {
             printPlanSchemaDetailed((PlainSchemaTO) schemaTO);
         }
     }
@@ -67,10 +67,10 @@ public class SchemaResultManager extends CommonsResultManager {
         System.out.println("");
     }
 
-    public void printPlainSchemas(final List<? extends AbstractSchemaTO> schemaTOs) {
+    public void printPlainSchemas(final List<? extends SchemaTO> schemaTOs) {
         final Table.TableBuilder tableBuilder =
                 new Table.TableBuilder("plain schemas").header("schema key").header("type").header("mandatory");
-        for (final AbstractSchemaTO schemaTO : schemaTOs) {
+        for (final SchemaTO schemaTO : schemaTOs) {
             tableBuilder.rowValues(Arrays.asList(
                     ((PlainSchemaTO) schemaTO).getKey(),
                     ((PlainSchemaTO) schemaTO).getType().toString(),
@@ -79,10 +79,10 @@ public class SchemaResultManager extends CommonsResultManager {
         tableBuilder.build().print();
     }
 
-    public void fromListDerived(final List<? extends AbstractSchemaTO> schemaTOs) {
+    public void fromListDerived(final List<? extends SchemaTO> schemaTOs) {
         final Table.TableBuilder tableBuilder =
                 new Table.TableBuilder("derived schemas").header("schema key").header("expression");
-        for (final AbstractSchemaTO schemaTO : schemaTOs) {
+        for (final SchemaTO schemaTO : schemaTOs) {
             tableBuilder.rowValues(Arrays.asList(
                     ((DerSchemaTO) schemaTO).getKey(),
                     ((DerSchemaTO) schemaTO).getExpression()));
@@ -90,10 +90,10 @@ public class SchemaResultManager extends CommonsResultManager {
         tableBuilder.build().print();
     }
 
-    public void fromListVirtual(final List<? extends AbstractSchemaTO> schemaTOs) {
+    public void fromListVirtual(final List<? extends SchemaTO> schemaTOs) {
         final Table.TableBuilder tableBuilder =
                 new Table.TableBuilder("virtual schemas").header("schema key").header("readonly");
-        for (final AbstractSchemaTO schemaTO : schemaTOs) {
+        for (final SchemaTO schemaTO : schemaTOs) {
             tableBuilder.rowValues(Arrays.asList(
                     ((VirSchemaTO) schemaTO).getKey(),
                     String.valueOf(((VirSchemaTO) schemaTO).isReadonly())));

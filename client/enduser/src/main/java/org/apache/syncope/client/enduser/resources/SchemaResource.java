@@ -38,7 +38,7 @@ import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.model.CustomAttribute;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.client.enduser.model.SchemaResponse;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -93,8 +93,8 @@ public class SchemaResource extends BaseResource {
             Map<String, CustomAttributesInfo> customForm = SyncopeEnduserApplication.get().getCustomForm();
 
             SchemaService schemaService = SyncopeEnduserSession.get().getService(SchemaService.class);
-            final List<AbstractSchemaTO> plainSchemas = classes.isEmpty()
-                    ? Collections.<AbstractSchemaTO>emptyList()
+            final List<SchemaTO> plainSchemas = classes.isEmpty()
+                    ? Collections.<SchemaTO>emptyList()
                     : customForm == null || customForm.isEmpty() || customForm.get(SchemaType.PLAIN.name()) == null
                     ? schemaService.list(
                             new SchemaQuery.Builder().type(SchemaType.PLAIN).anyTypeClasses(classes).build())
@@ -102,9 +102,9 @@ public class SchemaResource extends BaseResource {
                     ? customizeSchemas(schemaService.list(new SchemaQuery.Builder().type(SchemaType.PLAIN).
                             anyTypeClasses(classes).build()), group, customForm.get(SchemaType.PLAIN.name()).
                             getAttributes())
-                    : Collections.<AbstractSchemaTO>emptyList();
-            final List<AbstractSchemaTO> derSchemas = classes.isEmpty()
-                    ? Collections.<AbstractSchemaTO>emptyList()
+                    : Collections.<SchemaTO>emptyList();
+            final List<SchemaTO> derSchemas = classes.isEmpty()
+                    ? Collections.<SchemaTO>emptyList()
                     : customForm == null || customForm.isEmpty() || customForm.get(SchemaType.DERIVED.name()) == null
                     ? schemaService.list(
                             new SchemaQuery.Builder().type(SchemaType.DERIVED).anyTypeClasses(classes).build())
@@ -112,9 +112,9 @@ public class SchemaResource extends BaseResource {
                     ? customizeSchemas(schemaService.list(new SchemaQuery.Builder().type(SchemaType.DERIVED).
                             anyTypeClasses(classes).build()), group, customForm.get(SchemaType.DERIVED.name()).
                             getAttributes())
-                    : Collections.<AbstractSchemaTO>emptyList();
-            final List<AbstractSchemaTO> virSchemas = classes.isEmpty()
-                    ? Collections.<AbstractSchemaTO>emptyList()
+                    : Collections.<SchemaTO>emptyList();
+            final List<SchemaTO> virSchemas = classes.isEmpty()
+                    ? Collections.<SchemaTO>emptyList()
                     : customForm == null || customForm.isEmpty() || customForm.get(SchemaType.VIRTUAL.name()) == null
                     ? schemaService.list(
                             new SchemaQuery.Builder().type(SchemaType.VIRTUAL).anyTypeClasses(classes).build())
@@ -122,16 +122,16 @@ public class SchemaResource extends BaseResource {
                     ? customizeSchemas(schemaService.list(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).
                             anyTypeClasses(classes).build()), group, customForm.get(SchemaType.VIRTUAL.name()).
                             getAttributes())
-                    : Collections.<AbstractSchemaTO>emptyList();
+                    : Collections.<SchemaTO>emptyList();
 
             if (group != null) {
-                for (AbstractSchemaTO schema : plainSchemas) {
+                for (SchemaTO schema : plainSchemas) {
                     schema.setKey(compositeSchemaKey(group, schema.getKey()));
                 }
-                for (AbstractSchemaTO schema : derSchemas) {
+                for (SchemaTO schema : derSchemas) {
                     schema.setKey(compositeSchemaKey(group, schema.getKey()));
                 }
-                for (AbstractSchemaTO schema : virSchemas) {
+                for (SchemaTO schema : virSchemas) {
                     schema.setKey(compositeSchemaKey(group, schema.getKey()));
                 }
             }
@@ -160,7 +160,7 @@ public class SchemaResource extends BaseResource {
         return response;
     }
 
-    private List<AbstractSchemaTO> customizeSchemas(final List<AbstractSchemaTO> schemaTOs, final String groupParam,
+    private List<SchemaTO> customizeSchemas(final List<SchemaTO> schemaTOs, final String groupParam,
             final Map<String, CustomAttribute> customForm) {
 
         if (customForm.isEmpty()) {
@@ -168,20 +168,20 @@ public class SchemaResource extends BaseResource {
         }
         final boolean isGroupBlank = StringUtils.isBlank(groupParam);
 
-        CollectionUtils.filter(schemaTOs, new Predicate<AbstractSchemaTO>() {
+        CollectionUtils.filter(schemaTOs, new Predicate<SchemaTO>() {
 
             @Override
-            public boolean evaluate(final AbstractSchemaTO object) {
+            public boolean evaluate(final SchemaTO object) {
                 return customForm.containsKey(isGroupBlank
                         ? object.getKey()
                         : compositeSchemaKey(groupParam, object.getKey()));
             }
         });
 
-        Collections.sort(schemaTOs, new Comparator<AbstractSchemaTO>() {
+        Collections.sort(schemaTOs, new Comparator<SchemaTO>() {
 
             @Override
-            public int compare(final AbstractSchemaTO schemaTO1, final AbstractSchemaTO schemaTO2) {
+            public int compare(final SchemaTO schemaTO1, final SchemaTO schemaTO2) {
                 List<String> order = new ArrayList<>(customForm.keySet());
                 return order.indexOf(isGroupBlank
                         ? schemaTO1.getKey()

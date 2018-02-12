@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.client.console.commons;
 
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-public abstract class TaskDataProvider<T extends AbstractTaskTO> extends DirectoryDataProvider<T> {
+public abstract class TaskDataProvider<T extends TaskTO> extends DirectoryDataProvider<T> {
 
     private static final long serialVersionUID = -20112718133295756L;
 

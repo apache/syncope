@@ -18,16 +18,29 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "derivedSchema")
+@XmlRootElement(name = "derSchema")
 @XmlType
-public class DerSchemaTO extends AbstractSchemaTO {
+@ApiModel(parent = SchemaTO.class)
+public class DerSchemaTO extends SchemaTO {
 
     private static final long serialVersionUID = -6747399803792103108L;
 
     private String expression;
+
+    @XmlTransient
+    @JsonProperty("@class")
+    @ApiModelProperty(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.DerSchemaTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
 
     public String getExpression() {
         return expression;

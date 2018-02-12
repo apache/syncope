@@ -51,7 +51,7 @@ import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -121,7 +121,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
     public void list() {
         PagedResult<PullTaskTO> tasks = taskService.list(new TaskQuery.Builder(TaskType.PULL).build());
         assertFalse(tasks.getResult().isEmpty());
-        for (AbstractTaskTO task : tasks.getResult()) {
+        for (TaskTO task : tasks.getResult()) {
             if (!(task instanceof PullTaskTO)) {
                 fail();
             }
@@ -1057,7 +1057,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().get(0)));
 
             // ...and propagated
-            PagedResult<AbstractTaskTO> propagationTasks = taskService.list(new TaskQuery.Builder(TaskType.PROPAGATION).
+            PagedResult<TaskTO> propagationTasks = taskService.list(new TaskQuery.Builder(TaskType.PROPAGATION).
                     resource(RESOURCE_NAME_DBPULL).
                     anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
             assertEquals(1, propagationTasks.getSize());

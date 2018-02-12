@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -64,7 +64,7 @@ public class JPATaskUtilsFactory implements TaskUtilsFactory {
     }
 
     @Override
-    public TaskUtils getInstance(final Class<? extends AbstractTaskTO> taskClass) {
+    public TaskUtils getInstance(final Class<? extends TaskTO> taskClass) {
         TaskType type;
         if (taskClass == PropagationTaskTO.class) {
             type = TaskType.PROPAGATION;
@@ -84,7 +84,7 @@ public class JPATaskUtilsFactory implements TaskUtilsFactory {
     }
 
     @Override
-    public TaskUtils getInstance(final AbstractTaskTO taskTO) {
+    public TaskUtils getInstance(final TaskTO taskTO) {
         return getInstance(taskTO.getClass());
     }
 

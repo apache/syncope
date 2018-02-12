@@ -47,8 +47,8 @@ import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -334,7 +334,7 @@ public abstract class AbstractITCase {
     }
 
     @SuppressWarnings("unchecked")
-    protected <T extends AbstractSchemaTO> T createSchema(final SchemaType type, final T schemaTO) {
+    protected <T extends SchemaTO> T createSchema(final SchemaType type, final T schemaTO) {
         Response response = schemaService.create(type, schemaTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
@@ -486,7 +486,7 @@ public abstract class AbstractITCase {
     }
 
     @SuppressWarnings("unchecked")
-    protected <T extends AbstractPolicyTO> T createPolicy(final T policy) {
+    protected <T extends PolicyTO> T createPolicy(final T policy) {
         Response response = policyService.create(policy);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);

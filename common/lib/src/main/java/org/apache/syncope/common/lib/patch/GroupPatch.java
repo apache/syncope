@@ -20,6 +20,8 @@ package org.apache.syncope.common.lib.patch;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +38,7 @@ import org.apache.syncope.common.lib.to.TypeExtensionTO;
 
 @XmlRootElement(name = "groupPatch")
 @XmlType
+@ApiModel(parent = AnyPatch.class)
 public class GroupPatch extends AnyPatch {
 
     private static final long serialVersionUID = -460284378124440077L;
@@ -52,6 +55,13 @@ public class GroupPatch extends AnyPatch {
     private final Map<String, String> adynMembershipConds = new HashMap<>();
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
+
+    @JsonProperty("@class")
+    @ApiModelProperty(name = "@class", required = true, example = "org.apache.syncope.common.lib.patch.GroupPatch")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
 
     public StringReplacePatchItem getName() {
         return name;

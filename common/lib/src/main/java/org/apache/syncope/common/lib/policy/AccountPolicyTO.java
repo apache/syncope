@@ -19,16 +19,20 @@
 package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "accountPolicy")
 @XmlType
-public class AccountPolicyTO extends AbstractPolicyTO implements ComposablePolicy<AbstractAccountRuleConf> {
+@ApiModel(parent = PolicyTO.class)
+public class AccountPolicyTO extends PolicyTO implements ComposablePolicy<AbstractAccountRuleConf> {
 
     private static final long serialVersionUID = -1557150042828800134L;
 
@@ -39,6 +43,15 @@ public class AccountPolicyTO extends AbstractPolicyTO implements ComposablePolic
     private final List<AbstractAccountRuleConf> ruleConfs = new ArrayList<>();
 
     private final List<String> passthroughResources = new ArrayList<>();
+
+    @XmlTransient
+    @JsonProperty("@class")
+    @ApiModelProperty(
+            name = "@class", required = true, example = "org.apache.syncope.common.lib.policy.AccountPolicyTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
 
     public boolean isPropagateSuspension() {
         return propagateSuspension;

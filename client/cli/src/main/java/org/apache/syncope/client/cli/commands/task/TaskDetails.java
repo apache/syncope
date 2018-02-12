@@ -24,12 +24,12 @@ import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
-import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -52,12 +52,12 @@ public class TaskDetails extends AbstractTaskCommand {
         if (input.parameterNumber() == 0) {
             try {
                 final Map<String, String> details = new LinkedMap<>();
-                final List<AbstractTaskTO> notificationTaskTOs =
+                final List<TaskTO> notificationTaskTOs =
                         taskSyncopeOperations.list(TaskType.NOTIFICATION.name());
-                final List<AbstractTaskTO> propagationTaskTOs = taskSyncopeOperations.list(TaskType.PROPAGATION.name());
-                final List<AbstractTaskTO> pushTaskTOs = taskSyncopeOperations.list(TaskType.PUSH.name());
-                final List<AbstractTaskTO> scheduledTaskTOs = taskSyncopeOperations.list(TaskType.SCHEDULED.name());
-                final List<AbstractTaskTO> pullTaskTOs = taskSyncopeOperations.list(TaskType.PULL.name());
+                final List<TaskTO> propagationTaskTOs = taskSyncopeOperations.list(TaskType.PROPAGATION.name());
+                final List<TaskTO> pushTaskTOs = taskSyncopeOperations.list(TaskType.PUSH.name());
+                final List<TaskTO> scheduledTaskTOs = taskSyncopeOperations.list(TaskType.SCHEDULED.name());
+                final List<TaskTO> pullTaskTOs = taskSyncopeOperations.list(TaskType.PULL.name());
                 final List<JobTO> jobTOs = taskSyncopeOperations.listJobs();
                 final int notificationTaskSize = notificationTaskTOs.size();
                 final int propagationTaskSize = propagationTaskTOs.size();
@@ -68,14 +68,14 @@ public class TaskDetails extends AbstractTaskCommand {
                 final int jobsSize = jobTOs.size();
 
                 int notificationNotExecuted = 0;
-                for (final AbstractTaskTO notificationTaskTO : notificationTaskTOs) {
+                for (final TaskTO notificationTaskTO : notificationTaskTOs) {
                     if (!((NotificationTaskTO) notificationTaskTO).isExecuted()) {
                         notificationNotExecuted++;
                     }
                 }
 
                 int propagationNotExecuted = 0;
-                for (final AbstractTaskTO propagationTaskTO : propagationTaskTOs) {
+                for (final TaskTO propagationTaskTO : propagationTaskTOs) {
                     if (((PropagationTaskTO) propagationTaskTO).getExecutions() == null
                             || ((PropagationTaskTO) propagationTaskTO).getExecutions().isEmpty()) {
                         propagationNotExecuted++;
@@ -83,23 +83,23 @@ public class TaskDetails extends AbstractTaskCommand {
                 }
 
                 int pushNotExecuted = 0;
-                for (final AbstractTaskTO pushTaskTO : pushTaskTOs) {
+                for (final TaskTO pushTaskTO : pushTaskTOs) {
                     if (((PushTaskTO) pushTaskTO).getExecutions() == null
                             || ((PushTaskTO) pushTaskTO).getExecutions().isEmpty()) {
                         pushNotExecuted++;
                     }
                 }
 
-                for (final AbstractTaskTO scheduledTaskTO : scheduledTaskTOs) {
-                    if (((SchedTaskTO) scheduledTaskTO).getExecutions() == null
-                            || ((SchedTaskTO) scheduledTaskTO).getExecutions().isEmpty()) {
+                for (final TaskTO scheduledTaskTO : scheduledTaskTOs) {
+                    if (((ProvisioningTaskTO) scheduledTaskTO).getExecutions() == null
+                            || ((ProvisioningTaskTO) scheduledTaskTO).getExecutions().isEmpty()) {
                         scheduledNotExecuted++;
                     }
                 }
 
                 int pullNotExecuted = 0;
                 int pullFull = 0;
-                for (final AbstractTaskTO pullTaskTO : pullTaskTOs) {
+                for (final TaskTO pullTaskTO : pullTaskTOs) {
                     if (((PullTaskTO) pullTaskTO).getExecutions() == null
                             || ((PullTaskTO) pullTaskTO).getExecutions().isEmpty()) {
                         pullNotExecuted++;

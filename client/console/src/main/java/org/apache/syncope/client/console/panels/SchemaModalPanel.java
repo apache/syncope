@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.panels;
 import java.util.Arrays;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
@@ -30,17 +30,17 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.Model;
 
-public class SchemaModalPanel extends AbstractModalPanel<AbstractSchemaTO> {
+public class SchemaModalPanel extends AbstractModalPanel<SchemaTO> {
 
     private static final long serialVersionUID = -4681998932778822125L;
 
     private final AbstractSchemaDetailsPanel schemaPanel;
 
-    private final AbstractSchemaTO schemaTO;
+    private final SchemaTO schemaTO;
 
     public SchemaModalPanel(
-            final BaseModal<AbstractSchemaTO> modal,
-            final AbstractSchemaTO schemaTO,
+            final BaseModal<SchemaTO> modal,
+            final SchemaTO schemaTO,
             final PageReference pageRef) {
         super(modal, pageRef);
 
@@ -64,13 +64,13 @@ public class SchemaModalPanel extends AbstractModalPanel<AbstractSchemaTO> {
     }
 
     private AbstractSchemaDetailsPanel getSchemaPanel(final String id,
-            final SchemaType schemaType, final BaseModal<AbstractSchemaTO> modal) {
+            final SchemaType schemaType, final BaseModal<SchemaTO> modal) {
         final AbstractSchemaDetailsPanel panel;
 
         if (schemaTO.getKey() != null) {
             try {
-                final Class<? extends AbstractSchemaTO> schemaTOClass = schemaType.getToClass();
-                modal.setFormModel((AbstractSchemaTO) schemaTOClass.newInstance());
+                final Class<? extends SchemaTO> schemaTOClass = schemaType.getToClass();
+                modal.setFormModel((SchemaTO) schemaTOClass.newInstance());
             } catch (InstantiationException | IllegalAccessException ex) {
                 LOG.error("SchemaType not found", ex);
             }

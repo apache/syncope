@@ -34,7 +34,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.PolicyRenderer;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -65,7 +65,7 @@ public class RealmDetails extends Panel {
         @Override
         protected Map<String, String> load() {
             Map<String, String> res = new LinkedHashMap<>();
-            for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.ACCOUNT)) {
+            for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.ACCOUNT)) {
                 res.put(policyTO.getKey(), policyTO.getDescription());
             }
             return res;
@@ -79,7 +79,7 @@ public class RealmDetails extends Panel {
         @Override
         protected Map<String, String> load() {
             Map<String, String> res = new LinkedHashMap<>();
-            for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PASSWORD)) {
+            for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PASSWORD)) {
                 res.put(policyTO.getKey(), policyTO.getDescription());
             }
             return res;

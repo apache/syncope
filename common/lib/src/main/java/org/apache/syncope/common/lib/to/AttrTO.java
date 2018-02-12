@@ -20,6 +20,8 @@ package org.apache.syncope.common.lib.to;
 
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,6 +34,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "attribute")
 @XmlType
+@ApiModel
 public class AttrTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 4941691338796323623L;
@@ -45,7 +48,7 @@ public class AttrTO extends AbstractBaseBean {
             return this;
         }
 
-        public Builder schemaInfo(final AbstractSchemaTO schemaInfo) {
+        public Builder schemaInfo(final SchemaTO schemaInfo) {
             instance.schemaInfo = schemaInfo;
             return this;
         }
@@ -73,7 +76,7 @@ public class AttrTO extends AbstractBaseBean {
     /**
      * (Optional) schema information for this attribute.
      */
-    private AbstractSchemaTO schemaInfo;
+    private SchemaTO schemaInfo;
 
     /**
      * Name of the schema that this attribute is referring to.
@@ -88,17 +91,20 @@ public class AttrTO extends AbstractBaseBean {
     /**
      * @return schema information for this attribute; may be {@code NULL}
      */
-    public AbstractSchemaTO getSchemaInfo() {
+    @ApiModelProperty(readOnly = true)
+    public SchemaTO getSchemaInfo() {
         return schemaInfo;
     }
 
-    public void setSchemaInfo(final AbstractSchemaTO schemaInfo) {
+    public void setSchemaInfo(final SchemaTO schemaInfo) {
         this.schemaInfo = schemaInfo;
     }
 
     /**
      * @return the name of the schema that this attribute is referring to
      */
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     public String getSchema() {
         return schema;
     }
@@ -115,9 +121,9 @@ public class AttrTO extends AbstractBaseBean {
     /**
      * @return attribute values as strings
      */
-    @XmlElementWrapper(name = "values")
-    @XmlElement(name = "value")
-    @JsonProperty("values")
+    @XmlElementWrapper(name = "values", required = true)
+    @XmlElement(name = "value", required = true)
+    @JsonProperty(value = "values", required = true)
     public List<String> getValues() {
         return values;
     }

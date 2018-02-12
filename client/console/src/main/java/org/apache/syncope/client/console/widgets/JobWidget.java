@@ -52,7 +52,7 @@ import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
-import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
@@ -404,10 +404,10 @@ public class JobWidget extends BaseWidget {
                             break;
 
                         case TASK:
-                            SchedTaskTO schedTaskTO = new TaskRestClient().
-                                    readSchedTask(SchedTaskTO.class, jobTO.getRefKey());
+                            ProvisioningTaskTO schedTaskTO = new TaskRestClient().
+                                    readSchedTask(ProvisioningTaskTO.class, jobTO.getRefKey());
 
-                            SchedTaskWizardBuilder<SchedTaskTO> swb
+                            SchedTaskWizardBuilder<ProvisioningTaskTO> swb
                                     = new SchedTaskWizardBuilder<>(schedTaskTO, pageRef);
                             swb.setEventSink(AvailableJobsPanel.this);
 

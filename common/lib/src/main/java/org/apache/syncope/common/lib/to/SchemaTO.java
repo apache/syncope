@@ -18,24 +18,42 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
-@XmlRootElement(name = "abstractSchema")
+@XmlRootElement(name = "schema")
 @XmlType
 @XmlSeeAlso({ PlainSchemaTO.class, DerSchemaTO.class, VirSchemaTO.class })
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public abstract class AbstractSchemaTO extends AbstractBaseBean implements EntityTO {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "@class")
+@JsonPropertyOrder(value = { "@class", "key" })
+@ApiModel(subTypes = { PlainSchemaTO.class, DerSchemaTO.class, VirSchemaTO.class }, discriminator = "@class")
+public abstract class SchemaTO extends AbstractBaseBean implements EntityTO {
 
     private static final long serialVersionUID = 4088388951694301759L;
+
+    @XmlTransient
+    @JsonProperty("@class")
+    private String discriminator;
 
     private String key;
 
     private String anyTypeClass;
+
+    @ApiModelProperty(name = "@class", required = true, readOnly = false)
+    public abstract String getDiscriminator();
+
+    public void setDiscriminator(final String discriminator) {
+        // do nothing
+    }
 
     @Override
     public String getKey() {

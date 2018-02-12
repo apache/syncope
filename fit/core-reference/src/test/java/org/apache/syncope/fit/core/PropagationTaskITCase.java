@@ -28,7 +28,7 @@ import java.util.List;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -55,7 +55,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         assertNotNull(tasks);
         assertEquals(2, tasks.getResult().size());
 
-        for (AbstractTaskTO task : tasks.getResult()) {
+        for (TaskTO task : tasks.getResult()) {
             assertNotNull(task);
         }
 
@@ -65,7 +65,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         assertEquals(2, tasks.getPage());
         assertEquals(2, tasks.getResult().size());
 
-        for (AbstractTaskTO task : tasks.getResult()) {
+        for (TaskTO task : tasks.getResult()) {
             assertNotNull(task);
         }
 
@@ -167,15 +167,15 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         }
 
         // check list
-        PagedResult<AbstractTaskTO> tasks = taskService.list(
+        PagedResult<TaskTO> tasks = taskService.list(
                 new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(2).details(false).build());
-        for (AbstractTaskTO item : tasks.getResult()) {
+        for (TaskTO item : tasks.getResult()) {
             assertTrue(item.getExecutions().isEmpty());
         }
 
         tasks = taskService.list(
                 new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(2).details(true).build());
-        for (AbstractTaskTO item : tasks.getResult()) {
+        for (TaskTO item : tasks.getResult()) {
             assertFalse(item.getExecutions().isEmpty());
         }
 

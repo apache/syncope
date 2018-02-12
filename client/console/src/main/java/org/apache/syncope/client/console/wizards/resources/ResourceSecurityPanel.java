@@ -24,7 +24,7 @@ import java.util.Map;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.PolicyRenderer;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -48,7 +48,7 @@ public class ResourceSecurityPanel extends WizardStep {
         @Override
         protected Map<String, String> load() {
             Map<String, String> res = new HashMap<>();
-            for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PASSWORD)) {
+            for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PASSWORD)) {
                 res.put(policyTO.getKey(), policyTO.getDescription());
             }
             return res;
@@ -62,7 +62,7 @@ public class ResourceSecurityPanel extends WizardStep {
         @Override
         protected Map<String, String> load() {
             Map<String, String> res = new HashMap<>();
-            for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.ACCOUNT)) {
+            for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.ACCOUNT)) {
                 res.put(policyTO.getKey(), policyTO.getDescription());
             }
             return res;
@@ -76,7 +76,7 @@ public class ResourceSecurityPanel extends WizardStep {
         @Override
         protected Map<String, String> load() {
             Map<String, String> res = new HashMap<>();
-            for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PULL)) {
+            for (PolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PULL)) {
                 res.put(policyTO.getKey(), policyTO.getDescription());
             }
             return res;

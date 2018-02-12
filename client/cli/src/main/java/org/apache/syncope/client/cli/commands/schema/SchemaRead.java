@@ -25,7 +25,7 @@ import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +47,7 @@ public class SchemaRead extends AbstractSchemaCommand {
         if (input.parameterNumber() >= 2) {
             final String[] parameters = Arrays.copyOfRange(input.getParameters(), 1, input.parameterNumber());
             try {
-                final List<AbstractSchemaTO> schemaTOs = new ArrayList<>();
+                final List<SchemaTO> schemaTOs = new ArrayList<>();
                 for (final String parameter : parameters) {
                     schemaTOs.add(schemaSyncopeOperations.read(input.firstParameter(), parameter));
                 }

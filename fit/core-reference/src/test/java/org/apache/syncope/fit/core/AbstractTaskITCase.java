@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
@@ -126,7 +126,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
     protected static ExecTO execTask(final TaskService taskService, final String taskKey, final String initialStatus,
             final int maxWaitSeconds, final boolean dryRun) {
 
-        AbstractTaskTO taskTO = taskService.read(taskKey, true);
+        TaskTO taskTO = taskService.read(taskKey, true);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
 

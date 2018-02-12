@@ -18,17 +18,34 @@
  */
 package org.apache.syncope.common.lib.policy;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "pullPolicy")
 @XmlType
-public class PullPolicyTO extends AbstractPolicyTO {
+@ApiModel(parent = PolicyTO.class)
+public class PullPolicyTO extends PolicyTO {
 
     private static final long serialVersionUID = 993024634238024242L;
 
     private PullPolicySpec specification;
 
+    @XmlTransient
+    @JsonProperty("@class")
+    @ApiModelProperty(
+            name = "@class", required = true, example = "org.apache.syncope.common.lib.policy.PullPolicyTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
+
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     public PullPolicySpec getSpecification() {
         return specification;
     }

@@ -34,7 +34,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -61,7 +61,7 @@ public interface TaskService extends ExecutableService {
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    <T extends AbstractTaskTO> T read(
+    <T extends TaskTO> T read(
             @NotNull @PathParam("key") String key,
             @QueryParam(JAXRSService.PARAM_DETAILS) @DefaultValue("true") boolean details);
 
@@ -74,7 +74,7 @@ public interface TaskService extends ExecutableService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    <T extends AbstractTaskTO> PagedResult<T> list(@BeanParam TaskQuery query);
+    <T extends TaskTO> PagedResult<T> list(@BeanParam TaskQuery query);
 
     /**
      * Creates a new task.
@@ -95,7 +95,7 @@ public interface TaskService extends ExecutableService {
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response update(@NotNull AbstractTaskTO taskTO);
+    Response update(@NotNull TaskTO taskTO);
 
     /**
      * Deletes the task matching the provided key.

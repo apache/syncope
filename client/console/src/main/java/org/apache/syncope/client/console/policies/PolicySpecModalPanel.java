@@ -42,7 +42,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiPanel;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -277,16 +277,15 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
         private static List<String> getPlainSchemas(final CorrelationRule rule) {
             final List<String> choices = StringUtils.isEmpty(rule.getAny())
                     ? new ArrayList<String>()
-                    : CollectionUtils.collect(
-                            new SchemaRestClient().getSchemas(SchemaType.PLAIN,
+                    : CollectionUtils.collect(new SchemaRestClient().getSchemas(SchemaType.PLAIN,
                                     rule.getAny().equals(AnyTypeKind.USER.name())
                                     ? AnyTypeKind.USER
                                     : rule.getAny().equals(AnyTypeKind.GROUP.name())
                                     ? AnyTypeKind.GROUP
-                                    : AnyTypeKind.ANY_OBJECT), new Transformer<AbstractSchemaTO, String>() {
+                                    : AnyTypeKind.ANY_OBJECT), new Transformer<SchemaTO, String>() {
 
                         @Override
-                        public String transform(final AbstractSchemaTO input) {
+                        public String transform(final SchemaTO input) {
                             return input.getKey();
                         }
                     }, new ArrayList<String>());

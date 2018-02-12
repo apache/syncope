@@ -23,7 +23,7 @@ import java.util.List;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -70,7 +70,7 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends AbstractTaskTO> PagedResult<T> list(final TaskQuery query) {
+    public <T extends TaskTO> PagedResult<T> list(final TaskQuery query) {
         Pair<Integer, List<T>> result = logic.list(
                 query.getType(),
                 query.getResource(),
@@ -85,12 +85,12 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
     }
 
     @Override
-    public <T extends AbstractTaskTO> T read(final String key, final boolean details) {
+    public <T extends TaskTO> T read(final String key, final boolean details) {
         return logic.read(key, details);
     }
 
     @Override
-    public Response update(final AbstractTaskTO taskTO) {
+    public Response update(final TaskTO taskTO) {
         if (taskTO instanceof SchedTaskTO) {
             logic.updateSchedTask((SchedTaskTO) taskTO);
             return Response.noContent().build();

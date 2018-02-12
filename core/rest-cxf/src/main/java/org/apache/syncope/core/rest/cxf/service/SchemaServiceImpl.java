@@ -21,7 +21,7 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
@@ -37,8 +37,8 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
     private SchemaLogic logic;
 
     @Override
-    public Response create(final SchemaType schemaType, final AbstractSchemaTO schemaTO) {
-        AbstractSchemaTO created = logic.create(schemaType, schemaTO);
+    public Response create(final SchemaType schemaType, final SchemaTO schemaTO) {
+        SchemaTO created = logic.create(schemaType, schemaTO);
 
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
         return Response.created(location).
@@ -53,17 +53,17 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
     }
 
     @Override
-    public <T extends AbstractSchemaTO> List<T> list(final SchemaQuery query) {
+    public <T extends SchemaTO> List<T> list(final SchemaQuery query) {
         return logic.list(query.getType(), query.getAnyTypeClasses());
     }
 
     @Override
-    public <T extends AbstractSchemaTO> T read(final SchemaType schemaType, final String key) {
+    public <T extends SchemaTO> T read(final SchemaType schemaType, final String key) {
         return logic.read(schemaType, key);
     }
 
     @Override
-    public Response update(final SchemaType schemaType, final AbstractSchemaTO schemaTO) {
+    public Response update(final SchemaType schemaType, final SchemaTO schemaTO) {
         logic.update(schemaType, schemaTO);
         return Response.noContent().build();
     }
