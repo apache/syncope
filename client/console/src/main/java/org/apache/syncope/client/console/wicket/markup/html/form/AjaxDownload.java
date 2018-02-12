@@ -27,6 +27,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.resource.ContentDisposition;
+import org.apache.wicket.util.time.Duration;
 
 public abstract class AjaxDownload extends AbstractAjaxBehavior {
 
@@ -79,6 +80,7 @@ public abstract class AjaxDownload extends AbstractAjaxBehavior {
 
         handler.setFileName(fileName);
         handler.setContentDisposition(ContentDisposition.ATTACHMENT);
+        handler.setCacheDuration(Duration.NONE);
         getComponent().getRequestCycle().scheduleRequestHandlerAfterCurrent(handler);
     }
 
