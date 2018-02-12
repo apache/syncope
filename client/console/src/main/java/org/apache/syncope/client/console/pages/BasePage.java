@@ -64,6 +64,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.ContentDisposition;
+import org.apache.wicket.util.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,6 +136,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
                             ? SyncopeConsoleSession.get().getDomain() + "Content.xml"
                             : stream.getFilename());
                     rsrh.setContentDisposition(ContentDisposition.ATTACHMENT);
+                    rsrh.setCacheDuration(Duration.NONE);
 
                     getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
                 } catch (Exception e) {
