@@ -19,18 +19,20 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.HashSet;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
 @XmlRootElement(name = "notificationTask")
 @XmlType
-public class NotificationTaskTO extends AbstractTaskTO {
+public class NotificationTaskTO extends TaskTO {
 
     private static final long serialVersionUID = 371671242591093846L;
 
@@ -54,6 +56,15 @@ public class NotificationTaskTO extends AbstractTaskTO {
 
     private TraceLevel traceLevel;
 
+    @XmlTransient
+    @JsonProperty("@class")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.NotificationTaskTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
+
+    @Schema(readOnly = true)
     public String getNotification() {
         return notification;
     }
@@ -62,6 +73,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         this.notification = notification;
     }
 
+    @Schema(readOnly = true)
     public AnyTypeKind getAnyTypeKind() {
         return anyTypeKind;
     }
@@ -70,6 +82,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         this.anyTypeKind = anyTypeKind;
     }
 
+    @Schema(readOnly = true)
     public String getEntityKey() {
         return entityKey;
     }
@@ -78,6 +91,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         this.entityKey = entityKey;
     }
 
+    @Schema(readOnly = true)
     @XmlElementWrapper(name = "recipients")
     @XmlElement(name = "recipient")
     @JsonProperty("recipients")
@@ -85,6 +99,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         return recipients;
     }
 
+    @Schema(readOnly = true)
     public String getSender() {
         return sender;
     }
@@ -93,6 +108,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         this.sender = sender;
     }
 
+    @Schema(readOnly = true)
     public String getSubject() {
         return subject;
     }
@@ -101,6 +117,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         this.subject = subject;
     }
 
+    @Schema(readOnly = true)
     public String getTextBody() {
         return textBody;
     }
@@ -109,6 +126,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         this.textBody = textBody;
     }
 
+    @Schema(readOnly = true)
     public String getHtmlBody() {
         return htmlBody;
     }
@@ -117,6 +135,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         this.htmlBody = htmlBody;
     }
 
+    @Schema(readOnly = true)
     public boolean isExecuted() {
         return executed;
     }
@@ -125,6 +144,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         this.executed = executed;
     }
 
+    @Schema(readOnly = true)
     public TraceLevel getTraceLevel() {
         return traceLevel;
     }

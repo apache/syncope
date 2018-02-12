@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.service.PolicyService;
 
@@ -34,7 +34,7 @@ public class PolicyRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1392090291817187902L;
 
-    public <T extends AbstractPolicyTO> T getPolicy(final String key) {
+    public <T extends PolicyTO> T getPolicy(final String key) {
         T policy = null;
         try {
             policy = getService(PolicyService.class).read(key);
@@ -45,7 +45,7 @@ public class PolicyRestClient extends BaseRestClient {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends AbstractPolicyTO> List<T> getPolicies(final PolicyType type) {
+    public <T extends PolicyTO> List<T> getPolicies(final PolicyType type) {
         final List<T> res = new ArrayList<>();
 
         try {
@@ -58,11 +58,11 @@ public class PolicyRestClient extends BaseRestClient {
         return res;
     }
 
-    public <T extends AbstractPolicyTO> void createPolicy(final T policy) {
+    public <T extends PolicyTO> void createPolicy(final T policy) {
         getService(PolicyService.class).create(policy);
     }
 
-    public <T extends AbstractPolicyTO> void updatePolicy(final T policy) {
+    public <T extends PolicyTO> void updatePolicy(final T policy) {
         getService(PolicyService.class).update(policy);
     }
 
@@ -70,12 +70,12 @@ public class PolicyRestClient extends BaseRestClient {
         getService(PolicyService.class).delete(key);
     }
 
-    private class PolicyComparator implements Comparator<AbstractPolicyTO>, Serializable {
+    private class PolicyComparator implements Comparator<PolicyTO>, Serializable {
 
         private static final long serialVersionUID = -4921433085213223115L;
 
         @Override
-        public int compare(final AbstractPolicyTO left, final AbstractPolicyTO right) {
+        public int compare(final PolicyTO left, final PolicyTO right) {
             return left == null ? -1 : right == null ? 1 : left.getDescription().compareTo(right.getDescription());
         }
 

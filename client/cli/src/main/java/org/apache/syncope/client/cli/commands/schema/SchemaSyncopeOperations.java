@@ -20,7 +20,7 @@ package org.apache.syncope.client.cli.commands.schema;
 
 import java.util.List;
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.SchemaService;
@@ -29,23 +29,23 @@ public class SchemaSyncopeOperations {
 
     private final SchemaService schemaService = SyncopeServices.get(SchemaService.class);
 
-    public <T extends AbstractSchemaTO> T read(final String schemaTypeString, final String schemaName) {
+    public <T extends SchemaTO> T read(final String schemaTypeString, final String schemaName) {
         return schemaService.read(SchemaType.valueOf(schemaTypeString), schemaName);
     }
 
-    public <T extends AbstractSchemaTO> List<T> list(final String schemaTypeString) {
+    public <T extends SchemaTO> List<T> list(final String schemaTypeString) {
         return schemaService.list(new SchemaQuery.Builder().type(SchemaType.valueOf(schemaTypeString)).build());
     }
 
-    public <T extends AbstractSchemaTO> List<T> listPlain() {
+    public <T extends SchemaTO> List<T> listPlain() {
         return schemaService.list(new SchemaQuery.Builder().type(SchemaType.PLAIN).build());
     }
 
-    public <T extends AbstractSchemaTO> List<T> listDerived() {
+    public <T extends SchemaTO> List<T> listDerived() {
         return schemaService.list(new SchemaQuery.Builder().type(SchemaType.DERIVED).build());
     }
 
-    public <T extends AbstractSchemaTO> List<T> listVirtual() {
+    public <T extends SchemaTO> List<T> listVirtual() {
         return schemaService.list(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build());
     }
 

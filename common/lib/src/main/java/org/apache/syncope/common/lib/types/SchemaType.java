@@ -19,7 +19,7 @@
 package org.apache.syncope.common.lib.types;
 
 import javax.xml.bind.annotation.XmlEnum;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
@@ -40,17 +40,17 @@ public enum SchemaType {
      */
     VIRTUAL(VirSchemaTO.class);
 
-    private final Class<? extends AbstractSchemaTO> toClass;
+    private final Class<? extends SchemaTO> toClass;
 
-    SchemaType(final Class<? extends AbstractSchemaTO> toClass) {
+    SchemaType(final Class<? extends SchemaTO> toClass) {
         this.toClass = toClass;
     }
 
-    public Class<? extends AbstractSchemaTO> getToClass() {
+    public Class<? extends SchemaTO> getToClass() {
         return toClass;
     }
 
-    public static SchemaType fromToClass(final Class<? extends AbstractSchemaTO> toClass) {
+    public static SchemaType fromToClass(final Class<? extends SchemaTO> toClass) {
         SchemaType schemaType = null;
 
         if (PlainSchemaTO.class.equals(toClass)) {

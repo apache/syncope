@@ -30,7 +30,7 @@ import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.GroupWrapper;
 import org.apache.syncope.client.console.wizards.any.UserWrapper;
 import org.apache.syncope.client.console.wizards.resources.ResourceProvision;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
-import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
@@ -194,8 +194,8 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
             key = ((ReportTO) modelObject).getKey();
         } else if (modelObject instanceof AttrTO) {
             key = ((AttrTO) modelObject).getSchemaInfo().getKey();
-        } else if (modelObject instanceof AbstractPolicyTO) {
-            key = ((AbstractPolicyTO) modelObject).getKey();
+        } else if (modelObject instanceof PolicyTO) {
+            key = ((PolicyTO) modelObject).getKey();
         } else if (modelObject instanceof SecurityQuestionTO) {
             key = ((SecurityQuestionTO) modelObject).getKey();
         } else if (modelObject instanceof AccessTokenTO) {
@@ -204,8 +204,8 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
             key = ((ExecTO) modelObject).getKey();
         } else if (modelObject instanceof WorkflowDefinitionTO) {
             key = ((WorkflowDefinitionTO) modelObject).getKey();
-        } else if (modelObject instanceof SchedTaskTO) {
-            key = ((SchedTaskTO) modelObject).getKey();
+        } else if (modelObject instanceof ProvisioningTaskTO) {
+            key = ((ProvisioningTaskTO) modelObject).getKey();
         } else if (modelObject instanceof WorkflowFormTO) {
             key = ((WorkflowFormTO) modelObject).getKey();
         } else if (modelObject instanceof EntityTO) {

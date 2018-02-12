@@ -27,7 +27,7 @@ import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -41,7 +41,7 @@ import org.apache.wicket.model.IModel;
  *
  * @param <T> task type.
  */
-public abstract class TaskDirectoryPanel<T extends AbstractTaskTO>
+public abstract class TaskDirectoryPanel<T extends TaskTO>
         extends DirectoryPanel<T, T, TaskDataProvider<T>, TaskRestClient> implements ModalPanel {
 
     private static final long serialVersionUID = 4984337552918213290L;
@@ -66,7 +66,7 @@ public abstract class TaskDirectoryPanel<T extends AbstractTaskTO>
 
     protected abstract void viewTask(T taskTO, AjaxRequestTarget target);
 
-    protected abstract class TasksProvider<T extends AbstractTaskTO> extends DirectoryDataProvider<T> {
+    protected abstract class TasksProvider<T extends TaskTO> extends DirectoryDataProvider<T> {
 
         private static final long serialVersionUID = -20112718133295756L;
 

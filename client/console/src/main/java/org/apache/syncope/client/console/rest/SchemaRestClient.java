@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -42,7 +42,7 @@ public class SchemaRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2479730152700312373L;
 
-    public <T extends AbstractSchemaTO> List<T> getSchemas(final SchemaType schemaType, final AnyTypeKind kind) {
+    public <T extends SchemaTO> List<T> getSchemas(final SchemaType schemaType, final AnyTypeKind kind) {
         final AnyTypeService client = getService(AnyTypeService.class);
 
         final List<String> classes = new ArrayList<>();
@@ -66,7 +66,7 @@ public class SchemaRestClient extends BaseRestClient {
         return getSchemas(schemaType, classes.toArray(new String[] {}));
     }
 
-    public <T extends AbstractSchemaTO> List<T> getSchemas(final SchemaType schemaType, final String typeName) {
+    public <T extends SchemaTO> List<T> getSchemas(final SchemaType schemaType, final String typeName) {
         AnyTypeTO type = null;
 
         try {
@@ -82,7 +82,7 @@ public class SchemaRestClient extends BaseRestClient {
         }
     }
 
-    public <T extends AbstractSchemaTO> List<T> getSchemas(final SchemaType schemaType, final String... kind) {
+    public <T extends SchemaTO> List<T> getSchemas(final SchemaType schemaType, final String... kind) {
         List<T> schemas = new ArrayList<>();
 
         try {
@@ -128,11 +128,11 @@ public class SchemaRestClient extends BaseRestClient {
 
     }
 
-    public void create(final SchemaType schemaType, final AbstractSchemaTO modelObject) {
+    public void create(final SchemaType schemaType, final SchemaTO modelObject) {
         getService(SchemaService.class).create(schemaType, modelObject);
     }
 
-    public void update(final SchemaType schemaType, final AbstractSchemaTO modelObject) {
+    public void update(final SchemaType schemaType, final SchemaTO modelObject) {
         getService(SchemaService.class).update(schemaType, modelObject);
     }
 

@@ -42,7 +42,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -59,7 +59,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, SchemaProvider, SchemaRestClient> {
+public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvider, SchemaRestClient> {
 
     private static final long serialVersionUID = 3905038169553185171L;
 
@@ -88,15 +88,15 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
 
         try {
             this.addNewItemPanelBuilder(
-                    new AbstractModalPanelBuilder<AbstractSchemaTO>(schemaType.getToClass().newInstance(), pageRef) {
+                    new AbstractModalPanelBuilder<SchemaTO>(schemaType.getToClass().newInstance(), pageRef) {
 
                 private static final long serialVersionUID = -6388405037134399367L;
 
                 @Override
-                public WizardModalPanel<AbstractSchemaTO> build(
+                public WizardModalPanel<SchemaTO> build(
                         final String id, final int index, final AjaxWizard.Mode mode) {
 
-                    final AbstractSchemaTO modelObject = newModelObject();
+                    final SchemaTO modelObject = newModelObject();
                     return new SchemaModalPanel(modal, modelObject, pageRef) {
 
                         private static final long serialVersionUID = -6227956682141146095L;
@@ -147,8 +147,8 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
     }
 
     @Override
-    protected List<IColumn<AbstractSchemaTO, String>> getColumns() {
-        final List<IColumn<AbstractSchemaTO, String>> columns = new ArrayList<>();
+    protected List<IColumn<SchemaTO, String>> getColumns() {
+        final List<IColumn<SchemaTO, String>> columns = new ArrayList<>();
 
         for (final String field : COL_NAMES.get(schemaType)) {
             final Field clazzField = ReflectionUtils.findField(schemaType.getToClass(), field);
@@ -157,7 +157,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
                 if (clazzField.getType().equals(Boolean.class) || clazzField.getType().equals(boolean.class)) {
                     columns.add(new BooleanPropertyColumn<>(new ResourceModel(field), field, field));
                 } else {
-                    final IColumn<AbstractSchemaTO, String> column = new PropertyColumn<AbstractSchemaTO, String>(
+                    final IColumn<SchemaTO, String> column = new PropertyColumn<SchemaTO, String>(
                             new ResourceModel(field), field, field) {
 
                         private static final long serialVersionUID = 3282547854226892169L;
@@ -182,24 +182,24 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
     }
 
     @Override
-    public ActionsPanel<AbstractSchemaTO> getActions(final IModel<AbstractSchemaTO> model) {
-        final ActionsPanel<AbstractSchemaTO> panel = super.getActions(model);
-        panel.add(new ActionLink<AbstractSchemaTO>() {
+    public ActionsPanel<SchemaTO> getActions(final IModel<SchemaTO> model) {
+        final ActionsPanel<SchemaTO> panel = super.getActions(model);
+        panel.add(new ActionLink<SchemaTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final AbstractSchemaTO ignore) {
+            public void onClick(final AjaxRequestTarget target, final SchemaTO ignore) {
                 send(SchemaTypePanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
         }, ActionLink.ActionType.EDIT, StandardEntitlement.SCHEMA_UPDATE);
-        panel.add(new ActionLink<AbstractSchemaTO>() {
+        panel.add(new ActionLink<SchemaTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final AbstractSchemaTO ignore) {
+            public void onClick(final AjaxRequestTarget target, final SchemaTO ignore) {
                 try {
                     switch (schemaType) {
                         case DERIVED:
@@ -229,11 +229,11 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
         return panel;
     }
 
-    protected final class SchemaProvider extends DirectoryDataProvider<AbstractSchemaTO> {
+    protected final class SchemaProvider extends DirectoryDataProvider<SchemaTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
-        private final SortableDataProviderComparator<AbstractSchemaTO> comparator;
+        private final SortableDataProviderComparator<SchemaTO> comparator;
 
         private final SchemaType schemaType;
 
@@ -248,15 +248,15 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
         }
 
         @Override
-        public Iterator<AbstractSchemaTO> iterator(final long first, final long count) {
-            final List<AbstractSchemaTO> list = restClient.getSchemas(this.schemaType);
+        public Iterator<SchemaTO> iterator(final long first, final long count) {
+            final List<SchemaTO> list = restClient.getSchemas(this.schemaType);
             Collections.sort(list, comparator);
 
             if (SchemaType.PLAIN == this.schemaType) {
                 final List<String> configurations = confRestClient.list().stream().
                         map(AttrTO::getSchema).collect(Collectors.toList());
 
-                final List<AbstractSchemaTO> res = new ArrayList<>();
+                final List<SchemaTO> res = new ArrayList<>();
                 list.stream().
                         filter(item -> !configurations.contains(item.getKey())).
                         forEachOrdered(item -> {
@@ -277,7 +277,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
         }
 
         @Override
-        public IModel<AbstractSchemaTO> model(final AbstractSchemaTO object) {
+        public IModel<SchemaTO> model(final SchemaTO object) {
             return new CompoundPropertyModel<>(object);
         }
     }

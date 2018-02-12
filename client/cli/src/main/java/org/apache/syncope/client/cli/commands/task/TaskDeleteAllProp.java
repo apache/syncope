@@ -21,7 +21,7 @@ package org.apache.syncope.client.cli.commands.task;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,7 @@ public class TaskDeleteAllProp extends AbstractTaskCommand {
     public void delete() {
 
         if (input.parameterNumber() == 0) {
-            for (final AbstractTaskTO taskTO : taskSyncopeOperations.listPropagationTask()) {
+            for (final TaskTO taskTO : taskSyncopeOperations.listPropagationTask()) {
                 final String taskId = String.valueOf(taskTO.getKey());
                 try {
                     taskSyncopeOperations.delete(taskId);

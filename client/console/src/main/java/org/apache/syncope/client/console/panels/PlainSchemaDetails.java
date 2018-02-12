@@ -37,8 +37,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPan
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -300,7 +300,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
     }
 
-    private void showHide(final AbstractSchemaTO schema, final AjaxDropDownChoicePanel<AttrSchemaType> type,
+    private void showHide(final SchemaTO schema, final AjaxDropDownChoicePanel<AttrSchemaType> type,
             final WebMarkupContainer conversionParams, final AjaxTextFieldPanel conversionPattern,
             final WebMarkupContainer enumParams, final AjaxTextFieldPanel enumerationValuesPanel,
             final MultiFieldPanel<String> enumerationValues, final MultiFieldPanel<String> enumerationKeys,

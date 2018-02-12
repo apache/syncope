@@ -20,7 +20,7 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.stream.Collectors;
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
@@ -66,7 +66,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
     private EntityFactory entityFactory;
 
     @SuppressWarnings("unchecked")
-    private <T extends Policy> T getPolicy(final T policy, final AbstractPolicyTO policyTO) {
+    private <T extends Policy> T getPolicy(final T policy, final PolicyTO policyTO) {
         T result = policy;
 
         if (policyTO instanceof PasswordPolicyTO) {
@@ -170,18 +170,18 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
     }
 
     @Override
-    public <T extends Policy> T create(final AbstractPolicyTO policyTO) {
+    public <T extends Policy> T create(final PolicyTO policyTO) {
         return getPolicy(null, policyTO);
     }
 
     @Override
-    public <T extends Policy> T update(final T policy, final AbstractPolicyTO policyTO) {
+    public <T extends Policy> T update(final T policy, final PolicyTO policyTO) {
         return getPolicy(policy, policyTO);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends AbstractPolicyTO> T getPolicyTO(final Policy policy) {
+    public <T extends PolicyTO> T getPolicyTO(final Policy policy) {
         T policyTO = null;
 
         if (policy instanceof PasswordPolicy) {

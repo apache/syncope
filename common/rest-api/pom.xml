@@ -47,11 +47,6 @@ under the License.
       <groupId>javax.ws.rs</groupId>
       <artifactId>javax.ws.rs-api</artifactId>
     </dependency>
-    
-    <dependency>
-      <groupId>io.swagger.core.v3</groupId>
-      <artifactId>swagger-annotations</artifactId>
-    </dependency>      
 
     <dependency>
       <groupId>org.apache.syncope.common</groupId>

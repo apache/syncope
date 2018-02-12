@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Date;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
@@ -31,6 +32,7 @@ public class AbstractStartEndBean extends AbstractBaseBean {
 
     private Date end;
 
+    @Schema(readOnly = true)
     public Date getStart() {
         return start == null
                 ? null
@@ -43,6 +45,7 @@ public class AbstractStartEndBean extends AbstractBaseBean {
                 : new Date(start.getTime());
     }
 
+    @Schema(readOnly = true)
     public Date getEnd() {
         return end == null
                 ? null

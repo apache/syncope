@@ -21,20 +21,21 @@ package org.apache.syncope.client.cli.commands.task;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
-import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 
 public class TaskResultManager extends CommonsResultManager {
 
-    public void printTasks(final List<AbstractTaskTO> taskTOs) {
+    public void printTasks(final List<TaskTO> taskTOs) {
         System.out.println("");
         taskTOs.forEach(taskTO -> {
             if (taskTO instanceof NotificationTaskTO) {
@@ -43,15 +44,15 @@ public class TaskResultManager extends CommonsResultManager {
                 printPropagationTask((PropagationTaskTO) taskTO);
             } else if (taskTO instanceof PushTaskTO) {
                 printPushTask((PushTaskTO) taskTO);
-            } else if (taskTO instanceof SchedTaskTO) {
-                printScheduledTask((SchedTaskTO) taskTO);
+            } else if (taskTO instanceof ProvisioningTaskTO) {
+                printScheduledTask((ProvisioningTaskTO) taskTO);
             } else if (taskTO instanceof PullTaskTO) {
                 printPullTask((PullTaskTO) taskTO);
             }
         });
     }
 
-    public void printTasksType(final String taskTypeString, final List<AbstractTaskTO> taskTOs) {
+    public void printTasksType(final String taskTypeString, final List<TaskTO> taskTOs) {
         System.out.println("");
         switch (TaskType.valueOf(taskTypeString)) {
             case NOTIFICATION:

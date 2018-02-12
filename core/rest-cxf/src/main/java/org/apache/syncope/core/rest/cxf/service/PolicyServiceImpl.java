@@ -21,7 +21,7 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.PolicyService;
@@ -36,8 +36,8 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     private PolicyLogic logic;
 
     @Override
-    public Response create(final AbstractPolicyTO policyTO) {
-        AbstractPolicyTO policy = logic.create(policyTO);
+    public Response create(final PolicyTO policyTO) {
+        PolicyTO policy = logic.create(policyTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(policy.getKey()).build();
         return Response.created(location).
                 header(RESTHeaders.RESOURCE_KEY, policy.getKey()).
@@ -51,17 +51,17 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public <T extends AbstractPolicyTO> List<T> list(final PolicyType type) {
+    public <T extends PolicyTO> List<T> list(final PolicyType type) {
         return logic.list(type);
     }
 
     @Override
-    public <T extends AbstractPolicyTO> T read(final String key) {
+    public <T extends PolicyTO> T read(final String key) {
         return logic.read(key);
     }
 
     @Override
-    public Response update(final AbstractPolicyTO policyTO) {
+    public Response update(final PolicyTO policyTO) {
         logic.update(policyTO);
         return Response.noContent().build();
     }

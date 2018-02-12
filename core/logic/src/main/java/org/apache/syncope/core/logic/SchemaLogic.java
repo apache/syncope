@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
@@ -50,7 +50,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
+public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
@@ -92,7 +92,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.SCHEMA_CREATE + "')")
     @SuppressWarnings("unchecked")
-    public <T extends AbstractSchemaTO> T create(final SchemaType schemaType, final T schemaTO) {
+    public <T extends SchemaTO> T create(final SchemaType schemaType, final T schemaTO) {
         if (StringUtils.isBlank(schemaTO.getKey())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
             sce.getElements().add("Schema key");
@@ -146,7 +146,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
 
     @PreAuthorize("isAuthenticated()")
     @SuppressWarnings({ "unchecked", "Convert2Lambda" })
-    public <T extends AbstractSchemaTO> List<T> list(
+    public <T extends SchemaTO> List<T> list(
             final SchemaType schemaType, final List<String> anyTypeClasses) {
 
         List<AnyTypeClass> classes = new ArrayList<>(anyTypeClasses == null ? 0 : anyTypeClasses.size());
@@ -204,7 +204,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
 
     @PreAuthorize("isAuthenticated()")
     @SuppressWarnings("unchecked")
-    public <T extends AbstractSchemaTO> T read(final SchemaType schemaType, final String schemaKey) {
+    public <T extends SchemaTO> T read(final SchemaType schemaType, final String schemaKey) {
         T read;
         switch (schemaType) {
             case VIRTUAL:
@@ -239,7 +239,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.SCHEMA_UPDATE + "')")
-    public <T extends AbstractSchemaTO> void update(final SchemaType schemaType, final T schemaTO) {
+    public <T extends SchemaTO> void update(final SchemaType schemaType, final T schemaTO) {
         if (!doesSchemaExist(schemaType, schemaTO.getKey())) {
             throw new NotFoundException(schemaType + "/" + schemaTO.getKey());
         }
@@ -275,7 +275,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
     }
 
     @Override
-    protected AbstractSchemaTO resolveReference(final Method method, final Object... args)
+    protected SchemaTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
         String kind = null;
@@ -288,15 +288,15 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
                     } else {
                         key = (String) args[i];
                     }
-                } else if (args[i] instanceof AbstractSchemaTO) {
-                    key = ((AbstractSchemaTO) args[i]).getKey();
+                } else if (args[i] instanceof SchemaTO) {
+                    key = ((SchemaTO) args[i]).getKey();
                 }
             }
         }
 
         if (key != null) {
             try {
-                AbstractSchemaTO result = null;
+                SchemaTO result = null;
 
                 PlainSchema plainSchema = plainSchemaDAO.find(key);
                 if (plainSchema == null) {

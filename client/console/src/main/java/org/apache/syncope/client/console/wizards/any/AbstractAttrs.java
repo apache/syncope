@@ -30,7 +30,7 @@ import org.apache.cxf.common.util.StringUtils;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -48,7 +48,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 
-public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardStep implements ICondition {
+public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = -5387344116983102292L;
 

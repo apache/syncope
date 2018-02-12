@@ -19,22 +19,25 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 
-@XmlRootElement(name = "abstractProvisioningTask")
+@XmlRootElement(name = "provisioningTask")
 @XmlType
 @XmlSeeAlso({ PushTaskTO.class, PullTaskTO.class })
-public class AbstractProvisioningTaskTO extends SchedTaskTO {
+@Schema(subTypes = { PushTaskTO.class, PullTaskTO.class }, discriminatorProperty = "@class")
+public abstract class ProvisioningTaskTO extends SchedTaskTO {
 
-    private static final long serialVersionUID = -2143537546915809016L;
+    private static final long serialVersionUID = -5722284116974636425L;
 
     private String resource;
 
@@ -52,6 +55,8 @@ public class AbstractProvisioningTaskTO extends SchedTaskTO {
 
     private final List<String> actions = new ArrayList<>();
 
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     public String getResource() {
         return resource;
     }

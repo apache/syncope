@@ -18,16 +18,20 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Date;
-
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "schedTask")
 @XmlType
-@XmlSeeAlso(AbstractProvisioningTaskTO.class)
-public class SchedTaskTO extends AbstractTaskTO {
+@XmlSeeAlso({ ProvisioningTaskTO.class })
+@Schema(subTypes = { ProvisioningTaskTO.class }, discriminatorProperty = "@class")
+public class SchedTaskTO extends TaskTO {
 
     private static final long serialVersionUID = -5722284116974636425L;
 
@@ -46,6 +50,14 @@ public class SchedTaskTO extends AbstractTaskTO {
     private Date nextExec;
 
     private boolean active = true;
+
+    @XmlTransient
+    @JsonProperty("@class")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.SchedTaskTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
 
     public Date getStartAt() {
         return startAt == null ? null : new Date(startAt.getTime());
@@ -71,6 +83,7 @@ public class SchedTaskTO extends AbstractTaskTO {
         this.jobDelegate = jobDelegate;
     }
 
+    @Schema(readOnly = true)
     public Date getLastExec() {
         return lastExec == null ? null : new Date(lastExec.getTime());
     }
@@ -79,6 +92,7 @@ public class SchedTaskTO extends AbstractTaskTO {
         this.lastExec = lastExec == null ? null : new Date(lastExec.getTime());
     }
 
+    @Schema(readOnly = true)
     public Date getNextExec() {
         return nextExec == null ? null : new Date(nextExec.getTime());
     }
@@ -99,6 +113,8 @@ public class SchedTaskTO extends AbstractTaskTO {
         return name;
     }
 
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     public void setName(final String name) {
         this.name = name;
     }
@@ -110,5 +126,4 @@ public class SchedTaskTO extends AbstractTaskTO {
     public void setActive(final boolean active) {
         this.active = active;
     }
-
 }

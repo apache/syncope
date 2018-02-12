@@ -27,7 +27,7 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.AbstractProvisioningTaskTO;
+import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -41,7 +41,7 @@ import org.apache.wicket.model.StringResourceModel;
  *
  * @param <T> Sched task type.
  */
-public abstract class ProvisioningTaskDirectoryPanel<T extends AbstractProvisioningTaskTO>
+public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskTO>
         extends SchedTaskDirectoryPanel<T> {
 
     private static final long serialVersionUID = 4984337552918213290L;
@@ -104,7 +104,7 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends AbstractProvision
         return columns;
     }
 
-    protected class ProvisioningTasksProvider<T extends AbstractProvisioningTaskTO> extends SchedTasksProvider<T> {
+    protected class ProvisioningTasksProvider<T extends ProvisioningTaskTO> extends SchedTasksProvider<T> {
 
         private static final long serialVersionUID = 4725679400450513556L;
 

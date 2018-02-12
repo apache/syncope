@@ -21,56 +21,56 @@ package org.apache.syncope.client.enduser.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 
 public class SchemaResponse implements Serializable {
 
     private static final long serialVersionUID = -8896862106241712829L;
 
-    private List<AbstractSchemaTO> plainSchemas = new ArrayList<>();
+    private List<SchemaTO> plainSchemas = new ArrayList<>();
 
-    private List<AbstractSchemaTO> derSchemas = new ArrayList<>();
+    private List<SchemaTO> derSchemas = new ArrayList<>();
 
-    private List<AbstractSchemaTO> virSchemas = new ArrayList<>();
+    private List<SchemaTO> virSchemas = new ArrayList<>();
 
     public SchemaResponse() {
     }
 
-    public List<AbstractSchemaTO> getPlainSchemas() {
+    public List<SchemaTO> getPlainSchemas() {
         return plainSchemas;
     }
 
-    public void setPlainSchemas(final List<AbstractSchemaTO> plainSchemas) {
+    public void setPlainSchemas(final List<SchemaTO> plainSchemas) {
         this.plainSchemas = plainSchemas;
     }
 
-    public List<AbstractSchemaTO> getDerSchemas() {
+    public List<SchemaTO> getDerSchemas() {
         return derSchemas;
     }
 
-    public void setDerSchemas(final List<AbstractSchemaTO> derSchemas) {
+    public void setDerSchemas(final List<SchemaTO> derSchemas) {
         this.derSchemas = derSchemas;
     }
 
-    public List<AbstractSchemaTO> getVirSchemas() {
+    public List<SchemaTO> getVirSchemas() {
         return virSchemas;
     }
 
-    public void setVirSchemas(final List<AbstractSchemaTO> virSchemas) {
+    public void setVirSchemas(final List<SchemaTO> virSchemas) {
         this.virSchemas = virSchemas;
     }
 
-    public SchemaResponse plainSchemas(final List<AbstractSchemaTO> value) {
+    public SchemaResponse plainSchemas(final List<SchemaTO> value) {
         this.plainSchemas = value;
         return this;
     }
 
-    public SchemaResponse derSchemas(final List<AbstractSchemaTO> value) {
+    public SchemaResponse derSchemas(final List<SchemaTO> value) {
         this.derSchemas = value;
         return this;
     }
 
-    public SchemaResponse virSchemas(final List<AbstractSchemaTO> value) {
+    public SchemaResponse virSchemas(final List<SchemaTO> value) {
         this.virSchemas = value;
         return this;
     }

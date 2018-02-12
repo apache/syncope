@@ -21,9 +21,11 @@ package org.apache.syncope.client.console.wizards.resources;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.PolicyRenderer;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -74,11 +76,8 @@ public class ResourceSecurityPanel extends WizardStep {
 
         @Override
         protected Map<String, String> load() {
-            Map<String, String> res = new HashMap<>();
-            policyRestClient.getPolicies(PolicyType.PULL).forEach(policyTO -> {
-                res.put(policyTO.getKey(), policyTO.getDescription());
-            });
-            return res;
+            return policyRestClient.getPolicies(PolicyType.PULL).stream().
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };
 

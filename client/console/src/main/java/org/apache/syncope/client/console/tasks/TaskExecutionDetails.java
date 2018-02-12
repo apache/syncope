@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.tasks;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 
@@ -30,7 +30,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
  *
  * @param <T> actual type of task
  */
-public class TaskExecutionDetails<T extends AbstractTaskTO> extends MultilevelPanel.SecondLevel {
+public class TaskExecutionDetails<T extends TaskTO> extends MultilevelPanel.SecondLevel {
 
     private static final long serialVersionUID = -4110576026663173545L;
 

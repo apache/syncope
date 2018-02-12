@@ -19,6 +19,7 @@
 package org.apache.syncope.common.lib.patch;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.HashSet;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
@@ -47,6 +48,13 @@ public class UserPatch extends AnyPatch {
     private final Set<MembershipPatch> memberships = new HashSet<>();
 
     private final Set<StringPatchItem> roles = new HashSet<>();
+
+    @JsonProperty("@class")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.patch.UserPatch")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
 
     public StringReplacePatchItem getUsername() {
         return username;

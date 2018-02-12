@@ -18,14 +18,18 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 
 @XmlRootElement(name = "propagationTask")
 @XmlType
-public class PropagationTaskTO extends AbstractTaskTO {
+public class PropagationTaskTO extends TaskTO {
 
     private static final long serialVersionUID = 386450127003321197L;
 
@@ -47,6 +51,16 @@ public class PropagationTaskTO extends AbstractTaskTO {
 
     private String entityKey;
 
+    @XmlTransient
+    @JsonProperty("@class")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.PropagationTaskTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
+
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     public String getConnObjectKey() {
         return connObjectKey;
     }
@@ -63,6 +77,8 @@ public class PropagationTaskTO extends AbstractTaskTO {
         this.oldConnObjectKey = oldConnObjectKey;
     }
 
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     public String getResource() {
         return resource;
     }
@@ -71,6 +87,8 @@ public class PropagationTaskTO extends AbstractTaskTO {
         this.resource = resource;
     }
 
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     public ResourceOperation getOperation() {
         return operation;
     }
@@ -79,6 +97,8 @@ public class PropagationTaskTO extends AbstractTaskTO {
         this.operation = operation;
     }
 
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     public String getAttributes() {
         return attributes;
     }
@@ -87,6 +107,8 @@ public class PropagationTaskTO extends AbstractTaskTO {
         this.attributes = attributes;
     }
 
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     public String getObjectClassName() {
         return objectClassName;
     }
@@ -95,6 +117,8 @@ public class PropagationTaskTO extends AbstractTaskTO {
         this.objectClassName = objectClassName;
     }
 
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     public AnyTypeKind getAnyTypeKind() {
         return anyTypeKind;
     }
@@ -103,6 +127,8 @@ public class PropagationTaskTO extends AbstractTaskTO {
         this.anyTypeKind = anyTypeKind;
     }
 
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     public String getAnyType() {
         return anyType;
     }
@@ -111,6 +137,8 @@ public class PropagationTaskTO extends AbstractTaskTO {
         this.anyType = anyType;
     }
 
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     public String getEntityKey() {
         return entityKey;
     }

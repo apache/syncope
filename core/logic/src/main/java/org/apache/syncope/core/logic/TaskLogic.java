@@ -27,7 +27,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -64,7 +64,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TaskLogic extends AbstractExecutableLogic<AbstractTaskTO> {
+public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @Autowired
     private TaskDAO taskDAO;
@@ -146,7 +146,7 @@ public class TaskLogic extends AbstractExecutableLogic<AbstractTaskTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
     @SuppressWarnings("unchecked")
-    public <T extends AbstractTaskTO> Pair<Integer, List<T>> list(
+    public <T extends TaskTO> Pair<Integer, List<T>> list(
             final TaskType type,
             final String resource,
             final String notification,
@@ -180,7 +180,7 @@ public class TaskLogic extends AbstractExecutableLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
-    public <T extends AbstractTaskTO> T read(final String key, final boolean details) {
+    public <T extends TaskTO> T read(final String key, final boolean details) {
         Task task = taskDAO.find(key);
         if (task == null) {
             throw new NotFoundException("Task " + key);
@@ -261,7 +261,7 @@ public class TaskLogic extends AbstractExecutableLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
-    public <T extends AbstractTaskTO> T delete(final String key) {
+    public <T extends TaskTO> T delete(final String key) {
         Task task = taskDAO.find(key);
         if (task == null) {
             throw new NotFoundException("Task " + key);
@@ -373,7 +373,7 @@ public class TaskLogic extends AbstractExecutableLogic<AbstractTaskTO> {
     }
 
     @Override
-    protected AbstractTaskTO resolveReference(final Method method, final Object... args)
+    protected TaskTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
         String key = null;
@@ -384,8 +384,8 @@ public class TaskLogic extends AbstractExecutableLogic<AbstractTaskTO> {
             for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof String) {
                     key = (String) args[i];
-                } else if (args[i] instanceof AbstractTaskTO) {
-                    key = ((AbstractTaskTO) args[i]).getKey();
+                } else if (args[i] instanceof TaskTO) {
+                    key = ((TaskTO) args[i]).getKey();
                 }
             }
         }

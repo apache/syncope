@@ -21,7 +21,7 @@ package org.apache.syncope.client.cli.commands.policy;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.types.PolicyType;
 
 public class PolicyResultManager extends CommonsResultManager {
 
-    public void printPolicies(final List<AbstractPolicyTO> policyTOs) {
+    public void printPolicies(final List<PolicyTO> policyTOs) {
         System.out.println("");
         policyTOs.forEach(policyTO -> {
             if (policyTO instanceof AccountPolicyTO) {
@@ -42,7 +42,7 @@ public class PolicyResultManager extends CommonsResultManager {
         });
     }
 
-    public void printPoliciesByType(final String policyTypeString, final List<AbstractPolicyTO> policyTOs) {
+    public void printPoliciesByType(final String policyTypeString, final List<PolicyTO> policyTOs) {
         System.out.println("");
         final PolicyType policyType = PolicyType.valueOf(policyTypeString);
         switch (policyType) {

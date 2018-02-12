@@ -48,8 +48,8 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.Schema;
 import org.apache.syncope.common.lib.report.SearchCondition;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -66,8 +66,6 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.util.ReflectionUtils.FieldCallback;
-import org.springframework.util.ReflectionUtils.FieldFilter;
 
 public class BeanPanel<T extends Serializable> extends Panel {
 
@@ -106,19 +104,9 @@ public class BeanPanel<T extends Serializable> extends Panel {
                 final List<String> result = new ArrayList<>();
 
                 if (BeanPanel.this.getDefaultModelObject() != null) {
-                    ReflectionUtils.doWithFields(BeanPanel.this.getDefaultModelObject().getClass(),
-                            new FieldCallback() {
-
-                        public void doWith(final Field field) throws IllegalArgumentException, IllegalAccessException {
-                            result.add(field.getName());
-                        }
-
-                    }, new FieldFilter() {
-
-                        public boolean matches(final Field field) {
-                            return !BeanPanel.this.excluded.contains(field.getName());
-                        }
-                    });
+                    ReflectionUtils.doWithFields(BeanPanel.this.getDefaultModelObject().getClass(), field -> {
+                        result.add(field.getName());
+                    }, field -> !BeanPanel.this.excluded.contains(field.getName()));
                 }
                 return result;
             }
@@ -191,7 +179,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     if (listItemType.equals(String.class) && schemaAnnot != null) {
                         SchemaRestClient schemaRestClient = new SchemaRestClient();
 
-                        final List<AbstractSchemaTO> choices = new ArrayList<>();
+                        final List<SchemaTO> choices = new ArrayList<>();
 
                         for (SchemaType type : schemaAnnot.type()) {
                             switch (type) {

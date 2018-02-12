@@ -20,12 +20,14 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "anyObject")
@@ -41,6 +43,14 @@ public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
     private final List<MembershipTO> memberships = new ArrayList<>();
 
     private final List<MembershipTO> dynMemberships = new ArrayList<>();
+
+    @XmlTransient
+    @JsonProperty("@class")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.AnyObjectTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
 
     public String getName() {
         return name;
@@ -80,6 +90,7 @@ public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
         return memberships;
     }
 
+    @Schema(readOnly = true)
     @XmlElementWrapper(name = "dynMemberships")
     @XmlElement(name = "dynMembership")
     @JsonProperty("dynMemberships")

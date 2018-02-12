@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -70,6 +71,13 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private final List<MembershipTO> dynMemberships = new ArrayList<>();
 
+    @JsonProperty("@class")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.UserTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
+
     @Override
     public String getType() {
         return AnyTypeKind.USER.name();
@@ -95,6 +103,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return roles;
     }
 
+    @Schema(readOnly = true)
     @XmlElementWrapper(name = "dynRoles")
     @XmlElement(name = "role")
     @JsonProperty("dynRoles")
@@ -102,6 +111,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return dynRoles;
     }
 
+    @Schema(readOnly = true)
     public String getToken() {
         return token;
     }
@@ -110,6 +120,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         this.token = token;
     }
 
+    @Schema(readOnly = true)
     public Date getTokenExpireTime() {
         if (tokenExpireTime != null) {
             return new Date(tokenExpireTime.getTime());
@@ -125,6 +136,8 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         }
     }
 
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     public String getUsername() {
         return username;
     }
@@ -133,6 +146,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         this.username = username;
     }
 
+    @Schema(readOnly = true)
     public Date getChangePwdDate() {
         if (changePwdDate != null) {
             return new Date(changePwdDate.getTime());
@@ -140,10 +154,12 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return null;
     }
 
+    @Schema(readOnly = true)
     public Integer getFailedLogins() {
         return failedLogins;
     }
 
+    @Schema(readOnly = true)
     public Date getLastLoginDate() {
         if (lastLoginDate != null) {
             return new Date(lastLoginDate.getTime());
@@ -187,6 +203,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         this.securityAnswer = securityAnswer;
     }
 
+    @Schema(readOnly = true)
     public boolean isSuspended() {
         return suspended;
     }
@@ -195,6 +212,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         this.suspended = suspended;
     }
 
+    @Schema(readOnly = true)
     public boolean isMustChangePassword() {
         return mustChangePassword;
     }
@@ -233,6 +251,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return memberships;
     }
 
+    @Schema(readOnly = true)
     @XmlElementWrapper(name = "dynMemberships")
     @XmlElement(name = "dynMembership")
     @JsonProperty("dynMemberships")

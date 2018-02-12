@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -38,7 +38,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
+public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
 
     @Autowired
     private PolicyDAO policyDAO;
@@ -47,12 +47,12 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
     private PolicyDataBinder binder;
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_CREATE + "')")
-    public <T extends AbstractPolicyTO> T create(final T policyTO) {
+    public <T extends PolicyTO> T create(final T policyTO) {
         return binder.getPolicyTO(policyDAO.save(binder.create(policyTO)));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_UPDATE + "')")
-    public AbstractPolicyTO update(final AbstractPolicyTO policyTO) {
+    public PolicyTO update(final PolicyTO policyTO) {
         Policy policy = policyDAO.find(policyTO.getKey());
         return binder.getPolicyTO(policyDAO.save(binder.update(policy, policyTO)));
     }
@@ -75,13 +75,13 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_LIST + "')")
-    public <T extends AbstractPolicyTO> List<T> list(final PolicyType type) {
+    public <T extends PolicyTO> List<T> list(final PolicyType type) {
         return policyDAO.find(getPolicyClass(type)).stream().
                 <T>map(policy -> binder.getPolicyTO(policy)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_READ + "')")
-    public <T extends AbstractPolicyTO> T read(final String key) {
+    public <T extends PolicyTO> T read(final String key) {
         Policy policy = policyDAO.find(key);
         if (policy == null) {
             throw new NotFoundException("Policy " + key + " not found");
@@ -91,7 +91,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_DELETE + "')")
-    public <T extends AbstractPolicyTO> T delete(final String key) {
+    public <T extends PolicyTO> T delete(final String key) {
         Policy policy = policyDAO.find(key);
         if (policy == null) {
             throw new NotFoundException("Policy " + key + " not found");
@@ -104,7 +104,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
     }
 
     @Override
-    protected AbstractPolicyTO resolveReference(final Method method, final Object... args)
+    protected PolicyTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
         String key = null;
@@ -113,8 +113,8 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
             for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof String) {
                     key = (String) args[i];
-                } else if (args[i] instanceof AbstractPolicyTO) {
-                    key = ((AbstractPolicyTO) args[i]).getKey();
+                } else if (args[i] instanceof PolicyTO) {
+                    key = ((PolicyTO) args[i]).getKey();
                 }
             }
         }

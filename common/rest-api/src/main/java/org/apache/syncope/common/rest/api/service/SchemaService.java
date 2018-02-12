@@ -34,7 +34,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 
@@ -58,7 +58,7 @@ public interface SchemaService extends JAXRSService {
     @GET
     @Path("{type}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    <T extends AbstractSchemaTO> List<T> list(@BeanParam SchemaQuery query);
+    <T extends SchemaTO> List<T> list(@BeanParam SchemaQuery query);
 
     /**
      * Returns schema matching the given type and key.
@@ -71,7 +71,7 @@ public interface SchemaService extends JAXRSService {
     @GET
     @Path("{type}/{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    <T extends AbstractSchemaTO> T read(
+    <T extends SchemaTO> T read(
             @NotNull @PathParam("type") SchemaType type, @NotNull @PathParam("key") String key);
 
     /**
@@ -85,7 +85,7 @@ public interface SchemaService extends JAXRSService {
     @Path("{type}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response create(@NotNull @PathParam("type") SchemaType type, @NotNull AbstractSchemaTO schemaTO);
+    Response create(@NotNull @PathParam("type") SchemaType type, @NotNull SchemaTO schemaTO);
 
     /**
      * Updates the schema matching the given type and key.
@@ -98,7 +98,7 @@ public interface SchemaService extends JAXRSService {
     @Path("{type}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response update(@NotNull @PathParam("type") SchemaType type, @NotNull AbstractSchemaTO schemaTO);
+    Response update(@NotNull @PathParam("type") SchemaType type, @NotNull SchemaTO schemaTO);
 
     /**
      * Deletes the schema matching the given type and key.

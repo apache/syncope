@@ -34,7 +34,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 
 /**
@@ -57,7 +57,7 @@ public interface PolicyService extends JAXRSService {
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    <T extends AbstractPolicyTO> T read(@NotNull @PathParam("key") String key);
+    <T extends PolicyTO> T read(@NotNull @PathParam("key") String key);
 
     /**
      * Returns a list of policies of the matching type.
@@ -68,7 +68,7 @@ public interface PolicyService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    <T extends AbstractPolicyTO> List<T> list(@NotNull @MatrixParam("type") PolicyType type);
+    <T extends PolicyTO> List<T> list(@NotNull @MatrixParam("type") PolicyType type);
 
     /**
      * Create a new policy.
@@ -79,7 +79,7 @@ public interface PolicyService extends JAXRSService {
     @POST
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response create(@NotNull AbstractPolicyTO policyTO);
+    Response create(@NotNull PolicyTO policyTO);
 
     /**
      * Updates policy matching the given key.
@@ -91,7 +91,7 @@ public interface PolicyService extends JAXRSService {
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response update(@NotNull AbstractPolicyTO policyTO);
+    Response update(@NotNull PolicyTO policyTO);
 
     /**
      * Delete policy matching the given key.

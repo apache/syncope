@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -36,14 +36,14 @@ public abstract class AbstractSchemaDetailsPanel extends Panel {
 
     protected static final String FORM = "form";
 
-    protected final Form<AbstractSchemaTO> schemaForm;
+    protected final Form<SchemaTO> schemaForm;
 
-    protected final AbstractSchemaTO schemaTO;
+    protected final SchemaTO schemaTO;
 
     public AbstractSchemaDetailsPanel(
             final String id,
             final PageReference pageReference,
-            final AbstractSchemaTO schemaTO) {
+            final SchemaTO schemaTO) {
         super(id);
 
         this.schemaTO = schemaTO;

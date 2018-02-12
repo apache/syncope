@@ -20,19 +20,32 @@ package org.apache.syncope.common.lib.patch;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.to.AttrTO;
 
 @XmlType
+@XmlSeeAlso({ UserPatch.class, GroupPatch.class, AnyObjectPatch.class })
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "@class")
+@JsonPropertyOrder(value = { "@class", "key" })
+@Schema(subTypes = { UserPatch.class, GroupPatch.class, AnyObjectPatch.class }, discriminatorProperty = "@class")
 public abstract class AnyPatch extends AbstractBaseBean implements AttributablePatch {
 
     private static final long serialVersionUID = -7445489774552440544L;
+
+    @XmlTransient
+    @JsonProperty("@class")
+    private String discriminator;
 
     private String key;
 
@@ -46,6 +59,15 @@ public abstract class AnyPatch extends AbstractBaseBean implements AttributableP
 
     private final Set<StringPatchItem> resources = new HashSet<>();
 
+    @Schema(name = "@class", required = true, readOnly = false)
+    public abstract String getDiscriminator();
+
+    public void setDiscriminator(final String discriminator) {
+        // do nothing
+    }
+
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     public String getKey() {
         return key;
     }

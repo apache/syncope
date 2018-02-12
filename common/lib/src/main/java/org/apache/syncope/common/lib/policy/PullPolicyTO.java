@@ -19,9 +19,11 @@
 package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
@@ -29,11 +31,19 @@ import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 
 @XmlRootElement(name = "pullPolicy")
 @XmlType
-public class PullPolicyTO extends AbstractPolicyTO {
+public class PullPolicyTO extends PolicyTO {
 
     private static final long serialVersionUID = 993024634238024242L;
 
     private ConflictResolutionAction conflictResolutionAction;
+
+    @XmlTransient
+    @JsonProperty("@class")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.policy.PullPolicyTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     private final Map<String, String> correlationRules = new HashMap<>();

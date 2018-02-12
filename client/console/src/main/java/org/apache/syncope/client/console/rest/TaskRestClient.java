@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.Date;
 import java.util.List;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
@@ -134,7 +134,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends AbstractTaskTO> List<T> list(
+    public <T extends TaskTO> List<T> list(
             final Class<T> reference, final int page, final int size, final SortParam<String> sort) {
 
         return (List<T>) getService(TaskService.class).
@@ -144,7 +144,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends AbstractTaskTO> List<T> list(
+    public <T extends TaskTO> List<T> list(
             final String resource,
             final Class<T> reference,
             final int page,
@@ -194,7 +194,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         return getService(TaskService.class).read(taskKey, false);
     }
 
-    public void delete(final String taskKey, final Class<? extends AbstractTaskTO> taskToClass) {
+    public void delete(final String taskKey, final Class<? extends TaskTO> taskToClass) {
         getService(TaskService.class).delete(taskKey);
     }
 

@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +29,7 @@ import java.util.Optional;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
@@ -59,6 +61,14 @@ public class GroupTO extends AnyTO {
     private final Map<String, String> adynMembershipConds = new HashMap<>();
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
+
+    @XmlTransient
+    @JsonProperty("@class")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.GroupTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
 
     @Override
     public String getType() {
@@ -102,6 +112,7 @@ public class GroupTO extends AnyTO {
         this.udynMembershipCond = uDynMembershipCond;
     }
 
+    @Schema(readOnly = true)
     public int getStaticUserMembershipCount() {
         return staticUserMembershipCount;
     }
@@ -110,6 +121,7 @@ public class GroupTO extends AnyTO {
         this.staticUserMembershipCount = staticUserMembershipCount;
     }
 
+    @Schema(readOnly = true)
     public int getDynamicUserMembershipCount() {
         return dynamicUserMembershipCount;
     }
@@ -118,6 +130,7 @@ public class GroupTO extends AnyTO {
         this.dynamicUserMembershipCount = dynamicUserMembershipCount;
     }
 
+    @Schema(readOnly = true)
     public int getStaticAnyObjectMembershipCount() {
         return staticAnyObjectMembershipCount;
     }
@@ -126,6 +139,7 @@ public class GroupTO extends AnyTO {
         this.staticAnyObjectMembershipCount = staticAnyObjectMembershipCount;
     }
 
+    @Schema(readOnly = true)
     public int getDynamicAnyObjectMembershipCount() {
         return dynamicAnyObjectMembershipCount;
     }

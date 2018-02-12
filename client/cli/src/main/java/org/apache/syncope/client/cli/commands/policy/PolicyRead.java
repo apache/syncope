@@ -23,7 +23,7 @@ import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public class PolicyRead extends AbstractPolicyCommand {
 
     public void read() {
         if (input.parameterNumber() >= 1) {
-            final List<AbstractPolicyTO> policyTOs = new ArrayList<>();
+            final List<PolicyTO> policyTOs = new ArrayList<>();
             for (final String parameter : input.getParameters()) {
                 try {
                     policyTOs.add(policySyncopeOperations.read(parameter));
