@@ -47,6 +47,7 @@ import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -146,7 +147,7 @@ public class PullPolicyModalPanel extends AbstractModalPanel<PullPolicyTO> {
                     }
                 }
             });
-            restClient.updatePolicy(getItem());
+            restClient.updatePolicy(PolicyType.PULL, getItem());
 
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);

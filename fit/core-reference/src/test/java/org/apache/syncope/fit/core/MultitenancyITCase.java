@@ -49,6 +49,7 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.PullMode;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
@@ -193,15 +194,15 @@ public class MultitenancyITCase extends AbstractITCase {
             task.setPullMode(PullMode.FULL_RECONCILIATION);
             task.setPerformCreate(true);
 
-            response = adminClient.getService(TaskService.class).create(task);
+            response = adminClient.getService(TaskService.class).create(TaskType.PULL, task);
             assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-            task = adminClient.getService(TaskService.class).read(
+            task = adminClient.getService(TaskService.class).read(TaskType.PULL,
                     StringUtils.substringAfterLast(response.getLocation().toASCIIString(), "/"), true);
             assertNotNull(resource);
 
             // pull
             ExecTO execution = AbstractTaskITCase.execProvisioningTask(
-                    adminClient.getService(TaskService.class), task.getKey(), 50, false);
+                    adminClient.getService(TaskService.class), TaskType.PULL, task.getKey(), 50, false);
 
             // verify execution status
             String status = execution.getStatus();

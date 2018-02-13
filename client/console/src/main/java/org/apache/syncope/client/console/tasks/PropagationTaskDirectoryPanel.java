@@ -167,7 +167,7 @@ public abstract class PropagationTaskDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final PropagationTaskTO modelObject) {
                 try {
-                    restClient.delete(taskTO.getKey(), PropagationTaskTO.class);
+                    restClient.delete(TaskType.PROPAGATION, taskTO.getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                     PropagationTaskDirectoryPanel.this.getTogglePanel().close(target);

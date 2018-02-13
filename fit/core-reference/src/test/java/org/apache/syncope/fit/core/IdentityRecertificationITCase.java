@@ -25,12 +25,13 @@ import java.util.List;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.junit.jupiter.api.Test;
+import org.apache.syncope.common.lib.types.TaskType;
 
 public class IdentityRecertificationITCase extends AbstractTaskITCase {
 
     @Test
     public void recertification() {
-        execTask(taskService, "e95555d2-1b09-42c8-b25b-f4c4ec598989", "JOB_FIRED", 50, false);
+        execTask(taskService, TaskType.SCHEDULED, "e95555d2-1b09-42c8-b25b-f4c4ec598989", "JOB_FIRED", 50, false);
 
         List<WorkflowFormTO> forms = userWorkflowService.getForms();
         assertFalse(forms.isEmpty());

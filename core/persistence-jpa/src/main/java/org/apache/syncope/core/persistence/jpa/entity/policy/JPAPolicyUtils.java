@@ -16,34 +16,45 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.jpa.entity.policy;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
+import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtils;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 
-public interface PolicyDAO extends DAO<Policy> {
+public class JPAPolicyUtils implements PolicyUtils {
 
-    <T extends Policy> T find(String key);
+    private final PolicyType type;
 
-    <T extends Policy> List<T> find(Class<T> reference);
+    protected JPAPolicyUtils(final PolicyType type) {
+        this.type = type;
+    }
 
-    List<AccountPolicy> findByAccountRule(Implementation accountRule);
+    @Override
+    public PolicyType getType() {
+        return type;
+    }
 
-    List<PasswordPolicy> findByPasswordRule(Implementation passwordRule);
+    @Override
+    public Class<? extends Policy> policyClass() {
+        switch (type) {
+            case ACCOUNT:
+                return AccountPolicy.class;
 
-    List<PullPolicy> findByCorrelationRule(Implementation correlationRule);
+            case PASSWORD:
+                return PasswordPolicy.class;
 
-    List<AccountPolicy> findByResource(ExternalResource resource);
+            case PULL:
+                return PullPolicy.class;
 
-    List<Policy> findAll();
-
-    <T extends Policy> T save(T policy);
-
-    <T extends Policy> void delete(T policy);
+            case PUSH:
+            default:
+                return PushPolicy.class;
+        }
+    }
 
 }

@@ -30,6 +30,7 @@ import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.TestPullActions;
@@ -78,15 +79,15 @@ public class ImplementationITCase extends AbstractITCase {
 
         implementationService.create(implementationTO);
 
-        PullTaskTO pullTask = taskService.read(AbstractTaskITCase.PULL_TASK_KEY, false);
+        PullTaskTO pullTask = taskService.read(TaskType.PULL, AbstractTaskITCase.PULL_TASK_KEY, false);
         assertNotNull(pullTask);
 
         int before = pullTask.getActions().size();
 
         pullTask.getActions().add(implementationTO.getKey());
-        taskService.update(pullTask);
+        taskService.update(TaskType.PULL, pullTask);
 
-        pullTask = taskService.read(AbstractTaskITCase.PULL_TASK_KEY, false);
+        pullTask = taskService.read(TaskType.PULL, AbstractTaskITCase.PULL_TASK_KEY, false);
         assertNotNull(pullTask);
 
         int after = pullTask.getActions().size();
@@ -101,7 +102,7 @@ public class ImplementationITCase extends AbstractITCase {
         }
 
         pullTask.getActions().remove(implementationTO.getKey());
-        taskService.update(pullTask);
+        taskService.update(TaskType.PULL, pullTask);
 
         implementationService.delete(implementationTO.getKey());
     }

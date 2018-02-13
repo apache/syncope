@@ -72,6 +72,8 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
     private static final long serialVersionUID = 4984337552918213290L;
 
+    protected TaskType taskType;
+
     protected final Class<T> reference;
 
     protected T schedTaskTO;
@@ -83,9 +85,12 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
     protected SchedTaskDirectoryPanel(
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
+            final TaskType taskType,
             final Class<T> reference,
             final PageReference pageRef) {
+
         super(baseModal, multiLevelPanelRef, pageRef);
+        this.taskType = taskType;
         this.reference = reference;
 
         try {
@@ -94,7 +99,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             LOG.error("Falure instantiating task", e);
         }
 
-        this.addNewItemPanelBuilder(new SchedTaskWizardBuilder<>(schedTaskTO, pageRef), true);
+        this.addNewItemPanelBuilder(new SchedTaskWizardBuilder<>(taskType, schedTaskTO, pageRef), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.TASK_CREATE);
 
@@ -115,7 +120,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                     final TemplatableTO targetObject, final String type, final AnyTO anyTO) {
 
                 targetObject.getTemplates().put(type, anyTO);
-                new TaskRestClient().update(SchedTaskTO.class.cast(targetObject));
+                new TaskRestClient().update(taskType, SchedTaskTO.class.cast(targetObject));
                 return targetObject;
             }
         };
@@ -203,7 +208,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
                 send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                restClient.readSchedTask(reference, model.getObject().getKey()),
+                                restClient.readTask(taskType, model.getObject().getKey()),
                                 target).setResourceModel(
                                 new StringResourceModel("inner.task.edit",
                                         SchedTaskDirectoryPanel.this,
@@ -252,7 +257,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             @Override
             public void onClick(final AjaxRequestTarget target, final T ignore) {
                 try {
-                    restClient.delete(taskTO.getKey(), reference);
+                    restClient.delete(taskType, taskTO.getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                     SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
@@ -287,7 +292,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
     @Override
     protected SchedTasksProvider<T> dataProvider() {
-        return new SchedTasksProvider<>(reference, TaskType.SCHEDULED, rows);
+        return new SchedTasksProvider<>(reference, taskType, rows);
     }
 
     protected class SchedTasksProvider<T extends SchedTaskTO> extends TaskDataProvider<T> {

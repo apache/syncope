@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.api.entity.policy;
 
 import org.apache.syncope.common.lib.policy.PushPolicySpec;
-import org.apache.syncope.core.persistence.api.entity.Policy;
 
 public interface PushPolicy extends Policy {
 

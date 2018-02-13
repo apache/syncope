@@ -49,6 +49,7 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.fit.AbstractITCase;
@@ -267,15 +268,16 @@ public class MembershipITCase extends AbstractITCase {
             userService.delete(user.getKey());
 
             // 4. create pull task and execute
-            newTask = taskService.read("7c2242f4-14af-4ab5-af31-cdae23783655", true);
+            newTask = taskService.read(TaskType.PULL, "7c2242f4-14af-4ab5-af31-cdae23783655", true);
             newTask.setResource(newResource.getKey());
             newTask.setDestinationRealm("/even/two");
 
-            Response response = taskService.create(newTask);
+            Response response = taskService.create(TaskType.PULL, newTask);
             newTask = getObject(response.getLocation(), TaskService.class, PullTaskTO.class);
             assertNotNull(newTask);
 
-            ExecTO execution = AbstractTaskITCase.execProvisioningTask(taskService, newTask.getKey(), 50, false);
+            ExecTO execution = AbstractTaskITCase.execProvisioningTask(
+                    taskService, TaskType.PULL, newTask.getKey(), 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
             // 5. verify that pulled user has
@@ -292,7 +294,7 @@ public class MembershipITCase extends AbstractITCase {
             fail(e.getMessage());
         } finally {
             if (newTask != null && !"83f7e85d-9774-43fe-adba-ccd856312994".equals(newTask.getKey())) {
-                taskService.delete(newTask.getKey());
+                taskService.delete(TaskType.PULL, newTask.getKey());
             }
             resourceService.delete(newResource.getKey());
         }

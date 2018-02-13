@@ -71,6 +71,7 @@ import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
@@ -1228,7 +1229,7 @@ public class UserIssuesITCase extends AbstractITCase {
         passwordPolicy.setDescription("Password Policy for SYNCOPE-626");
         passwordPolicy.getRules().add(rule.getKey());
 
-        passwordPolicy = createPolicy(passwordPolicy);
+        passwordPolicy = createPolicy(PolicyType.PASSWORD, passwordPolicy);
         assertNotNull(passwordPolicy);
 
         RealmTO realm = realmService.list("/even/two").get(0);
@@ -1255,7 +1256,7 @@ public class UserIssuesITCase extends AbstractITCase {
             realm.setPasswordPolicy(oldPasswordPolicy);
             realmService.update(realm);
 
-            policyService.delete(passwordPolicy.getKey());
+            policyService.delete(PolicyType.PASSWORD, passwordPolicy.getKey());
         }
 
     }

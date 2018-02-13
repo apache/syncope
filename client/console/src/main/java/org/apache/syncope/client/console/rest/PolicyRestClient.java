@@ -34,10 +34,10 @@ public class PolicyRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1392090291817187902L;
 
-    public <T extends PolicyTO> T getPolicy(final String key) {
+    public <T extends PolicyTO> T getPolicy(final PolicyType type, final String key) {
         T policy = null;
         try {
-            policy = getService(PolicyService.class).read(key);
+            policy = getService(PolicyService.class).read(type, key);
         } catch (Exception e) {
             LOG.warn("No policy found for id {}", key, e);
         }
@@ -58,16 +58,16 @@ public class PolicyRestClient extends BaseRestClient {
         return res;
     }
 
-    public <T extends PolicyTO> void createPolicy(final T policy) {
-        getService(PolicyService.class).create(policy);
+    public <T extends PolicyTO> void createPolicy(final PolicyType type, final T policy) {
+        getService(PolicyService.class).create(type, policy);
     }
 
-    public <T extends PolicyTO> void updatePolicy(final T policy) {
-        getService(PolicyService.class).update(policy);
+    public <T extends PolicyTO> void updatePolicy(final PolicyType type, final T policy) {
+        getService(PolicyService.class).update(type, policy);
     }
 
-    public void delete(final String key) {
-        getService(PolicyService.class).delete(key);
+    public void delete(final PolicyType type, final String key) {
+        getService(PolicyService.class).delete(type, key);
     }
 
     private class PolicyComparator implements Comparator<PolicyTO>, Serializable {

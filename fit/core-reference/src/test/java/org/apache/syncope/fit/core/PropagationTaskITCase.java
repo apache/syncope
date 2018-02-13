@@ -76,7 +76,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void read() {
-        PropagationTaskTO taskTO = taskService.read("316285cc-ae52-4ea2-a33b-7355e189ac3f", true);
+        PropagationTaskTO taskTO = taskService.read(TaskType.PROPAGATION, "316285cc-ae52-4ea2-a33b-7355e189ac3f", true);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
         assertTrue(taskTO.getExecutions().isEmpty());
@@ -171,12 +171,12 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         }
 
         // check read
-        PropagationTaskTO task = taskService.read("1e697572-b896-484c-ae7f-0c8f63fcbc6c", false);
+        PropagationTaskTO task = taskService.read(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c", false);
         assertNotNull(task);
         assertEquals("1e697572-b896-484c-ae7f-0c8f63fcbc6c", task.getKey());
         assertTrue(task.getExecutions().isEmpty());
 
-        task = taskService.read("1e697572-b896-484c-ae7f-0c8f63fcbc6c", true);
+        task = taskService.read(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c", true);
         assertNotNull(task);
         assertEquals("1e697572-b896-484c-ae7f-0c8f63fcbc6c", task.getKey());
         assertFalse(task.getExecutions().isEmpty());

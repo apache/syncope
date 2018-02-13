@@ -45,7 +45,7 @@ public class PasswordPolicyDirectoryPanel extends PolicyDirectoryPanel<PasswordP
         super(id, PolicyType.PASSWORD, pageRef);
 
         this.addNewItemPanelBuilder(
-                new PolicyModalPanelBuilder<>(new PasswordPolicyTO(), modal, pageRef), true);
+                new PolicyModalPanelBuilder<>(PolicyType.PASSWORD, new PasswordPolicyTO(), modal, pageRef), true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.POLICY_CREATE);
 
         initResultTable();

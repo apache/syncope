@@ -16,17 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.core.persistence.api.entity.policy;
 
 import org.apache.syncope.common.lib.policy.PolicyTO;
-import org.apache.syncope.core.persistence.api.entity.policy.Policy;
+import org.apache.syncope.common.lib.types.PolicyType;
 
-public interface PolicyDataBinder {
+public interface PolicyUtilsFactory {
 
-    <T extends Policy> T create(PolicyTO policyTO);
+    PolicyUtils getInstance(PolicyType type);
 
-    <T extends Policy> T update(T policy, PolicyTO policyTO);
+    PolicyUtils getInstance(Policy policy);
 
-    <T extends PolicyTO> T getPolicyTO(Policy policy);
+    PolicyUtils getInstance(Class<? extends PolicyTO> policyClass);
 
+    PolicyUtils getInstance(PolicyTO policyTO);
 }

@@ -19,11 +19,14 @@
 package org.apache.syncope.client.cli.commands.policy;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
+import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.PolicyTO;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +34,8 @@ public class PolicyRead extends AbstractPolicyCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(PolicyRead.class);
 
-    private static final String READ_HELP_MESSAGE = "policy --read {POLICY-KEY} {POLICY-KEY} [...]";
+    private static final String READ_HELP_MESSAGE = "policy --read {POLICY-TYPE} {POLICY-KEY}\n"
+            + "   Policy type:  ACCOUNT / PASSWORD / PULL / PUSH";
 
     private final Input input;
 
@@ -40,24 +44,26 @@ public class PolicyRead extends AbstractPolicyCommand {
     }
 
     public void read() {
-        if (input.parameterNumber() >= 1) {
-            final List<PolicyTO> policyTOs = new ArrayList<>();
-            for (final String parameter : input.getParameters()) {
-                try {
-                    policyTOs.add(policySyncopeOperations.read(parameter));
-                } catch (final NumberFormatException ex) {
-                    LOG.error("Error reading policy", ex);
-                    policyResultManager.notBooleanDeletedError("policy", parameter);
-                } catch (final WebServiceException | SyncopeClientException ex) {
-                    LOG.error("Error reading policy", ex);
-                    if (ex.getMessage().startsWith("NotFound")) {
-                        policyResultManager.notFoundError("Policy", parameter);
-                    } else {
-                        policyResultManager.genericError(ex.getMessage());
-                    }
+        if (input.parameterNumber() >= 2) {
+            final String[] parameters = Arrays.copyOfRange(input.getParameters(), 1, input.parameterNumber());
+            try {
+                final List<PolicyTO> policyTOs = new ArrayList<>();
+                for (final String parameter : parameters) {
+                    policyTOs.add(policySyncopeOperations.read(input.firstParameter(), parameter));
                 }
+                policyResultManager.printPolicies(policyTOs);
+            } catch (final SyncopeClientException | WebServiceException ex) {
+                LOG.error("Error reading policy", ex);
+                if (ex.getMessage().startsWith("NotFound")) {
+                    policyResultManager.notFoundError("Policy", parameters[0]);
+                } else {
+                    policyResultManager.genericError(ex.getMessage());
+                }
+            } catch (final IllegalArgumentException ex) {
+                LOG.error("Error reading policy", ex);
+                policyResultManager.typeNotValidError(
+                        "policy", input.firstParameter(), CommandUtils.fromEnumToArray(PolicyType.class));
             }
-            policyResultManager.printPolicies(policyTOs);
         } else {
             policyResultManager.commandOptionError(READ_HELP_MESSAGE);
         }

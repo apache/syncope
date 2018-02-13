@@ -22,16 +22,16 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.PolicyTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.Policy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.Policy;
+import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtils;
+import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtilsFactory;
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -46,61 +46,78 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
     @Autowired
     private PolicyDataBinder binder;
 
+    @Autowired
+    private PolicyUtilsFactory policyUtilsFactory;
+
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_CREATE + "')")
-    public <T extends PolicyTO> T create(final T policyTO) {
+    public <T extends PolicyTO> T create(final PolicyType type, final T policyTO) {
+        PolicyUtils policyUtils = policyUtilsFactory.getInstance(policyTO);
+        if (policyUtils.getType() != type) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            sce.getElements().add("Found " + type + ", expected " + policyUtils.getType());
+            throw sce;
+        }
+
         return binder.getPolicyTO(policyDAO.save(binder.create(policyTO)));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_UPDATE + "')")
-    public PolicyTO update(final PolicyTO policyTO) {
+    public PolicyTO update(final PolicyType type, final PolicyTO policyTO) {
         Policy policy = policyDAO.find(policyTO.getKey());
-        return binder.getPolicyTO(policyDAO.save(binder.update(policy, policyTO)));
-    }
 
-    private Class<? extends Policy> getPolicyClass(final PolicyType policyType) {
-        switch (policyType) {
-            case ACCOUNT:
-                return AccountPolicy.class;
-
-            case PASSWORD:
-                return PasswordPolicy.class;
-
-            case PULL:
-                return PullPolicy.class;
-
-            case PUSH:
-            default:
-                return PushPolicy.class;
+        PolicyUtils policyUtils = policyUtilsFactory.getInstance(policy);
+        if (policyUtils.getType() != type) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            sce.getElements().add("Found " + type + ", expected " + policyUtils.getType());
+            throw sce;
         }
+
+        return binder.getPolicyTO(policyDAO.save(binder.update(policy, policyTO)));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_LIST + "')")
     public <T extends PolicyTO> List<T> list(final PolicyType type) {
-        return policyDAO.find(getPolicyClass(type)).stream().
+        PolicyUtils policyUtils = policyUtilsFactory.getInstance(type);
+
+        return policyDAO.find(policyUtils.policyClass()).stream().
                 <T>map(policy -> binder.getPolicyTO(policy)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_READ + "')")
-    public <T extends PolicyTO> T read(final String key) {
+    public <T extends PolicyTO> T read(final PolicyType type, final String key) {
         Policy policy = policyDAO.find(key);
         if (policy == null) {
             throw new NotFoundException("Policy " + key + " not found");
+        }
+
+        PolicyUtils policyUtils = policyUtilsFactory.getInstance(policy);
+        if (type != null && policyUtils.getType() != type) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            sce.getElements().add("Found " + type + ", expected " + policyUtils.getType());
+            throw sce;
         }
 
         return binder.getPolicyTO(policy);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_DELETE + "')")
-    public <T extends PolicyTO> T delete(final String key) {
+    public <T extends PolicyTO> T delete(final PolicyType type, final String key) {
         Policy policy = policyDAO.find(key);
         if (policy == null) {
             throw new NotFoundException("Policy " + key + " not found");
         }
 
-        T policyToDelete = binder.getPolicyTO(policy);
+        PolicyUtils policyUtils = policyUtilsFactory.getInstance(policy);
+        if (type != null && policyUtils.getType() != type) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            sce.getElements().add("Found " + type + ", expected " + policyUtils.getType());
+            throw sce;
+        }
+
+        T deleted = binder.getPolicyTO(policy);
         policyDAO.delete(policy);
 
-        return policyToDelete;
+        return deleted;
     }
 
     @Override

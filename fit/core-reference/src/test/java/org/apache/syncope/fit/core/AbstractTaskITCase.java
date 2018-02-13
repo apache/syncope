@@ -58,6 +58,8 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
 
         private final TaskService taskService;
 
+        private final TaskType type;
+
         private final String taskKey;
 
         private final int maxWaitSeconds;
@@ -65,9 +67,11 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         private final boolean dryRun;
 
         public ThreadExec(
-                final TaskService taskService, final String taskKey, final int maxWaitSeconds, final boolean dryRun) {
+                final TaskService taskService, final TaskType type, final String taskKey,
+                final int maxWaitSeconds, final boolean dryRun) {
 
             this.taskService = taskService;
+            this.type = type;
             this.taskKey = taskKey;
             this.maxWaitSeconds = maxWaitSeconds;
             this.dryRun = dryRun;
@@ -75,7 +79,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
 
         @Override
         public ExecTO call() throws Exception {
-            return execProvisioningTask(taskService, taskKey, maxWaitSeconds, dryRun);
+            return execProvisioningTask(taskService, type, taskKey, maxWaitSeconds, dryRun);
         }
     }
 
@@ -123,10 +127,11 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         }
     }
 
-    protected static ExecTO execTask(final TaskService taskService, final String taskKey, final String initialStatus,
-            final int maxWaitSeconds, final boolean dryRun) {
+    protected static ExecTO execTask(
+            final TaskService taskService, final TaskType type, final String taskKey,
+            final String initialStatus, final int maxWaitSeconds, final boolean dryRun) {
 
-        TaskTO taskTO = taskService.read(taskKey, true);
+        TaskTO taskTO = taskService.read(type, taskKey, true);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
 
@@ -145,7 +150,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
             } catch (InterruptedException e) {
             }
 
-            taskTO = taskService.read(taskTO.getKey(), true);
+            taskTO = taskService.read(type, taskTO.getKey(), true);
 
             assertNotNull(taskTO);
             assertNotNull(taskTO.getExecutions());
@@ -159,25 +164,27 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
     }
 
     public static ExecTO execProvisioningTask(
-            final TaskService taskService, final String taskKey, final int maxWaitSeconds, final boolean dryRun) {
+            final TaskService taskService, final TaskType type, final String taskKey,
+            final int maxWaitSeconds, final boolean dryRun) {
 
-        return execTask(taskService, taskKey, "JOB_FIRED", maxWaitSeconds, dryRun);
+        return execTask(taskService, type, taskKey, "JOB_FIRED", maxWaitSeconds, dryRun);
     }
 
     protected static ExecTO execNotificationTask(
             final TaskService taskService, final String taskKey, final int maxWaitSeconds) {
 
-        return execTask(taskService, taskKey, NotificationJob.Status.SENT.name(), maxWaitSeconds, false);
+        return execTask(taskService, TaskType.NOTIFICATION, taskKey,
+                NotificationJob.Status.SENT.name(), maxWaitSeconds, false);
     }
 
-    protected void execProvisioningTasks(final TaskService taskService,
-            final Set<String> taskKeys, final int maxWaitSeconds, final boolean dryRun) throws Exception {
+    protected void execProvisioningTasks(final TaskService taskService, final TaskType type, final Set<String> taskKeys,
+            final int maxWaitSeconds, final boolean dryRun) throws Exception {
 
         ExecutorService service = Executors.newFixedThreadPool(taskKeys.size());
         List<Future<ExecTO>> futures = new ArrayList<>();
 
         for (String key : taskKeys) {
-            futures.add(service.submit(new ThreadExec(taskService, key, maxWaitSeconds, dryRun)));
+            futures.add(service.submit(new ThreadExec(taskService, type, key, maxWaitSeconds, dryRun)));
             // avoid flooding the test server
             try {
                 Thread.sleep(2000);

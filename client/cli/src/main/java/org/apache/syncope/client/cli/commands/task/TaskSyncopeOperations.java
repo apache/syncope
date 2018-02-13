@@ -36,12 +36,12 @@ public class TaskSyncopeOperations {
         return taskService.listJobs();
     }
 
-    public <T extends TaskTO> T read(final String taskKey) {
-        return taskService.read(taskKey, true);
+    public <T extends TaskTO> T read(final String type, final String taskKey) {
+        return taskService.read(TaskType.valueOf(type), taskKey, true);
     }
 
     public void delete(final String taskKey) {
-        taskService.delete(taskKey);
+        taskService.delete(null, taskKey);
     }
 
     public List<TaskTO> list(final String type) {

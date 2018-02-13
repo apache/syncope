@@ -80,6 +80,8 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
     private final BaseModal<T> baseModal;
 
+    private final PolicyType type;
+
     private final String policy;
 
     protected PolicyRuleDirectoryPanel(
@@ -89,6 +91,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
         disableCheckBoxes();
 
         this.baseModal = baseModal;
+        this.type = type;
         this.policy = policy;
         this.restClient = new PolicyRestClient();
 
@@ -157,10 +160,10 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
             public void onClick(final AjaxRequestTarget target, final PolicyRuleWrapper ignore) {
                 RuleConf rule = model.getObject().getConf();
                 try {
-                    T actual = restClient.getPolicy(policy);
+                    T actual = restClient.getPolicy(type, policy);
                     if (actual instanceof ComposablePolicy) {
                         ((ComposablePolicy) actual).getRules().remove(model.getObject().getImplementationKey());
-                        restClient.updatePolicy(actual);
+                        restClient.updatePolicy(type, actual);
 
                         SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                         customActionOnFinishCallback(target);
@@ -251,7 +254,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
         @Override
         public Iterator<PolicyRuleWrapper> iterator(final long first, final long count) {
-            final T actual = restClient.getPolicy(policy);
+            final T actual = restClient.getPolicy(type, policy);
 
             List<PolicyRuleWrapper> rules = actual instanceof ComposablePolicy
                     ? getPolicyRuleWrappers((ComposablePolicy) actual)
@@ -263,7 +266,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
         @Override
         public long size() {
-            final T actual = restClient.getPolicy(policy);
+            final T actual = restClient.getPolicy(type, policy);
             return actual instanceof ComposablePolicy
                     ? getPolicyRuleWrappers((ComposablePolicy) actual).size()
                     : 0;

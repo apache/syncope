@@ -39,7 +39,8 @@ public abstract class PullTaskDirectoryPanel extends ProvisioningTaskDirectoryPa
             final MultilevelPanel multiLevelPanelRef,
             final String resource,
             final PageReference pageRef) {
-        super(baseModal, multiLevelPanelRef, PullTaskTO.class, resource, pageRef);
+
+        super(baseModal, multiLevelPanelRef, TaskType.PULL, PullTaskTO.class, resource, pageRef);
     }
 
     @Override

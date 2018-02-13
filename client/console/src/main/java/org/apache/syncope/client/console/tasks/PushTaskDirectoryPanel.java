@@ -37,7 +37,7 @@ public abstract class PushTaskDirectoryPanel extends ProvisioningTaskDirectoryPa
             final MultilevelPanel multiLevelPanelRef,
             final String resource,
             final PageReference pageRef) {
-        super(baseModal, multiLevelPanelRef, PushTaskTO.class, resource, pageRef);
+        super(baseModal, multiLevelPanelRef, TaskType.PUSH, PushTaskTO.class, resource, pageRef);
     }
 
     @Override

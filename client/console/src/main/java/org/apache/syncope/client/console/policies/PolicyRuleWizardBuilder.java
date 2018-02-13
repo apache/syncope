@@ -73,7 +73,7 @@ public class PolicyRuleWizardBuilder extends AjaxWizardBuilder<PolicyRuleWrapper
 
     @Override
     protected Serializable onApplyInternal(final PolicyRuleWrapper modelObject) {
-        PolicyTO policyTO = restClient.getPolicy(policy);
+        PolicyTO policyTO = restClient.getPolicy(type, policy);
 
         ComposablePolicy composable;
         if (policyTO instanceof ComposablePolicy) {
@@ -96,7 +96,7 @@ public class PolicyRuleWizardBuilder extends AjaxWizardBuilder<PolicyRuleWrapper
             composable.getRules().add(modelObject.getImplementationKey());
         }
 
-        restClient.updatePolicy(policyTO);
+        restClient.updatePolicy(type, policyTO);
         return modelObject;
     }
 

@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.api.entity.policy;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.Policy;
 
 public interface PasswordPolicy extends Policy {
 

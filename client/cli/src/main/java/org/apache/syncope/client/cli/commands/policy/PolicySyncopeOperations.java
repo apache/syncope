@@ -28,8 +28,8 @@ public class PolicySyncopeOperations {
 
     private final PolicyService policyService = SyncopeServices.get(PolicyService.class);
 
-    public <T extends PolicyTO> T read(final String policyKey) {
-        return policyService.read(policyKey);
+    public <T extends PolicyTO> T read(final String type, final String policyKey) {
+        return policyService.read(PolicyType.valueOf(type), policyKey);
     }
 
     public <T extends PolicyTO> List<T> list(final String policyType) {
@@ -37,6 +37,6 @@ public class PolicySyncopeOperations {
     }
 
     public void delete(final String policyKey) {
-        policyService.delete(policyKey);
+        policyService.delete(null, policyKey);
     }
 }

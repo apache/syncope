@@ -40,6 +40,7 @@ import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 
 /**
@@ -55,15 +56,17 @@ public interface TaskService extends ExecutableService {
     /**
      * Returns the task matching the given key.
      *
+     * @param type task type
      * @param key key of task to be read
      * @param details whether include executions or not, defaults to true
      * @param <T> type of taskTO
      * @return task with matching id
      */
     @GET
-    @Path("{key}")
+    @Path("{type}/{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     <T extends TaskTO> T read(
+            @NotNull @PathParam("type") TaskType type,
             @NotNull @PathParam("key") String key,
             @QueryParam(JAXRSService.PARAM_DETAILS) @DefaultValue("true") boolean details);
 
@@ -75,40 +78,45 @@ public interface TaskService extends ExecutableService {
      * @return paged list of existing tasks matching the given query
      */
     @GET
+    @Path("{type}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     <T extends TaskTO> PagedResult<T> list(@BeanParam TaskQuery query);
 
     /**
      * Creates a new task.
      *
+     * @param type task type
      * @param taskTO task to be created
      * @return Response object featuring Location header of created task
      */
     @POST
+    @Path("{type}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response create(@NotNull SchedTaskTO taskTO);
+    Response create(@NotNull @PathParam("type") TaskType type, @NotNull SchedTaskTO taskTO);
 
     /**
      * Updates the task matching the provided key.
      *
+     * @param type task type
      * @param taskTO updated task to be stored
      * @return an empty response if operation was successful
      */
     @PUT
-    @Path("{key}")
+    @Path("{type}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response update(@NotNull TaskTO taskTO);
+    Response update(@NotNull @PathParam("type") TaskType type, @NotNull SchedTaskTO taskTO);
 
     /**
      * Deletes the task matching the provided key.
      *
+     * @param type task type
      * @param key key of task to be deleted
      * @return an empty response if operation was successful
      */
     @DELETE
-    @Path("{key}")
+    @Path("{type}/{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response delete(@NotNull @PathParam("key") String key);
+    Response delete(@NotNull @PathParam("type") TaskType type, @NotNull @PathParam("key") String key);
 
     /**
      * Executes the provided bulk action.

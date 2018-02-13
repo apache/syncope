@@ -85,6 +85,7 @@ import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -915,7 +916,7 @@ public class GroupITCase extends AbstractITCase {
             do {
                 Thread.sleep(1000);
 
-                taskTO = taskService.read(exec.getRefKey(), true);
+                taskTO = taskService.read(TaskType.SCHEDULED, exec.getRefKey(), true);
 
                 assertNotNull(taskTO);
                 assertNotNull(taskTO.getExecutions());

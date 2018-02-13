@@ -46,6 +46,7 @@ import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -62,10 +63,15 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
 
     private final BaseModal<T> modal;
 
+    private final PolicyType type;
+
     private final PolicyRestClient restClient = new PolicyRestClient();
 
-    public PolicyModalPanelBuilder(final T policyTO, final BaseModal<T> modal, final PageReference pageRef) {
+    public PolicyModalPanelBuilder(
+            final PolicyType type, final T policyTO, final BaseModal<T> modal, final PageReference pageRef) {
+
         super(policyTO, pageRef);
+        this.type = type;
         this.modal = modal;
     }
 
@@ -156,9 +162,9 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
         public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
             try {
                 if (policyTO.getKey() == null) {
-                    restClient.createPolicy(policyTO);
+                    restClient.createPolicy(type, policyTO);
                 } else {
-                    restClient.updatePolicy(policyTO);
+                    restClient.updatePolicy(type, policyTO);
                 }
                 SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 Profile.this.modal.close(target);

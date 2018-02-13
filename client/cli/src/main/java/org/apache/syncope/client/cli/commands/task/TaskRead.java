@@ -19,11 +19,14 @@
 package org.apache.syncope.client.cli.commands.task;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
+import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.TaskTO;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +34,8 @@ public class TaskRead extends AbstractTaskCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(TaskRead.class);
 
-    private static final String READ_HELP_MESSAGE = "task --read {TASK-KEY} {TASK-KEY} [...]";
+    private static final String READ_HELP_MESSAGE = "task --read {TASK-TYPE} {TASK-KEY}\n"
+            + "   Task type:  PROPAGATION / NOTIFICATION / SCHEDULED / PULL / PUSH";
 
     private final Input input;
 
@@ -40,25 +44,26 @@ public class TaskRead extends AbstractTaskCommand {
     }
 
     public void read() {
-        if (input.parameterNumber() >= 1) {
-            final List<TaskTO> taskTOs = new ArrayList<>();
-            for (final String parameter : input.getParameters()) {
-                try {
-                    taskTOs.add(taskSyncopeOperations.read(parameter));
-                } catch (final NumberFormatException ex) {
-                    LOG.error("Error reading task", ex);
-                    taskResultManager.notBooleanDeletedError("task", parameter);
-                } catch (final SyncopeClientException | WebServiceException ex) {
-                    LOG.error("Error reading task", ex);
-                    if (ex.getMessage().startsWith("NotFound")) {
-                        taskResultManager.notFoundError("Task", parameter);
-                    } else {
-                        taskResultManager.genericError(ex.getMessage());
-                    }
-                    break;
+        if (input.parameterNumber() >= 2) {
+            final String[] parameters = Arrays.copyOfRange(input.getParameters(), 1, input.parameterNumber());
+            try {
+                final List<TaskTO> taskTOs = new ArrayList<>();
+                for (final String parameter : parameters) {
+                    taskTOs.add(taskSyncopeOperations.read(input.firstParameter(), parameter));
                 }
+                taskResultManager.printTasks(taskTOs);
+            } catch (final SyncopeClientException | WebServiceException ex) {
+                LOG.error("Error reading task", ex);
+                if (ex.getMessage().startsWith("NotFound")) {
+                    taskResultManager.notFoundError("Task", parameters[0]);
+                } else {
+                    taskResultManager.genericError(ex.getMessage());
+                }
+            } catch (final IllegalArgumentException ex) {
+                LOG.error("Error reading task", ex);
+                taskResultManager.typeNotValidError(
+                        "task", input.firstParameter(), CommandUtils.fromEnumToArray(TaskType.class));
             }
-            taskResultManager.printTasks(taskTOs);
         } else {
             taskResultManager.commandOptionError(READ_HELP_MESSAGE);
         }

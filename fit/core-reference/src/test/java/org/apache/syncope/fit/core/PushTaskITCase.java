@@ -79,7 +79,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
     @Test
     public void read() {
         PushTaskTO pushTaskTO = taskService.<PushTaskTO>read(
-                "0bc11a19-6454-45c2-a4e3-ceef84e5d79b", true);
+                TaskType.PUSH, "0bc11a19-6454-45c2-a4e3-ceef84e5d79b", true);
         assertEquals(UnmatchingRule.ASSIGN, pushTaskTO.getUnmatchingRule());
         assertEquals(MatchingRule.UPDATE, pushTaskTO.getMatchingRule());
     }
@@ -105,11 +105,11 @@ public class PushTaskITCase extends AbstractTaskITCase {
                 SyncopeClient.getGroupSearchConditionBuilder().isNotNull("cool").query());
         task.setMatchingRule(MatchingRule.LINK);
 
-        final Response response = taskService.create(task);
+        final Response response = taskService.create(TaskType.PUSH, task);
         final PushTaskTO actual = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
         assertNotNull(actual);
 
-        task = taskService.read(actual.getKey(), true);
+        task = taskService.read(TaskType.PUSH, actual.getKey(), true);
         assertNotNull(task);
         assertEquals(task.getKey(), actual.getKey());
         assertEquals(task.getJobDelegate(), actual.getJobDelegate());
@@ -126,7 +126,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         assertFalse(groupService.read("29f96485-729e-4d31-88a1-6fc60e4677f3").
                 getResources().contains(RESOURCE_NAME_LDAP));
 
-        execProvisioningTask(taskService, "fd905ba5-9d56-4f51-83e2-859096a67b75", 50, false);
+        execProvisioningTask(taskService, TaskType.PUSH, "fd905ba5-9d56-4f51-83e2-859096a67b75", 50, false);
 
         assertNotNull(resourceService.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), "29f96485-729e-4d31-88a1-6fc60e4677f3"));
@@ -151,7 +151,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         // ------------------------------------------
         // Unmatching --> Assign --> dryRuyn
         // ------------------------------------------
-        execProvisioningTask(taskService, "af558be4-9d2f-4359-bf85-a554e6e90be1", 50, true);
+        execProvisioningTask(taskService, TaskType.PUSH, "af558be4-9d2f-4359-bf85-a554e6e90be1", 50, true);
         assertEquals(0, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='vivaldi'").size());
         assertFalse(userService.read("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee").
                 getResources().contains(RESOURCE_NAME_TESTDB2));
@@ -162,7 +162,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         pushTaskKeys.add("97f327b6-2eff-4d35-85e8-d581baaab855");
         pushTaskKeys.add("03aa2a04-4881-4573-9117-753f81b04865");
         pushTaskKeys.add("5e5f7c7e-9de7-4c6a-99f1-4df1af959807");
-        execProvisioningTasks(taskService, pushTaskKeys, 50, false);
+        execProvisioningTasks(taskService, TaskType.PUSH, pushTaskKeys, 50, false);
 
         // ------------------------------------------
         // Unatching --> Ignore
@@ -213,7 +213,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         // ------------------------------------------
         // Matching --> Deprovision --> dryRuyn
         // ------------------------------------------
-        execProvisioningTask(taskService, "c46edc3a-a18b-4af2-b707-f4a415507496", 50, true);
+        execProvisioningTask(taskService, TaskType.PUSH, "c46edc3a-a18b-4af2-b707-f4a415507496", 50, true);
         assertTrue(userService.read("1417acbe-cbf6-4277-9372-e75e04f97000").
                 getResources().contains(RESOURCE_NAME_TESTDB2));
         assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='rossini'").size());
@@ -224,7 +224,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         pushTaskKeys.add("c46edc3a-a18b-4af2-b707-f4a415507496");
         pushTaskKeys.add("5e5f7c7e-9de7-4c6a-99f1-4df1af959807");
 
-        execProvisioningTasks(taskService, pushTaskKeys, 50, false);
+        execProvisioningTasks(taskService, TaskType.PUSH, pushTaskKeys, 50, false);
 
         // ------------------------------------------
         // Matching --> Deprovision && Ignore
@@ -247,7 +247,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         // ------------------------------------------
         // Matching --> Link
         // ------------------------------------------
-        execProvisioningTask(taskService, "51318433-cce4-4f71-8f45-9534b6c9c819", 50, false);
+        execProvisioningTask(taskService, TaskType.PUSH, "51318433-cce4-4f71-8f45-9534b6c9c819", 50, false);
         assertTrue(userService.read("74cd8ece-715a-44a4-a736-e17b46c4e7e6").
                 getResources().contains(RESOURCE_NAME_TESTDB2));
         assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='verdi'").size());
@@ -257,7 +257,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         pushTaskKeys.add("24b1be9c-7e3b-443a-86c9-798ebce5eaf2");
         pushTaskKeys.add("375c7b7f-9e3a-4833-88c9-b7787b0a69f2");
 
-        execProvisioningTasks(taskService, pushTaskKeys, 50, false);
+        execProvisioningTasks(taskService, TaskType.PUSH, pushTaskKeys, 50, false);
 
         // ------------------------------------------
         // Matching --> Unlink && Update
@@ -284,11 +284,11 @@ public class PushTaskITCase extends AbstractTaskITCase {
         task.setPerformDelete(true);
         task.setPerformUpdate(true);
 
-        Response response = taskService.create(task);
+        Response response = taskService.create(TaskType.PUSH, task);
         PushTaskTO pushTask = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
         assertNotNull(pushTask);
 
-        ExecTO exec = execProvisioningTask(taskService, pushTask.getKey(), 50, false);
+        ExecTO exec = execProvisioningTask(taskService, TaskType.PUSH, pushTask.getKey(), 50, false);
         assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
 
         // 2. check
@@ -371,12 +371,12 @@ public class PushTaskITCase extends AbstractTaskITCase {
             task.getFilters().put(AnyTypeKind.GROUP.name(),
                     SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo(groupTO.getName()).query());
 
-            response = taskService.create(task);
+            response = taskService.create(TaskType.PUSH, task);
             PushTaskTO push = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
             assertNotNull(push);
 
             // execute the new task
-            ExecTO exec = execProvisioningTask(taskService, push.getKey(), 50, false);
+            ExecTO exec = execProvisioningTask(taskService, TaskType.PUSH, push.getKey(), 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
         } finally {
             groupService.delete(groupTO.getKey());
@@ -401,7 +401,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         task.setMatchingRule(MatchingRule.IGNORE);
         task.setUnmatchingRule(UnmatchingRule.IGNORE);
 
-        Response response = taskService.create(task);
+        Response response = taskService.create(TaskType.PUSH, task);
         PushTaskTO actual = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
         assertNotNull(actual);
 
@@ -425,7 +425,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         notification = getObject(responseNotification.getLocation(), NotificationService.class, NotificationTO.class);
         assertNotNull(notification);
 
-        execProvisioningTask(taskService, actual.getKey(), 50, false);
+        execProvisioningTask(taskService, TaskType.PUSH, actual.getKey(), 50, false);
 
         NotificationTaskTO taskTO = findNotificationTask(notification.getKey(), 50);
         assertNotNull(taskTO);
