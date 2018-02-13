@@ -115,7 +115,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void onClick(final AjaxRequestTarget target, final CamelRouteTO ignore) {
-                final CamelRouteTO route = restClient.read(model.getObject().getKey());
+                final CamelRouteTO route = restClient.read(anyTypeKind, model.getObject().getKey());
 
                 utilityModal.header(Model.of(route.getKey()));
                 utilityModal.setContent(new XMLEditorPanel(
@@ -126,7 +126,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
                     @Override
                     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                         try {
-                            restClient.update(route);
+                            restClient.update(anyTypeKind, route);
                             info(getString(Constants.OPERATION_SUCCEEDED));
                             modal.close(target);
                         } catch (Exception e) {

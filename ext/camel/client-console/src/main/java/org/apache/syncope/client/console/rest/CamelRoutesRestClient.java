@@ -36,12 +36,12 @@ public class CamelRoutesRestClient extends BaseRestClient {
                 : Collections.<CamelRouteTO>emptyList();
     }
 
-    public CamelRouteTO read(final String key) {
-        return getService(CamelRouteService.class).read(key);
+    public CamelRouteTO read(final AnyTypeKind anyTypeKind, final String key) {
+        return getService(CamelRouteService.class).read(anyTypeKind, key);
     }
 
-    public void update(final CamelRouteTO routeTO) {
-        getService(CamelRouteService.class).update(routeTO);
+    public void update(final AnyTypeKind anyTypeKind, final CamelRouteTO routeTO) {
+        getService(CamelRouteService.class).update(anyTypeKind, routeTO);
     }
 
     public boolean isCamelEnabledFor(final AnyTypeKind anyTypeKind) {

@@ -20,7 +20,6 @@ package org.apache.syncope.common.lib.types;
 
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlEnum;
-import org.apache.commons.lang3.StringUtils;
 
 public final class AuditElements implements Serializable {
 
@@ -33,12 +32,12 @@ public final class AuditElements implements Serializable {
     @XmlEnum
     public enum EventCategoryType {
 
-        LOGIC(StringUtils.EMPTY),
-        TASK(StringUtils.EMPTY),
+        LOGIC("LOGIC"),
+        TASK("TASK"),
         PROPAGATION("PropagationTask"),
         PULL("PullTask"),
         PUSH("PushTask"),
-        CUSTOM(StringUtils.EMPTY);
+        CUSTOM("CUSTOM");
 
         private final String value;
 

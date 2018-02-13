@@ -63,19 +63,19 @@ public class CamelRouteITCase extends AbstractITCase {
         }
     }
 
-    private CamelRouteTO doUpdate(final String key, final String content) {
-        CamelRouteTO route = camelRouteService.read(key);
+    private CamelRouteTO doUpdate(final AnyTypeKind anyTypeKind, final String key, final String content) {
+        CamelRouteTO route = camelRouteService.read(anyTypeKind, key);
         route.setContent(content);
-        camelRouteService.update(route);
+        camelRouteService.update(anyTypeKind, route);
         // getting new route definition
-        return camelRouteService.read(key);
+        return camelRouteService.read(anyTypeKind, key);
     }
 
     @Test
     public void update() {
         Assume.assumeTrue(CamelDetector.isCamelEnabledForUsers(syncopeService));
 
-        CamelRouteTO oldRoute = camelRouteService.read("createUser");
+        CamelRouteTO oldRoute = camelRouteService.read(AnyTypeKind.USER, "createUser");
         assertNotNull(oldRoute);
         String routeContent = "<route id=\"createUser\">\n"
                 + "  <from uri=\"direct:createUser\"/>\n"
@@ -98,10 +98,10 @@ public class CamelRouteITCase extends AbstractITCase {
                 + "  </doTry>\n"
                 + "</route>";
         try {
-            CamelRouteTO route = doUpdate("createUser", routeContent);
+            CamelRouteTO route = doUpdate(AnyTypeKind.USER, "createUser", routeContent);
             assertEquals(routeContent, route.getContent());
         } finally {
-            doUpdate(oldRoute.getKey(), oldRoute.getContent());
+            doUpdate(AnyTypeKind.USER, oldRoute.getKey(), oldRoute.getContent());
         }
     }
 
@@ -109,7 +109,7 @@ public class CamelRouteITCase extends AbstractITCase {
     public void scriptingUpdate() {
         Assume.assumeTrue(CamelDetector.isCamelEnabledForUsers(syncopeService));
 
-        CamelRouteTO oldRoute = camelRouteService.read("createUser");
+        CamelRouteTO oldRoute = camelRouteService.read(AnyTypeKind.USER, "createUser");
         // updating route content including new attribute management
 
         String routeContent = ""
@@ -139,7 +139,7 @@ public class CamelRouteITCase extends AbstractITCase {
                 + "    </doTry>\n"
                 + "  </route> ";
         try {
-            doUpdate("createUser", routeContent);
+            doUpdate(AnyTypeKind.USER, "createUser", routeContent);
 
             // creating new schema attribute for user
             PlainSchemaTO schemaTO = new PlainSchemaTO();
@@ -167,7 +167,7 @@ public class CamelRouteITCase extends AbstractITCase {
             assertNotNull(userTO);
             assertEquals("true", userTO.getPlainAttr("camelAttribute").getValues().get(0));
         } finally {
-            doUpdate(oldRoute.getKey(), oldRoute.getContent());
+            doUpdate(AnyTypeKind.USER, oldRoute.getKey(), oldRoute.getContent());
         }
     }
 
@@ -175,7 +175,7 @@ public class CamelRouteITCase extends AbstractITCase {
     public void issueSYNCOPE931() {
         Assume.assumeTrue(CamelDetector.isCamelEnabledForUsers(syncopeService));
 
-        CamelRouteTO oldRoute = camelRouteService.read("createUser");
+        CamelRouteTO oldRoute = camelRouteService.read(AnyTypeKind.USER, "createUser");
         assertNotNull(oldRoute);
         String routeContent = "<route id=\"createUser\">\n"
                 + "  <from uri=\"direct:createUser\"/>\n"
@@ -200,7 +200,7 @@ public class CamelRouteITCase extends AbstractITCase {
 
         // Try to update a route with an incorrect propagation type
         try {
-            doUpdate("createUser", routeContent);
+            doUpdate(AnyTypeKind.USER, "createUser", routeContent);
             Assert.fail("Error expected on an incorrect propagation type");
         } catch (Exception ex) {
             // Expected
@@ -209,10 +209,10 @@ public class CamelRouteITCase extends AbstractITCase {
         // Now update the route again with the correct propagation type
         routeContent = routeContent.replaceFirst("create123", "create");
         try {
-            CamelRouteTO route = doUpdate("createUser", routeContent);
+            CamelRouteTO route = doUpdate(AnyTypeKind.USER, "createUser", routeContent);
             assertEquals(routeContent, route.getContent());
         } finally {
-            doUpdate(oldRoute.getKey(), oldRoute.getContent());
+            doUpdate(AnyTypeKind.USER, oldRoute.getKey(), oldRoute.getContent());
         }
     }
 

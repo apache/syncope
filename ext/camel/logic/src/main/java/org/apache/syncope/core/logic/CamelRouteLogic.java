@@ -30,10 +30,12 @@ import java.util.Map;
 import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.CamelMetrics;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CamelEntitlement;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
@@ -70,21 +72,34 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
 
     @PreAuthorize("hasRole('" + CamelEntitlement.ROUTE_READ + "')")
     @Transactional(readOnly = true)
-    public CamelRouteTO read(final String key) {
+    public CamelRouteTO read(final AnyTypeKind anyTypeKind, final String key) {
         CamelRoute route = routeDAO.find(key);
         if (route == null) {
             throw new NotFoundException("CamelRoute with key=" + key);
+        }
+
+        if (route.getAnyTypeKind() != anyTypeKind) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            sce.getElements().add("Found " + anyTypeKind + ", expected " + route.getAnyTypeKind());
+            throw sce;
         }
 
         return binder.getRouteTO(route);
     }
 
     @PreAuthorize("hasRole('" + CamelEntitlement.ROUTE_UPDATE + "')")
-    public void update(final CamelRouteTO routeTO) {
+    public void update(final AnyTypeKind anyTypeKind, final CamelRouteTO routeTO) {
         CamelRoute route = routeDAO.find(routeTO.getKey());
         if (route == null) {
             throw new NotFoundException("CamelRoute with key=" + routeTO.getKey());
         }
+
+        if (route.getAnyTypeKind() != anyTypeKind) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            sce.getElements().add("Found " + anyTypeKind + ", expected " + route.getAnyTypeKind());
+            throw sce;
+        }
+
         String originalContent = route.getContent();
 
         LOG.debug("Updating route {} with content {}", routeTO.getKey(), routeTO.getContent());
