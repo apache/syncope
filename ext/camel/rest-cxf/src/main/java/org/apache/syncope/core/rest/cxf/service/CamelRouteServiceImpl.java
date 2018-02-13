@@ -40,13 +40,13 @@ public class CamelRouteServiceImpl extends AbstractServiceImpl implements CamelR
     }
 
     @Override
-    public CamelRouteTO read(final String key) {
-        return logic.read(key);
+    public CamelRouteTO read(final AnyTypeKind anyTypeKind, final String key) {
+        return logic.read(anyTypeKind, key);
     }
 
     @Override
-    public Response update(final CamelRouteTO route) {
-        logic.update(route);
+    public Response update(final AnyTypeKind anyTypeKind, final CamelRouteTO route) {
+        logic.update(anyTypeKind, route);
         return Response.noContent().build();
     }
 

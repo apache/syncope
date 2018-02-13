@@ -25,7 +25,6 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.MatrixParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -54,31 +53,36 @@ public interface CamelRouteService extends JAXRSService {
      * @return all routes for the given any type kind
      */
     @GET
+    @Path("{anyTypeKind}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    List<CamelRouteTO> list(@NotNull @MatrixParam("anyTypeKind") AnyTypeKind anyTypeKind);
+    List<CamelRouteTO> list(@NotNull @PathParam("anyTypeKind") AnyTypeKind anyTypeKind);
 
     /**
      * Read the route with the given key.
      *
+     * @param anyTypeKind any type kind
      * @param key route key
      * @return route with given key
      */
     @GET
-    @Path("{key}")
+    @Path("{anyTypeKind}/{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    CamelRouteTO read(@NotNull @PathParam("key") String key);
+    CamelRouteTO read(
+            @NotNull @PathParam("anyTypeKind") AnyTypeKind anyTypeKind,
+            @NotNull @PathParam("key") String key);
 
     /**
      * Update the given route.
      *
+     * @param anyTypeKind any type kind
      * @param route to be updated
      * @return an empty response if operation was successful
      */
     @PUT
-    @Path("{key}")
+    @Path("{anyTypeKind}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response update(@NotNull CamelRouteTO route);
+    Response update(@NotNull @PathParam("anyTypeKind") AnyTypeKind anyTypeKind, @NotNull CamelRouteTO route);
 
     /**
      * Restart the underlying Apache Camel context.
