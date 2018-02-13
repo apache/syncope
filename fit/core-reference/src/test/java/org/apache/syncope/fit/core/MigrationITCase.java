@@ -416,7 +416,7 @@ public class MigrationITCase extends AbstractTaskITCase {
         user.getPlainAttrs().add(new AttrTO.Builder().schema("fullname").value("username").build());
         task.getTemplates().put(AnyTypeKind.USER.name(), user);
 
-        Response response = taskService.create(task);
+        Response response = taskService.create(TaskType.PULL, task);
         task = getObject(response.getLocation(), TaskService.class, PullTaskTO.class);
 
         return task.getKey();
@@ -430,7 +430,7 @@ public class MigrationITCase extends AbstractTaskITCase {
                     new TaskQuery.Builder(TaskType.PULL).resource(RESOURCE_KEY).build()).getResult()) {
 
                 if (PULL_TASK_NAME.equals(PullTaskTO.class.cast(task).getName())) {
-                    taskService.delete(task.getKey());
+                    taskService.delete(TaskType.PULL, task.getKey());
                 }
             }
         } catch (Exception e) {
@@ -479,7 +479,7 @@ public class MigrationITCase extends AbstractTaskITCase {
         String pullTaskKey = setupPullTask();
 
         // 3. execute pull task
-        execProvisioningTask(taskService, pullTaskKey, 50, false);
+        execProvisioningTask(taskService, TaskType.PULL, pullTaskKey, 50, false);
 
         // 4. verify
         UserTO user = null;

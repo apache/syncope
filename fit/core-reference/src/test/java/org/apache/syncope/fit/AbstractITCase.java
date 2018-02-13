@@ -62,6 +62,7 @@ import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -486,8 +487,8 @@ public abstract class AbstractITCase {
     }
 
     @SuppressWarnings("unchecked")
-    protected <T extends PolicyTO> T createPolicy(final T policy) {
-        Response response = policyService.create(policy);
+    protected <T extends PolicyTO> T createPolicy(final PolicyType type, final T policy) {
+        Response response = policyService.create(type, policy);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
             if (ex != null) {

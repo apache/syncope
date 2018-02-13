@@ -70,6 +70,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
@@ -262,7 +263,7 @@ public class UserITCase extends AbstractITCase {
         assertFalse(tasks.getResult().isEmpty());
 
         String maxKey = tasks.getResult().iterator().next().getKey();
-        PropagationTaskTO taskTO = taskService.read(maxKey, true);
+        PropagationTaskTO taskTO = taskService.read(TaskType.PROPAGATION, maxKey, true);
 
         assertNotNull(taskTO);
         int maxTaskExecutions = taskTO.getExecutions().size();
@@ -310,7 +311,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals(newMaxKey, maxKey);
 
         // get last task
-        taskTO = taskService.read(newMaxKey, true);
+        taskTO = taskService.read(TaskType.PROPAGATION, newMaxKey, true);
 
         assertNotNull(taskTO);
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
@@ -662,7 +663,7 @@ public class UserITCase extends AbstractITCase {
         // all update executions have to be registered
         newMaxKey = tasks.getResult().iterator().next().getKey();
 
-        PropagationTaskTO taskTO = taskService.read(newMaxKey, true);
+        PropagationTaskTO taskTO = taskService.read(TaskType.PROPAGATION, newMaxKey, true);
 
         assertNotNull(taskTO);
         assertEquals(1, taskTO.getExecutions().size());
@@ -928,13 +929,13 @@ public class UserITCase extends AbstractITCase {
         AccountPolicyTO accountPolicy = new AccountPolicyTO();
         accountPolicy.setDescription("Account Policy with custom rules");
         accountPolicy.getRuleConfs().add(new TestAccountRuleConf());
-        accountPolicy = createPolicy(accountPolicy);
+        accountPolicy = createPolicy(PolicyType.ACCOUNT, accountPolicy);
         assertNotNull(accountPolicy);
 
         PasswordPolicyTO passwordPolicy = new PasswordPolicyTO();
         passwordPolicy.setDescription("Password Policy with custom rules");
         passwordPolicy.getRuleConfs().add(new TestPasswordRuleConf());
-        passwordPolicy = createPolicy(passwordPolicy);
+        passwordPolicy = createPolicy(PolicyType.PASSWORD, passwordPolicy);
         assertNotNull(passwordPolicy);
 
         RealmTO realm = realmService.list("/even/two").get(0);
@@ -972,8 +973,8 @@ public class UserITCase extends AbstractITCase {
             realm.setPasswordPolicy(oldPasswordPolicy);
             realmService.update(realm);
 
-            policyService.delete(passwordPolicy.getKey());
-            policyService.delete(accountPolicy.getKey());
+            policyService.delete(PolicyType.PASSWORD, passwordPolicy.getKey());
+            policyService.delete(PolicyType.ACCOUNT, accountPolicy.getKey());
         }
     }
 

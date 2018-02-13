@@ -19,7 +19,7 @@
 package org.apache.syncope.core.provisioning.api.data;
 
 import org.apache.syncope.common.lib.policy.PolicyTO;
-import org.apache.syncope.core.persistence.api.entity.Policy;
+import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 
 public interface PolicyDataBinder {
 

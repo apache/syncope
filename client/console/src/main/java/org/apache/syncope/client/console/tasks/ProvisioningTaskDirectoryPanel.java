@@ -51,10 +51,12 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
     protected ProvisioningTaskDirectoryPanel(
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
+            final TaskType taskType,
             final Class<T> reference,
             final String resource,
             final PageReference pageRef) {
-        super(baseModal, multiLevelPanelRef, reference, pageRef);
+
+        super(baseModal, multiLevelPanelRef, taskType, reference, pageRef);
         this.resource = resource;
 
         this.schedTaskTO.setResource(resource);

@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.api.entity.policy;
 
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
-import org.apache.syncope.core.persistence.api.entity.Policy;
 
 public interface PullPolicy extends Policy {
 

@@ -18,22 +18,11 @@
  */
 package org.apache.syncope.core.persistence.api.entity.policy;
 
-import java.util.List;
-import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.common.lib.types.PolicyType;
 
-public interface PasswordPolicy extends Policy {
+public interface PolicyUtils {
 
-    boolean isAllowNullPassword();
+    PolicyType getType();
 
-    void setAllowNullPassword(final boolean allowNullPassword);
-
-    int getHistoryLength();
-
-    void setHistoryLength(int historyLength);
-
-    boolean add(PasswordRuleConf passwordRuleConf);
-
-    void removeAllRuleConfs();
-
-    List<PasswordRuleConf> getRuleConfs();
+    Class<? extends Policy> policyClass();
 }

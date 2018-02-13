@@ -66,7 +66,7 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void getAccountPolicy() {
-        AccountPolicyTO policyTO = policyService.read("06e2ed52-6966-44aa-a177-a0ca7434201f");
+        AccountPolicyTO policyTO = policyService.read(PolicyType.ACCOUNT, "06e2ed52-6966-44aa-a177-a0ca7434201f");
 
         assertNotNull(policyTO);
         assertTrue(policyTO.getUsedByResources().isEmpty());
@@ -75,7 +75,7 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void getPasswordPolicy() {
-        PasswordPolicyTO policyTO = policyService.read("986d1236-3ac5-4a19-810c-5ab21d79cba1");
+        PasswordPolicyTO policyTO = policyService.read(PolicyType.PASSWORD, "986d1236-3ac5-4a19-810c-5ab21d79cba1");
 
         assertNotNull(policyTO);
         assertTrue(policyTO.getUsedByResources().contains(RESOURCE_NAME_NOPROPAGATION));
@@ -84,7 +84,7 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void getPullPolicy() {
-        PullPolicyTO policyTO = policyService.read("66691e96-285f-4464-bc19-e68384ea4c85");
+        PullPolicyTO policyTO = policyService.read(PolicyType.PULL, "66691e96-285f-4464-bc19-e68384ea4c85");
 
         assertNotNull(policyTO);
         assertTrue(policyTO.getUsedByRealms().isEmpty());
@@ -96,7 +96,7 @@ public class PolicyITCase extends AbstractITCase {
         policy.setSpecification(new PullPolicySpec());
 
         try {
-            createPolicy(policy);
+            createPolicy(PolicyType.PULL, policy);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPolicy, e.getType());
@@ -107,7 +107,7 @@ public class PolicyITCase extends AbstractITCase {
     public void create() {
         PullPolicyTO policy = buildPullPolicyTO();
 
-        PullPolicyTO policyTO = createPolicy(policy);
+        PullPolicyTO policyTO = createPolicy(PolicyType.PULL, policy);
 
         assertNotNull(policyTO);
         assertEquals(TestPullRule.class.getName(),
@@ -116,21 +116,21 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void update() {
-        PasswordPolicyTO globalPolicy = policyService.read("ce93fcda-dc3a-4369-a7b0-a6108c261c85");
+        PasswordPolicyTO globalPolicy = policyService.read(PolicyType.PASSWORD, "ce93fcda-dc3a-4369-a7b0-a6108c261c85");
 
         PasswordPolicyTO policy = SerializationUtils.clone(globalPolicy);
         policy.setDescription("A simple password policy");
 
         // create a new password policy using the former as a template
-        policy = createPolicy(policy);
+        policy = createPolicy(PolicyType.PASSWORD, policy);
         assertNotNull(policy);
         assertNotEquals("ce93fcda-dc3a-4369-a7b0-a6108c261c85", policy.getKey());
 
         ((DefaultPasswordRuleConf) policy.getRuleConfs().get(0)).setMaxLength(22);
 
         // update new password policy
-        policyService.update(policy);
-        policy = policyService.read(policy.getKey());
+        policyService.update(PolicyType.PASSWORD, policy);
+        policy = policyService.read(PolicyType.PASSWORD, policy.getKey());
 
         assertNotNull(policy);
         assertEquals(22, ((DefaultPasswordRuleConf) policy.getRuleConfs().get(0)).getMaxLength());
@@ -141,13 +141,13 @@ public class PolicyITCase extends AbstractITCase {
     public void delete() {
         PullPolicyTO policy = buildPullPolicyTO();
 
-        PullPolicyTO policyTO = createPolicy(policy);
+        PullPolicyTO policyTO = createPolicy(PolicyType.PULL, policy);
         assertNotNull(policyTO);
 
-        policyService.delete(policyTO.getKey());
+        policyService.delete(PolicyType.PULL, policyTO.getKey());
 
         try {
-            policyService.read(policyTO.getKey());
+            policyService.read(PolicyType.PULL, policyTO.getKey());
             fail();
         } catch (SyncopeClientException e) {
             assertNotNull(e);
@@ -169,7 +169,7 @@ public class PolicyITCase extends AbstractITCase {
         ruleConf.setMaxLength(8);
         policy.getRuleConfs().add(ruleConf);
 
-        policy = createPolicy(policy);
+        policy = createPolicy(PolicyType.ACCOUNT, policy);
         assertNotNull(policy);
     }
 
@@ -184,7 +184,7 @@ public class PolicyITCase extends AbstractITCase {
         ruleConf.setMaxLength(8);
         policy.getRuleConfs().add(ruleConf);
 
-        policy = createPolicy(policy);
+        policy = createPolicy(PolicyType.ACCOUNT, policy);
         assertNotNull(policy);
     }
 }

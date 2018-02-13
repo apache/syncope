@@ -16,7 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity;
+package org.apache.syncope.core.persistence.api.entity.policy;
+
+import org.apache.syncope.core.persistence.api.entity.Entity;
 
 public interface Policy extends Entity {
 

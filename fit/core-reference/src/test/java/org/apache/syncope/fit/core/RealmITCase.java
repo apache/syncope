@@ -37,6 +37,7 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.fit.AbstractITCase;
@@ -142,7 +143,7 @@ public class RealmITCase extends AbstractITCase {
         ruleConf.setMaxLength(8);
         policy.getRuleConfs().add(ruleConf);
 
-        policy = createPolicy(policy);
+        policy = createPolicy(PolicyType.ACCOUNT, policy);
         assertNotNull(policy);
 
         // 2. create realm with policy assigned
@@ -158,7 +159,7 @@ public class RealmITCase extends AbstractITCase {
         assertEquals(policy.getKey(), actual.getAccountPolicy());
 
         // 3. remove policy
-        policyService.delete(policy.getKey());
+        policyService.delete(PolicyType.ACCOUNT, policy.getKey());
 
         // 4. verify
         actual = getRealm(actual.getFullPath());

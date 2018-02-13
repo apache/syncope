@@ -42,6 +42,7 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PullMode;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -58,6 +59,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
     private static final long serialVersionUID = 5945391813567245081L;
 
     private final TaskRestClient taskRestClient = new TaskRestClient();
+
+    private final TaskType type;
 
     private PushTaskWrapper wrapper;
 
@@ -84,8 +87,9 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
         }
     };
 
-    public SchedTaskWizardBuilder(final T taskTO, final PageReference pageRef) {
+    public SchedTaskWizardBuilder(final TaskType type, final T taskTO, final PageReference pageRef) {
         super(taskTO, pageRef);
+        this.type = type;
     }
 
     @Override
@@ -96,9 +100,9 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
         modelObject.setCronExpression(crontabPanel.getCronExpression());
         if (modelObject.getKey() == null) {
-            taskRestClient.create(modelObject);
+            taskRestClient.create(type, modelObject);
         } else {
-            taskRestClient.update(modelObject);
+            taskRestClient.update(type, modelObject);
         }
         return modelObject;
     }

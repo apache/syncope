@@ -45,6 +45,7 @@ import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -132,7 +133,7 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
             for (CorrelationRule rule : model.getObject()) {
                 getItem().getSpecification().getCorrelationRules().put(rule.getAny(), rule.getRule());
             }
-            restClient.updatePolicy(getItem());
+            restClient.updatePolicy(PolicyType.PULL, getItem());
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);
         } catch (Exception e) {
@@ -278,18 +279,18 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
             final List<String> choices = StringUtils.isEmpty(rule.getAny())
                     ? new ArrayList<String>()
                     : CollectionUtils.collect(new SchemaRestClient().getSchemas(SchemaType.PLAIN,
-                                    rule.getAny().equals(AnyTypeKind.USER.name())
-                                    ? AnyTypeKind.USER
-                                    : rule.getAny().equals(AnyTypeKind.GROUP.name())
-                                    ? AnyTypeKind.GROUP
-                                    : AnyTypeKind.ANY_OBJECT), new Transformer<SchemaTO, String>() {
+                            rule.getAny().equals(AnyTypeKind.USER.name())
+                            ? AnyTypeKind.USER
+                            : rule.getAny().equals(AnyTypeKind.GROUP.name())
+                            ? AnyTypeKind.GROUP
+                            : AnyTypeKind.ANY_OBJECT), new Transformer<SchemaTO, String>() {
 
                         @Override
                         public String transform(final SchemaTO input) {
                             return input.getKey();
                         }
                     }, new ArrayList<String>());
-            
+
             choices.add("key");
             choices.add(rule.getAny().equals(AnyTypeKind.USER.name()) ? "username" : "name");
             Collections.sort(choices);

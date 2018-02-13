@@ -19,7 +19,6 @@
 package org.apache.syncope.common.rest.api.beans;
 
 import javax.ws.rs.DefaultValue;
-import javax.ws.rs.MatrixParam;
 import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
@@ -63,7 +62,7 @@ public class AnyQuery extends AbstractQuery {
     }
 
     @DefaultValue(SyncopeConstants.ROOT_REALM)
-    @MatrixParam("realm")
+    @QueryParam("realm")
     public void setRealm(final String realm) {
         this.realm = realm;
     }

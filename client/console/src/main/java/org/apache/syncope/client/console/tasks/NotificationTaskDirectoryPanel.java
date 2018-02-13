@@ -160,7 +160,7 @@ public abstract class NotificationTaskDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
                 try {
-                    restClient.delete(taskTO.getKey(), NotificationTaskTO.class);
+                    restClient.delete(TaskType.NOTIFICATION, taskTO.getKey());
                     updateResultTable(target);
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);

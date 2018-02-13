@@ -53,8 +53,10 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
+import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -351,8 +353,7 @@ public class JobWidget extends BaseWidget {
                         final IModel<JobTO> rowModel) {
 
                     JobTO jobTO = rowModel.getObject();
-                    JobActionPanel panel
-                            = new JobActionPanel(componentId, jobTO, JobWidget.this, pageRef);
+                    JobActionPanel panel = new JobActionPanel(componentId, jobTO, JobWidget.this, pageRef);
                     MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
                             String.format("%s,%s%s,%s",
                                     StandardEntitlement.TASK_EXECUTE,
@@ -404,11 +405,18 @@ public class JobWidget extends BaseWidget {
                             break;
 
                         case TASK:
-                            ProvisioningTaskTO schedTaskTO = new TaskRestClient().
-                                    readSchedTask(ProvisioningTaskTO.class, jobTO.getRefKey());
+                            ProvisioningTaskTO schedTaskTO;
+                            try {
+                                schedTaskTO = new TaskRestClient().readTask(TaskType.PULL, jobTO.getRefKey());
+                            } catch (Exception e) {
+                                LOG.debug("Failed to read {} as {}, attempting {}",
+                                        jobTO.getRefKey(), TaskType.PULL, TaskType.PUSH, e);
+                                schedTaskTO = new TaskRestClient().readTask(TaskType.PUSH, jobTO.getRefKey());
+                            }
 
-                            SchedTaskWizardBuilder<ProvisioningTaskTO> swb
-                                    = new SchedTaskWizardBuilder<>(schedTaskTO, pageRef);
+                            SchedTaskWizardBuilder<ProvisioningTaskTO> swb =
+                                    new SchedTaskWizardBuilder<>(schedTaskTO instanceof PullTaskTO
+                                            ? TaskType.PULL : TaskType.PUSH, schedTaskTO, pageRef);
                             swb.setEventSink(AvailableJobsPanel.this);
 
                             target.add(jobModal.setContent(swb.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));

@@ -71,7 +71,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void update() {
-        SchedTaskTO task = taskService.read(SCHED_TASK_KEY, true);
+        SchedTaskTO task = taskService.read(TaskType.SCHEDULED, SCHED_TASK_KEY, true);
         assertNotNull(task);
 
         SchedTaskTO taskMod = new SchedTaskTO();
@@ -79,8 +79,8 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         taskMod.setName(task.getName());
         taskMod.setCronExpression(null);
 
-        taskService.update(taskMod);
-        SchedTaskTO actual = taskService.read(taskMod.getKey(), true);
+        taskService.update(TaskType.SCHEDULED, taskMod);
+        SchedTaskTO actual = taskService.read(TaskType.SCHEDULED, taskMod.getKey(), true);
         assertNotNull(actual);
         assertEquals(task.getKey(), actual.getKey());
         assertNull(actual.getCronExpression());
@@ -93,7 +93,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         task.setName("deferred");
         task.setJobDelegateClassName(TestSampleJobDelegate.class.getName());
 
-        Response response = taskService.create(task);
+        Response response = taskService.create(TaskType.SCHEDULED, task);
         task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
         assertNotNull(task);
 
@@ -112,7 +112,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
             } catch (InterruptedException e) {
             }
 
-            task = taskService.read(task.getKey(), true);
+            task = taskService.read(TaskType.SCHEDULED, task.getKey(), true);
 
             assertNotNull(task);
             assertNotNull(task.getExecutions());
@@ -135,13 +135,13 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         task.setDescription("issueSYNCOPE144 Description");
         task.setJobDelegateClassName(TestSampleJobDelegate.class.getName());
 
-        Response response = taskService.create(task);
+        Response response = taskService.create(TaskType.SCHEDULED, task);
         task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
         assertNotNull(task);
         assertEquals("issueSYNCOPE144", task.getName());
         assertEquals("issueSYNCOPE144 Description", task.getDescription());
 
-        task = taskService.read(task.getKey(), true);
+        task = taskService.read(TaskType.SCHEDULED, task.getKey(), true);
         assertNotNull(task);
         assertEquals("issueSYNCOPE144", task.getName());
         assertEquals("issueSYNCOPE144 Description", task.getDescription());
@@ -149,7 +149,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         task.setName("issueSYNCOPE144_2");
         task.setDescription("issueSYNCOPE144 Description_2");
 
-        response = taskService.create(task);
+        response = taskService.create(TaskType.SCHEDULED, task);
         task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
         assertNotNull(task);
         assertEquals("issueSYNCOPE144_2", task.getName());
@@ -166,7 +166,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         task.setDescription("issueSYNCOPE660 Description");
         task.setJobDelegateClassName(TestSampleJobDelegate.class.getName());
 
-        Response response = taskService.create(task);
+        Response response = taskService.create(TaskType.SCHEDULED, task);
         task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
 
         jobs = taskService.listJobs();

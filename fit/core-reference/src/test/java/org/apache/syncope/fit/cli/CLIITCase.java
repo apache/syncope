@@ -40,7 +40,6 @@ import org.apache.syncope.client.cli.commands.entitlement.EntitlementCommand;
 import org.apache.syncope.client.cli.commands.group.GroupCommand;
 import org.apache.syncope.client.cli.commands.install.InstallCommand;
 import org.apache.syncope.client.cli.commands.logger.LoggerCommand;
-import org.apache.syncope.client.cli.commands.policy.PolicyCommand;
 import org.apache.syncope.client.cli.commands.report.ReportCommand;
 import org.apache.syncope.client.cli.commands.role.RoleCommand;
 import org.apache.syncope.client.cli.commands.user.UserCommand;
@@ -277,26 +276,6 @@ public class CLIITCase extends AbstractITCase {
             process = PROCESS_BUILDER.start();
             final String result = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
             assertTrue(result.contains("- Report 72 doesn't exist"));
-        } catch (IOException e) {
-            fail(e.getMessage());
-        } finally {
-            if (process != null) {
-                process.destroy();
-            }
-        }
-    }
-
-    @Test
-    public void policyError() {
-        Process process = null;
-        try {
-            PROCESS_BUILDER.command(getCommand(
-                    new PolicyCommand().getClass().getAnnotation(Command.class).name(),
-                    PolicyCommand.PolicyOptions.READ.getOptionName(),
-                    "wrong"));
-            process = PROCESS_BUILDER.start();
-            final String result = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
-            assertTrue(result.contains("- Policy wrong doesn't exist"));
         } catch (IOException e) {
             fail(e.getMessage());
         } finally {

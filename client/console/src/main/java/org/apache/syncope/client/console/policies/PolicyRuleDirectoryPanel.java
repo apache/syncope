@@ -78,6 +78,8 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
     private final BaseModal<T> baseModal;
 
+    private final PolicyType type;
+
     private final String policy;
 
     protected PolicyRuleDirectoryPanel(
@@ -87,6 +89,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
         disableCheckBoxes();
 
         this.baseModal = baseModal;
+        this.type = type;
         this.policy = policy;
         this.restClient = new PolicyRestClient();
 
@@ -159,7 +162,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
             public void onClick(final AjaxRequestTarget target, final PolicyRuleWrapper ignore) {
                 final RuleConf rule = model.getObject().getConf();
                 try {
-                    final T actual = restClient.getPolicy(policy);
+                    final T actual = restClient.getPolicy(type, policy);
                     CollectionUtils.filter(getRuleConf(actual), new Predicate<RuleConf>() {
 
                         @Override
@@ -167,7 +170,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
                             return !object.getName().equals(rule.getName());
                         }
                     });
-                    restClient.updatePolicy(actual);
+                    restClient.updatePolicy(type, actual);
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     customActionOnFinishCallback(target);
                 } catch (SyncopeClientException e) {
@@ -233,7 +236,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
         @Override
         public Iterator<PolicyRuleWrapper> iterator(final long first, final long count) {
-            final T actual = restClient.getPolicy(policy);
+            final T actual = restClient.getPolicy(type, policy);
 
             final ArrayList<PolicyRuleWrapper> rules = CollectionUtils.collect(getRuleConf(actual),
                     new Transformer<RuleConf, PolicyRuleWrapper>() {
@@ -250,7 +253,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
         @Override
         public long size() {
-            final T actual = restClient.getPolicy(policy);
+            final T actual = restClient.getPolicy(type, policy);
             return getRuleConf(actual).size();
         }
 

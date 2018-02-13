@@ -119,29 +119,7 @@ under the License.
           </execution>
         </executions>
       </plugin>
-          
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <inherited>true</inherited>
-        <executions>
-          <execution>
-            <id>addMatrixParamSupport</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <target>
-                <replace file="${project.build.directory}/swagger-ui/META-INF/resources/webjars/swagger-ui/${swagger-ui.version}/swagger-ui-bundle.js"
-                         token="function i(e){var t=e.req,n=e.value,r=e.parameter,i=r.name,o=r.style,a=r.explode,s=(0,h.default)({key:r.name,value:n,style:o||&quot;simple&quot;,explode:a||!1,escape:!1});t.url=t.url.replace(&quot;{&quot;+i+&quot;}&quot;,s)}"
-                         value="function i(e){var t=e.req,r=e.value,n=e.parameter,a=n.name,u=n.style,o=n.explode,i=(0,h.default)({key:n.name,value:r,style:u||&quot;simple&quot;,explode:o||!1,escape:&quot;matrix&quot;===u});&quot;matrix&quot;!==u||!n.explode&amp;&amp;void 0!==n.explode?t.url=t.url.replace(&quot;{&quot;+a+&quot;}&quot;,i):t.url=t.url.concat(i)}"/>
-              </target>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
+         
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>

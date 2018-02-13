@@ -71,6 +71,7 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.PullMode;
@@ -105,9 +106,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @BeforeClass
     public static void testPullActionsSetup() {
-        PullTaskTO pullTask = taskService.read(PULL_TASK_KEY, true);
+        PullTaskTO pullTask = taskService.read(TaskType.PULL, PULL_TASK_KEY, true);
         pullTask.getActionsClassNames().add(TestPullActions.class.getName());
-        taskService.update(pullTask);
+        taskService.update(TaskType.PULL, pullTask);
     }
 
     @Test
@@ -147,11 +148,11 @@ public class PullTaskITCase extends AbstractTaskITCase {
         groupTemplate.getResources().add(RESOURCE_NAME_LDAP);
         task.getTemplates().put(AnyTypeKind.GROUP.name(), groupTemplate);
 
-        Response response = taskService.create(task);
+        Response response = taskService.create(TaskType.PULL, task);
         PullTaskTO actual = getObject(response.getLocation(), TaskService.class, PullTaskTO.class);
         assertNotNull(actual);
 
-        task = taskService.read(actual.getKey(), true);
+        task = taskService.read(TaskType.PULL, actual.getKey(), true);
         assertNotNull(task);
         assertEquals(actual.getKey(), task.getKey());
         assertEquals(actual.getJobDelegateClassName(), task.getJobDelegateClassName());
@@ -216,7 +217,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     page(1).size(1).build()).getTotalCount();
             assertNotNull(usersPre);
 
-            ExecTO exec = execProvisioningTask(taskService, PULL_TASK_KEY, 50, false);
+            ExecTO exec = execProvisioningTask(taskService, TaskType.PULL, PULL_TASK_KEY, 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
 
             LOG.debug("Execution of task {}:\n{}", PULL_TASK_KEY, exec);
@@ -289,7 +290,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             Set<String> otherPullTaskKeys = new HashSet<>();
             otherPullTaskKeys.add("feae4e57-15ca-40d9-b973-8b9015efca49");
             otherPullTaskKeys.add("55d5e74b-497e-4bc0-9156-73abef4b9adc");
-            execProvisioningTasks(taskService, otherPullTaskKeys, 50, false);
+            execProvisioningTasks(taskService, TaskType.PULL, otherPullTaskKeys, 50, false);
 
             // Matching --> UNLINK
             assertFalse(userService.read("test9").getResources().contains(RESOURCE_NAME_CSV));
@@ -301,7 +302,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void dryRun() {
-        ExecTO execution = execProvisioningTask(taskService, PULL_TASK_KEY, 50, true);
+        ExecTO execution = execProvisioningTask(taskService, TaskType.PULL, PULL_TASK_KEY, 50, true);
         assertEquals(
                 "Execution of " + execution.getRefDesc() + " failed with message " + execution.getMessage(),
                 "SUCCESS", execution.getStatus());
@@ -313,7 +314,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         try {
             ExecTO execution = execProvisioningTask(
-                    taskService, "83f7e85d-9774-43fe-adba-ccd856312994", 50, false);
+                    taskService, TaskType.PULL, "83f7e85d-9774-43fe-adba-ccd856312994", 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
             userTO = userService.read("testuser1");
@@ -326,7 +327,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // re-execute the same PullTask: now user must be active
             execution = execProvisioningTask(
-                    taskService, "83f7e85d-9774-43fe-adba-ccd856312994", 50, false);
+                    taskService, TaskType.PULL, "83f7e85d-9774-43fe-adba-ccd856312994", 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
             userTO = userService.read("testuser1");
@@ -346,7 +347,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ldapCleanup();
 
         // 0. pull
-        ExecTO execution = execProvisioningTask(taskService, "1e419ca4-ea81-4493-a14f-28b90113686d", 50, false);
+        ExecTO execution = execProvisioningTask(
+                taskService, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", 50, false);
 
         // 1. verify execution status
         assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
@@ -359,7 +361,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertNotNull(matchingGroups);
         assertEquals(1, matchingGroups.getResult().size());
         // SYNCOPE-898
-        PullTaskTO task = taskService.read("1e419ca4-ea81-4493-a14f-28b90113686d", false);
+        PullTaskTO task = taskService.read(TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", false);
         assertEquals("/", task.getDestinationRealm());
         assertEquals("/", matchingGroups.getResult().get(0).getRealm());
 
@@ -390,7 +392,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertNull(groupTO.getGroupOwner());
 
         // SYNCOPE-317
-        execProvisioningTask(taskService, "1e419ca4-ea81-4493-a14f-28b90113686d", 50, false);
+        execProvisioningTask(taskService, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", 50, false);
 
         // 4. verify that LDAP group membership is propagated as Syncope membership
         int i = 0;
@@ -475,12 +477,12 @@ public class PullTaskITCase extends AbstractTaskITCase {
             }
 
             // ensure that the pull task does not have the DELETE capability (SYNCOPE-923)
-            PullTaskTO pullTask = taskService.read("30cfd653-257b-495f-8665-281281dbcb3d", false);
+            PullTaskTO pullTask = taskService.read(TaskType.PULL, "30cfd653-257b-495f-8665-281281dbcb3d", false);
             assertNotNull(pullTask);
             assertFalse(pullTask.isPerformDelete());
 
             // 4. pull
-            execProvisioningTask(taskService, pullTask.getKey(), 50, false);
+            execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), 50, false);
 
             // 5. verify that printer was re-created in Syncope (implies that location does not start with given prefix,
             // hence PrefixItemTransformer was applied during pull)
@@ -513,10 +515,10 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     + "'" + user2OnTestPull + "', 'user2', 'Rossi', false, 'mail2@apache.org', NULL)");
 
             // 2. create new pull task for test-db, with reconciliation filter (surname 'Rossi') 
-            task = taskService.read("7c2242f4-14af-4ab5-af31-cdae23783655", true);
+            task = taskService.read(TaskType.PULL, "7c2242f4-14af-4ab5-af31-cdae23783655", true);
             task.setPullMode(PullMode.FILTERED_RECONCILIATION);
             task.setReconciliationFilterBuilderClassName(TestReconciliationFilterBuilder.class.getName());
-            Response response = taskService.create(task);
+            Response response = taskService.create(TaskType.PULL, task);
             task = getObject(response.getLocation(), TaskService.class, PullTaskTO.class);
             assertNotNull(task);
             assertEquals(
@@ -524,7 +526,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     task.getReconciliationFilterBuilderClassName());
 
             // 3. exec task
-            ExecTO execution = execProvisioningTask(taskService, task.getKey(), 50, false);
+            ExecTO execution = execProvisioningTask(taskService, TaskType.PULL, task.getKey(), 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
             // 4. verify that only enabled user was pulled
@@ -541,7 +543,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             jdbcTemplate.execute("DELETE FROM testpull WHERE id = '" + user1OnTestPull + "'");
             jdbcTemplate.execute("DELETE FROM testpull WHERE id = '" + user2OnTestPull + "'");
             if (task != null && !"7c2242f4-14af-4ab5-af31-cdae23783655".equals(task.getKey())) {
-                taskService.delete(task.getKey());
+                taskService.delete(TaskType.PULL, task.getKey());
             }
             if (userTO != null) {
                 userService.delete(userTO.getKey());
@@ -591,7 +593,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             pullTask.setPerformUpdate(true);
             pullTask.setPerformDelete(true);
 
-            response = taskService.create(pullTask);
+            response = taskService.create(TaskType.PULL, pullTask);
             if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
                 throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
             }
@@ -606,7 +608,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     + "(1041, 'syncTokenWithErrors2', 'Surname2', "
                     + "false, 'syncTokenWithErrors1@syncope.apache.org', '2015-05-23 13:53:24.293')");
 
-            ExecTO exec = execProvisioningTask(taskService, pullTask.getKey(), 50, false);
+            ExecTO exec = execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
 
             resForTest = resourceService.read(resForTest.getKey());
@@ -616,7 +618,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     + "SET email='syncTokenWithErrors2@syncope.apache.org', lastModification='2016-05-23 13:53:24.293' "
                     + "WHERE ID=1041");
 
-            exec = execProvisioningTask(taskService, pullTask.getKey(), 50, false);
+            exec = execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
 
             resForTest = resourceService.read(resForTest.getKey());
@@ -675,19 +677,19 @@ public class PullTaskITCase extends AbstractTaskITCase {
             //-----------------------------
 
             // Update pull task
-            PullTaskTO task = taskService.read("81d88f73-d474-4450-9031-605daa4e313f", true);
+            PullTaskTO task = taskService.read(TaskType.PULL, "81d88f73-d474-4450-9031-605daa4e313f", true);
             assertNotNull(task);
 
             task.getTemplates().put(AnyTypeKind.USER.name(), template);
 
-            taskService.update(task);
-            PullTaskTO actual = taskService.read(task.getKey(), true);
+            taskService.update(TaskType.PULL, task);
+            PullTaskTO actual = taskService.read(TaskType.PULL, task.getKey(), true);
             assertNotNull(actual);
             assertEquals(task.getKey(), actual.getKey());
             assertFalse(actual.getTemplates().get(AnyTypeKind.USER.name()).getResources().isEmpty());
             assertFalse(((UserTO) actual.getTemplates().get(AnyTypeKind.USER.name())).getMemberships().isEmpty());
 
-            ExecTO execution = execProvisioningTask(taskService, actual.getKey(), 50, false);
+            ExecTO execution = execProvisioningTask(taskService, TaskType.PULL, actual.getKey(), 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
             userTO = userService.read("testuser2");
@@ -712,7 +714,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 + "('" + id + "', 'issuesyncope230', 'Surname', false, 'syncope230@syncope.apache.org', NULL)");
 
         // 2. execute PullTask for resource-db-pull (table TESTPULL on external H2)
-        execProvisioningTask(taskService, "7c2242f4-14af-4ab5-af31-cdae23783655", 50, false);
+        execProvisioningTask(taskService, TaskType.PULL, "7c2242f4-14af-4ab5-af31-cdae23783655", 50, false);
 
         // 3. read e-mail address for user created by the PullTask first execution
         UserTO userTO = userService.read("issuesyncope230");
@@ -724,7 +726,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         jdbcTemplate.execute("UPDATE TESTPULL SET email='updatedSYNCOPE230@syncope.apache.org' WHERE id='" + id + "'");
 
         // 5. re-execute the PullTask
-        execProvisioningTask(taskService, "7c2242f4-14af-4ab5-af31-cdae23783655", 50, false);
+        execProvisioningTask(taskService, TaskType.PULL, "7c2242f4-14af-4ab5-af31-cdae23783655", 50, false);
 
         // 6. verify that the e-mail was updated
         userTO = userService.read("issuesyncope230");
@@ -739,9 +741,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // -----------------------------
         // Add a custom correlation rule
         // -----------------------------
-        PullPolicyTO policyTO = policyService.read("9454b0d7-2610-400a-be82-fc23cf553dd6");
+        PullPolicyTO policyTO = policyService.read(PolicyType.PULL, "9454b0d7-2610-400a-be82-fc23cf553dd6");
         policyTO.getSpecification().getCorrelationRules().put(AnyTypeKind.USER.name(), TestPullRule.class.getName());
-        policyService.update(policyTO);
+        policyService.update(PolicyType.PULL, policyTO);
         // -----------------------------
 
         PullTaskTO task = new PullTaskTO();
@@ -754,7 +756,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         task.setPerformDelete(true);
         task.setPerformUpdate(true);
 
-        Response response = taskService.create(task);
+        Response response = taskService.create(TaskType.PULL, task);
         task = getObject(response.getLocation(), TaskService.class, PullTaskTO.class);
 
         UserTO userTO = UserITCase.getUniqueSampleTO("s258_1@apache.org");
@@ -776,9 +778,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         userService.update(userPatch);
 
-        execProvisioningTask(taskService, task.getKey(), 50, false);
+        execProvisioningTask(taskService, TaskType.PULL, task.getKey(), 50, false);
 
-        PullTaskTO executed = taskService.read(task.getKey(), true);
+        PullTaskTO executed = taskService.read(TaskType.PULL, task.getKey(), true);
         assertEquals(1, executed.getExecutions().size());
 
         // asser for just one match
@@ -802,7 +804,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
 
             ExecTO taskExecTO = execProvisioningTask(
-                    taskService, "986867e2-993b-430e-8feb-aa9abb4c1dcd", 50, false);
+                    taskService, TaskType.PULL, "986867e2-993b-430e-8feb-aa9abb4c1dcd", 50, false);
 
             assertNotNull(taskExecTO.getStatus());
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(taskExecTO.getStatus()));
@@ -833,7 +835,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertTrue(userTO.getVirAttrs().isEmpty());
 
         // Update pull task
-        PullTaskTO task = taskService.read("38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1", true);
+        PullTaskTO task = taskService.read(TaskType.PULL, "38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1", true);
         assertNotNull(task);
 
         UserTO template = new UserTO();
@@ -843,10 +845,10 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         task.getTemplates().put(AnyTypeKind.USER.name(), template);
 
-        taskService.update(task);
+        taskService.update(TaskType.PULL, task);
 
         // exec task: one user from CSV will match the user created above and template will be applied
-        execProvisioningTask(taskService, task.getKey(), 50, false);
+        execProvisioningTask(taskService, TaskType.PULL, task.getKey(), 50, false);
 
         // check that template was successfully applied...
         userTO = userService.read(userTO.getKey());
@@ -890,17 +892,17 @@ public class PullTaskITCase extends AbstractTaskITCase {
         pullTask.setPullMode(PullMode.FULL_RECONCILIATION);
         pullTask.setResource(RESOURCE_NAME_TESTDB);
         pullTask.getActionsClassNames().add(DBPasswordPullActions.class.getName());
-        Response taskResponse = taskService.create(pullTask);
+        Response taskResponse = taskService.create(TaskType.PULL, pullTask);
 
         PullTaskTO actual = getObject(taskResponse.getLocation(), TaskService.class, PullTaskTO.class);
         assertNotNull(actual);
 
-        pullTask = taskService.read(actual.getKey(), true);
+        pullTask = taskService.read(TaskType.PULL, actual.getKey(), true);
         assertNotNull(pullTask);
         assertEquals(actual.getKey(), pullTask.getKey());
         assertEquals(actual.getJobDelegateClassName(), pullTask.getJobDelegateClassName());
 
-        ExecTO execution = execProvisioningTask(taskService, pullTask.getKey(), 50, false);
+        ExecTO execution = execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), 50, false);
         assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
         // 5. Test the pulled user
@@ -908,7 +910,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertNotNull(self);
 
         // 6. Delete PullTask + user
-        taskService.delete(pullTask.getKey());
+        taskService.delete(TaskType.PULL, pullTask.getKey());
         deleteUser(user.getKey());
     }
 
@@ -970,12 +972,12 @@ public class PullTaskITCase extends AbstractTaskITCase {
             pullTask.setPullMode(PullMode.FULL_RECONCILIATION);
             pullTask.setResource(RESOURCE_NAME_LDAP);
             pullTask.getActionsClassNames().add(LDAPPasswordPullActions.class.getName());
-            Response taskResponse = taskService.create(pullTask);
+            Response taskResponse = taskService.create(TaskType.PULL, pullTask);
 
             pullTask = getObject(taskResponse.getLocation(), TaskService.class, PullTaskTO.class);
             assertNotNull(pullTask);
 
-            ExecTO execution = execProvisioningTask(taskService, pullTask.getKey(), 50, false);
+            ExecTO execution = execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
             // 7. Test the pulled user
@@ -986,7 +988,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         } finally {
             // Delete PullTask + user + reset the connector
             if (pullTask != null) {
-                taskService.delete(pullTask.getKey());
+                taskService.delete(TaskType.PULL, pullTask.getKey());
             }
 
             if (resourceConnector != null && property != null) {
@@ -1029,13 +1031,13 @@ public class PullTaskITCase extends AbstractTaskITCase {
             template.getPlainAttrs().add(attrTO("firstname", "'fixed'"));
             pullTask.getTemplates().put(AnyTypeKind.USER.name(), template);
 
-            Response taskResponse = taskService.create(pullTask);
+            Response taskResponse = taskService.create(TaskType.PULL, pullTask);
             pullTask = getObject(taskResponse.getLocation(), TaskService.class, PullTaskTO.class);
             assertNotNull(pullTask);
             assertFalse(pullTask.getTemplates().isEmpty());
 
             // 3. exec the pull task
-            ExecTO execution = execProvisioningTask(taskService, pullTask.getKey(), 50, false);
+            ExecTO execution = execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
             // the user is successfully pulled...
@@ -1071,7 +1073,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals("pullFromLDAP2@syncope.apache.org", connObject.getAttr("mail").getValues().get(0));
 
             // 5. exec the pull task again
-            execution = execProvisioningTask(taskService, pullTask.getKey(), 50, false);
+            execution = execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
             // the internal is updated...
@@ -1089,7 +1091,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             fail(e.getMessage());
         } finally {
             if (pullTask != null) {
-                taskService.delete(pullTask.getKey());
+                taskService.delete(TaskType.PULL, pullTask.getKey());
             }
 
             if (propagationGroup != null) {

@@ -23,6 +23,7 @@ import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.Model;
@@ -39,7 +40,7 @@ public class SchedTasks extends AbstractTasks {
         add(mlp);
 
         mlp.setFirstLevel(new SchedTaskDirectoryPanel<SchedTaskTO>(
-                baseModal, mlp, SchedTaskTO.class, pageReference) {
+                baseModal, mlp, TaskType.SCHEDULED, SchedTaskTO.class, pageReference) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 

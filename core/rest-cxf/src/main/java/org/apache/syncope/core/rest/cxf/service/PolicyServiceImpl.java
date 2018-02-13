@@ -36,8 +36,8 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     private PolicyLogic logic;
 
     @Override
-    public Response create(final PolicyTO policyTO) {
-        PolicyTO policy = logic.create(policyTO);
+    public Response create(final PolicyType type, final PolicyTO policyTO) {
+        PolicyTO policy = logic.create(type, policyTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(policy.getKey()).build();
         return Response.created(location).
                 header(RESTHeaders.RESOURCE_KEY, policy.getKey()).
@@ -45,8 +45,8 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public Response delete(final String key) {
-        logic.delete(key);
+    public Response delete(final PolicyType type, final String key) {
+        logic.delete(type, key);
         return Response.noContent().build();
     }
 
@@ -56,13 +56,13 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public <T extends PolicyTO> T read(final String key) {
-        return logic.read(key);
+    public <T extends PolicyTO> T read(final PolicyType type, final String key) {
+        return logic.read(type, key);
     }
 
     @Override
-    public Response update(final PolicyTO policyTO) {
-        logic.update(policyTO);
+    public Response update(final PolicyType type, final PolicyTO policyTO) {
+        logic.update(type, policyTO);
         return Response.noContent().build();
     }
 }

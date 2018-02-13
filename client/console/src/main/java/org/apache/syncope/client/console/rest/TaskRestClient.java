@@ -183,19 +183,19 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     public PropagationTaskTO readPropagationTask(final String taskKey) {
-        return getService(TaskService.class).read(taskKey, false);
+        return getService(TaskService.class).read(TaskType.PROPAGATION, taskKey, false);
     }
 
     public NotificationTaskTO readNotificationTask(final String taskKey) {
-        return getService(TaskService.class).read(taskKey, false);
+        return getService(TaskService.class).read(TaskType.NOTIFICATION, taskKey, false);
     }
 
-    public <T extends SchedTaskTO> T readSchedTask(final Class<T> reference, final String taskKey) {
-        return getService(TaskService.class).read(taskKey, false);
+    public <T extends TaskTO> T readTask(final TaskType type, final String taskKey) {
+        return getService(TaskService.class).read(type, taskKey, false);
     }
 
-    public void delete(final String taskKey, final Class<? extends TaskTO> taskToClass) {
-        getService(TaskService.class).delete(taskKey);
+    public void delete(final TaskType type, final String taskKey) {
+        getService(TaskService.class).delete(type, taskKey);
     }
 
     @Override
@@ -218,12 +218,12 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         return getService(TaskService.class).listRecentExecutions(max);
     }
 
-    public void create(final SchedTaskTO taskTO) {
-        getService(TaskService.class).create(taskTO);
+    public void create(final TaskType type, final SchedTaskTO taskTO) {
+        getService(TaskService.class).create(type, taskTO);
     }
 
-    public void update(final SchedTaskTO taskTO) {
-        getService(TaskService.class).update(taskTO);
+    public void update(final TaskType type, final SchedTaskTO taskTO) {
+        getService(TaskService.class).update(type, taskTO);
     }
 
     public BulkActionResult bulkAction(final BulkAction action) {

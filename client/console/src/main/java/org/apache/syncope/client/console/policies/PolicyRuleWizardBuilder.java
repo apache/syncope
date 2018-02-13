@@ -68,7 +68,7 @@ public class PolicyRuleWizardBuilder
         BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(modelObject.getConf());
         wrapper.setPropertyValue("name", modelObject.getName());
 
-        PolicyTO policyTO = restClient.getPolicy(policy);
+        PolicyTO policyTO = restClient.getPolicy(type, policy);
 
         final ComposablePolicy<RuleConf> composable;
         if (policyTO instanceof ComposablePolicy) {
@@ -90,7 +90,7 @@ public class PolicyRuleWizardBuilder
             composable.getRuleConfs().add(modelObject.getConf());
         }
 
-        restClient.updatePolicy(policyTO);
+        restClient.updatePolicy(type, policyTO);
         return modelObject;
     }
 

@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.report.StaticReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.logic.TaskLogic;
 import org.apache.syncope.core.provisioning.java.job.report.AuditReportlet;
 import org.apache.syncope.core.provisioning.java.job.report.GroupReportlet;
@@ -219,7 +220,7 @@ public class ITImplementationLookup implements ImplementationLookup {
                         task.setJobDelegateClassName(
                                 "org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex");
                         task.setName("Elasticsearch Reindex");
-                        task = taskLogic.createSchedTask(task);
+                        task = taskLogic.createSchedTask(TaskType.SCHEDULED, task);
 
                         taskLogic.execute(task.getKey(), null, false);
 

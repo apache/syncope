@@ -28,6 +28,7 @@ import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
@@ -48,10 +49,10 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
     }
 
     @Override
-    public Response create(final SchedTaskTO taskTO) {
+    public Response create(final TaskType type, final SchedTaskTO taskTO) {
         SchedTaskTO createdTask;
         if (taskTO != null) {
-            createdTask = logic.createSchedTask(taskTO);
+            createdTask = logic.createSchedTask(type, taskTO);
         } else {
             throw new BadRequestException();
         }
@@ -63,8 +64,8 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
     }
 
     @Override
-    public Response delete(final String key) {
-        logic.delete(key);
+    public Response delete(final TaskType type, final String key) {
+        logic.delete(type, key);
         return Response.noContent().build();
     }
 
@@ -85,18 +86,14 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
     }
 
     @Override
-    public <T extends TaskTO> T read(final String key, final boolean details) {
-        return logic.read(key, details);
+    public <T extends TaskTO> T read(final TaskType type, final String key, final boolean details) {
+        return logic.read(type, key, details);
     }
 
     @Override
-    public Response update(final TaskTO taskTO) {
-        if (taskTO instanceof SchedTaskTO) {
-            logic.updateSchedTask((SchedTaskTO) taskTO);
-            return Response.noContent().build();
-        } else {
-            throw new BadRequestException();
-        }
+    public Response update(final TaskType type, final SchedTaskTO taskTO) {
+        logic.updateSchedTask(type, taskTO);
+        return Response.noContent().build();
     }
 
     @Override
@@ -107,7 +104,7 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
             case DELETE:
                 for (String key : bulkAction.getTargets()) {
                     try {
-                        result.getResults().put(logic.delete(key).getKey(), BulkActionResult.Status.SUCCESS);
+                        result.getResults().put(logic.delete(null, key).getKey(), BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing delete for task {}", key, e);
                         result.getResults().put(key, BulkActionResult.Status.FAILURE);

@@ -67,6 +67,7 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
@@ -1192,7 +1193,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ruleConf.setUsernameAllowed(false);
         passwordPolicy.getRuleConfs().add(ruleConf);
 
-        passwordPolicy = createPolicy(passwordPolicy);
+        passwordPolicy = createPolicy(PolicyType.PASSWORD, passwordPolicy);
         assertNotNull(passwordPolicy);
 
         RealmTO realm = realmService.list("/even/two").get(0);
@@ -1219,7 +1220,7 @@ public class UserIssuesITCase extends AbstractITCase {
             realm.setPasswordPolicy(oldPasswordPolicy);
             realmService.update(realm);
 
-            policyService.delete(passwordPolicy.getKey());
+            policyService.delete(PolicyType.PASSWORD, passwordPolicy.getKey());
         }
 
     }

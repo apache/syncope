@@ -96,8 +96,13 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     private TaskUtilsFactory taskUtilsFactory;
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_CREATE + "')")
-    public <T extends SchedTaskTO> T createSchedTask(final T taskTO) {
+    public <T extends SchedTaskTO> T createSchedTask(final TaskType type, final T taskTO) {
         TaskUtils taskUtils = taskUtilsFactory.getInstance(taskTO);
+        if (taskUtils.getType() != type) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            sce.getElements().add("Found " + type + ", expected " + taskUtils.getType());
+            throw sce;
+        }
 
         SchedTask task = binder.createSchedTask(taskTO, taskUtils);
         task = taskDAO.save(task);
@@ -119,13 +124,18 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_UPDATE + "')")
-    public <T extends SchedTaskTO> T updateSchedTask(final SchedTaskTO taskTO) {
+    public <T extends SchedTaskTO> T updateSchedTask(final TaskType type, final SchedTaskTO taskTO) {
         SchedTask task = taskDAO.find(taskTO.getKey());
         if (task == null) {
             throw new NotFoundException("Task " + taskTO.getKey());
         }
 
         TaskUtils taskUtils = taskUtilsFactory.getInstance(task);
+        if (taskUtils.getType() != type) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            sce.getElements().add("Found " + type + ", expected " + taskUtils.getType());
+            throw sce;
+        }
 
         binder.updateSchedTask(task, taskTO, taskUtils);
         task = taskDAO.save(task);
@@ -186,11 +196,19 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
-    public <T extends TaskTO> T read(final String key, final boolean details) {
+    public <T extends TaskTO> T read(final TaskType type, final String key, final boolean details) {
         Task task = taskDAO.find(key);
         if (task == null) {
             throw new NotFoundException("Task " + key);
         }
+
+        TaskUtils taskUtils = taskUtilsFactory.getInstance(task);
+        if (type != null && taskUtils.getType() != type) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            sce.getElements().add("Found " + type + ", expected " + taskUtils.getType());
+            throw sce;
+        }
+
         return binder.getTaskTO(task, taskUtilsFactory.getInstance(task), details);
     }
 
@@ -267,12 +285,18 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
-    public <T extends TaskTO> T delete(final String key) {
+    public <T extends TaskTO> T delete(final TaskType type, final String key) {
         Task task = taskDAO.find(key);
         if (task == null) {
             throw new NotFoundException("Task " + key);
         }
+
         TaskUtils taskUtils = taskUtilsFactory.getInstance(task);
+        if (type != null && taskUtils.getType() != type) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            sce.getElements().add("Found " + type + ", expected " + taskUtils.getType());
+            throw sce;
+        }
 
         T taskToDelete = binder.getTaskTO(task, taskUtils, true);
 
