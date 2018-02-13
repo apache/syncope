@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.types.PullMode;
 @XmlRootElement(name = "pullTask")
 @XmlType
 @XmlAccessorType(XmlAccessType.FIELD)
+@Schema(allOf = { ProvisioningTaskTO.class })
 public class PullTaskTO extends ProvisioningTaskTO implements TemplatableTO {
 
     private static final long serialVersionUID = -2143537546915809017L;

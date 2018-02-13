@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 
 @XmlRootElement(name = "pullPolicy")
 @XmlType
+@Schema(allOf = { PolicyTO.class })
 public class PullPolicyTO extends PolicyTO {
 
     private static final long serialVersionUID = 993024634238024242L;

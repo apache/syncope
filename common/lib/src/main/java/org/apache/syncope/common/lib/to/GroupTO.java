@@ -37,6 +37,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "group")
 @XmlType
+@Schema(allOf = { AnyTO.class })
 public class GroupTO extends AnyTO {
 
     private static final long serialVersionUID = -7785920258290147542L;

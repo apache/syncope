@@ -30,6 +30,7 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 
 @XmlRootElement(name = "plainSchema")
 @XmlType
+@Schema(allOf = { SchemaTO.class })
 public class PlainSchemaTO extends SchemaTO {
 
     private static final long serialVersionUID = -8133983392476990308L;

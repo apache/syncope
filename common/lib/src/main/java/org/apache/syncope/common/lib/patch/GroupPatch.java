@@ -36,6 +36,7 @@ import org.apache.syncope.common.lib.to.TypeExtensionTO;
 
 @XmlRootElement(name = "groupPatch")
 @XmlType
+@Schema(allOf = { AnyPatch.class })
 public class GroupPatch extends AnyPatch {
 
     private static final long serialVersionUID = -460284378124440077L;

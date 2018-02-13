@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "userPatch")
 @XmlType
+@Schema(allOf = { AnyPatch.class })
 public class UserPatch extends AnyPatch {
 
     private static final long serialVersionUID = 2872795537911821448L;

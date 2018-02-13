@@ -32,6 +32,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "anyObject")
 @XmlType
+@Schema(allOf = { AnyTO.class })
 public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
 
     private static final long serialVersionUID = 8841697496476959639L;

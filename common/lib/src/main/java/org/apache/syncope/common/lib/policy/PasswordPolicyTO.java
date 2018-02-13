@@ -30,6 +30,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "passwordPolicy")
 @XmlType
+@Schema(allOf = { PolicyTO.class })
 public class PasswordPolicyTO extends PolicyTO implements ComposablePolicy {
 
     private static final long serialVersionUID = -5606086441294799690L;

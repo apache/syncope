@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 @XmlRootElement(name = "virSchema")
+@Schema(allOf = { SchemaTO.class })
 public class VirSchemaTO extends SchemaTO {
 
     private static final long serialVersionUID = -8198557479659701343L;

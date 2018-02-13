@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
@@ -34,7 +33,9 @@ import org.apache.syncope.common.lib.types.UnmatchingRule;
 @XmlRootElement(name = "provisioningTask")
 @XmlType
 @XmlSeeAlso({ PushTaskTO.class, PullTaskTO.class })
-@Schema(subTypes = { PushTaskTO.class, PullTaskTO.class }, discriminatorProperty = "@class")
+@Schema(
+        allOf = { SchedTaskTO.class },
+        subTypes = { PushTaskTO.class, PullTaskTO.class }, discriminatorProperty = "@class")
 public abstract class ProvisioningTaskTO extends SchedTaskTO {
 
     private static final long serialVersionUID = -5722284116974636425L;

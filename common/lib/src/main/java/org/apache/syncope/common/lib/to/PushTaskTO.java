@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 @XmlRootElement(name = "pushTask")
 @XmlType
 @XmlAccessorType(XmlAccessType.FIELD)
+@Schema(allOf = { ProvisioningTaskTO.class })
 public class PushTaskTO extends ProvisioningTaskTO {
 
     private static final long serialVersionUID = -2143537546915809018L;

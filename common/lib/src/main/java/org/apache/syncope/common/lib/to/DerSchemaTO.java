@@ -26,6 +26,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "derSchema")
 @XmlType
+@Schema(allOf = { SchemaTO.class })
 public class DerSchemaTO extends SchemaTO {
 
     private static final long serialVersionUID = -6747399803792103108L;

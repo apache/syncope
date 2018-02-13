@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "schedTask")
 @XmlType
 @XmlSeeAlso({ ProvisioningTaskTO.class })
-@Schema(subTypes = { ProvisioningTaskTO.class }, discriminatorProperty = "@class")
+@Schema(allOf = { TaskTO.class }, subTypes = { ProvisioningTaskTO.class }, discriminatorProperty = "@class")
 public class SchedTaskTO extends TaskTO {
 
     private static final long serialVersionUID = -5722284116974636425L;
