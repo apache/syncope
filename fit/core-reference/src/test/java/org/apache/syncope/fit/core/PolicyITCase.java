@@ -45,7 +45,6 @@ import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.DummyPullCorrelationRule;
@@ -56,7 +55,7 @@ public class PolicyITCase extends AbstractITCase {
     private PullPolicyTO buildPullPolicyTO() throws IOException {
         ImplementationTO corrRule = null;
         try {
-            corrRule = implementationService.read("TestPullRule");
+            corrRule = implementationService.read(ImplementationType.PULL_CORRELATION_RULE, "TestPullRule");
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                 corrRule = new ImplementationTO();
@@ -66,7 +65,8 @@ public class PolicyITCase extends AbstractITCase {
                 corrRule.setBody(IOUtils.toString(
                         getClass().getResourceAsStream("/TestPullRule.groovy"), StandardCharsets.UTF_8));
                 Response response = implementationService.create(corrRule);
-                corrRule = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
+                corrRule = implementationService.read(
+                        corrRule.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
                 assertNotNull(corrRule);
             }
         }
@@ -132,7 +132,7 @@ public class PolicyITCase extends AbstractITCase {
         assertNotNull(policy);
         assertNotEquals("ce93fcda-dc3a-4369-a7b0-a6108c261c85", policy.getKey());
 
-        ImplementationTO rule = implementationService.read(policy.getRules().get(0));
+        ImplementationTO rule = implementationService.read(ImplementationType.PASSWORD_RULE, policy.getRules().get(0));
         assertNotNull(rule);
 
         DefaultPasswordRuleConf ruleConf = POJOHelper.deserialize(rule.getBody(), DefaultPasswordRuleConf.class);

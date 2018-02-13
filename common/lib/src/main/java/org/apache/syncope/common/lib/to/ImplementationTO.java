@@ -62,6 +62,7 @@ public class ImplementationTO extends AbstractBaseBean implements EntityTO {
         return type;
     }
 
+    @PathParam("type")
     public void setType(final ImplementationType type) {
         this.type = type;
     }

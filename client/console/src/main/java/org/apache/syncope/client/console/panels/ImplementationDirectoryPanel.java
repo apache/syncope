@@ -160,7 +160,7 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final ImplementationTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    restClient.delete(model.getObject().getType(), model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {

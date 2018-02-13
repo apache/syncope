@@ -31,7 +31,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.common.rest.api.service.ImplementationService;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.TestPullActions;
 import org.junit.jupiter.api.Test;
@@ -63,8 +63,8 @@ public class ImplementationITCase extends AbstractITCase {
             }
         }
 
-        ImplementationTO actual =
-                getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
+        ImplementationTO actual = implementationService.read(
+                implementationTO.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
         assertNotNull(actual);
         assertEquals(actual, implementationTO);
     }
@@ -95,7 +95,7 @@ public class ImplementationITCase extends AbstractITCase {
 
         // fails because the implementation is used
         try {
-            implementationService.delete(implementationTO.getKey());
+            implementationService.delete(implementationTO.getType(), implementationTO.getKey());
             fail("Unexpected");
         } catch (SyncopeClientException e) {
             assertEquals(e.getType(), ClientExceptionType.InUse);
@@ -104,7 +104,7 @@ public class ImplementationITCase extends AbstractITCase {
         pullTask.getActions().remove(implementationTO.getKey());
         taskService.update(TaskType.PULL, pullTask);
 
-        implementationService.delete(implementationTO.getKey());
+        implementationService.delete(implementationTO.getType(), implementationTO.getKey());
     }
 
 }

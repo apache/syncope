@@ -41,8 +41,8 @@ public class ImplementationServiceImpl extends AbstractServiceImpl implements Im
     }
 
     @Override
-    public ImplementationTO read(final String key) {
-        return logic.read(key);
+    public ImplementationTO read(final ImplementationType type, final String key) {
+        return logic.read(type, key);
     }
 
     @Override
@@ -61,8 +61,8 @@ public class ImplementationServiceImpl extends AbstractServiceImpl implements Im
     }
 
     @Override
-    public Response delete(final String key) {
-        logic.delete(key);
+    public Response delete(final ImplementationType type, final String key) {
+        logic.delete(type, key);
         return Response.noContent().build();
     }
 

@@ -64,7 +64,8 @@ public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletWrapper> 
     @Override
     protected Serializable onApplyInternal(final ReportletWrapper modelObject) {
         if (modelObject.getImplementationEngine() == ImplementationEngine.JAVA) {
-            ImplementationTO reportlet = implementationClient.read(modelObject.getImplementationKey());
+            ImplementationTO reportlet = implementationClient.read(
+                    ImplementationType.REPORTLET, modelObject.getImplementationKey());
             try {
                 reportlet.setBody(MAPPER.writeValueAsString(modelObject.getConf()));
                 implementationClient.update(reportlet);
@@ -109,11 +110,12 @@ public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletWrapper> 
 
                 @Override
                 protected void onEvent(final AjaxRequestTarget target) {
-                    ImplementationTO implementation = implementationClient.read(conf.getModelObject());
-                    reportlet.setImplementationEngine(implementation.getEngine());
-                    if (implementation.getEngine() == ImplementationEngine.JAVA) {
+                    ImplementationTO impl = implementationClient.read(
+                            ImplementationType.REPORTLET, conf.getModelObject());
+                    reportlet.setImplementationEngine(impl.getEngine());
+                    if (impl.getEngine() == ImplementationEngine.JAVA) {
                         try {
-                            ReportletConf conf = MAPPER.readValue(implementation.getBody(), ReportletConf.class);
+                            ReportletConf conf = MAPPER.readValue(impl.getBody(), ReportletConf.class);
                             reportlet.setConf(conf);
                         } catch (Exception e) {
                             LOG.error("During deserialization", e);

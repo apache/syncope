@@ -185,11 +185,7 @@ public class AuditLoggerName extends AbstractBaseBean {
 
         eventBuilder.append('[');
         if (type != null) {
-            if (StringUtils.isNotBlank(type.toString())) {
-                eventBuilder.append(type.toString());
-            } else {
-                eventBuilder.append(type.name());
-            }
+            eventBuilder.append(type.toString());
         }
         eventBuilder.append("]:[");
         if (StringUtils.isNotBlank(category)) {

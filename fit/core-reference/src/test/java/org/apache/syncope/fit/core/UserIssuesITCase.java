@@ -74,7 +74,6 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
@@ -806,7 +805,8 @@ public class UserIssuesITCase extends AbstractITCase {
         logicActions.setBody(org.apache.commons.io.IOUtils.toString(
                 getClass().getResourceAsStream("/DoubleValueLogicActions.groovy"), StandardCharsets.UTF_8));
         Response response = implementationService.create(logicActions);
-        logicActions = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
+        logicActions = implementationService.read(
+                logicActions.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
         assertNotNull(logicActions);
 
         RealmTO realm = realmService.list("/even/two").iterator().next();
@@ -987,7 +987,8 @@ public class UserIssuesITCase extends AbstractITCase {
         propagationActions.setType(ImplementationType.PROPAGATION_ACTIONS);
         propagationActions.setBody(DBPasswordPropagationActions.class.getName());
         Response response = implementationService.create(propagationActions);
-        propagationActions = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
+        propagationActions = implementationService.read(
+                propagationActions.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
         assertNotNull(propagationActions);
 
         ResourceTO resourceTO = resourceService.read(RESOURCE_NAME_TESTDB);
@@ -1036,7 +1037,8 @@ public class UserIssuesITCase extends AbstractITCase {
         propagationActions.setType(ImplementationType.PROPAGATION_ACTIONS);
         propagationActions.setBody(LDAPPasswordPropagationActions.class.getName());
         Response response = implementationService.create(propagationActions);
-        propagationActions = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
+        propagationActions = implementationService.read(
+                propagationActions.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
         assertNotNull(propagationActions);
 
         ResourceTO resourceTO = resourceService.read(RESOURCE_NAME_LDAP);

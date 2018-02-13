@@ -26,7 +26,6 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.MatrixParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -54,19 +53,21 @@ public interface ImplementationService extends JAXRSService {
      * @return list of all implementations.
      */
     @GET
+    @Path("{type}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    List<ImplementationTO> list(@NotNull @MatrixParam("type") ImplementationType type);
+    List<ImplementationTO> list(@NotNull @PathParam("type") ImplementationType type);
 
     /**
      * Returns implementation with matching key.
      *
+     * @param type implementation type
      * @param key key of implementation to be read
      * @return implementation with matching key
      */
     @GET
-    @Path("{key}")
+    @Path("{type}/{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    ImplementationTO read(@NotNull @PathParam("key") String key);
+    ImplementationTO read(@NotNull @PathParam("type") ImplementationType type, @NotNull @PathParam("key") String key);
 
     /**
      * Creates a new implementation.
@@ -75,6 +76,7 @@ public interface ImplementationService extends JAXRSService {
      * @return Response object featuring Location header of created implementation
      */
     @POST
+    @Path("{type}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull ImplementationTO implementationTO);
@@ -86,6 +88,7 @@ public interface ImplementationService extends JAXRSService {
      * @return an empty response if operation was successful
      */
     @PUT
+    @Path("{type}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(@NotNull ImplementationTO implementationTO);
@@ -93,12 +96,13 @@ public interface ImplementationService extends JAXRSService {
     /**
      * Deletes the implementation matching the given key.
      *
+     * @param type implementation type
      * @param key key for implementation to be deleted
      * @return an empty response if operation was successful
      */
     @DELETE
-    @Path("{key}")
+    @Path("{type}/{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response delete(@NotNull @PathParam("key") String key);
+    Response delete(@NotNull @PathParam("type") ImplementationType type, @NotNull @PathParam("key") String key);
 
 }

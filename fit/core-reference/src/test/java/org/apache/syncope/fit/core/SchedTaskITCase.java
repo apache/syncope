@@ -89,7 +89,8 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void deferred() {
-        ImplementationTO taskJobDelegate = implementationService.read(TestSampleJobDelegate.class.getSimpleName());
+        ImplementationTO taskJobDelegate = implementationService.read(
+                ImplementationType.TASKJOB_DELEGATE, TestSampleJobDelegate.class.getSimpleName());
         assertNotNull(taskJobDelegate);
 
         SchedTaskTO task = new SchedTaskTO();
@@ -134,7 +135,8 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE144() {
-        ImplementationTO taskJobDelegate = implementationService.read(TestSampleJobDelegate.class.getSimpleName());
+        ImplementationTO taskJobDelegate = implementationService.read(
+                ImplementationType.TASKJOB_DELEGATE, TestSampleJobDelegate.class.getSimpleName());
         assertNotNull(taskJobDelegate);
 
         SchedTaskTO task = new SchedTaskTO();
@@ -168,7 +170,8 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         List<JobTO> jobs = taskService.listJobs();
         int old_size = jobs.size();
 
-        ImplementationTO taskJobDelegate = implementationService.read(TestSampleJobDelegate.class.getSimpleName());
+        ImplementationTO taskJobDelegate = implementationService.read(
+                ImplementationType.TASKJOB_DELEGATE, TestSampleJobDelegate.class.getSimpleName());
         assertNotNull(taskJobDelegate);
 
         SchedTaskTO task = new SchedTaskTO();

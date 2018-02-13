@@ -39,9 +39,9 @@ import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
-import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
 import org.apache.syncope.fit.core.reference.TestNotificationRecipientsProvider;
@@ -231,7 +231,8 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         recipientsProvider.setType(ImplementationType.RECIPIENTS_PROVIDER);
         recipientsProvider.setBody(TestNotificationRecipientsProvider.class.getName());
         Response response = implementationService.create(recipientsProvider);
-        recipientsProvider = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
+        recipientsProvider = implementationService.read(
+                recipientsProvider.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
         assertNotNull(recipientsProvider);
 
         NotificationTO notification = new NotificationTO();

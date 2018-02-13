@@ -81,12 +81,18 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.IMPLEMENTATION_READ + "')")
-    public ImplementationTO read(final String key) {
+    public ImplementationTO read(final ImplementationType type, final String key) {
         Implementation implementation = implementationDAO.find(key);
         if (implementation == null) {
             LOG.error("Could not find implementation '" + key + "'");
 
             throw new NotFoundException(key);
+        }
+
+        if (implementation.getType() != type) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            sce.getElements().add("Found " + type + ", expected " + implementation.getType());
+            throw sce;
         }
 
         return binder.getImplementationTO(implementation);
@@ -124,12 +130,18 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.IMPLEMENTATION_DELETE + "')")
-    public void delete(final String key) {
+    public void delete(final ImplementationType type, final String key) {
         Implementation implementation = implementationDAO.find(key);
         if (implementation == null) {
             LOG.error("Could not find implementation '" + key + "'");
 
             throw new NotFoundException(key);
+        }
+
+        if (implementation.getType() != type) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            sce.getElements().add("Found " + type + ", expected " + implementation.getType());
+            throw sce;
         }
 
         boolean inUse = false;

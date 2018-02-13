@@ -32,8 +32,8 @@ public class ImplementationRestClient extends BaseRestClient {
         return getService(ImplementationService.class).list(type);
     }
 
-    public ImplementationTO read(final String key) {
-        return getService(ImplementationService.class).read(key);
+    public ImplementationTO read(final ImplementationType type, final String key) {
+        return getService(ImplementationService.class).read(type, key);
     }
 
     public ImplementationTO create(final ImplementationTO implementation) {
@@ -46,8 +46,8 @@ public class ImplementationRestClient extends BaseRestClient {
         getService(ImplementationService.class).update(implementation);
     }
 
-    public void delete(final String key) {
-        getService(ImplementationService.class).delete(key);
+    public void delete(final ImplementationType type, final String key) {
+        getService(ImplementationService.class).delete(type, key);
     }
 
 }

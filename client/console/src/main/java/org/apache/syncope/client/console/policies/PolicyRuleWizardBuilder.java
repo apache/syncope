@@ -59,6 +59,8 @@ public class PolicyRuleWizardBuilder extends AjaxWizardBuilder<PolicyRuleWrapper
 
     private final PolicyType type;
 
+    private final ImplementationType implementationType;
+
     public PolicyRuleWizardBuilder(
             final String policy,
             final PolicyType type,
@@ -69,6 +71,9 @@ public class PolicyRuleWizardBuilder extends AjaxWizardBuilder<PolicyRuleWrapper
 
         this.policy = policy;
         this.type = type;
+        this.implementationType = type == PolicyType.ACCOUNT
+                ? ImplementationType.ACCOUNT_RULE
+                : ImplementationType.PASSWORD_RULE;
     }
 
     @Override
@@ -83,7 +88,7 @@ public class PolicyRuleWizardBuilder extends AjaxWizardBuilder<PolicyRuleWrapper
         }
 
         if (modelObject.getImplementationEngine() == ImplementationEngine.JAVA) {
-            ImplementationTO rule = implementationClient.read(modelObject.getImplementationKey());
+            ImplementationTO rule = implementationClient.read(implementationType, modelObject.getImplementationKey());
             try {
                 rule.setBody(MAPPER.writeValueAsString(modelObject.getConf()));
                 implementationClient.update(rule);
@@ -145,11 +150,11 @@ public class PolicyRuleWizardBuilder extends AjaxWizardBuilder<PolicyRuleWrapper
 
                 @Override
                 protected void onEvent(final AjaxRequestTarget target) {
-                    ImplementationTO implementation = implementationClient.read(conf.getModelObject());
-                    rule.setImplementationEngine(implementation.getEngine());
-                    if (implementation.getEngine() == ImplementationEngine.JAVA) {
+                    ImplementationTO impl = implementationClient.read(implementationType, conf.getModelObject());
+                    rule.setImplementationEngine(impl.getEngine());
+                    if (impl.getEngine() == ImplementationEngine.JAVA) {
                         try {
-                            RuleConf ruleConf = MAPPER.readValue(implementation.getBody(), RuleConf.class);
+                            RuleConf ruleConf = MAPPER.readValue(impl.getBody(), RuleConf.class);
                             rule.setConf(ruleConf);
                         } catch (Exception e) {
                             LOG.error("During deserialization", e);
