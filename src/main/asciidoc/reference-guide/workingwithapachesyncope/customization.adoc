@@ -1,4 +1,4 @@
-//
+﻿//
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
@@ -29,9 +29,9 @@ replaced.
 Once the project has been created from the provided Maven archetype, the generated source tree is available for either
 adding new features or replacing existing components.
 
-[[override-behavior]]
+[[override-behaviour]]
 [TIP]
-.Override behavior
+.Override behaviour
 ====
 As a rule of thumb, any file of the local project will take precedence over a file with the same name in the same
 directory of the standard Apache Syncope release.
@@ -60,7 +60,7 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/master/client/console/src/main/resources/org/apache/syncope/client/console/pages/BasePage.html[BasePage.html^].
 endif::[]
 
-This general behavior might have exceptions, as highlighted below.
+This general behaviour might have exceptions, as highlighted below.
 ====
 
 In general, the Embedded Mode (see the
@@ -165,7 +165,7 @@ Now, from the `enduser` subdirectory, execute:
 [source,bash]
 mvn -P embedded,debug
 
-At this point your favorite IDE can be attached to the port `8000`; please note that you might need to add
+At this point your favourite IDE can be attached to the port `8000`; please note that you might need to add
 `-XX:MaxPermSize=512m` to `<cargo.jvmargs>` in order to run with JDK 7.
 ====
 
@@ -177,7 +177,7 @@ When providing custom Java classes implementing the defined interfaces or extend
 implementations, their package *must* be rooted under `org.apache.syncope.core`, otherwise they will not be available
 at runtime.
 
-Besides replacing existing classes as explained <<override-behavior,above>>, new <<implementations,implementations>> can
+Besides replacing existing classes as explained <<override-behaviour,above>>, new <<implementations,implementations>> can
 be provided - under `core/src/main/java` if Java - for the following components:
 
 * <<propagationactions,propagation>>, <<pushactions,push>>, <<pullactions,pull>> and <<logicactions,logic>> actions
@@ -234,7 +234,7 @@ By following such conventions, the new REST endpoint will be automatically picke
 
 [WARNING]
 ====
-The <<override-behavior,override behavior>> might have exceptions; if you need to customize one of the
+The <<override-behaviour,override behaviour>> might have exceptions; if you need to customize one of the
 Spring context definitions. For example, if you want to customize 
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/resources/securityContext.xml[securityContext.xml^]
@@ -495,7 +495,7 @@ Given the nature of the <<enduser-application>>, all the files required by the A
 generated under the local project's `enduser/src/main/webapp/app/` directory and are available for full customization.
 
 The files in use by the Apache Wicket-based backend are still subject to the general
-<<override-behavior,override behavior>>, instead.
+<<override-behaviour,override behaviour>>, instead.
 
 [discrete]
 ===== Enable the <<saml-2-0-service-provider>> extension
@@ -707,7 +707,7 @@ If all attributes are to be hidden, please set `"show": false`, instead.
 ====
 The `readonly` field should not be confused with the read-only flag available for <<plain,Plain>> and
 <<virtual,Virtual>> schema. +
-Within Enduser form customization, `readonly` prevenst the user's browser to modify the value of a given attribute.
+Within Enduser form customization, `readonly` prevents the user's browser to modify the value of a given attribute.
 ====
 
 [TIP]

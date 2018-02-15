@@ -1,4 +1,4 @@
-//
+﻿//
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
@@ -28,7 +28,7 @@ Various Identity Store types are available:
 * Flat files (XML, CSV, ...)
 * LDAP
 * Relational databases (MySQL, Oracle, Microsoft SQL Server, PostgreSQL, ...)
-* Plaform-specific (Microsoft Active Directory, FreeIPA, PowerShell, ...)
+* Platform-specific (Microsoft Active Directory, FreeIPA, PowerShell, ...)
 * Web services (REST, SOAP, ...)
 * Cloud providers
 * ...and much more.
