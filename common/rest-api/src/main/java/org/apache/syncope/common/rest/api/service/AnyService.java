@@ -18,6 +18,13 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.util.Set;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -37,7 +44,9 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 
 public interface AnyService<TO extends AnyTO> extends JAXRSService {
@@ -138,8 +147,23 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      *
      * @param key any object key or name
      * @return Response object featuring the deleted any object enriched with propagation status information
-     * - ProvisioningResult as Entity
      */
+    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
+            description = "Allows client to specify a preference for the result to be returned from the server",
+            allowEmptyValue = true, schema =
+            @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                description = "User, Group or Any Object successfully deleted enriched with propagation status "
+                + "information, as Entity", content =
+                @Content(schema =
+                        @Schema(implementation = ProvisioningResult.class)))
+        , @ApiResponse(responseCode = "204",
+                description = "No content if 'Prefer: return-no-content' was specified", headers =
+                @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
+                        @Schema(type = "string"),
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied")) })
     @DELETE
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

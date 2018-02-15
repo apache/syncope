@@ -18,6 +18,13 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,10 +35,15 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 
 /**
  * REST operations for anyObjects.
@@ -43,13 +55,41 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 @Path("anyObjects")
 public interface AnyObjectService extends AnyService<AnyObjectTO> {
 
+    @Override
+    AnyObjectTO read(String key);
+
+    @Override
+    PagedResult<AnyObjectTO> search(AnyQuery anyQuery);
+
     /**
      * Creates a new any object.
      *
      * @param anyObjectTO any object to be created
      * @return Response object featuring Location header of created any object as well as the any
-     * object itself enriched with propagation status information - ProvisioningResult as Entity
+     * object itself enriched with propagation status information
      */
+    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
+            description = "Allows client to specify a preference for the result to be returned from the server",
+            allowEmptyValue = true, schema =
+            @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @ApiResponses(
+            @ApiResponse(responseCode = "201",
+                    description =
+                    "Any object successfully created enriched with propagation status information, as Entity,"
+                    + "or empty if 'Prefer: return-no-content' was specified",
+                    content =
+                    @Content(schema =
+                            @Schema(implementation = ProvisioningResult.class)), headers = {
+                @Header(name = RESTHeaders.RESOURCE_KEY, schema =
+                        @Schema(type = "string"),
+                        description = "UUID generated for the any object created")
+                , @Header(name = HttpHeaders.LOCATION, schema =
+                        @Schema(type = "string"),
+                        description = "URL of the any object created")
+                , @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
+                        @Schema(type = "string"),
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied") }))
     @POST
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -60,8 +100,23 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
      *
      * @param anyObjectPatch modification to be applied to any object matching the provided key
      * @return Response object featuring the updated any object enriched with propagation status information
-     * - ProvisioningResult as Entity
      */
+    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
+            description = "Allows client to specify a preference for the result to be returned from the server",
+            allowEmptyValue = true, schema =
+            @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                description = "Any object successfully updated enriched with propagation status information, as Entity",
+                content =
+                @Content(schema =
+                        @Schema(implementation = ProvisioningResult.class)))
+        , @ApiResponse(responseCode = "204",
+                description = "No content if 'Prefer: return-no-content' was specified", headers =
+                @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
+                        @Schema(type = "string"),
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied")) })
     @PATCH
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -73,8 +128,23 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
      *
      * @param anyObjectTO complete update
      * @return Response object featuring the updated any object enriched with propagation status information
-     * - ProvisioningResult as Entity
      */
+    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
+            description = "Allows client to specify a preference for the result to be returned from the server",
+            allowEmptyValue = true, schema =
+            @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                description = "Any object successfully updated enriched with propagation status information, as Entity",
+                content =
+                @Content(schema =
+                        @Schema(implementation = ProvisioningResult.class)))
+        , @ApiResponse(responseCode = "204",
+                description = "No content if 'Prefer: return-no-content' was specified", headers =
+                @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
+                        @Schema(type = "string"),
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied")) })
     @PUT
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

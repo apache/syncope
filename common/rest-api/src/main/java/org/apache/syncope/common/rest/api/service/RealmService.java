@@ -18,6 +18,13 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,9 +38,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * REST operations for realms.
@@ -71,8 +81,29 @@ public interface RealmService extends JAXRSService {
      * @param parentPath full path of the parent realm
      * @param realmTO new realm.
      * @return Response object featuring Location header of created realm as well as the realm itself
-     * enriched with propagation status information - ProvisioningResult as Entity
+     * enriched with propagation status information
      */
+    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
+            description = "Allows client to specify a preference for the result to be returned from the server",
+            allowEmptyValue = true, schema =
+            @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @ApiResponses(
+            @ApiResponse(responseCode = "201",
+                    description = "Realm successfully created enriched with propagation status information, as Entity,"
+                    + "or empty if 'Prefer: return-no-content' was specified",
+                    content =
+                    @Content(schema =
+                            @Schema(implementation = ProvisioningResult.class)), headers = {
+                @Header(name = RESTHeaders.RESOURCE_KEY, schema =
+                        @Schema(type = "string"),
+                        description = "UUID generated for the realm created")
+                , @Header(name = HttpHeaders.LOCATION, schema =
+                        @Schema(type = "string"),
+                        description = "URL of the realm created")
+                , @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
+                        @Schema(type = "string"),
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied") }))
     @POST
     @Path("{parentPath:.*}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -84,8 +115,23 @@ public interface RealmService extends JAXRSService {
      *
      * @param realmTO realm to be stored
      * @return Response object featuring the updated realm enriched with propagation status information
-     * - ProvisioningResult as Entity
      */
+    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
+            description = "Allows client to specify a preference for the result to be returned from the server",
+            allowEmptyValue = true, schema =
+            @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                description = "Realm successfully updated enriched with propagation status information, as Entity",
+                content =
+                @Content(schema =
+                        @Schema(implementation = ProvisioningResult.class)))
+        , @ApiResponse(responseCode = "204",
+                description = "No content if 'Prefer: return-no-content' was specified", headers =
+                @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
+                        @Schema(type = "string"),
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied")) })
     @PUT
     @Path("{fullPath:.*}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -97,8 +143,23 @@ public interface RealmService extends JAXRSService {
      *
      * @param fullPath realm path
      * @return Response object featuring the deleted realm enriched with propagation status information
-     * - ProvisioningResult as Entity
      */
+    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
+            description = "Allows client to specify a preference for the result to be returned from the server",
+            allowEmptyValue = true, schema =
+            @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                description = "Realm successfully deleted enriched with propagation status information, as Entity",
+                content =
+                @Content(schema =
+                        @Schema(implementation = ProvisioningResult.class)))
+        , @ApiResponse(responseCode = "204",
+                description = "No content if 'Prefer: return-no-content' was specified", headers =
+                @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
+                        @Schema(type = "string"),
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied")) })
     @DELETE
     @Path("{fullPath:.*}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

@@ -19,6 +19,10 @@
 package org.apache.syncope.common.rest.api.service;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.ws.rs.BeanParam;
@@ -33,6 +37,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AccessTokenQuery;
 
 /**
@@ -50,6 +55,15 @@ public interface AccessTokenService extends JAXRSService {
      */
     @Operation(security = {
         @SecurityRequirement(name = "BasicAuthentication") })
+    @ApiResponses(
+            @ApiResponse(responseCode = "204",
+                    description = "JWT successfully generated", headers = {
+                @Header(name = RESTHeaders.TOKEN, schema =
+                        @Schema(type = "string"),
+                        description = "Generated JWT")
+                , @Header(name = RESTHeaders.TOKEN_EXPIRE, schema =
+                        @Schema(type = "string"),
+                        description = "Expiration of the generated JWT") }))
     @POST
     @Path("login")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -63,6 +77,15 @@ public interface AccessTokenService extends JAXRSService {
      */
     @Operation(security = {
         @SecurityRequirement(name = "Bearer") })
+    @ApiResponses(
+            @ApiResponse(responseCode = "204",
+                    description = "JWT successfully refreshed", headers = {
+                @Header(name = RESTHeaders.TOKEN, schema =
+                        @Schema(type = "string"),
+                        description = "Generated JWT")
+                , @Header(name = RESTHeaders.TOKEN_EXPIRE, schema =
+                        @Schema(type = "string"),
+                        description = "Expiration of the refreshed JWT") }))
     @POST
     @Path("refresh")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

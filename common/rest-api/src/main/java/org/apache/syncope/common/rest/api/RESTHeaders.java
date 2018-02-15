@@ -66,7 +66,7 @@ public final class RESTHeaders {
     public static final String PREFER = "Prefer";
 
     /**
-     * Allowd the server to inform the client about the fact that a specified preference was applied.
+     * Allows the server to inform the client about the fact that a specified preference was applied.
      * <a href="http://msdn.microsoft.com/en-us/library/hh554623.aspx">More information</a>.
      *
      * @see Preference

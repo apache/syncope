@@ -19,6 +19,13 @@
 package org.apache.syncope.common.rest.api.service;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.constraints.NotNull;
@@ -32,11 +39,14 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * REST operations for user self-management.
@@ -48,12 +58,24 @@ public interface UserSelfService extends JAXRSService {
     /**
      * Returns the user making the service call.
      *
-     * @return calling user data, including owned entitlements as header value
-     * {@link org.apache.syncope.common.rest.api.RESTHeaders#OWNED_ENTITLEMENTS}
+     * @return calling user data, including own UUID and entitlements
      */
     @Operation(security = {
         @SecurityRequirement(name = "BasicAuthentication")
         , @SecurityRequirement(name = "Bearer") })
+    @ApiResponses(
+            @ApiResponse(responseCode = "200", description = "Calling user data, including own UUID and entitlements",
+                    content =
+                    @Content(schema =
+                            @Schema(implementation = UserTO.class)), headers = {
+                @Header(name = RESTHeaders.RESOURCE_KEY, schema =
+                        @Schema(type = "string"),
+                        description = "UUID of the calling user")
+                ,
+                @Header(name = RESTHeaders.OWNED_ENTITLEMENTS, schema =
+                        @Schema(type = "string"),
+                        description = "List of entitlements owned by the calling user")
+            }))
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response read();
@@ -63,9 +85,30 @@ public interface UserSelfService extends JAXRSService {
      *
      * @param userTO user to be created
      * @param storePassword whether password shall be stored internally
-     * @return Response object featuring Location header of self-registered user as well as the user
-     * itself - ProvisioningResult as Entity
+     * @return Response object featuring Location header of self-registered user as well as the user itself
+     * enriched with propagation status information
      */
+    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
+            description = "Allows client to specify a preference for the result to be returned from the server",
+            allowEmptyValue = true, schema =
+            @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @ApiResponses(
+            @ApiResponse(responseCode = "201",
+                    description = "User successfully created enriched with propagation status information, as Entity,"
+                    + "or empty if 'Prefer: return-no-content' was specified",
+                    content =
+                    @Content(schema =
+                            @Schema(implementation = ProvisioningResult.class)), headers = {
+                @Header(name = RESTHeaders.RESOURCE_KEY, schema =
+                        @Schema(type = "string"),
+                        description = "UUID generated for the user created")
+                , @Header(name = HttpHeaders.LOCATION, schema =
+                        @Schema(type = "string"),
+                        description = "URL of the user created")
+                , @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
+                        @Schema(type = "string"),
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied") }))
     @POST
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -76,11 +119,27 @@ public interface UserSelfService extends JAXRSService {
      * Self-updates user.
      *
      * @param patch modification to be applied to self
-     * @return Response object featuring the updated user - ProvisioningResult as Entity
+     * @return Response object featuring the updated user
      */
     @Operation(security = {
         @SecurityRequirement(name = "BasicAuthentication")
         , @SecurityRequirement(name = "Bearer") })
+    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
+            description = "Allows client to specify a preference for the result to be returned from the server",
+            allowEmptyValue = true, schema =
+            @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                description = "User successfully updated enriched with propagation status information, as Entity",
+                content =
+                @Content(schema =
+                        @Schema(implementation = ProvisioningResult.class)))
+        , @ApiResponse(responseCode = "204",
+                description = "No content if 'Prefer: return-no-content' was specified", headers =
+                @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
+                        @Schema(type = "string"),
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied")) })
     @PATCH
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -91,11 +150,27 @@ public interface UserSelfService extends JAXRSService {
      * Self-updates user.
      *
      * @param user complete update
-     * @return Response object featuring the updated user - ProvisioningResult as Entity
+     * @return Response object featuring the updated user
      */
     @Operation(security = {
         @SecurityRequirement(name = "BasicAuthentication")
         , @SecurityRequirement(name = "Bearer") })
+    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
+            description = "Allows client to specify a preference for the result to be returned from the server",
+            allowEmptyValue = true, schema =
+            @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                description = "User successfully updated enriched with propagation status information, as Entity",
+                content =
+                @Content(schema =
+                        @Schema(implementation = ProvisioningResult.class)))
+        , @ApiResponse(responseCode = "204",
+                description = "No content if 'Prefer: return-no-content' was specified", headers =
+                @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
+                        @Schema(type = "string"),
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied")) })
     @PUT
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -107,11 +182,26 @@ public interface UserSelfService extends JAXRSService {
      *
      * @param statusPatch status update details
      * @return Response object featuring the updated user enriched with propagation status information
-     * - ProvisioningResult as Entity
      */
     @Operation(security = {
         @SecurityRequirement(name = "BasicAuthentication")
         , @SecurityRequirement(name = "Bearer") })
+    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
+            description = "Allows client to specify a preference for the result to be returned from the server",
+            allowEmptyValue = true, schema =
+            @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                description = "User successfully updated enriched with propagation status information, as Entity",
+                content =
+                @Content(schema =
+                        @Schema(implementation = ProvisioningResult.class)))
+        , @ApiResponse(responseCode = "204",
+                description = "No content if 'Prefer: return-no-content' was specified", headers =
+                @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
+                        @Schema(type = "string"),
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied")) })
     @POST
     @Path("{key}/status")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -121,7 +211,7 @@ public interface UserSelfService extends JAXRSService {
     /**
      * Self-deletes user.
      *
-     * @return Response object featuring the deleted user - ProvisioningResult as Entity
+     * @return Response object featuring the deleted user
      */
     @Operation(security = {
         @SecurityRequirement(name = "BasicAuthentication")
@@ -135,7 +225,7 @@ public interface UserSelfService extends JAXRSService {
      *
      * @param password the password value to update
      *
-     * @return Response object featuring the updated user - ProvisioningResult as Entity
+     * @return Response object featuring the updated user
      */
     @Operation(security = {
         @SecurityRequirement(name = "BasicAuthentication")
