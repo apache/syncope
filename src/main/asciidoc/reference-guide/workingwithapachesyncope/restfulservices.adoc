@@ -67,7 +67,7 @@ endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/2_0_X/core/spring/src/main/resources/securityContext.xml[securityContext.xml^];
 endif::[]
-while normally not needed, this configuration can be anyway customized via the <<override-behavior,override behavior>>.
+while normally not needed, this configuration can be anyway customized via the <<override-behaviour,override behaviour>>.
 
 https://en.wikipedia.org/wiki/Basic_access_authentication[HTTP Basic Authentication] is set for use by default.
 ====
@@ -169,7 +169,7 @@ when communicating with <<external-resource-details,External Resources>> with no
 Some REST endpoints - typically for creating, updating or deleting Users, Groups or Any Objects - return the
 entity in the response payload by default. +
 If this is not required, the `Prefer` request header can be set to `return-no-content` (`return-content` will instead
-keep the default behavior).
+keep the default behaviour).
 
 When `Prefer` is specified in the request, the response will feature the `Preference-Applied` header, with value set
 to the effective preference applied.
@@ -417,7 +417,7 @@ BulkActionResult bulkResult = userService.bulk(bulkAction).
 Map<String, BulkActionResult.Status> results = bulkResult.getResults(); // <5>
 ----
 <1> get the total number of users available in the given deployment (and <<domains,domain>>)
-<2> loop throgh all users available, using paginated search
+<2> loop through all users available, using paginated search
 <3> add each user to the bulk action
 <4> execute the `DELETE` bulk action
 <5> examine the bulk action results
@@ -448,7 +448,7 @@ UserTO userTO = userService.status(statusPatch).
   }).getEntity(); // <3>
 ----
 <1> assume the key of the user to be suspended is known in advance
-<2> `ACTIVATE`, `SUSPEND`, `REACTIVATE` values are accepted, and honored depending on the actual status of the user
+<2> `ACTIVATE`, `SUSPEND`, `REACTIVATE` values are accepted, and honoured depending on the actual status of the user
 being updated
 <3> request for user update and read back the updated entity
 ====

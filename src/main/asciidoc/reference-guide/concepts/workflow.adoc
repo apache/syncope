@@ -183,7 +183,7 @@ granted accesses, within a given organization.
 [TIP]
 ====
 Recertification is the traditional and most effective countermeasure against __privilege creep__, that is the
-rentention of accounts during time even when the user change his role, or even his job. 
+retention of accounts during time even when the user change his role, or even his job. 
 
 Recertification is a good practice, recommended and often required by international or organizational standards.
 ====
@@ -203,7 +203,7 @@ https://github.com/apache/syncope/tree/2_0_X/core/provisioning-java/src/main/jav
 endif::[]
 class, which can be used as base to implement more complex recertification processes.
 
-Essentially, this task goes through all the available users and checks whether they where already recertified in the
+Essentially, this task goes through all the available users and checks whether they were already recertified in the
 past `identity.recertification.day.interval` days - see <<configuration-parameters, below>> for details; when needed,
 it triggers a specific <<approval,approval>>.
 

@@ -19,7 +19,7 @@
 [[console-realms]]
 ===== Realms
 
-The realms page provides the designated administators with the power to manage <<realms>> as well as
+The realms page provides the designated administrators with the power to manage <<realms>> as well as
 <<users-groups-and-any-objects>>, for all <<anytype, Any Types>> that are defined.
 
 image::realmsUser.png[console-realms-user]

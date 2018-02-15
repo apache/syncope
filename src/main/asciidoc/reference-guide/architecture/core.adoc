@@ -44,7 +44,7 @@ More details are available in the dedicated <<restful-services,usage>> section.
 ==== Logic
 
 Right below the external interface level, the overall business logic is responsible for orchestrating the other layers, by implementing
-the operations that can be triggered via REST services. It is also responsible for controling some additional features (notifications, 
+the operations that can be triggered via REST services. It is also responsible for controlling some additional features (notifications, 
 reports and auditing).
 
 [[provisioning-layer]]
@@ -94,7 +94,7 @@ provided by the Spring Framework.
 Globally, this offers the ability to easily scale up to a million entities and at the same time allows great portability
 with no code changes: MySQL, MariaDB, PostgreSQL, Oracle and MS SQL Server are fully supported deployment options.
 
-<<domains>> allow to manage data beloging to different https://en.wikipedia.org/wiki/Multitenancy[tenants^] into
+<<domains>> allow to manage data belonging to different https://en.wikipedia.org/wiki/Multitenancy[tenants^] into
 separate database instances.
 
 ==== Security

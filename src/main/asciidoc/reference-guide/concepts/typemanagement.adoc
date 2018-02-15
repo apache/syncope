@@ -155,7 +155,7 @@ given user / group / any object instance) and for <<type-extensions,type extensi
 Any types represent the type of identities that Apache Syncope is able to manage; besides the predefined `USER` and 
 `GROUP`, more types can be created to model workstations, printers, folders, sensors, services, ...
 
-For all Any Types that are defined, a set of <<anytypeclass, classes>> can be selected so that instances af a given
+For all Any Types that are defined, a set of <<anytypeclass, classes>> can be selected so that instances of a given
 Any Type will be enabled to populate attributes for schemas in those classes.
 
 .Any types and attributes allowed for Users, Groups and Any Objects
@@ -258,7 +258,7 @@ define the available link types.
 
 .Relationship between Any Objects (printers)
 ====
-The following any object of type `PRINTER` contains a relationship of type `neighborhood` with another `PRINTER`
+The following any object of type `PRINTER` contains a relationship of type `neighbourhood` with another `PRINTER`
 (details are simplified to increase readability):
 
 [source,json]
@@ -285,7 +285,7 @@ The following any object of type `PRINTER` contains a relationship of type `neig
   ],
   "relationships": [
     {
-      "type": "neighborhood",
+      "type": "neighbourhood",
       "rightType": "PRINTER",
       "rightKey": "8559d14d-58c2-46eb-a2d4-a7d35161e8f8"
     }

@@ -619,7 +619,7 @@ Provided address: http://localhost:9080/syncope/rest
 
 --
 
-As the message suggests you have to start the installation again when this error occurrs.
+As the message suggests you have to start the installation again when this error occurs.
 
 
 ==== Debug

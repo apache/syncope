@@ -94,7 +94,7 @@ https://github.com/apache/syncope/tree/2_0_X/common/lib/src/main/java/org/apache
 endif::[]
 it is essentially a handy way to inject static values (of various types) into a report.
 
-===== User and Group Reportles
+===== User and Group Reportlets
 Defined by
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/UserReportlet.java[UserReportlet^]

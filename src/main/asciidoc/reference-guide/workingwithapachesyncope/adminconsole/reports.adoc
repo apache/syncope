@@ -19,8 +19,8 @@
 [[console-reports]]
 ===== Reports
 
-The reports page presents the designated administators with the list of <<reports,reports>> configured on the given
+The reports page presents the designated administrators with the list of <<reports,reports>> configured on the given
 deployment. +
-This page also allows the administators to create and edit <<report-templates,report templates>>.
+This page also allows the administratorss to create and edit <<report-templates,report templates>>.
 
 image::consoleReports.png[console-reports]
