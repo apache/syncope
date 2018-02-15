@@ -38,7 +38,7 @@ https://github.com/Tirasa/ConnId/blob/master/README.md#available-connectors[alre
 https://connid.atlassian.net/wiki/display/BASE/Create+new+connector[made from scratch^], in order to fulfill specific
 requirements
 * pooling information
-* configuration - dependening on the selected bundle, these are properties with configuration values: for example,
+* configuration - depending on the selected bundle, these are properties with configuration values: for example,
 with https://connid.atlassian.net/wiki/display/BASE/LDAP#LDAP-Configuration[LDAP^] this means host, port, bind DN,
 object classes while with
 https://connid.atlassian.net/wiki/display/BASE/Database+Table#DatabaseTable-ConfigurationProperties[DBMS^] it would 
@@ -97,7 +97,7 @@ image::mapping.png[title="Sample mapping",alt="Sample mapping"]
 
 For each of the <<anytype,Any Types>> supported by the underlying connector, a different mapping is provided.
 
-A mapping is essentially a collection of _mapping items_ describing the correspondance between an user / group / any
+A mapping is essentially a collection of _mapping items_ describing the correspondence between an user / group / any
 object attribute and its counterpart on the Identity Store represented by the current external resource. Each item
 specifies:
 

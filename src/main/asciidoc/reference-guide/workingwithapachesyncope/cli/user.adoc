@@ -64,7 +64,7 @@ The option to get the user key starting from a username.
 The option to get the username starting from a user key.
 --read-by-userkey::
 The option to read user information by their user key.
---read-by-usernam::
+--read-by-username::
 The option to read user information by their username.
 --search-by-attribute::
 The option to search a list of Users with a common attribute.

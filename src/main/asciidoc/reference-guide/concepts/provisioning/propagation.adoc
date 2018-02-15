@@ -60,7 +60,7 @@ endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/propagation/PropagationTaskExecutor.java[PropagationTaskExecutor^]
 endif::[]
-interface can be provided, in case the required behavior does not fit into the provided implementation.
+interface can be provided, in case the required behaviour does not fit into the provided implementation.
 
 ===== PropagationActions
 
