@@ -18,7 +18,7 @@
 //
 ===== Configuration
 
-The configuration pages allow the designated administators to customize the given deployment to fit the needs of the
+The configuration pages allow the designated administrators to customize the given deployment to fit the needs of the
 organization.
 
 [[console-configuration-audit]]
@@ -36,7 +36,7 @@ to display only the errors of `io.swagger`, in which case the warning and inform
 Notifications::
 
 Gives access to the <<notifications,notification>> management. +
-This page also allows the administators to create and edit <<notification-templates,notification templates>>.
+This page also allows the administrators to create and edit <<notification-templates,notification templates>>.
 
 [[console-configuration-parameters]]
 Parameters::

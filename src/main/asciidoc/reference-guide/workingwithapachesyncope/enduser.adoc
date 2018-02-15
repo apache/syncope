@@ -31,7 +31,7 @@ self-service and <<password-reset,password reset>>.
 [.text-center]
 image::enduserLogin.png[enduser-login]
 
-Usually, organizations thend to require deep customizations not only in the appearance but often also in the actual
+Usually, organizations tend to require deep customizations not only in the appearance but often also in the actual
 mechanisms behind, in order to best suit their processes and flows. +
 This is the main reason why the enduser application is composed of an
 https://angularjs.org/[AngularJS^] frontend - which eases extension and full customization - featured by an
