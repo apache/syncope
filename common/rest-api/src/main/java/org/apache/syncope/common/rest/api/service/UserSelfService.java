@@ -169,6 +169,9 @@ public interface UserSelfService extends JAXRSService {
      * @param statusPatch status update details
      * @return Response object featuring the updated user enriched with propagation status information
      */
+    @ApiOperation(value = "", authorizations = {
+        @Authorization(value = "BasicAuthentication")
+        , @Authorization(value = "Bearer") })
     @ApiImplicitParams(
             @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
                     value = "Allows the client to specify a preference for the result to be returned from the server",
