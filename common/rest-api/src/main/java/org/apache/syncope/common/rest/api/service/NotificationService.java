@@ -19,7 +19,10 @@
 package org.apache.syncope.common.rest.api.service;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
+import io.swagger.annotations.ResponseHeader;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -31,11 +34,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * REST operations for notifications.
@@ -73,6 +78,13 @@ public interface NotificationService extends JAXRSService {
      * @param notificationTO Creates a new notification.
      * @return Response object featuring Location header of created notification
      */
+    @ApiResponses(
+            @ApiResponse(code = 201,
+                    message = "Notification successfully created", responseHeaders = {
+                @ResponseHeader(name = RESTHeaders.RESOURCE_KEY, response = String.class,
+                        description = "UUID generated for the entity created")
+                , @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
+                        description = "URL of the entity created") }))
     @POST
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

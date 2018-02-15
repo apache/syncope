@@ -19,7 +19,10 @@
 package org.apache.syncope.common.rest.api.service;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
+import io.swagger.annotations.ResponseHeader;
 import java.io.InputStream;
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -31,10 +34,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * REST operations for mail templates.
@@ -60,6 +65,13 @@ public interface MailTemplateService extends JAXRSService {
      * @param mailTemplateTO Creates a new mail template.
      * @return Response object featuring Location header of created mail template
      */
+    @ApiResponses(
+            @ApiResponse(code = 201,
+                    message = "MailTemplate successfully created", responseHeaders = {
+                @ResponseHeader(name = RESTHeaders.RESOURCE_KEY, response = String.class,
+                        description = "Key value for the entity created")
+                , @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
+                        description = "URL of the entity created") }))
     @POST
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

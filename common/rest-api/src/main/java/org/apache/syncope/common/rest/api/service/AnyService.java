@@ -18,6 +18,11 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ResponseHeader;
 import java.util.Set;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -37,7 +42,9 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 
 public interface AnyService<TO extends AnyTO> extends JAXRSService {
@@ -138,8 +145,22 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      *
      * @param key any object key or name
      * @return Response object featuring the deleted any object enriched with propagation status information
-     * - ProvisioningResult as Entity
      */
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
+                    value = "Allows the client to specify a preference for the result to be returned from the server",
+                    defaultValue = "return-content", allowableValues = "return-content, return-no-content",
+                    allowEmptyValue = true))
+    @ApiResponses({
+        @ApiResponse(code = 200,
+                message = "User, Group or Any Object successfully deleted enriched with propagation status information,"
+                + " as Entity",
+                response = ProvisioningResult.class)
+        , @ApiResponse(code = 204,
+                message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
+                @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied")) })
     @DELETE
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

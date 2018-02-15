@@ -19,7 +19,12 @@
 package org.apache.syncope.common.rest.api.service;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
+import io.swagger.annotations.ResponseHeader;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -28,12 +33,17 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.ext.PATCH;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 
 /**
  * REST operations for users.
@@ -44,14 +54,37 @@ import org.apache.syncope.common.lib.to.UserTO;
 @Path("users")
 public interface UserService extends AnyService<UserTO> {
 
+    @Override
+    UserTO read(String key);
+
+    @Override
+    PagedResult<UserTO> search(AnyQuery anyQuery);
+
     /**
      * Creates a new user.
      *
      * @param userTO user to be created
      * @param storePassword whether password shall be stored internally
      * @return Response object featuring Location header of created user as well as the user itself
-     * enriched with propagation status information - ProvisioningResult as Entity
+     * enriched with propagation status information
      */
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
+                    value = "Allows the client to specify a preference for the result to be returned from the server",
+                    defaultValue = "return-content", allowableValues = "return-content, return-no-content",
+                    allowEmptyValue = true))
+    @ApiResponses(
+            @ApiResponse(code = 201,
+                    message = "User successfully created enriched with propagation status information, as Entity,"
+                    + "or empty if 'Prefer: return-no-content' was specified",
+                    response = ProvisioningResult.class, responseHeaders = {
+                @ResponseHeader(name = RESTHeaders.RESOURCE_KEY, response = String.class,
+                        description = "UUID generated for the user created")
+                , @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
+                        description = "URL of the user created")
+                , @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied") }))
     @POST
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -64,8 +97,21 @@ public interface UserService extends AnyService<UserTO> {
      *
      * @param userPatch modification to be applied to user matching the provided key
      * @return Response object featuring the updated user enriched with propagation status information
-     * - ProvisioningResult as Entity
      */
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
+                    value = "Allows the client to specify a preference for the result to be returned from the server",
+                    defaultValue = "return-content", allowableValues = "return-content, return-no-content",
+                    allowEmptyValue = true))
+    @ApiResponses({
+        @ApiResponse(code = 200,
+                message = "User successfully updated enriched with propagation status information, as Entity",
+                response = ProvisioningResult.class)
+        , @ApiResponse(code = 204,
+                message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
+                @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied")) })
     @PATCH
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -77,8 +123,21 @@ public interface UserService extends AnyService<UserTO> {
      *
      * @param userTO complete update
      * @return Response object featuring the updated user enriched with propagation status information
-     * - ProvisioningResult as Entity
      */
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
+                    value = "Allows the client to specify a preference for the result to be returned from the server",
+                    defaultValue = "return-content", allowableValues = "return-content, return-no-content",
+                    allowEmptyValue = true))
+    @ApiResponses({
+        @ApiResponse(code = 200,
+                message = "User successfully updated enriched with propagation status information, as Entity",
+                response = ProvisioningResult.class)
+        , @ApiResponse(code = 204,
+                message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
+                @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied")) })
     @PUT
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -90,8 +149,21 @@ public interface UserService extends AnyService<UserTO> {
      *
      * @param statusPatch status update details
      * @return Response object featuring the updated user enriched with propagation status information
-     * - ProvisioningResult as Entity
      */
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
+                    value = "Allows the client to specify a preference for the result to be returned from the server",
+                    defaultValue = "return-content", allowableValues = "return-content, return-no-content",
+                    allowEmptyValue = true))
+    @ApiResponses({
+        @ApiResponse(code = 200,
+                message = "User successfully updated enriched with propagation status information, as Entity",
+                response = ProvisioningResult.class)
+        , @ApiResponse(code = 204,
+                message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
+                @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied")) })
     @POST
     @Path("{key}/status")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

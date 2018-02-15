@@ -19,18 +19,28 @@
 package org.apache.syncope.common.rest.api.service;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
+import io.swagger.annotations.ResponseHeader;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.ext.PATCH;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 
 /**
  * REST operations for anyObjects.
@@ -41,13 +51,36 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 @Path("anyObjects")
 public interface AnyObjectService extends AnyService<AnyObjectTO> {
 
+    @Override
+    AnyObjectTO read(String key);
+
+    @Override
+    PagedResult<AnyObjectTO> search(AnyQuery anyQuery);
+
     /**
      * Creates a new any object.
      *
      * @param anyObjectTO any object to be created
      * @return Response object featuring Location header of created any object as well as the any
-     * object itself enriched with propagation status information - ProvisioningResult as Entity
+     * object itself enriched with propagation status information
      */
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
+                    value = "Allows the client to specify a preference for the result to be returned from the server",
+                    defaultValue = "return-content", allowableValues = "return-content, return-no-content",
+                    allowEmptyValue = true))
+    @ApiResponses(
+            @ApiResponse(code = 201,
+                    message = "Any object successfully created enriched with propagation status information, as Entity,"
+                    + "or empty if 'Prefer: return-no-content' was specified",
+                    response = ProvisioningResult.class, responseHeaders = {
+                @ResponseHeader(name = RESTHeaders.RESOURCE_KEY, response = String.class,
+                        description = "UUID generated for the any object created")
+                , @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
+                        description = "URL of the any object created")
+                , @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied") }))
     @POST
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -58,8 +91,21 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
      *
      * @param anyObjectPatch modification to be applied to any object matching the provided key
      * @return Response object featuring the updated any object enriched with propagation status information
-     * - ProvisioningResult as Entity
      */
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
+                    value = "Allows the client to specify a preference for the result to be returned from the server",
+                    defaultValue = "return-content", allowableValues = "return-content, return-no-content",
+                    allowEmptyValue = true))
+    @ApiResponses({
+        @ApiResponse(code = 200,
+                message = "Any object successfully updated enriched with propagation status information, as Entity",
+                response = ProvisioningResult.class)
+        , @ApiResponse(code = 204,
+                message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
+                @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied")) })
     @PATCH
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -71,8 +117,21 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
      *
      * @param anyObjectTO complete update
      * @return Response object featuring the updated any object enriched with propagation status information
-     * - ProvisioningResult as Entity
      */
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
+                    value = "Allows the client to specify a preference for the result to be returned from the server",
+                    defaultValue = "return-content", allowableValues = "return-content, return-no-content",
+                    allowEmptyValue = true))
+    @ApiResponses({
+        @ApiResponse(code = 200,
+                message = "Any object successfully updated enriched with propagation status information, as Entity",
+                response = ProvisioningResult.class)
+        , @ApiResponse(code = 204,
+                message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
+                @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied")) })
     @PUT
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
