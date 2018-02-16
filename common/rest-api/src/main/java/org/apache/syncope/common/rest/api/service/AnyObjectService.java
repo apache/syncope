@@ -51,6 +51,14 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 @Path("anyObjects")
 public interface AnyObjectService extends AnyService<AnyObjectTO> {
 
+    @ApiResponses(
+            @ApiResponse(code = 200,
+                    message =
+                    "Any object matching the provided key; if value looks like a UUID then it is interpreted as key,"
+                    + " otherwise as a name.", responseHeaders =
+                    @ResponseHeader(name = HttpHeaders.ETAG, response = String.class,
+                            description = "Opaque identifier for the latest modification made to the entity returned"
+                            + " by this endpoint")))
     @Override
     AnyObjectTO read(String key);
 
@@ -92,11 +100,15 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
      * @param anyObjectPatch modification to be applied to any object matching the provided key
      * @return Response object featuring the updated any object enriched with propagation status information
      */
-    @ApiImplicitParams(
-            @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
-                    value = "Allows the client to specify a preference for the result to be returned from the server",
-                    defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                    allowEmptyValue = true))
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
+                value = "Allows the client to specify a preference for the result to be returned from the server",
+                defaultValue = "return-content", allowableValues = "return-content, return-no-content",
+                allowEmptyValue = true)
+        , @ApiImplicitParam(name = HttpHeaders.IF_MATCH, paramType = "header", dataType = "string",
+                value = "When the provided ETag value does not match the latest modification date of the entity, "
+                + "an error is reported and the requested operation is not performed.",
+                allowEmptyValue = true) })
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "Any object successfully updated enriched with propagation status information, as Entity",
@@ -105,7 +117,10 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
                 message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
                 @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
                         description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied")) })
+                        + "client about the fact that a specified preference was applied"))
+        , @ApiResponse(code = 412,
+                message = "The ETag value provided via the 'If-Match' header does not match the latest modification "
+                + "date of the entity") })
     @PATCH
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -118,11 +133,15 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
      * @param anyObjectTO complete update
      * @return Response object featuring the updated any object enriched with propagation status information
      */
-    @ApiImplicitParams(
-            @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
-                    value = "Allows the client to specify a preference for the result to be returned from the server",
-                    defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                    allowEmptyValue = true))
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
+                value = "Allows the client to specify a preference for the result to be returned from the server",
+                defaultValue = "return-content", allowableValues = "return-content, return-no-content",
+                allowEmptyValue = true)
+        , @ApiImplicitParam(name = HttpHeaders.IF_MATCH, paramType = "header", dataType = "string",
+                value = "When the provided ETag value does not match the latest modification date of the entity, "
+                + "an error is reported and the requested operation is not performed.",
+                allowEmptyValue = true) })
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "Any object successfully updated enriched with propagation status information, as Entity",
@@ -131,7 +150,10 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
                 message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
                 @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
                         description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied")) })
+                        + "client about the fact that a specified preference was applied"))
+        , @ApiResponse(code = 412,
+                message = "The ETag value provided via the 'If-Match' header does not match the latest modification "
+                + "date of the entity") })
     @PUT
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
