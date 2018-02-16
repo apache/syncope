@@ -36,6 +36,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
@@ -43,6 +44,7 @@ import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkAction;
+import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -88,10 +90,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
     /**
      * Reads the any object matching the provided key.
      *
-     * Note that for the UserService, GroupService and AnyObjectService subclasses, if the key parameter
-     * looks like a UUID then it is interpreted as as key, otherwise as a (user)name.
-     *
-     * @param key any object key or name
+     * @param key if value looks like a UUID then it is interpreted as key, otherwise as a (user)name
      * @return any object with matching key
      */
     @GET
@@ -152,6 +151,11 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
             description = "Allows client to specify a preference for the result to be returned from the server",
             allowEmptyValue = true, schema =
             @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @Parameter(name = HttpHeaders.IF_MATCH, in = ParameterIn.HEADER,
+            description = "When the provided ETag value does not match the latest modification date of the entity, "
+            + "an error is reported and the requested operation is not performed.",
+            allowEmptyValue = true, schema =
+            @Schema(type = "string"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "User, Group or Any Object successfully deleted enriched with propagation status "
@@ -163,7 +167,10 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
                         description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied")) })
+                        + "client about the fact that a specified preference was applied"))
+        , @ApiResponse(responseCode = "412",
+                description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
+                + " date of the entity") })
     @DELETE
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -175,6 +182,29 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      * @param patch external resources to be used for propagation-related operations
      * @return Response object featuring BulkActionResult as Entity
      */
+    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
+            description = "Allows client to specify a preference for the result to be returned from the server",
+            allowEmptyValue = true, schema =
+            @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @Parameter(name = HttpHeaders.IF_MATCH, in = ParameterIn.HEADER,
+            description = "When the provided ETag value does not match the latest modification date of the entity, "
+            + "an error is reported and the requested operation is not performed.",
+            allowEmptyValue = true, schema =
+            @Schema(type = "string"))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                description = "Bulk action result", content =
+                @Content(schema =
+                        @Schema(implementation = BulkActionResult.class)))
+        , @ApiResponse(responseCode = "204",
+                description = "No content if 'Prefer: return-no-content' was specified", headers =
+                @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
+                        @Schema(type = "string"),
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied"))
+        , @ApiResponse(responseCode = "412",
+                description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
+                + " date of the entity") })
     @POST
     @Path("{key}/deassociate/{action}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -187,6 +217,29 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      * @param patch external resources to be used for propagation-related operations
      * @return Response object featuring BulkActionResult as Entity
      */
+    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
+            description = "Allows client to specify a preference for the result to be returned from the server",
+            allowEmptyValue = true, schema =
+            @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @Parameter(name = HttpHeaders.IF_MATCH, in = ParameterIn.HEADER,
+            description = "When the provided ETag value does not match the latest modification date of the entity, "
+            + "an error is reported and the requested operation is not performed.",
+            allowEmptyValue = true, schema =
+            @Schema(type = "string"))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                description = "Bulk action result", content =
+                @Content(schema =
+                        @Schema(implementation = BulkActionResult.class)))
+        , @ApiResponse(responseCode = "204",
+                description = "No content if 'Prefer: return-no-content' was specified", headers =
+                @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
+                        @Schema(type = "string"),
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied"))
+        , @ApiResponse(responseCode = "412",
+                description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
+                + " date of the entity") })
     @POST
     @Path("{key}/associate/{action}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -199,6 +252,21 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      * @param bulkAction list of any object ids against which the bulk action will be performed.
      * @return Response object featuring BulkActionResult as Entity
      */
+    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
+            description = "Allows client to specify a preference for the result to be returned from the server",
+            allowEmptyValue = true, schema =
+            @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200",
+                description = "Bulk action result", content =
+                @Content(schema =
+                        @Schema(implementation = BulkActionResult.class)))
+        , @ApiResponse(responseCode = "204",
+                description = "No content if 'Prefer: return-no-content' was specified", headers =
+                @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
+                        @Schema(type = "string"),
+                        description = "Allows the server to inform the "
+                        + "client about the fact that a specified preference was applied")) })
     @POST
     @Path("bulk")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

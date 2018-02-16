@@ -58,6 +58,14 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 @Path("users")
 public interface UserService extends AnyService<UserTO> {
 
+    @ApiResponses(
+            @ApiResponse(responseCode = "200", description =
+                    "User matching the provided key; if value looks like a UUID then it is interpreted as key,"
+                    + " otherwise as a username.", headers =
+                    @Header(name = HttpHeaders.ETAG, schema =
+                            @Schema(type = "string"),
+                            description = "Opaque identifier for the latest modification made to the entity returned"
+                            + " by this endpoint")))
     @Override
     UserTO read(String key);
 
@@ -110,6 +118,11 @@ public interface UserService extends AnyService<UserTO> {
             description = "Allows client to specify a preference for the result to be returned from the server",
             allowEmptyValue = true, schema =
             @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @Parameter(name = HttpHeaders.IF_MATCH, in = ParameterIn.HEADER,
+            description = "When the provided ETag value does not match the latest modification date of the entity, "
+            + "an error is reported and the requested operation is not performed.",
+            allowEmptyValue = true, schema =
+            @Schema(type = "string"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "User successfully updated enriched with propagation status information, as Entity",
@@ -121,7 +134,10 @@ public interface UserService extends AnyService<UserTO> {
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
                         description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied")) })
+                        + "client about the fact that a specified preference was applied"))
+        , @ApiResponse(responseCode = "412",
+                description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
+                + " date of the entity") })
     @PATCH
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -134,22 +150,32 @@ public interface UserService extends AnyService<UserTO> {
      * @param userTO complete update
      * @return Response object featuring the updated user enriched with propagation status information
      */
-    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
+    @Parameter(
+            name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
             description = "Allows client to specify a preference for the result to be returned from the server",
             allowEmptyValue = true, schema =
             @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @Parameter(name = HttpHeaders.IF_MATCH, in = ParameterIn.HEADER,
+            description = "When the provided ETag value does not match the latest modification date of the entity, "
+            + "an error is reported and the requested operation is not performed.",
+            allowEmptyValue = true, schema =
+            @Schema(type = "string"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "User successfully updated enriched with propagation status information, as Entity",
                 content =
                 @Content(schema =
                         @Schema(implementation = ProvisioningResult.class)))
-        , @ApiResponse(responseCode = "204",
+        ,
+        @ApiResponse(responseCode = "204",
                 description = "No content if 'Prefer: return-no-content' was specified", headers =
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
                         description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied")) })
+                        + "client about the fact that a specified preference was applied"))
+        , @ApiResponse(responseCode = "412",
+                description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
+                + " date of the entity") })
     @PUT
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -162,10 +188,16 @@ public interface UserService extends AnyService<UserTO> {
      * @param statusPatch status update details
      * @return Response object featuring the updated user enriched with propagation status information
      */
-    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
+    @Parameter(
+            name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
             description = "Allows client to specify a preference for the result to be returned from the server",
             allowEmptyValue = true, schema =
             @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @Parameter(name = HttpHeaders.IF_MATCH, in = ParameterIn.HEADER,
+            description = "When the provided ETag value does not match the latest modification date of the entity, "
+            + "an error is reported and the requested operation is not performed.",
+            allowEmptyValue = true, schema =
+            @Schema(type = "string"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "User successfully updated enriched with propagation status information, as Entity",
@@ -177,7 +209,10 @@ public interface UserService extends AnyService<UserTO> {
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
                         description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied")) })
+                        + "client about the fact that a specified preference was applied"))
+        , @ApiResponse(responseCode = "412",
+                description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
+                + " date of the entity") })
     @POST
     @Path("{key}/status")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
