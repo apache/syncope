@@ -369,7 +369,7 @@ under the License.
 
     <jackson.version>2.9.4</jackson.version>
 
-    <spring.version>5.0.3.RELEASE</spring.version>
+    <spring.version>5.0.4.RELEASE</spring.version>
     <spring-security.version>5.0.1.RELEASE</spring-security.version>
 
     <openjpa.version>3.0.0-SNAPSHOT</openjpa.version>
@@ -409,7 +409,7 @@ under the License.
 
     <h2.version>1.4.196</h2.version>
 
-    <junit.version>5.0.3</junit.version>
+    <junit.version>5.1.0</junit.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -418,7 +418,7 @@ under the License.
     <flowable-modeler.directory>${project.build.directory}/flowable-modeler</flowable-modeler.directory>    
 
     <swagger-core.version>2.0.0-rc4</swagger-core.version>    
-    <swagger-ui.version>3.9.2</swagger-ui.version>
+    <swagger-ui.version>3.10.0</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
     <jquery.version>2.2.4</jquery.version>
@@ -1824,7 +1824,7 @@ under the License.
             <dependency>
               <groupId>org.junit.platform</groupId>
               <artifactId>junit-platform-surefire-provider</artifactId>
-              <version>1.0.3</version>
+              <version>1.1.0</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -1842,7 +1842,7 @@ under the License.
             <dependency>
               <groupId>org.junit.platform</groupId>
               <artifactId>junit-platform-surefire-provider</artifactId>
-              <version>1.0.3</version>
+              <version>1.1.0</version>
             </dependency>
           </dependencies>
           <executions>
