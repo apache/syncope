@@ -153,7 +153,11 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
         , @ApiImplicitParam(name = HttpHeaders.IF_MATCH, paramType = "header", dataType = "string",
                 value = "When the provided ETag value does not match the latest modification date of the entity, "
                 + "an error is reported and the requested operation is not performed.",
-                allowEmptyValue = true) })
+                allowEmptyValue = true)
+        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                value = "If 'true', instructs the propagation process not to wait for completion when communicating"
+                + " with External Resources with no priority set",
+                defaultValue = "false", allowEmptyValue = true) })
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "User, Group or Any Object successfully deleted enriched with propagation status information,"
@@ -186,7 +190,11 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
         , @ApiImplicitParam(name = HttpHeaders.IF_MATCH, paramType = "header", dataType = "string",
                 value = "When the provided ETag value does not match the latest modification date of the entity, "
                 + "an error is reported and the requested operation is not performed.",
-                allowEmptyValue = true) })
+                allowEmptyValue = true)
+        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                value = "If 'true', instructs the propagation process not to wait for completion when communicating"
+                + " with External Resources with no priority set",
+                defaultValue = "false", allowEmptyValue = true) })
     @ApiResponses({
         @ApiResponse(code = 200, message = "Bulk action result", response = BulkActionResult.class)
         , @ApiResponse(code = 204,
@@ -217,7 +225,11 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
         , @ApiImplicitParam(name = HttpHeaders.IF_MATCH, paramType = "header", dataType = "string",
                 value = "When the provided ETag value does not match the latest modification date of the entity, "
                 + "an error is reported and the requested operation is not performed.",
-                allowEmptyValue = true) })
+                allowEmptyValue = true)
+        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                value = "If 'true', instructs the propagation process not to wait for completion when communicating"
+                + " with External Resources with no priority set",
+                defaultValue = "false", allowEmptyValue = true) })
     @ApiResponses({
         @ApiResponse(code = 200, message = "Bulk action result", response = BulkActionResult.class)
         , @ApiResponse(code = 204,
@@ -240,11 +252,15 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      * @param bulkAction list of any object ids against which the bulk action will be performed.
      * @return Response object featuring BulkActionResult as Entity
      */
-    @ApiImplicitParams(
-            @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
-                    value = "Allows the client to specify a preference for the result to be returned from the server",
-                    defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                    allowEmptyValue = true))
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
+                value = "Allows the client to specify a preference for the result to be returned from the server",
+                defaultValue = "return-content", allowableValues = "return-content, return-no-content",
+                allowEmptyValue = true)
+        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                value = "If 'true', instructs the propagation process not to wait for completion when communicating"
+                + " with External Resources with no priority set",
+                defaultValue = "false", allowEmptyValue = true) })
     @ApiResponses({
         @ApiResponse(code = 200, message = "Bulk action result", response = BulkActionResult.class)
         , @ApiResponse(code = 204,

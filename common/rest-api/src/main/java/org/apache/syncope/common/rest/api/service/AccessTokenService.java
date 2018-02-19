@@ -54,13 +54,14 @@ public interface AccessTokenService extends JAXRSService {
      */
     @ApiOperation(value = "", authorizations = {
         @Authorization(value = "BasicAuthentication") })
-    @ApiResponses(
-            @ApiResponse(code = 204,
-                    message = "JWT successfully generated", responseHeaders = {
-                @ResponseHeader(name = RESTHeaders.TOKEN, response = String.class,
-                        description = "Generated JWT")
-                , @ResponseHeader(name = RESTHeaders.TOKEN_EXPIRE, response = String.class,
-                        description = "Expiration of the generated JWT") }))
+    @ApiResponses({
+        @ApiResponse(code = 204,
+                message = "JWT successfully generated", responseHeaders = {
+                    @ResponseHeader(name = RESTHeaders.TOKEN, response = String.class,
+                            description = "Generated JWT")
+                    , @ResponseHeader(name = RESTHeaders.TOKEN_EXPIRE, response = String.class,
+                            description = "Expiration of the generated JWT") })
+        , @ApiResponse(code = 401, message = "Invalid username or password") })
     @POST
     @Path("login")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

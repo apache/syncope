@@ -79,11 +79,15 @@ public interface RealmService extends JAXRSService {
      * @return Response object featuring Location header of created realm as well as the realm itself
      * enriched with propagation status information
      */
-    @ApiImplicitParams(
-            @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
-                    value = "Allows the client to specify a preference for the result to be returned from the server",
-                    defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                    allowEmptyValue = true))
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
+                value = "Allows the client to specify a preference for the result to be returned from the server",
+                defaultValue = "return-content", allowableValues = "return-content, return-no-content",
+                allowEmptyValue = true)
+        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                value = "If 'true', instructs the propagation process not to wait for completion when communicating"
+                + " with External Resources with no priority set",
+                defaultValue = "false", allowEmptyValue = true) })
     @ApiResponses(
             @ApiResponse(code = 201,
                     message = "Realm successfully created enriched with propagation status information, as Entity,"
@@ -108,11 +112,15 @@ public interface RealmService extends JAXRSService {
      * @param realmTO realm to be stored
      * @return Response object featuring the updated realm enriched with propagation status information
      */
-    @ApiImplicitParams(
-            @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
-                    value = "Allows the client to specify a preference for the result to be returned from the server",
-                    defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                    allowEmptyValue = true))
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
+                value = "Allows the client to specify a preference for the result to be returned from the server",
+                defaultValue = "return-content", allowableValues = "return-content, return-no-content",
+                allowEmptyValue = true)
+        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                value = "If 'true', instructs the propagation process not to wait for completion when communicating"
+                + " with External Resources with no priority set",
+                defaultValue = "false", allowEmptyValue = true) })
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "Realm successfully updated enriched with propagation status information, as Entity",
@@ -134,11 +142,15 @@ public interface RealmService extends JAXRSService {
      * @param fullPath realm path
      * @return Response object featuring the deleted realm enriched with propagation status information
      */
-    @ApiImplicitParams(
-            @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
-                    value = "Allows the client to specify a preference for the result to be returned from the server",
-                    defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                    allowEmptyValue = true))
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
+                value = "Allows the client to specify a preference for the result to be returned from the server",
+                defaultValue = "return-content", allowableValues = "return-content, return-no-content",
+                allowEmptyValue = true)
+        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                value = "If 'true', instructs the propagation process not to wait for completion when communicating"
+                + " with External Resources with no priority set",
+                defaultValue = "false", allowEmptyValue = true) })
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "Realm successfully deleted enriched with propagation status information, as Entity",

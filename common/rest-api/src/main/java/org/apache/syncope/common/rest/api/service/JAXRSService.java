@@ -18,6 +18,23 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ResponseHeader;
+import org.apache.syncope.common.lib.to.ErrorTO;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+
+@ApiResponses(
+        @ApiResponse(code = 400,
+                message = "An error occurred; HTTP status code can vary depending on the actual error: "
+                + "400, 403, 404, 409, 412",
+                response = ErrorTO.class,
+                responseHeaders = {
+                    @ResponseHeader(name = RESTHeaders.ERROR_CODE, response = String.class,
+                            description = "Error code")
+                    , @ResponseHeader(name = RESTHeaders.ERROR_INFO, response = String.class,
+                            description = "Error message") })
+)
 public interface JAXRSService {
 
     String PARAM_FIQL = "fiql";

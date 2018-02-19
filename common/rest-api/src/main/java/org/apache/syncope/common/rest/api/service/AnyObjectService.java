@@ -72,11 +72,15 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
      * @return Response object featuring Location header of created any object as well as the any
      * object itself enriched with propagation status information
      */
-    @ApiImplicitParams(
-            @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
-                    value = "Allows the client to specify a preference for the result to be returned from the server",
-                    defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                    allowEmptyValue = true))
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
+                value = "Allows the client to specify a preference for the result to be returned from the server",
+                defaultValue = "return-content", allowableValues = "return-content, return-no-content",
+                allowEmptyValue = true)
+        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                value = "If 'true', instructs the propagation process not to wait for completion when communicating"
+                + " with External Resources with no priority set",
+                defaultValue = "false", allowEmptyValue = true) })
     @ApiResponses(
             @ApiResponse(code = 201,
                     message = "Any object successfully created enriched with propagation status information, as Entity,"
@@ -108,7 +112,11 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
         , @ApiImplicitParam(name = HttpHeaders.IF_MATCH, paramType = "header", dataType = "string",
                 value = "When the provided ETag value does not match the latest modification date of the entity, "
                 + "an error is reported and the requested operation is not performed.",
-                allowEmptyValue = true) })
+                allowEmptyValue = true)
+        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                value = "If 'true', instructs the propagation process not to wait for completion when communicating"
+                + " with External Resources with no priority set",
+                defaultValue = "false", allowEmptyValue = true) })
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "Any object successfully updated enriched with propagation status information, as Entity",
@@ -141,7 +149,11 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
         , @ApiImplicitParam(name = HttpHeaders.IF_MATCH, paramType = "header", dataType = "string",
                 value = "When the provided ETag value does not match the latest modification date of the entity, "
                 + "an error is reported and the requested operation is not performed.",
-                allowEmptyValue = true) })
+                allowEmptyValue = true)
+        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                value = "If 'true', instructs the propagation process not to wait for completion when communicating"
+                + " with External Resources with no priority set",
+                defaultValue = "false", allowEmptyValue = true) })
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "Any object successfully updated enriched with propagation status information, as Entity",
