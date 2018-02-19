@@ -233,6 +233,71 @@ without performing any deprovisioning operation
  * `UNASSIGN` - unlink and deprovision several users, groups or any objects at once from an external resource
 |===
 
+==== Search
+
+It is possible to search for Users, Groups and Any Objects matching a set of given conditions expressed through
+https://cxf.apache.org/docs/jax-rs-search.html#JAX-RSSearch-FeedItemQueryLanguage[FIQL^].
+
+The https://tools.ietf.org/html/draft-nottingham-atompub-fiql-00[Feed Item Query Language^] (FIQL, pronounced “fickle”)
+is a simple but flexible, URI-friendly syntax for expressing filters across the entries in a syndicated feed.
+
+The FIQL queries can be passed to the search endpoints available, e.g.
+
+* `GET /users?fiql=query`
+* `GET /groups?fiql=query`
+* `GET /anyObjects?fiql=query`
+
+where `query` is an URL-encoded string representation of the given FIQL query, as in the following examples.
+
+.Simple attribute match
+====
+----
+username==rossini
+----
+====
+
+.Wildcard attribute match
+====
+----
+username==*ini
+----
+====
+
+.Null attribute match
+====
+----
+loginDate==$null
+----
+====
+
+.Resource assignment match
+====
+----
+$resources==resource-ldap
+----
+====
+
+.Group membership match (only for Users and Any Objects)
+====
+----
+$groups==root
+----
+====
+
+.Role membership match (only for Users)
+====
+----
+$roles==Other
+----
+====
+
+.Type match (only for Any Objects)
+====
+----
+$type==PRINTER
+----
+====
+
 ==== Client Library
 
 The Java client library simplifies the interaction with the <<core>> by hiding the underlying HTTP
@@ -340,7 +405,7 @@ Advanced REST features are also available from `SyncopeClient` instances: check
 http://syncope.apache.org/apidocs/2.0/org/apache/syncope/client/lib/SyncopeClient.html[the javadoc^]
 for more information.
 
-.Search for users, groups or any objects
+.Search for Users, Groups or Any Objects
 ====
 All search operations return
 http://syncope.apache.org/apidocs/2.0/org/apache/syncope/common/lib/to/PagedResult.html[paged result handlers^]
