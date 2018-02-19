@@ -156,6 +156,11 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
             + "an error is reported and the requested operation is not performed.",
             allowEmptyValue = true, schema =
             @Schema(type = "string"))
+    @Parameter(name = RESTHeaders.NULL_PRIORITY_ASYNC, in = ParameterIn.HEADER,
+            description = "If 'true', instructs the propagation process not to wait for completion when communicating"
+            + " with External Resources with no priority set",
+            allowEmptyValue = true, schema =
+            @Schema(type = "boolean", defaultValue = "false"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "User, Group or Any Object successfully deleted enriched with propagation status "
@@ -191,6 +196,11 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
             + "an error is reported and the requested operation is not performed.",
             allowEmptyValue = true, schema =
             @Schema(type = "string"))
+    @Parameter(name = RESTHeaders.NULL_PRIORITY_ASYNC, in = ParameterIn.HEADER,
+            description = "If 'true', instructs the propagation process not to wait for completion when communicating"
+            + " with External Resources with no priority set",
+            allowEmptyValue = true, schema =
+            @Schema(type = "boolean", defaultValue = "false"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "Bulk action result", content =
@@ -226,6 +236,11 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
             + "an error is reported and the requested operation is not performed.",
             allowEmptyValue = true, schema =
             @Schema(type = "string"))
+    @Parameter(name = RESTHeaders.NULL_PRIORITY_ASYNC, in = ParameterIn.HEADER,
+            description = "If 'true', instructs the propagation process not to wait for completion when communicating"
+            + " with External Resources with no priority set",
+            allowEmptyValue = true, schema =
+            @Schema(type = "boolean", defaultValue = "false"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "Bulk action result", content =
@@ -256,6 +271,11 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
             description = "Allows client to specify a preference for the result to be returned from the server",
             allowEmptyValue = true, schema =
             @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @Parameter(name = RESTHeaders.NULL_PRIORITY_ASYNC, in = ParameterIn.HEADER,
+            description = "If 'true', instructs the propagation process not to wait for completion when communicating"
+            + " with External Resources with no priority set",
+            allowEmptyValue = true, schema =
+            @Schema(type = "boolean", defaultValue = "false"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "Bulk action result", content =

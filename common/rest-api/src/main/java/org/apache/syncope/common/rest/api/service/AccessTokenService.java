@@ -55,15 +55,15 @@ public interface AccessTokenService extends JAXRSService {
      */
     @Operation(security = {
         @SecurityRequirement(name = "BasicAuthentication") })
-    @ApiResponses(
-            @ApiResponse(responseCode = "204",
-                    description = "JWT successfully generated", headers = {
-                @Header(name = RESTHeaders.TOKEN, schema =
-                        @Schema(type = "string"),
-                        description = "Generated JWT")
-                , @Header(name = RESTHeaders.TOKEN_EXPIRE, schema =
-                        @Schema(type = "string"),
-                        description = "Expiration of the generated JWT") }))
+    @ApiResponses({
+        @ApiResponse(responseCode = "204",
+                description = "JWT successfully generated", headers = {
+                    @Header(name = RESTHeaders.TOKEN, schema =
+                            @Schema(type = "string"), description = "Generated JWT")
+                    , @Header(name = RESTHeaders.TOKEN_EXPIRE, schema =
+                            @Schema(type = "string"), description = "Expiration of the generated JWT") })
+        , @ApiResponse(responseCode = "401", description = "Invalid username or password")
+    })
     @POST
     @Path("login")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

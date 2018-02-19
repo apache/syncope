@@ -85,6 +85,11 @@ public interface GroupService extends AnyService<GroupTO> {
             description = "Allows client to specify a preference for the result to be returned from the server",
             allowEmptyValue = true, schema =
             @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @Parameter(name = RESTHeaders.NULL_PRIORITY_ASYNC, in = ParameterIn.HEADER,
+            description = "If 'true', instructs the propagation process not to wait for completion when communicating"
+            + " with External Resources with no priority set",
+            allowEmptyValue = true, schema =
+            @Schema(type = "boolean", defaultValue = "false"))
     @ApiResponses(
             @ApiResponse(responseCode = "201",
                     description = "Group successfully created enriched with propagation status information, as Entity,"
@@ -122,6 +127,11 @@ public interface GroupService extends AnyService<GroupTO> {
             + "an error is reported and the requested operation is not performed.",
             allowEmptyValue = true, schema =
             @Schema(type = "string"))
+    @Parameter(name = RESTHeaders.NULL_PRIORITY_ASYNC, in = ParameterIn.HEADER,
+            description = "If 'true', instructs the propagation process not to wait for completion when communicating"
+            + " with External Resources with no priority set",
+            allowEmptyValue = true, schema =
+            @Schema(type = "boolean", defaultValue = "false"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "Group successfully updated enriched with propagation status information, as Entity",
@@ -158,6 +168,11 @@ public interface GroupService extends AnyService<GroupTO> {
             + "an error is reported and the requested operation is not performed.",
             allowEmptyValue = true, schema =
             @Schema(type = "string"))
+    @Parameter(name = RESTHeaders.NULL_PRIORITY_ASYNC, in = ParameterIn.HEADER,
+            description = "If 'true', instructs the propagation process not to wait for completion when communicating"
+            + " with External Resources with no priority set",
+            allowEmptyValue = true, schema =
+            @Schema(type = "boolean", defaultValue = "false"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "Group successfully updated enriched with propagation status information, as Entity",

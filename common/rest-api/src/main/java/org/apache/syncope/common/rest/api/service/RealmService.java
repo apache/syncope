@@ -87,6 +87,11 @@ public interface RealmService extends JAXRSService {
             description = "Allows client to specify a preference for the result to be returned from the server",
             allowEmptyValue = true, schema =
             @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @Parameter(name = RESTHeaders.NULL_PRIORITY_ASYNC, in = ParameterIn.HEADER,
+            description = "If 'true', instructs the propagation process not to wait for completion when communicating"
+            + " with External Resources with no priority set",
+            allowEmptyValue = true, schema =
+            @Schema(type = "boolean", defaultValue = "false"))
     @ApiResponses(
             @ApiResponse(responseCode = "201",
                     description = "Realm successfully created enriched with propagation status information, as Entity,"
@@ -120,6 +125,11 @@ public interface RealmService extends JAXRSService {
             description = "Allows client to specify a preference for the result to be returned from the server",
             allowEmptyValue = true, schema =
             @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @Parameter(name = RESTHeaders.NULL_PRIORITY_ASYNC, in = ParameterIn.HEADER,
+            description = "If 'true', instructs the propagation process not to wait for completion when communicating"
+            + " with External Resources with no priority set",
+            allowEmptyValue = true, schema =
+            @Schema(type = "boolean", defaultValue = "false"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "Realm successfully updated enriched with propagation status information, as Entity",
@@ -148,6 +158,11 @@ public interface RealmService extends JAXRSService {
             description = "Allows client to specify a preference for the result to be returned from the server",
             allowEmptyValue = true, schema =
             @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @Parameter(name = RESTHeaders.NULL_PRIORITY_ASYNC, in = ParameterIn.HEADER,
+            description = "If 'true', instructs the propagation process not to wait for completion when communicating"
+            + " with External Resources with no priority set",
+            allowEmptyValue = true, schema =
+            @Schema(type = "boolean", defaultValue = "false"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "Realm successfully deleted enriched with propagation status information, as Entity",
