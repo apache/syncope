@@ -30,7 +30,7 @@ managed entities (Users, Groups and Any Objects), their attributes and resources
 
 === Java
 
-Apache Syncope {docVersion} requires the latest JDK 7 or JDK 8 that is available.
+Apache Syncope {docVersion} requires the latest JDK 8 that is available.
 
 === Java EE Container
 
