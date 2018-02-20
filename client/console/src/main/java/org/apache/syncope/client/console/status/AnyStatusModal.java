@@ -37,6 +37,7 @@ public class AnyStatusModal<T extends AnyTO> extends StatusModal<T> {
             final T anyTO,
             final String itemKeyFieldName,
             final boolean statusOnly) {
+
         super(baseModal, pageReference, anyTO, itemKeyFieldName, statusOnly);
     }
 
@@ -49,6 +50,7 @@ public class AnyStatusModal<T extends AnyTO> extends StatusModal<T> {
             final T entity,
             final String itemKeyFieldName,
             final boolean statusOnly) {
+
         return new AnyStatusDirectoryPanel(baseModal, mlp, pageReference, entity, itemKeyFieldName, statusOnly);
     }
 }

@@ -310,6 +310,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 return new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build();
             }
         }));
+        patch.getADynMembershipConds().putAll(group.getADynMembershipConds());
+        patch.setUDynMembershipCond(group.getUDynMembershipCond());
 
         return binder.getGroupTO(provisioningManager.link(patch));
     }
@@ -366,6 +368,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 return new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build();
             }
         }));
+        patch.getADynMembershipConds().putAll(group.getADynMembershipConds());
+        patch.setUDynMembershipCond(group.getUDynMembershipCond());
 
         return update(patch, nullPriorityAsync);
     }
