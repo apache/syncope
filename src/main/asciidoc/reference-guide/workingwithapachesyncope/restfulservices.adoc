@@ -241,7 +241,7 @@ https://cxf.apache.org/docs/jax-rs-search.html#JAX-RSSearch-FeedItemQueryLanguag
 The https://tools.ietf.org/html/draft-nottingham-atompub-fiql-00[Feed Item Query Language^] (FIQL, pronounced “fickle”)
 is a simple but flexible, URI-friendly syntax for expressing filters across the entries in a syndicated feed.
 
-The FIQL queries can be passed to the search endpoints available, e.g.
+The FIQL queries can be passed (among other parameters) to the search endpoints available, e.g.
 
 * `GET /users?fiql=query`
 * `GET /groups?fiql=query`
@@ -263,10 +263,31 @@ username==*ini
 ----
 ====
 
+.Case-insensitive attribute match
+====
+----
+username=~rOsSiNi
+----
+====
+
+.Case-insensitive wildcard attribute match
+====
+----
+username=~*iNi
+----
+====
+
 .Null attribute match
 ====
 ----
 loginDate==$null
+----
+====
+
+.Date attribute comparison
+====
+----
+lastLoginDate=ge=2016-03-02 15:21:22
 ----
 ====
 
@@ -295,6 +316,13 @@ $roles==Other
 ====
 ----
 $type==PRINTER
+----
+====
+
+.Complex match (featuring logical AND and OR)
+====
+----
+username=~*iNi;(loginDate==$null,$roles==Other)
 ----
 ====
 
