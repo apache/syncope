@@ -21,7 +21,6 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.text.ParseException;
 import java.util.List;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.log.EventCategoryTO;
 import org.apache.syncope.common.lib.log.LogAppender;
 import org.apache.syncope.common.lib.log.LogStatementTO;
@@ -51,7 +50,7 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
     }
 
     @Override
-    public Response delete(final LoggerType type, final String name) {
+    public void delete(final LoggerType type, final String name) {
         switch (type) {
             case LOG:
                 logic.deleteLog(name);
@@ -68,7 +67,6 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
             default:
                 throw new BadRequestException();
         }
-        return Response.noContent().build();
     }
 
     @Override
@@ -101,7 +99,7 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
     }
 
     @Override
-    public Response update(final LoggerType type, final LoggerTO logger) {
+    public void update(final LoggerType type, final LoggerTO logger) {
         switch (type) {
             case LOG:
                 logic.setLogLevel(logger.getKey(), logger.getLevel().getLevel());
@@ -118,7 +116,6 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
             default:
                 throw new BadRequestException();
         }
-        return Response.noContent().build();
     }
 
     @Override

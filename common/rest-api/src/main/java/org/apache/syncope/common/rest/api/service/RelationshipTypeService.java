@@ -95,22 +95,24 @@ public interface RelationshipTypeService extends JAXRSService {
      * Updates the relationshipType matching the provided key.
      *
      * @param relationshipTypeTO relationshipType to be stored
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response update(@NotNull RelationshipTypeTO relationshipTypeTO);
+    void update(@NotNull RelationshipTypeTO relationshipTypeTO);
 
     /**
      * Deletes the relationshipType matching the provided key.
      *
      * @param key relationshipType key to be deleted
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response delete(@NotNull @PathParam("key") String key);
+    void delete(@NotNull @PathParam("key") String key);
 }

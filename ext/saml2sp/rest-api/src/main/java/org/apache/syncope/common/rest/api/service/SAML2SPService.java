@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -95,11 +97,12 @@ public interface SAML2SPService extends JAXRSService {
      * Validates the received SAML 2.0 logout response.
      *
      * @param response SAML response and relay state
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Path("logoutResponse")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response validateLogoutResponse(SAML2ReceivedResponseTO response);
+    void validateLogoutResponse(SAML2ReceivedResponseTO response);
 }

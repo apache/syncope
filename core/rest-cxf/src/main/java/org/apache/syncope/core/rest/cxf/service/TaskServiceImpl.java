@@ -64,9 +64,8 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
     }
 
     @Override
-    public Response delete(final TaskType type, final String key) {
+    public void delete(final TaskType type, final String key) {
         logic.delete(type, key);
-        return Response.noContent().build();
     }
 
     @SuppressWarnings("unchecked")
@@ -91,9 +90,8 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
     }
 
     @Override
-    public Response update(final TaskType type, final SchedTaskTO taskTO) {
+    public void update(final TaskType type, final SchedTaskTO taskTO) {
         logic.updateSchedTask(type, taskTO);
-        return Response.noContent().build();
     }
 
     @Override

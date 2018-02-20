@@ -50,9 +50,8 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
     }
 
     @Override
-    public Response delete(final String schema) {
+    public void delete(final String schema) {
         logic.delete(schema);
-        return Response.noContent().build();
     }
 
     @Override
@@ -66,8 +65,7 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
     }
 
     @Override
-    public Response set(final AttrTO value) {
+    public void set(final AttrTO value) {
         logic.set(value);
-        return Response.noContent().build();
     }
 }

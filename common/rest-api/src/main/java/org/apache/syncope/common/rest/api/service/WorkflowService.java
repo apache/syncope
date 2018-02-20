@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -90,13 +92,14 @@ public interface WorkflowService extends JAXRSService {
      * @param anyType any object type
      * @param key workflow definition key
      * @param definition workflow definition for matching kind
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("{anyType}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response set(
+    void set(
             @NotNull @PathParam("anyType") String anyType,
             @NotNull @PathParam("key") String key,
             @NotNull String definition);
@@ -106,12 +109,13 @@ public interface WorkflowService extends JAXRSService {
      *
      * @param anyType any object type
      * @param key workflow definition key
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{anyType}/{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response delete(
+    void delete(
             @NotNull @PathParam("anyType") String anyType,
             @NotNull @PathParam("key") String key);
 }

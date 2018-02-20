@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,7 +33,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.log.EventCategoryTO;
 import org.apache.syncope.common.lib.log.LogAppender;
 import org.apache.syncope.common.lib.log.LogStatementTO;
@@ -107,24 +108,26 @@ public interface LoggerService extends JAXRSService {
      *
      * @param type LoggerType to be selected
      * @param logger Logger to be created or updated
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("{type}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response update(@NotNull @PathParam("type") LoggerType type, @NotNull LoggerTO logger);
+    void update(@NotNull @PathParam("type") LoggerType type, @NotNull LoggerTO logger);
 
     /**
      * Deletes the logger with matching name.
      *
      * @param type LoggerType to be selected
      * @param name Logger name to be deleted
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{type}/{name}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response delete(@NotNull @PathParam("type") LoggerType type, @NotNull @PathParam("name") String name);
+    void delete(@NotNull @PathParam("type") LoggerType type, @NotNull @PathParam("name") String name);
 
 }

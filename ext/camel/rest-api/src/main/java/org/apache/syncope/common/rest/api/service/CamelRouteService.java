@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,7 +33,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.CamelMetrics;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -76,23 +77,24 @@ public interface CamelRouteService extends JAXRSService {
      *
      * @param anyTypeKind any type kind
      * @param route to be updated
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("{anyTypeKind}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response update(@NotNull @PathParam("anyTypeKind") AnyTypeKind anyTypeKind, @NotNull CamelRouteTO route);
+    void update(@NotNull @PathParam("anyTypeKind") AnyTypeKind anyTypeKind, @NotNull CamelRouteTO route);
 
     /**
      * Restart the underlying Apache Camel context.
-     *
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Path("restartContext")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response restartContext();
+    void restartContext();
 
     /**
      * Provides Camel metrics.

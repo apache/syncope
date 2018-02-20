@@ -96,24 +96,26 @@ public interface RoleService extends JAXRSService {
      * Updates the role matching the provided key.
      *
      * @param roleTO role to be stored
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response update(@NotNull RoleTO roleTO);
+    void update(@NotNull RoleTO roleTO);
 
     /**
      * Deletes the role matching the provided key.
      *
      * @param key role key to be deleted
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response delete(@NotNull @PathParam("key") String key);
+    void delete(@NotNull @PathParam("key") String key);
 
     /**
      * Gets the console layout information as JSON string for the role with the given key, if available.
@@ -131,22 +133,24 @@ public interface RoleService extends JAXRSService {
      *
      * @param key role key
      * @param consoleLayoutInfoIn console layout information to be set
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("{key}/consoleLayout")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response setConsoleLayoutInfo(@NotNull @PathParam("key") String key, InputStream consoleLayoutInfoIn);
+    void setConsoleLayoutInfo(@NotNull @PathParam("key") String key, InputStream consoleLayoutInfoIn);
 
     /**
      * Removes the console layout information for the role with the given key, if available.
      *
      * @param key role key
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{key}/consoleLayout")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response removeConsoleLayoutInfo(@NotNull @PathParam("key") String key);
+    void removeConsoleLayoutInfo(@NotNull @PathParam("key") String key);
 }

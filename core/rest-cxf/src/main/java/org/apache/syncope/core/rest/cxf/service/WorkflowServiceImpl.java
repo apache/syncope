@@ -66,20 +66,18 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
     }
 
     @Override
-    public Response set(final String anyType, final String key, final String definition) {
+    public void set(final String anyType, final String key, final String definition) {
         WorkflowDefinitionFormat format =
                 messageContext.getHttpHeaders().getMediaType().equals(MediaType.APPLICATION_JSON_TYPE)
                 ? WorkflowDefinitionFormat.JSON
                 : WorkflowDefinitionFormat.XML;
 
         logic.importDefinition(anyType, key, format, definition);
-        return Response.noContent().build();
     }
 
     @Override
-    public Response delete(final String anyType, final String key) {
+    public void delete(final String anyType, final String key) {
         logic.delete(anyType, key);
-        return Response.noContent().build();
     }
 
 }

@@ -46,9 +46,8 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     }
 
     @Override
-    public Response delete(final String key) {
+    public void delete(final String key) {
         logic.delete(key);
-        return Response.noContent().build();
     }
 
     @Override
@@ -79,20 +78,17 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     }
 
     @Override
-    public Response update(final ConnInstanceTO connInstanceTO) {
+    public void update(final ConnInstanceTO connInstanceTO) {
         logic.update(connInstanceTO);
-        return Response.noContent().build();
     }
 
     @Override
-    public Response check(final ConnInstanceTO connInstanceTO) {
+    public void check(final ConnInstanceTO connInstanceTO) {
         logic.check(connInstanceTO);
-        return Response.noContent().build();
     }
 
     @Override
-    public Response reload() {
+    public void reload() {
         logic.reload();
-        return Response.noContent().build();
     }
 }

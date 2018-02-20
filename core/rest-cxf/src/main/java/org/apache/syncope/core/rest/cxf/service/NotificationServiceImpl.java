@@ -56,15 +56,13 @@ public class NotificationServiceImpl extends AbstractServiceImpl implements Noti
     }
 
     @Override
-    public Response update(final NotificationTO notificationTO) {
+    public void update(final NotificationTO notificationTO) {
         logic.update(notificationTO);
-        return Response.noContent().build();
     }
 
     @Override
-    public Response delete(final String key) {
+    public void delete(final String key) {
         logic.delete(key);
-        return Response.noContent().build();
     }
 
     @Override
@@ -73,8 +71,7 @@ public class NotificationServiceImpl extends AbstractServiceImpl implements Noti
     }
 
     @Override
-    public Response actionJob(final JobAction action) {
+    public void actionJob(final JobAction action) {
         logic.actionJob(action);
-        return Response.noContent().build();
     }
 }

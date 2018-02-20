@@ -19,7 +19,6 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.List;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.ResourceHistoryConfTO;
 import org.apache.syncope.common.rest.api.service.ResourceHistoryService;
 import org.apache.syncope.core.logic.ResourceHistoryLogic;
@@ -38,15 +37,13 @@ public class ResourceHistoryServiceImpl extends AbstractServiceImpl implements R
     }
 
     @Override
-    public Response restore(final String key) {
+    public void restore(final String key) {
         logic.restore(key);
-        return Response.noContent().build();
     }
 
     @Override
-    public Response delete(final String key) {
+    public void delete(final String key) {
         logic.delete(key);
-        return Response.noContent().build();
     }
 
 }

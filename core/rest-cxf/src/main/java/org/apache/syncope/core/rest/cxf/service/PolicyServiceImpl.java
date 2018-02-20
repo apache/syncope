@@ -45,9 +45,8 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public Response delete(final PolicyType type, final String key) {
+    public void delete(final PolicyType type, final String key) {
         logic.delete(type, key);
-        return Response.noContent().build();
     }
 
     @Override
@@ -61,8 +60,7 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public Response update(final PolicyType type, final PolicyTO policyTO) {
+    public void update(final PolicyType type, final PolicyTO policyTO) {
         logic.update(type, policyTO);
-        return Response.noContent().build();
     }
 }

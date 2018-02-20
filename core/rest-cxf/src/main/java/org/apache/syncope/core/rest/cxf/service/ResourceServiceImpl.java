@@ -72,27 +72,23 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public Response update(final ResourceTO resourceTO) {
+    public void update(final ResourceTO resourceTO) {
         logic.update(resourceTO);
-        return Response.noContent().build();
     }
 
     @Override
-    public Response setLatestSyncToken(final String key, final String anyTypeKey) {
+    public void setLatestSyncToken(final String key, final String anyTypeKey) {
         logic.setLatestSyncToken(key, anyTypeKey);
-        return Response.noContent().build();
     }
 
     @Override
-    public Response removeSyncToken(final String key, final String anyTypeKey) {
+    public void removeSyncToken(final String key, final String anyTypeKey) {
         logic.removeSyncToken(key, anyTypeKey);
-        return Response.noContent().build();
     }
 
     @Override
-    public Response delete(final String key) {
+    public void delete(final String key) {
         logic.delete(key);
-        return Response.noContent().build();
     }
 
     @Override
@@ -142,9 +138,8 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public Response check(final ResourceTO resourceTO) {
+    public void check(final ResourceTO resourceTO) {
         logic.check(resourceTO);
-        return Response.noContent().build();
     }
 
     @Override

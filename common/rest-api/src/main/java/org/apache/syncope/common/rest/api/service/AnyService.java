@@ -131,12 +131,13 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      * @param key any object key or name
      * @param schemaType schema type
      * @param schema schema
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{key}/{schemaType}/{schema}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response delete(
+    void delete(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("schemaType") SchemaType schemaType,
             @NotNull @PathParam("schema") String schema);

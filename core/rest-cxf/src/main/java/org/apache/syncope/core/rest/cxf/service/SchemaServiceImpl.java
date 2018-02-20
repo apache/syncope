@@ -47,9 +47,8 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
     }
 
     @Override
-    public Response delete(final SchemaType schemaType, final String key) {
+    public void delete(final SchemaType schemaType, final String key) {
         logic.delete(schemaType, key);
-        return Response.noContent().build();
     }
 
     @Override
@@ -63,8 +62,7 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
     }
 
     @Override
-    public Response update(final SchemaType schemaType, final SchemaTO schemaTO) {
+    public void update(final SchemaType schemaType, final SchemaTO schemaTO) {
         logic.update(schemaType, schemaTO);
-        return Response.noContent().build();
     }
 }

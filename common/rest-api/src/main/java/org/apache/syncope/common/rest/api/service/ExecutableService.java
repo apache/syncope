@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.util.List;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -31,7 +33,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -69,12 +70,13 @@ public interface ExecutableService extends JAXRSService {
      * Deletes the executable execution matching the provided key.
      *
      * @param executionKey key of executable execution to be deleted
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("executions/{executionKey}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response deleteExecution(@NotNull @PathParam("executionKey") String executionKey);
+    void deleteExecution(@NotNull @PathParam("executionKey") String executionKey);
 
     /**
      * Deletes the executions belonging matching the given query.
@@ -113,9 +115,10 @@ public interface ExecutableService extends JAXRSService {
      *
      * @param key executable key
      * @param action action to execute
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Path("jobs/{key}")
-    Response actionJob(@NotNull @PathParam("key") String key, @QueryParam("action") JobAction action);
+    void actionJob(@NotNull @PathParam("key") String key, @QueryParam("action") JobAction action);
 }
