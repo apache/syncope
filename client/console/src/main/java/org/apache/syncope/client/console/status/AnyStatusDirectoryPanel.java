@@ -129,7 +129,7 @@ public class AnyStatusDirectoryPanel
                         if (model.getObject().isLinked()) {
                             super.onComponentTag(tag);
                         } else {
-                            tag.put("style", "color: #DDDDDD");
+                            tag.put("style", "font-style: italic");
                         }
                     }
                 });
