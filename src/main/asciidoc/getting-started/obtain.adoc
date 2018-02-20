@@ -727,6 +727,10 @@ The Netbeans IDE plugin allows remote management of notification e-mail and repo
 After http://syncope.apache.org/downloads.html[download^], start the most recent Netbeans IDE then go to 
 `Tools > Plugins`:
 
+****
+Note: :: If the downloaded plugin is in zip format then change its extension to .nbm otherwise you won't be able to use it with Netbeans
+****
+
 image::netbeans01.png[netbeans01]
 
 Click on `Downloaded > Add Plugins...`:
