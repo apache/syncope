@@ -56,9 +56,8 @@ public class ReportServiceImpl extends AbstractExecutableService implements Repo
     }
 
     @Override
-    public Response update(final ReportTO reportTO) {
+    public void update(final ReportTO reportTO) {
         logic.update(reportTO);
-        return Response.noContent().build();
     }
 
     @Override
@@ -89,8 +88,7 @@ public class ReportServiceImpl extends AbstractExecutableService implements Repo
     }
 
     @Override
-    public Response delete(final String key) {
+    public void delete(final String key) {
         logic.delete(key);
-        return Response.noContent().build();
     }
 }

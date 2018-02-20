@@ -89,15 +89,15 @@ public interface AccessTokenService extends JAXRSService {
 
     /**
      * Invalidates the access token of the requesting user.
-     *
-     * @return an empty response if operation was successful
      */
     @ApiOperation(value = "", authorizations = {
         @Authorization(value = "Bearer") })
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @POST
     @Path("logout")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response logout();
+    void logout();
 
     /**
      * Returns a paged list of existing access tokens matching the given query.
@@ -117,13 +117,14 @@ public interface AccessTokenService extends JAXRSService {
      * Invalidates the access token matching the provided key.
      *
      * @param key access token key
-     * @return an empty response if operation was successful
      */
     @ApiOperation(value = "", authorizations = {
         @Authorization(value = "BasicAuthentication")
         , @Authorization(value = "Bearer") })
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @DELETE
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response delete(@PathParam("key") String key);
+    void delete(@PathParam("key") String key);
 }

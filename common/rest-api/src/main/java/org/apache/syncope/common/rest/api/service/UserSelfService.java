@@ -226,12 +226,13 @@ public interface UserSelfService extends JAXRSService {
      *
      * @param username username for which the security answer is provided
      * @param securityAnswer actual answer text
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @POST
     @Path("requestPasswordReset")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response requestPasswordReset(@NotNull @QueryParam("username") String username, String securityAnswer);
+    void requestPasswordReset(@NotNull @QueryParam("username") String username, String securityAnswer);
 
     /**
      * Reset the password value for the user matching the provided token, if available and still valid.
@@ -241,10 +242,11 @@ public interface UserSelfService extends JAXRSService {
      *
      * @param token password reset token
      * @param password new password to be set
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @POST
     @Path("confirmPasswordReset")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response confirmPasswordReset(@NotNull @QueryParam("token") String token, String password);
+    void confirmPasswordReset(@NotNull @QueryParam("token") String token, String password);
 }

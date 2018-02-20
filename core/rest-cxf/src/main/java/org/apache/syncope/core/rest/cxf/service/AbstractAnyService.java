@@ -202,11 +202,10 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     @Override
-    public Response delete(final String key, final SchemaType schemaType, final String schema) {
+    public void delete(final String key, final SchemaType schemaType, final String schema) {
         String actualKey = getActualKey(key);
         addUpdateOrReplaceAttr(
                 actualKey, schemaType, new AttrTO.Builder().schema(schema).build(), PatchOperation.DELETE);
-        return Response.noContent().build();
     }
 
     @Override

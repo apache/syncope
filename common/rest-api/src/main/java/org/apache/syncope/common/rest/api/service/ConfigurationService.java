@@ -19,6 +19,8 @@
 package org.apache.syncope.common.rest.api.service;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -75,22 +77,24 @@ public interface ConfigurationService extends JAXRSService {
      * Creates / updates the configuration parameter with the given schema.
      *
      * @param value parameter value
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @PUT
     @Path("{schema}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response set(@NotNull AttrTO value);
+    void set(@NotNull AttrTO value);
 
     /**
      * Deletes the configuration parameter with matching schema.
      *
      * @param schema configuration parameter schema
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @DELETE
     @Path("{schema}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response delete(@NotNull @PathParam("schema") String schema);
+    void delete(@NotNull @PathParam("schema") String schema);
 }

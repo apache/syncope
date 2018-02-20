@@ -19,6 +19,8 @@
 package org.apache.syncope.common.rest.api.service;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -29,7 +31,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
 
 /**
@@ -56,21 +57,23 @@ public interface ConnectorHistoryService extends JAXRSService {
      * Restores the connector configuration history instance matching the provided key.
      *
      * @param key connector configuration history instance key to be restored
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @POST
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response restore(@NotNull @PathParam("key") String key);
+    void restore(@NotNull @PathParam("key") String key);
 
     /**
      * Deletes the connector configuration history instance matching the provided key.
      *
      * @param key connector configuration history instance key to be deleted
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @DELETE
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response delete(@NotNull @PathParam("key") String key);
+    void delete(@NotNull @PathParam("key") String key);
 }

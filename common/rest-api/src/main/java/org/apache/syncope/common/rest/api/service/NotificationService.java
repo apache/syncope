@@ -94,24 +94,26 @@ public interface NotificationService extends JAXRSService {
      * Updates the notification matching the given key.
      *
      * @param notificationTO notification to be stored
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response update(@NotNull NotificationTO notificationTO);
+    void update(@NotNull NotificationTO notificationTO);
 
     /**
      * Deletes the notification matching the given key.
      *
      * @param key key for notification to be deleted
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @DELETE
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response delete(@NotNull @PathParam("key") String key);
+    void delete(@NotNull @PathParam("key") String key);
 
     /**
      * Returns details about notification job.
@@ -127,10 +129,11 @@ public interface NotificationService extends JAXRSService {
      * Executes an action on the notification job.
      *
      * @param action action to execute
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @POST
     @Path("job")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response actionJob(@QueryParam("action") JobAction action);
+    void actionJob(@QueryParam("action") JobAction action);
 }

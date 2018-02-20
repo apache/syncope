@@ -141,44 +141,47 @@ public interface ConnectorService extends JAXRSService {
      * Updates the connector instance matching the provided key.
      *
      * @param connInstanceTO connector instance to be stored
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response update(@NotNull ConnInstanceTO connInstanceTO);
+    void update(@NotNull ConnInstanceTO connInstanceTO);
 
     /**
      * Deletes the connector instance matching the provided key.
      *
      * @param key connector instance key to be deleted
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @DELETE
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response delete(@NotNull @PathParam("key") String key);
+    void delete(@NotNull @PathParam("key") String key);
 
     /**
      * Checks whether the connection to resource could be established.
      *
      * @param connInstanceTO connector instance to be used for connection check
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @POST
     @Path("check")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response check(@NotNull ConnInstanceTO connInstanceTO);
+    void check(@NotNull ConnInstanceTO connInstanceTO);
 
     /**
      * Reload all connector bundles and instances.
-     *
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @POST
     @Path("reload")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response reload();
+    void reload();
 }

@@ -90,24 +90,26 @@ public interface SecurityQuestionService extends JAXRSService {
      * Updates the security question matching the provided key.
      *
      * @param securityQuestionTO security question to be stored
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response update(@NotNull SecurityQuestionTO securityQuestionTO);
+    void update(@NotNull SecurityQuestionTO securityQuestionTO);
 
     /**
      * Deletes the security question matching the provided key.
      *
      * @param key security question key to be deleted
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @DELETE
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response delete(@NotNull @PathParam("key") String key);
+    void delete(@NotNull @PathParam("key") String key);
 
     /**
      * Ask for security question configured for the user matching the given username, if any.

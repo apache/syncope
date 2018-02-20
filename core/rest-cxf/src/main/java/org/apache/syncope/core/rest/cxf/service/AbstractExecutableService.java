@@ -19,7 +19,6 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.List;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -52,9 +51,8 @@ public abstract class AbstractExecutableService extends AbstractServiceImpl impl
     }
 
     @Override
-    public Response deleteExecution(final String executionKey) {
+    public void deleteExecution(final String executionKey) {
         getExecutableLogic().deleteExecution(executionKey);
-        return Response.noContent().build();
     }
 
     @Override
@@ -78,9 +76,8 @@ public abstract class AbstractExecutableService extends AbstractServiceImpl impl
     }
 
     @Override
-    public Response actionJob(final String key, final JobAction action) {
+    public void actionJob(final String key, final JobAction action) {
         getExecutableLogic().actionJob(key, action);
-        return Response.noContent().build();
     }
 
 }

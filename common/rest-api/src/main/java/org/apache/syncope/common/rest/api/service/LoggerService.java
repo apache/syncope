@@ -19,6 +19,8 @@
 package org.apache.syncope.common.rest.api.service;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -30,7 +32,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.log.EventCategoryTO;
 import org.apache.syncope.common.lib.log.LogAppender;
 import org.apache.syncope.common.lib.log.LogStatementTO;
@@ -105,24 +106,26 @@ public interface LoggerService extends JAXRSService {
      *
      * @param type LoggerType to be selected
      * @param logger Logger to be created or updated
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @PUT
     @Path("{type}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response update(@NotNull @PathParam("type") LoggerType type, @NotNull LoggerTO logger);
+    void update(@NotNull @PathParam("type") LoggerType type, @NotNull LoggerTO logger);
 
     /**
      * Deletes the logger with matching name.
      *
      * @param type LoggerType to be selected
      * @param name Logger name to be deleted
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @DELETE
     @Path("{type}/{name}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response delete(@NotNull @PathParam("type") LoggerType type, @NotNull @PathParam("name") String name);
+    void delete(@NotNull @PathParam("type") LoggerType type, @NotNull @PathParam("name") String name);
 
 }

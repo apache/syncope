@@ -102,6 +102,7 @@ public interface TaskService extends ExecutableService {
     @POST
     @Path("{type}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull @PathParam("type") TaskType type, @NotNull SchedTaskTO taskTO);
 
     /**
@@ -109,24 +110,27 @@ public interface TaskService extends ExecutableService {
      *
      * @param type task type
      * @param taskTO updated task to be stored
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @PUT
     @Path("{type}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response update(@NotNull @PathParam("type") TaskType type, @NotNull SchedTaskTO taskTO);
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    void update(@NotNull @PathParam("type") TaskType type, @NotNull SchedTaskTO taskTO);
 
     /**
      * Deletes the task matching the provided key.
      *
      * @param type task type
      * @param key key of task to be deleted
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @DELETE
     @Path("{type}/{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response delete(@NotNull @PathParam("type") TaskType type, @NotNull @PathParam("key") String key);
+    void delete(@NotNull @PathParam("type") TaskType type, @NotNull @PathParam("key") String key);
 
     /**
      * Executes the provided bulk action.

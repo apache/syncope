@@ -92,12 +92,13 @@ public interface MailTemplateService extends JAXRSService {
      * Deletes the mail template matching the given key.
      *
      * @param key key for mail template to be deleted
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @DELETE
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response delete(@NotNull @PathParam("key") String key);
+    void delete(@NotNull @PathParam("key") String key);
 
     /**
      * Gets the template for the given key and format, if available.
@@ -118,12 +119,13 @@ public interface MailTemplateService extends JAXRSService {
      * @param key mail template
      * @param format template format
      * @param templateIn template to be set
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @PUT
     @Path("{key}/{format}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response setFormat(
+    void setFormat(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("format") MailTemplateFormat format,
             InputStream templateIn);
@@ -133,12 +135,13 @@ public interface MailTemplateService extends JAXRSService {
      *
      * @param key mail template
      * @param format template format
-     * @return an empty response if operation was successful
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @DELETE
     @Path("{key}/{format}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response removeFormat(
+    void removeFormat(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("format") MailTemplateFormat format);
 
