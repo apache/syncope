@@ -370,7 +370,7 @@ under the License.
     <jackson.version>2.9.4</jackson.version>
 
     <spring.version>5.0.4.RELEASE</spring.version>
-    <spring-security.version>5.0.1.RELEASE</spring-security.version>
+    <spring-security.version>5.0.2.RELEASE</spring-security.version>
 
     <openjpa.version>3.0.0-SNAPSHOT</openjpa.version>
     <hikaricp.version>2.7.7</hikaricp.version>
