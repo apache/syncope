@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.widgets;
 
-import static org.apache.wicket.Component.ENABLE;
-
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.io.Serializable;
