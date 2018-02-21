@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlEnum;
 public enum JobAction {
 
     START,
-    STOP;
+    STOP,
+    DELETE;
 
 }

@@ -91,6 +91,10 @@ abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTran
                         scheduler.getScheduler().interrupt(jobKey);
                         break;
 
+                    case DELETE:
+                        scheduler.getScheduler().deleteJob(jobKey);
+                        break;
+
                     default:
                 }
             } else {

@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.widgets;
 
+import static org.apache.wicket.Component.ENABLE;
+
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.io.Serializable;
@@ -28,8 +30,10 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ExecMessageModal;
 import org.apache.syncope.client.console.reports.ReportWizardBuilder;
@@ -49,11 +53,13 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogg
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -487,6 +493,49 @@ public class JobWidget extends BaseWidget {
                 }
 
             }, ActionType.COMPOSE, StandardEntitlement.TASK_UPDATE);
+
+            panel.add(new ActionLink<JobTO>() {
+
+                private static final long serialVersionUID = -3722207913631435501L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target, final JobTO ignore) {
+                    try {
+                        if (null != jobTO.getType()) {
+                            switch (jobTO.getType()) {
+
+                                case NOTIFICATION:
+                                    break;
+
+                                case REPORT:
+                                    new ReportRestClient().actionJob(jobTO.getRefKey(), JobAction.DELETE);
+                                    break;
+
+                                case TASK:
+                                    new TaskRestClient().actionJob(jobTO.getRefKey(), JobAction.DELETE);
+                                    break;
+
+                                default:
+                                    break;
+                            }
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            target.add(container);
+                        }
+                    } catch (SyncopeClientException e) {
+                        LOG.error("While deleting object {}", jobTO.getRefKey(), e);
+                        SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                                getName() : e.getMessage());
+                    }
+                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                }
+
+                @Override
+                protected boolean statusCondition(final JobTO modelObject) {
+                    return (null != jobTO.getType()
+                            && !JobType.NOTIFICATION.equals(jobTO.getType())
+                            && (jobTO.isScheduled() && !jobTO.isRunning()));
+                }
+            }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE, true);
 
             return panel;
         }
