@@ -20,11 +20,28 @@ under the License.
   <wicket:panel>
     <div wicket:id="content">
       <span wicket:id="type">[type]</span>
-      <span wicket:id="values">[values]</span>
-      <span wicket:id="panel">[panel]</span>
-      <span wicket:id="mimeType">[mimeType]</span>
-      <span wicket:id="secretKey">[secretKey]</span>
-      <span wicket:id="cipherAlgorithm">[cipherAlgorithm]</span>
+
+      <div wicket:id="conversionParams">
+        <span wicket:id="conversionPattern">[conversionPattern]</span>
+      </div>
+
+      <div wicket:id="typeParams">
+        <div wicket:id="enumParams">
+          <span wicket:id="enumerationValues">[enumerationValues]</span>
+          <span wicket:id="enumerationKeys">[enumerationKeys]</span>
+        </div>
+        <div wicket:id="encryptedParams">
+          <span wicket:id="secretKey">[secretKey]</span>
+          <span wicket:id="cipherAlgorithm">[cipherAlgorithm]</span>
+        </div>
+        <div wicket:id="binaryParams">
+          <span wicket:id="mimeType">[mimeType]</span>
+        </div>
+      </div>
+
+      <span wicket:id="validator">[validator]</span>
+
+      <span wicket:id="multivalue">[multivalue]</span>
     </div>
   </wicket:panel>
 </html>

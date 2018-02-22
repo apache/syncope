@@ -38,7 +38,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -82,23 +81,19 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         type.setChoices(Arrays.asList(AttrSchemaType.values()));
         type.setEnabled(schemaTO == null || schemaTO.getKey() == null || schemaTO.getKey().isEmpty());
         type.addRequiredLabel();
-
         schemaForm.add(type);
 
         // long, double, date
         final AjaxTextFieldPanel conversionPattern = new AjaxTextFieldPanel("conversionPattern",
                 getString("conversionPattern"), new PropertyModel<>(schemaTO, "conversionPattern"));
-
         schemaForm.add(conversionPattern);
 
         final WebMarkupContainer conversionParams = new WebMarkupContainer("conversionParams");
         conversionParams.setOutputMarkupPlaceholderTag(true);
         conversionParams.add(conversionPattern);
-
         schemaForm.add(conversionParams);
 
         final WebMarkupContainer typeParams = new WebMarkupContainer("typeParams");
-
         typeParams.setOutputMarkupPlaceholderTag(true);
 
         // enum
@@ -238,8 +233,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
                 target.add(typeParams);
                 target.add(validator);
             }
-        }
-        );
+        });
 
         IModel<List<String>> validators = new LoadableDetachableModel<List<String>>() {
 
@@ -300,7 +294,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
     }
 
-    private void showHide(final SchemaTO schema, final AjaxDropDownChoicePanel<AttrSchemaType> type,
+    private void showHide(final PlainSchemaTO schema, final AjaxDropDownChoicePanel<AttrSchemaType> type,
             final WebMarkupContainer conversionParams, final AjaxTextFieldPanel conversionPattern,
             final WebMarkupContainer enumParams, final AjaxTextFieldPanel enumerationValuesPanel,
             final MultiFieldPanel<String> enumerationValues, final MultiFieldPanel<String> enumerationKeys,
@@ -336,7 +330,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             mimeType.setModelObject(null);
             mimeType.setChoices(null);
 
-            PlainSchemaTO.class.cast(schema).setValidator(null);
+            schema.setValidator(null);
         } else if (AttrSchemaType.Enum.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -345,10 +339,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             if (!enumerationValuesPanel.isRequired()) {
                 enumerationValuesPanel.addRequiredLabel();
             }
-            enumerationValues.setModelObject(PropertyList.getEnumValuesAsList(((PlainSchemaTO) schema).
-                    getEnumerationValues()));
-            enumerationKeys.setModelObject(PropertyList.getEnumValuesAsList(((PlainSchemaTO) schema).
-                    getEnumerationKeys()));
+            enumerationValues.setModelObject(PropertyList.getEnumValuesAsList(schema.getEnumerationValues()));
+            enumerationKeys.setModelObject(PropertyList.getEnumValuesAsList(schema.getEnumerationKeys()));
 
             encryptedParams.setVisible(false);
             if (secretKey.isRequired()) {
@@ -364,7 +356,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             mimeType.setModelObject(null);
             mimeType.setChoices(null);
 
-            PlainSchemaTO.class.cast(schema).setValidator(null);
+            schema.setValidator(null);
         } else if (AttrSchemaType.Encrypted.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -388,7 +380,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             mimeType.setModelObject(null);
             mimeType.setChoices(null);
 
-            PlainSchemaTO.class.cast(schema).setValidator(null);
+            schema.setValidator(null);
         } else if (AttrSchemaType.Binary.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -413,7 +405,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             binaryParams.setVisible(true);
             mimeType.setChoices(MIME_TYPES_LOADER.getMimeTypes());
 
-            PlainSchemaTO.class.cast(schema).setValidator("BinaryValidator");
+            schema.setValidator("BinaryValidator");
         } else {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -439,7 +431,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             mimeType.setModelObject(null);
             mimeType.setChoices(null);
 
-            PlainSchemaTO.class.cast(schema).setValidator(null);
+            schema.setValidator(null);
         }
     }
 }
