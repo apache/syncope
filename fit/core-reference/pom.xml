@@ -143,6 +143,12 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-transports-http-hc</artifactId>
+      <version>${cxf.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.syncope.ext.camel</groupId>
       <artifactId>syncope-ext-camel-rest-cxf</artifactId>
       <version>${project.version}</version>
