@@ -358,7 +358,7 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <wicket.version>6.28.0</wicket.version>
+    <wicket.version>6.29.0</wicket.version>
 
     <groovy.version>2.3.10</groovy.version>
 
@@ -375,7 +375,7 @@ under the License.
     
     <httpclient.version>4.3.6</httpclient.version>
 
-    <tomcat.version>7.0.82</tomcat.version>
+    <tomcat.version>7.0.85</tomcat.version>
 
     <jasypt.version>1.9.2</jasypt.version>
  
@@ -1166,7 +1166,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.6.2</version>
+          <version>1.6.6</version>
           <configuration>
             <container>
               <containerId>tomcat7x</containerId>
