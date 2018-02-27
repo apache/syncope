@@ -361,15 +361,15 @@ public class PropagationManagerImpl implements PropagationManager {
 
         List<PropagationTaskTO> tasks = new ArrayList<>();
 
-        propByRes.asMap().entrySet().forEach(entry -> {
-            ExternalResource resource = resourceDAO.find(entry.getKey());
+        propByRes.asMap().forEach((resourceKey, operation) -> {
+            ExternalResource resource = resourceDAO.find(resourceKey);
             Provision provision = resource == null ? null : resource.getProvision(any.getType()).orElse(null);
             List<? extends Item> mappingItems = provision == null
                     ? Collections.<Item>emptyList()
                     : MappingUtils.getPropagationItems(provision.getMapping().getItems());
 
             if (resource == null) {
-                LOG.error("Invalid resource name specified: {}, ignoring...", entry.getKey());
+                LOG.error("Invalid resource name specified: {}, ignoring...", resourceKey);
             } else if (provision == null) {
                 LOG.error("No provision specified on resource {} for type {}, ignoring...",
                         resource, any.getType());
@@ -385,7 +385,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 if (!deleteOnResource) {
                     task.setEntityKey(any.getKey());
                 }
-                task.setOperation(entry.getValue());
+                task.setOperation(operation);
                 task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
 
                 Pair<String, Set<Attribute>> preparedAttrs =
@@ -448,12 +448,12 @@ public class PropagationManagerImpl implements PropagationManager {
 
         List<PropagationTaskTO> tasks = new ArrayList<>();
 
-        propByRes.asMap().entrySet().forEach(entry -> {
-            ExternalResource resource = resourceDAO.find(entry.getKey());
+        propByRes.asMap().forEach((resourceKey, operation) -> {
+            ExternalResource resource = resourceDAO.find(resourceKey);
             OrgUnit orgUnit = resource == null ? null : resource.getOrgUnit();
 
             if (resource == null) {
-                LOG.error("Invalid resource name specified: {}, ignoring...", entry.getKey());
+                LOG.error("Invalid resource name specified: {}, ignoring...", resourceKey);
             } else if (orgUnit == null) {
                 LOG.error("No orgUnit specified on resource {}, ignoring...", resource);
             } else if (StringUtils.isBlank(orgUnit.getConnObjectLink())) {
@@ -464,7 +464,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 task.setResource(resource.getKey());
                 task.setObjectClassName(orgUnit.getObjectClass().getObjectClassValue());
                 task.setEntityKey(realm.getKey());
-                task.setOperation(entry.getValue());
+                task.setOperation(operation);
                 task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
 
                 Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrs(realm, orgUnit);

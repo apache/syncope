@@ -193,12 +193,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     }
                 }
                 // remove all classes not contained in the TO
-                for (Iterator<? extends AnyTypeClass> itor = provision.getAuxClasses().iterator(); itor.hasNext();) {
-                    AnyTypeClass anyTypeClass = itor.next();
-                    if (!provisionTO.getAuxClasses().contains(anyTypeClass.getKey())) {
-                        itor.remove();
-                    }
-                }
+                provision.getAuxClasses().
+                        removeIf(anyTypeClass -> !provisionTO.getAuxClasses().contains(anyTypeClass.getKey()));
 
                 if (provisionTO.getMapping() == null) {
                     provision.setMapping(null);
@@ -338,9 +334,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                             }
                         });
                         // remove all implementations not contained in the TO
-                        item.getTransformers().removeAll(item.getTransformers().stream().
-                                filter(implementation -> !itemTO.getTransformers().contains(implementation.getKey())).
-                                collect(Collectors.toList()));
+                        item.getTransformers().
+                                removeIf(implementation -> !itemTO.getTransformers().contains(implementation.getKey()));
                     }
                 }
             }
@@ -381,9 +376,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             }
         });
         // remove all implementations not contained in the TO
-        resource.getPropagationActions().removeAll(resource.getPropagationActions().stream().
-                filter(implementation -> !resourceTO.getPropagationActions().contains(implementation.getKey())).
-                collect(Collectors.toList()));
+        resource.getPropagationActions().
+                removeIf(implementation -> !resourceTO.getPropagationActions().contains(implementation.getKey()));
 
         return resource;
     }
@@ -481,9 +475,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                             }
                         });
                         // remove all implementations not contained in the TO
-                        item.getTransformers().removeAll(item.getTransformers().stream().
-                                filter(implementation -> !itemTO.getTransformers().contains(implementation.getKey())).
-                                collect(Collectors.toList()));
+                        item.getTransformers().
+                                removeIf(implementation -> !itemTO.getTransformers().contains(implementation.getKey()));
 
                         if (intAttrName.getEnclosingGroup() != null
                                 && item.getPurpose() != MappingPurpose.PROPAGATION) {

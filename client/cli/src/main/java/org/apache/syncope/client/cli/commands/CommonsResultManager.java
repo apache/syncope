@@ -91,8 +91,8 @@ public abstract class CommonsResultManager {
 
     protected void printDetails(final String title, final Map<String, String> details) {
         final Table.TableBuilder tableBuilder = new Table.TableBuilder(title).header("detail").header("value");
-        details.entrySet().forEach(entrySet -> {
-            tableBuilder.rowValues(Arrays.asList(entrySet.getKey(), entrySet.getValue()));
+        details.forEach((key, value) -> {
+            tableBuilder.rowValues(Arrays.asList(key, value));
         });
         tableBuilder.build().print();
     }

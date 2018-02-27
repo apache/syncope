@@ -213,8 +213,8 @@ public final class JexlUtils {
         Map<DerSchema, String> derAttrs =
                 ApplicationContextProvider.getBeanFactory().getBean(DerAttrHandler.class).getValues(any);
 
-        derAttrs.entrySet().forEach(entry -> {
-            jexlContext.set(entry.getKey().getKey(), entry.getValue());
+        derAttrs.forEach((schema, value) -> {
+            jexlContext.set(schema.getKey(), value);
         });
     }
 

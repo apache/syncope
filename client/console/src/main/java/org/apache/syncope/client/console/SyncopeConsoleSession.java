@@ -225,8 +225,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     public List<String> getAuthRealms() {
         List<String> sortable = new ArrayList<>();
         List<String> available = SetUniqueList.setUniqueList(sortable);
-        auth.entrySet().forEach(entitlement -> {
-            available.addAll(entitlement.getValue());
+        auth.values().forEach(entitlement -> {
+            available.addAll(entitlement);
         });
         Collections.sort(sortable);
         return sortable;

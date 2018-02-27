@@ -88,9 +88,7 @@ public class ReportDataBinderImpl implements ReportDataBinder {
             }
         });
         // remove all implementations not contained in the TO
-        report.getReportlets().removeAll(report.getReportlets().stream().
-                filter(reportlet -> !reportTO.getReportlets().contains(reportlet.getKey())).
-                collect(Collectors.toList()));
+        report.getReportlets().removeIf(reportlet -> !reportTO.getReportlets().contains(reportlet.getKey()));
     }
 
     @Override

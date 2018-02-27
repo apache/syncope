@@ -140,10 +140,10 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             pushTask.setUnmatchingRule(pushTaskTO.getUnmatchingRule() == null
                     ? UnmatchingRule.ASSIGN : pushTaskTO.getUnmatchingRule());
 
-            pushTaskTO.getFilters().entrySet().forEach(entry -> {
-                AnyType anyType = anyTypeDAO.find(entry.getKey());
+            pushTaskTO.getFilters().forEach((type, fiql) -> {
+                AnyType anyType = anyTypeDAO.find(type);
                 if (anyType == null) {
-                    LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey());
+                    LOG.debug("Invalid AnyType {} specified, ignoring...", type);
                 } else {
                     PushTaskAnyFilter filter = pushTask.getFilter(anyType).orElse(null);
                     if (filter == null) {
@@ -152,14 +152,12 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                         filter.setPushTask(pushTask);
                         pushTask.add(filter);
                     }
-                    filter.setFIQLCond(entry.getValue());
+                    filter.setFIQLCond(fiql);
                 }
             });
             // remove all filters not contained in the TO
-            pushTask.getFilters().removeAll(
-                    pushTask.getFilters().stream().filter(anyFilter
-                            -> !pushTaskTO.getFilters().containsKey(anyFilter.getAnyType().getKey())).
-                            collect(Collectors.toList()));
+            pushTask.getFilters().
+                    removeIf(anyFilter -> !pushTaskTO.getFilters().containsKey(anyFilter.getAnyType().getKey()));
         } else if (task instanceof PullTask && taskTO instanceof PullTaskTO) {
             PullTask pullTask = (PullTask) task;
             PullTaskTO pullTaskTO = (PullTaskTO) taskTO;
@@ -202,27 +200,25 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
             // validate JEXL expressions from templates and proceed if fine
             templateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
-            pullTaskTO.getTemplates().entrySet().forEach(entry -> {
-                AnyType type = anyTypeDAO.find(entry.getKey());
-                if (type == null) {
-                    LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey());
+            pullTaskTO.getTemplates().forEach((type, template) -> {
+                AnyType anyType = anyTypeDAO.find(type);
+                if (anyType == null) {
+                    LOG.debug("Invalid AnyType {} specified, ignoring...", type);
                 } else {
-                    AnyTemplatePullTask anyTemplate = pullTask.getTemplate(type).orElse(null);
+                    AnyTemplatePullTask anyTemplate = pullTask.getTemplate(anyType).orElse(null);
                     if (anyTemplate == null) {
                         anyTemplate = entityFactory.newEntity(AnyTemplatePullTask.class);
-                        anyTemplate.setAnyType(type);
+                        anyTemplate.setAnyType(anyType);
                         anyTemplate.setPullTask(pullTask);
 
                         pullTask.add(anyTemplate);
                     }
-                    anyTemplate.set(entry.getValue());
+                    anyTemplate.set(template);
                 }
             });
             // remove all templates not contained in the TO
-            pullTask.getTemplates().removeAll(
-                    pullTask.getTemplates().stream().filter(anyTemplate
-                            -> !pullTaskTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey())).
-                            collect(Collectors.toList()));
+            pullTask.getTemplates().
+                    removeIf(anyTemplate -> !pullTaskTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey()));
         }
 
         // 3. fill the remaining fields
@@ -240,9 +236,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             }
         });
         // remove all implementations not contained in the TO
-        task.getActions().removeAll(task.getActions().stream().
-                filter(implementation -> !taskTO.getActions().contains(implementation.getKey())).
-                collect(Collectors.toList()));
+        task.getActions().removeIf(implementation -> !taskTO.getActions().contains(implementation.getKey()));
     }
 
     @Override

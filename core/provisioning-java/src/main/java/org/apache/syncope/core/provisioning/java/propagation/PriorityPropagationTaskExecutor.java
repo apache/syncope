@@ -113,7 +113,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         });
 
         // then process non-priority resources concurrently...
-        final CompletionService<TaskExec> completionService = new ExecutorCompletionService<>(executor);
+        CompletionService<TaskExec> completionService = new ExecutorCompletionService<>(executor);
         Map<PropagationTaskTO, Future<TaskExec>> nullPriority = new HashMap<>(concurrentTasks.size());
         concurrentTasks.forEach(task -> {
             try {
@@ -127,9 +127,9 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         // ...waiting for all callables to complete, if async processing was not required
         if (!nullPriority.isEmpty()) {
             if (nullPriorityAsync) {
-                nullPriority.entrySet().forEach(entry -> {
+                nullPriority.forEach((task, exec) -> {
                     reporter.onSuccessOrNonPriorityResourceFailures(
-                            entry.getKey(), PropagationTaskExecStatus.CREATED, null, null, null);
+                            task, PropagationTaskExecStatus.CREATED, null, null, null);
                 });
             } else {
                 final Set<Future<TaskExec>> nullPriorityFutures = new HashSet<>(nullPriority.values());

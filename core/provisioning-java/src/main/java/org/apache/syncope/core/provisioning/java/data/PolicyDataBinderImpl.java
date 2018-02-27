@@ -89,9 +89,8 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                 }
             });
             // remove all implementations not contained in the TO
-            passwordPolicy.getRules().removeAll(passwordPolicy.getRules().stream().
-                    filter(implementation -> !passwordPolicyTO.getRules().contains(implementation.getKey())).
-                    collect(Collectors.toList()));
+            passwordPolicy.getRules().
+                    removeIf(implementation -> !passwordPolicyTO.getRules().contains(implementation.getKey()));
         } else if (policyTO instanceof AccountPolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(AccountPolicy.class);
@@ -112,9 +111,8 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                 }
             });
             // remove all implementations not contained in the TO
-            accountPolicy.getRules().removeAll(accountPolicy.getRules().stream().
-                    filter(implementation -> !accountPolicyTO.getRules().contains(implementation.getKey())).
-                    collect(Collectors.toList()));
+            accountPolicy.getRules().
+                    removeIf(implementation -> !accountPolicyTO.getRules().contains(implementation.getKey()));
 
             accountPolicy.getResources().clear();
             accountPolicyTO.getPassthroughResources().forEach(resourceName -> {
@@ -135,10 +133,10 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
 
             pullPolicy.setConflictResolutionAction(pullPolicyTO.getConflictResolutionAction());
 
-            pullPolicyTO.getCorrelationRules().entrySet().forEach(entry -> {
-                AnyType anyType = anyTypeDAO.find(entry.getKey());
+            pullPolicyTO.getCorrelationRules().forEach((type, impl) -> {
+                AnyType anyType = anyTypeDAO.find(type);
                 if (anyType == null) {
-                    LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey());
+                    LOG.debug("Invalid AnyType {} specified, ignoring...", type);
                 } else {
                     CorrelationRule correlationRule = pullPolicy.getCorrelationRule(anyType).orElse(null);
                     if (correlationRule == null) {
@@ -148,18 +146,16 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                         pullPolicy.add(correlationRule);
                     }
 
-                    Implementation implementation = implementationDAO.find(entry.getValue());
-                    if (implementation == null) {
-                        throw new NotFoundException("Implementation " + entry.getValue());
+                    Implementation rule = implementationDAO.find(impl);
+                    if (rule == null) {
+                        throw new NotFoundException("Implementation " + type);
                     }
-                    correlationRule.setImplementation(implementation);
+                    correlationRule.setImplementation(rule);
                 }
             });
             // remove all rules not contained in the TO
-            pullPolicy.getCorrelationRules().removeAll(
-                    pullPolicy.getCorrelationRules().stream().filter(anyFilter
-                            -> !pullPolicyTO.getCorrelationRules().containsKey(anyFilter.getAnyType().getKey())).
-                            collect(Collectors.toList()));
+            pullPolicy.getCorrelationRules().removeIf(anyFilter
+                    -> !pullPolicyTO.getCorrelationRules().containsKey(anyFilter.getAnyType().getKey()));
         }
 
         if (result != null) {

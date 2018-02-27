@@ -128,10 +128,10 @@ public class GoogleAppsPullActions implements PullActions {
     @Transactional
     @Override
     public void afterAll(final ProvisioningProfile<?, ?> profile) throws JobExecutionException {
-        googleAppsIds.entrySet().forEach((entry) -> {
-            User user = userDAO.find(entry.getKey());
+        googleAppsIds.forEach((key, value) -> {
+            User user = userDAO.find(key);
             if (user == null) {
-                LOG.error("Could not find user {}, skipping", entry.getKey());
+                LOG.error("Could not find user {}, skipping", key);
             } else {
                 AnyUtils anyUtils = anyUtilsFactory.getInstance(user);
 
@@ -148,11 +148,10 @@ public class GoogleAppsPullActions implements PullActions {
                         user.add(attr);
 
                         try {
-                            attr.add(entry.getValue(), anyUtils);
+                            attr.add(value, anyUtils);
                             userDAO.save(user);
                         } catch (InvalidPlainAttrValueException e) {
-                            LOG.error("Invalid value for attribute {}: {}",
-                                    googleAppsId.getKey(), entry.getValue(), e);
+                            LOG.error("Invalid value for attribute {}: {}", googleAppsId.getKey(), value, e);
                         }
                     } else {
                         LOG.debug("User {} has already a googleAppsId assigned: {}", user, attr.getValuesAsStrings());

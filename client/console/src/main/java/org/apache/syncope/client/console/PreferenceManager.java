@@ -135,8 +135,8 @@ public class PreferenceManager implements Serializable {
         }
 
         // after retrieved previous setting in order to overwrite the key ...
-        prefs.entrySet().forEach(entry -> {
-            current.put(entry.getKey(), StringUtils.join(entry.getValue(), ";"));
+        prefs.forEach((key, values) -> {
+            current.put(key, StringUtils.join(values, ";"));
         });
 
         try {

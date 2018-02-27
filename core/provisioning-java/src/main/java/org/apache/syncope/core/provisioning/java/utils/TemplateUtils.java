@@ -200,23 +200,23 @@ public class TemplateUtils {
     public void check(final Map<String, AnyTO> templates, final ClientExceptionType clientExceptionType) {
         SyncopeClientException sce = SyncopeClientException.build(clientExceptionType);
 
-        templates.entrySet().forEach(entry -> {
-            entry.getValue().getPlainAttrs().stream().
+        templates.values().forEach(value -> {
+            value.getPlainAttrs().stream().
                     filter(attrTO -> !attrTO.getValues().isEmpty()
                     && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))).
                     forEachOrdered(attrTO -> {
                         sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
                     });
 
-            entry.getValue().getVirAttrs().stream().
+            value.getVirAttrs().stream().
                     filter(attrTO -> !attrTO.getValues().isEmpty()
                     && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))).
                     forEachOrdered((attrTO) -> {
                         sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
                     });
 
-            if (entry.getValue() instanceof UserTO) {
-                UserTO template = (UserTO) entry.getValue();
+            if (value instanceof UserTO) {
+                UserTO template = (UserTO) value;
                 if (StringUtils.isNotBlank(template.getUsername())
                         && !JexlUtils.isExpressionValid(template.getUsername())) {
 
@@ -227,8 +227,8 @@ public class TemplateUtils {
 
                     sce.getElements().add("Invalid JEXL: " + template.getPassword());
                 }
-            } else if (entry.getValue() instanceof GroupTO) {
-                GroupTO template = (GroupTO) entry.getValue();
+            } else if (value instanceof GroupTO) {
+                GroupTO template = (GroupTO) value;
                 if (StringUtils.isNotBlank(template.getName())
                         && !JexlUtils.isExpressionValid(template.getName())) {
 

@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 
 /**
@@ -272,11 +273,10 @@ public class PropagationByResource implements Serializable {
 
     public Map<String, ResourceOperation> asMap() {
         Map<String, ResourceOperation> result = new HashMap<>();
-        for (ResourceOperation operation : ResourceOperation.values()) {
-            for (String resourceKey : get(operation)) {
-                result.put(resourceKey, operation);
-            }
-        }
+        Stream.of(ResourceOperation.values()).
+                forEach(operation -> get(operation).forEach(resource -> {
+            result.put(resource, operation);
+        }));
 
         return result;
     }

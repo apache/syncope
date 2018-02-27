@@ -530,12 +530,12 @@ public class Topology extends BasePage {
     private List<String> createConnections(final Map<Serializable, Map<Serializable, TopologyNode>> targets) {
         List<String> list = new ArrayList<>();
 
-        targets.entrySet().forEach(source -> {
-            source.getValue().entrySet().forEach(target -> {
+        targets.forEach((key, value) -> {
+            value.forEach((label, node) -> {
                 list.add(String.format("connect('%s','%s','%s');",
-                        source.getKey(),
-                        target.getKey(),
-                        target.getValue().getKind()));
+                        key,
+                        label,
+                        node.getKind()));
             });
         });
         return list;

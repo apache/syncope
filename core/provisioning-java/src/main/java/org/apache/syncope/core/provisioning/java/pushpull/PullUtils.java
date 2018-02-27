@@ -31,7 +31,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -109,9 +108,6 @@ public class PullUtils {
 
     @Autowired
     private RealmDAO realmDAO;
-
-    @Autowired
-    private ImplementationDAO implementationDAO;
 
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;

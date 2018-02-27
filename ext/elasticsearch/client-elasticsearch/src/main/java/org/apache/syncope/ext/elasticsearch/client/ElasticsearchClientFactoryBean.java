@@ -51,8 +51,8 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<Client>, Disp
         synchronized (this) {
             if (client == null) {
                 Settings.Builder builder = Settings.builder();
-                settings.entrySet().forEach(entry -> {
-                    builder.put(entry.getKey(), entry.getValue());
+                settings.forEach((key, value) -> {
+                    builder.put(key, value);
                 });
 
                 PreBuiltTransportClient tClient = new PreBuiltTransportClient(builder.build());

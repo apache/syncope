@@ -185,11 +185,11 @@ public class TaskResultManager extends CommonsResultManager {
     }
 
     private void printTemplates(final Map<String, AnyTO> templates) {
-        templates.entrySet().forEach(entrySet -> {
+        templates.forEach((type, template) -> {
             System.out.println("        "
-                    + entrySet.getKey() + " key: " + entrySet.getValue().getKey()
-                    + " of realm" + entrySet.getValue().getRealm()
-                    + " on resource " + entrySet.getValue().getResources());
+                    + type + " key: " + template.getKey()
+                    + " of realm" + template.getRealm()
+                    + " on resources " + template.getResources());
         });
     }
 

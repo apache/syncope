@@ -142,12 +142,12 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         if (groupTO.getUDynMembershipCond() != null) {
             setDynMembership(group, anyTypeDAO.findUser(), groupTO.getUDynMembershipCond());
         }
-        groupTO.getADynMembershipConds().entrySet().forEach(entry -> {
-            AnyType anyType = anyTypeDAO.find(entry.getKey());
+        groupTO.getADynMembershipConds().forEach((type, fiql) -> {
+            AnyType anyType = anyTypeDAO.find(type);
             if (anyType == null) {
-                LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), entry.getKey());
+                LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), type);
             } else {
-                setDynMembership(group, anyType, entry.getValue());
+                setDynMembership(group, anyType, fiql);
             }
         });
 
@@ -284,12 +284,8 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
                     }
                 }
                 // remove all classes not contained in the TO
-                for (Iterator<? extends AnyTypeClass> itor = typeExt.getAuxClasses().iterator(); itor.hasNext();) {
-                    AnyTypeClass anyTypeClass = itor.next();
-                    if (!typeExtTO.getAuxClasses().contains(anyTypeClass.getKey())) {
-                        itor.remove();
-                    }
-                }
+                typeExt.getAuxClasses().
+                        removeIf(anyTypeClass -> !typeExtTO.getAuxClasses().contains(anyTypeClass.getKey()));
 
                 // only consider non-empty type extensions
                 if (typeExt.getAuxClasses().isEmpty()) {
@@ -299,12 +295,8 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             }
         }
         // remove all type extensions not contained in the TO
-        for (Iterator<? extends TypeExtension> itor = group.getTypeExtensions().iterator(); itor.hasNext();) {
-            TypeExtension typeExt = itor.next();
-            if (!groupPatch.getTypeExtension(typeExt.getAnyType().getKey()).isPresent()) {
-                itor.remove();
-            }
-        }
+        group.getTypeExtensions().
+                removeIf(typeExt -> !groupPatch.getTypeExtension(typeExt.getAnyType().getKey()).isPresent());
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {

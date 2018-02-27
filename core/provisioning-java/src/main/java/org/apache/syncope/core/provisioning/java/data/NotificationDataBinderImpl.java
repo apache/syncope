@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import java.text.ParseException;
 import java.util.regex.Matcher;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -144,9 +143,8 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
                 });
 
         // 2. remove all abouts not contained in the TO
-        notification.getAbouts().removeAll(notification.getAbouts().stream().
-                filter(anyAbout -> !notificationTO.getAbouts().containsKey(anyAbout.getAnyType().getKey())).
-                collect(Collectors.toList()));
+        notification.getAbouts().
+                removeIf(anyAbout -> !notificationTO.getAbouts().containsKey(anyAbout.getAnyType().getKey()));
 
         // 3. verify recipientAttrName
         try {

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -74,10 +73,10 @@ public class RealmDataBinderImpl implements RealmDataBinder {
     private void setTemplates(final RealmTO realmTO, final Realm realm) {
         // validate JEXL expressions from templates and proceed if fine
         templateUtils.check(realmTO.getTemplates(), ClientExceptionType.InvalidRealm);
-        realmTO.getTemplates().entrySet().forEach(entry -> {
-            AnyType type = anyTypeDAO.find(entry.getKey());
+        realmTO.getTemplates().forEach((key, template) -> {
+            AnyType type = anyTypeDAO.find(key);
             if (type == null) {
-                LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey());
+                LOG.debug("Invalid AnyType {} specified, ignoring...", key);
             } else {
                 AnyTemplateRealm anyTemplate = realm.getTemplate(type).orElse(null);
                 if (anyTemplate == null) {
@@ -87,14 +86,12 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
                     realm.add(anyTemplate);
                 }
-                anyTemplate.set(entry.getValue());
+                anyTemplate.set(template);
             }
         });
         // remove all templates not contained in the TO
-        realm.getTemplates().removeAll(
-                realm.getTemplates().stream().
-                        filter(anyTemplate -> !realmTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey())).
-                        collect(Collectors.toList()));
+        realm.getTemplates().
+                removeIf(template -> !realmTO.getTemplates().containsKey(template.getAnyType().getKey()));
     }
 
     @Override
@@ -192,9 +189,8 @@ public class RealmDataBinderImpl implements RealmDataBinder {
             }
         });
         // remove all implementations not contained in the TO
-        realm.getActions().removeAll(realm.getActions().stream().
-                filter(implementation -> !realmTO.getActions().contains(implementation.getKey())).
-                collect(Collectors.toList()));
+        realm.getActions().
+                removeIf(implementation -> !realmTO.getActions().contains(implementation.getKey()));
 
         setTemplates(realmTO, realm);
 
@@ -209,14 +205,13 @@ public class RealmDataBinderImpl implements RealmDataBinder {
             }
         });
         // remove all resources not contained in the TO
-        realm.getResources().removeAll(
-                realm.getResources().stream().filter(resource -> {
-                    boolean contained = realmTO.getResources().contains(resource.getKey());
-                    if (!contained) {
-                        propByRes.add(ResourceOperation.DELETE, resource.getKey());
-                    }
-                    return !contained;
-                }).collect(Collectors.toList()));
+        realm.getResources().removeIf(resource -> {
+            boolean contained = realmTO.getResources().contains(resource.getKey());
+            if (!contained) {
+                propByRes.add(ResourceOperation.DELETE, resource.getKey());
+            }
+            return !contained;
+        });
 
         return propByRes;
     }

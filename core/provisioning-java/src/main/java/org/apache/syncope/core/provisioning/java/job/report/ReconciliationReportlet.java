@@ -337,23 +337,23 @@ public class ReconciliationReportlet extends AbstractReportlet {
                                             Collections.emptySet()));
                                 });
 
-                        resourceAttrs.entrySet().forEach(entry -> {
-                            if (syncopeAttrs.containsKey(entry.getKey())) {
-                                if (!Objects.equals(syncopeAttrs.get(entry.getKey()), entry.getValue())) {
+                        resourceAttrs.forEach((key, values) -> {
+                            if (syncopeAttrs.containsKey(key)) {
+                                if (!Objects.equals(syncopeAttrs.get(key), values)) {
                                     misaligned.add(new Misaligned(
                                             resource.getKey(),
                                             connObjectKeyValue,
-                                            entry.getKey(),
-                                            syncopeAttrs.get(entry.getKey()),
-                                            entry.getValue()));
+                                            key,
+                                            syncopeAttrs.get(key),
+                                            values));
                                 }
                             } else {
                                 misaligned.add(new Misaligned(
                                         resource.getKey(),
                                         connObjectKeyValue,
-                                        entry.getKey(),
+                                        key,
                                         Collections.emptySet(),
-                                        entry.getValue()));
+                                        values));
                             }
                         });
                     }

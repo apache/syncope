@@ -262,20 +262,19 @@ abstract class AbstractAnyDataBinder {
 
         // Check if there is some mandatory schema defined for which no value has been provided
         AllowedSchemas<PlainSchema> allowedPlainSchemas = anyUtils.getAllowedSchemas(any, PlainSchema.class);
-        allowedPlainSchemas.getForSelf().
-                forEach(schema -> {
-                    checkMandatory(schema, any.getPlainAttr(schema.getKey()).orElse(null), any, reqValMissing);
+        allowedPlainSchemas.getForSelf().forEach(schema -> {
+            checkMandatory(schema, any.getPlainAttr(schema.getKey()).orElse(null), any, reqValMissing);
+        });
+        if (any instanceof GroupableRelatable) {
+            allowedPlainSchemas.getForMemberships().forEach((group, schemas) -> {
+                GroupableRelatable<?, ?, ?, ?, ?> groupable = GroupableRelatable.class.cast(any);
+                Membership<?> membership = groupable.getMembership(group.getKey()).orElse(null);
+                schemas.forEach(schema -> {
+                    checkMandatory(schema, groupable.getPlainAttr(schema.getKey(), membership).orElse(null),
+                            any, reqValMissing);
                 });
-        allowedPlainSchemas.getForMemberships().entrySet().stream().
-                filter(entry -> any instanceof GroupableRelatable).
-                forEachOrdered(entry -> {
-                    GroupableRelatable<?, ?, ?, ?, ?> groupable = GroupableRelatable.class.cast(any);
-                    Membership<?> membership = groupable.getMembership(entry.getKey().getKey()).orElse(null);
-                    entry.getValue().forEach(schema -> {
-                        checkMandatory(schema, groupable.getPlainAttr(schema.getKey(), membership).orElse(null),
-                                any, reqValMissing);
-                    });
-                });
+            });
+        }
 
         return reqValMissing;
     }
@@ -623,19 +622,19 @@ abstract class AbstractAnyDataBinder {
                     build());
         });
 
-        derAttrs.entrySet().forEach(entry -> {
+        derAttrs.forEach((schema, value) -> {
             membershipTO.getDerAttrs().add(new AttrTO.Builder().
-                    schema(entry.getKey().getKey()).
-                    value(entry.getValue()).
-                    schemaInfo(schemaDataBinder.getDerSchemaTO(entry.getKey())).
+                    schema(schema.getKey()).
+                    value(value).
+                    schemaInfo(schemaDataBinder.getDerSchemaTO(schema)).
                     build());
         });
 
-        virAttrs.entrySet().forEach(entry -> {
+        virAttrs.forEach((schema, values) -> {
             membershipTO.getVirAttrs().add(new AttrTO.Builder().
-                    schema(entry.getKey().getKey()).
-                    values(entry.getValue()).
-                    schemaInfo(schemaDataBinder.getVirSchemaTO(entry.getKey())).
+                    schema(schema.getKey()).
+                    values(values).
+                    schemaInfo(schemaDataBinder.getVirSchemaTO(schema)).
                     build());
         });
 
