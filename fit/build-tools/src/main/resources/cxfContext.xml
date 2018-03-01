@@ -38,6 +38,28 @@ under the License.
       
   <jaxws:endpoint id="soapProvisioning" address="/soap" implementor="#provisioningImpl"/>
   
+  <bean id="openApiCustomizer" class="org.apache.cxf.jaxrs.openapi.OpenApiCustomizer">
+    <property name="dynamicBasePath" value="true"/>
+    <property name="replaceTags" value="false"/>
+  </bean>
+  <bean id="openapiFeature" class="org.apache.cxf.jaxrs.openapi.OpenApiFeature">
+    <property name="title" value="Apache Syncope FIT Build Tools"/>
+    <property name="version" value="${syncope.version}"/>
+    <property name="description" value="Apache Syncope ${syncope.version}"/>    
+    <property name="contactName" value="The Apache Syncope community"/>    
+    <property name="contactEmail" value="dev@syncope.apache.org"/>    
+    <property name="contactUrl" value="http://syncope.apache.org"/>    
+    
+    <property name="scan" value="false"/>    
+    <property name="resourcePackages">
+      <set>
+        <value>org.apache.syncope.fit.buildtools.cxf</value>
+      </set>
+    </property>
+    
+    <property name="customizer" ref="openApiCustomizer"/>
+  </bean>
+  
   <bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider"/>
   <jaxrs:server id="restProvisioning" address="/rest"
                 basePackages="org.apache.syncope.fit.buildtools.cxf" 
@@ -45,6 +67,9 @@ under the License.
     <jaxrs:providers>
       <ref bean="jsonProvider"/>
     </jaxrs:providers>
+    <jaxrs:features>
+      <ref bean="openapiFeature"/>
+    </jaxrs:features>
   </jaxrs:server>
 
 </beans>
