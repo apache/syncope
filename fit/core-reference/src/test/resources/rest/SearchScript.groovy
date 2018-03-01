@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import javax.ws.rs.core.Response
 import org.apache.cxf.jaxrs.client.WebClient
 import org.identityconnectors.common.security.GuardedString
+import org.identityconnectors.framework.common.objects.OperationOptions;
 
 // Parameters:
 // The connector sends the following:
@@ -66,6 +67,24 @@ def buildConnectorObject(node) {
 
 log.info("Entering " + action + " Script");
 
+// ----------------
+// Manage pagination
+// ----------------
+def offset = options[OperationOptions.OP_PAGED_RESULTS_COOKIE] == null
+? 0
+: options[OperationOptions.OP_PAGED_RESULTS_COOKIE].toInteger();
+ 
+def pageSize = options[OperationOptions.OP_PAGE_SIZE] == null 
+? 100
+: options[OperationOptions.OP_PAGE_SIZE].toInteger();
+
+def limit = offset + pageSize;
+
+log.ok("pagedResultsCookie: " + offset);
+log.ok("pageSize: " + pageSize);
+log.ok("limit: " + limit);
+// ----------------
+
 WebClient webClient = client;
 ObjectMapper mapper = new ObjectMapper();
 
@@ -76,10 +95,11 @@ case "__ACCOUNT__":
   if (query == null || (!query.get("left").equals("__UID__") && !query.get("conditionType").equals("EQUALS"))) {
     webClient.path("/users");
     Response response = webClient.get();    
-    ArrayNode node = mapper.readTree(response.getEntity());
+    ArrayNode nodes = mapper.readTree(response.getEntity());
     
-    for (i = 0; i < node.size(); i++) {
-      result.add(buildConnectorObject(node.get(i)));
+    // beware: this is not enforcing any server-side pagination feature
+    for (i = offset; i < (limit < nodes.size() ? limit: nodes.size()); i++) {
+      result.add(buildConnectorObject(nodes.get(i)));
     }
   } else {
     webClient.path("/users/" + query.get("right"));
@@ -97,5 +117,19 @@ case "__ACCOUNT__":
 default:
   result;
 }
+
+// ----------------
+// Return paged result cookie
+// ----------------
+def pagedResultCookieLine = [:]
+if (pageSize > result.size()) {
+  // no more results
+  pagedResultCookieLine.put(OperationOptions.OP_PAGED_RESULTS_COOKIE, null);
+} else {
+  pagedResultCookieLine.put(OperationOptions.OP_PAGED_RESULTS_COOKIE, "" + limit);
+}
+ 
+result.add(pagedResultCookieLine);
+// ----------------
 
 return result;
