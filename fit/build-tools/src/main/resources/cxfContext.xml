@@ -38,6 +38,23 @@ under the License.
       
   <jaxws:endpoint id="soapProvisioning" address="/soap" implementor="#provisioningImpl"/>
   
+  <bean id="swagger2customizer" class="org.apache.cxf.jaxrs.swagger.Swagger2Customizer">
+    <property name="dynamicBasePath" value="true"/>
+    <property name="replaceTags" value="false"/>
+  </bean>
+  <bean id="swagger2Feature" class="org.apache.cxf.jaxrs.swagger.Swagger2Feature">
+    <property name="title" value="Apache Syncope FIT Build Tools"/>
+    <property name="version" value="${syncope.version}"/>
+    <property name="description" value="Apache Syncope ${syncope.version}"/>    
+    <property name="contact" value="dev@syncope.apache.org"/>    
+    
+    <property name="resourcePackage" value="org.apache.syncope.fit.buildtools.cxf"/>
+    <property name="scanAllResources" value="true"/>
+    <property name="activateOnlyIfJaxrsSupported" value="true"/>
+    
+    <property name="customizer" ref="swagger2customizer"/>
+  </bean>
+  
   <bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider"/>
   <jaxrs:server id="restProvisioning" address="/rest"
                 basePackages="org.apache.syncope.fit.buildtools.cxf" 
@@ -45,6 +62,9 @@ under the License.
     <jaxrs:providers>
       <ref bean="jsonProvider"/>
     </jaxrs:providers>
+    <jaxrs:features>
+      <ref bean="swagger2Feature"/>
+    </jaxrs:features>
   </jaxrs:server>
 
 </beans>

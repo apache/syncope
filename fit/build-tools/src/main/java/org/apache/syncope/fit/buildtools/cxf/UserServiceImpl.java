@@ -23,14 +23,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private static final Map<UUID, User> USERS = new HashMap<UUID, User>();
+
+    @Context
+    private UriInfo uriInfo;
 
     @Override
     public List<User> list() {
@@ -47,14 +54,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void create(final User user) {
+    public Response create(final User user) {
         if (user.getKey() == null) {
             user.setKey(UUID.randomUUID());
         }
         if (USERS.containsKey(user.getKey())) {
-            throw new IllegalArgumentException("User already exists: " + user.getKey());
+            throw new ClientErrorException("User already exists: " + user.getKey(), Response.Status.CONFLICT);
         }
         USERS.put(user.getKey(), user);
+
+        return Response.created(uriInfo.getAbsolutePathBuilder().path(user.getKey().toString()).build()).build();
     }
 
     @Override
