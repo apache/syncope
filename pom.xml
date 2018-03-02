@@ -370,7 +370,7 @@ under the License.
     <jackson.version>2.9.4</jackson.version>
 
     <spring.version>5.0.4.RELEASE</spring.version>
-    <spring-security.version>5.0.2.RELEASE</spring-security.version>
+    <spring-security.version>5.0.3.RELEASE</spring-security.version>
 
     <openjpa.version>3.0.0-SNAPSHOT</openjpa.version>
     <hikaricp.version>2.7.8</hikaricp.version>
@@ -382,7 +382,7 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <groovy.version>2.5.0-beta-3</groovy.version>
+    <groovy.version>3.0.0-alpha-1</groovy.version>
 
     <flowable.version>6.2.1</flowable.version>
 
