@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
@@ -162,12 +163,12 @@ public class ConnectorFacadeProxy implements Connector {
             final ObjectClass objectClass,
             final Set<Attribute> attrs,
             final OperationOptions options,
-            final Boolean[] propagationAttempted) {
+            final AtomicReference<Boolean> propagationAttempted) {
 
         Uid result = null;
 
         if (connInstance.getCapabilities().contains(ConnectorCapability.CREATE)) {
-            propagationAttempted[0] = true;
+            propagationAttempted.set(true);
 
             Future<Uid> future = asyncFacade.create(connector, objectClass, attrs, options);
             try {
@@ -197,12 +198,12 @@ public class ConnectorFacadeProxy implements Connector {
             final Uid uid,
             final Set<Attribute> attrs,
             final OperationOptions options,
-            final Boolean[] propagationAttempted) {
+            final AtomicReference<Boolean> propagationAttempted) {
 
         Uid result = null;
 
         if (connInstance.getCapabilities().contains(ConnectorCapability.UPDATE)) {
-            propagationAttempted[0] = true;
+            propagationAttempted.set(true);
 
             Future<Uid> future = asyncFacade.update(connector, objectClass, uid, attrs, options);
 
@@ -233,10 +234,10 @@ public class ConnectorFacadeProxy implements Connector {
             final ObjectClass objectClass,
             final Uid uid,
             final OperationOptions options,
-            final Boolean[] propagationAttempted) {
+            final AtomicReference<Boolean> propagationAttempted) {
 
         if (connInstance.getCapabilities().contains(ConnectorCapability.DELETE)) {
-            propagationAttempted[0] = true;
+            propagationAttempted.set(true);
 
             Future<Uid> future = asyncFacade.delete(connector, objectClass, uid, options);
 

@@ -82,20 +82,25 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         }
         result.append("provision\n\n");
 
+        status.set(result.toString());
+
         MembershipCond membershipCond = new MembershipCond();
         membershipCond.setGroup(groupKey);
         List<User> users = searchDAO.search(SearchCond.getLeafCond(membershipCond), AnyTypeKind.USER);
         Collection<String> groupResourceKeys = groupDAO.findAllResourceKeys(groupKey);
+        status.set("About to "
+                + (actionType == BulkMembersActionType.DEPROVISION ? "de" : "") + "provision "
+                + users.size() + " users from " + groupResourceKeys);
         for (User user : users) {
             List<PropagationStatus> statuses = actionType == BulkMembersActionType.DEPROVISION
                     ? userProvisioningManager.deprovision(user.getKey(), groupResourceKeys, false)
                     : userProvisioningManager.provision(user.getKey(), true, null, groupResourceKeys, false);
-            for (PropagationStatus status : statuses) {
+            for (PropagationStatus propagationStatus : statuses) {
                 result.append("User ").append(user.getKey()).append('\t').
-                        append("Resource ").append(status.getResource()).append('\t').
-                        append(status.getStatus());
-                if (StringUtils.isNotBlank(status.getFailureReason())) {
-                    result.append('\n').append(status.getFailureReason()).append('\n');
+                        append("Resource ").append(propagationStatus.getResource()).append('\t').
+                        append(propagationStatus.getStatus());
+                if (StringUtils.isNotBlank(propagationStatus.getFailureReason())) {
+                    result.append('\n').append(propagationStatus.getFailureReason()).append('\n');
                 }
                 result.append("\n");
             }
@@ -105,17 +110,20 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         membershipCond = new MembershipCond();
         membershipCond.setGroup(groupKey);
         List<AnyObject> anyObjects = searchDAO.search(SearchCond.getLeafCond(membershipCond), AnyTypeKind.ANY_OBJECT);
+        status.set("About to "
+                + (actionType == BulkMembersActionType.DEPROVISION ? "de" : "") + "provision "
+                + anyObjects.size() + " any objects from " + groupResourceKeys);
         for (AnyObject anyObject : anyObjects) {
             List<PropagationStatus> statuses = actionType == BulkMembersActionType.DEPROVISION
                     ? anyObjectProvisioningManager.deprovision(anyObject.getKey(), groupResourceKeys, false)
                     : anyObjectProvisioningManager.provision(anyObject.getKey(), groupResourceKeys, false);
 
-            for (PropagationStatus status : statuses) {
+            for (PropagationStatus propagationStatus : statuses) {
                 result.append(anyObject.getType().getKey()).append(' ').append(anyObject.getKey()).append('\t').
-                        append("Resource ").append(status.getResource()).append('\t').
-                        append(status.getStatus());
-                if (StringUtils.isNotBlank(status.getFailureReason())) {
-                    result.append('\n').append(status.getFailureReason()).append('\n');
+                        append("Resource ").append(propagationStatus.getResource()).append('\t').
+                        append(propagationStatus.getStatus());
+                if (StringUtils.isNotBlank(propagationStatus.getFailureReason())) {
+                    result.append('\n').append(propagationStatus.getFailureReason()).append('\n');
                 }
                 result.append("\n");
             }

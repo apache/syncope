@@ -16,15 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.pushpull;
+package org.apache.syncope.core.provisioning.api.job;
 
-import org.identityconnectors.framework.common.objects.Name;
-import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.SyncToken;
+/**
+ * Implementations of this interface will perform the actual operations required to Quartz's {@link org.quartz.Job}.
+ */
+public interface JobDelegate {
 
-public interface SyncopePullExecutor {
-
-    void setLatestSyncToken(ObjectClass objectClass, SyncToken latestSyncToken);
-
-    void reportHandled(ObjectClass objectClass, Name name);
+    String currentStatus();
 }

@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java.job;
 
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.provisioning.api.job.JobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
@@ -53,6 +54,8 @@ public class TaskJob extends AbstractInterruptableJob {
      */
     private String taskKey;
 
+    private SchedTaskJobDelegate delegate;
+
     /**
      * Task key setter.
      *
@@ -60,6 +63,11 @@ public class TaskJob extends AbstractInterruptableJob {
      */
     public void setTaskKey(final String taskKey) {
         this.taskKey = taskKey;
+    }
+
+    @Override
+    public JobDelegate getDelegate() {
+        return delegate;
     }
 
     @Override
@@ -72,16 +80,17 @@ public class TaskJob extends AbstractInterruptableJob {
                         try {
                             ImplementationDAO implementationDAO =
                             ApplicationContextProvider.getApplicationContext().getBean(ImplementationDAO.class);
-                            Implementation taskJobDelegate = implementationDAO.find(
+                            Implementation implementation = implementationDAO.find(
                                     context.getMergedJobDataMap().getString(DELEGATE_IMPLEMENTATION));
-                            if (taskJobDelegate == null) {
+                            if (implementation == null) {
                                 LOG.error("Could not find Implementation '{}', aborting",
                                         context.getMergedJobDataMap().getString(DELEGATE_IMPLEMENTATION));
                             } else {
-                                ImplementationManager.<SchedTaskJobDelegate>build(taskJobDelegate).
-                                        execute(taskKey,
-                                                context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY),
-                                                context);
+                                delegate = ImplementationManager.<SchedTaskJobDelegate>build(implementation);
+                                delegate.execute(
+                                        taskKey,
+                                        context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY),
+                                        context);
                             }
                         } catch (Exception e) {
                             LOG.error("While executing task {}", taskKey, e);

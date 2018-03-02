@@ -64,6 +64,7 @@ import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.xmlgraphics.util.MimeConstants;
 import org.quartz.JobKey;
+import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -366,6 +367,30 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     @Override
     public List<JobTO> listJobs() {
         return super.doListJobs();
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
+    @Override
+    public JobTO getJob(final String key) {
+        Report report = reportDAO.find(key);
+        if (report == null) {
+            throw new NotFoundException("Report " + key);
+        }
+
+        JobTO jobTO = null;
+        try {
+            jobTO = getJobTO(JobNamer.getJobKey(report));
+        } catch (SchedulerException e) {
+            LOG.error("Problems while retrieving scheduled job {}", JobNamer.getJobKey(report), e);
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
+            sce.getElements().add(e.getMessage());
+            throw sce;
+        }
+        if (jobTO == null) {
+            throw new NotFoundException("Job for report " + key);
+        }
+        return jobTO;
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_EXECUTE + "')")

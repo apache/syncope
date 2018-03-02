@@ -26,11 +26,14 @@ import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.impl.matchers.GroupMatcher;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
@@ -44,32 +47,54 @@ abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTran
 
     protected abstract Triple<JobType, String, String> getReference(final JobKey jobKey);
 
+    protected JobTO getJobTO(final JobKey jobKey) throws SchedulerException {
+        JobTO jobTO = null;
+
+        Triple<JobType, String, String> reference = getReference(jobKey);
+        if (reference != null) {
+            jobTO = new JobTO();
+
+            jobTO.setType(reference.getLeft());
+            jobTO.setRefKey(reference.getMiddle());
+            jobTO.setRefDesc(reference.getRight());
+
+            List<? extends Trigger> jobTriggers = scheduler.getScheduler().getTriggersOfJob(jobKey);
+            if (jobTriggers.isEmpty()) {
+                jobTO.setScheduled(false);
+            } else {
+                jobTO.setScheduled(true);
+                jobTO.setStart(jobTriggers.get(0).getStartTime());
+            }
+
+            jobTO.setRunning(jobManager.isRunning(jobKey));
+
+            jobTO.setStatus("UNKNOWN");
+            if (jobTO.isRunning()) {
+                try {
+                    Object job = ApplicationContextProvider.getBeanFactory().getBean(jobKey.getName());
+                    if (job instanceof AbstractInterruptableJob
+                            && ((AbstractInterruptableJob) job).getDelegate() != null) {
+
+                        jobTO.setStatus(((AbstractInterruptableJob) job).getDelegate().currentStatus());
+                    }
+                } catch (NoSuchBeanDefinitionException e) {
+                    LOG.warn("Could not find job {} implementation", jobKey, e);
+                }
+            }
+        }
+
+        return jobTO;
+    }
+
     protected List<JobTO> doListJobs() {
         List<JobTO> jobTOs = new ArrayList<>();
-
         try {
             for (JobKey jobKey : scheduler.getScheduler().
                     getJobKeys(GroupMatcher.jobGroupEquals(Scheduler.DEFAULT_GROUP))) {
 
-                JobTO jobTO = new JobTO();
-
-                Triple<JobType, String, String> reference = getReference(jobKey);
-                if (reference != null) {
+                JobTO jobTO = getJobTO(jobKey);
+                if (jobTO != null) {
                     jobTOs.add(jobTO);
-
-                    jobTO.setType(reference.getLeft());
-                    jobTO.setRefKey(reference.getMiddle());
-                    jobTO.setRefDesc(reference.getRight());
-
-                    List<? extends Trigger> jobTriggers = scheduler.getScheduler().getTriggersOfJob(jobKey);
-                    if (jobTriggers.isEmpty()) {
-                        jobTO.setScheduled(false);
-                    } else {
-                        jobTO.setScheduled(true);
-                        jobTO.setStart(jobTriggers.get(0).getStartTime());
-                    }
-
-                    jobTO.setRunning(jobManager.isRunning(jobKey));
                 }
             }
         } catch (SchedulerException e) {

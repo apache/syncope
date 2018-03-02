@@ -47,6 +47,10 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     private static final long serialVersionUID = 6284485820911028843L;
 
+    public JobTO getJob(final String key) {
+        return getService(TaskService.class).getJob(key);
+    }
+
     public List<JobTO> listJobs() {
         return getService(TaskService.class).listJobs();
     }

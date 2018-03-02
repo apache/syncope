@@ -16,15 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.pushpull;
+package org.apache.syncope.core.provisioning.api.notification;
 
-import org.identityconnectors.framework.common.objects.Name;
-import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.SyncToken;
+import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
+import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.provisioning.api.job.JobDelegate;
+import org.quartz.JobExecutionException;
 
-public interface SyncopePullExecutor {
+public interface NotificationJobDelegate extends JobDelegate {
 
-    void setLatestSyncToken(ObjectClass objectClass, SyncToken latestSyncToken);
+    TaskExec executeSingle(NotificationTask task);
 
-    void reportHandled(ObjectClass objectClass, Name name);
+    void execute() throws JobExecutionException;
 }

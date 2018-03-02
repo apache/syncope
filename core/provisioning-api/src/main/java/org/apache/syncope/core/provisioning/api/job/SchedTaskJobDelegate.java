@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.api.job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-public interface SchedTaskJobDelegate {
+public interface SchedTaskJobDelegate extends JobDelegate {
 
     void execute(String taskKey, boolean dryRun, JobExecutionContext context) throws JobExecutionException;
 }

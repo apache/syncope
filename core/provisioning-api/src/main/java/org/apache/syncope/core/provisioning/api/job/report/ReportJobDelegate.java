@@ -16,15 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.pushpull;
+package org.apache.syncope.core.provisioning.api.job.report;
 
-import org.identityconnectors.framework.common.objects.Name;
-import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.SyncToken;
+import org.apache.syncope.core.provisioning.api.job.JobDelegate;
+import org.quartz.JobExecutionException;
 
-public interface SyncopePullExecutor {
+public interface ReportJobDelegate extends JobDelegate {
 
-    void setLatestSyncToken(ObjectClass objectClass, SyncToken latestSyncToken);
-
-    void reportHandled(ObjectClass objectClass, Name name);
+    void execute(String reportKey) throws JobExecutionException;
 }

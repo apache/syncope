@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.client.console.widgets;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverBehavior;
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverConfig;
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -30,10 +33,13 @@ import org.apache.syncope.client.console.wicket.ajax.markup.html.IndicatorAjaxLi
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
+import org.apache.wicket.model.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,14 +58,21 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
     public JobActionPanel(
             final String id,
             final JobTO jobTO,
-            final JobWidget widget,
+            final boolean showNotRunning,
+            final Component container,
             final PageReference pageRef) {
+
         super(id, true);
         setOutputMarkupId(true);
 
         Fragment controls;
         if (jobTO.isRunning()) {
             controls = new Fragment("controls", "runningFragment", this);
+            controls.add(new Label("status", Model.of()).add(new PopoverBehavior(
+                    Model.<String>of(),
+                    Model.of("<pre>" + (jobTO.getStatus() == null ? StringUtils.EMPTY : jobTO.getStatus()) + "</pre>"),
+                    new PopoverConfig().withAnimation(true).withHoverTrigger().withHtml(true).
+                            withPlacement(TooltipConfig.Placement.left))));
             controls.add(new IndicatorAjaxLink<Void>("stop") {
 
                 private static final long serialVersionUID = -7978723352517770644L;
@@ -83,7 +96,7 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
                             default:
                         }
                         SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                        send(widget, Broadcast.EXACT, new JobActionPayload(target));
+                        send(container, Broadcast.EXACT, new JobActionPayload(target));
                     } catch (Exception e) {
                         LOG.error("While stopping {}", jobTO.getRefDesc(), e);
                         SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName()
@@ -117,7 +130,7 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
                             default:
                         }
                         SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                        send(widget, Broadcast.EXACT, new JobActionPayload(target));
+                        send(container, Broadcast.EXACT, new JobActionPayload(target));
                     } catch (Exception e) {
                         LOG.error("While starting {}", jobTO.getRefDesc(), e);
                         SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName()
@@ -126,6 +139,10 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
                     ((BasePage) getPage()).getNotificationPanel().refresh(target);
                 }
             });
+            if (!showNotRunning) {
+                controls.setOutputMarkupPlaceholderTag(true);
+                controls.setVisible(false);
+            }
         }
         addInnerObject(controls);
     }

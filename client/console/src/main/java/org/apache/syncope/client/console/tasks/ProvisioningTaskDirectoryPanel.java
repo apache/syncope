@@ -23,18 +23,32 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.widgets.JobActionPanel;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.event.IEvent;
+import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.util.time.Duration;
 
 /**
  * Tasks page.
@@ -63,6 +77,17 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
 
         // super in order to call the parent implementation
         super.initResultTable();
+
+        container.add(new IndicatorAjaxTimerBehavior(Duration.seconds(10)) {
+
+            private static final long serialVersionUID = -4661303265651934868L;
+
+            @Override
+            protected void onTimer(final AjaxRequestTarget target) {
+                container.modelChanged();
+                target.add(container);
+            }
+        });
     }
 
     @Override
@@ -103,7 +128,43 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
         columns.add(new BooleanPropertyColumn<>(
                 new StringResourceModel("active", this), "active", "active"));
 
+        columns.add(new AbstractColumn<T, String>(new Model<>(""), "running") {
+
+            private static final long serialVersionUID = -4008579357070833846L;
+
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<T>> cellItem,
+                    final String componentId,
+                    final IModel<T> rowModel) {
+
+                JobTO jobTO = restClient.getJob(rowModel.getObject().getKey());
+                JobActionPanel panel = new JobActionPanel(
+                        componentId, jobTO, false, ProvisioningTaskDirectoryPanel.this, pageRef);
+                MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
+                        String.format("%s,%s",
+                                StandardEntitlement.TASK_EXECUTE,
+                                StandardEntitlement.TASK_UPDATE));
+                cellItem.add(panel);
+            }
+
+            @Override
+            public String getCssClass() {
+                return "col-xs-1";
+            }
+        });
+
         return columns;
+    }
+
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        if (event.getPayload() instanceof JobActionPanel.JobActionPayload) {
+            container.modelChanged();
+            JobActionPanel.JobActionPayload.class.cast(event.getPayload()).getTarget().add(container);
+        } else {
+            super.onEvent(event);
+        }
     }
 
     protected class ProvisioningTasksProvider<T extends ProvisioningTaskTO> extends SchedTasksProvider<T> {

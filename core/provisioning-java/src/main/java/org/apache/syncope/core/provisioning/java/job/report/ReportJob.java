@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.core.provisioning.java.job.report;
 
+import org.apache.syncope.core.provisioning.api.job.JobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +51,11 @@ public class ReportJob extends AbstractInterruptableJob {
      */
     public void setReportKey(final String reportKey) {
         this.reportKey = reportKey;
+    }
+
+    @Override
+    public JobDelegate getDelegate() {
+        return delegate;
     }
 
     @Override

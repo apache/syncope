@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -355,7 +356,12 @@ public class UserReportlet extends AbstractReportlet {
     }
 
     @Override
-    protected void doExtract(final ReportletConf conf, final ContentHandler handler) throws SAXException {
+    protected void doExtract(
+            final ReportletConf conf,
+            final ContentHandler handler,
+            final AtomicReference<String> status)
+            throws SAXException {
+
         if (conf instanceof UserReportletConf) {
             this.conf = UserReportletConf.class.cast(conf);
         } else {
@@ -364,7 +370,14 @@ public class UserReportlet extends AbstractReportlet {
 
         doExtractConf(handler);
 
-        for (int page = 1; page <= (count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+        int total = count();
+        int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
+
+        status.set("Processing " + total + " users in " + pages + " pages");
+
+        for (int page = 1; page <= pages; page++) {
+            status.set("Processing " + total + " users: page " + page + " of " + pages);
+
             List<User> users;
             if (StringUtils.isBlank(this.conf.getMatchingCond())) {
                 users = userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE);

@@ -20,6 +20,8 @@ package org.apache.syncope.core.provisioning.java.job.notification;
 
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
+import org.apache.syncope.core.provisioning.api.job.JobDelegate;
+import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -52,6 +54,11 @@ public class NotificationJob extends AbstractInterruptableJob {
 
     @Autowired
     private NotificationJobDelegate delegate;
+
+    @Override
+    public JobDelegate getDelegate() {
+        return delegate;
+    }
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {

@@ -89,8 +89,15 @@ public class IdentityRecertification extends AbstractSchedTaskJobDelegate {
             return "DRY RUN";
         }
 
+        int total = userDAO.count();
+        int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
+
+        status.set("Processing " + total + " users in " + pages + " pages");
+
         long now = System.currentTimeMillis();
-        for (int page = 1; page <= (userDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+        for (int page = 1; page <= pages; page++) {
+            status.set("Processing " + total + " users: page " + page + " of " + pages);
+
             for (User user : userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
                 LOG.debug("Processing user: {}", user.getUsername());
 

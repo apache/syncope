@@ -879,6 +879,10 @@ li.todoitem a {
   cursor: default;
 }
 
+.popover{
+    max-width: 100%;
+}
+
 #popover:hover {
   cursor: pointer;
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -41,7 +42,8 @@ public interface Reportlet {
      * Actual data extraction for reporting.
      *
      * @param handler SAX content handler for streaming result
+     * @param status current report status (for job reporting)
      * @throws SAXException if there is any problem in SAX handling
      */
-    void extract(ContentHandler handler) throws SAXException;
+    void extract(ContentHandler handler, AtomicReference<String> status) throws SAXException;
 }

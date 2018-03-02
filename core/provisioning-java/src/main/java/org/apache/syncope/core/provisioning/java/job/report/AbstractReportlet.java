@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.job.report;
 
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.slf4j.Logger;
@@ -38,17 +39,18 @@ public abstract class AbstractReportlet implements Reportlet {
         this.conf = conf;
     }
 
-    protected abstract void doExtract(ReportletConf conf, ContentHandler handler) throws SAXException;
+    protected abstract void doExtract(ReportletConf conf, ContentHandler handler, AtomicReference<String> status)
+            throws SAXException;
 
     @Override
     @Transactional(readOnly = true)
-    public void extract(final ContentHandler handler) throws SAXException {
+    public void extract(final ContentHandler handler, final AtomicReference<String> status) throws SAXException {
         AttributesImpl atts = new AttributesImpl();
         atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, conf.getName());
         atts.addAttribute("", "", ReportXMLConst.ATTR_CLASS, ReportXMLConst.XSD_STRING, getClass().getName());
         handler.startElement("", "", ReportXMLConst.ELEMENT_REPORTLET, atts);
 
-        doExtract(conf, handler);
+        doExtract(conf, handler, status);
 
         handler.endElement("", "", ReportXMLConst.ELEMENT_REPORTLET);
     }
