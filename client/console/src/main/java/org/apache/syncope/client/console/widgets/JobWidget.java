@@ -357,9 +357,9 @@ public class JobWidget extends BaseWidget {
                         final IModel<JobTO> rowModel) {
 
                     JobTO jobTO = rowModel.getObject();
-                    JobActionPanel panel = new JobActionPanel(componentId, jobTO, JobWidget.this, pageRef);
+                    JobActionPanel panel = new JobActionPanel(componentId, jobTO, true, JobWidget.this, pageRef);
                     MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
-                            String.format("%s,%s%s,%s",
+                            String.format("%s,%s,%s,%s",
                                     StandardEntitlement.TASK_EXECUTE,
                                     StandardEntitlement.REPORT_EXECUTE,
                                     StandardEntitlement.TASK_UPDATE,

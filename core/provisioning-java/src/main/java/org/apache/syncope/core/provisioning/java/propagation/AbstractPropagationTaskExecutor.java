@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -209,7 +210,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final PropagationTask task,
             final ConnectorObject beforeObj,
             final Connector connector,
-            final Boolean[] propagationAttempted) {
+            final AtomicReference<Boolean> propagationAttempted) {
 
         // set of attributes to be propagated
         Set<Attribute> attributes = new HashSet<>(task.getAttributes());
@@ -299,7 +300,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final PropagationTask task,
             final ConnectorObject beforeObj,
             final Connector connector,
-            final Boolean[] propagationAttempted) {
+            final AtomicReference<Boolean> propagationAttempted) {
 
         Uid result;
         if (beforeObj == null) {
@@ -392,7 +393,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         String failureReason = null;
 
         // Flag to state whether any propagation has been attempted
-        Boolean[] propagationAttempted = new Boolean[] { false };
+        AtomicReference<Boolean> propagationAttempted = new AtomicReference<>(false);
 
         ConnectorObject beforeObj = null;
         ConnectorObject afterObj = null;
@@ -431,7 +432,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 default:
             }
 
-            execution.setStatus(propagationAttempted[0]
+            execution.setStatus(propagationAttempted.get()
                     ? PropagationTaskExecStatus.SUCCESS.name()
                     : PropagationTaskExecStatus.NOT_ATTEMPTED.name());
 
@@ -463,7 +464,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 LOG.error("While executing KO action on {}", execution, wft);
             }
 
-            propagationAttempted[0] = true;
+            propagationAttempted.set(true);
 
             for (PropagationActions action : actions) {
                 action.onError(task, execution, e);

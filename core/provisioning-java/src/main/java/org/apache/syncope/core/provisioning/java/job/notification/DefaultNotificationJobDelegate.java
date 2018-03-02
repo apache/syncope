@@ -21,7 +21,9 @@ package org.apache.syncope.core.provisioning.java.job.notification;
 import java.io.PrintStream;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang3.BooleanUtils;
@@ -37,6 +39,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.AuditManager;
+import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.quartz.JobExecutionException;
@@ -51,7 +54,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class NotificationJobDelegate implements InitializingBean {
+public class DefaultNotificationJobDelegate implements InitializingBean, NotificationJobDelegate {
 
     private static final Logger LOG = LoggerFactory.getLogger(NotificationJobDelegate.class);
 
@@ -69,6 +72,8 @@ public class NotificationJobDelegate implements InitializingBean {
 
     @Autowired
     private NotificationManager notificationManager;
+
+    private final AtomicReference<String> status = new AtomicReference<>();
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -100,7 +105,13 @@ public class NotificationJobDelegate implements InitializingBean {
         }
     }
 
+    @Override
+    public String currentStatus() {
+        return status.get();
+    }
+
     @Transactional
+    @Override
     public TaskExec executeSingle(final NotificationTask task) {
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setTask(task);
@@ -134,6 +145,8 @@ public class NotificationJobDelegate implements InitializingBean {
                         + task.getHtmlBody() + "\n"
                         + task.getTextBody() + "\n");
             }
+
+            status.set("Sending notifications to " + task.getRecipients());
 
             for (String to : task.getRecipients()) {
                 try {
@@ -219,8 +232,13 @@ public class NotificationJobDelegate implements InitializingBean {
     }
 
     @Transactional
+    @Override
     public void execute() throws JobExecutionException {
-        for (NotificationTask task : taskDAO.<NotificationTask>findToExec(TaskType.NOTIFICATION)) {
+        List<NotificationTask> tasks = taskDAO.<NotificationTask>findToExec(TaskType.NOTIFICATION);
+
+        status.set("Sending out " + tasks.size() + " notifications");
+
+        for (NotificationTask task : tasks) {
             LOG.debug("Found notification task {} to be executed: starting...", task);
             executeSingle(task);
             LOG.debug("Notification task {} executed", task);

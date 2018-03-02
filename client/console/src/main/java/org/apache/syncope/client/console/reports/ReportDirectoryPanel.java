@@ -34,27 +34,36 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.ReportRestClient;
+import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.console.widgets.JobActionPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.event.IEvent;
+import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.util.time.Duration;
 
 /**
  * Reports page.
@@ -75,6 +84,17 @@ public abstract class ReportDirectoryPanel
 
         modal.size(Modal.Size.Large);
         initResultTable();
+
+        container.add(new IndicatorAjaxTimerBehavior(Duration.seconds(10)) {
+
+            private static final long serialVersionUID = -4661303265651934868L;
+
+            @Override
+            protected void onTimer(final AjaxRequestTarget target) {
+                container.modelChanged();
+                target.add(container);
+            }
+        });
 
         startAt = new ReportStartAtTogglePanel(container, pageRef);
         addInnerObject(startAt);
@@ -107,7 +127,43 @@ public abstract class ReportDirectoryPanel
         columns.add(new BooleanPropertyColumn<ReportTO>(
                 new StringResourceModel("active", this), "active", "active"));
 
+        columns.add(new AbstractColumn<ReportTO, String>(new Model<>(""), "running") {
+
+            private static final long serialVersionUID = 4209532514416998046L;
+
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<ReportTO>> cellItem,
+                    final String componentId,
+                    final IModel<ReportTO> rowModel) {
+
+                JobTO jobTO = restClient.getJob(rowModel.getObject().getKey());
+                JobActionPanel panel = new JobActionPanel(
+                        componentId, jobTO, false, ReportDirectoryPanel.this, pageRef);
+                MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
+                        String.format("%s,%s",
+                                StandardEntitlement.TASK_EXECUTE,
+                                StandardEntitlement.TASK_UPDATE));
+                cellItem.add(panel);
+            }
+
+            @Override
+            public String getCssClass() {
+                return "col-xs-1";
+            }
+        });
+
         return columns;
+    }
+
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        if (event.getPayload() instanceof JobActionPanel.JobActionPayload) {
+            container.modelChanged();
+            JobActionPanel.JobActionPayload.class.cast(event.getPayload()).getTarget().add(container);
+        } else {
+            super.onEvent(event);
+        }
     }
 
     @Override

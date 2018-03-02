@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.job;
 
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -72,6 +73,13 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
     @Autowired
     protected AuditManager auditManager;
 
+    protected final AtomicReference<String> status = new AtomicReference<>();
+
+    @Override
+    public String currentStatus() {
+        return status.get();
+    }
+
     @Transactional
     @Override
     public void execute(final String taskKey, final boolean dryRun, final JobExecutionContext context)
@@ -89,6 +97,8 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setStart(new Date());
         execution.setTask(task);
+
+        status.set("Initialization completed");
 
         AuditElements.Result result;
 
@@ -109,6 +119,8 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
             taskExecDAO.saveAndAdd(taskKey, execution);
         }
         task = taskDAO.save(task);
+
+        status.set("Done");
 
         notificationManager.createTasks(
                 AuditElements.EventCategoryType.TASK,

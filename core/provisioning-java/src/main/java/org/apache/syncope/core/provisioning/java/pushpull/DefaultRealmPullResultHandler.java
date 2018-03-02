@@ -89,6 +89,7 @@ public class DefaultRealmPullResultHandler
             }
 
             doHandle(delta, orgUnit);
+            executor.reportHandled(delta.getObjectClass(), delta.getObject().getName());
 
             LOG.debug("Successfully handled {}", delta);
 
@@ -117,6 +118,7 @@ public class DefaultRealmPullResultHandler
             LOG.warn("Ignoring during pull", e);
 
             executor.setLatestSyncToken(delta.getObjectClass(), delta.getToken());
+            executor.reportHandled(delta.getObjectClass(), delta.getObject().getName());
 
             return true;
         } catch (JobExecutionException e) {

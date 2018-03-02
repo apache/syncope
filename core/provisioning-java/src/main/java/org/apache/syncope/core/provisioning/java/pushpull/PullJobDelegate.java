@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -54,6 +55,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPullResultHandler;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.SyncToken;
@@ -74,6 +76,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
     protected final Map<ObjectClass, SyncToken> latestSyncTokens = new HashMap<>();
 
+    protected final Map<ObjectClass, MutablePair<Integer, String>> handled = new HashMap<>();
+
     protected ProvisioningProfile<PullTask, PullActions> profile;
 
     protected RealmPullResultHandler rhandler;
@@ -87,6 +91,34 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
     @Override
     public void setLatestSyncToken(final ObjectClass objectClass, final SyncToken latestSyncToken) {
         latestSyncTokens.put(objectClass, latestSyncToken);
+    }
+
+    @Override
+    public void reportHandled(final ObjectClass objectClass, final Name name) {
+        MutablePair<Integer, String> pair = handled.get(objectClass);
+        if (pair == null) {
+            pair = MutablePair.of(0, null);
+            handled.put(objectClass, pair);
+        }
+        pair.setLeft(pair.getLeft() + 1);
+        pair.setRight(name.getNameValue());
+    }
+
+    @Override
+    public String currentStatus() {
+        synchronized (status) {
+            if (!handled.isEmpty()) {
+                StringBuilder builder = new StringBuilder("Processed:\n");
+                for (Map.Entry<ObjectClass, MutablePair<Integer, String>> entry : handled.entrySet()) {
+                    builder.append(' ').append(entry.getValue().getLeft()).append('\t').
+                            append(entry.getKey().getObjectClassValue()).
+                            append("\t/ latest: ").append(entry.getValue().getRight()).
+                            append('\n');
+                }
+                status.set(builder.toString());
+            }
+        }
+        return status.get();
     }
 
     protected void setGroupOwners(final GroupPullResultHandler ghandler) {
@@ -195,8 +227,12 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             }
         }
 
+        status.set("Initialization completed");
+
         // First realms...
         if (pullTask.getResource().getOrgUnit() != null) {
+            status.set("Pulling " + pullTask.getResource().getOrgUnit().getObjectClass().getObjectClassValue());
+
             OrgUnit orgUnit = pullTask.getResource().getOrgUnit();
             OperationOptions options = MappingUtils.buildOperationOptions(
                     MappingUtils.getPullItems(orgUnit.getItems()).iterator());
@@ -252,6 +288,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
         for (Provision provision : pullTask.getResource().getProvisions()) {
             if (provision.getMapping() != null) {
+                status.set("Pulling " + provision.getObjectClass().getObjectClassValue());
+
                 SyncopePullResultHandler handler;
                 switch (provision.getAnyType().getKind()) {
                     case USER:
@@ -330,6 +368,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 action.afterAll(profile);
             }
         }
+
+        status.set("Pull done");
 
         String result = createReport(profile.getResults(), pullTask.getResource(), dryRun);
         LOG.debug("Pull result: {}", result);

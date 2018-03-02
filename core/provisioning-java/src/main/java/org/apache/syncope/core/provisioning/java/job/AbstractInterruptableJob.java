@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java.job;
 
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
+import org.apache.syncope.core.provisioning.api.job.JobDelegate;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.quartz.DisallowConcurrentExecution;
@@ -40,13 +41,25 @@ public abstract class AbstractInterruptableJob implements InterruptableJob {
      */
     private final AtomicReference<Thread> runningThread = new AtomicReference<>();
 
+    private final JobDelegate embeddedDelegate = new JobDelegate() {
+
+        @Override
+        public String currentStatus() {
+            return "RUNNING THREAD: " + runningThread.get();
+        }
+    };
+
     private long interruptMaxRetries = 1;
+
+    public JobDelegate getDelegate() {
+        return embeddedDelegate;
+    }
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
-        this.runningThread.set(Thread.currentThread());
+        runningThread.set(Thread.currentThread());
         try {
-            this.interruptMaxRetries = context.getMergedJobDataMap().getLong(JobManager.INTERRUPT_MAX_RETRIES_KEY);
+            interruptMaxRetries = context.getMergedJobDataMap().getLong(JobManager.INTERRUPT_MAX_RETRIES_KEY);
         } catch (Exception e) {
             LOG.debug("Could not set {}, defaults to {}", JobManager.INTERRUPT_MAX_RETRIES_KEY, interruptMaxRetries, e);
         }
@@ -54,7 +67,7 @@ public abstract class AbstractInterruptableJob implements InterruptableJob {
 
     @Override
     public void interrupt() throws UnableToInterruptJobException {
-        Thread thread = this.runningThread.getAndSet(null);
+        Thread thread = runningThread.getAndSet(null);
         if (thread == null) {
             LOG.warn("Unable to retrieve the thread of the current job execution");
         } else {
@@ -68,7 +81,7 @@ public abstract class AbstractInterruptableJob implements InterruptableJob {
             }
             // if the thread is still alive, it should be available in the next stop
             if (thread.isAlive()) {
-                this.runningThread.set(thread);
+                runningThread.set(thread);
             }
         }
     }

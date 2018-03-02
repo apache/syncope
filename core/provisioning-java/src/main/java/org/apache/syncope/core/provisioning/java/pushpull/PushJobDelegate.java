@@ -20,8 +20,12 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -35,9 +39,12 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPushResultHandler;
@@ -78,6 +85,8 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
 
     protected ProvisioningProfile<PushTask, PushActions> profile;
 
+    protected final Map<String, MutablePair<Integer, String>> handled = new HashMap<>();
+
     protected RealmPushResultHandler rhandler;
 
     protected AnyObjectPushResultHandler ahandler;
@@ -85,6 +94,33 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
     protected UserPushResultHandler uhandler;
 
     protected GroupPushResultHandler ghandler;
+
+    protected void reportHandled(final String anyType, final String key) {
+        MutablePair<Integer, String> pair = handled.get(anyType);
+        if (pair == null) {
+            pair = MutablePair.of(0, null);
+            handled.put(anyType, pair);
+        }
+        pair.setLeft(pair.getLeft() + 1);
+        pair.setRight(key);
+    }
+
+    @Override
+    public String currentStatus() {
+        synchronized (status) {
+            if (!handled.isEmpty()) {
+                StringBuilder builder = new StringBuilder("Processed:\n");
+                for (Map.Entry<String, MutablePair<Integer, String>> entry : handled.entrySet()) {
+                    builder.append(' ').append(entry.getValue().getLeft()).append('\t').
+                            append(entry.getKey()).
+                            append("\t/ latest: ").append(entry.getValue().getRight()).
+                            append('\n');
+                }
+                status.set(builder.toString());
+            }
+        }
+        return status.get();
+    }
 
     protected AnyDAO<?> getAnyDAO(final AnyTypeKind anyTypeKind) {
         AnyDAO<?> result;
@@ -114,6 +150,13 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         for (Any<?> any : anys) {
             try {
                 handler.handle(any.getKey());
+                reportHandled(
+                        any.getType().getKey(),
+                        (any instanceof User
+                                ? ((User) any).getUsername()
+                                : any instanceof Group
+                                        ? ((Group) any).getName()
+                                        : ((AnyObject) any).getName()));
             } catch (Exception e) {
                 LOG.warn("Failure pushing '{}' on '{}'", any, resource, e);
                 throw new JobExecutionException("While pushing " + any + " on " + resource, e);
@@ -185,8 +228,12 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
             }
         }
 
+        status.set("Initialization completed");
+
         // First realms...
         if (pushTask.getResource().getOrgUnit() != null) {
+            status.set("Pushing realms");
+
             rhandler = buildRealmHandler();
 
             for (Realm realm : realmDAO.findDescendants(profile.getTask().getSourceRealm())) {
@@ -194,6 +241,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                 if (realm.getParent() != null) {
                     try {
                         rhandler.handle(realm.getKey());
+                        reportHandled(SyncopeConstants.REALM_ANYTYPE, realm.getName());
                     } catch (Exception e) {
                         LOG.warn("Failure pushing '{}' on '{}'", realm, pushTask.getResource(), e);
                         throw new JobExecutionException("While pushing " + realm + " on " + pushTask.getResource(), e);
@@ -209,6 +257,8 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
 
         for (Provision provision : pushTask.getResource().getProvisions()) {
             if (provision.getMapping() != null) {
+                status.set("Pushing " + provision.getAnyType().getKey());
+
                 AnyDAO<?> anyDAO = getAnyDAO(provision.getAnyType().getKind());
 
                 SyncopePushResultHandler handler;
@@ -254,6 +304,8 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                 action.afterAll(profile);
             }
         }
+
+        status.set("Push done");
 
         String result = createReport(profile.getResults(), pushTask.getResource(), dryRun);
         LOG.debug("Push result: {}", result);

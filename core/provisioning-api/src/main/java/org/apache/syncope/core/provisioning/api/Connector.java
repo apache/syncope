@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.api;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -63,7 +64,7 @@ public interface Connector {
             ObjectClass objectClass,
             Set<Attribute> attrs,
             OperationOptions options,
-            Boolean[] propagationAttempted);
+            AtomicReference<Boolean> propagationAttempted);
 
     /**
      * Update user / group on a connector instance.
@@ -80,7 +81,7 @@ public interface Connector {
             Uid uid,
             Set<Attribute> attrs,
             OperationOptions options,
-            Boolean[] propagationAttempted);
+            AtomicReference<Boolean> propagationAttempted);
 
     /**
      * Delete user / group on a connector instance.
@@ -94,7 +95,7 @@ public interface Connector {
             ObjectClass objectClass,
             Uid uid,
             OperationOptions options,
-            Boolean[] propagationAttempted);
+            AtomicReference<Boolean> propagationAttempted);
 
     /**
      * Fetches all remote objects (for use during full reconciliation).

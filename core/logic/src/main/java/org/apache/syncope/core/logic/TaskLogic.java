@@ -57,10 +57,11 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
+import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
-import org.apache.syncope.core.provisioning.java.job.notification.NotificationJobDelegate;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
+import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -400,6 +401,30 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @Override
     public List<JobTO> listJobs() {
         return super.doListJobs();
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
+    @Override
+    public JobTO getJob(final String key) {
+        Task task = taskDAO.find(key);
+        if (task == null) {
+            throw new NotFoundException("Task " + key);
+        }
+
+        JobTO jobTO = null;
+        try {
+            jobTO = getJobTO(JobNamer.getJobKey(task));
+        } catch (SchedulerException e) {
+            LOG.error("Problems while retrieving scheduled job {}", JobNamer.getJobKey(task), e);
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
+            sce.getElements().add(e.getMessage());
+            throw sce;
+        }
+        if (jobTO == null) {
+            throw new NotFoundException("Job for task " + key);
+        }
+        return jobTO;
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")

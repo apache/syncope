@@ -101,6 +101,17 @@ public interface ExecutableService extends JAXRSService {
     ExecTO execute(@BeanParam ExecuteQuery query);
 
     /**
+     * Returns job (running or scheduled) for the executable matching the given key.
+     *
+     * @param key executable key
+     * @return job (running or scheduled) for the given key
+     */
+    @GET
+    @Path("jobs/{key}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    JobTO getJob(@PathParam("key") String key);
+
+    /**
      * List jobs (running and / or scheduled).
      *
      * @return jobs (running and / or scheduled)

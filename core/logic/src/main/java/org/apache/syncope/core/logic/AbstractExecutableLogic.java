@@ -42,6 +42,8 @@ public abstract class AbstractExecutableLogic<T extends AbstractBaseBean> extend
     public abstract BulkActionResult deleteExecutions(
             String key, Date startedBefore, Date startedAfter, Date endedBefore, Date endedAfter);
 
+    public abstract JobTO getJob(String key);
+
     public abstract List<JobTO> listJobs();
 
     public abstract void actionJob(String key, JobAction action);

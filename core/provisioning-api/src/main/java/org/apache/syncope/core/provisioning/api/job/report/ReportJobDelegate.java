@@ -16,27 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.provisioning.api.job.report;
 
-import java.util.concurrent.atomic.AtomicReference;
-import org.apache.syncope.common.lib.report.ReportletConf;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
+import org.apache.syncope.core.provisioning.api.job.JobDelegate;
+import org.quartz.JobExecutionException;
 
-/**
- * Interface for all elements that can be embedded in a report.
- *
- * @see org.apache.syncope.core.persistence.api.entity.Report
- */
-public interface Reportlet {
+public interface ReportJobDelegate extends JobDelegate {
 
-    /**
-     * Actual data extraction for reporting.
-     *
-     * @param conf configuration
-     * @param handler SAX content handler for streaming result
-     * @param status current report status (for job reporting)
-     * @throws SAXException if there is any problem in SAX handling
-     */
-    void extract(ReportletConf conf, ContentHandler handler, AtomicReference<String> status) throws SAXException;
+    void execute(String reportKey) throws JobExecutionException;
 }

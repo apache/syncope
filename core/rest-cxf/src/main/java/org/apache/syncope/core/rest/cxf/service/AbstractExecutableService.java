@@ -71,6 +71,11 @@ public abstract class AbstractExecutableService extends AbstractServiceImpl impl
     }
 
     @Override
+    public JobTO getJob(final String key) {
+        return getExecutableLogic().getJob(key);
+    }
+
+    @Override
     public List<JobTO> listJobs() {
         return getExecutableLogic().listJobs();
     }

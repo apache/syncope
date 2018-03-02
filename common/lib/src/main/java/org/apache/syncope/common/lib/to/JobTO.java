@@ -42,6 +42,8 @@ public class JobTO extends AbstractBaseBean {
 
     private Date start;
 
+    private String status;
+
     public JobType getType() {
         return type;
     }
@@ -93,4 +95,13 @@ public class JobTO extends AbstractBaseBean {
                 ? null
                 : new Date(start.getTime());
     }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(final String status) {
+        this.status = status;
+    }
+
 }

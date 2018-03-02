@@ -130,6 +130,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             }
 
             doHandle(delta, provision);
+            executor.reportHandled(delta.getObjectClass(), delta.getObject().getName());
 
             LOG.debug("Successfully handled {}", delta);
 
@@ -159,6 +160,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             LOG.warn("Ignoring during pull", e);
 
             executor.setLatestSyncToken(delta.getObjectClass(), delta.getToken());
+            executor.reportHandled(delta.getObjectClass(), delta.getObject().getName());
 
             return true;
         } catch (JobExecutionException e) {

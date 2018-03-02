@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
@@ -50,7 +51,6 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
@@ -373,25 +373,13 @@ public class ReconciliationReportlet extends AbstractReportlet {
         }
     }
 
-    private void doExtract(
-            final ContentHandler handler, final int count, final SearchCond cond, final AnyTypeKind anyTypeKind)
+    @Override
+    protected void doExtract(
+            final ReportletConf conf,
+            final ContentHandler handler,
+            final AtomicReference<String> status)
             throws SAXException {
 
-        for (int page = 1; page <= (count / PAGE_SIZE) + 1; page++) {
-            List<AnyObject> anys = searchDAO.search(
-                    SyncopeConstants.FULL_ADMIN_REALMS,
-                    cond,
-                    page,
-                    PAGE_SIZE,
-                    Collections.<OrderByClause>emptyList(),
-                    anyTypeKind);
-
-            doExtract(handler, anys);
-        }
-    }
-
-    @Override
-    protected void doExtract(final ReportletConf conf, final ContentHandler handler) throws SAXException {
         if (conf instanceof ReconciliationReportletConf) {
             this.conf = ReconciliationReportletConf.class.cast(conf);
         } else {
@@ -401,39 +389,81 @@ public class ReconciliationReportlet extends AbstractReportlet {
         AttributesImpl atts = new AttributesImpl();
 
         if (StringUtils.isBlank(this.conf.getUserMatchingCond())) {
-            atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(userDAO.count()));
+            int total = userDAO.count();
+            int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
+
+            status.set("Processing " + total + " users in " + pages + " pages");
+
+            atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
             handler.startElement("", "", getAnyElementName(AnyTypeKind.USER) + "s", atts);
 
-            for (int page = 1; page <= (userDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+            for (int page = 1; page <= pages; page++) {
+                status.set("Processing " + total + " users: page " + page + " of " + pages);
+
                 doExtract(handler, userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE));
             }
         } else {
             SearchCond cond = SearchCondConverter.convert(this.conf.getUserMatchingCond());
 
-            int count = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.USER);
-            atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(count));
+            int total = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.USER);
+            int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
+
+            status.set("Processing " + total + " users in " + pages + " pages");
+
+            atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
             handler.startElement("", "", getAnyElementName(AnyTypeKind.USER) + "s", atts);
 
-            doExtract(handler, count, cond, AnyTypeKind.USER);
+            for (int page = 1; page <= pages; page++) {
+                status.set("Processing " + total + " users: page " + page + " of " + pages);
+
+                doExtract(handler, searchDAO.search(
+                        SyncopeConstants.FULL_ADMIN_REALMS,
+                        cond,
+                        page,
+                        PAGE_SIZE,
+                        Collections.<OrderByClause>emptyList(),
+                        AnyTypeKind.USER));
+            }
         }
         handler.endElement("", "", getAnyElementName(AnyTypeKind.USER) + "s");
 
         atts.clear();
         if (StringUtils.isBlank(this.conf.getGroupMatchingCond())) {
-            atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(groupDAO.count()));
+            int total = groupDAO.count();
+            int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
+
+            status.set("Processing " + total + " groups in " + pages + " pages");
+
+            atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
             handler.startElement("", "", getAnyElementName(AnyTypeKind.GROUP) + "s", atts);
 
-            for (int page = 1; page <= (groupDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+            for (int page = 1; page <= pages; page++) {
+                status.set("Processing " + total + " groups: page " + page + " of " + pages);
+
                 doExtract(handler, groupDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE));
             }
         } else {
             SearchCond cond = SearchCondConverter.convert(this.conf.getUserMatchingCond());
 
-            int count = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.GROUP);
-            atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(count));
+            int total = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.GROUP);
+            int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
+
+            status.set("Processing " + total + " groups in " + pages + " pages");
+
+            atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
             handler.startElement("", "", getAnyElementName(AnyTypeKind.GROUP) + "s", atts);
 
-            doExtract(handler, count, cond, AnyTypeKind.GROUP);
+            for (int page = 1; page <= pages; page++) {
+                status.set("Processing " + total + " groups: page " + page + " of " + pages);
+
+                doExtract(handler, searchDAO.search(
+                        SyncopeConstants.FULL_ADMIN_REALMS,
+                        cond,
+                        page,
+                        PAGE_SIZE,
+                        Collections.<OrderByClause>emptyList(),
+                        AnyTypeKind.GROUP));
+            }
         }
         handler.endElement("", "", getAnyElementName(AnyTypeKind.GROUP) + "s");
 
@@ -447,14 +477,28 @@ public class ReconciliationReportlet extends AbstractReportlet {
                                 SearchCond.getLeafCond(anyTypeCond),
                                 SearchCondConverter.convert(this.conf.getAnyObjectMatchingCond()));
 
-                int count = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.ANY_OBJECT);
+                int total = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.ANY_OBJECT);
+                int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
+
+                status.set("Processing " + total + " any objects " + anyType.getKey() + " in " + pages + " pages");
 
                 atts.clear();
                 atts.addAttribute("", "", "type", ReportXMLConst.XSD_STRING, anyType.getKey());
-                atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(count));
+                atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
                 handler.startElement("", "", getAnyElementName(AnyTypeKind.ANY_OBJECT) + "s", atts);
 
-                doExtract(handler, count, cond, AnyTypeKind.ANY_OBJECT);
+                for (int page = 1; page <= pages; page++) {
+                    status.set("Processing " + total + " any objects " + anyType.getKey()
+                            + ": page " + page + " of " + pages);
+
+                    doExtract(handler, searchDAO.search(
+                            SyncopeConstants.FULL_ADMIN_REALMS,
+                            cond,
+                            page,
+                            PAGE_SIZE,
+                            Collections.<OrderByClause>emptyList(),
+                            AnyTypeKind.ANY_OBJECT));
+                }
 
                 handler.endElement("", "", getAnyElementName(AnyTypeKind.ANY_OBJECT) + "s");
             }

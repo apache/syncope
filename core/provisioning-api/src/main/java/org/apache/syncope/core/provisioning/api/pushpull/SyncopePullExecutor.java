@@ -18,10 +18,13 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
+import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.SyncToken;
 
 public interface SyncopePullExecutor {
 
     void setLatestSyncToken(ObjectClass objectClass, SyncToken latestSyncToken);
+
+    void reportHandled(ObjectClass objectClass, Name name);
 }

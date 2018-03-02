@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.job.report;
 
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.report.StaticReportletConf;
@@ -70,7 +71,12 @@ public class StaticReportlet extends AbstractReportlet {
     }
 
     @Override
-    protected void doExtract(final ReportletConf conf, final ContentHandler handler) throws SAXException {
+    protected void doExtract(
+            final ReportletConf conf,
+            final ContentHandler handler,
+            final AtomicReference<String> status)
+            throws SAXException {
+
         if (conf instanceof StaticReportletConf) {
             this.conf = StaticReportletConf.class.cast(conf);
         } else {

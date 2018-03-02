@@ -54,6 +54,10 @@ public class ReportRestClient extends BaseRestClient
         return getService(ReportService.class).list();
     }
 
+    public JobTO getJob(final String key) {
+        return getService(ReportService.class).getJob(key);
+    }
+
     public List<JobTO> listJobs() {
         return getService(ReportService.class).listJobs();
     }

@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -41,6 +42,7 @@ import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
+import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +53,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.helpers.AttributesImpl;
 
 @Component
-public class ReportJobDelegate {
+public class DefaultReportJobDelegate implements ReportJobDelegate {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReportJobDelegate.class);
 
@@ -73,7 +75,15 @@ public class ReportJobDelegate {
     @Autowired
     private ImplementationLookup implementationLookup;
 
+    private final AtomicReference<String> status = new AtomicReference<>();
+
+    @Override
+    public String currentStatus() {
+        return status.get();
+    }
+
     @Transactional
+    @Override
     public void execute(final String reportKey) throws JobExecutionException {
         Report report = reportDAO.find(reportKey);
         if (report == null) {
@@ -121,6 +131,8 @@ public class ReportJobDelegate {
         execution.setStatus(ReportExecStatus.RUNNING);
         execution = reportExecDAO.save(execution);
 
+        status.set("Starting");
+
         // 3. actual report execution
         StringBuilder reportExecutionMessage = new StringBuilder();
         try {
@@ -129,6 +141,8 @@ public class ReportJobDelegate {
             AttributesImpl atts = new AttributesImpl();
             atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, report.getName());
             handler.startElement("", "", ReportXMLConst.ELEMENT_REPORT, atts);
+
+            status.set("Generating report header");
 
             // iterate over reportlet instances defined for this report
             for (ReportletConf reportletConf : report.getReportletConfs()) {
@@ -151,7 +165,8 @@ public class ReportJobDelegate {
 
                     // invoke reportlet
                     try {
-                        reportlet.extract(reportletConf, handler);
+                        status.set("Invoking reportlet " + reportletClass.getName());
+                        reportlet.extract(reportletConf, handler, status);
                     } catch (Throwable t) {
                         LOG.error("While executing reportlet {} for report {}", reportlet, reportKey, t);
 
@@ -168,6 +183,8 @@ public class ReportJobDelegate {
             }
 
             // report footer
+            status.set("Generating report footer");
+
             handler.endElement("", "", ReportXMLConst.ELEMENT_REPORT);
             handler.endDocument();
 
@@ -180,6 +197,8 @@ public class ReportJobDelegate {
 
             throw new JobExecutionException(e, true);
         } finally {
+            status.set("Completed");
+
             try {
                 zos.closeEntry();
                 zos.close();

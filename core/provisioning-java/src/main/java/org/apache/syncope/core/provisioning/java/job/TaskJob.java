@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.job;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.syncope.core.provisioning.api.job.JobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
@@ -52,6 +53,8 @@ public class TaskJob extends AbstractInterruptableJob {
      */
     private String taskKey;
 
+    private SchedTaskJobDelegate delegate;
+
     /**
      * Task key setter.
      *
@@ -59,6 +62,11 @@ public class TaskJob extends AbstractInterruptableJob {
      */
     public void setTaskKey(final String taskKey) {
         this.taskKey = taskKey;
+    }
+
+    @Override
+    public JobDelegate getDelegate() {
+        return delegate;
     }
 
     @Override
@@ -75,11 +83,12 @@ public class TaskJob extends AbstractInterruptableJob {
                         Class<?> delegateClass =
                                 ClassUtils.getClass(context.getMergedJobDataMap().getString(DELEGATE_CLASS_KEY));
 
-                        ((SchedTaskJobDelegate) ApplicationContextProvider.getBeanFactory().
-                                createBean(delegateClass, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false)).
-                                execute(taskKey,
-                                        context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY),
-                                        context);
+                        delegate = ((SchedTaskJobDelegate) ApplicationContextProvider.getBeanFactory().
+                                createBean(delegateClass, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false));
+                        delegate.execute(
+                                taskKey,
+                                context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY),
+                                context);
                     } catch (Exception e) {
                         LOG.error("While executing task {}", taskKey, e);
                         throw new RuntimeException(e);
