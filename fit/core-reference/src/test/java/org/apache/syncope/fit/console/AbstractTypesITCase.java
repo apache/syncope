@@ -27,10 +27,10 @@ import org.junit.jupiter.api.BeforeEach;
 public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
 
     protected static final String PLAIN_DATATABLE_PATH = "body:content:tabbedPanel:panel:"
-            + "accordionPanel:tabs:0:body:content:container:content:searchContainer:resultTable";
+            + "accordionPanel:tabs:0:body:content:content:container:content:searchContainer:resultTable";
 
     protected static final String VIRTUAL_DATATABLE_PATH = "body:content:tabbedPanel:panel:"
-            + "accordionPanel:tabs:2:body:content:container:content:searchContainer:resultTable";
+            + "accordionPanel:tabs:2:body:content:content:container:content:searchContainer:resultTable";
 
     protected static final String DATATABLE_PATH =
             "body:content:tabbedPanel:panel:container:content:searchContainer:resultTable";
@@ -88,19 +88,19 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
     protected void createPlainSchema(final String key) {
         browsingToPlainSchemas();
         TESTER.clickLink(
-                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:container:content:add");
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:content:container:content:add");
 
         TESTER.assertComponent(
-                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer",
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:content:outerObjectsRepeater:0:outer",
                 Modal.class);
 
         final FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
-                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
+                + "accordionPanel:tabs:0:body:content:content:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:details:form:key:textField", key);
         formTester.setValue("content:details:form:type:dropDownChoiceField", "3");
 
-        TESTER.clickLink("body:content:tabbedPanel:panel:"
-                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
+        TESTER.clickLink("body:content:tabbedPanel:panel:accordionPanel:"
+                + "tabs:0:body:content:content:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
         TESTER.assertInfoMessages("Operation executed successfully");
 

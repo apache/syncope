@@ -55,7 +55,7 @@ public class SchemasPanel extends Panel {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new SchemaTypePanel(panelId, schemaType, pageReference);
+                    return new SchemaTypePanelWithSearch(panelId, schemaType, pageReference);
                 }
             });
         }

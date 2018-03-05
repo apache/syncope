@@ -115,6 +115,15 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema> implements VirSchema
     }
 
     @Override
+    public List<VirSchema> search(final String keyword) {
+        TypedQuery<VirSchema> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAVirSchema.class.getSimpleName() + " e"
+                + " WHERE e.id LIKE :keyword", VirSchema.class);
+        query.setParameter("keyword", keyword);
+        return query.getResultList();
+    }
+
+    @Override
     public VirSchema save(final VirSchema virSchema) {
         return entityManager().merge(virSchema);
     }

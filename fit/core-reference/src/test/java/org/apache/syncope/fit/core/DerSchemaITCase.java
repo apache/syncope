@@ -47,6 +47,16 @@ public class DerSchemaITCase extends AbstractITCase {
     }
 
     @Test
+    public void search() {
+        List<DerSchemaTO> derSchemas =
+                schemaService.list(new SchemaQuery.Builder().type(SchemaType.DERIVED).keyword("mderivedd*").build());
+        assertFalse(derSchemas.isEmpty());
+        for (DerSchemaTO derivedSchemaTO : derSchemas) {
+            assertNotNull(derivedSchemaTO);
+        }
+    }
+
+    @Test
     public void read() {
         DerSchemaTO derivedSchemaTO = schemaService.read(SchemaType.DERIVED, "cn");
         assertNotNull(derivedSchemaTO);

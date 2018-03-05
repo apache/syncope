@@ -61,6 +61,12 @@ public class SchemaQuery extends AbstractBaseBean {
             return anyTypeClasses(Arrays.asList(anyTypeClasses));
         }
 
+        public Builder keyword(final String keyword) {
+            instance.setKeyword(keyword);
+
+            return this;
+        }
+
         public SchemaQuery build() {
             if (instance.type == null) {
                 throw new IllegalArgumentException("type is required");
@@ -72,6 +78,8 @@ public class SchemaQuery extends AbstractBaseBean {
     private SchemaType type;
 
     private List<String> anyTypeClasses;
+
+    private String keyword;
 
     public SchemaType getType() {
         return type;
@@ -90,6 +98,15 @@ public class SchemaQuery extends AbstractBaseBean {
     @QueryParam("anyTypeClass")
     public void setAnyTypeClasses(final List<String> anyTypeClasses) {
         this.anyTypeClasses = anyTypeClasses;
+    }
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    @QueryParam("keyword")
+    public void setKeyword(final String keyword) {
+        this.keyword = keyword;
     }
 
 }

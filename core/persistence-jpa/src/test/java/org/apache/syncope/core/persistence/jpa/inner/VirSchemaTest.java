@@ -54,6 +54,12 @@ public class VirSchemaTest extends AbstractTest {
     }
 
     @Test
+    public void search() {
+        List<VirSchema> schemas = virSchemaDAO.search("rvirtuald%");
+        assertEquals(1, schemas.size());
+    }
+
+    @Test
     public void findByName() {
         VirSchema attributeSchema = virSchemaDAO.find("virtualdata");
         assertNotNull(attributeSchema);

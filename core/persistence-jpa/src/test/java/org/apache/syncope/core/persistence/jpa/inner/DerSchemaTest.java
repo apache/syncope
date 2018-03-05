@@ -47,6 +47,12 @@ public class DerSchemaTest extends AbstractTest {
     }
 
     @Test
+    public void search() {
+        List<DerSchema> schemas = derSchemaDAO.search("mderivedd%");
+        assertEquals(1, schemas.size());
+    }
+
+    @Test
     public void findByName() {
         DerSchema attributeSchema = derSchemaDAO.find("cn");
         assertNotNull(attributeSchema);

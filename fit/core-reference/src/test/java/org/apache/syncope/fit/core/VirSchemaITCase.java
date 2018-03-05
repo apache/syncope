@@ -51,6 +51,16 @@ public class VirSchemaITCase extends AbstractITCase {
     }
 
     @Test
+    public void search() {
+        List<VirSchemaTO> vSchemas =
+                schemaService.list(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).keyword("rvirtuald*").build());
+        assertFalse(vSchemas.isEmpty());
+        for (VirSchemaTO vSchemaTO : vSchemas) {
+            assertNotNull(vSchemaTO);
+        }
+    }
+
+    @Test
     public void crud() {
         ResourceTO csv = resourceService.read(RESOURCE_NAME_CSV);
         assertNotNull(csv);

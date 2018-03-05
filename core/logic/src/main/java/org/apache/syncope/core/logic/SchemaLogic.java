@@ -148,7 +148,21 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
     @SuppressWarnings({ "unchecked", "Convert2Lambda" })
     public <T extends SchemaTO> List<T> list(
             final SchemaType schemaType, final List<String> anyTypeClasses) {
+        return doSearch(schemaType, anyTypeClasses, null);
+    }
 
+    @PreAuthorize("isAuthenticated()")
+    @SuppressWarnings("unchecked")
+    public <T extends SchemaTO> List<T> search(
+            final SchemaType schemaType, final List<String> anyTypeClasses, final String keyword) {
+        return doSearch(schemaType, anyTypeClasses,
+                keyword != null
+                        ? StringUtils.replaceChars(keyword, "*", "%")
+                        : null);
+    }
+
+    private <T extends SchemaTO> List<T> doSearch(
+            final SchemaType schemaType, final List<String> anyTypeClasses, final String keyword) {
         List<AnyTypeClass> classes = new ArrayList<>(anyTypeClasses == null ? 0 : anyTypeClasses.size());
         if (anyTypeClasses != null) {
             anyTypeClasses.remove(AnyTypeKind.USER.name());
@@ -166,7 +180,9 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
         List<T> result;
         switch (schemaType) {
             case VIRTUAL:
-                result = (classes.isEmpty() ? virSchemaDAO.findAll() : virSchemaDAO.findByAnyTypeClasses(classes)).
+                result = (classes.isEmpty()
+                        ? (keyword == null ? virSchemaDAO.findAll() : virSchemaDAO.search(keyword))
+                        : virSchemaDAO.findByAnyTypeClasses(classes)).
                         stream().map(new Function<VirSchema, T>() {
 
                             @Override
@@ -177,7 +193,9 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
                 break;
 
             case DERIVED:
-                result = (classes.isEmpty() ? derSchemaDAO.findAll() : derSchemaDAO.findByAnyTypeClasses(classes)).
+                result = (classes.isEmpty()
+                        ? (keyword == null ? derSchemaDAO.findAll() : derSchemaDAO.search(keyword))
+                        : derSchemaDAO.findByAnyTypeClasses(classes)).
                         stream().map(new Function<DerSchema, T>() {
 
                             @Override
@@ -189,7 +207,9 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
 
             case PLAIN:
             default:
-                result = (classes.isEmpty() ? plainSchemaDAO.findAll() : plainSchemaDAO.findByAnyTypeClasses(classes)).
+                result = (classes.isEmpty()
+                        ? (keyword == null ? plainSchemaDAO.findAll() : plainSchemaDAO.search(keyword))
+                        : plainSchemaDAO.findByAnyTypeClasses(classes)).
                         stream().map(new Function<PlainSchema, T>() {
 
                             @Override
