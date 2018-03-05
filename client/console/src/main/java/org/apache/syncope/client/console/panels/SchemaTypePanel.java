@@ -300,7 +300,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
     }
 
     @Override
-    public void onEvent(IEvent<?> event) {
+    public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof SchemaTypePanelWithSearch.SchemaSearchEvent) {
             SchemaTypePanelWithSearch.SchemaSearchEvent payload =
                     SchemaTypePanelWithSearch.SchemaSearchEvent.class.cast(event.getPayload());
