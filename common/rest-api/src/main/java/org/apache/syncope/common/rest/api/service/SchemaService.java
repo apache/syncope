@@ -56,7 +56,8 @@ public interface SchemaService extends JAXRSService {
      *
      * @param <T> actual SchemaTO
      * @param query query conditions
-     * @return list of schemas with matching type, for the given anyTypeClass if provided
+     * @return list of schemas with matching type, for the given anyTypeClass if provided,
+     * with names containing keyword if provided
      */
     @GET
     @Path("{type}")

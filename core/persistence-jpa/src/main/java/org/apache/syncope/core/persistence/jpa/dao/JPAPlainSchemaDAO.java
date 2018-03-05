@@ -81,6 +81,15 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
     }
 
     @Override
+    public List<PlainSchema> search(final String keyword) {
+        TypedQuery<PlainSchema> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAPlainSchema.class.getSimpleName() + " e"
+                + " WHERE e.id LIKE :keyword", PlainSchema.class);
+        query.setParameter("keyword", keyword);
+        return query.getResultList();
+    }
+
+    @Override
     public <T extends PlainAttr<?>> List<T> findAttrs(final PlainSchema schema, final Class<T> reference) {
         TypedQuery<T> query = entityManager().createQuery(
                 "SELECT e FROM " + ((JPAPlainAttrDAO) plainAttrDAO).getEntityReference(reference).getSimpleName()

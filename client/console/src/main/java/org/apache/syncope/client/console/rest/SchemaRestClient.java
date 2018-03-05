@@ -82,19 +82,36 @@ public class SchemaRestClient extends BaseRestClient {
     }
 
     public <T extends SchemaTO> List<T> getSchemas(final SchemaType schemaType, final String... kind) {
+        return doGetSchemas(schemaType, null, kind);
+    }
+
+    public <T extends SchemaTO> List<T> getSchemas(
+            final SchemaType schemaType, final String keyword, final String... kind) {
+        return doGetSchemas(schemaType, keyword, kind);
+    }
+
+    private <T extends SchemaTO> List<T> doGetSchemas(
+            final SchemaType schemaType, final String keyword, final String... kind) {
         List<T> schemas = new ArrayList<>();
 
         try {
+            SchemaQuery.Builder schemaQuery =
+                    new SchemaQuery.Builder().type(schemaType);
+            if (keyword != null) {
+                schemaQuery.keyword(keyword);
+            }
+
             if (kind == null || kind.length == 0) {
                 schemas.addAll(getService(SchemaService.class).
-                        <T>list(new SchemaQuery.Builder().type(schemaType).build()));
+                        <T>list(schemaQuery.build()));
             } else {
                 schemas.addAll(getService(SchemaService.class).
-                        <T>list(new SchemaQuery.Builder().type(schemaType).anyTypeClasses(kind).build()));
+                        <T>list(schemaQuery.anyTypeClasses(kind).build()));
             }
         } catch (SyncopeClientException e) {
             LOG.error("While getting all {} schemas for {}", schemaType, kind, e);
         }
+
         return schemas;
     }
 

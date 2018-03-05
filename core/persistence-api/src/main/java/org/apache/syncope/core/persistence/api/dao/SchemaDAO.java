@@ -30,7 +30,9 @@ public interface SchemaDAO<S extends Schema> extends DAO<S> {
     List<S> findByAnyTypeClasses(Collection<AnyTypeClass> anyTypeClasses);
 
     List<S> findAll();
-
+    
+    List<S> search(String keyword);
+    
     S save(S derSchema);
 
     void delete(String key);

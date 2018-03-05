@@ -264,6 +264,16 @@ public class PlainSchemaITCase extends AbstractITCase {
     }
 
     @Test
+    public void search() {
+        List<PlainSchemaTO> schemas =
+                schemaService.list(new SchemaQuery.Builder().type(SchemaType.PLAIN).keyword("fullna*").build());
+        assertFalse(schemas.isEmpty());
+        for (PlainSchemaTO schemaTO : schemas) {
+            assertNotNull(schemaTO);
+        }
+    }
+
+    @Test
     public void listByAnyTypeClass() {
         List<PlainSchemaTO> userSchemas = schemaService.list(
                 new SchemaQuery.Builder().type(SchemaType.PLAIN).anyTypeClass("minimal user").build());

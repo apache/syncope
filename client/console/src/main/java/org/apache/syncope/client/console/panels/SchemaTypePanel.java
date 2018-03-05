@@ -51,6 +51,7 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -79,6 +80,8 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
     };
 
     private final SchemaType schemaType;
+
+    private String keyword;
 
     public SchemaTypePanel(final String id, final SchemaType schemaType, final PageReference pageRef) {
         super(id, pageRef);
@@ -250,8 +253,10 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
         @Override
         public Iterator<SchemaTO> iterator(final long first, final long count) {
-            final List<SchemaTO> list = restClient.getSchemas(this.schemaType);
-            Collections.sort(list, comparator);
+            List<SchemaTO> schemaList = StringUtils.isBlank(keyword)
+                    ? restClient.getSchemas(this.schemaType)
+                    : restClient.getSchemas(this.schemaType, keyword, new String[0]);
+            Collections.sort(schemaList, comparator);
 
             if (SchemaType.PLAIN == this.schemaType) {
                 final List<String> configurations = new ArrayList<>();
@@ -265,22 +270,26 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
                 }, configurations);
 
                 final List<SchemaTO> res = new ArrayList<>();
-                for (SchemaTO item : list) {
+                for (SchemaTO item : schemaList) {
                     if (!configurations.contains(item.getKey())) {
                         res.add(item);
                     }
                 }
                 return res.subList((int) first, (int) first + (int) count).iterator();
             } else {
-                return list.subList((int) first, (int) first + (int) count).iterator();
+                return schemaList.subList((int) first, (int) first + (int) count).iterator();
             }
         }
 
         @Override
         public long size() {
-            int size = restClient.getSchemas(this.schemaType).size();
-            return SchemaType.PLAIN == this.schemaType
-                    ? size - confRestClient.list().size()
+            int size = StringUtils.isBlank(keyword)
+                    ? restClient.getSchemas(this.schemaType).size()
+                    : restClient.getSchemas(this.schemaType, keyword, new String[0]).size();
+            return size > confRestClient.list().size()
+                    ? (SchemaType.PLAIN == this.schemaType
+                            ? size - confRestClient.list().size()
+                            : size)
                     : size;
         }
 
@@ -289,4 +298,20 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
             return new CompoundPropertyModel<>(object);
         }
     }
+
+    @Override
+    public void onEvent(IEvent<?> event) {
+        if (event.getPayload() instanceof SchemaTypePanelWithSearch.SchemaSearchEvent) {
+            SchemaTypePanelWithSearch.SchemaSearchEvent payload =
+                    SchemaTypePanelWithSearch.SchemaSearchEvent.class.cast(event.getPayload());
+            final AjaxRequestTarget target = payload.getTarget();
+            keyword = payload.getKeyword();
+
+            updateResultTable(target);
+            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+        } else {
+            super.onEvent(event);
+        }
+    }
+
 }
