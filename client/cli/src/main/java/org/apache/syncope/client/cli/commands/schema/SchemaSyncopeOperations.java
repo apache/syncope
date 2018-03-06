@@ -34,19 +34,19 @@ public class SchemaSyncopeOperations {
     }
 
     public <T extends SchemaTO> List<T> list(final String schemaTypeString) {
-        return schemaService.list(new SchemaQuery.Builder().type(SchemaType.valueOf(schemaTypeString)).build());
+        return schemaService.search(new SchemaQuery.Builder().type(SchemaType.valueOf(schemaTypeString)).build());
     }
 
     public <T extends SchemaTO> List<T> listPlain() {
-        return schemaService.list(new SchemaQuery.Builder().type(SchemaType.PLAIN).build());
+        return schemaService.search(new SchemaQuery.Builder().type(SchemaType.PLAIN).build());
     }
 
     public <T extends SchemaTO> List<T> listDerived() {
-        return schemaService.list(new SchemaQuery.Builder().type(SchemaType.DERIVED).build());
+        return schemaService.search(new SchemaQuery.Builder().type(SchemaType.DERIVED).build());
     }
 
     public <T extends SchemaTO> List<T> listVirtual() {
-        return schemaService.list(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build());
+        return schemaService.search(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build());
     }
 
     public void delete(final String schemaTypeString, final String schemaName) {

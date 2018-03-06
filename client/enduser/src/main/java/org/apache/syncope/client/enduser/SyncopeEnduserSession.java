@@ -83,8 +83,8 @@ public class SyncopeEnduserSession extends WebSession {
                         SyncopeEnduserApplication.get().getAnonymousKey()));
         platformInfo = anonymousClient.getService(SyncopeService.class).platform();
 
-        datePlainSchemas = anonymousClient.getService(SchemaService.class).
-                list(new SchemaQuery.Builder().type(SchemaType.PLAIN).build());
+        datePlainSchemas = anonymousClient.getService(SchemaService.class).search(
+                new SchemaQuery.Builder().type(SchemaType.PLAIN).build());
         CollectionUtils.filter(datePlainSchemas, new Predicate<PlainSchemaTO>() {
 
             @Override

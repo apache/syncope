@@ -18,6 +18,17 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
+    <div wicket:id="searchBox">
+      <form wicket:id="form">
+        <div class="form-group input-group">
+          <span wicket:id="filter">[FILTER]</span>
+          <span class="input-group-addon">
+            <a href="#" wicket:id="search"><i class="glyphicon glyphicon-search"></i></a>
+          </span>
+        </div>
+      </form>
+    </div>
+
     <div wicket:id="accordionPanel"></div>
   </wicket:panel>
 </html>

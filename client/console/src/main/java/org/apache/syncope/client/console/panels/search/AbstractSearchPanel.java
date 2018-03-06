@@ -186,8 +186,7 @@ public abstract class AbstractSearchPanel extends Panel {
             @Override
             protected Map<String, PlainSchemaTO> load() {
                 final List<PlainSchemaTO> schemas = schemaRestClient.<PlainSchemaTO>getSchemas(
-                        SchemaType.PLAIN,
-                        anyTypeRestClient.read(type).getClasses().toArray(new String[] {}));
+                        SchemaType.PLAIN, null, anyTypeRestClient.read(type).getClasses().toArray(new String[] {}));
 
                 final Map<String, PlainSchemaTO> res = new HashMap<>();
                 for (PlainSchemaTO schema : schemas) {

@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.rest;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.SchemaTO;
@@ -62,56 +63,26 @@ public class SchemaRestClient extends BaseRestClient {
                     }
                 }
         }
-        return getSchemas(schemaType, classes.toArray(new String[] {}));
-    }
-
-    public <T extends SchemaTO> List<T> getSchemas(final SchemaType schemaType, final String typeName) {
-        AnyTypeTO type = null;
-
-        try {
-            type = getService(AnyTypeService.class).read(typeName);
-        } catch (SyncopeClientException e) {
-            LOG.error("While reading all any types", e);
-        }
-
-        if (type == null) {
-            return getSchemas(schemaType);
-        } else {
-            return getSchemas(schemaType, type.getClasses().toArray(new String[] {}));
-        }
-    }
-
-    public <T extends SchemaTO> List<T> getSchemas(final SchemaType schemaType, final String... kind) {
-        return doGetSchemas(schemaType, null, kind);
+        return getSchemas(schemaType, null, classes.toArray(new String[] {}));
     }
 
     public <T extends SchemaTO> List<T> getSchemas(
-            final SchemaType schemaType, final String keyword, final String... kind) {
-        return doGetSchemas(schemaType, keyword, kind);
-    }
+            final SchemaType schemaType, final String keyword, final String... anyTypeClasses) {
 
-    private <T extends SchemaTO> List<T> doGetSchemas(
-            final SchemaType schemaType, final String keyword, final String... kind) {
-        List<T> schemas = new ArrayList<>();
-
-        try {
-            SchemaQuery.Builder schemaQuery =
-                    new SchemaQuery.Builder().type(schemaType);
-            if (keyword != null) {
-                schemaQuery.keyword(keyword);
-            }
-
-            if (kind == null || kind.length == 0) {
-                schemas.addAll(getService(SchemaService.class).
-                        <T>list(schemaQuery.build()));
-            } else {
-                schemas.addAll(getService(SchemaService.class).
-                        <T>list(schemaQuery.anyTypeClasses(kind).build()));
-            }
-        } catch (SyncopeClientException e) {
-            LOG.error("While getting all {} schemas for {}", schemaType, kind, e);
+        SchemaQuery.Builder builder = new SchemaQuery.Builder().type(schemaType);
+        if (StringUtils.isNotBlank(keyword)) {
+            builder.keyword(keyword);
+        }
+        if (anyTypeClasses != null && anyTypeClasses.length > 0) {
+            builder.anyTypeClasses(anyTypeClasses);
         }
 
+        List<T> schemas = new ArrayList<>();
+        try {
+            schemas.addAll(getService(SchemaService.class).<T>search(builder.build()));
+        } catch (SyncopeClientException e) {
+            LOG.error("While getting all {} schemas for {}", schemaType, anyTypeClasses, e);
+        }
         return schemas;
     }
 
@@ -119,7 +90,7 @@ public class SchemaRestClient extends BaseRestClient {
         List<String> schemaNames = new ArrayList<>();
 
         try {
-            CollectionUtils.collect(getSchemas(schemaType),
+            CollectionUtils.collect(getSchemas(schemaType, null, new String[0]),
                     EntityTOUtils.<SchemaTO>keyTransformer(), schemaNames);
         } catch (SyncopeClientException e) {
             LOG.error("While getting all user schema names", e);

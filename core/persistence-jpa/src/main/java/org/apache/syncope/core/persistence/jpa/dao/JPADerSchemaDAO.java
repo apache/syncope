@@ -56,18 +56,18 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema> implements DerSchema
     }
 
     @Override
-    public List<DerSchema> findAll() {
-        TypedQuery<DerSchema> query = entityManager().createQuery(
-                "SELECT e FROM " + JPADerSchema.class.getSimpleName() + " e", DerSchema.class);
-        return query.getResultList();
-    }
-
-    @Override
-    public List<DerSchema> search(final String keyword) {
+    public List<DerSchema> findByKeyword(final String keyword) {
         TypedQuery<DerSchema> query = entityManager().createQuery(
                 "SELECT e FROM " + JPADerSchema.class.getSimpleName() + " e"
                 + " WHERE e.id LIKE :keyword", DerSchema.class);
         query.setParameter("keyword", keyword);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<DerSchema> findAll() {
+        TypedQuery<DerSchema> query = entityManager().createQuery(
+                "SELECT e FROM " + JPADerSchema.class.getSimpleName() + " e", DerSchema.class);
         return query.getResultList();
     }
 

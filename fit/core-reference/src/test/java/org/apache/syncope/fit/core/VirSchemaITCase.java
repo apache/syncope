@@ -42,20 +42,16 @@ import org.junit.Test;
 public class VirSchemaITCase extends AbstractITCase {
 
     @Test
-    public void list() {
-        List<VirSchemaTO> vSchemas = schemaService.list(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build());
-        assertFalse(vSchemas.isEmpty());
-        for (VirSchemaTO vSchemaTO : vSchemas) {
+    public void search() {
+        List<VirSchemaTO> schemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build());
+        assertFalse(schemas.isEmpty());
+        for (VirSchemaTO vSchemaTO : schemas) {
             assertNotNull(vSchemaTO);
         }
-    }
 
-    @Test
-    public void search() {
-        List<VirSchemaTO> vSchemas =
-                schemaService.list(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).keyword("rvirtuald*").build());
-        assertFalse(vSchemas.isEmpty());
-        for (VirSchemaTO vSchemaTO : vSchemas) {
+        schemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).keyword("rvirtual*").build());
+        assertFalse(schemas.isEmpty());
+        for (VirSchemaTO vSchemaTO : schemas) {
             assertNotNull(vSchemaTO);
         }
     }
@@ -104,7 +100,7 @@ public class VirSchemaITCase extends AbstractITCase {
     public void anonymous() {
         SchemaService unauthenticated = clientFactory.create().getService(SchemaService.class);
         try {
-            unauthenticated.list(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build());
+            unauthenticated.search(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build());
             fail();
         } catch (AccessControlException e) {
             assertNotNull(e);
@@ -113,7 +109,7 @@ public class VirSchemaITCase extends AbstractITCase {
         SchemaService anonymous = clientFactory.create(
                 new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY)).
                 getService(SchemaService.class);
-        assertFalse(anonymous.list(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build()).isEmpty());
+        assertFalse(anonymous.search(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build()).isEmpty());
     }
 
     @Test

@@ -145,24 +145,20 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @SuppressWarnings("unchecked")
-    public <T extends SchemaTO> List<T> list(
-            final SchemaType schemaType, final List<String> anyTypeClasses) {
+    public <T extends SchemaTO> List<T> list(final SchemaType schemaType, final List<String> anyTypeClasses) {
         return doSearch(schemaType, anyTypeClasses, null);
     }
 
     @PreAuthorize("isAuthenticated()")
-    @SuppressWarnings("unchecked")
     public <T extends SchemaTO> List<T> search(
             final SchemaType schemaType, final List<String> anyTypeClasses, final String keyword) {
-        return doSearch(schemaType, anyTypeClasses,
-                keyword != null
-                        ? StringUtils.replaceChars(keyword, "*", "%")
-                        : null);
+
+        return doSearch(schemaType, anyTypeClasses, keyword == null ? null : keyword.replace('*', '%'));
     }
 
     private <T extends SchemaTO> List<T> doSearch(
             final SchemaType schemaType, final List<String> anyTypeClasses, final String keyword) {
+
         List<AnyTypeClass> classes = new ArrayList<>(anyTypeClasses == null ? 0 : anyTypeClasses.size());
         if (anyTypeClasses != null) {
             anyTypeClasses.remove(AnyTypeKind.USER.name());
@@ -182,11 +178,14 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
             case VIRTUAL:
                 result = CollectionUtils.collect(
                         classes.isEmpty()
-                        ? (keyword == null ? virSchemaDAO.findAll() : virSchemaDAO.search(keyword))
+                        ? keyword == null
+                                ? virSchemaDAO.findAll()
+                                : virSchemaDAO.findByKeyword(keyword)
                         : virSchemaDAO.findByAnyTypeClasses(classes),
                         new Transformer<VirSchema, T>() {
 
                     @Override
+                    @SuppressWarnings("unchecked")
                     public T transform(final VirSchema input) {
                         return (T) binder.getVirSchemaTO(input);
                     }
@@ -196,11 +195,14 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
             case DERIVED:
                 result = CollectionUtils.collect(
                         classes.isEmpty()
-                        ? (keyword == null ? derSchemaDAO.findAll() : derSchemaDAO.search(keyword))
+                        ? keyword == null
+                                ? derSchemaDAO.findAll()
+                                : derSchemaDAO.findByKeyword(keyword)
                         : derSchemaDAO.findByAnyTypeClasses(classes),
                         new Transformer<DerSchema, T>() {
 
                     @Override
+                    @SuppressWarnings("unchecked")
                     public T transform(final DerSchema input) {
                         return (T) binder.getDerSchemaTO(input);
                     }
@@ -211,11 +213,14 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
             default:
                 result = CollectionUtils.collect(
                         classes.isEmpty()
-                        ? (keyword == null ? plainSchemaDAO.findAll() : plainSchemaDAO.search(keyword))
+                        ? keyword == null
+                                ? plainSchemaDAO.findAll()
+                                : plainSchemaDAO.findByKeyword(keyword)
                         : plainSchemaDAO.findByAnyTypeClasses(classes),
                         new Transformer<PlainSchema, T>() {
 
                     @Override
+                    @SuppressWarnings("unchecked")
                     public T transform(final PlainSchema input) {
                         return (T) binder.getPlainSchemaTO(input);
                     }

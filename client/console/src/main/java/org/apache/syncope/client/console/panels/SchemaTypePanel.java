@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -129,7 +130,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
             }, true);
 
             initResultTable();
-            MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.SCHEMA_LIST);
+            MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.SCHEMA_CREATE);
         } catch (InstantiationException | IllegalAccessException e) {
             LOG.error("Error create new schema", e);
         }
@@ -253,10 +254,8 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
         @Override
         public Iterator<SchemaTO> iterator(final long first, final long count) {
-            List<SchemaTO> schemaList = StringUtils.isBlank(keyword)
-                    ? restClient.getSchemas(this.schemaType)
-                    : restClient.getSchemas(this.schemaType, keyword, new String[0]);
-            Collections.sort(schemaList, comparator);
+            List<SchemaTO> schemas = restClient.getSchemas(this.schemaType, keyword);
+            Collections.sort(schemas, comparator);
 
             if (SchemaType.PLAIN == this.schemaType) {
                 final List<String> configurations = new ArrayList<>();
@@ -270,22 +269,20 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
                 }, configurations);
 
                 final List<SchemaTO> res = new ArrayList<>();
-                for (SchemaTO item : schemaList) {
-                    if (!configurations.contains(item.getKey())) {
-                        res.add(item);
+                for (SchemaTO schema : schemas) {
+                    if (!configurations.contains(schema.getKey())) {
+                        res.add(schema);
                     }
                 }
                 return res.subList((int) first, (int) first + (int) count).iterator();
             } else {
-                return schemaList.subList((int) first, (int) first + (int) count).iterator();
+                return schemas.subList((int) first, (int) first + (int) count).iterator();
             }
         }
 
         @Override
         public long size() {
-            int size = StringUtils.isBlank(keyword)
-                    ? restClient.getSchemas(this.schemaType).size()
-                    : restClient.getSchemas(this.schemaType, keyword, new String[0]).size();
+            int size = restClient.getSchemas(this.schemaType, keyword).size();
             return size > confRestClient.list().size()
                     ? (SchemaType.PLAIN == this.schemaType
                             ? size - confRestClient.list().size()
@@ -301,17 +298,43 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof SchemaTypePanelWithSearch.SchemaSearchEvent) {
-            SchemaTypePanelWithSearch.SchemaSearchEvent payload =
-                    SchemaTypePanelWithSearch.SchemaSearchEvent.class.cast(event.getPayload());
-            final AjaxRequestTarget target = payload.getTarget();
+        if (event.getPayload() instanceof SchemaSearchEvent) {
+            SchemaSearchEvent payload = SchemaSearchEvent.class.cast(event.getPayload());
+            AjaxRequestTarget target = payload.getTarget();
+
             keyword = payload.getKeyword();
+            if (!keyword.startsWith("*")) {
+                keyword = "*" + keyword;
+            }
+            if (!keyword.endsWith("*")) {
+                keyword = keyword + "*";
+            }
 
             updateResultTable(target);
-            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         } else {
             super.onEvent(event);
         }
     }
 
+    public static class SchemaSearchEvent implements Serializable {
+
+        private static final long serialVersionUID = -282052400565266028L;
+
+        private final AjaxRequestTarget target;
+
+        private final String keyword;
+
+        SchemaSearchEvent(final AjaxRequestTarget target, final String keyword) {
+            this.target = target;
+            this.keyword = keyword;
+        }
+
+        public AjaxRequestTarget getTarget() {
+            return target;
+        }
+
+        public String getKeyword() {
+            return keyword;
+        }
+    }
 }

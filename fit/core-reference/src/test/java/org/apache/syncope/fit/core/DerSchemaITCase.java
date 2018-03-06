@@ -38,18 +38,14 @@ import org.junit.Test;
 public class DerSchemaITCase extends AbstractITCase {
 
     @Test
-    public void list() {
-        List<DerSchemaTO> derSchemas = schemaService.list(new SchemaQuery.Builder().type(SchemaType.DERIVED).build());
+    public void search() {
+        List<DerSchemaTO> derSchemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.DERIVED).build());
         assertFalse(derSchemas.isEmpty());
         for (DerSchemaTO derivedSchemaTO : derSchemas) {
             assertNotNull(derivedSchemaTO);
         }
-    }
 
-    @Test
-    public void search() {
-        List<DerSchemaTO> derSchemas =
-                schemaService.list(new SchemaQuery.Builder().type(SchemaType.DERIVED).keyword("mderivedd*").build());
+        derSchemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.DERIVED).keyword("mder*").build());
         assertFalse(derSchemas.isEmpty());
         for (DerSchemaTO derivedSchemaTO : derSchemas) {
             assertNotNull(derivedSchemaTO);

@@ -63,7 +63,6 @@ public class SchemaQuery extends AbstractBaseBean {
 
         public Builder keyword(final String keyword) {
             instance.setKeyword(keyword);
-
             return this;
         }
 
