@@ -151,7 +151,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
         if (anyTypeClasses.isEmpty()) {
             allSchemas = Collections.emptyList();
         } else {
-            allSchemas = schemaRestClient.getSchemas(getSchemaType(), anyTypeClasses.toArray(new String[] {}));
+            allSchemas = schemaRestClient.getSchemas(getSchemaType(), null, anyTypeClasses.toArray(new String[] {}));
         }
 
         scs.clear();

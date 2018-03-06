@@ -43,6 +43,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPa
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
@@ -73,6 +75,8 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
     private static final long serialVersionUID = -1975312550059578553L;
 
     private final NotificationRestClient restClient = new NotificationRestClient();
+
+    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
     private final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
@@ -345,7 +349,7 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
             AjaxTextFieldPanel recipientAttrName = new AjaxTextFieldPanel(
                     "recipientAttrName", new ResourceModel("recipientAttrName", "recipientAttrName").getObject(),
                     new PropertyModel<>(notificationTO, "recipientAttrName"));
-            recipientAttrName.setChoices(getSchemaNames());
+            recipientAttrName.setChoices(getSchemas());
             recipientAttrName.addRequiredLabel();
             recipientAttrName.setTitle(getString("intAttrNameInfo.help")
                     + "<div style=\"font-size: 10px;\">"
@@ -381,15 +385,26 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
         }
     }
 
-    private List<String> getSchemaNames() {
+    private List<String> getSchemas() {
+        AnyTypeTO type = null;
+        try {
+            type = anyTypeRestClient.read(AnyTypeKind.USER.name());
+        } catch (SyncopeClientException e) {
+            LOG.error("While reading all any types", e);
+        }
+
+        String[] anyTypeClasses = type == null
+                ? new String[0]
+                : type.getClasses().toArray(new String[] {});
+
         List<String> result = new ArrayList<>();
         result.add("username");
 
-        result.addAll(schemaRestClient.<PlainSchemaTO>getSchemas(SchemaType.PLAIN, AnyTypeKind.USER.name()).
+        result.addAll(schemaRestClient.<PlainSchemaTO>getSchemas(SchemaType.PLAIN, null, anyTypeClasses).
                 stream().map(EntityTO::getKey).collect(Collectors.toList()));
-        result.addAll(schemaRestClient.<DerSchemaTO>getSchemas(SchemaType.DERIVED, AnyTypeKind.USER.name()).
+        result.addAll(schemaRestClient.<DerSchemaTO>getSchemas(SchemaType.DERIVED, null, anyTypeClasses).
                 stream().map(EntityTO::getKey).collect(Collectors.toList()));
-        result.addAll(schemaRestClient.<VirSchemaTO>getSchemas(SchemaType.VIRTUAL, AnyTypeKind.USER.name()).
+        result.addAll(schemaRestClient.<VirSchemaTO>getSchemas(SchemaType.VIRTUAL, null, anyTypeClasses).
                 stream().map(EntityTO::getKey).collect(Collectors.toList()));
 
         Collections.sort(result);

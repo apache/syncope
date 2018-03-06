@@ -145,24 +145,21 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @SuppressWarnings({ "unchecked", "Convert2Lambda" })
-    public <T extends SchemaTO> List<T> list(
-            final SchemaType schemaType, final List<String> anyTypeClasses) {
+    public <T extends SchemaTO> List<T> list(final SchemaType schemaType, final List<String> anyTypeClasses) {
         return doSearch(schemaType, anyTypeClasses, null);
     }
 
     @PreAuthorize("isAuthenticated()")
-    @SuppressWarnings("unchecked")
     public <T extends SchemaTO> List<T> search(
             final SchemaType schemaType, final List<String> anyTypeClasses, final String keyword) {
-        return doSearch(schemaType, anyTypeClasses,
-                keyword != null
-                        ? StringUtils.replaceChars(keyword, "*", "%")
-                        : null);
+
+        return doSearch(schemaType, anyTypeClasses, keyword == null ? null : keyword.replace('*', '%'));
     }
 
+    @SuppressWarnings({ "unchecked", "Convert2Lambda" })
     private <T extends SchemaTO> List<T> doSearch(
             final SchemaType schemaType, final List<String> anyTypeClasses, final String keyword) {
+
         List<AnyTypeClass> classes = new ArrayList<>(anyTypeClasses == null ? 0 : anyTypeClasses.size());
         if (anyTypeClasses != null) {
             anyTypeClasses.remove(AnyTypeKind.USER.name());
@@ -181,7 +178,9 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
         switch (schemaType) {
             case VIRTUAL:
                 result = (classes.isEmpty()
-                        ? (keyword == null ? virSchemaDAO.findAll() : virSchemaDAO.search(keyword))
+                        ? keyword == null
+                                ? virSchemaDAO.findAll()
+                                : virSchemaDAO.findByKeyword(keyword)
                         : virSchemaDAO.findByAnyTypeClasses(classes)).
                         stream().map(new Function<VirSchema, T>() {
 
@@ -194,7 +193,9 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
 
             case DERIVED:
                 result = (classes.isEmpty()
-                        ? (keyword == null ? derSchemaDAO.findAll() : derSchemaDAO.search(keyword))
+                        ? keyword == null
+                                ? derSchemaDAO.findAll()
+                                : derSchemaDAO.findByKeyword(keyword)
                         : derSchemaDAO.findByAnyTypeClasses(classes)).
                         stream().map(new Function<DerSchema, T>() {
 
@@ -208,7 +209,9 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
             case PLAIN:
             default:
                 result = (classes.isEmpty()
-                        ? (keyword == null ? plainSchemaDAO.findAll() : plainSchemaDAO.search(keyword))
+                        ? keyword == null
+                                ? plainSchemaDAO.findAll()
+                                : plainSchemaDAO.findByKeyword(keyword)
                         : plainSchemaDAO.findByAnyTypeClasses(classes)).
                         stream().map(new Function<PlainSchema, T>() {
 

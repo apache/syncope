@@ -38,22 +38,18 @@ import org.junit.jupiter.api.Test;
 public class DerSchemaITCase extends AbstractITCase {
 
     @Test
-    public void list() {
-        List<DerSchemaTO> derSchemas = schemaService.list(new SchemaQuery.Builder().type(SchemaType.DERIVED).build());
-        assertFalse(derSchemas.isEmpty());
-        for (DerSchemaTO derivedSchemaTO : derSchemas) {
-            assertNotNull(derivedSchemaTO);
-        }
-    }
-
-    @Test
     public void search() {
-        List<DerSchemaTO> derSchemas =
-                schemaService.list(new SchemaQuery.Builder().type(SchemaType.DERIVED).keyword("mderivedd*").build());
-        assertFalse(derSchemas.isEmpty());
-        for (DerSchemaTO derivedSchemaTO : derSchemas) {
-            assertNotNull(derivedSchemaTO);
-        }
+        List<DerSchemaTO> schemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.DERIVED).build());
+        assertFalse(schemas.isEmpty());
+        schemas.forEach(schemaTO -> {
+            assertNotNull(schemaTO);
+        });
+
+        schemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.DERIVED).keyword("mder*").build());
+        assertFalse(schemas.isEmpty());
+        schemas.forEach(schemaTO -> {
+            assertNotNull(schemaTO);
+        });
     }
 
     @Test

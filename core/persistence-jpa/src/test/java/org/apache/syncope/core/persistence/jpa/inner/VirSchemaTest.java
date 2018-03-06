@@ -55,7 +55,7 @@ public class VirSchemaTest extends AbstractTest {
 
     @Test
     public void search() {
-        List<VirSchema> schemas = virSchemaDAO.search("rvirtuald%");
+        List<VirSchema> schemas = virSchemaDAO.findByKeyword("rvirtuald%");
         assertEquals(1, schemas.size());
     }
 

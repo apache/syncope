@@ -94,30 +94,30 @@ public class SchemaResource extends BaseResource {
             final List<SchemaTO> plainSchemas = classes.isEmpty()
                     ? Collections.<SchemaTO>emptyList()
                     : customForm == null || customForm.isEmpty() || customForm.get(SchemaType.PLAIN.name()) == null
-                    ? schemaService.list(
+                    ? schemaService.search(
                             new SchemaQuery.Builder().type(SchemaType.PLAIN).anyTypeClasses(classes).build())
                     : customForm.get(SchemaType.PLAIN.name()).isShow()
-                    ? customizeSchemas(schemaService.list(new SchemaQuery.Builder().type(SchemaType.PLAIN).
+                    ? customizeSchemas(schemaService.search(new SchemaQuery.Builder().type(SchemaType.PLAIN).
                             anyTypeClasses(classes).build()), group, customForm.get(SchemaType.PLAIN.name()).
                             getAttributes())
                     : Collections.<SchemaTO>emptyList();
             final List<SchemaTO> derSchemas = classes.isEmpty()
                     ? Collections.<SchemaTO>emptyList()
                     : customForm == null || customForm.isEmpty() || customForm.get(SchemaType.DERIVED.name()) == null
-                    ? schemaService.list(
+                    ? schemaService.search(
                             new SchemaQuery.Builder().type(SchemaType.DERIVED).anyTypeClasses(classes).build())
                     : customForm.get(SchemaType.DERIVED.name()).isShow()
-                    ? customizeSchemas(schemaService.list(new SchemaQuery.Builder().type(SchemaType.DERIVED).
+                    ? customizeSchemas(schemaService.search(new SchemaQuery.Builder().type(SchemaType.DERIVED).
                             anyTypeClasses(classes).build()), group, customForm.get(SchemaType.DERIVED.name()).
                             getAttributes())
                     : Collections.<SchemaTO>emptyList();
             final List<SchemaTO> virSchemas = classes.isEmpty()
                     ? Collections.<SchemaTO>emptyList()
                     : customForm == null || customForm.isEmpty() || customForm.get(SchemaType.VIRTUAL.name()) == null
-                    ? schemaService.list(
+                    ? schemaService.search(
                             new SchemaQuery.Builder().type(SchemaType.VIRTUAL).anyTypeClasses(classes).build())
                     : customForm.get(SchemaType.VIRTUAL.name()).isShow()
-                    ? customizeSchemas(schemaService.list(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).
+                    ? customizeSchemas(schemaService.search(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).
                             anyTypeClasses(classes).build()), group, customForm.get(SchemaType.VIRTUAL.name()).
                             getAttributes())
                     : Collections.<SchemaTO>emptyList();

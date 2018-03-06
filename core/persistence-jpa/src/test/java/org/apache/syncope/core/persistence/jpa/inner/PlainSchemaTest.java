@@ -57,7 +57,7 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test
     public void search() {
-        List<PlainSchema> schemas = plainSchemaDAO.search("fullna%");
+        List<PlainSchema> schemas = plainSchemaDAO.findByKeyword("fullna%");
         assertEquals(1, schemas.size());
     }
 

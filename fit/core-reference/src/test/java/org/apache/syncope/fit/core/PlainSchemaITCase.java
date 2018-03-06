@@ -253,8 +253,14 @@ public class PlainSchemaITCase extends AbstractITCase {
     }
 
     @Test
-    public void list() {
-        List<PlainSchemaTO> schemas = schemaService.list(new SchemaQuery.Builder().type(SchemaType.PLAIN).build());
+    public void search() {
+        List<PlainSchemaTO> schemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.PLAIN).build());
+        assertFalse(schemas.isEmpty());
+        schemas.forEach(schemaTO -> {
+            assertNotNull(schemaTO);
+        });
+
+        schemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.PLAIN).keyword("fullna*").build());
         assertFalse(schemas.isEmpty());
         schemas.forEach(schemaTO -> {
             assertNotNull(schemaTO);
@@ -262,18 +268,8 @@ public class PlainSchemaITCase extends AbstractITCase {
     }
 
     @Test
-    public void search() {
-        List<PlainSchemaTO> schemas =
-                schemaService.list(new SchemaQuery.Builder().type(SchemaType.PLAIN).keyword("fullna*").build());
-        assertFalse(schemas.isEmpty());
-        for (PlainSchemaTO schemaTO : schemas) {
-            assertNotNull(schemaTO);
-        }
-    }
-
-    @Test
-    public void listByAnyTypeClass() {
-        List<PlainSchemaTO> userSchemas = schemaService.list(
+    public void searchByAnyTypeClass() {
+        List<PlainSchemaTO> userSchemas = schemaService.search(
                 new SchemaQuery.Builder().type(SchemaType.PLAIN).anyTypeClass("minimal user").build());
 
         assertTrue(userSchemas.stream().anyMatch(object -> "fullname".equals(object.getKey())));
