@@ -75,9 +75,23 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
 
     protected final AtomicReference<String> status = new AtomicReference<>();
 
+    protected boolean interrupt;
+
+    protected boolean interrupted;
+
     @Override
     public String currentStatus() {
         return status.get();
+    }
+
+    @Override
+    public void interrupt() {
+        interrupt = true;
+    }
+
+    @Override
+    public boolean isInterrupted() {
+        return interrupted;
     }
 
     @Transactional

@@ -135,6 +135,11 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             LOG.debug("Successfully handled {}", delta);
 
             if (profile.getTask().getPullMode() != PullMode.INCREMENTAL) {
+                if (executor.wasInterruptRequested()) {
+                    LOG.debug("Pull interrupted");
+                    executor.setInterrupted();
+                    return false;
+                }
                 return true;
             }
 
@@ -145,6 +150,11 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             }
             if (shouldContinue) {
                 executor.setLatestSyncToken(delta.getObjectClass(), delta.getToken());
+            }
+            if (executor.wasInterruptRequested()) {
+                LOG.debug("Pull interrupted");
+                executor.setInterrupted();
+                return false;
             }
             return shouldContinue;
         } catch (IgnoreProvisionException e) {

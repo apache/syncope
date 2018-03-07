@@ -24,4 +24,8 @@ package org.apache.syncope.core.provisioning.api.job;
 public interface JobDelegate {
 
     String currentStatus();
+
+    void interrupt();
+
+    boolean isInterrupted();
 }

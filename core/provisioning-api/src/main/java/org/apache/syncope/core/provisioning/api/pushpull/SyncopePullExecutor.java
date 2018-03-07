@@ -27,4 +27,8 @@ public interface SyncopePullExecutor {
     void setLatestSyncToken(ObjectClass objectClass, SyncToken latestSyncToken);
 
     void reportHandled(ObjectClass objectClass, Name name);
+
+    boolean wasInterruptRequested();
+
+    void setInterrupted();
 }

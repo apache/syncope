@@ -113,7 +113,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                 for (Map.Entry<String, MutablePair<Integer, String>> entry : handled.entrySet()) {
                     builder.append(' ').append(entry.getValue().getLeft()).append('\t').
                             append(entry.getKey()).
-                            append("\t/ latest: ").append(entry.getValue().getRight()).
+                            append(" / latest: ").append(entry.getValue().getRight()).
                             append('\n');
                 }
                 status.set(builder.toString());
@@ -147,19 +147,19 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
             final ExternalResource resource)
             throws JobExecutionException {
 
-        for (Any<?> any : anys) {
+        for (int i = 0; i < anys.size() && !interrupt; i++) {
             try {
-                handler.handle(any.getKey());
+                handler.handle(anys.get(i).getKey());
                 reportHandled(
-                        any.getType().getKey(),
-                        (any instanceof User
-                                ? ((User) any).getUsername()
-                                : any instanceof Group
-                                        ? ((Group) any).getName()
-                                        : ((AnyObject) any).getName()));
+                        anys.get(i).getType().getKey(),
+                        (anys.get(i) instanceof User
+                        ? ((User) anys.get(i)).getUsername()
+                        : anys.get(i) instanceof Group
+                        ? ((Group) anys.get(i)).getName()
+                        : ((AnyObject) anys.get(i)).getName()));
             } catch (Exception e) {
-                LOG.warn("Failure pushing '{}' on '{}'", any, resource, e);
-                throw new JobExecutionException("While pushing " + any + " on " + resource, e);
+                LOG.warn("Failure pushing '{}' on '{}'", anys.get(i), resource, e);
+                throw new JobExecutionException("While pushing " + anys.get(i) + " on " + resource, e);
             }
         }
     }
@@ -286,7 +286,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                         Collections.singleton(profile.getTask().getSourceRealm().getFullPath()),
                         cond,
                         provision.getAnyType().getKind());
-                for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1 && !interrupt; page++) {
                     List<? extends Any<?>> anys = searchDAO.search(
                             Collections.singleton(profile.getTask().getSourceRealm().getFullPath()),
                             cond,
@@ -299,10 +299,14 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
             }
         }
 
-        if (!profile.isDryRun()) {
+        if (!profile.isDryRun() && !interrupt) {
             for (PushActions action : actions) {
                 action.afterAll(profile);
             }
+        }
+
+        if (interrupt) {
+            interrupted = true;
         }
 
         status.set("Push done");

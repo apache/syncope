@@ -49,7 +49,17 @@ public class TestSampleJobDelegate extends AbstractSchedTaskJobDelegate {
     }
 
     @Override
+    public void interrupt() {
+    }
+
+    @Override
+    public boolean isInterrupted() {
+        return false;
+    }
+
+    @Override
     protected boolean hasToBeRegistered(final TaskExec execution) {
         return true;
     }
+
 }

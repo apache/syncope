@@ -31,8 +31,6 @@ public interface JobManager {
 
     String DOMAIN_KEY = "domain";
 
-    String INTERRUPT_MAX_RETRIES_KEY = "interruptMaxRetries";
-
     JobKey NOTIFICATION_JOB = new JobKey("notificationJob", Scheduler.DEFAULT_GROUP);
 
     boolean isRunning(JobKey jobKey) throws SchedulerException;

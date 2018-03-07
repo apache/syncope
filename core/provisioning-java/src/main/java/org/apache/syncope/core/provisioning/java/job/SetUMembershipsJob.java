@@ -47,8 +47,6 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
-        super.execute(context);
-
         try {
             AuthContextUtils.execWithAuthContext(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY),
                     new AuthContextUtils.Executable<Void>() {
@@ -68,9 +66,9 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
                         for (String groupKey : membership.getValue()) {
                             userPatch.getMemberships().add(
                                     new MembershipPatch.Builder().
-                                    operation(PatchOperation.ADD_REPLACE).
-                                    group(groupKey).
-                                    build());
+                                            operation(PatchOperation.ADD_REPLACE).
+                                            group(groupKey).
+                                            build());
                         }
 
                         if (!userPatch.isEmpty()) {

@@ -75,6 +75,10 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
 
     private final AtomicReference<String> status = new AtomicReference<>();
 
+    private boolean interrupt;
+
+    private boolean interrupted;
+
     @Override
     public void afterPropertiesSet() throws Exception {
         if (mailSender instanceof JavaMailSenderImpl) {
@@ -108,6 +112,16 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
     @Override
     public String currentStatus() {
         return status.get();
+    }
+
+    @Override
+    public void interrupt() {
+        interrupt = true;
+    }
+
+    @Override
+    public boolean isInterrupted() {
+        return interrupted;
     }
 
     @Transactional
@@ -238,10 +252,14 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
 
         status.set("Sending out " + tasks.size() + " notifications");
 
-        for (NotificationTask task : tasks) {
-            LOG.debug("Found notification task {} to be executed: starting...", task);
-            executeSingle(task);
-            LOG.debug("Notification task {} executed", task);
+        for (int i = 0; i < tasks.size() && !interrupt; i++) {
+            LOG.debug("Found notification task {} to be executed: starting...", tasks.get(i));
+            executeSingle(tasks.get(i));
+            LOG.debug("Notification task {} executed", tasks.get(i));
+        }
+        if (interrupt) {
+            LOG.debug("Notification job interrupted");
+            interrupted = true;
         }
     }
 

@@ -71,8 +71,6 @@ public class TaskJob extends AbstractInterruptableJob {
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
-        super.execute(context);
-
         try {
             AuthContextUtils.execWithAuthContext(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY),
                     new AuthContextUtils.Executable<Void>() {

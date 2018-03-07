@@ -105,6 +105,16 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
     }
 
     @Override
+    public boolean wasInterruptRequested() {
+        return interrupt;
+    }
+
+    @Override
+    public void setInterrupted() {
+        this.interrupted = true;
+    }
+
+    @Override
     public String currentStatus() {
         synchronized (status) {
             if (!handled.isEmpty()) {
@@ -112,7 +122,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 for (Map.Entry<ObjectClass, MutablePair<Integer, String>> entry : handled.entrySet()) {
                     builder.append(' ').append(entry.getValue().getLeft()).append('\t').
                             append(entry.getKey().getObjectClassValue()).
-                            append("\t/ latest: ").append(entry.getValue().getRight()).
+                            append(" / latest: ").append(entry.getValue().getRight()).
                             append('\n');
                 }
                 status.set(builder.toString());

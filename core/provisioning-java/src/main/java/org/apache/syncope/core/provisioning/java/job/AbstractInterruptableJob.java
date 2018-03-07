@@ -18,72 +18,38 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
-import java.util.Date;
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.core.provisioning.api.job.JobDelegate;
-import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
-import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.InterruptableJob;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.quartz.UnableToInterruptJobException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @DisallowConcurrentExecution
 public abstract class AbstractInterruptableJob implements InterruptableJob {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractInterruptableJob.class);
-
-    /**
-     * The current running thread containing the task to be executed.
-     */
-    private final AtomicReference<Thread> runningThread = new AtomicReference<>();
 
     private final JobDelegate embeddedDelegate = new JobDelegate() {
 
         @Override
         public String currentStatus() {
-            return "RUNNING THREAD: " + runningThread.get();
+            return "RUNNING";
         }
-    };
 
-    private long interruptMaxRetries = 1;
+        @Override
+        public void interrupt() {
+        }
+
+        @Override
+        public boolean isInterrupted() {
+            return false;
+        }
+
+    };
 
     public JobDelegate getDelegate() {
         return embeddedDelegate;
     }
 
     @Override
-    public void execute(final JobExecutionContext context) throws JobExecutionException {
-        runningThread.set(Thread.currentThread());
-        try {
-            interruptMaxRetries = context.getMergedJobDataMap().getLong(JobManager.INTERRUPT_MAX_RETRIES_KEY);
-        } catch (Exception e) {
-            LOG.debug("Could not set {}, defaults to {}", JobManager.INTERRUPT_MAX_RETRIES_KEY, interruptMaxRetries, e);
-        }
-    }
-
-    @Override
     public void interrupt() throws UnableToInterruptJobException {
-        Thread thread = runningThread.getAndSet(null);
-        if (thread == null) {
-            LOG.warn("Unable to retrieve the thread of the current job execution");
-        } else {
-            LOG.info("Interrupting job from thread {} at {} ", thread.getId(), FormatUtils.format(new Date()));
-
-            if (interruptMaxRetries < 1) {
-                interruptMaxRetries = 1;
-            }
-            for (int i = 0; i < interruptMaxRetries && thread.isAlive(); i++) {
-                thread.interrupt();
-            }
-            // if the thread is still alive, it should be available in the next stop
-            if (thread.isAlive()) {
-                runningThread.set(thread);
-            }
-        }
+        getDelegate().interrupt();
     }
-
 }

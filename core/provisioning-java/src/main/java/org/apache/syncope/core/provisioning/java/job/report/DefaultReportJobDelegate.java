@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
@@ -77,9 +78,23 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
 
     private final AtomicReference<String> status = new AtomicReference<>();
 
+    private boolean interrupt;
+
+    private boolean interrupted;
+
     @Override
     public String currentStatus() {
         return status.get();
+    }
+
+    @Override
+    public void interrupt() {
+        interrupt = true;
+    }
+
+    @Override
+    public boolean isInterrupted() {
+        return interrupted;
     }
 
     @Transactional
@@ -145,11 +160,12 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
             status.set("Generating report header");
 
             // iterate over reportlet instances defined for this report
-            for (ReportletConf reportletConf : report.getReportletConfs()) {
+            List<? extends ReportletConf> reportletConfs = report.getReportletConfs();
+            for (int i = 0; i < reportletConfs.size() && !interrupt; i++) {
                 Class<? extends Reportlet> reportletClass =
-                        implementationLookup.getReportletClass(reportletConf.getClass());
+                        implementationLookup.getReportletClass(reportletConfs.get(i).getClass());
                 if (reportletClass == null) {
-                    LOG.warn("Could not find matching reportlet for {}", reportletConf.getClass());
+                    LOG.warn("Could not find matching reportlet for {}", reportletConfs.get(i).getClass());
                 } else {
                     // fetch (or create) reportlet
                     Reportlet reportlet;
@@ -166,7 +182,7 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
                     // invoke reportlet
                     try {
                         status.set("Invoking reportlet " + reportletClass.getName());
-                        reportlet.extract(reportletConf, handler, status);
+                        reportlet.extract(reportletConfs.get(i), handler, status);
                     } catch (Throwable t) {
                         LOG.error("While executing reportlet {} for report {}", reportlet, reportKey, t);
 
@@ -180,6 +196,10 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
                                 append("\n==================\n");
                     }
                 }
+            }
+            if (interrupt) {
+                LOG.debug("Report job {} interrupted", reportKey);
+                interrupted = true;
             }
 
             // report footer
