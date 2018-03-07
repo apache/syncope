@@ -19,11 +19,11 @@ package org.apache.syncope.core.logic.cocoon;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
@@ -151,7 +151,7 @@ public class XSLTTransformer extends AbstractSAXTransformer implements CachingPi
         if (this.parameters != null) {
             final Transformer transformer = transformerHandler.getTransformer();
 
-            this.parameters.forEach((name, values)-> {
+            this.parameters.forEach((name, values) -> {
                 // is valid XSLT parameter name
                 if (XSLT_PARAMETER_NAME_PATTERN.matcher(name).matches()) {
                     transformer.setParameter(name, values);
@@ -181,7 +181,14 @@ public class XSLTTransformer extends AbstractSAXTransformer implements CachingPi
      * @return a new transformer factory
      */
     private static SAXTransformerFactory createNewSAXTransformerFactory() {
-        return (SAXTransformerFactory) TransformerFactory.newInstance();
+        SAXTransformerFactory transformerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+        transformerFactory.setURIResolver((href, base) -> null);
+        try {
+            transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        } catch (TransformerConfigurationException e) {
+            LOG.error("Could not enable secure XML processing", e);
+        }
+        return transformerFactory;
     }
 
     @Override

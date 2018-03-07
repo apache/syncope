@@ -21,8 +21,7 @@ package org.apache.syncope.core.logic.init;
 import java.io.StringWriter;
 import java.util.Map;
 import javax.sql.DataSource;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -30,6 +29,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CamelEntitlement;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
@@ -153,11 +153,10 @@ public class CamelRouteLoader implements SyncopeLoader {
                 NodeList routeNodes;
                 if (IS_JBOSS) {
                     tf = TransformerFactory.newInstance();
-                    tf.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
-                    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-                    dbFactory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
-                    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                    Document doc = dBuilder.parse(resource.getInputStream());
+                    tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+                    tf.setURIResolver((href, base) -> null);
+
+                    Document doc = StaxUtils.read(resource.getInputStream());
 
                     routeNodes = doc.getDocumentElement().getElementsByTagName("route");
                 } else {

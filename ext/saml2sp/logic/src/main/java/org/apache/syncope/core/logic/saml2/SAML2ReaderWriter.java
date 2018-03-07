@@ -77,6 +77,7 @@ public class SAML2ReaderWriter {
 
     static {
         TRANSFORMER_FACTORY = TransformerFactory.newInstance();
+        TRANSFORMER_FACTORY.setURIResolver((href, base) -> null);
         try {
             TRANSFORMER_FACTORY.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
         } catch (TransformerConfigurationException e) {
@@ -103,14 +104,14 @@ public class SAML2ReaderWriter {
         // Try to load a signature algorithm
         if (loader.getSignatureAlgorithm() != null) {
             SignatureAlgorithm loadedSignatureAlgorithm =
-                SignatureAlgorithm.valueOf(loader.getSignatureAlgorithm());
+                    SignatureAlgorithm.valueOf(loader.getSignatureAlgorithm());
             if (loadedSignatureAlgorithm != null) {
                 sigAlgo = loadedSignatureAlgorithm.getAlgorithm();
                 jceSigAlgo = JCEMapper.translateURItoJCEID(sigAlgo);
             }
             if (jceSigAlgo == null) {
                 LOG.warn("Signature algorithm {} is not valid. Using default algorithm instead.",
-                         loader.getSignatureAlgorithm());
+                        loader.getSignatureAlgorithm());
                 sigAlgo = null;
             }
         }

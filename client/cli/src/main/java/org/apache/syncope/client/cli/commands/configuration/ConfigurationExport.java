@@ -18,18 +18,12 @@
  */
 package org.apache.syncope.client.cli.commands.configuration;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.util.XMLUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 public class ConfigurationExport extends AbstractConfigurationCommand {
 
@@ -53,24 +47,12 @@ public class ConfigurationExport extends AbstractConfigurationCommand {
                         input.firstParameter() + EXPORT_FILE_NAME);
                 configurationResultManager.genericMessage(
                         input.firstParameter() + EXPORT_FILE_NAME + " successfully created");
-            } catch (final IOException ex) {
-                LOG.error("Error exporting configuration", ex);
-                configurationResultManager.genericError(ex.getMessage());
-            } catch (ParserConfigurationException | SAXException | TransformerConfigurationException ex) {
-                LOG.error("Error exporting configuration", ex);
-                configurationResultManager.genericError(
-                        "Error creating " + input.firstParameter() + EXPORT_FILE_NAME + " " + ex.getMessage());
-            } catch (final TransformerException ex) {
-                LOG.error("Error exporting configuration", ex);
-                if (ex.getCause() instanceof FileNotFoundException) {
-                    configurationResultManager.genericError("Permission denied on " + input.firstParameter());
-                } else {
-                    configurationResultManager.genericError(
-                            "Error creating " + input.firstParameter() + EXPORT_FILE_NAME + " " + ex.getMessage());
-                }
             } catch (final SyncopeClientException ex) {
                 LOG.error("Error exporting configuration", ex);
                 configurationResultManager.genericError("Error calling configuration service " + ex.getMessage());
+            } catch (final Exception ex) {
+                LOG.error("Error exporting configuration", ex);
+                configurationResultManager.genericError(ex.getMessage());
             }
         } else {
             configurationResultManager.commandOptionError(EXPORT_HELP_MESSAGE);

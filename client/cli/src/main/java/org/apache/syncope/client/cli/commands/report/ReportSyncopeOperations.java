@@ -18,14 +18,11 @@
  */
 package org.apache.syncope.client.cli.commands.report;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.SequenceInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.cli.util.XMLUtils;
@@ -34,7 +31,6 @@ import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.service.ReportService;
-import org.xml.sax.SAXException;
 
 public class ReportSyncopeOperations {
 
@@ -53,7 +49,7 @@ public class ReportSyncopeOperations {
     }
 
     public String exportExecutionResult(final String executionKey, final String reportExecExportFormat)
-            throws TransformerException, SAXException, IOException, ParserConfigurationException {
+            throws Exception {
 
         ReportExecExportFormat format = ReportExecExportFormat.valueOf(reportExecExportFormat);
         SequenceInputStream report = (SequenceInputStream) reportService.exportExecutionResult(executionKey, format).
