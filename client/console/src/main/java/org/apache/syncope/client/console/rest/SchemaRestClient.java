@@ -92,7 +92,8 @@ public class SchemaRestClient extends BaseRestClient {
         List<String> schemaNames = Collections.emptyList();
 
         try {
-            schemaNames = getSchemas(schemaType, null).stream().map(EntityTO::getKey).collect(Collectors.toList());
+            schemaNames = getSchemas(schemaType, null, new String[0]).stream().
+                    map(EntityTO::getKey).collect(Collectors.toList());
         } catch (SyncopeClientException e) {
             LOG.error("While getting all user schema names", e);
         }
