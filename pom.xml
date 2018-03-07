@@ -1808,12 +1808,10 @@ under the License.
           </configuration>
         </plugin>
         
-        <!-- Keep the following plugins on 2.19.1 / 1.0.3 until
-        https://github.com/junit-team/junit5/issues/809 is properly fixed -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.19.1</version>
+          <version>2.21.0</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
@@ -1824,14 +1822,14 @@ under the License.
             <dependency>
               <groupId>org.junit.platform</groupId>
               <artifactId>junit-platform-surefire-provider</artifactId>
-              <version>1.1.0</version>
+              <version>1.2.0-SNAPSHOT</version>
             </dependency>
           </dependencies>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>2.19.1</version>
+          <version>2.21.0</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
@@ -1842,7 +1840,7 @@ under the License.
             <dependency>
               <groupId>org.junit.platform</groupId>
               <artifactId>junit-platform-surefire-provider</artifactId>
-              <version>1.1.0</version>
+              <version>1.2.0-SNAPSHOT</version>
             </dependency>
           </dependencies>
           <executions>
