@@ -394,7 +394,7 @@ under the License.
     <elasticsearch.version>6.2.2</elasticsearch.version>
 
     <log4j.version>2.10.0</log4j.version>
-    <disruptor.version>3.4.0</disruptor.version>
+    <disruptor.version>3.4.1</disruptor.version>
 
     <commons-io.version>2.6</commons-io.version>
     <commons-email.version>1.5</commons-email.version>
