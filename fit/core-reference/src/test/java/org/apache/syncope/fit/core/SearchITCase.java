@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
@@ -345,6 +346,24 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(users);
         assertTrue(users.getResult().stream().
                 anyMatch(user -> "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(user.getKey())));
+    }
+
+    @Test
+    public void searchBySecurityAnswer() {
+        String securityAnswer = RandomStringUtils.randomAlphanumeric(10);
+        UserTO userTO = UserITCase.getUniqueSampleTO("securityAnswer@syncope.apache.org");
+        userTO.setSecurityQuestion("887028ea-66fc-41e7-b397-620d7ea6dfbb");
+        userTO.setSecurityAnswer(securityAnswer);
+
+        userTO = createUser(userTO).getEntity();
+        assertNotNull(userTO.getSecurityQuestion());
+
+        PagedResult<UserTO> matchingUsers = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().
+                                is("securityAnswer").equalTo(securityAnswer).query()).build());
+        assertNotNull(matchingUsers);
+        assertTrue(matchingUsers.getResult().isEmpty());
     }
 
     @Test

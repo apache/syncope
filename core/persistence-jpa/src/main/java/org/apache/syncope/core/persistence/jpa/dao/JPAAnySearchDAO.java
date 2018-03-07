@@ -276,13 +276,13 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     private OrderBySupport parseOrderBy(
-            final AnyTypeKind kind, final SearchSupport svs, final List<OrderByClause> orderByClauses) {
+            final AnyTypeKind kind, final SearchSupport svs, final List<OrderByClause> orderBy) {
 
         AnyUtils attrUtils = anyUtilsFactory.getInstance(kind);
 
         OrderBySupport obs = new OrderBySupport();
 
-        for (OrderByClause clause : orderByClauses) {
+        for (OrderByClause clause : filterOrderBy(orderBy)) {
             OrderBySupport.Item item = new OrderBySupport.Item();
 
             // Manage difference among external key attribute and internal JPA @Id
