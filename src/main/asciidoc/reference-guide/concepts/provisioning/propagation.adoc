@@ -35,6 +35,14 @@ propagation process:
 * *Any Object*: the external resources directly assigned plus the ones assigned to Groups configured for the Any Object
 ====
 
+[WARNING]
+.Adequate capabilities to Connectors and External Resources
+====
+Ensure to provide an adequate set of <<connector-instance-details,capabilities>> to underlying Connectors and
+External Resources for the actual operations to perform, otherwise the Propagation Tasks will report `NOT_ATTEMPTED` as
+execution status.
+====
+
 By default, the propagation process is controlled by the
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PriorityPropagationTaskExecutor.java[PriorityPropagationTaskExecutor^],
@@ -61,6 +69,28 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/propagation/PropagationTaskExecutor.java[PropagationTaskExecutor^]
 endif::[]
 interface can be provided, in case the required behaviour does not fit into the provided implementation.
+
+[[propagation-password]]
+[TIP]
+.Propagate password values
+====
+Password values are kept in the internal storage according to the `password.cipher.algorithm`
+<<configuration-parameters, configuration parameter>>, whose value is `SHA1` by default.
+`SHA1` is a hash algorithm: this means that, once stored, the cleartext value cannot be reverted any more.
+
+During propagation, Syncope fetches all data of the given User, then prepares the attributes to propagate, according to
+the provided mapping; password has a special treatment:
+
+* if cleartext value is available (this cannot happen during <<provisioning-push>>), it is sent to the External Resource
+* if `password.cipher.algorithm` is `AES` (the only supported reversible algorithm), then the ciphered password value is
+ made cleartext again, and sent to the External Resource
+* if the <<external-resource-details,generate random password flag>> is set, a random password value is generated
+ according to the defined password policies, and sent to the External Resource
+* otherwise, a `null` value is sent to the External Resource
+
+Password values are always sent to External Resources wrapped as ConnId
+http://connid.tirasa.net/apidocs/1.4/org/identityconnectors/common/security/GuardedString.html[GuardedString^] objects.
+====
 
 ===== PropagationActions
 
@@ -120,20 +150,3 @@ endif::[]
 | Required for setup of an External Resource based on the https://connid.atlassian.net/wiki/display/BASE/Google+Apps#GoogleApps-Configuration[ConnId GoogleApps connector bundle^].
 
 |===
-
-[[propagation-password]]
-[TIP]
-.Propagate password values
-====
-Password values are kept in the internal storage according to the `password.cipher.algorithm` <<configuration-parameters, configuration parameter>>, whose value is `SHA1` by default.
-`SHA1` is a hash algorithm: this means that, once stored, the cleartext value cannot be reverted any more.
-
-During propagation, Syncope fetches all data of the given User, then prepares the attributes to propagate, according to the provided mapping; password has a special treatment:
-
-* if cleartext value is available (this cannot happen during <<provisioning-push>>), it is sent to the External Resource
-* if `password.cipher.algorithm` is `AES` (the only supported reversible algorithm), then the ciphered password value is made cleartext again, and sent to the External Resource
-* if the <<external-resource-details,generate random password flag>> is set, a random password value is generated according to the defined password policies, and sent to the External Resource
-* otherwise, a `null` value is sent to the External Resource
-
-Password values are always sent to External Resources wrapped as ConnId http://connid.tirasa.net/apidocs/1.4/org/identityconnectors/common/security/GuardedString.html[GuardedString^] objects.
-====
