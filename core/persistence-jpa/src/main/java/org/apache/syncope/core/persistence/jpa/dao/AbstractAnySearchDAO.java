@@ -30,7 +30,10 @@ import javax.validation.ValidationException;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -67,6 +70,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ReflectionUtils;
 
 public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO {
+
+    private static final String[] ORDER_BY_NOT_ALLOWED = {
+        "serialVersionUID", "password", "securityQuestion", "securityAnswer", "token", "tokenExpireTime"
+    };
 
     @Autowired
     protected RealmDAO realmDAO;
@@ -132,6 +139,16 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             final SearchCond cond, final List<OrderByClause> orderBy, final AnyTypeKind kind) {
 
         return search(SyncopeConstants.FULL_ADMIN_REALMS, cond, -1, -1, orderBy, kind);
+    }
+
+    protected List<OrderByClause> filterOrderBy(final List<OrderByClause> orderBy) {
+        return ListUtils.select(orderBy, new Predicate<OrderByClause>() {
+
+            @Override
+            public boolean evaluate(final OrderByClause clause) {
+                return !ArrayUtils.contains(ORDER_BY_NOT_ALLOWED, clause.getField());
+            }
+        });
     }
 
     protected abstract <T extends Any<?>> List<T> doSearch(

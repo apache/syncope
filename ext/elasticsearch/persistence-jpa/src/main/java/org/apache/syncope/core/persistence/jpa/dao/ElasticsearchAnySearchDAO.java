@@ -147,7 +147,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
         AnyUtils attrUtils = anyUtilsFactory.getInstance(kind);
 
-        for (OrderByClause clause : orderBy) {
+        for (OrderByClause clause : filterOrderBy(orderBy)) {
             String sortName = null;
 
             // Manage difference among external key attribute and internal JPA @Id
