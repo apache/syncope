@@ -20,8 +20,8 @@ package org.apache.syncope.installer.utilities;
 
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -33,11 +33,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
@@ -51,7 +46,10 @@ import org.apache.maven.shared.invoker.PrintStreamHandler;
 import org.apache.maven.shared.invoker.PrintStreamLogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSParser;
 
 public class MavenUtils {
 
@@ -85,7 +83,7 @@ public class MavenUtils {
         request.setBatchMode(true);
         final Properties properties =
                 archetypeProperties(archetypeVersion, groupId, artifactId, secretKey,
-                                    anonymousKey, jwsKey, adminPassword);
+                        anonymousKey, jwsKey, adminPassword);
         request.setProperties(properties);
         if (customSettingsFile != null && FileUtils.sizeOf(customSettingsFile) > 0) {
             request.setUserSettingsFile(customSettingsFile);
@@ -122,7 +120,7 @@ public class MavenUtils {
             try {
                 final MessageDigest cript = MessageDigest.getInstance("SHA-1");
                 String encodedPassword =
-                    new String(Hex.encodeHex(cript.digest(adminPassword.getBytes(StandardCharsets.UTF_8))));
+                        new String(Hex.encodeHex(cript.digest(adminPassword.getBytes(StandardCharsets.UTF_8))));
                 properties.setProperty("adminPassword", encodedPassword);
             } catch (final NoSuchAlgorithmException ex) {
                 Logger.getLogger(MavenUtils.class.getName()).log(Level.SEVERE, "NoSuchAlgorithmException", ex);
@@ -193,19 +191,21 @@ public class MavenUtils {
     }
 
     public static File createSettingsWithProxy(final String path, final String proxyHost, final String proxyPort,
-            final String proxyUser, final String proxyPassword) throws IOException, ParserConfigurationException,
-            TransformerException, SAXException {
+            final String proxyUser, final String proxyPassword) throws Exception {
+
         final File settingsXML = new File(System.getProperty(MAVEN_HOME_PROPERTY) + (System.getProperty(
                 MAVEN_HOME_PROPERTY).endsWith("/") ? "conf/settings.xml" : "/conf/settings.xml"));
         final File tempSettingsXML = new File(path + (path.endsWith("/") ? "settings_temp.xml" : "/settings_temp.xml"));
         if (settingsXML.canRead() && !tempSettingsXML.exists()) {
             tempSettingsXML.createNewFile();
 
-            final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            dbf.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            final DocumentBuilder builder = dbf.newDocumentBuilder();
+            DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
+            DOMImplementationLS domImpl = (DOMImplementationLS) reg.getDOMImplementation("LS");
+            LSInput lsinput = domImpl.createLSInput();
+            lsinput.setByteStream(new FileInputStream(settingsXML));
+            LSParser parser = domImpl.createLSParser(DOMImplementationLS.MODE_SYNCHRONOUS, null);
             // parse settings.xml
-            final Document settings = builder.parse(settingsXML);
+            final Document settings = parser.parse(lsinput);
 
             final Element proxies = (Element) settings.getDocumentElement().getElementsByTagName("proxies").item(0);
 

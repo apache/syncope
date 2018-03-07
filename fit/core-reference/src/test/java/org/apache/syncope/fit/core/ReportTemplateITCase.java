@@ -34,6 +34,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.Test;
@@ -147,6 +148,41 @@ public class ReportTemplateITCase extends AbstractITCase {
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
+        }
+    }
+
+    @Test
+    public void safeTemplate() throws IOException {
+        Response response = reportTemplateService.getFormat("sample", ReportTemplateFormat.HTML);
+        String before = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
+        assertNotNull(before);
+
+        String execKey = ReportITCase.execReport("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
+        assertNotNull(execKey);
+        response = reportService.exportExecutionResult(execKey, ReportExecExportFormat.HTML);
+        String result = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
+        assertNotNull(result);
+        assertTrue(result.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" "
+                + "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">"));
+
+        String malicious = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                + "<!DOCTYPE xsl:stylesheet "
+                + "[<!ENTITY file SYSTEM \"webapps/syncope/WEB-INF/classes/security.properties\">]>\n"
+                + "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\n"
+                + "    <xsl:template match=\"/\">&file;</xsl:template>\n"
+                + "</xsl:stylesheet>";
+        try {
+            reportTemplateService.setFormat("sample", ReportTemplateFormat.HTML,
+                    IOUtils.toInputStream(malicious, StandardCharsets.UTF_8));
+
+            response = reportService.exportExecutionResult(execKey, ReportExecExportFormat.HTML);
+            result = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
+            assertNotNull(result);
+            assertTrue(result.isEmpty());
+        } finally {
+            reportTemplateService.setFormat("sample", ReportTemplateFormat.HTML,
+                    IOUtils.toInputStream(before, StandardCharsets.UTF_8));
         }
     }
 

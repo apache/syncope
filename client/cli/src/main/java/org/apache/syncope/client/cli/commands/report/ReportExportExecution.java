@@ -18,25 +18,19 @@
  */
 package org.apache.syncope.client.cli.commands.report;
 
-import java.io.IOException;
 import java.util.Arrays;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
-import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 public class ReportExportExecution extends AbstractReportCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReportExportExecution.class);
 
-    private static final String EXPORT_EXECUTION_HELP_MESSAGE
-            = "report --export-execution-result {EXECUTION-KEY} {EXECUTION-KEY} [...] {FORMAT}\n"
+    private static final String EXPORT_EXECUTION_HELP_MESSAGE =
+            "report --export-execution-result {EXECUTION-KEY} {EXECUTION-KEY} [...] {FORMAT}\n"
             + "          Format: CSV / HTML / PDF / XML / RTF";
 
     private final Input input;
@@ -50,28 +44,19 @@ public class ReportExportExecution extends AbstractReportCommand {
             final String[] parameters = Arrays.copyOf(input.getParameters(), input.parameterNumber() - 1);
             for (final String parameter : parameters) {
                 try {
-                    final String result = reportSyncopeOperations.exportExecutionResult(
-                            parameter, input.lastParameter());
+                    String result = reportSyncopeOperations.exportExecutionResult(parameter, input.lastParameter());
                     reportResultManager.genericMessage(result + "created.");
-                } catch (final WebServiceException | SyncopeClientException ex) {
-                    LOG.error("Error exporting execution", ex);
-                    if (ex.getMessage().startsWith("NotFound")) {
+                } catch (final WebServiceException | SyncopeClientException e) {
+                    LOG.error("Error exporting execution", e);
+                    if (e.getMessage().startsWith("NotFound")) {
                         reportResultManager.notFoundError("Report", parameter);
                     } else {
-                        reportResultManager.genericError(ex.getMessage());
+                        reportResultManager.genericError(e.getMessage());
                     }
-                } catch (final NumberFormatException ex) {
-                    LOG.error("Error exporting execution", ex);
-                    reportResultManager.numberFormatException("report", parameter);
-                } catch (IOException | ParserConfigurationException | SAXException | TransformerException e) {
+                } catch (final Exception e) {
                     LOG.error("Error exporting execution", e);
                     reportResultManager.genericError(
                             " - Error creating " + "export_" + parameter + " " + e.getMessage());
-                } catch (final IllegalArgumentException ex) {
-                    LOG.error("Error exporting execution", ex);
-                    reportResultManager.typeNotValidError(
-                            "format", input.firstParameter(),
-                            CommandUtils.fromEnumToArray(ReportExecExportFormat.class));
                 }
                 break;
             }

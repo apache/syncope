@@ -21,16 +21,12 @@ package org.apache.syncope.installer.processes;
 import org.apache.syncope.installer.utilities.FileSystemUtils;
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
-import java.io.IOException;
 import java.util.Properties;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import org.apache.syncope.installer.files.ConsolePom;
 import org.apache.syncope.installer.files.CorePom;
 import org.apache.syncope.installer.files.ParentPom;
 import org.apache.syncope.installer.utilities.InstallLog;
 import org.apache.syncope.installer.utilities.MavenUtils;
-import org.xml.sax.SAXException;
 
 public class ArchetypeProcess extends BaseProcess {
 
@@ -65,30 +61,15 @@ public class ArchetypeProcess extends BaseProcess {
         InstallLog.initialize(installPath, handler);
         MavenUtils mavenUtils = new MavenUtils(mavenDir, handler);
         File customMavenProxySettings = null;
-        try {
-            if (isProxyEnabled && mavenProxyAutoconf) {
-                customMavenProxySettings = MavenUtils.createSettingsWithProxy(installPath, proxyHost, proxyPort,
-                        proxyUser, proxyPwd);
+        if (isProxyEnabled && mavenProxyAutoconf) {
+            try {
+                customMavenProxySettings =
+                        MavenUtils.createSettingsWithProxy(installPath, proxyHost, proxyPort, proxyUser, proxyPwd);
+            } catch (Exception e) {
+                StringBuilder message = new StringBuilder("Error during creation of custom Maven settings.xml");
+                handler.emitError(message.toString(), e.getMessage());
+                InstallLog.getInstance().error(message.append('\n').append(e.getMessage()).toString());
             }
-        } catch (IOException e) {
-            StringBuilder message = new StringBuilder("I/O error during creation of Maven custom settings.xml");
-            handler.emitError(message.toString(), e.getMessage());
-            InstallLog.getInstance().error(message.append('\n').append(e.getMessage()).toString());
-        } catch (ParserConfigurationException e) {
-            StringBuilder message = new StringBuilder(
-                    "Parser configuration error during creation of Maven custom settings.xml");
-            handler.emitError(message.toString(), e.getMessage());
-            InstallLog.getInstance().error(message.append('\n').append(e.getMessage()).toString());
-        } catch (TransformerException e) {
-            StringBuilder message = new StringBuilder(
-                    "Transformer error during creation of Maven custom settings.xml");
-            handler.emitError(message.toString(), e.getMessage());
-            InstallLog.getInstance().error(message.append('\n').append(e.getMessage()).toString());
-        } catch (SAXException e) {
-            StringBuilder message = new StringBuilder(
-                    "XML parsing error during creation of Maven custom settings.xml");
-            handler.emitError(message.toString(), e.getMessage());
-            InstallLog.getInstance().error(message.append('\n').append(e.getMessage()).toString());
         }
 
         handler.logOutput("########################## IMPORTANT ##########################", true);

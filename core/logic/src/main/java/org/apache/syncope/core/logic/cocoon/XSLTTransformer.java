@@ -19,11 +19,11 @@ package org.apache.syncope.core.logic.cocoon;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
@@ -34,6 +34,7 @@ import org.apache.cocoon.pipeline.util.StringRepresentation;
 import org.apache.cocoon.sax.AbstractSAXTransformer;
 import org.apache.cocoon.sax.SAXConsumer;
 import org.apache.cocoon.sax.util.SAXConsumerAdapter;
+import org.apache.syncope.core.provisioning.java.utils.VoidURIResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,7 +133,7 @@ public class XSLTTransformer extends AbstractSAXTransformer implements CachingPi
         if (parameters == null) {
             this.parameters = null;
         } else {
-            this.parameters = new HashMap<String, Object>(parameters);
+            this.parameters = new HashMap<>(parameters);
         }
     }
 
@@ -183,7 +184,14 @@ public class XSLTTransformer extends AbstractSAXTransformer implements CachingPi
      * @return a new transformer factory
      */
     private static SAXTransformerFactory createNewSAXTransformerFactory() {
-        return (SAXTransformerFactory) TransformerFactory.newInstance();
+        SAXTransformerFactory transformerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+        transformerFactory.setURIResolver(new VoidURIResolver());
+        try {
+            transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        } catch (TransformerConfigurationException e) {
+            LOG.error("Could not enable secure XML processing", e);
+        }
+        return transformerFactory;
     }
 
     @Override

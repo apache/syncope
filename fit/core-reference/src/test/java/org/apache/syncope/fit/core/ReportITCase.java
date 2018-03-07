@@ -54,6 +54,40 @@ import org.junit.Test;
 
 public class ReportITCase extends AbstractITCase {
 
+    protected static String execReport(final String reportKey) {
+        ReportTO reportTO = reportService.read(reportKey);
+        assertNotNull(reportTO);
+        assertNotNull(reportTO.getExecutions());
+
+        int preExecSize = reportTO.getExecutions().size();
+        ExecTO exec = reportService.execute(new ExecuteQuery.Builder().key(reportKey).build());
+        assertNotNull(exec);
+
+        int i = 0;
+        int maxit = 50;
+
+        // wait for completion (executions incremented)
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            reportTO = reportService.read(reportKey);
+
+            assertNotNull(reportTO);
+            assertNotNull(reportTO.getExecutions());
+
+            i++;
+        } while (preExecSize == reportTO.getExecutions().size() && i < maxit);
+        if (i == maxit) {
+            fail("Timeout when executing report " + reportKey);
+        }
+        exec = reportTO.getExecutions().get(reportTO.getExecutions().size() - 1);
+        assertEquals(ReportExecStatus.SUCCESS.name(), exec.getStatus());
+        return exec.getKey();
+    }
+
     @Test
     public void getReportletConfs() {
         Set<String> reportletConfs = syncopeService.platform().getReportletConfs();
@@ -139,35 +173,6 @@ public class ReportITCase extends AbstractITCase {
         }
     }
 
-    private String execute(final String reportKey) {
-        ExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportKey).build());
-        assertNotNull(execution);
-
-        int i = 0;
-        int maxit = 50;
-
-        ReportTO reportTO;
-
-        // wait for report execution completion (executions incremented)
-        do {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
-            reportTO = reportService.read(reportKey);
-
-            assertNotNull(reportTO);
-            assertNotNull(reportTO.getExecutions());
-
-            i++;
-        } while (reportTO.getExecutions().isEmpty()
-                || (!ReportExecStatus.SUCCESS.name().equals(reportTO.getExecutions().get(0).getStatus()) && i < maxit));
-        assertEquals(ReportExecStatus.SUCCESS.name(), reportTO.getExecutions().get(0).getStatus());
-
-        return reportTO.getExecutions().get(0).getKey();
-    }
-
     private void checkExport(final String execKey, final ReportExecExportFormat fmt) throws IOException {
         Response response = reportService.exportExecutionResult(execKey, fmt);
         assertNotNull(response);
@@ -192,7 +197,7 @@ public class ReportITCase extends AbstractITCase {
         assertNotNull(reportTO);
 
         try {
-            execute(reportTO.getKey());
+            execReport(reportTO.getKey());
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.Scheduling, e.getType());
@@ -202,7 +207,7 @@ public class ReportITCase extends AbstractITCase {
         reportTO.setActive(true);
         reportService.update(reportTO);
 
-        String execKey = execute(reportTO.getKey());
+        String execKey = execReport(reportTO.getKey());
 
         checkExport(execKey, ReportExecExportFormat.XML);
         checkExport(execKey, ReportExecExportFormat.HTML);
@@ -226,7 +231,7 @@ public class ReportITCase extends AbstractITCase {
         reportTO = createReport(reportTO);
         assertNotNull(reportTO);
 
-        String execKey = execute(reportTO.getKey());
+        String execKey = execReport(reportTO.getKey());
         assertNotNull(execKey);
 
         try {
@@ -266,7 +271,7 @@ public class ReportITCase extends AbstractITCase {
             report.setTemplate("sample");
             report = createReport(report);
 
-            String execKey = execute(report.getKey());
+            String execKey = execReport(report.getKey());
             checkExport(execKey, ReportExecExportFormat.XML);
 
             report = reportService.read(report.getKey());

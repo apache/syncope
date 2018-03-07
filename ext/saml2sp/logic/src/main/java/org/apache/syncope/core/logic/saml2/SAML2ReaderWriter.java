@@ -50,6 +50,7 @@ import org.apache.syncope.common.lib.SSOConstants;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.common.lib.types.SignatureAlgorithm;
 import org.apache.syncope.core.logic.init.SAML2SPLoader;
+import org.apache.syncope.core.provisioning.java.utils.VoidURIResolver;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
@@ -77,6 +78,7 @@ public class SAML2ReaderWriter {
 
     static {
         TRANSFORMER_FACTORY = TransformerFactory.newInstance();
+        TRANSFORMER_FACTORY.setURIResolver(new VoidURIResolver());
         try {
             TRANSFORMER_FACTORY.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
         } catch (TransformerConfigurationException e) {
@@ -103,14 +105,14 @@ public class SAML2ReaderWriter {
         // Try to load a signature algorithm
         if (loader.getSignatureAlgorithm() != null) {
             SignatureAlgorithm loadedSignatureAlgorithm =
-                SignatureAlgorithm.valueOf(loader.getSignatureAlgorithm());
+                    SignatureAlgorithm.valueOf(loader.getSignatureAlgorithm());
             if (loadedSignatureAlgorithm != null) {
                 sigAlgo = loadedSignatureAlgorithm.getAlgorithm();
                 jceSigAlgo = JCEMapper.translateURItoJCEID(sigAlgo);
             }
             if (jceSigAlgo == null) {
                 LOG.warn("Signature algorithm {} is not valid. Using default algorithm instead.",
-                         loader.getSignatureAlgorithm());
+                        loader.getSignatureAlgorithm());
                 sigAlgo = null;
             }
         }
