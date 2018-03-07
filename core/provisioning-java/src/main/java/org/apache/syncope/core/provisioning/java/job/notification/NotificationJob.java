@@ -62,8 +62,6 @@ public class NotificationJob extends AbstractInterruptableJob {
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
-        super.execute(context);
-
         LOG.debug("Waking up...");
 
         for (String domain : domainsHolder.getDomains().keySet()) {

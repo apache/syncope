@@ -39,8 +39,6 @@ public class SystemLoadReporterJob extends AbstractInterruptableJob {
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
-        super.execute(context);
-
         SystemInfo.LoadInstant instant = new SystemInfo.LoadInstant();
 
         instant.setSystemLoadAverage(ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage());

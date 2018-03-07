@@ -117,14 +117,6 @@ under the License.
   <CPlainAttrValue id="162dd874-0417-4bb9-9724-db1ff2952dd1"
                    attribute_id="9891c0a7-27ee-4215-9eea-ca32e580b4e4" booleanValue="1"/>
 
-  <SyncopeSchema id="tasks.interruptMaxRetries"/>
-  <PlainSchema id="tasks.interruptMaxRetries" type="Long"
-               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <CPlainAttr id="c2b9ca96-c6ef-433d-8287-0e0cfd0ad0db"
-              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="tasks.interruptMaxRetries"/>
-  <CPlainAttrValue id="5dc3f4e3-ff9f-4558-a9ac-15336b63a2ad"
-                   attribute_id="c2b9ca96-c6ef-433d-8287-0e0cfd0ad0db" longValue="20"/>
-  
   <!-- Return hashed password values when reading users -->
   <SyncopeSchema id="return.password.value"/>
   <PlainSchema id="return.password.value" type="Boolean"

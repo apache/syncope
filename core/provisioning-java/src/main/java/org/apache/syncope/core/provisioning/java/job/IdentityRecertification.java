@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
+import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
@@ -95,18 +96,23 @@ public class IdentityRecertification extends AbstractSchedTaskJobDelegate {
         status.set("Processing " + total + " users in " + pages + " pages");
 
         long now = System.currentTimeMillis();
-        for (int page = 1; page <= pages; page++) {
+        for (int page = 1; page <= pages && !interrupt; page++) {
             status.set("Processing " + total + " users: page " + page + " of " + pages);
 
-            for (User user : userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                LOG.debug("Processing user: {}", user.getUsername());
+            List<User> users = userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE);
+            for (int i = 0; i < users.size() && !interrupt; i++) {
+                LOG.debug("Processing user: {}", users.get(i).getUsername());
 
-                if (StringUtils.isNotBlank(user.getWorkflowId()) && isToBeRecertified(user, now)) {
-                    uwfAdapter.requestCertify(user);
+                if (StringUtils.isNotBlank(users.get(i).getWorkflowId()) && isToBeRecertified(users.get(i), now)) {
+                    uwfAdapter.requestCertify(users.get(i));
                 } else {
-                    LOG.warn("Workflow for {} is null or empty", user);
+                    LOG.warn("Workflow for {} is null or empty", users.get(i));
                 }
             }
+        }
+        if (interrupt) {
+            interrupted = true;
+            return "Identity recertification interrupted";
         }
 
         return "SUCCESS";

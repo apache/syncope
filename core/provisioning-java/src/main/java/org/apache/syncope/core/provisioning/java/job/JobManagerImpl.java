@@ -243,7 +243,6 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
         Map<String, Object> jobMap = new HashMap<>();
         jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
         jobMap.put(TaskJob.DELEGATE_IMPLEMENTATION, jobDelegate.getKey());
-        jobMap.put(JobManager.INTERRUPT_MAX_RETRIES_KEY, interruptMaxRetries);
 
         registerJob(
                 JobNamer.getJobKey(task).getName(),
@@ -263,7 +262,6 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
 
         Map<String, Object> jobMap = new HashMap<>();
         jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
-        jobMap.put(JobManager.INTERRUPT_MAX_RETRIES_KEY, interruptMaxRetries);
 
         registerJob(JobNamer.getJobKey(report).getName(), job, report.getCronExpression(), startAt, jobMap);
     }
@@ -371,7 +369,6 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
 
         Map<String, Object> jobMap = new HashMap<>();
         jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
-        jobMap.put(JobManager.INTERRUPT_MAX_RETRIES_KEY, conf.getRight());
 
         // 3. NotificationJob
         if (StringUtils.isBlank(conf.getLeft())) {

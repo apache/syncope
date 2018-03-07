@@ -42,8 +42,7 @@ import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask>
-        extends AbstractSchedTaskJobDelegate {
+public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask> extends AbstractSchedTaskJobDelegate {
 
     @Resource(name = "adminUser")
     protected String adminUser;
@@ -90,7 +89,10 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
         StringBuilder report = new StringBuilder();
 
         if (dryRun) {
-            report.append("==>Dry run only, no modifications were made<==\n\n");
+            report.append("==> Dry run only, no modifications were made <==\n\n");
+        }
+        if (interrupted) {
+            report.append("==> Execution was interrupted <==\n\n");
         }
 
         List<ProvisioningReport> rSuccCreate = new ArrayList<>();

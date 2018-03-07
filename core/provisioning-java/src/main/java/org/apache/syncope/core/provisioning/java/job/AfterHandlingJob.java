@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import java.util.Map;
-import java.util.UUID;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
@@ -49,11 +50,13 @@ public class AfterHandlingJob extends AbstractInterruptableJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(AfterHandlingJob.class);
 
+    private static final RandomBasedGenerator UUID_GENERATOR = Generators.randomBasedGenerator();
+
     public static void schedule(final SchedulerFactoryBean scheduler, final Map<String, Object> jobMap) {
         @SuppressWarnings("unchecked")
         AfterHandlingJob jobInstance = (AfterHandlingJob) ApplicationContextProvider.getBeanFactory().
                 createBean(AfterHandlingJob.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-        String jobName = AfterHandlingJob.class.getName() + UUID.randomUUID();
+        String jobName = AfterHandlingJob.class.getName() + UUID_GENERATOR.generate();
 
         jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
 
@@ -82,8 +85,6 @@ public class AfterHandlingJob extends AbstractInterruptableJob {
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
-        super.execute(context);
-
         try {
             AuthContextUtils.execWithAuthContext(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY),
                     () -> {

@@ -91,12 +91,13 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         status.set("About to "
                 + (actionType == BulkMembersActionType.DEPROVISION ? "de" : "") + "provision "
                 + users.size() + " users from " + groupResourceKeys);
-        for (User user : users) {
+
+        for (int i = 0; i < users.size() && !interrupt; i++) {
             List<PropagationStatus> statuses = actionType == BulkMembersActionType.DEPROVISION
-                    ? userProvisioningManager.deprovision(user.getKey(), groupResourceKeys, false)
-                    : userProvisioningManager.provision(user.getKey(), true, null, groupResourceKeys, false);
+                    ? userProvisioningManager.deprovision(users.get(i).getKey(), groupResourceKeys, false)
+                    : userProvisioningManager.provision(users.get(i).getKey(), true, null, groupResourceKeys, false);
             for (PropagationStatus propagationStatus : statuses) {
-                result.append("User ").append(user.getKey()).append('\t').
+                result.append("User ").append(users.get(i).getKey()).append('\t').
                         append("Resource ").append(propagationStatus.getResource()).append('\t').
                         append(propagationStatus.getStatus());
                 if (StringUtils.isNotBlank(propagationStatus.getFailureReason())) {
@@ -106,6 +107,11 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
             }
             result.append("\n");
         }
+        if (interrupt) {
+            LOG.debug("Group assignment interrupted");
+            interrupted = true;
+            return result.append("\n*** Group assignment interrupted ***\n").toString();
+        }
 
         membershipCond = new MembershipCond();
         membershipCond.setGroup(groupKey);
@@ -113,13 +119,15 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         status.set("About to "
                 + (actionType == BulkMembersActionType.DEPROVISION ? "de" : "") + "provision "
                 + anyObjects.size() + " any objects from " + groupResourceKeys);
-        for (AnyObject anyObject : anyObjects) {
+
+        for (int i = 0; i < anyObjects.size() && !interrupt; i++) {
             List<PropagationStatus> statuses = actionType == BulkMembersActionType.DEPROVISION
-                    ? anyObjectProvisioningManager.deprovision(anyObject.getKey(), groupResourceKeys, false)
-                    : anyObjectProvisioningManager.provision(anyObject.getKey(), groupResourceKeys, false);
+                    ? anyObjectProvisioningManager.deprovision(anyObjects.get(i).getKey(), groupResourceKeys, false)
+                    : anyObjectProvisioningManager.provision(anyObjects.get(i).getKey(), groupResourceKeys, false);
 
             for (PropagationStatus propagationStatus : statuses) {
-                result.append(anyObject.getType().getKey()).append(' ').append(anyObject.getKey()).append('\t').
+                result.append(anyObjects.get(i).getType().getKey()).append(' ').
+                        append(anyObjects.get(i).getKey()).append('\t').
                         append("Resource ").append(propagationStatus.getResource()).append('\t').
                         append(propagationStatus.getStatus());
                 if (StringUtils.isNotBlank(propagationStatus.getFailureReason())) {
@@ -128,6 +136,11 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
                 result.append("\n");
             }
             result.append("\n");
+        }
+        if (interrupt) {
+            LOG.debug("Group assignment interrupted");
+            interrupted = true;
+            result.append("\n*** Group assignment interrupted ***\n");
         }
 
         return result.toString();

@@ -38,7 +38,6 @@ import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.spring.ImplementationManager;
@@ -73,9 +72,23 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
 
     private final AtomicReference<String> status = new AtomicReference<>();
 
+    private boolean interrupt;
+
+    private boolean interrupted;
+
     @Override
     public String currentStatus() {
         return status.get();
+    }
+
+    @Override
+    public void interrupt() {
+        interrupt = true;
+    }
+
+    @Override
+    public boolean isInterrupted() {
+        return interrupted;
     }
 
     @Transactional
@@ -141,11 +154,11 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
             status.set("Generating report header");
 
             // iterate over reportlet instances defined for this report
-            for (Implementation impl : report.getReportlets()) {
-                Optional<Reportlet> reportlet = ImplementationManager.buildReportlet(impl);
+            for (int i = 0; i < report.getReportlets().size() && !interrupt; i++) {
+                Optional<Reportlet> reportlet = ImplementationManager.buildReportlet(report.getReportlets().get(i));
                 if (reportlet.isPresent()) {
                     try {
-                        status.set("Invoking reportlet " + impl.getKey());
+                        status.set("Invoking reportlet " + report.getReportlets().get(i).getKey());
                         reportlet.get().extract(handler, status);
                     } catch (Throwable t) {
                         LOG.error("While executing reportlet {} for report {}", reportlet, reportKey, t);
@@ -160,6 +173,10 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
                                 append("\n==================\n");
                     }
                 }
+            }
+            if (interrupt) {
+                LOG.debug("Report job {} interrupted", reportKey);
+                interrupted = true;
             }
 
             // report footer
