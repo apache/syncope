@@ -29,13 +29,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
+import javax.xml.transform.stream.StreamSource;
 import org.apache.cocoon.optional.pipeline.components.sax.fop.FopSerializer;
 import org.apache.cocoon.pipeline.NonCachingPipeline;
 import org.apache.cocoon.pipeline.Pipeline;
 import org.apache.cocoon.sax.SAXPipelineComponent;
 import org.apache.cocoon.sax.component.XMLGenerator;
 import org.apache.cocoon.sax.component.XMLSerializer;
-import org.apache.cocoon.sax.component.XSLTTransformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.report.ReportletConf;
@@ -195,28 +195,32 @@ public class ReportController extends AbstractJobController<ReportTO> {
 
             switch (format) {
                 case HTML:
-                    XSLTTransformer xsl2html = new XSLTTransformer(getClass().getResource("/report/report2html.xsl"));
+                    XSLTTransformer xsl2html = new XSLTTransformer(
+                            new StreamSource(getClass().getResourceAsStream("/report/report2html.xsl")));
                     xsl2html.setParameters(parameters);
                     pipeline.addComponent(xsl2html);
                     pipeline.addComponent(XMLSerializer.createXHTMLSerializer());
                     break;
 
                 case PDF:
-                    XSLTTransformer xsl2pdf = new XSLTTransformer(getClass().getResource("/report/report2fo.xsl"));
+                    XSLTTransformer xsl2pdf = new XSLTTransformer(
+                            new StreamSource(getClass().getResourceAsStream("/report/report2fo.xsl")));
                     xsl2pdf.setParameters(parameters);
                     pipeline.addComponent(xsl2pdf);
                     pipeline.addComponent(new FopSerializer(MimeConstants.MIME_PDF));
                     break;
 
                 case RTF:
-                    XSLTTransformer xsl2rtf = new XSLTTransformer(getClass().getResource("/report/report2fo.xsl"));
+                    XSLTTransformer xsl2rtf = new XSLTTransformer(
+                            new StreamSource(getClass().getResourceAsStream("/report/report2fo.xsl")));
                     xsl2rtf.setParameters(parameters);
                     pipeline.addComponent(xsl2rtf);
                     pipeline.addComponent(new FopSerializer(MimeConstants.MIME_RTF));
                     break;
 
                 case CSV:
-                    XSLTTransformer xsl2csv = new XSLTTransformer(getClass().getResource("/report/report2csv.xsl"));
+                    XSLTTransformer xsl2csv = new XSLTTransformer(
+                            new StreamSource(getClass().getResourceAsStream("/report/report2csv.xsl")));
                     xsl2csv.setParameters(parameters);
                     pipeline.addComponent(xsl2csv);
                     pipeline.addComponent(new TextSerializer());

@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -346,6 +347,8 @@ public class ContentExporter extends AbstractContentDealer {
 
         StreamResult streamResult = new StreamResult(os);
         final SAXTransformerFactory transformerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+        transformerFactory.setURIResolver(new VoidURIResolver());
+        transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 
         TransformerHandler handler = transformerFactory.newTransformerHandler();
         Transformer serializer = handler.getTransformer();

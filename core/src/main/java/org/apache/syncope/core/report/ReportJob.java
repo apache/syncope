@@ -24,8 +24,11 @@ import java.util.Date;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
@@ -40,6 +43,7 @@ import org.apache.syncope.core.persistence.dao.ReportExecDAO;
 import org.apache.syncope.core.rest.data.ReportDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.ExceptionUtil;
+import org.apache.syncope.core.util.VoidURIResolver;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -61,6 +65,18 @@ public class ReportJob implements Job {
      * Logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(ReportJob.class);
+
+    private static final SAXTransformerFactory TRANSFORMER_FACTORY;
+
+    static {
+        TRANSFORMER_FACTORY = (SAXTransformerFactory) TransformerFactory.newInstance();
+        TRANSFORMER_FACTORY.setURIResolver(new VoidURIResolver());
+        try {
+            TRANSFORMER_FACTORY.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        } catch (TransformerConfigurationException e) {
+            LOG.error("Could not enable secure XML processing", e);
+        }
+    }
 
     /**
      * Report DAO.
@@ -119,8 +135,7 @@ public class ReportJob implements Job {
         ZipOutputStream zos = new ZipOutputStream(baos);
         zos.setLevel(Deflater.BEST_COMPRESSION);
         try {
-            SAXTransformerFactory tFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
-            handler = tFactory.newTransformerHandler();
+            handler = TRANSFORMER_FACTORY.newTransformerHandler();
             Transformer serializer = handler.getTransformer();
             serializer.setOutputProperty(OutputKeys.ENCODING, SyncopeConstants.DEFAULT_ENCODING);
             serializer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -153,7 +168,7 @@ public class ReportJob implements Job {
                 if (reportletClass != null) {
                     Reportlet<ReportletConf> autowired =
                             (Reportlet<ReportletConf>) ApplicationContextProvider.getBeanFactory().
-                            createBean(reportletClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                                    createBean(reportletClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
                     autowired.setConf(reportletConf);
 
                     // invoke reportlet

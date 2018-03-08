@@ -20,11 +20,10 @@ package org.apache.syncope.console.commons;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.cxf.staxutils.StaxUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -52,11 +51,8 @@ public class XMLRolesReader {
     private void init() {
         authMap = new HashMap<Pair<String, String>, String>();
 
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
         try {
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.parse(getClass().getResource("/" + authorizations).openStream());
+            Document doc = StaxUtils.read(getClass().getResource("/" + authorizations).openStream());
             doc.getDocumentElement().normalize();
 
             Node authNode = null;
