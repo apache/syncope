@@ -181,7 +181,7 @@ under the License.
             <type>standalone</type>
             <properties>
               <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
-              <cargo.jvmargs>-noverify -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m</cargo.jvmargs>
+              <cargo.jvmargs>-noverify -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m</cargo.jvmargs>
             </properties>
           </configuration>
           <deployables>
@@ -300,7 +300,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -noverify -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m</cargo.jvmargs>
+                    -noverify -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
