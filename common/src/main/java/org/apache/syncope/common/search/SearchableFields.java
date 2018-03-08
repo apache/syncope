@@ -33,7 +33,7 @@ public class SearchableFields {
     protected static final String[] ATTRIBUTES_NOTINCLUDED = {
         "attrs", "derAttrs", "virAttrs",
         "serialVersionUID", "memberships", "entitlements", "resources", "password",
-        "propagationTOs", "propagationStatusMap"
+        "propagationTOs", "propagationStatusMap", "securityAnswer", "token", "tokenExpireTime"
     };
 
     public static final List<String> get(final SubjectType subjectType) {

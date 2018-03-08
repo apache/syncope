@@ -63,6 +63,10 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
 
     private static final String[] SUBJECT_FIELDS = new String[] { "parent", "userOwner", "roleOwner" };
 
+    private static final String[] ORDER_BY_NOT_ALLOWED = {
+        "serialVersionUID", "password", "securityQuestion", "securityAnswer", "token", "tokenExpireTime"
+    };
+
     @Autowired
     private UserDAO userDAO;
 
@@ -285,12 +289,24 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
         return orderBy;
     }
 
-    private OrderBySupport parseOrderBy(final SearchSupport svs, final List<OrderByClause> orderByClauses) {
+    protected List<OrderByClause> filterOrderBy(final List<OrderByClause> orderBy) {
+        List<OrderByClause> result = new ArrayList<OrderByClause>();
+
+        for (OrderByClause clause : orderBy) {
+            if (!ArrayUtils.contains(ORDER_BY_NOT_ALLOWED, clause.getField())) {
+                result.add(clause);
+            }
+        }
+
+        return result;
+    }
+
+    private OrderBySupport parseOrderBy(final SearchSupport svs, final List<OrderByClause> orderBy) {
         final AttributableUtil attrUtil = AttributableUtil.getInstance(svs.type.asAttributableType());
 
         OrderBySupport obs = new OrderBySupport();
 
-        for (OrderByClause clause : orderByClauses) {
+        for (OrderByClause clause : filterOrderBy(orderBy)) {
             OrderBySupport.Item item = new OrderBySupport.Item();
 
             Field subjectField = ReflectionUtils.findField(attrUtil.attributableClass(), clause.getField());

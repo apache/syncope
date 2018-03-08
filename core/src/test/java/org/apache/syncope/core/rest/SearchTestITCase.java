@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.services.UserSelfService;
@@ -197,6 +198,22 @@ public class SearchTestITCase extends AbstractTest {
         for (UserTO user : users.getResult()) {
             assertNotNull(user);
         }
+    }
+
+    @Test
+    public void searchBySecurityAnswer() {
+        String securityAnswer = RandomStringUtils.randomAlphanumeric(10);
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("securityAnswer@syncope.apache.org");
+        userTO.setSecurityQuestion(1L);
+        userTO.setSecurityAnswer(securityAnswer);
+
+        userTO = createUser(userTO);
+        assertNotNull(userTO.getSecurityQuestion());
+
+        PagedResult<UserTO> matchingUsers = userService.search(SyncopeClient.getUserSearchConditionBuilder().
+                is("securityAnswer").equalTo(securityAnswer).query());
+        assertNotNull(matchingUsers);
+        assertTrue(matchingUsers.getResult().isEmpty());
     }
 
     @Test
