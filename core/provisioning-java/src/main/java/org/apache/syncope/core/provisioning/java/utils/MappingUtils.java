@@ -110,7 +110,7 @@ public final class MappingUtils {
     public static Name evaluateNAME(final Any<?> any, final Provision provision, final String connObjectKey) {
         if (StringUtils.isBlank(connObjectKey)) {
             // LOG error but avoid to throw exception: leave it to the external resource
-            LOG.error("Missing ConnObjectKey for '{}': ", provision.getResource());
+            LOG.warn("Missing ConnObjectKey value for {}: ", provision.getResource());
         }
 
         // Evaluate connObjectKey expression
@@ -142,7 +142,7 @@ public final class MappingUtils {
     public static Name evaluateNAME(final Realm realm, final OrgUnit orgUnit, final String connObjectKey) {
         if (StringUtils.isBlank(connObjectKey)) {
             // LOG error but avoid to throw exception: leave it to the external resource
-            LOG.error("Missing ConnObjectKey for '{}': ", orgUnit.getResource());
+            LOG.warn("Missing ConnObjectKey value for {}: ", orgUnit.getResource());
         }
 
         // Evaluate connObjectKey expression
