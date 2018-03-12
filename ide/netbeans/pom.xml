@@ -181,7 +181,7 @@ under the License.
           <include>org/apache/syncope/**/*.png</include>
         </includes>
       </resource>
-      
+
       <resource>
         <directory>${basedir}</directory>
         <targetPath>META-INF</targetPath>
