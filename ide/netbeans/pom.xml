@@ -124,7 +124,7 @@ under the License.
 
   <build>
     <plugins>
-    <plugin>
+      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>nbm-maven-plugin</artifactId>
         <extensions>true</extensions>
