@@ -2,6 +2,22 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.2.11
+================================================================================
+
+** Bug
+    * [SYNCOPE-1070] - Conversion pattern ignored for date, long and double values during propagation
+    * [SYNCOPE-1102] - Unique attribute update inserts additional value
+    * [SYNCOPE-1128] - Content exporter does not sort for internal foreign keys
+    * [SYNCOPE-1168] - Encryptor pads short secret keys with "0" instead of random characters
+    * [SYNCOPE-1210] - Random password generation fails for push tasks
+
+** Improvement
+    * [SYNCOPE-1083] - ConnInstance location is not normalized
+    * [SYNCOPE-1086] - Avoid to read whole entities to check ETag
+    * [SYNCOPE-1087] - Avoid to read input entities if no notification or audit are requested
+    * [SYNCOPE-1103] - Option to disable Quartz instances across cluster
+
 Release Notes - Syncope - Version 1.2.10
 ================================================================================
 
