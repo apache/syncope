@@ -2,6 +2,33 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.0.8
+================================================================================
+
+** Bug
+    * [SYNCOPE-1257] - USER search by GROUP does not work if group name has spaces
+    * [SYNCOPE-1261] - When starting with empty database and no ConnInstances in Content.xml no bundles are reported as available
+    * [SYNCOPE-1263] - REST invocation with invalid JWT string returns 500
+    * [SYNCOPE-1265] - SAML 2.0 IdP cache empty until either new is imported or SAML2IdPService#list is invoked
+    * [SYNCOPE-1266] - Multivalue binary attributes leads to OutOfMemory exception
+    * [SYNCOPE-1269] - Cannot specify validator for Configuration Parameters
+    * [SYNCOPE-1272] - Export of the report always returns the result of the last execution
+    * [SYNCOPE-1275] - Add the possibiliy to delete a job
+    * [SYNCOPE-1276] - Link or assign Group from External Resource resets dynamic membership conditions
+
+** New Feature
+    * [SYNCOPE-1259] - Japanese translation for Admin console & Enduser UI
+    * [SYNCOPE-1279] - Provide live updates from running tasks and reports
+
+** Improvement
+    * [SYNCOPE-1225] - Search funcionality in Schemas
+    * [SYNCOPE-1267] - Provide check of mimetypes before generate a binary attribute preview
+    * [SYNCOPE-1274] - Report required and read-only payload properties in OpenApi spec
+    * [SYNCOPE-1280] - Better job interrupt
+
+** Task
+    * [SYNCOPE-1262] - Upgrade to Swagger UI 3.0
+
 Release Notes - Syncope - Version 2.0.7
 ================================================================================
 
