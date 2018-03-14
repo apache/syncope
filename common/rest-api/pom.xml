@@ -84,6 +84,8 @@ under the License.
       <id>site</id>
 
       <build>
+        <defaultGoal>clean generate-resources compile site-deploy</defaultGoal>
+
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
