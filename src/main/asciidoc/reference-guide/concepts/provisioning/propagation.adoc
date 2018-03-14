@@ -24,6 +24,7 @@ Whenever a change is performed via REST on Users, Groups or Any Objects:
 . the generated propagation tasks are executed, e.g. the corresponding operations (create, update or delete) are sent
 out, via connectors, to the configured Identity Stores; the tasks can be saved for later re-execution.
 
+[[propagation-resources]]
 [TIP]
 .Which external resources?
 ====
@@ -35,6 +36,7 @@ propagation process:
 * *Any Object*: the external resources directly assigned plus the ones assigned to Groups configured for the Any Object
 ====
 
+[[propagation-capabilities]]
 [WARNING]
 .Adequate capabilities to Connectors and External Resources
 ====
@@ -42,33 +44,6 @@ Ensure to provide an adequate set of <<connector-instance-details,capabilities>>
 External Resources for the actual operations to perform, otherwise the Propagation Tasks will report `NOT_ATTEMPTED` as
 execution status.
 ====
-
-By default, the propagation process is controlled by the
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PriorityPropagationTaskExecutor.java[PriorityPropagationTaskExecutor^],
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/2_0_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PriorityPropagationTaskExecutor.java[PriorityPropagationTaskExecutor^],
-endif::[]
-which implements the following logic:
-
-* sort the tasks according to the related resource's _priority_, then execute sequentially
-* tasks for resources with no priority are executed afterwards, concurrently
-* the execution of a given set of tasks is halted (and global failure is reported) whenever the first sequential task
-fails
-* status and eventual error message (in case of no resource priority) can be saved for reporting, in the case where the related
-external resource was configured with adequate tracing
-* minimize the set of operations to be actually performed onto the Identity Store by attempting to read the external
-object corresponding to the internal entity and comparing with the modifications provided
-
-Different implementations of the
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/propagation/PropagationTaskExecutor.java[PropagationTaskExecutor^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/2_0_X/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/propagation/PropagationTaskExecutor.java[PropagationTaskExecutor^]
-endif::[]
-interface can be provided, in case the required behaviour does not fit into the provided implementation.
 
 [[propagation-password]]
 [TIP]
@@ -91,6 +66,47 @@ the provided mapping; password has a special treatment:
 Password values are always sent to External Resources wrapped as ConnId
 http://connid.tirasa.net/apidocs/1.4/org/identityconnectors/common/security/GuardedString.html[GuardedString^] objects.
 ====
+
+By default, the propagation process is controlled by the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PriorityPropagationTaskExecutor.java[PriorityPropagationTaskExecutor^],
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/2_0_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PriorityPropagationTaskExecutor.java[PriorityPropagationTaskExecutor^],
+endif::[]
+which implements the following logic:
+
+* sort the tasks according to the related resource's _priority_, then execute sequentially
+* tasks for resources with no priority are executed afterwards, concurrently
+* the execution of a given set of tasks is halted (and global failure is reported) whenever the first sequential task
+fails
+* status and eventual error message (in case of no resource priority) can be saved for reporting, in the case where the related
+external resource was configured with adequate tracing
+* minimize the set of operations to be actually performed onto the Identity Store by attempting to read the external
+object corresponding to the internal entity and comparing with the modifications provided
+
+[[propagation-createorupdate]]
+[WARNING]
+.Create or update?
+====
+The minimization performed by `PriorityPropagationTaskExecutor` might lead to behaviors which look at first unexpected,
+but sound perfectly understandable once explained; in particular:
+
+* a `CREATE` propagation task might result in an effective `UPDATE` sent to the Connector +
+ if preliminary read returns an external object matching the same remote key of the object requested to be created
+* an `UPDATE` propagation task might result in an effective `CREATE` sent to the Connector +
+ if preliminary read does not find any external object matching the remote key of the objected requested to be
+updated
+====
+
+Different implementations of the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/propagation/PropagationTaskExecutor.java[PropagationTaskExecutor^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/2_0_X/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/propagation/PropagationTaskExecutor.java[PropagationTaskExecutor^]
+endif::[]
+interface can be provided, in case the required behavior does not fit into the provided implementation.
 
 ===== PropagationActions
 

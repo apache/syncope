@@ -29,9 +29,9 @@ replaced.
 Once the project has been created from the provided Maven archetype, the generated source tree is available for either
 adding new features or replacing existing components.
 
-[[override-behaviour]]
+[[override-behavior]]
 [TIP]
-.Override behaviour
+.Override behavior
 ====
 As a rule of thumb, any file of the local project will take precedence over a file with the same name in the same
 directory of the standard Apache Syncope release.
@@ -60,7 +60,7 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/tree/2_0_X/client/console/src/main/resources/org/apache/syncope/client/console/pages/BasePage.html[BasePage.html^].
 endif::[]
 
-This general behaviour might have exceptions, as highlighted below.
+This general behavior might have exceptions, as highlighted below.
 ====
 
 In general, the Embedded Mode (see the
@@ -177,7 +177,7 @@ When providing custom Java classes implementing the defined interfaces or extend
 implementations, their package *must* be rooted under `org.apache.syncope.core`, otherwise they will not be available
 at runtime.
 
-Besides replacing existing classes as explained <<override-behaviour,above>>, new implementations can be provided under
+Besides replacing existing classes as explained <<override-behavior,above>>, new implementations can be provided under
 `core/src/main/java` for the following components:
 
 * <<propagationactions,propagation>>, <<pushactions,push>>, <<pullactions,pull>> and <<logicactions,logic>> actions
@@ -234,7 +234,7 @@ By following such conventions, the new REST endpoint will be automatically picke
 
 [WARNING]
 ====
-The <<override-behaviour,override behaviour>> might have exceptions; if you need to customize one of the
+The <<override-behavior,override behavior>> might have exceptions; if you need to customize one of the
 Spring context definitions. For example, if you want to customize 
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/resources/securityContext.xml[securityContext.xml^]
@@ -498,7 +498,7 @@ Given the nature of the <<enduser-application>>, all the files required by the A
 generated under the local project's `enduser/src/main/webapp/app/` directory and are available for full customization.
 
 The files in use by the Apache Wicket-based backend are still subject to the general
-<<override-behaviour,override behaviour>>, instead.
+<<override-behavior,override behavior>>, instead.
 
 [discrete]
 ===== Enable the <<saml-2-0-service-provider>> extension
