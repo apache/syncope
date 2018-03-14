@@ -67,7 +67,7 @@ endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/master/core/spring/src/main/resources/securityContext.xml[securityContext.xml^];
 endif::[]
-while normally not needed, this configuration can be anyway customized via the <<override-behaviour,override behaviour>>.
+while normally not needed, this configuration can be anyway customized via the <<override-behavior,override behavior>>.
 
 https://en.wikipedia.org/wiki/Basic_access_authentication[HTTP Basic Authentication] is set for use by default.
 ====
@@ -169,7 +169,7 @@ when communicating with <<external-resource-details,External Resources>> with no
 Some REST endpoints - typically for creating, updating or deleting Users, Groups or Any Objects - return the
 entity in the response payload by default. +
 If this is not required, the `Prefer` request header can be set to `return-no-content` (`return-content` will instead
-keep the default behaviour).
+keep the default behavior).
 
 When `Prefer` is specified in the request, the response will feature the `Preference-Applied` header, with value set
 to the effective preference applied.
