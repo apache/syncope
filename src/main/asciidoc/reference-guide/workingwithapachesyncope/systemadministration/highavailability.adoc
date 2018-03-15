@@ -27,53 +27,11 @@ http://openjpa.apache.org/builds/2.4.2/apache-openjpa/docs/ref_guide_event.html[
 Such configuration, in fact, allows the OpenJPA data cache to remain synchronized when deployed in multiple JVMs, thus
 enforcing data consistency across all Syncope Core instances.
 
-Replace
+The default configuration in `persistence.properties` is
 
+[source]
 ....
-classpath*:/coreContext.xml
-classpath*:/securityContext.xml
-classpath*:/logicContext.xml
-classpath*:/restCXFContext.xml
-classpath*:/persistenceContext.xml
-classpath*:/provisioning*Context.xml
-classpath*:/workflow*Context.xml
-....
-
-with
-
-....
-classpath*:/coreContext.xml
-classpath*:/securityContext.xml
-classpath*:/logicContext.xml
-classpath*:/restCXFContext.xml
-classpath:/persistenceContext.xml
-classpath*:/provisioning*Context.xml
-classpath*:/workflow*Context.xml
-....
-
-in `core/src/main/webapp/WEB-INF/web.xml`.
-
-Download
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/resources/persistenceContext.xml[persistenceContext.xml^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/2_0_X/core/persistence-jpa/src/main/resources/persistenceContext.xml[persistenceContext.xml^]
-endif::[]
-and
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/resources/domains.xml[domains.xml^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/2_0_X/core/persistence-jpa/src/main/resources/domains.xml[domains.xml^]
-endif::[]
-then save both under `core/src/main/resources/`.
-
-The default configuration in `domains.xml` is
-
-[source,xml]
-....
-<entry key="openjpa.RemoteCommitProvider" value="sjvm"/>
+openjpa.RemoteCommitProvider=sjvm
 ....
 
 which is suited for single JVM installations; with multiple instances, more options like as TCP or JMS are available;
@@ -82,7 +40,7 @@ see the OpenJPA documentation for reference.
 [WARNING]
 ====
 The http://openjpa.apache.org/builds/2.4.2/apache-openjpa/docs/ref_guide_event.html[OpenJPA documentation^]'s XML
-snippets refer to a different configuration style; for example, when used in `domains.xml`, this:
+snippets refer to a different configuration style; for example, when used in persistence.properties`, this:
 
 [source,xml]
 ....
@@ -91,9 +49,9 @@ snippets refer to a different configuration style; for example, when used in `do
 
 becomes:
 
-[source,xml]
+[source]
 ....
-<entry key="openjpa.RemoteCommitProvider" value="tcp(Addresses=10.0.1.10;10.0.1.11)"/>
+openjpa.RemoteCommitProvider=tcp(Addresses=10.0.1.10;10.0.1.11)
 ....
 ====
 
