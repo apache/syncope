@@ -35,6 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
+import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.junit.jupiter.api.Test;
@@ -194,6 +195,18 @@ public class SearchCondConverterTest {
         RoleCond roleCond = new RoleCond();
         roleCond.setRole("User reviewer");
         SearchCond simpleCond = SearchCond.getLeafCond(roleCond);
+
+        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
+    }
+
+    @Test
+    public void privileges() {
+        String fiql = new UserFiqlSearchConditionBuilder().withPrivileges("postMighty").query();
+        assertEquals(SpecialAttr.PRIVILEGES + "==postMighty", fiql);
+
+        PrivilegeCond privilegeCond = new PrivilegeCond();
+        privilegeCond.setPrivilege("postMighty");
+        SearchCond simpleCond = SearchCond.getLeafCond(privilegeCond);
 
         assertEquals(simpleCond, SearchCondConverter.convert(fiql));
     }

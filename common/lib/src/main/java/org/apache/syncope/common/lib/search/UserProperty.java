@@ -38,4 +38,8 @@ public interface UserProperty extends SyncopeProperty {
 
     CompleteCondition notInRoles(String role, String... moreRoles);
 
+    CompleteCondition withPrivileges(String privilege, String... morePrivileges);
+
+    CompleteCondition withoutPrivileges(String privilege, String... morePrivileges);
+
 }

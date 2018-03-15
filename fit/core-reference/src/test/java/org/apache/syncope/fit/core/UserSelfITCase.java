@@ -141,7 +141,7 @@ public class UserSelfITCase extends AbstractITCase {
         }
 
         Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create("rossini", ADMIN_PWD).self();
-        assertEquals("rossini", self.getValue().getUsername());
+        assertEquals("rossini", self.getRight().getUsername());
     }
 
     @Test
@@ -152,7 +152,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertNotNull(userId);
 
         Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(userId, ADMIN_PWD).self();
-        assertEquals(rossini.getUsername(), self.getValue().getUsername());
+        assertEquals(rossini.getUsername(), self.getRight().getUsername());
     }
 
     @Test
@@ -248,7 +248,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE373() {
-        UserTO userTO = adminClient.self().getValue();
+        UserTO userTO = adminClient.self().getRight();
         assertEquals(ADMIN_UNAME, userTO.getUsername());
     }
 
@@ -272,7 +272,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 2. verify that new user is able to authenticate
         SyncopeClient authClient = clientFactory.create(user.getUsername(), "password123");
-        UserTO read = authClient.self().getValue();
+        UserTO read = authClient.self().getRight();
         assertNotNull(read);
 
         // 3. request password reset (as anonymous) providing the expected security answer
@@ -301,7 +301,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 6. verify that password was reset and token removed
         authClient = clientFactory.create(user.getUsername(), "newPassword123");
-        read = authClient.self().getValue();
+        read = authClient.self().getRight();
         assertNotNull(read);
         assertNull(read.getToken());
 
@@ -323,7 +323,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 2. verify that new user is able to authenticate
         SyncopeClient authClient = clientFactory.create(user.getUsername(), "password123");
-        UserTO read = authClient.self().getValue();
+        UserTO read = authClient.self().getRight();
         assertNotNull(read);
 
         // 3. request password reset (as anonymous) with no security answer
@@ -346,7 +346,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 6. verify that password was reset and token removed
         authClient = clientFactory.create(user.getUsername(), "newPassword123");
-        read = authClient.self().getValue();
+        read = authClient.self().getRight();
         assertNotNull(read);
         assertNull(read.getToken());
 

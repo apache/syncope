@@ -16,38 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.api.dao.search;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
-import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.user.User;
+public class PrivilegeCond extends AbstractSearchCond {
 
-public interface RoleDAO extends DAO<Role> {
+    private static final long serialVersionUID = -8095105031495519762L;
 
-    int count();
+    private String privilege;
 
-    Role find(String key);
+    public String getPrivilege() {
+        return privilege;
+    }
 
-    List<Role> findByRealm(Realm realm);
+    public void setPrivilege(final String privilege) {
+        this.privilege = privilege;
+    }
 
-    List<Role> findByPrivilege(Privilege privilege);
-
-    List<Role> findAll();
-
-    Role save(Role role);
-
-    void delete(Role role);
-
-    void delete(String key);
-
-    List<String> findDynMembers(Role role);
-
-    void clearDynMembers(Role role);
-
-    void refreshDynMemberships(User user);
-
-    void removeDynMemberships(String key);
-
+    @Override
+    public final boolean isValid() {
+        return privilege != null;
+    }
 }

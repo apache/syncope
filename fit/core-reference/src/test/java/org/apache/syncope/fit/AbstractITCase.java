@@ -69,6 +69,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
+import org.apache.syncope.common.rest.api.service.ApplicationService;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.apache.syncope.common.rest.api.service.ConnectorHistoryService;
@@ -184,6 +185,8 @@ public abstract class AbstractITCase {
 
     protected static DomainService domainService;
 
+    protected static ApplicationService applicationService;
+
     protected static AnyTypeClassService anyTypeClassService;
 
     protected static AnyTypeService anyTypeService;
@@ -280,6 +283,7 @@ public abstract class AbstractITCase {
 
         syncopeService = adminClient.getService(SyncopeService.class);
         domainService = adminClient.getService(DomainService.class);
+        applicationService = adminClient.getService(ApplicationService.class);
         anyTypeClassService = adminClient.getService(AnyTypeClassService.class);
         anyTypeService = adminClient.getService(AnyTypeService.class);
         relationshipTypeService = adminClient.getService(RelationshipTypeService.class);

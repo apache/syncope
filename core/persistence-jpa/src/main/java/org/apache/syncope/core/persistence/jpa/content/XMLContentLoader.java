@@ -108,7 +108,7 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
         Properties views = PropertiesLoaderUtils.loadProperties(viewsXML.getResource());
-        views.stringPropertyNames().stream().forEach(idx -> {
+        views.stringPropertyNames().stream().sorted().forEachOrdered(idx -> {
             LOG.debug("[{}] Creating view {}", domain, views.get(idx).toString());
             try {
                 jdbcTemplate.execute(views.get(idx).toString().replaceAll("\\n", " "));
@@ -126,7 +126,7 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
         Properties indexes = PropertiesLoaderUtils.loadProperties(indexesXML.getResource());
-        indexes.stringPropertyNames().stream().forEach(idx -> {
+        indexes.stringPropertyNames().stream().sorted().forEachOrdered(idx -> {
             LOG.debug("[{}] Creating index {}", domain, indexes.get(idx).toString());
             try {
                 jdbcTemplate.execute(indexes.get(idx).toString());

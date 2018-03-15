@@ -46,6 +46,7 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
+import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -70,7 +71,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         Set<String> realmKeys = new HashSet<>();
         Set<String> dynRealmKeys = new HashSet<>();
-        for (String realmPath : RealmUtils.normalize(adminRealms)) {
+        RealmUtils.normalize(adminRealms).forEach(realmPath -> {
             if (realmPath.startsWith("/")) {
                 Realm realm = realmDAO.findByFullPath(realmPath);
                 if (realm == null) {
@@ -89,7 +90,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                     dynRealmKeys.add(dynRealm.getKey());
                 }
             }
-        }
+        });
         if (!dynRealmKeys.isEmpty()) {
             realmKeys.addAll(realmDAO.findAll().stream().
                     map(r -> r.getKey()).collect(Collectors.toSet()));
@@ -366,6 +367,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 } else if (cond.getRoleCond() != null && AnyTypeKind.USER == svs.anyTypeKind) {
                     query.append(getQuery(cond.getRoleCond(),
                             cond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
+                } else if (cond.getPrivilegeCond() != null && AnyTypeKind.USER == svs.anyTypeKind) {
+                    query.append(getQuery(cond.getPrivilegeCond(),
+                            cond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
                 } else if (cond.getDynRealmCond() != null) {
                     query.append(getQuery(cond.getDynRealmCond(),
                             cond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
@@ -550,6 +554,37 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     private String getQuery(
+            final PrivilegeCond cond, final boolean not, final List<Object> parameters, final SearchSupport svs) {
+
+        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
+                append(svs.field().name).append(" WHERE (");
+
+        if (not) {
+            query.append("any_id NOT IN (");
+        } else {
+            query.append("any_id IN (");
+        }
+
+        query.append("SELECT DISTINCT any_id FROM ").
+                append(svs.priv().name).append(" WHERE ").
+                append("privilege_id=?").append(setParameter(parameters, cond.getPrivilege())).
+                append(") ");
+
+        if (not) {
+            query.append("AND any_id NOT IN (");
+        } else {
+            query.append("OR any_id IN (");
+        }
+
+        query.append("SELECT DISTINCT any_id FROM ").
+                append(svs.dynpriv().name).append(" WHERE ").
+                append("privilege_id=?").append(setParameter(parameters, cond.getPrivilege())).
+                append("))");
+
+        return query.toString();
+    }
+
+    private String getQuery(
             final DynRealmCond cond, final boolean not, final List<Object> parameters, final SearchSupport svs) {
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
@@ -609,9 +644,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE (");
         if (cond.isFromGroup()) {
-            for (Realm current : realmDAO.findDescendants(realm)) {
+            realmDAO.findDescendants(realm).forEach(current -> {
                 query.append("realm_id=?").append(setParameter(parameters, current.getKey())).append(" OR ");
-            }
+            });
             query.setLength(query.length() - 4);
         } else {
             for (Realm current = realm; current.getParent() != null; current = current.getParent()) {

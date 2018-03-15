@@ -46,6 +46,7 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
+import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -109,6 +110,10 @@ public class AnySearchTest extends AbstractTest {
         RoleCond roleCond = new RoleCond();
         roleCond.setRole("Other");
         assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(roleCond)));
+
+        PrivilegeCond privilegeCond = new PrivilegeCond();
+        privilegeCond.setPrivilege("postMighty");
+        assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(privilegeCond)));
 
         user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
         assertNotNull(user);
@@ -298,6 +303,16 @@ public class AnySearchTest extends AbstractTest {
         roleCond.setRole("Other");
 
         List<User> users = searchDAO.search(SearchCond.getLeafCond(roleCond), AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+    }
+
+    @Test
+    public void searchByPrivilege() {
+        PrivilegeCond privilegeCond = new PrivilegeCond();
+        privilegeCond.setPrivilege("postMighty");
+
+        List<User> users = searchDAO.search(SearchCond.getLeafCond(privilegeCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
     }

@@ -603,7 +603,15 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             userTO.getDynRealms().addAll(userDAO.findDynRealms(user.getKey()));
 
             // roles
-            userTO.getRoles().addAll(user.getRoles().stream().map(r -> r.getKey()).collect(Collectors.toList()));
+            userTO.getRoles().addAll(user.getRoles().stream().map(Entity::getKey).collect(Collectors.toList()));
+
+            // dynamic roles
+            userTO.getDynRoles().addAll(
+                    userDAO.findDynRoles(user.getKey()).stream().map(Entity::getKey).collect(Collectors.toList()));
+
+            // privileges
+            userTO.getPrivileges().addAll(userDAO.findAllRoles(user).stream().
+                    flatMap(role -> role.getPrivileges().stream()).map(Entity::getKey).collect(Collectors.toSet()));
 
             // relationships
             userTO.getRelationships().addAll(
@@ -622,9 +630,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     }).collect(Collectors.toList()));
 
             // dynamic memberships
-            userTO.getDynRoles().addAll(
-                    userDAO.findDynRoles(user.getKey()).stream().map(Entity::getKey).collect(Collectors.toList()));
-
             userTO.getDynMemberships().addAll(
                     userDAO.findDynGroups(user.getKey()).stream().map(group -> {
                         return new MembershipTO.Builder().

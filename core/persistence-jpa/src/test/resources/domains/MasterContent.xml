@@ -235,6 +235,16 @@ under the License.
                  left_anyObject_id="fc6dbc3a-6c07-4965-8781-921e7401a4a5"
                  right_anyObject_id="8559d14d-58c2-46eb-a2d4-a7d35161e8f8"/>
   
+  <Application id="mightyApp" description="A cool application"/>
+  <Privilege id="postMighty" description="Ability to POST"
+             spec="7B20226D6574686F64223A2022504F5354222C202275726C223A20222F612F622F6322207D"
+             specmimetype="application/json"
+             application_id="mightyApp"/>
+  <Privilege id="getMighty" description="Ability to GET"
+             spec="7B20226D6574686F64223A2022474554222C202275726C223A20222F612F622F6322207D"
+             specmimetype="application/json"
+             application_id="mightyApp"/>
+
   <SyncopeRole id="User reviewer"/>
   <SyncopeRole_entitlements entitlement="USER_READ" role_id="User reviewer"/>
   <SyncopeRole_entitlements entitlement="USER_LIST" role_id="User reviewer"/>
@@ -263,6 +273,7 @@ under the License.
   <SyncopeRole_entitlements entitlement="GROUP_READ" role_id="Other"/>
   <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_CLAIM" role_id="Other"/>
   <SyncopeRole_Realm role_id="Other" realm_id="722f3d84-9c2b-4525-8f6e-e4b82c55a36c"/>
+  <SyncopeRole_Privilege role_id="Other" privilege_id="postMighty"/>
   
   <SyncopeRole id="Search for realm evenTwo"/>
   <SyncopeRole_entitlements entitlement="USER_READ" role_id="Search for realm evenTwo"/>

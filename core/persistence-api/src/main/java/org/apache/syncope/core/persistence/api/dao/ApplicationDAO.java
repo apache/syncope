@@ -19,35 +19,21 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
-import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 
-public interface RoleDAO extends DAO<Role> {
+public interface ApplicationDAO extends DAO<Application> {
 
-    int count();
+    Application find(String key);
 
-    Role find(String key);
+    Privilege findPrivilege(String key);
 
-    List<Role> findByRealm(Realm realm);
+    List<Application> findAll();
 
-    List<Role> findByPrivilege(Privilege privilege);
+    Application save(Application application);
 
-    List<Role> findAll();
-
-    Role save(Role role);
-
-    void delete(Role role);
+    void delete(Application application);
 
     void delete(String key);
-
-    List<String> findDynMembers(Role role);
-
-    void clearDynMembers(Role role);
-
-    void refreshDynMemberships(User user);
-
-    void removeDynMemberships(String key);
 
 }

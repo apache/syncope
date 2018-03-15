@@ -29,6 +29,7 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.RoleService;
@@ -122,20 +123,26 @@ public class RoleITCase extends AbstractITCase {
 
     @Test
     public void dynMembership() {
-        assertTrue(userService.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynRoles().isEmpty());
+        UserTO bellini = userService.read("bellini");
+        assertTrue(bellini.getDynRoles().isEmpty());
+        assertTrue(bellini.getPrivileges().isEmpty());
 
         RoleTO role = getSampleRoleTO("dynMembership");
+        role.getPrivileges().add("getMighty");
         role.setDynMembershipCond("cool==true");
         Response response = roleService.create(role);
         role = getObject(response.getLocation(), RoleService.class, RoleTO.class);
         assertNotNull(role);
 
-        assertTrue(userService.read(
-                "c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynRoles().contains(role.getKey()));
+        bellini = userService.read("bellini");
+        assertTrue(bellini.getDynRoles().contains(role.getKey()));
+        assertTrue(bellini.getPrivileges().contains("getMighty"));
 
         role.setDynMembershipCond("cool==false");
         roleService.update(role);
 
-        assertTrue(userService.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships().isEmpty());
+        bellini = userService.read("bellini");
+        assertTrue(bellini.getDynMemberships().isEmpty());
+        assertTrue(bellini.getPrivileges().isEmpty());
     }
 }

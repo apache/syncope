@@ -27,6 +27,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -80,6 +81,15 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
     }
 
     @Override
+    public List<Role> findByPrivilege(final Privilege privilege) {
+        TypedQuery<Role> query = entityManager().createQuery(
+                "SELECT e FROM " + JPARole.class.getSimpleName() + " e WHERE :privilege MEMBER OF e.privileges",
+                Role.class);
+        query.setParameter("privilege", privilege);
+        return query.getResultList();
+    }
+
+    @Override
     public List<Role> findAll() {
         TypedQuery<Role> query = entityManager().createQuery(
                 "SELECT e FROM " + JPARole.class.getSimpleName() + " e ", Role.class);
@@ -97,14 +107,14 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
 
             clearDynMembers(merged);
 
-            for (User user : matching) {
+            matching.forEach((user) -> {
                 Query insert = entityManager().createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
                 insert.setParameter(1, user.getKey());
                 insert.setParameter(2, merged.getKey());
                 insert.executeUpdate();
 
                 publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user, AuthContextUtils.getDomain()));
-            }
+            });
         }
 
         return merged;
@@ -116,10 +126,10 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
                 "SELECT e FROM " + JPAUser.class.getSimpleName() + " e WHERE :role MEMBER OF e.roles", User.class);
         query.setParameter("role", role);
 
-        for (User user : query.getResultList()) {
+        query.getResultList().forEach(user -> {
             user.getRoles().remove(role);
             publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user, AuthContextUtils.getDomain()));
-        }
+        });
 
         clearDynMembers(role);
 
@@ -166,22 +176,20 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
     @Transactional
     @Override
     public void refreshDynMemberships(final User user) {
-        for (Role role : findAll()) {
-            if (role.getDynMembership() != null) {
-                Query delete = entityManager().createNativeQuery(
-                        "DELETE FROM " + DYNMEMB_TABLE + " WHERE role_id=? AND any_id=?");
-                delete.setParameter(1, role.getKey());
-                delete.setParameter(2, user.getKey());
-                delete.executeUpdate();
+        findAll().stream().filter(role -> role.getDynMembership() != null).forEach(role -> {
+            Query delete = entityManager().createNativeQuery(
+                    "DELETE FROM " + DYNMEMB_TABLE + " WHERE role_id=? AND any_id=?");
+            delete.setParameter(1, role.getKey());
+            delete.setParameter(2, user.getKey());
+            delete.executeUpdate();
 
-                if (searchDAO().matches(user, SearchCondConverter.convert(role.getDynMembership().getFIQLCond()))) {
-                    Query insert = entityManager().createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
-                    insert.setParameter(1, user.getKey());
-                    insert.setParameter(2, role.getKey());
-                    insert.executeUpdate();
-                }
+            if (searchDAO().matches(user, SearchCondConverter.convert(role.getDynMembership().getFIQLCond()))) {
+                Query insert = entityManager().createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
+                insert.setParameter(1, user.getKey());
+                insert.setParameter(2, role.getKey());
+                insert.executeUpdate();
             }
-        }
+        });
     }
 
     @Override

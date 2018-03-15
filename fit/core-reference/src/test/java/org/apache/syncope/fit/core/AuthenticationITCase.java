@@ -104,21 +104,21 @@ public class AuthenticationITCase extends AbstractITCase {
         // 2. as anonymous
         Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(
                 new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY)).self();
-        assertEquals(1, self.getKey().size());
-        assertTrue(self.getKey().keySet().contains(StandardEntitlement.ANONYMOUS));
-        assertEquals(ANONYMOUS_UNAME, self.getValue().getUsername());
+        assertEquals(1, self.getLeft().size());
+        assertTrue(self.getLeft().keySet().contains(StandardEntitlement.ANONYMOUS));
+        assertEquals(ANONYMOUS_UNAME, self.getRight().getUsername());
 
         // 3. as admin
         self = adminClient.self();
-        assertEquals(syncopeService.platform().getEntitlements().size(), self.getKey().size());
-        assertFalse(self.getKey().keySet().contains(StandardEntitlement.ANONYMOUS));
-        assertEquals(ADMIN_UNAME, self.getValue().getUsername());
+        assertEquals(syncopeService.platform().getEntitlements().size(), self.getLeft().size());
+        assertFalse(self.getLeft().keySet().contains(StandardEntitlement.ANONYMOUS));
+        assertEquals(ADMIN_UNAME, self.getRight().getUsername());
 
         // 4. as user
         self = clientFactory.create("bellini", ADMIN_PWD).self();
-        assertFalse(self.getKey().isEmpty());
-        assertFalse(self.getKey().keySet().contains(StandardEntitlement.ANONYMOUS));
-        assertEquals("bellini", self.getValue().getUsername());
+        assertFalse(self.getLeft().isEmpty());
+        assertFalse(self.getLeft().keySet().contains(StandardEntitlement.ANONYMOUS));
+        assertEquals("bellini", self.getRight().getUsername());
     }
 
     @Test
@@ -404,7 +404,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals("active", userTO.getStatus());
 
         SyncopeClient goodPwdClient = clientFactory.create(userTO.getUsername(), "password123");
-        assertEquals(0, goodPwdClient.self().getValue().getFailedLogins().intValue());
+        assertEquals(0, goodPwdClient.self().getRight().getFailedLogins().intValue());
     }
 
     @Test
@@ -507,8 +507,8 @@ public class AuthenticationITCase extends AbstractITCase {
         Pair<Map<String, Set<String>>, UserTO> self =
                 clientFactory.create(userTO.getUsername(), "password123").self();
         assertNotNull(self);
-        assertNotNull(self.getKey());
-        assertNotNull(self.getValue());
+        assertNotNull(self.getLeft());
+        assertNotNull(self.getRight());
     }
 
     @Test

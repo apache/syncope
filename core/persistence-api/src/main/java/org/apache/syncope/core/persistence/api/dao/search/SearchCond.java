@@ -49,6 +49,8 @@ public class SearchCond extends AbstractSearchCond {
 
     private RoleCond roleCond;
 
+    private PrivilegeCond privilegeCond;
+
     private DynRealmCond dynRealmCond;
 
     private ResourceCond resourceCond;
@@ -119,6 +121,15 @@ public class SearchCond extends AbstractSearchCond {
         return nodeCond;
     }
 
+    public static SearchCond getLeafCond(final PrivilegeCond privilegeCond) {
+        SearchCond nodeCond = new SearchCond();
+
+        nodeCond.type = Type.LEAF;
+        nodeCond.privilegeCond = privilegeCond;
+
+        return nodeCond;
+    }
+
     public static SearchCond getLeafCond(final DynRealmCond dynRealmCond) {
         SearchCond nodeCond = new SearchCond();
 
@@ -175,6 +186,12 @@ public class SearchCond extends AbstractSearchCond {
 
     public static SearchCond getNotLeafCond(final RoleCond roleCond) {
         SearchCond nodeCond = getLeafCond(roleCond);
+        nodeCond.type = Type.NOT_LEAF;
+        return nodeCond;
+    }
+
+    public static SearchCond getNotLeafCond(final PrivilegeCond privilegeCond) {
+        SearchCond nodeCond = getLeafCond(privilegeCond);
         nodeCond.type = Type.NOT_LEAF;
         return nodeCond;
     }
@@ -306,6 +323,10 @@ public class SearchCond extends AbstractSearchCond {
         return roleCond;
     }
 
+    public PrivilegeCond getPrivilegeCond() {
+        return privilegeCond;
+    }
+
     public DynRealmCond getDynRealmCond() {
         return dynRealmCond;
     }
@@ -347,12 +368,14 @@ public class SearchCond extends AbstractSearchCond {
             case NOT_LEAF:
                 isValid = (anyTypeCond != null || anyCond != null || attributeCond != null || dynRealmCond != null
                         || relationshipCond != null || relationshipTypeCond != null || membershipCond != null
-                        || roleCond != null || resourceCond != null || assignableCond != null || memberCond != null)
+                        || roleCond != null || privilegeCond != null || resourceCond != null
+                        || assignableCond != null || memberCond != null)
                         && (anyTypeCond == null || anyTypeCond.isValid())
                         && (anyCond == null || anyCond.isValid())
                         && (attributeCond == null || attributeCond.isValid())
                         && (membershipCond == null || membershipCond.isValid())
                         && (roleCond == null || roleCond.isValid())
+                        && (privilegeCond == null || privilegeCond.isValid())
                         && (resourceCond == null || resourceCond.isValid())
                         && (memberCond == null || memberCond.isValid());
                 break;

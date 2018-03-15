@@ -42,6 +42,7 @@ import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.validation.entity.RoleCheck;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
+import org.apache.syncope.core.persistence.api.entity.Privilege;
 
 @Entity
 @Table(name = JPARole.TABLE)
@@ -82,6 +83,14 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
 
     @Lob
     private String consoleLayoutInfo;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(joinColumns =
+            @JoinColumn(name = "role_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "privilege_id"))
+    @Valid
+    private Set<JPAPrivilege> privileges = new HashSet<>();
 
     @Override
     public Set<String> getEntitlements() {
@@ -129,6 +138,17 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     @Override
     public void setConsoleLayoutInfo(final String consoleLayoutInfo) {
         this.consoleLayoutInfo = consoleLayoutInfo;
+    }
+
+    @Override
+    public boolean add(final Privilege privilege) {
+        checkType(privilege, JPAPrivilege.class);
+        return privileges.add((JPAPrivilege) privilege);
+    }
+
+    @Override
+    public Set<? extends Privilege> getPrivileges() {
+        return privileges;
     }
 
 }

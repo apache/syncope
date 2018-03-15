@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
@@ -81,7 +80,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public Pair<String, UserTO> selfRead() {
-        return ImmutablePair.of(
+        return Pair.of(
                 POJOHelper.serialize(AuthContextUtils.getAuthorizations()),
                 binder.returnUserTO(binder.getAuthenticatedUserTO()));
     }

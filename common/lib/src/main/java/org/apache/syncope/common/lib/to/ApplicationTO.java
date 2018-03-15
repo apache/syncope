@@ -20,9 +20,7 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -30,23 +28,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
-@XmlRootElement(name = "role")
+@XmlRootElement(name = "application")
 @XmlType
-public class RoleTO extends AbstractBaseBean implements EntityTO {
+public class ApplicationTO extends AbstractBaseBean implements EntityTO {
 
-    private static final long serialVersionUID = 4560822655754800031L;
+    private static final long serialVersionUID = -4117796727736925215L;
 
     private String key;
 
-    private final Set<String> entitlements = new HashSet<>();
+    private String description;
 
-    private final List<String> realms = new ArrayList<>();
-
-    private final List<String> dynRealms = new ArrayList<>();
-
-    private String dynMembershipCond;
-
-    private final Set<String> privileges = new HashSet<>();
+    private final List<PrivilegeTO> privileges = new ArrayList<>();
 
     @Override
     public String getKey() {
@@ -59,39 +51,18 @@ public class RoleTO extends AbstractBaseBean implements EntityTO {
         this.key = key;
     }
 
-    @XmlElementWrapper(name = "entitlements")
-    @XmlElement(name = "entitlement")
-    @JsonProperty("entitlements")
-    public Set<String> getEntitlements() {
-        return entitlements;
+    public String getDescription() {
+        return description;
     }
 
-    @XmlElementWrapper(name = "realms")
-    @XmlElement(name = "realm")
-    @JsonProperty("realms")
-    public List<String> getRealms() {
-        return realms;
-    }
-
-    @XmlElementWrapper(name = "dynRealms")
-    @XmlElement(name = "dynRealm")
-    @JsonProperty("dynRealms")
-    public List<String> getDynRealms() {
-        return dynRealms;
-    }
-
-    public String getDynMembershipCond() {
-        return dynMembershipCond;
-    }
-
-    public void setDynMembershipCond(final String dynMembershipCond) {
-        this.dynMembershipCond = dynMembershipCond;
+    public void setDescription(final String description) {
+        this.description = description;
     }
 
     @XmlElementWrapper(name = "privileges")
     @XmlElement(name = "privilege")
     @JsonProperty("privileges")
-    public Set<String> getPrivileges() {
+    public List<PrivilegeTO> getPrivileges() {
         return privileges;
     }
 

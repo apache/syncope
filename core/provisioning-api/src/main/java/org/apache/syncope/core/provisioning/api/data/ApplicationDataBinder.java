@@ -16,38 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.provisioning.api.data;
 
-import java.util.List;
+import org.apache.syncope.common.lib.to.ApplicationTO;
+import org.apache.syncope.common.lib.to.PrivilegeTO;
+import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
-import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 
-public interface RoleDAO extends DAO<Role> {
+public interface ApplicationDataBinder {
 
-    int count();
+    Application create(ApplicationTO applicationTO);
 
-    Role find(String key);
+    Application update(Application application, ApplicationTO applicationTO);
 
-    List<Role> findByRealm(Realm realm);
+    PrivilegeTO getPrivilegeTO(Privilege privilege);
 
-    List<Role> findByPrivilege(Privilege privilege);
-
-    List<Role> findAll();
-
-    Role save(Role role);
-
-    void delete(Role role);
-
-    void delete(String key);
-
-    List<String> findDynMembers(Role role);
-
-    void clearDynMembers(Role role);
-
-    void refreshDynMemberships(User user);
-
-    void removeDynMemberships(String key);
-
+    ApplicationTO getApplicationTO(Application application);
 }

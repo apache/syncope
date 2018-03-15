@@ -28,6 +28,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -146,6 +147,10 @@ public class ElasticsearchUtils {
             List<Object> roles = userDAO.findAllRoles(user).stream().
                     map(r -> r.getKey()).collect(Collectors.toList());
             builder = builder.field("roles", roles);
+
+            Set<Object> privileges = userDAO.findAllRoles(user).stream().
+                    flatMap(role -> role.getPrivileges().stream()).map(Entity::getKey).collect(Collectors.toSet());
+            builder = builder.field("privileges", privileges);
 
             List<Object> memberships = new ArrayList<>(userDAO.findAllGroupKeys(user));
             builder = builder.field("memberships", memberships);

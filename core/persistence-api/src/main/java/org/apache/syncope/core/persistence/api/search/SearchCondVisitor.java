@@ -43,6 +43,7 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
+import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 
@@ -157,6 +158,12 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                             RoleCond roleCond = new RoleCond();
                             roleCond.setRole(value);
                             leaf = SearchCond.getLeafCond(roleCond);
+                            break;
+
+                        case PRIVILEGES:
+                            PrivilegeCond privilegeCond = new PrivilegeCond();
+                            privilegeCond.setPrivilege(value);
+                            leaf = SearchCond.getLeafCond(privilegeCond);
                             break;
 
                         case DYNREALMS:

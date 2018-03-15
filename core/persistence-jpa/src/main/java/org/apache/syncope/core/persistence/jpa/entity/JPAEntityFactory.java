@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ConnInstanceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
@@ -128,6 +129,7 @@ import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnit;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.policy.CorrelationRule;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
@@ -171,6 +173,10 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAAnyObject();
         } else if (reference.equals(Role.class)) {
             result = (E) new JPARole();
+        } else if (reference.equals(Application.class)) {
+            result = (E) new JPAApplication();
+        } else if (reference.equals(Privilege.class)) {
+            result = (E) new JPAPrivilege();
         } else if (reference.equals(User.class)) {
             result = (E) new JPAUser();
         } else if (reference.equals(Group.class)) {

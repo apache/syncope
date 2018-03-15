@@ -41,4 +41,8 @@ public interface Role extends ProvidedKeyEntity {
     String getConsoleLayoutInfo();
 
     void setConsoleLayoutInfo(String consoleLayoutInfo);
+
+    boolean add(Privilege privilege);
+
+    Set<? extends Privilege> getPrivileges();
 }

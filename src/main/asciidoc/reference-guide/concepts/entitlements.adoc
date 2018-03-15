@@ -18,7 +18,7 @@
 //
 === Entitlements
 
-Entitlements are basically strings describing the right to perform an operation.
+Entitlements are basically strings describing the right to perform an operation on Syncope.
 
 The components in the <<logic,logic layer>> are annotated with
 http://projects.spring.io/spring-security/[Spring Security^] to implement declarative security; in the following
@@ -60,4 +60,6 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/master/ext/camel/common-lib/src/main/java/org/apache/syncope/common/lib/types/CamelEntitlement.java[enlarge the initial list^]
 endif::[]
 : this is because entitlements are the pillars of the internal security model and are not meant for external usage.
+
+If you need to model the rights that Users own on external applications, look at <<privileges,privileges>>, instead.
 ====

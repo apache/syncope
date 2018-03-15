@@ -57,6 +57,8 @@ public class SyncopeClient {
 
     private static final String HEADER_SPLIT_PROPERTY = "org.apache.cxf.http.header.split";
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private final MediaType mediaType;
 
     private final JAXRSClientFactoryBean restClientFactory;
@@ -244,7 +246,6 @@ public class SyncopeClient {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public Pair<Map<String, Set<String>>, UserTO> self() {
         // Explicitly disable header value split because it interferes with JSON deserialization below
         UserSelfService service = getService(UserSelfService.class);
@@ -260,9 +261,9 @@ public class SyncopeClient {
 
         try {
             return Pair.of(
-                    (Map<String, Set<String>>) new ObjectMapper().readValue(
+                    OBJECT_MAPPER.readValue(
                             response.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS),
-                            new TypeReference<HashMap<String, Set<String>>>() {
+                            new TypeReference<Map<String, Set<String>>>() {
                     }),
                     response.readEntity(UserTO.class));
         } catch (IOException e) {

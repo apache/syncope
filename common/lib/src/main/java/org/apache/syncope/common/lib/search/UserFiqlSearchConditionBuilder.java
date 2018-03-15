@@ -88,6 +88,18 @@ public class UserFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionB
                 notInRoles(role, moreRoles);
     }
 
+    public CompleteCondition withPrivileges(final String privilege, final String... morePrivileges) {
+        return newBuilderInstance().
+                is(SpecialAttr.PRIVILEGES.toString()).
+                withPrivileges(privilege, morePrivileges);
+    }
+
+    public CompleteCondition withoutPrivileges(final String privilege, final String... morePrivileges) {
+        return newBuilderInstance().
+                is(SpecialAttr.PRIVILEGES.toString()).
+                withoutPrivileges(privilege, morePrivileges);
+    }
+
     protected static class Builder extends AbstractFiqlSearchConditionBuilder.Builder
             implements UserProperty, CompleteCondition {
 
@@ -152,6 +164,18 @@ public class UserFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionB
         public CompleteCondition notInRoles(final String role, final String... moreRoles) {
             this.result = SpecialAttr.ROLES.toString();
             return condition(FiqlParser.NEQ, role, (Object[]) moreRoles);
+        }
+
+        @Override
+        public CompleteCondition withPrivileges(final String privilege, final String... morePrivileges) {
+            this.result = SpecialAttr.PRIVILEGES.toString();
+            return condition(FiqlParser.EQ, privilege, (Object[]) morePrivileges);
+        }
+
+        @Override
+        public CompleteCondition withoutPrivileges(final String privilege, final String... morePrivileges) {
+            this.result = SpecialAttr.PRIVILEGES.toString();
+            return condition(FiqlParser.NEQ, privilege, (Object[]) morePrivileges);
         }
     }
 }

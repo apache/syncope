@@ -22,13 +22,16 @@ import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
@@ -51,6 +54,9 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
     @Autowired
     private RoleDAO roleDAO;
+
+    @Autowired
+    private ApplicationDAO applicationDAO;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -123,6 +129,16 @@ public class RoleDataBinderImpl implements RoleDataBinder {
             setDynMembership(role, roleTO.getDynMembershipCond());
         }
 
+        role.getPrivileges().clear();
+        for (String key : roleTO.getPrivileges()) {
+            Privilege privilege = applicationDAO.findPrivilege(key);
+            if (privilege == null) {
+                LOG.debug("Invalid privilege {}, ignoring", key);
+            } else {
+                role.add(privilege);
+            }
+        }
+
         return role;
     }
 
@@ -134,14 +150,17 @@ public class RoleDataBinderImpl implements RoleDataBinder {
         roleTO.getEntitlements().addAll(role.getEntitlements());
 
         roleTO.getRealms().addAll(role.getRealms().stream().
-                map(r -> r.getFullPath()).collect(Collectors.toList()));
+                map(Realm::getFullPath).collect(Collectors.toList()));
 
         roleTO.getDynRealms().addAll(role.getDynRealms().stream().
-                map(r -> r.getKey()).collect(Collectors.toList()));
+                map(Entity::getKey).collect(Collectors.toList()));
 
         if (role.getDynMembership() != null) {
             roleTO.setDynMembershipCond(role.getDynMembership().getFIQLCond());
         }
+
+        roleTO.getPrivileges().addAll(role.getPrivileges().stream().
+                map(Entity::getKey).collect(Collectors.toList()));
 
         return roleTO;
     }

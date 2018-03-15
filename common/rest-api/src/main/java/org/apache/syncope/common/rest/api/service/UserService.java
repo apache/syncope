@@ -54,7 +54,8 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 @Tag(name = "Users")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication")
-    , @SecurityRequirement(name = "Bearer") })
+    ,
+    @SecurityRequirement(name = "Bearer") })
 @Path("users")
 public interface UserService extends AnyService<UserTO> {
 
@@ -99,10 +100,12 @@ public interface UserService extends AnyService<UserTO> {
                 @Header(name = RESTHeaders.RESOURCE_KEY, schema =
                         @Schema(type = "string"),
                         description = "UUID generated for the user created")
-                , @Header(name = HttpHeaders.LOCATION, schema =
+                ,
+                @Header(name = HttpHeaders.LOCATION, schema =
                         @Schema(type = "string"),
                         description = "URL of the user created")
-                , @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
+                ,
+                @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied") }))
@@ -139,13 +142,15 @@ public interface UserService extends AnyService<UserTO> {
                 content =
                 @Content(schema =
                         @Schema(implementation = ProvisioningResult.class)))
-        , @ApiResponse(responseCode = "204",
+        ,
+        @ApiResponse(responseCode = "204",
                 description = "No content if 'Prefer: return-no-content' was specified", headers =
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied"))
-        , @ApiResponse(responseCode = "412",
+        ,
+        @ApiResponse(responseCode = "412",
                 description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
                 + " date of the entity") })
     @PATCH
@@ -188,7 +193,8 @@ public interface UserService extends AnyService<UserTO> {
                         @Schema(type = "string"),
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied"))
-        , @ApiResponse(responseCode = "412",
+        ,
+        @ApiResponse(responseCode = "412",
                 description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
                 + " date of the entity") })
     @PUT
@@ -224,13 +230,15 @@ public interface UserService extends AnyService<UserTO> {
                 content =
                 @Content(schema =
                         @Schema(implementation = ProvisioningResult.class)))
-        , @ApiResponse(responseCode = "204",
+        ,
+        @ApiResponse(responseCode = "204",
                 description = "No content if 'Prefer: return-no-content' was specified", headers =
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied"))
-        , @ApiResponse(responseCode = "412",
+        ,
+        @ApiResponse(responseCode = "412",
                 description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
                 + " date of the entity") })
     @POST

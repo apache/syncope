@@ -55,6 +55,10 @@ public enum SpecialAttr {
      */
     ROLES("$roles"),
     /**
+     * Applies to users.
+     */
+    PRIVILEGES("$privileges"),
+    /**
      * Applies to users, groups and any objects.
      */
     DYNREALMS("$dynRealms"),

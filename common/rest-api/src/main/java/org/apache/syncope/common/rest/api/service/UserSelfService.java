@@ -61,8 +61,8 @@ public interface UserSelfService extends JAXRSService {
      * @return calling user data, including own UUID and entitlements
      */
     @Operation(security = {
-        @SecurityRequirement(name = "BasicAuthentication")
-        , @SecurityRequirement(name = "Bearer") })
+        @SecurityRequirement(name = "BasicAuthentication"),
+        @SecurityRequirement(name = "Bearer") })
     @ApiResponses(
             @ApiResponse(responseCode = "200", description = "Calling user data, including own UUID and entitlements",
                     content =
@@ -70,8 +70,7 @@ public interface UserSelfService extends JAXRSService {
                             @Schema(implementation = UserTO.class)), headers = {
                 @Header(name = RESTHeaders.RESOURCE_KEY, schema =
                         @Schema(type = "string"),
-                        description = "UUID of the calling user")
-                ,
+                        description = "UUID of the calling user"),
                 @Header(name = RESTHeaders.OWNED_ENTITLEMENTS, schema =
                         @Schema(type = "string"),
                         description = "List of entitlements owned by the calling user")
@@ -101,11 +100,11 @@ public interface UserSelfService extends JAXRSService {
                             @Schema(implementation = ProvisioningResult.class)), headers = {
                 @Header(name = RESTHeaders.RESOURCE_KEY, schema =
                         @Schema(type = "string"),
-                        description = "UUID generated for the user created")
-                , @Header(name = HttpHeaders.LOCATION, schema =
+                        description = "UUID generated for the user created"),
+                @Header(name = HttpHeaders.LOCATION, schema =
                         @Schema(type = "string"),
-                        description = "URL of the user created")
-                , @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
+                        description = "URL of the user created"),
+                @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied") }))
@@ -122,8 +121,8 @@ public interface UserSelfService extends JAXRSService {
      * @return Response object featuring the updated user
      */
     @Operation(security = {
-        @SecurityRequirement(name = "BasicAuthentication")
-        , @SecurityRequirement(name = "Bearer") })
+        @SecurityRequirement(name = "BasicAuthentication"),
+        @SecurityRequirement(name = "Bearer") })
     @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
             description = "Allows client to specify a preference for the result to be returned from the server",
             allowEmptyValue = true, schema =
@@ -133,8 +132,8 @@ public interface UserSelfService extends JAXRSService {
                 description = "User successfully updated enriched with propagation status information, as Entity",
                 content =
                 @Content(schema =
-                        @Schema(implementation = ProvisioningResult.class)))
-        , @ApiResponse(responseCode = "204",
+                        @Schema(implementation = ProvisioningResult.class))),
+        @ApiResponse(responseCode = "204",
                 description = "No content if 'Prefer: return-no-content' was specified", headers =
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
@@ -153,8 +152,8 @@ public interface UserSelfService extends JAXRSService {
      * @return Response object featuring the updated user
      */
     @Operation(security = {
-        @SecurityRequirement(name = "BasicAuthentication")
-        , @SecurityRequirement(name = "Bearer") })
+        @SecurityRequirement(name = "BasicAuthentication"),
+        @SecurityRequirement(name = "Bearer") })
     @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
             description = "Allows client to specify a preference for the result to be returned from the server",
             allowEmptyValue = true, schema =
@@ -164,8 +163,8 @@ public interface UserSelfService extends JAXRSService {
                 description = "User successfully updated enriched with propagation status information, as Entity",
                 content =
                 @Content(schema =
-                        @Schema(implementation = ProvisioningResult.class)))
-        , @ApiResponse(responseCode = "204",
+                        @Schema(implementation = ProvisioningResult.class))),
+        @ApiResponse(responseCode = "204",
                 description = "No content if 'Prefer: return-no-content' was specified", headers =
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
@@ -184,8 +183,8 @@ public interface UserSelfService extends JAXRSService {
      * @return Response object featuring the updated user enriched with propagation status information
      */
     @Operation(security = {
-        @SecurityRequirement(name = "BasicAuthentication")
-        , @SecurityRequirement(name = "Bearer") })
+        @SecurityRequirement(name = "BasicAuthentication"),
+        @SecurityRequirement(name = "Bearer") })
     @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
             description = "Allows client to specify a preference for the result to be returned from the server",
             allowEmptyValue = true, schema =
@@ -195,8 +194,8 @@ public interface UserSelfService extends JAXRSService {
                 description = "User successfully updated enriched with propagation status information, as Entity",
                 content =
                 @Content(schema =
-                        @Schema(implementation = ProvisioningResult.class)))
-        , @ApiResponse(responseCode = "204",
+                        @Schema(implementation = ProvisioningResult.class))),
+        @ApiResponse(responseCode = "204",
                 description = "No content if 'Prefer: return-no-content' was specified", headers =
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
@@ -214,8 +213,8 @@ public interface UserSelfService extends JAXRSService {
      * @return Response object featuring the deleted user
      */
     @Operation(security = {
-        @SecurityRequirement(name = "BasicAuthentication")
-        , @SecurityRequirement(name = "Bearer") })
+        @SecurityRequirement(name = "BasicAuthentication"),
+        @SecurityRequirement(name = "Bearer") })
     @DELETE
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete();
@@ -228,8 +227,8 @@ public interface UserSelfService extends JAXRSService {
      * @return Response object featuring the updated user
      */
     @Operation(security = {
-        @SecurityRequirement(name = "BasicAuthentication")
-        , @SecurityRequirement(name = "Bearer") })
+        @SecurityRequirement(name = "BasicAuthentication"),
+        @SecurityRequirement(name = "Bearer") })
     @POST
     @Path("changePassword")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

@@ -59,9 +59,9 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     public Response read() {
         Pair<String, UserTO> self = logic.selfRead();
         return Response.ok().
-                header(RESTHeaders.RESOURCE_KEY, self.getValue().getKey()).
-                header(RESTHeaders.OWNED_ENTITLEMENTS, self.getKey()).
-                entity(self.getValue()).
+                header(RESTHeaders.RESOURCE_KEY, self.getRight().getKey()).
+                header(RESTHeaders.OWNED_ENTITLEMENTS, self.getLeft()).
+                entity(self.getRight()).
                 build();
     }
 
@@ -74,7 +74,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     @Override
     public Response update(final UserTO user) {
         Pair<String, UserTO> self = logic.selfRead();
-        return update(AnyOperations.diff(user, self.getValue(), false));
+        return update(AnyOperations.diff(user, self.getRight(), false));
     }
 
     @Override
