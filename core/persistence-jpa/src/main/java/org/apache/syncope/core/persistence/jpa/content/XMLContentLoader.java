@@ -76,6 +76,11 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
                 LOG.info("[{}] Empty database found, loading default content", domain);
 
                 try {
+                    createViews(domain, datasource);
+                } catch (IOException e) {
+                    LOG.error("[{}] While creating views", domain, e);
+                }
+                try {
                     createIndexes(domain, datasource);
                 } catch (IOException e) {
                     LOG.error("[{}] While creating indexes", domain, e);
@@ -86,11 +91,6 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
                     loadDefaultContent(domain, contentXML, datasource);
                 } catch (Exception e) {
                     LOG.error("[{}] While loading default content", domain, e);
-                }
-                try {
-                    createViews(domain, datasource);
-                } catch (IOException e) {
-                    LOG.error("[{}] While creating views", domain, e);
                 }
             }
         });
