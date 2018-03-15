@@ -77,12 +77,12 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
                 try {
                     createViews(entry.getKey(), entry.getValue());
                 } catch (IOException e) {
-                    LOG.error("[{}] While creating indexes", entry.getKey(), e);
+                    LOG.error("[{}] While creating views", entry.getKey(), e);
                 }
                 try {
-                    createViews(entry.getKey(), entry.getValue());
+                    createIndexes(entry.getKey(), entry.getValue());
                 } catch (IOException e) {
-                    LOG.error("[{}] While creating views", entry.getKey(), e);
+                    LOG.error("[{}] While creating indexes", entry.getKey(), e);
                 }
                 try {
                     ResourceWithFallbackLoader contentXML = ApplicationContextProvider.getBeanFactory().
