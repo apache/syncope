@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -34,6 +35,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.stereotype.Component;
+import org.xml.sax.SAXException;
 
 /**
  * Initialize Database with default content if no data is present already.
@@ -74,6 +76,11 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
                 LOG.info("[{}] Empty database found, loading default content", domain);
 
                 try {
+                    createIndexes(domain, datasource);
+                } catch (IOException e) {
+                    LOG.error("[{}] While creating indexes", domain, e);
+                }
+                try {
                     ResourceWithFallbackLoader contentXML = ApplicationContextProvider.getBeanFactory().
                             getBean(domain + "ContentXML", ResourceWithFallbackLoader.class);
                     loadDefaultContent(domain, contentXML, datasource);
@@ -82,9 +89,8 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
                 }
                 try {
                     createViews(domain, datasource);
-                    createIndexes(domain, datasource);
                 } catch (IOException e) {
-                    LOG.error("[{}] While creating indexes and views", domain, e);
+                    LOG.error("[{}] While creating views", domain, e);
                 }
             }
         });
@@ -92,7 +98,7 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
 
     private void loadDefaultContent(
             final String domain, final ResourceWithFallbackLoader contentXML, final DataSource dataSource)
-            throws Exception {
+            throws IOException, ParserConfigurationException, SAXException {
 
         SAXParserFactory factory = SAXParserFactory.newInstance();
         try (InputStream in = contentXML.getResource().getInputStream()) {
