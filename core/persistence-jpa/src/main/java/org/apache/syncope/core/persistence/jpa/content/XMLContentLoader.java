@@ -75,6 +75,11 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
                 LOG.info("[{}] Empty database found, loading default content", entry.getKey());
 
                 try {
+                    createViews(entry.getKey(), entry.getValue());
+                } catch (IOException e) {
+                    LOG.error("[{}] While creating indexes", entry.getKey(), e);
+                }
+                try {
                     ResourceWithFallbackLoader contentXML = ApplicationContextProvider.getBeanFactory().
                             getBean(entry.getKey() + "ContentXML", ResourceWithFallbackLoader.class);
                     loadDefaultContent(entry.getKey(), contentXML, entry.getValue());
@@ -83,9 +88,8 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
                 }
                 try {
                     createViews(entry.getKey(), entry.getValue());
-                    createIndexes(entry.getKey(), entry.getValue());
                 } catch (IOException e) {
-                    LOG.error("[{}] While creating indexes and views", entry.getKey(), e);
+                    LOG.error("[{}] While creating views", entry.getKey(), e);
                 }
             }
         }
