@@ -50,7 +50,7 @@ under the License.
                 
         <entry key="openjpa.DataCache" value="true"/>
         <entry key="openjpa.QueryCache" value="true"/>
-        <entry key="openjpa.RemoteCommitProvider" value="sjvm"/>
+        <entry key="openjpa.RemoteCommitProvider" value="${openjpa.RemoteCommitProvider:sjvm}"/>
       </map>
     </property>
   </bean>
