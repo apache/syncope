@@ -251,32 +251,30 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
             comparator = new SortableDataProviderComparator<>(this);
         }
 
-        @Override
-        public Iterator<SchemaTO> iterator(final long first, final long count) {
+        private List<SchemaTO> getSchemas() {
             List<SchemaTO> schemas = restClient.getSchemas(this.schemaType, keyword);
-            Collections.sort(schemas, comparator);
 
             if (SchemaType.PLAIN == this.schemaType) {
-                final List<String> configurations = confRestClient.list().stream().
+                List<String> configurations = confRestClient.list().stream().
                         map(AttrTO::getSchema).collect(Collectors.toList());
 
-                final List<SchemaTO> res = schemas.stream().
-                        filter(item -> !configurations.contains(item.getKey())).
-                        collect(Collectors.toList());
-                return res.subList((int) first, (int) first + (int) count).iterator();
-            } else {
-                return schemas.subList((int) first, (int) first + (int) count).iterator();
+                schemas.removeIf(schema -> configurations.contains(schema.getKey()));
             }
+
+            return schemas;
+        }
+
+        @Override
+        public Iterator<SchemaTO> iterator(final long first, final long count) {
+            List<SchemaTO> schemas = getSchemas();
+            Collections.sort(schemas, comparator);
+
+            return schemas.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            int size = restClient.getSchemas(this.schemaType, keyword).size();
-            return size > confRestClient.list().size()
-                    ? (SchemaType.PLAIN == this.schemaType
-                            ? size - confRestClient.list().size()
-                            : size)
-                    : size;
+            return getSchemas().size();
         }
 
         @Override
