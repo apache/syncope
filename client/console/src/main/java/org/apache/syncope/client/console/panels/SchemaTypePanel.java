@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -252,14 +253,11 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
             comparator = new SortableDataProviderComparator<>(this);
         }
 
-        @Override
-        public Iterator<SchemaTO> iterator(final long first, final long count) {
+        private List<SchemaTO> getSchemas() {
             List<SchemaTO> schemas = restClient.getSchemas(this.schemaType, keyword);
-            Collections.sort(schemas, comparator);
 
             if (SchemaType.PLAIN == this.schemaType) {
                 final List<String> configurations = new ArrayList<>();
-
                 CollectionUtils.collect(confRestClient.list(), new Transformer<AttrTO, String>() {
 
                     @Override
@@ -268,26 +266,29 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
                     }
                 }, configurations);
 
-                final List<SchemaTO> res = new ArrayList<>();
-                for (SchemaTO schema : schemas) {
-                    if (!configurations.contains(schema.getKey())) {
-                        res.add(schema);
+                CollectionUtils.filterInverse(schemas, new Predicate<SchemaTO>() {
+
+                    @Override
+                    public boolean evaluate(final SchemaTO schema) {
+                        return configurations.contains(schema.getKey());
                     }
-                }
-                return res.subList((int) first, (int) first + (int) count).iterator();
-            } else {
-                return schemas.subList((int) first, (int) first + (int) count).iterator();
+                });
             }
+
+            return schemas;
+        }
+
+        @Override
+        public Iterator<SchemaTO> iterator(final long first, final long count) {
+            List<SchemaTO> schemas = getSchemas();
+            Collections.sort(schemas, comparator);
+
+            return schemas.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            int size = restClient.getSchemas(this.schemaType, keyword).size();
-            return size > confRestClient.list().size()
-                    ? (SchemaType.PLAIN == this.schemaType
-                            ? size - confRestClient.list().size()
-                            : size)
-                    : size;
+            return getSchemas().size();
         }
 
         @Override
@@ -303,11 +304,13 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
             AjaxRequestTarget target = payload.getTarget();
 
             keyword = payload.getKeyword();
-            if (!keyword.startsWith("*")) {
-                keyword = "*" + keyword;
-            }
-            if (!keyword.endsWith("*")) {
-                keyword = keyword + "*";
+            if (keyword != null) {
+                if (!keyword.startsWith("*")) {
+                    keyword = "*" + keyword;
+                }
+                if (!keyword.endsWith("*")) {
+                    keyword = keyword + "*";
+                }
             }
 
             updateResultTable(target);
