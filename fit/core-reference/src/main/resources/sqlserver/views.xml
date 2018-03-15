@@ -19,8 +19,33 @@ under the License.
 -->
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-  <comment>Views</comment>
   
+  <entry key="UDynGroupMembers">
+    CREATE TABLE UDynGroupMembers(
+    any_id CHAR(36),
+    group_id CHAR(36),
+    UNIQUE(any_id, group_id))
+  </entry>
+  <entry key="ADynGroupMembers">
+    CREATE TABLE ADynGroupMembers(
+    anyType_id VARCHAR(255),
+    any_id CHAR(36),
+    group_id CHAR(36),
+    UNIQUE(anyType_id, any_id, group_id))
+  </entry>
+  <entry key="DynRoleMembers">
+    CREATE TABLE DynRoleMembers(
+    any_id CHAR(36),
+    role_id VARCHAR(255),
+    UNIQUE(any_id, role_id))
+  </entry>
+  <entry key="DynRealmMembers">
+    CREATE TABLE DynRealmMembers(
+    any_id CHAR(36),
+    dynRealm_id VARCHAR(255),
+    UNIQUE(any_id, dynRealm_id))
+  </entry>
+
   <!-- user -->
   <entry key="user_search">
     CREATE VIEW user_search AS
@@ -80,25 +105,11 @@ under the License.
     FROM UMembership m, SyncopeGroup g
     WHERE m.group_id = g.id
   </entry>
-  <entry key="user_search_udyngmemb">
-    CREATE VIEW user_search_udyngmemb AS
-
-    SELECT ds.user_id AS any_id, d.group_id AS group_id
-    FROM UDynGroupMembership d, UDynGroupMembership_User ds
-    WHERE d.id = ds.uDynGroupMembership_id
-  </entry>
   <entry key="user_search_role">
     CREATE VIEW user_search_role AS
 
     SELECT ss.user_id AS any_id, ss.role_id AS role_id
     FROM SyncopeUser_SyncopeRole ss
-  </entry>
-  <entry key="user_search_dynrmemb">
-    CREATE VIEW user_search_dynrmemb AS
-
-    SELECT ds.user_id AS any_id, d.role_id AS role_id
-    FROM DynRoleMembership d, DynRoleMembership_User ds
-    WHERE d.id = ds.dynRoleMembership_id
   </entry>
   <entry key="user_search_resource">
     CREATE VIEW user_search_resource AS
@@ -172,13 +183,6 @@ under the License.
     SELECT m.anyObject_id AS any_id, g.id AS group_id, g.name AS group_name
     FROM AMembership m, SyncopeGroup g
     WHERE m.group_id = g.id
-  </entry>
-  <entry key="anyObject_search_adyngmemb">
-    CREATE VIEW anyObject_search_adyngmemb AS
-
-    SELECT ds.anyObject_id AS any_id, d.group_id AS group_id
-    FROM ADynGroupMembership d, ADynGroupMembership_AnyObject ds
-    WHERE d.id = ds.aDynGroupMembership_id
   </entry>
   <entry key="anyObject_search_resource">
     CREATE VIEW anyObject_search_resource AS
