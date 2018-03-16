@@ -19,3 +19,9 @@
 === Privileges
 
 Privileges model the rights that Users own on external applications.
+
+Privileges are granted via <<roles, roles>> to Users.
+
+[TIP]
+The typical use case for privileges is to use Syncope as registry for available applications and privileges
+that users can own on those; once done this, external tools can query Syncope about the privileges owned by given users.
