@@ -22,8 +22,10 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbed
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
+import org.apache.syncope.client.console.panels.ApplicationDirectoryPanel;
 import org.apache.syncope.client.console.panels.DynRealmDirectoryPanel;
 import org.apache.syncope.client.console.panels.RoleDirectoryPanel;
+import org.apache.syncope.client.console.panels.SecurityQuestionsPanel;
 import org.apache.syncope.client.console.wizards.role.RoleWizardBuilder;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -33,17 +35,17 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-public class Administration extends BasePage {
+public class Security extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271271L;
 
-    public Administration(final PageParameters parameters) {
+    public Security(final PageParameters parameters) {
         super(parameters);
 
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
-        content.setMarkupId("administration");
+        content.setMarkupId("security");
         content.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList()));
         body.add(content);
     }
@@ -78,6 +80,31 @@ public class Administration extends BasePage {
                 }.build(panelId);
             }
         });
+
+        tabs.add(new AbstractTab(new ResourceModel("applications")) {
+
+            private static final long serialVersionUID = -6815067322125799251L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                return new ApplicationDirectoryPanel.Builder(getPageReference()) {
+
+                    private static final long serialVersionUID = -5960765294082359003L;
+
+                }.build(panelId);
+            }
+        });
+
+        tabs.add(new AbstractTab(new ResourceModel("securityQuestions")) {
+
+            private static final long serialVersionUID = -6815067322125799251L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                return new SecurityQuestionsPanel(panelId, getPageReference());
+            }
+        });
+
         return tabs;
     }
 }

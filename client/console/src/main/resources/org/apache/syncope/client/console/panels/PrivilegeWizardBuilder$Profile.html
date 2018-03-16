@@ -17,20 +17,10 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:extend>
-    <section class="content-header">
-      <h1>&nbsp;</h1>
-      <ol class="breadcrumb">
-        <li><a wicket:id="dashboardBr"><i class="fa fa-dashboard"></i> <wicket:message key="dashboard"/></a></li>
-        <li class="active"><wicket:message key="configuration"/></li>
-        <li class="active"><wicket:message key="administration"/></li>
-      </ol>
-    </section>
-
-    <section class="content" wicket:id="content">
-      <div class="box">
-        <div class="box-body" wicket:id="tabbedPanel"/>
-      </div>
-    </section>
-  </wicket:extend>
+  <wicket:panel>
+    <div class="form-group">
+      <span wicket:id="key"/>
+      <span wicket:id="description"/>
+    </div>
+  </wicket:panel>
 </html>

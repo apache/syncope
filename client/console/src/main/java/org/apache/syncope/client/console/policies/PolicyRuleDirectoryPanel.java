@@ -200,7 +200,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
                     customActionOnFinishCallback(target);
                 }
             }
-        }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).hideLabel();
+        }, ActionLink.ActionType.RELOAD, StandardEntitlement.POLICY_LIST).hideLabel();
         return panel;
     }
 

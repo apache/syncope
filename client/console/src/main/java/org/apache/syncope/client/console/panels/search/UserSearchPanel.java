@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.panels.search;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.syncope.client.console.rest.ApplicationRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -32,6 +33,8 @@ public final class UserSearchPanel extends AnyObjectSearchPanel {
     private static final long serialVersionUID = -1769527800450203738L;
 
     private final RoleRestClient roleRestClient = new RoleRestClient();
+
+    private final ApplicationRestClient applicationRestClient = new ApplicationRestClient();
 
     public static class Builder extends AnyObjectSearchPanel.Builder {
 
@@ -64,6 +67,18 @@ public final class UserSearchPanel extends AnyObjectSearchPanel {
                 return roleRestClient.list().stream().map(EntityTO::getKey).collect(Collectors.toList());
             }
         };
+
+        this.privilegeNames = new LoadableDetachableModel<List<String>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return applicationRestClient.list().stream().
+                        flatMap(application -> application.getPrivileges().stream()).
+                        map(EntityTO::getKey).collect(Collectors.toList());
+            }
+        };
     }
 
     @Override
@@ -71,6 +86,7 @@ public final class UserSearchPanel extends AnyObjectSearchPanel {
         List<SearchClause.Type> result = new ArrayList<>();
         result.add(SearchClause.Type.ATTRIBUTE);
         result.add(SearchClause.Type.ROLE_MEMBERSHIP);
+        result.add(SearchClause.Type.PRIVILEGE);
         result.add(SearchClause.Type.GROUP_MEMBERSHIP);
         result.add(SearchClause.Type.RESOURCE);
         result.add(SearchClause.Type.RELATIONSHIP);

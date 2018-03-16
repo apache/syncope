@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.Administration;
+import org.apache.syncope.client.console.pages.Security;
 import org.apache.wicket.Component;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,8 +34,8 @@ public class RolesITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        TESTER.clickLink("body:configurationLI:configurationUL:administrationLI:administration");
-        TESTER.assertRenderedPage(Administration.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security");
+        TESTER.assertRenderedPage(Security.class);
     }
 
     private void createRole(final String name) {
@@ -57,12 +57,15 @@ public class RolesITCase extends AbstractConsoleITCase {
         formTester.submit("content:form:buttons:next");
 
         formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
+        formTester.submit("content:form:buttons:next");
+
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
 
-        TESTER.clickLink("body:configurationLI:configurationUL:administrationLI:administration");
+        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security");
     }
 
     @Test

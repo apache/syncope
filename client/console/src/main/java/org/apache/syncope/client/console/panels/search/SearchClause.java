@@ -41,6 +41,7 @@ public final class SearchClause implements Serializable {
         GROUP_MEMBERSHIP,
         GROUP_MEMBER,
         ROLE_MEMBERSHIP,
+        PRIVILEGE,
         RESOURCE,
         RELATIONSHIP;
 

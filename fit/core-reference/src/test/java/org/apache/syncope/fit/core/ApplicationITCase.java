@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.Base64;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
@@ -67,20 +66,17 @@ public class ApplicationITCase extends AbstractITCase {
 
         PrivilegeTO privilegeTO = new PrivilegeTO();
         privilegeTO.setKey(UUID.randomUUID().toString());
-        privilegeTO.setSpecMimeType("application/xml");
-        privilegeTO.setSpec(Base64.getEncoder().encodeToString("<one/>".getBytes()));
+        privilegeTO.setSpec("{ \"one\": true }");
         application.getPrivileges().add(privilegeTO);
 
         privilegeTO = new PrivilegeTO();
         privilegeTO.setKey(UUID.randomUUID().toString());
-        privilegeTO.setSpecMimeType("application/xml");
-        privilegeTO.setSpec(Base64.getEncoder().encodeToString("<one><two/></one>".getBytes()));
+        privilegeTO.setSpec("{ \"two\": true }");
         application.getPrivileges().add(privilegeTO);
 
         privilegeTO = new PrivilegeTO();
         privilegeTO.setKey(UUID.randomUUID().toString());
-        privilegeTO.setSpecMimeType("application/xml");
-        privilegeTO.setSpec(Base64.getEncoder().encodeToString("<one><two><three/></two></one>".getBytes()));
+        privilegeTO.setSpec("{ \"three\": true }");
         application.getPrivileges().add(privilegeTO);
 
         Response response = applicationService.create(application);

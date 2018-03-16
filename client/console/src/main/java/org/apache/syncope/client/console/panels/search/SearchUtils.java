@@ -123,6 +123,9 @@ public final class SearchUtils implements Serializable {
         if (SpecialAttr.ROLES.toString().equals(property)) {
             clause.setType(SearchClause.Type.ROLE_MEMBERSHIP);
             clause.setProperty(value);
+        } else if (SpecialAttr.PRIVILEGES.toString().equals(property)) {
+            clause.setType(SearchClause.Type.PRIVILEGE);
+            clause.setProperty(value);
         } else if (SpecialAttr.RELATIONSHIPS.toString().equals(property)) {
             clause.setType(SearchClause.Type.RELATIONSHIP);
             clause.setProperty(value);
@@ -338,6 +341,23 @@ public final class SearchUtils implements Serializable {
                                 case NOT_EQUALS:
                                     condition = ((UserFiqlSearchConditionBuilder) builder).
                                             notInRoles(clause.getProperty());
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        break;
+
+                    case PRIVILEGE:
+                        if (StringUtils.isNotBlank(clause.getProperty())) {
+                            switch (clause.getComparator()) {
+                                case EQUALS:
+                                    condition = ((UserFiqlSearchConditionBuilder) builder).
+                                            withPrivileges(clause.getProperty());
+                                    break;
+                                case NOT_EQUALS:
+                                    condition = ((UserFiqlSearchConditionBuilder) builder).
+                                            withoutPrivileges(clause.getProperty());
                                     break;
                                 default:
                                     break;

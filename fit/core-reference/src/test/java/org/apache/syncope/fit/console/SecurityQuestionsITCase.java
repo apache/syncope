@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.SecurityQuestions;
+import org.apache.syncope.client.console.pages.Security;
 import org.apache.wicket.Component;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
@@ -37,42 +37,44 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        TESTER.clickLink("body:configurationLI:configurationUL:securityquestionsLI:securityquestions");
-        TESTER.assertRenderedPage(SecurityQuestions.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security");
+        TESTER.assertRenderedPage(Security.class);
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
     }
 
     private void createSecurityQuestion(final String name) {
-        TESTER.clickLink("body:content:securityQuestionPanel:container:content:add");
+        TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
 
         TESTER.assertComponent(
-                "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer", Modal.class);
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
         FormTester formTester = TESTER.newFormTester(
-                "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:form");
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:securityQuestionDetailsPanel:container:form:content:textField",
                 name);
 
         TESTER.clickLink(
-                "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
 
-        TESTER.clickLink("body:configurationLI:configurationUL:securityquestionsLI:securityquestions");
+        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security");
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
     }
 
     @Test
     public void read() {
         Label label = (Label) TESTER.getComponentFromLastRenderedPage(
-                "body:content:securityQuestionPanel:container:content:searchContainer:resultTable:"
+                "body:content:tabbedPanel:panel:container:content:searchContainer:resultTable:"
                 + "tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:2:cell");
         assertTrue(label.getDefaultModelObjectAsString().startsWith("What&#039;s your "));
 
-        TESTER.executeAjaxEvent("body:content:securityQuestionPanel:container:content:searchContainer:resultTable:"
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:container:content:searchContainer:resultTable:"
                 + "tablePanel:groupForm:checkgroup:dataTable:body:rows:1", Constants.ON_CLICK);
 
         TESTER.assertComponent(
-                "body:content:securityQuestionPanel:outerObjectsRepeater:1:outer:container:content:"
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action",
                 IndicatingAjaxLink.class);
     }
@@ -85,23 +87,23 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
     @Test
     public void update() {
         createSecurityQuestion("What's your preferred color?");
-        Component result = findComponentByProp("content", "body:content:securityQuestionPanel:container:content:"
+        Component result = findComponentByProp("content", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 "What's your preferred color?");
 
         assertNotNull(result);
 
         TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.clickLink("body:content:securityQuestionPanel:outerObjectsRepeater:1:outer:container:content:"
+        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
         FormTester formTester = TESTER.newFormTester(
-                "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:form");
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:securityQuestionDetailsPanel:container:form:content:textField",
                 "What's your preferred car?");
 
         TESTER.clickLink(
-                "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
@@ -112,25 +114,25 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
         String name = "What's your preferred color?";
         createSecurityQuestion(name);
 
-        Component result = findComponentByProp("content", "body:content:securityQuestionPanel:container:content:"
+        Component result = findComponentByProp("content", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 name);
         assertNotNull(result);
 
         TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.getRequest().addParameter("confirm", "true");
-        TESTER.clickLink("body:content:securityQuestionPanel:outerObjectsRepeater:1:outer:container:content:"
+        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
         TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
-                "body:content:securityQuestionPanel:outerObjectsRepeater:1:outer:container:content:"
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"), "onclick");
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
 
         assertNull(findComponentByProp("content",
-                "body:content:securityQuestionPanel:container:content:"
+                "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:"
                 + "tablePanel:groupForm:checkgroup:dataTable", name));
     }

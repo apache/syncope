@@ -67,22 +67,19 @@ public class ApplicationTest extends AbstractTest {
         String privilege1Key = UUID.randomUUID().toString();
         Privilege privilege = entityFactory.newEntity(Privilege.class);
         privilege.setKey(privilege1Key);
-        privilege.setSpecMimeType("application/xml");
-        privilege.setSpec("<one/>".getBytes());
+        privilege.setSpec("{ \"one\": true }");
         application.add(privilege);
 
         String privilege2Key = UUID.randomUUID().toString();
         privilege = entityFactory.newEntity(Privilege.class);
         privilege.setKey(privilege2Key);
-        privilege.setSpecMimeType("application/xml");
-        privilege.setSpec("<one><two/></one>".getBytes());
+        privilege.setSpec("{ \"two\": true }");
         application.add(privilege);
 
         String privilege3Key = UUID.randomUUID().toString();
         privilege = entityFactory.newEntity(Privilege.class);
         privilege.setKey(privilege3Key);
-        privilege.setSpecMimeType("application/xml");
-        privilege.setSpec("<one><two><three/></two></one>".getBytes());
+        privilege.setSpec("{ \"three\": true }");
         application.add(privilege);
 
         application = applicationDAO.save(application);

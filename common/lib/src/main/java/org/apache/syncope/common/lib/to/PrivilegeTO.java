@@ -34,8 +34,6 @@ public class PrivilegeTO extends AbstractBaseBean implements EntityTO {
 
     private String application;
 
-    private String specMimeType;
-
     private String spec;
 
     @Override
@@ -62,14 +60,6 @@ public class PrivilegeTO extends AbstractBaseBean implements EntityTO {
 
     public void setApplication(final String application) {
         this.application = application;
-    }
-
-    public String getSpecMimeType() {
-        return specMimeType;
-    }
-
-    public void setSpecMimeType(final String specMimeType) {
-        this.specMimeType = specMimeType;
     }
 
     public String getSpec() {

@@ -28,11 +28,7 @@ public interface Privilege extends ProvidedKeyEntity {
 
     void setDescription(String description);
 
-    String getSpecMimeType();
+    String getSpec();
 
-    void setSpecMimeType(String specMimeType);
-
-    byte[] getSpec();
-
-    void setSpec(byte[] spec);
+    void setSpec(String spec);
 }

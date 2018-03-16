@@ -237,12 +237,10 @@ under the License.
   
   <Application id="mightyApp" description="A cool application"/>
   <Privilege id="postMighty" description="Ability to POST"
-             spec="7B20226D6574686F64223A2022504F5354222C202275726C223A20222F612F622F6322207D"
-             specmimetype="application/json"
+             spec="{ &quot;method&quot;: &quot;POST&quot;, &quot;url&quot;: &quot;/a/b/c&quot; }"
              application_id="mightyApp"/>
   <Privilege id="getMighty" description="Ability to GET"
-             spec="7B20226D6574686F64223A2022474554222C202275726C223A20222F612F622F6322207D"
-             specmimetype="application/json"
+             spec="{ &quot;method&quot;: &quot;GET&quot;, &quot;url&quot;: &quot;/a/b/c&quot; }"
              application_id="mightyApp"/>
 
   <SyncopeRole id="User reviewer"/>

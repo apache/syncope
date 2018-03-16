@@ -26,8 +26,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.pages.Notifications;
 import org.apache.syncope.client.console.pages.Policies;
-import org.apache.syncope.client.console.pages.Administration;
-import org.apache.syncope.client.console.pages.SecurityQuestions;
+import org.apache.syncope.client.console.pages.Security;
 import org.apache.syncope.client.console.pages.Types;
 import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.common.lib.info.NumbersInfo;
@@ -56,9 +55,9 @@ public class CompletenessWidget extends BaseWidget {
 
     private final BookmarkablePageLink<Types> types;
 
-    private final BookmarkablePageLink<SecurityQuestions> securityquestions;
+    private final BookmarkablePageLink<Security> securityquestions;
 
-    private final BookmarkablePageLink<Administration> roles;
+    private final BookmarkablePageLink<Security> roles;
 
     public CompletenessWidget(final String id, final Map<String, Boolean> confCompleteness) {
         super(id);
@@ -108,12 +107,12 @@ public class CompletenessWidget extends BaseWidget {
                 !confCompleteness.get(NumbersInfo.ConfItem.VIR_SCHEMA.name())
                 || !confCompleteness.get(NumbersInfo.ConfItem.ANY_TYPE.name()));
 
-        securityquestions = BookmarkablePageLinkBuilder.build("securityquestions", SecurityQuestions.class);
+        securityquestions = BookmarkablePageLinkBuilder.build("securityquestions", Security.class);
         securityquestions.setOutputMarkupPlaceholderTag(true);
         actions.add(securityquestions);
         securityquestions.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.SECURITY_QUESTION.name()));
 
-        roles = BookmarkablePageLinkBuilder.build("roles", Administration.class);
+        roles = BookmarkablePageLinkBuilder.build("roles", Security.class);
         roles.setOutputMarkupPlaceholderTag(true);
         MetaDataRoleAuthorizationStrategy.authorize(roles, WebPage.ENABLE, StandardEntitlement.ROLE_LIST);
         actions.add(roles);

@@ -19,9 +19,9 @@
 package org.apache.syncope.client.console.panels.search;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
@@ -67,6 +67,8 @@ public abstract class AbstractSearchPanel extends Panel {
     protected IModel<Map<String, String>> groupNames;
 
     protected IModel<List<String>> roleNames;
+
+    protected IModel<List<String>> privilegeNames;
 
     protected IModel<List<SearchClause>> model;
 
@@ -147,7 +149,7 @@ public abstract class AbstractSearchPanel extends Panel {
         final SearchClausePanel searchClausePanel = new SearchClausePanel("panel", "panel",
                 Model.of(new SearchClause()),
                 required,
-                types, anames, dnames, groupInfo, roleNames, resourceNames);
+                types, anames, dnames, groupInfo, roleNames, privilegeNames, resourceNames);
 
         if (enableSearch) {
             searchClausePanel.enableSearch(builder.resultContainer);
@@ -186,11 +188,7 @@ public abstract class AbstractSearchPanel extends Panel {
                 final List<PlainSchemaTO> schemas = schemaRestClient.<PlainSchemaTO>getSchemas(
                         SchemaType.PLAIN, null, anyTypeRestClient.read(type).getClasses().toArray(new String[] {}));
 
-                final Map<String, PlainSchemaTO> res = new HashMap<>();
-                for (PlainSchemaTO schema : schemas) {
-                    res.put(schema.getKey(), schema);
-                }
-                return res;
+                return schemas.stream().collect(Collectors.toMap(schema -> schema.getKey(), Function.identity()));
             }
         };
 

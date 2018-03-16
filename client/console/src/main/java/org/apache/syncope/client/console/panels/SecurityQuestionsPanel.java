@@ -105,6 +105,7 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
             final Builder<SecurityQuestionTO, SecurityQuestionTO, SecurityQuestionRestClient> builder) {
 
         super(id, builder);
+        setOutputMarkupId(true);
     }
 
     @Override

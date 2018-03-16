@@ -25,8 +25,7 @@ import org.apache.syncope.client.console.pages.Notifications;
 import org.apache.syncope.client.console.pages.Policies;
 import org.apache.syncope.client.console.pages.Realms;
 import org.apache.syncope.client.console.pages.Reports;
-import org.apache.syncope.client.console.pages.Administration;
-import org.apache.syncope.client.console.pages.SecurityQuestions;
+import org.apache.syncope.client.console.pages.Security;
 import org.apache.syncope.client.console.pages.Types;
 import org.apache.syncope.client.console.pages.Workflow;
 import org.apache.syncope.client.console.topology.Topology;
@@ -78,14 +77,11 @@ public class AjaxBrowseITCase extends AbstractConsoleITCase {
         TESTER.clickLink("body:configurationLI:configurationUL:logsLI:logs");
         TESTER.assertRenderedPage(Logs.class);
 
-        TESTER.clickLink("body:configurationLI:configurationUL:securityquestionsLI:securityquestions");
-        TESTER.assertRenderedPage(SecurityQuestions.class);
-
         TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types");
         TESTER.assertRenderedPage(Types.class);
 
-        TESTER.clickLink("body:configurationLI:configurationUL:administrationLI:administration");
-        TESTER.assertRenderedPage(Administration.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security");
+        TESTER.assertRenderedPage(Security.class);
 
         TESTER.clickLink("body:configurationLI:configurationUL:policiesLI:policies");
         TESTER.assertRenderedPage(Policies.class);

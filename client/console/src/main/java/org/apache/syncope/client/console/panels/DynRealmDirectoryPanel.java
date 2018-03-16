@@ -24,16 +24,19 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DynRealmDirectoryPanel.DynRealmDataProvider;
 import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.DynRealmWrapper;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DynRealmTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
@@ -76,7 +79,7 @@ public class DynRealmDirectoryPanel extends
             }
         });
 
-        AjaxLink<Void> newDynReamlLink = new AjaxLink<Void>("add") {
+        AjaxLink<Void> newDynRealmlLink = new AjaxLink<Void>("add") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -88,8 +91,8 @@ public class DynRealmDirectoryPanel extends
                 target.add(modal);
             }
         };
-        ((WebMarkupContainer) get("container:content")).addOrReplace(newDynReamlLink);
-        MetaDataRoleAuthorizationStrategy.authorize(newDynReamlLink, RENDER, StandardEntitlement.DYNREALM_CREATE);
+        ((WebMarkupContainer) get("container:content")).addOrReplace(newDynRealmlLink);
+        MetaDataRoleAuthorizationStrategy.authorize(newDynRealmlLink, RENDER, StandardEntitlement.DYNREALM_CREATE);
 
         initResultTable();
     }
@@ -129,6 +132,25 @@ public class DynRealmDirectoryPanel extends
                 target.add(modal);
             }
         }, ActionLink.ActionType.EDIT, StandardEntitlement.DYNREALM_UPDATE);
+
+        panel.add(new ActionLink<DynRealmTO>() {
+
+            private static final long serialVersionUID = 3766262567901552032L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final DynRealmTO ignore) {
+                try {
+                    restClient.delete(model.getObject().getKey());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While deleting dynamic realm {}", model.getObject().getKey(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.DYNREALM_DELETE, true);
 
         return panel;
     }

@@ -207,26 +207,19 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.LOG_LIST);
         liContainer.add(link);
 
-        liContainer = new WebMarkupContainer(getLIContainerId("securityquestions"));
-        confULContainer.add(liContainer);
-        bld = new StringBuilder();
-        bld.append(StandardEntitlement.SECURITY_QUESTION_CREATE).append(",").
-                append(StandardEntitlement.SECURITY_QUESTION_DELETE).append(",").
-                append(StandardEntitlement.SECURITY_QUESTION_UPDATE);
-        link = BookmarkablePageLinkBuilder.build("securityquestions", SecurityQuestions.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, bld.toString());
-        liContainer.add(link);
-
         liContainer = new WebMarkupContainer(getLIContainerId("types"));
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("types", Types.class);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.SCHEMA_LIST);
         liContainer.add(link);
 
-        liContainer = new WebMarkupContainer(getLIContainerId("administration"));
+        liContainer = new WebMarkupContainer(getLIContainerId("security"));
         confULContainer.add(liContainer);
-        link = BookmarkablePageLinkBuilder.build("administration", Administration.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.ROLE_LIST);
+        link = BookmarkablePageLinkBuilder.build("security", Security.class);
+        bld = new StringBuilder();
+        bld.append(StandardEntitlement.ROLE_LIST).append(",").
+                append(StandardEntitlement.APPLICATION_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, bld.toString());
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("policies"));

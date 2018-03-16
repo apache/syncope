@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.Base64;
 import java.util.Iterator;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -78,8 +77,7 @@ public class ApplicationDataBinderImpl implements ApplicationDataBinder {
                 }
 
                 privilege.setDescription(privilegeTO.getDescription());
-                privilege.setSpecMimeType(privilegeTO.getSpecMimeType());
-                privilege.setSpec(Base64.getDecoder().decode(privilegeTO.getSpec()));
+                privilege.setSpec(privilegeTO.getSpec());
             }
         });
 
@@ -103,8 +101,7 @@ public class ApplicationDataBinderImpl implements ApplicationDataBinder {
         privilegeTO.setKey(privilege.getKey());
         privilegeTO.setDescription(privilege.getDescription());
         privilegeTO.setApplication(privilege.getApplication().getKey());
-        privilegeTO.setSpecMimeType(privilege.getSpecMimeType());
-        privilegeTO.setSpec(Base64.getEncoder().encodeToString(privilege.getSpec()));
+        privilegeTO.setSpec(privilege.getSpec());
         return privilegeTO;
     }
 

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
+import org.apache.syncope.client.console.rest.ApplicationRestClient;
 import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
@@ -94,6 +95,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleWrapper> {
         wizardModel.add(new Entitlements(modelObject.getInnerObject()));
         wizardModel.add(new Realms(modelObject.getInnerObject()));
         wizardModel.add(new DynRealms(modelObject.getInnerObject()));
+        wizardModel.add(new Privileges(modelObject.getInnerObject()));
         return wizardModel;
     }
 
@@ -174,6 +176,21 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleWrapper> {
             add(new AjaxPalettePanel.Builder<>().build("dynRealms",
                     new PropertyModel<>(modelObject, "dynRealms"),
                     new ListModel<>(new DynRealmRestClient().list().stream().
+                            map(EntityTO::getKey).collect(Collectors.toList()))).
+                    hideLabel().setOutputMarkupId(true));
+        }
+    }
+
+    public static class Privileges extends WizardStep {
+
+        private static final long serialVersionUID = 6896014330702958579L;
+
+        public Privileges(final RoleTO modelObject) {
+            setTitleModel(new ResourceModel("privileges"));
+            add(new AjaxPalettePanel.Builder<>().build("privileges",
+                    new PropertyModel<>(modelObject, "privileges"),
+                    new ListModel<>(new ApplicationRestClient().list().stream().
+                            flatMap(application -> application.getPrivileges().stream()).
                             map(EntityTO::getKey).collect(Collectors.toList()))).
                     hideLabel().setOutputMarkupId(true));
         }

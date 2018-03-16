@@ -22,8 +22,6 @@ import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 
@@ -40,11 +38,8 @@ public class JPAPrivilege extends AbstractProvidedKeyEntity implements Privilege
 
     private String description;
 
-    @NotNull
-    private String specMimeType;
-
     @Lob
-    private byte[] spec;
+    private String spec;
 
     @Override
     public Application getApplication() {
@@ -68,23 +63,13 @@ public class JPAPrivilege extends AbstractProvidedKeyEntity implements Privilege
     }
 
     @Override
-    public String getSpecMimeType() {
-        return specMimeType;
-    }
-
-    @Override
-    public void setSpecMimeType(final String specMimeType) {
-        this.specMimeType = specMimeType;
-    }
-
-    @Override
-    public byte[] getSpec() {
+    public String getSpec() {
         return spec;
     }
 
     @Override
-    public void setSpec(final byte[] spec) {
-        this.spec = ArrayUtils.clone(spec);
+    public void setSpec(final String spec) {
+        this.spec = spec;
     }
 
 }

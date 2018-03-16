@@ -147,7 +147,6 @@ public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
                     StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
         }
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-
     }
 
 }
