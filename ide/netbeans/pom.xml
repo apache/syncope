@@ -172,6 +172,14 @@ under the License.
     
     <resources>
       <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <includes>
+          <include>org/apache/syncope/**/*.png</include>
+        </includes>
+      </resource>
+
+      <resource>
         <directory>${basedir}</directory>
         <targetPath>META-INF</targetPath>
         <includes>
