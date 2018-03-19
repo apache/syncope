@@ -34,54 +34,6 @@ under the License.
 
       <p>If you want to report a vulnerability, please follow <a href="http://www.apache.org/security/">the procedure</a>.</p>
 
-      <subsection name="CVE-2018-1321: Remote code execution by administrators with report and template entitlements">	
-        <p>An administrator with report and template entitlements can use XSL Transformations (XSLT) to perform
-          malicious operations, including but not limited to file read, file write, and code execution.</p>
-
-        <p>
-          <b>Severity</b>
-        </p>
-        <p>Medium</p>
-
-        <p>
-          <b>Affects</b>
-        </p>
-        <p>
-          <ul>
-            <li>Releases prior to 1.2.11</li>
-            <li>Releases prior to 2.0.8</li>
-          </ul>
-        </p>
-        <p>The unsupported Releases 1.0.x, 1.1.x may be also affected.</p>
-
-        <p>
-          <b>Solution</b>
-        </p>
-        <p>
-          <ul>
-            <li>Syncope 1.2.x users should upgrade to 1.2.11</li>
-            <li>Syncope 2.0.x users should upgrade to 2.0.8</li>
-          </ul>          
-        </p>
-        
-        <p>
-          <b>Mitigation</b>
-        </p>
-        <p>Do not assign report and template entitlements to any administrator.</p>
-
-        <p>
-          <b>Fixed in</b>
-        </p>
-        <p>
-          <ul>
-            <li>Release 1.2.11</li>
-            <li>Release 2.0.8</li>
-          </ul>
-        </p>
-
-        <p>Read the <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1321">full CVE advisory</a>.</p>
-      </subsection>
-
       <subsection name="CVE-2018-1322: Information disclosure via FIQL and ORDER BY sorting">	
         <p>An administrator with user search entitlements can recover sensitive security values using the
           <code>fiql</code> and <code>orderby</code> parameters.</p>
@@ -128,6 +80,54 @@ under the License.
         </p>
 
         <p>Read the <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1322">full CVE advisory</a>.</p>
+      </subsection>
+
+      <subsection name="CVE-2018-1321: Remote code execution by administrators with report and template entitlements">	
+        <p>An administrator with report and template entitlements can use XSL Transformations (XSLT) to perform
+          malicious operations, including but not limited to file read, file write, and code execution.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>Medium</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>Releases prior to 1.2.11</li>
+            <li>Releases prior to 2.0.8</li>
+          </ul>
+        </p>
+        <p>The unsupported Releases 1.0.x, 1.1.x may be also affected.</p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>Syncope 1.2.x users should upgrade to 1.2.11</li>
+            <li>Syncope 2.0.x users should upgrade to 2.0.8</li>
+          </ul>          
+        </p>
+        
+        <p>
+          <b>Mitigation</b>
+        </p>
+        <p>Do not assign report and template entitlements to any administrator.</p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 1.2.11</li>
+            <li>Release 2.0.8</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1321">full CVE advisory</a>.</p>
       </subsection>
 
       <subsection name="CVE-2014-3503: Insecure Random implementations used to generate passwords">	
