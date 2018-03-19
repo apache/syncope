@@ -56,7 +56,9 @@ import org.apache.syncope.core.persistence.jpa.dao.DefaultAccountRule;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPasswordRule;
 import org.apache.syncope.core.provisioning.java.DefaultLogicActions;
 import org.apache.syncope.core.provisioning.java.data.DefaultItemTransformer;
+import org.apache.syncope.core.provisioning.java.propagation.AzurePropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
+import org.apache.syncope.core.provisioning.java.propagation.GoogleAppsPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
@@ -122,6 +124,8 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames.add(LDAPMembershipPropagationActions.class.getName());
             classNames.add(LDAPPasswordPropagationActions.class.getName());
             classNames.add(DBPasswordPropagationActions.class.getName());
+            classNames.add(AzurePropagationActions.class.getName());
+            classNames.add(GoogleAppsPropagationActions.class.getName());
             put(Type.PROPAGATION_ACTIONS, classNames);
 
             classNames = new HashSet<>();
