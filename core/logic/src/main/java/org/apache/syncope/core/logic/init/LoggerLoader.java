@@ -30,8 +30,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.db.ColumnMapping;
+import org.apache.logging.log4j.core.appender.db.jdbc.AbstractConnectionSource;
 import org.apache.logging.log4j.core.appender.db.jdbc.ColumnConfig;
-import org.apache.logging.log4j.core.appender.db.jdbc.ConnectionSource;
 import org.apache.logging.log4j.core.appender.db.jdbc.JdbcAppender;
 import org.apache.logging.log4j.core.appender.rewrite.RewriteAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -99,7 +99,7 @@ public class LoggerLoader implements SyncopeLoader {
                 appender = JdbcAppender.newBuilder().
                         withName("audit_for_" + entry.getKey()).
                         withIgnoreExceptions(false).
-                        setConnectionSource(new DataSourceConnectionSource(entry.getValue())).
+                        setConnectionSource(new DataSourceConnectionSource(entry.getKey(), entry.getValue())).
                         setBufferSize(0).
                         setTableName("SYNCOPEAUDIT").
                         setColumnConfigs(columnConfigs).
@@ -190,17 +190,25 @@ public class LoggerLoader implements SyncopeLoader {
         }
     }
 
-    private static class DataSourceConnectionSource implements ConnectionSource {
+    private static class DataSourceConnectionSource extends AbstractConnectionSource {
+
+        private final String description;
 
         private final DataSource dataSource;
 
-        DataSourceConnectionSource(final DataSource dataSource) {
+        DataSourceConnectionSource(final String domain, final DataSource dataSource) {
+            this.description = "dataSource{ domain=" + domain + ", value=" + dataSource + " }";
             this.dataSource = dataSource;
         }
 
         @Override
         public Connection getConnection() throws SQLException {
             return DataSourceUtils.getConnection(dataSource);
+        }
+
+        @Override
+        public String toString() {
+            return this.description;
         }
 
     }

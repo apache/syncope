@@ -393,7 +393,7 @@ under the License.
 
     <elasticsearch.version>6.2.2</elasticsearch.version>
 
-    <log4j.version>2.10.0</log4j.version>
+    <log4j.version>2.11.0</log4j.version>
     <disruptor.version>3.4.1</disruptor.version>
 
     <commons-io.version>2.6</commons-io.version>
@@ -438,7 +438,7 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     
     <wicket.version>7.10.0</wicket.version>
-    <wicket-jqueryui.version>7.10.1</wicket-jqueryui.version>
+    <wicket-jqueryui.version>7.10.2</wicket-jqueryui.version>
     <wicket-bootstrap.version>0.10.17</wicket-bootstrap.version>
     <wicket-chartjs.version>7.0.1</wicket-chartjs.version>
 
