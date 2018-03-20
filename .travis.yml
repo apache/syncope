@@ -18,9 +18,6 @@ addons:
   apt:
     packages:
       - oracle-java8-installer
-cache:
-  directories:
-  - $HOME/.m2
 language: java
 jdk:
   - oraclejdk8
