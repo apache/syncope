@@ -191,6 +191,12 @@ public class XSLTTransformer extends AbstractSAXTransformer implements CachingPi
         } catch (TransformerConfigurationException e) {
             LOG.error("Could not enable secure XML processing", e);
         }
+        try {
+            transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        } catch (IllegalArgumentException e) {
+            LOG.error("Could not disable {}", XMLConstants.ACCESS_EXTERNAL_DTD, e);
+        }
+
         return transformerFactory;
     }
 
