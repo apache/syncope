@@ -39,6 +39,8 @@ public class IntAttrName {
 
     private String membershipOfGroup;
 
+    private String privilegesOfApplication;
+
     public AnyTypeKind getAnyTypeKind() {
         return anyTypeKind;
     }
@@ -93,6 +95,14 @@ public class IntAttrName {
 
     public void setMembershipOfGroup(final String membershipOfGroup) {
         this.membershipOfGroup = membershipOfGroup;
+    }
+
+    public String getPrivilegesOfApplication() {
+        return privilegesOfApplication;
+    }
+
+    public void setPrivilegesOfApplication(final String privilegesOfApplication) {
+        this.privilegesOfApplication = privilegesOfApplication;
     }
 
     @Override

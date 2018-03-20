@@ -49,6 +49,7 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
+        assertNull(intAttrName.getPrivilegesOfApplication());
 
         intAttrName = intAttrNameParser.parse("name", AnyTypeKind.GROUP);
         assertNotNull(intAttrName);
@@ -60,6 +61,7 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
+        assertNull(intAttrName.getPrivilegesOfApplication());
 
         intAttrName = intAttrNameParser.parse("userOwner", AnyTypeKind.GROUP);
         assertNotNull(intAttrName);
@@ -71,6 +73,7 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
+        assertNull(intAttrName.getPrivilegesOfApplication());
 
         intAttrName = intAttrNameParser.parse("name", AnyTypeKind.USER);
         assertNotNull(intAttrName);
@@ -89,6 +92,7 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
+        assertNull(intAttrName.getPrivilegesOfApplication());
 
         intAttrName = intAttrNameParser.parse("cn", AnyTypeKind.ANY_OBJECT);
         assertNotNull(intAttrName);
@@ -99,6 +103,7 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
+        assertNull(intAttrName.getPrivilegesOfApplication());
 
         intAttrName = intAttrNameParser.parse("rvirtualdata", AnyTypeKind.ANY_OBJECT);
         assertNotNull(intAttrName);
@@ -109,6 +114,7 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
+        assertNull(intAttrName.getPrivilegesOfApplication());
     }
 
     @Test
@@ -122,6 +128,7 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertEquals("readers", intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
+        assertNull(intAttrName.getPrivilegesOfApplication());
     }
 
     @Test
@@ -135,6 +142,7 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNull(intAttrName.getEnclosingGroup());
         assertEquals("hp", intAttrName.getRelatedAnyObject());
         assertNull(intAttrName.getMembershipOfGroup());
+        assertNull(intAttrName.getPrivilegesOfApplication());
     }
 
     @Test
@@ -148,6 +156,20 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNull(intAttrName.getEnclosingGroup());
         assertEquals("top", intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
+        assertNull(intAttrName.getPrivilegesOfApplication());
+    }
+
+    @Test
+    public void privileges() throws ParseException {
+        IntAttrName intAttrName = intAttrNameParser.parse("privileges[mightyApp]", AnyTypeKind.USER);
+        assertNotNull(intAttrName);
+        assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
+        assertNull(intAttrName.getField());
+        assertNull(intAttrName.getSchemaName());
+        assertNull(intAttrName.getSchemaType());
+        assertNull(intAttrName.getEnclosingGroup());
+        assertNull(intAttrName.getRelatedAnyObject());
+        assertEquals("mightyApp", intAttrName.getPrivilegesOfApplication());
     }
 
     @Test

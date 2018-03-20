@@ -35,6 +35,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class IntAttrNameParser {
 
+    private static final Pattern PRIVILEGE_PATTERN = Pattern.compile(
+            "^privileges\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]");
+
     private static final Pattern ENCLOSING_GROUP_PATTERN = Pattern.compile(
             "^groups\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]\\.(.+)");
 
@@ -92,11 +95,18 @@ public class IntAttrNameParser {
     public IntAttrName parse(final String intAttrName, final AnyTypeKind provisionAnyTypeKind) throws ParseException {
         IntAttrName result = new IntAttrName();
 
+        Matcher matcher;
         if (intAttrName.indexOf('.') == -1) {
-            result.setAnyTypeKind(provisionAnyTypeKind);
-            setFieldOrSchemaName(intAttrName, result.getAnyTypeKind(), result);
+            matcher = PRIVILEGE_PATTERN.matcher(intAttrName);
+            if (matcher.matches()) {
+                result.setAnyTypeKind(AnyTypeKind.USER);
+                result.setPrivilegesOfApplication(matcher.group(1));
+            } else {
+                result.setAnyTypeKind(provisionAnyTypeKind);
+                setFieldOrSchemaName(intAttrName, result.getAnyTypeKind(), result);
+            }
         } else {
-            Matcher matcher = ENCLOSING_GROUP_PATTERN.matcher(intAttrName);
+            matcher = ENCLOSING_GROUP_PATTERN.matcher(intAttrName);
             if (matcher.matches()) {
                 result.setAnyTypeKind(AnyTypeKind.GROUP);
                 result.setEnclosingGroup(matcher.group(1));

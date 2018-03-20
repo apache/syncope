@@ -28,9 +28,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
+import org.apache.syncope.core.persistence.jpa.validation.entity.ApplicationCheck;
 
 @Entity
 @Table(name = JPAApplication.TABLE)
+@ApplicationCheck
 public class JPAApplication extends AbstractProvidedKeyEntity implements Application {
 
     private static final long serialVersionUID = -5951400197744722305L;

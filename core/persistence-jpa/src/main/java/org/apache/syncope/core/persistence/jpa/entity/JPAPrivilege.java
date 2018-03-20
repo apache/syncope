@@ -24,9 +24,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
+import org.apache.syncope.core.persistence.jpa.validation.entity.PrivilegeCheck;
 
 @Entity
 @Table(name = JPAPrivilege.TABLE)
+@PrivilegeCheck
 public class JPAPrivilege extends AbstractProvidedKeyEntity implements Privilege {
 
     private static final long serialVersionUID = -6479069294944858456L;

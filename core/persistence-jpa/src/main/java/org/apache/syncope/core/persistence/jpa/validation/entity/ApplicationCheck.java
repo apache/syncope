@@ -16,35 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity;
+package org.apache.syncope.core.persistence.jpa.validation.entity;
 
-import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
-import java.util.List;
-import java.util.Set;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface Role extends ProvidedKeyEntity {
+import javax.validation.Constraint;
+import javax.validation.Payload;
 
-    Set<String> getEntitlements();
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = ApplicationValidator.class)
+@Documented
+public @interface ApplicationCheck {
 
-    boolean add(Realm realm);
+    String message() default "{org.apache.syncope.core.persistence.validation.application}";
 
-    List<? extends Realm> getRealms();
+    Class<?>[] groups() default {};
 
-    boolean add(DynRealm dynRealm);
-
-    List<? extends DynRealm> getDynRealms();
-
-    DynRoleMembership getDynMembership();
-
-    void setDynMembership(DynRoleMembership dynMembership);
-
-    String getConsoleLayoutInfo();
-
-    void setConsoleLayoutInfo(String consoleLayoutInfo);
-
-    boolean add(Privilege privilege);
-
-    Set<? extends Privilege> getPrivileges(Application application);
-
-    Set<? extends Privilege> getPrivileges();
+    Class<? extends Payload>[] payload() default {};
 }

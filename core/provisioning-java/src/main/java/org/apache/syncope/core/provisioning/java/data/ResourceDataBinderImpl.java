@@ -410,14 +410,19 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     LOG.error("Invalid intAttrName '{}'", itemTO.getIntAttrName(), e);
                 }
 
-                if (intAttrName == null || intAttrName.getSchemaType() == null && intAttrName.getField() == null) {
+                if (intAttrName == null
+                        || intAttrName.getSchemaType() == null && intAttrName.getField() == null
+                        && intAttrName.getPrivilegesOfApplication() == null) {
+
                     LOG.error("'{}' not existing", itemTO.getIntAttrName());
                     invalidMapping.getElements().add("'" + itemTO.getIntAttrName() + "' not existing");
                 } else {
                     boolean allowed = true;
                     if (intAttrName.getSchemaType() != null
                             && intAttrName.getEnclosingGroup() == null
-                            && intAttrName.getRelatedAnyObject() == null) {
+                            && intAttrName.getRelatedAnyObject() == null
+                            && intAttrName.getPrivilegesOfApplication() == null) {
+
                         switch (intAttrName.getSchemaType()) {
                             case PLAIN:
                                 allowed = allowedSchemas.getPlainSchemas().contains(intAttrName.getSchemaName());
@@ -491,6 +496,13 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                             invalidMapping.getElements().add(
                                     "Only " + MappingPurpose.PROPAGATION.name()
                                     + " allowed when referring to any objects");
+                        }
+                        if (intAttrName.getPrivilegesOfApplication() != null
+                                && item.getPurpose() != MappingPurpose.PROPAGATION) {
+
+                            invalidMapping.getElements().add(
+                                    "Only " + MappingPurpose.PROPAGATION.name()
+                                    + " allowed when referring to privileges");
                         }
                         if (intAttrName.getSchemaType() == SchemaType.DERIVED
                                 && item.getPurpose() != MappingPurpose.PROPAGATION) {

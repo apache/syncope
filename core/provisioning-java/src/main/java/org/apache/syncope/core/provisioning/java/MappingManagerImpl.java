@@ -43,14 +43,17 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
@@ -112,6 +115,9 @@ public class MappingManagerImpl implements MappingManager {
     private VirSchemaDAO virSchemaDAO;
 
     @Autowired
+    private UserDAO userDAO;
+
+    @Autowired
     private AnyObjectDAO anyObjectDAO;
 
     @Autowired
@@ -119,6 +125,9 @@ public class MappingManagerImpl implements MappingManager {
 
     @Autowired
     private RealmDAO realmDAO;
+
+    @Autowired
+    private ApplicationDAO applicationDAO;
 
     @Autowired
     private DerAttrHandler derAttrHandler;
@@ -526,7 +535,10 @@ public class MappingManagerImpl implements MappingManager {
                         attr = ((GroupableRelatable<?, ?, ?, ?, ?>) reference).getPlainAttr(
                                 intAttrName.getSchemaName(), membership).orElse(null);
                     }
-                    if (attr != null) {
+                    if (attr == null) {
+                        LOG.warn("Invalid PlainSchema {} or PlainAttr not found for {}",
+                                intAttrName.getSchemaName(), reference);
+                    } else {
                         if (attr.getUniqueValue() != null) {
                             values.add(anyUtils.clonePlainAttrValue(attr.getUniqueValue()));
                         } else if (attr.getValues() != null) {
@@ -537,13 +549,15 @@ public class MappingManagerImpl implements MappingManager {
 
                 case DERIVED:
                     DerSchema derSchema = derSchemaDAO.find(intAttrName.getSchemaName());
-                    if (derSchema != null) {
-                        String value = membership == null
+                    if (derSchema == null) {
+                        LOG.warn("Invalid DerSchema: {}", intAttrName.getSchemaName());
+                    } else {
+                        String derValue = membership == null
                                 ? derAttrHandler.getValue(reference, derSchema)
                                 : derAttrHandler.getValue(reference, membership, derSchema);
-                        if (value != null) {
+                        if (derValue != null) {
                             PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                            attrValue.setStringValue(value);
+                            attrValue.setStringValue(derValue);
                             values.add(attrValue);
                         }
                     }
@@ -554,7 +568,9 @@ public class MappingManagerImpl implements MappingManager {
                     transform = false;
 
                     VirSchema virSchema = virSchemaDAO.find(intAttrName.getSchemaName());
-                    if (virSchema != null) {
+                    if (virSchema == null) {
+                        LOG.warn("Invalid VirSchema: {}", intAttrName.getSchemaName());
+                    } else {
                         LOG.debug("Expire entry cache {}-{}", reference, intAttrName.getSchemaName());
                         virAttrCache.expire(
                                 reference.getType().getKey(), reference.getKey(), intAttrName.getSchemaName());
@@ -562,17 +578,28 @@ public class MappingManagerImpl implements MappingManager {
                         List<String> virValues = membership == null
                                 ? virAttrHandler.getValues(reference, virSchema)
                                 : virAttrHandler.getValues(reference, membership, virSchema);
-                        virValues.stream().
-                                map(value -> {
-                                    PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                                    attrValue.setStringValue(value);
-                                    return attrValue;
-                                }).
-                                forEachOrdered(attrValue -> values.add(attrValue));
+                        virValues.forEach(virValue -> {
+                            PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+                            attrValue.setStringValue(virValue);
+                            values.add(attrValue);
+                        });
                     }
                     break;
 
                 default:
+            }
+        } else if (intAttrName.getPrivilegesOfApplication() != null && reference instanceof User) {
+            Application application = applicationDAO.find(intAttrName.getPrivilegesOfApplication());
+            if (application == null) {
+                LOG.warn("Invalid application: {}", intAttrName.getPrivilegesOfApplication());
+            } else {
+                userDAO.findAllRoles((User) reference).stream().
+                        flatMap(role -> role.getPrivileges(application).stream()).
+                        forEach(privilege -> {
+                            PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+                            attrValue.setStringValue(privilege.getKey());
+                            values.add(attrValue);
+                        });
             }
         }
 

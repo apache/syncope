@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -36,6 +37,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.Valid;
+import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -144,6 +146,13 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     public boolean add(final Privilege privilege) {
         checkType(privilege, JPAPrivilege.class);
         return privileges.add((JPAPrivilege) privilege);
+    }
+
+    @Override
+    public Set<? extends Privilege> getPrivileges(final Application application) {
+        return privileges.stream().
+                filter(privilege -> privilege.getApplication().equals(application)).
+                collect(Collectors.toSet());
     }
 
     @Override

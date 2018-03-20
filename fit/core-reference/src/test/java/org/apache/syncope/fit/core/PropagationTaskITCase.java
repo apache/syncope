@@ -29,6 +29,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -36,9 +37,11 @@ import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
@@ -140,6 +143,41 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertTrue(connObjectTO.getAttr("LOCATION").get().getValues().get(0).endsWith(suffix));
         } finally {
             resourceService.update(originalResource);
+        }
+    }
+
+    @Test
+    public void privileges() {
+        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        ldap.setKey("ldapWithPrivileges");
+
+        ItemTO item = new ItemTO();
+        item.setIntAttrName("privileges[mightyApp]");
+        item.setExtAttrName("businessCategory");
+        item.setPurpose(MappingPurpose.PROPAGATION);
+
+        ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
+        provision.getVirSchemas().clear();
+        provision.getMapping().add(item);
+
+        ldap = createResource(ldap);
+
+        try {
+            UserTO user = UserITCase.getUniqueSampleTO("privilege@syncope.apache.org");
+            user.getResources().add(ldap.getKey());
+            user.getRoles().add("Other");
+
+            ProvisioningResult<UserTO> result = createUser(user);
+            assertEquals(1, result.getPropagationStatuses().size());
+            assertNotNull(result.getPropagationStatuses().get(0).getAfterObj());
+
+            AttrTO businessCategory =
+                    result.getPropagationStatuses().get(0).getAfterObj().getAttr("businessCategory").orElse(null);
+            assertNotNull(businessCategory);
+            assertEquals(1, businessCategory.getValues().size());
+            assertEquals("postMighty", businessCategory.getValues().get(0));
+        } finally {
+            resourceService.delete(ldap.getKey());
         }
     }
 
