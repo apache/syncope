@@ -124,7 +124,7 @@ under the License.
       </list>
     </property>
   </bean>
-  <bean id="openapiFeature" class="org.apache.syncope.core.rest.cxf.SyncopeOpenApiFeature">
+  <bean id="openapiFeature" class="org.apache.cxf.jaxrs.openapi.OpenApiFeature">
     <property name="title" value="Apache Syncope"/>
     <property name="version" value="${syncope.version}"/>
     <property name="description" value="Apache Syncope ${syncope.version}"/>    
