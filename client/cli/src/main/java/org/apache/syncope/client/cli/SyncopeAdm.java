@@ -19,6 +19,7 @@
 package org.apache.syncope.client.cli;
 
 import javax.ws.rs.ProcessingException;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
 import org.apache.syncope.client.cli.util.CommandUtils;
 import org.slf4j.Logger;
@@ -60,8 +61,8 @@ public final class SyncopeAdm {
             }
         } catch (final ProcessingException e) {
             LOG.error("Error in main", e);
-            RESULT_MANAGER.genericError("Syncope server offline");
-            RESULT_MANAGER.genericError(e.getCause().getMessage());
+            RESULT_MANAGER.genericError("Problems contacting Syncope Server");
+            RESULT_MANAGER.genericError(ExceptionUtils.getMessage(e));
         }
 
     }
