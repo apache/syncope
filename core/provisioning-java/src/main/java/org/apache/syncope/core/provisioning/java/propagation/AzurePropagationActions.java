@@ -91,36 +91,16 @@ public class AzurePropagationActions extends DefaultPropagationActions {
     public void before(final PropagationTask task, final ConnectorObject beforeObj) {
         super.before(task, beforeObj);
 
+        if (task.getOperation() == ResourceOperation.DELETE || task.getOperation() == ResourceOperation.NONE) {
+            return;
+        }
+
         switch (task.getAnyTypeKind()) {
             case USER:
-                User user = userDAO.find(task.getEntityKey());
-                if (user != null) {
-                    Set<Attribute> attributes = new HashSet<>(task.getAttributes());
-
-                    // Ensure to set __NAME__ value to user's "mailNickname"
-                    Name name = AttributeUtil.getNameFromAttributes(attributes);
-                    if (name != null) {
-                        attributes.remove(name);
-                    }
-                    attributes.add(
-                            new Name(AttributeUtil.find(USER_MAIL_NICKNAME, attributes).getValue().get(0).toString()));
-
-                    task.setAttributes(attributes);
-                }
-
+                setName(task, USER_MAIL_NICKNAME);
                 break;
             case GROUP:
-                Set<Attribute> attributes = new HashSet<>(task.getAttributes());
-
-                // Ensure to set __NAME__ value to user's "mailNickname"
-                Name name = AttributeUtil.getNameFromAttributes(attributes);
-                if (name != null) {
-                    attributes.remove(name);
-                }
-                attributes.add(
-                        new Name(AttributeUtil.find(GROUP_MAIL_NICKNAME, attributes).getValue().get(0).toString()));
-
-                task.setAttributes(attributes);
+                setName(task, GROUP_MAIL_NICKNAME);
                 break;
             default:
                 LOG.debug("Not about user, or group, not doing anything");
@@ -214,6 +194,24 @@ public class AzurePropagationActions extends DefaultPropagationActions {
                 }
             }
         }
+    }
+
+    private void setName(final PropagationTask task, final String attributeName) {
+        Set<Attribute> attributes = new HashSet<>(task.getAttributes());
+
+        if (AttributeUtil.find(attributeName, attributes) == null) {
+            LOG.warn("Can't find {} attribute to set as __NAME__ attribute value, skipping...", attributeName);
+            return;
+        }
+
+        Name name = AttributeUtil.getNameFromAttributes(attributes);
+        if (name != null) {
+            attributes.remove(name);
+        }
+        attributes.add(
+                new Name(AttributeUtil.find(attributeName, attributes).getValue().get(0).toString()));
+
+        task.setAttributes(attributes);
     }
 
 }
