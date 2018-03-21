@@ -435,7 +435,6 @@ public final class ResourceUtils {
         return params;
     }
 
-    //CHECKSTYLE:OFF
     public static Parameter getParameter(int index, Annotation[] anns, Class<?> type) {
 
         Context ctx = AnnotationUtils.getAnnotation(anns, Context.class);
@@ -483,7 +482,6 @@ public final class ResourceUtils {
         return new Parameter(ParameterType.REQUEST_BODY, index, null);
 
     }
-    //CHECKSTYLE:ON
 
     private static OperationResourceInfo createOperationInfo(Method m, Method annotatedMethod,
                                                       ClassResourceInfo cri, Path path, String httpMethod) {
