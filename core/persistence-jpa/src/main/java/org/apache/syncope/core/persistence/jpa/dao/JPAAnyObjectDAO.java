@@ -250,21 +250,18 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         groupDAO().removeDynMemberships(anyObject);
         dynRealmDAO().removeDynMemberships(anyObject.getKey());
 
-        findARelationships(anyObject).stream().map(relationship -> {
+        findARelationships(anyObject).forEach(relationship -> {
             relationship.getLeftEnd().getRelationships().remove(relationship);
-            return relationship;
-        }).map(relationship -> {
             save(relationship.getLeftEnd());
-            return relationship;
-        }).forEachOrdered(relationship -> entityManager().remove(relationship));
 
-        findURelationships(anyObject).stream().map(relationship -> {
+            entityManager().remove(relationship);
+        });
+        findURelationships(anyObject).forEach(relationship -> {
             relationship.getLeftEnd().getRelationships().remove(relationship);
-            return relationship;
-        }).map(relationship -> {
             userDAO().save(relationship.getLeftEnd());
-            return relationship;
-        }).forEachOrdered(relationship -> entityManager().remove(relationship));
+
+            entityManager().remove(relationship);
+        });
 
         entityManager().remove(anyObject);
         publisher.publishEvent(
