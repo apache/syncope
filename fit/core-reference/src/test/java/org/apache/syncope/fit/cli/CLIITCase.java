@@ -42,7 +42,6 @@ import org.apache.syncope.client.cli.commands.report.ReportCommand;
 import org.apache.syncope.client.cli.commands.role.RoleCommand;
 import org.apache.syncope.client.cli.commands.user.UserCommand;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -166,7 +165,6 @@ public class CLIITCase extends AbstractITCase {
     }
 
     @Test
-    @Ignore("Ignore until CXF-7670 gets fixed")
     public void userRead() {
         final String userKey1 = "1417acbe-cbf6-4277-9372-e75e04f97000";
         final String userKey2 = "74cd8ece-715a-44a4-a736-e17b46c4e7e6";
