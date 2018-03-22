@@ -18,35 +18,27 @@
  */
 package org.apache.syncope.core.provisioning.camel;
 
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
+import org.apache.camel.CamelContext;
 import org.apache.camel.component.metrics.routepolicy.MetricsRoutePolicyFactory;
-import org.apache.camel.model.Constants;
-import org.apache.camel.model.RouteDefinition;
+import org.apache.camel.model.RoutesDefinition;
 import org.apache.camel.spring.SpringCamelContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Node;
-import org.w3c.dom.bootstrap.DOMImplementationRegistry;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSInput;
-import org.w3c.dom.ls.LSParser;
 
 @Component
 public class SyncopeCamelContext {
@@ -58,78 +50,54 @@ public class SyncopeCamelContext {
 
     private SpringCamelContext camelContext;
 
-    public SpringCamelContext getContext() {
+    public CamelContext getCamelContext() {
         synchronized (this) {
             if (camelContext == null) {
-                camelContext = new SpringCamelContext(ApplicationContextProvider.getApplicationContext());
-                camelContext.setStreamCaching(false);
-                camelContext.setAllowUseOriginalMessage(false);
+                camelContext = ApplicationContextProvider.getBeanFactory().getBean(SpringCamelContext.class);
                 camelContext.addRoutePolicyFactory(new MetricsRoutePolicyFactory());
             }
-        }
 
-        if (camelContext.getRouteDefinitions().isEmpty()) {
-            List<CamelRoute> routes = routeDAO.findAll();
-            LOG.debug("{} route(s) are going to be loaded ", routes.size());
-            loadContext(CollectionUtils.collect(routes, new Transformer<CamelRoute, String>() {
+            if (camelContext.getRoutes().isEmpty()) {
+                List<CamelRoute> routes = routeDAO.findAll();
+                LOG.debug("{} route(s) are going to be loaded ", routes.size());
+                loadRouteDefinitions(CollectionUtils.collect(routes, new Transformer<CamelRoute, String>() {
 
-                @Override
-                public String transform(final CamelRoute input) {
-                    return input.getContent();
-                }
-            }));
-            try {
-                camelContext.start();
-            } catch (Exception e) {
-                LOG.error("While starting Camel context", e);
-                throw new CamelException(e);
+                    @Override
+                    public String transform(final CamelRoute input) {
+                        return input.getContent();
+                    }
+                }));
             }
-        }
 
-        return camelContext;
+            return camelContext;
+        }
     }
 
-    private void loadContext(final Collection<String> routes) {
+    private void loadRouteDefinitions(final Collection<String> routes) {
         try {
-            DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
-            DOMImplementationLS domImpl = (DOMImplementationLS) reg.getDOMImplementation("LS");
-            LSParser parser = domImpl.createLSParser(DOMImplementationLS.MODE_SYNCHRONOUS, null);
-
-            JAXBContext jaxbContext = JAXBContext.newInstance(Constants.JAXB_CONTEXT_PACKAGES);
-            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-            List<RouteDefinition> routeDefs = new ArrayList<>();
-            for (String route : routes) {
-                try (InputStream input = IOUtils.toInputStream(route, StandardCharsets.UTF_8)) {
-                    LSInput lsinput = domImpl.createLSInput();
-                    lsinput.setByteStream(input);
-
-                    Node routeElement = parser.parse(lsinput).getDocumentElement();
-                    routeDefs.add(unmarshaller.unmarshal(routeElement, RouteDefinition.class).getValue());
-                }
-            }
-            camelContext.addRouteDefinitions(routeDefs);
+            RoutesDefinition routeDefs = camelContext.loadRoutesDefinition(
+                    IOUtils.toInputStream("<routes xmlns=\"http://camel.apache.org/schema/spring\">"
+                            + StringUtils.join(routes)
+                            + "</routes>", StandardCharsets.UTF_8));
+            camelContext.addRouteDefinitions(routeDefs.getRoutes());
         } catch (Exception e) {
-            LOG.error("While loading Camel context {}", e);
+            LOG.error("While adding route definitions into Camel Context {}", camelContext, e);
             throw new CamelException(e);
         }
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)
     public void updateContext(final String routeKey) {
-        if (camelContext == null) {
-            getContext();
-        } else if (!camelContext.getRouteDefinitions().isEmpty()) {
+        if (!camelContext.getRouteDefinitions().isEmpty()) {
             camelContext.getRouteDefinitions().remove(camelContext.getRouteDefinition(routeKey));
-            loadContext(Collections.singletonList(routeDAO.find(routeKey).getContent()));
+            loadRouteDefinitions(Arrays.asList(routeDAO.find(routeKey).getContent()));
         }
     }
 
     public void restoreRoute(final String routeKey, final String routeContent) {
         try {
             camelContext.getRouteDefinitions().remove(camelContext.getRouteDefinition(routeKey));
-            loadContext(Collections.singletonList(routeContent));
-
-            camelContext.start();
+            loadRouteDefinitions(Arrays.asList(routeContent));
         } catch (Exception e) {
             LOG.error("While restoring Camel route {}", routeKey, e);
             throw new CamelException(e);
