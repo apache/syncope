@@ -29,7 +29,6 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.impl.DefaultMessage;
 import org.apache.camel.model.RoutesDefinition;
-import org.apache.camel.spring.SpringCamelContext;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +44,6 @@ abstract class AbstractCamelProvisioningManager {
     @Autowired
     protected SyncopeCamelContext contextFactory;
 
-    protected SpringCamelContext camelContext;
-
     protected RoutesDefinition routes;
 
     protected final Map<String, PollingConsumer> consumerMap = new HashMap<>();
@@ -54,35 +51,35 @@ abstract class AbstractCamelProvisioningManager {
     protected final List<String> knownURIs = new ArrayList<>();
 
     protected void sendMessage(final String uri, final Object obj) {
-        Exchange exchange = new DefaultExchange(contextFactory.getContext());
+        Exchange exchange = new DefaultExchange(contextFactory.getCamelContext());
 
-        DefaultMessage message = new DefaultMessage(camelContext);
+        DefaultMessage message = new DefaultMessage(contextFactory.getCamelContext());
         message.setBody(obj);
         exchange.setIn(message);
 
-        ProducerTemplate template = contextFactory.getContext().createProducerTemplate();
+        ProducerTemplate template = contextFactory.getCamelContext().createProducerTemplate();
         template.send(uri, exchange);
     }
 
     protected void sendMessage(final String uri, final Object body, final Map<String, Object> properties) {
-        Exchange exchange = new DefaultExchange(contextFactory.getContext());
+        Exchange exchange = new DefaultExchange(contextFactory.getCamelContext());
 
         for (Map.Entry<String, Object> property : properties.entrySet()) {
             exchange.setProperty(property.getKey(), property.getValue());
             LOG.debug("Added property {}", property.getKey());
         }
 
-        DefaultMessage message = new DefaultMessage(camelContext);
+        DefaultMessage message = new DefaultMessage(contextFactory.getCamelContext());
         message.setBody(body);
         exchange.setIn(message);
-        ProducerTemplate template = contextFactory.getContext().createProducerTemplate();
+        ProducerTemplate template = contextFactory.getCamelContext().createProducerTemplate();
         template.send(uri, exchange);
     }
 
     protected PollingConsumer getConsumer(final String uri) {
         if (!knownURIs.contains(uri)) {
             knownURIs.add(uri);
-            Endpoint endpoint = contextFactory.getContext().getEndpoint(uri);
+            Endpoint endpoint = contextFactory.getCamelContext().getEndpoint(uri);
             PollingConsumer pollingConsumer = null;
             try {
                 pollingConsumer = endpoint.createPollingConsumer();

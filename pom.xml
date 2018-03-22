@@ -386,7 +386,7 @@ under the License.
 
     <flowable.version>6.2.1</flowable.version>
 
-    <camel.version>2.20.2</camel.version>	
+    <camel.version>2.21.0</camel.version>	
 
     <slf4j.version>1.7.25</slf4j.version>
     <opensaml.version>3.3.0</opensaml.version>
@@ -2209,8 +2209,8 @@ under the License.
             <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.9/</link>
             <link>http://fasterxml.github.io/jackson-dataformat-yaml/javadoc/2.9.pr1/</link>
             <link>http://fasterxml.github.io/jackson-datatype-joda/javadoc/2.9/</link>
-            <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/2.20.2/</link>
-            <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/2.20.2/</link>
+            <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/2.21.0/</link>
+            <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/2.21.0/</link>
             <link>https://ci.apache.org/projects/wicket/apidocs/8.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-io/javadocs/api-2.6/</link>

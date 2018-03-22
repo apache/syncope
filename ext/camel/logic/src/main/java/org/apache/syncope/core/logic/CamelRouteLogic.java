@@ -122,7 +122,7 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
     public CamelMetrics metrics() {
         CamelMetrics metrics = new CamelMetrics();
 
-        MetricsRegistryService registryService = context.getContext().hasService(MetricsRegistryService.class);
+        MetricsRegistryService registryService = context.getCamelContext().hasService(MetricsRegistryService.class);
         if (registryService == null) {
             LOG.warn("Camel metrics not available");
         } else {
