@@ -46,9 +46,8 @@ under the License.
   <bean class="${groupProvisioningManager}"/>
   <bean class="${anyObjectProvisioningManager}"/>
 
-  <bean id="quartzDataSourceInit" class="org.springframework.jdbc.datasource.init.DataSourceInitializer">
+  <bean id="quartzDataSourceInit" class="org.apache.syncope.core.provisioning.java.job.SchedulerDBInit">
     <property name="dataSource" ref="MasterDataSource"/>
-    <property name="enabled" value="true"/>
     <property name="databasePopulator">
       <bean class="org.springframework.jdbc.datasource.init.ResourceDatabasePopulator">
         <property name="continueOnError" value="true"/>
