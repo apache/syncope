@@ -73,30 +73,29 @@ public class TaskJob extends AbstractInterruptableJob {
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
         try {
-            AuthContextUtils.execWithAuthContext(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY),
-                    () -> {
-                        try {
-                            ImplementationDAO implementationDAO =
+            AuthContextUtils.execWithAuthContext(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY), () -> {
+                try {
+                    ImplementationDAO implementationDAO =
                             ApplicationContextProvider.getApplicationContext().getBean(ImplementationDAO.class);
-                            Implementation implementation = implementationDAO.find(
-                                    context.getMergedJobDataMap().getString(DELEGATE_IMPLEMENTATION));
-                            if (implementation == null) {
-                                LOG.error("Could not find Implementation '{}', aborting",
-                                        context.getMergedJobDataMap().getString(DELEGATE_IMPLEMENTATION));
-                            } else {
-                                delegate = ImplementationManager.<SchedTaskJobDelegate>build(implementation);
-                                delegate.execute(
-                                        taskKey,
-                                        context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY),
-                                        context);
-                            }
-                        } catch (Exception e) {
-                            LOG.error("While executing task {}", taskKey, e);
-                            throw new RuntimeException(e);
-                        }
+                    Implementation implementation = implementationDAO.find(
+                            context.getMergedJobDataMap().getString(DELEGATE_IMPLEMENTATION));
+                    if (implementation == null) {
+                        LOG.error("Could not find Implementation '{}', aborting",
+                                context.getMergedJobDataMap().getString(DELEGATE_IMPLEMENTATION));
+                    } else {
+                        delegate = ImplementationManager.<SchedTaskJobDelegate>build(implementation);
+                        delegate.execute(
+                                taskKey,
+                                context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY),
+                                context);
+                    }
+                } catch (Exception e) {
+                    LOG.error("While executing task {}", taskKey, e);
+                    throw new RuntimeException(e);
+                }
 
-                        return null;
-                    });
+                return null;
+            });
         } catch (RuntimeException e) {
             LOG.error("While executing task {}", taskKey, e);
             throw new JobExecutionException("While executing task " + taskKey, e);
