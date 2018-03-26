@@ -43,17 +43,6 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      *
      * @param userTO user to be created and whether to propagate it as active
      * @param disablePwdPolicyCheck disable password policy check?
-     * @param storePassword whether password shall be stored into the internal storage
-     * @return user just created
-     */
-    WorkflowResult<Pair<String, Boolean>> create(
-            UserTO userTO, boolean disablePwdPolicyCheck, boolean storePassword);
-
-    /**
-     * Create an user, optionally disabling password policy check.
-     *
-     * @param userTO user to be created and whether to propagate it as active
-     * @param disablePwdPolicyCheck disable password policy check?
      * @param enabled specify true/false to force active/supended status
      * @param storePassword whether password shall be stored into the internal storage
      * @return user just created
@@ -63,7 +52,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
 
     /**
      * Request certification for the given user.
-     * 
+     *
      * @param user user to be subject to recertification
      * @return user just updated
      */

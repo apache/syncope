@@ -67,15 +67,8 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     }
 
     @Override
-    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
-            final boolean storePassword) {
-
-        return create(userTO, disablePwdPolicyCheck, null, storePassword);
-    }
-
-    @Override
     public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean storePassword) {
-        return create(userTO, false, storePassword);
+        return create(userTO, false, null, storePassword);
     }
 
     protected abstract WorkflowResult<Pair<String, Boolean>> doCreate(
