@@ -366,7 +366,7 @@ under the License.
     <connid.googleapps.version>1.4.1</connid.googleapps.version>
     <connid.azure.version>1.0.0</connid.azure.version>
 
-    <cxf.version>3.2.4-SNAPSHOT</cxf.version>
+    <cxf.version>3.2.4</cxf.version>
 
     <jackson.version>2.9.4</jackson.version>
 
