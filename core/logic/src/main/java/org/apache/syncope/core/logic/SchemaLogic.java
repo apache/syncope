@@ -306,16 +306,11 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
     protected SchemaTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        String kind = null;
         String key = null;
         if (ArrayUtils.isNotEmpty(args)) {
-            for (int i = 0; (key == null || kind == null) && i < args.length; i++) {
+            for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof String) {
-                    if (kind == null) {
-                        kind = (String) args[i];
-                    } else {
-                        key = (String) args[i];
-                    }
+                    key = (String) args[i];
                 } else if (args[i] instanceof SchemaTO) {
                     key = ((SchemaTO) args[i]).getKey();
                 }
