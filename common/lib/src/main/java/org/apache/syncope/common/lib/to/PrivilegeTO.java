@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
@@ -54,6 +55,7 @@ public class PrivilegeTO extends AbstractBaseBean implements EntityTO {
         this.description = description;
     }
 
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public String getApplication() {
         return application;
     }

@@ -65,7 +65,7 @@ public abstract class PolicyTO extends AbstractBaseBean implements EntityTO {
         // do nothing
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @Override
     public String getKey() {
         return key;
@@ -87,7 +87,7 @@ public abstract class PolicyTO extends AbstractBaseBean implements EntityTO {
         this.description = description;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @XmlElementWrapper(name = "usedByResources")
     @XmlElement(name = "resource")
     @JsonProperty("usedByResources")
@@ -95,7 +95,7 @@ public abstract class PolicyTO extends AbstractBaseBean implements EntityTO {
         return usedByResources;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @XmlElementWrapper(name = "usedByRealms")
     @XmlElement(name = "group")
     @JsonProperty("usedByRealms")

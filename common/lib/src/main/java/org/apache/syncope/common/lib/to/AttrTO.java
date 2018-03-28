@@ -89,7 +89,7 @@ public class AttrTO extends AbstractBaseBean {
     /**
      * @return schema information for this attribute; may be {@code NULL}
      */
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public SchemaTO getSchemaInfo() {
         return schemaInfo;
     }

@@ -65,7 +65,7 @@ public class AbstractAnnotatedBean extends AbstractBaseBean {
      */
     private Date lastChangeDate;
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public String getCreator() {
         return creator;
     }
@@ -74,7 +74,7 @@ public class AbstractAnnotatedBean extends AbstractBaseBean {
         this.creator = creator;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public Date getCreationDate() {
         if (creationDate != null) {
             return new Date(creationDate.getTime());
@@ -90,7 +90,7 @@ public class AbstractAnnotatedBean extends AbstractBaseBean {
         }
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public String getLastModifier() {
         return lastModifier;
     }
@@ -99,7 +99,7 @@ public class AbstractAnnotatedBean extends AbstractBaseBean {
         this.lastModifier = lastModifier;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public Date getLastChangeDate() {
         if (lastChangeDate != null) {
             return new Date(lastChangeDate.getTime());

@@ -61,7 +61,7 @@ public abstract class TaskTO extends AbstractStartEndBean implements EntityTO {
         // do nothing
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @Override
     public String getKey() {
         return key;
@@ -73,7 +73,7 @@ public abstract class TaskTO extends AbstractStartEndBean implements EntityTO {
         this.key = key;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public String getLatestExecStatus() {
         return latestExecStatus;
     }
@@ -82,7 +82,7 @@ public abstract class TaskTO extends AbstractStartEndBean implements EntityTO {
         this.latestExecStatus = latestExecStatus;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @XmlElementWrapper(name = "executions")
     @XmlElement(name = "execution")
     @JsonProperty("executions")

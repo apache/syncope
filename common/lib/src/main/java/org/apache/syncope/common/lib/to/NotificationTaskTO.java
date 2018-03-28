@@ -65,7 +65,7 @@ public class NotificationTaskTO extends TaskTO {
         return getClass().getName();
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public String getNotification() {
         return notification;
     }
@@ -74,7 +74,7 @@ public class NotificationTaskTO extends TaskTO {
         this.notification = notification;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public AnyTypeKind getAnyTypeKind() {
         return anyTypeKind;
     }
@@ -83,7 +83,7 @@ public class NotificationTaskTO extends TaskTO {
         this.anyTypeKind = anyTypeKind;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public String getEntityKey() {
         return entityKey;
     }
@@ -92,7 +92,7 @@ public class NotificationTaskTO extends TaskTO {
         this.entityKey = entityKey;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @XmlElementWrapper(name = "recipients")
     @XmlElement(name = "recipient")
     @JsonProperty("recipients")
@@ -100,7 +100,7 @@ public class NotificationTaskTO extends TaskTO {
         return recipients;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public String getSender() {
         return sender;
     }
@@ -109,7 +109,7 @@ public class NotificationTaskTO extends TaskTO {
         this.sender = sender;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public String getSubject() {
         return subject;
     }
@@ -118,7 +118,7 @@ public class NotificationTaskTO extends TaskTO {
         this.subject = subject;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public String getTextBody() {
         return textBody;
     }
@@ -127,7 +127,7 @@ public class NotificationTaskTO extends TaskTO {
         this.textBody = textBody;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public String getHtmlBody() {
         return htmlBody;
     }
@@ -136,7 +136,7 @@ public class NotificationTaskTO extends TaskTO {
         this.htmlBody = htmlBody;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public boolean isExecuted() {
         return executed;
     }
@@ -145,7 +145,7 @@ public class NotificationTaskTO extends TaskTO {
         this.executed = executed;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public TraceLevel getTraceLevel() {
         return traceLevel;
     }

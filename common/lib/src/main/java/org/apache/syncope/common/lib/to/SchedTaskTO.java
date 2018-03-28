@@ -83,7 +83,7 @@ public class SchedTaskTO extends TaskTO {
         this.jobDelegate = jobDelegate;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public Date getLastExec() {
         return lastExec == null ? null : new Date(lastExec.getTime());
     }
@@ -92,7 +92,7 @@ public class SchedTaskTO extends TaskTO {
         this.lastExec = lastExec == null ? null : new Date(lastExec.getTime());
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public Date getNextExec() {
         return nextExec == null ? null : new Date(nextExec.getTime());
     }

@@ -91,7 +91,7 @@ public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
         return memberships;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @XmlElementWrapper(name = "dynMemberships")
     @XmlElement(name = "dynMembership")
     @JsonProperty("dynMemberships")

@@ -113,7 +113,7 @@ public class GroupTO extends AnyTO {
         this.udynMembershipCond = uDynMembershipCond;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public int getStaticUserMembershipCount() {
         return staticUserMembershipCount;
     }
@@ -122,7 +122,7 @@ public class GroupTO extends AnyTO {
         this.staticUserMembershipCount = staticUserMembershipCount;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public int getDynamicUserMembershipCount() {
         return dynamicUserMembershipCount;
     }
@@ -131,7 +131,7 @@ public class GroupTO extends AnyTO {
         this.dynamicUserMembershipCount = dynamicUserMembershipCount;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public int getStaticAnyObjectMembershipCount() {
         return staticAnyObjectMembershipCount;
     }
@@ -140,7 +140,7 @@ public class GroupTO extends AnyTO {
         this.staticAnyObjectMembershipCount = staticAnyObjectMembershipCount;
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public int getDynamicAnyObjectMembershipCount() {
         return dynamicAnyObjectMembershipCount;
     }

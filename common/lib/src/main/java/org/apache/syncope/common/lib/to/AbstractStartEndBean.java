@@ -32,7 +32,7 @@ public class AbstractStartEndBean extends AbstractBaseBean {
 
     private Date end;
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public Date getStart() {
         return start == null
                 ? null
@@ -45,7 +45,7 @@ public class AbstractStartEndBean extends AbstractBaseBean {
                 : new Date(start.getTime());
     }
 
-    @Schema(readOnly = true)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public Date getEnd() {
         return end == null
                 ? null
