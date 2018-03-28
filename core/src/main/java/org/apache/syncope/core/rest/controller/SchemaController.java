@@ -280,13 +280,11 @@ public class SchemaController extends AbstractTransactionalController<SchemaTO> 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; (name == null || kind == null) && i < args.length; i++) {
                 if (args[i] instanceof String) {
-                    if (kind == null) {
-                        kind = (String) args[i];
-                    } else {
-                        name = (String) args[i];
-                    }
+                    name = (String) args[i];
                 } else if (args[i] instanceof SchemaTO) {
                     name = ((SchemaTO) args[i]).getName();
+                } else if (args[i] instanceof AttributableType) {
+                    kind = ((AttributableType) args[i]).name();
                 }
             }
         }
