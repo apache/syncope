@@ -73,8 +73,7 @@ public class ApplicationLogic extends AbstractTransactionalLogic<ApplicationTO> 
     @PreAuthorize("hasRole('" + StandardEntitlement.APPLICATION_LIST + "')")
     @Transactional(readOnly = true)
     public List<ApplicationTO> list() {
-        return applicationDAO.findAll().stream().
-                map(application -> binder.getApplicationTO(application)).collect(Collectors.toList());
+        return applicationDAO.findAll().stream().map(binder::getApplicationTO).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.APPLICATION_CREATE + "')")

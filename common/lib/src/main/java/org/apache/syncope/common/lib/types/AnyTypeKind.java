@@ -19,6 +19,10 @@
 package org.apache.syncope.common.lib.types;
 
 import javax.xml.bind.annotation.XmlEnum;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -27,18 +31,25 @@ import org.apache.syncope.common.lib.to.UserTO;
 @XmlEnum
 public enum AnyTypeKind {
 
-    USER(UserTO.class),
-    GROUP(GroupTO.class),
-    ANY_OBJECT(AnyObjectTO.class);
+    USER(UserTO.class, UserPatch.class),
+    GROUP(GroupTO.class, GroupPatch.class),
+    ANY_OBJECT(AnyObjectTO.class, AnyObjectPatch.class);
 
     private final Class<? extends AnyTO> toClass;
 
-    AnyTypeKind(final Class<? extends AnyTO> toClass) {
+    private final Class<? extends AnyPatch> patchClass;
+
+    AnyTypeKind(final Class<? extends AnyTO> toClass, final Class<? extends AnyPatch> patchClass) {
         this.toClass = toClass;
+        this.patchClass = patchClass;
     }
 
     public Class<? extends AnyTO> getTOClass() {
         return toClass;
+    }
+
+    public Class<? extends AnyPatch> getPatchClass() {
+        return patchClass;
     }
 
 }

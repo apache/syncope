@@ -68,6 +68,7 @@ import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
@@ -136,11 +137,13 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")
+    @Transactional(readOnly = true)
     public List<ReportTO> list() {
-        return reportDAO.findAll().stream().map(report -> binder.getReportTO(report)).collect(Collectors.toList());
+        return reportDAO.findAll().stream().map(binder::getReportTO).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
+    @Transactional(readOnly = true)
     public ReportTO read(final String key) {
         Report report = reportDAO.find(key);
         if (report == null) {

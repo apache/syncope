@@ -36,6 +36,7 @@ import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
@@ -76,14 +77,16 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_LIST + "')")
+    @Transactional(readOnly = true)
     public <T extends PolicyTO> List<T> list(final PolicyType type) {
         PolicyUtils policyUtils = policyUtilsFactory.getInstance(type);
 
         return policyDAO.find(policyUtils.policyClass()).stream().
-                <T>map(policy -> binder.getPolicyTO(policy)).collect(Collectors.toList());
+                <T>map(binder::getPolicyTO).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_READ + "')")
+    @Transactional(readOnly = true)
     public <T extends PolicyTO> T read(final PolicyType type, final String key) {
         Policy policy = policyDAO.find(key);
         if (policy == null) {

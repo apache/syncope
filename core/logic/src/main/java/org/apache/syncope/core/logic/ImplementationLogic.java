@@ -43,6 +43,7 @@ import org.apache.syncope.core.provisioning.api.data.ImplementationDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class ImplementationLogic extends AbstractTransactionalLogic<ImplementationTO> {
@@ -75,12 +76,13 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
     private NotificationDAO notificationDAO;
 
     @PreAuthorize("hasRole('" + StandardEntitlement.IMPLEMENTATION_LIST + "')")
+    @Transactional(readOnly = true)
     public List<ImplementationTO> list(final ImplementationType type) {
-        return implementationDAO.find(type).stream().
-                map(implementation -> binder.getImplementationTO(implementation)).collect(Collectors.toList());
+        return implementationDAO.find(type).stream().map(binder::getImplementationTO).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.IMPLEMENTATION_READ + "')")
+    @Transactional(readOnly = true)
     public ImplementationTO read(final ImplementationType type, final String key) {
         Implementation implementation = implementationDAO.find(key);
         if (implementation == null) {

@@ -47,7 +47,7 @@ import org.apache.syncope.common.lib.types.ImplementationType;
 public interface ImplementationService extends JAXRSService {
 
     /**
-     * Returns a list of all implementations.
+     * Returns a list of all implementations of the given type.
      *
      * @param type implementation type
      * @return list of all implementations.
@@ -58,7 +58,7 @@ public interface ImplementationService extends JAXRSService {
     List<ImplementationTO> list(@NotNull @PathParam("type") ImplementationType type);
 
     /**
-     * Returns implementation with matching key.
+     * Returns implementation with matching type and key.
      *
      * @param type implementation type
      * @param key key of implementation to be read
@@ -94,7 +94,7 @@ public interface ImplementationService extends JAXRSService {
     Response update(@NotNull ImplementationTO implementationTO);
 
     /**
-     * Deletes the implementation matching the given key.
+     * Deletes the implementation matching the given key and type.
      *
      * @param type implementation type
      * @param key key for implementation to be deleted

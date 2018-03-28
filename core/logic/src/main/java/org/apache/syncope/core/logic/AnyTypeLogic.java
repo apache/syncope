@@ -66,7 +66,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
     @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPE_LIST + "')")
     @Transactional(readOnly = true)
     public List<AnyTypeTO> list() {
-        return anyTypeDAO.findAll().stream().map(anyType -> binder.getAnyTypeTO(anyType)).collect(Collectors.toList());
+        return anyTypeDAO.findAll().stream().map(binder::getAnyTypeTO).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPE_CREATE + "')")

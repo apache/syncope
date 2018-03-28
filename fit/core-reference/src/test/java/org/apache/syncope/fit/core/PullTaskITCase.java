@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -65,6 +66,7 @@ import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.RemediationTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -77,6 +79,7 @@ import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.PullMode;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
@@ -655,6 +658,87 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             jdbcTemplate.execute("DELETE FROM testpull WHERE ID=1040");
             jdbcTemplate.execute("DELETE FROM testpull WHERE ID=1041");
+        }
+    }
+
+    @Test
+    public void remediation() {
+        // First of all, clear any potential conflict with existing user / group
+        ldapCleanup();
+
+        // 1. create ldap cloned resource, where 'userId' (mandatory on Syncope) is removed from mapping
+        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        ldap.setKey("ldapForRemediation");
+
+        ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
+        provision.getVirSchemas().clear();
+        provision.getMapping().getItems().removeIf(item -> "userId".equals(item.getIntAttrName()));
+
+        ldap = createResource(ldap);
+
+        // 2. create PullTask with remediation enabled, for the new resource
+        PullTaskTO pullTask = (PullTaskTO) taskService.list(new TaskQuery.Builder(TaskType.PULL).
+                resource(RESOURCE_NAME_LDAP).build()).getResult().get(0);
+        assertNotNull(pullTask);
+        pullTask.setResource(ldap.getKey());
+        pullTask.setRemediation(true);
+        pullTask.getActions().clear();
+
+        Response response = taskService.create(TaskType.PULL, pullTask);
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+            throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
+        }
+        pullTask = getObject(response.getLocation(), TaskService.class, PullTaskTO.class);
+        assertNotNull(pullTask);
+
+        try {
+            // 3. execute the pull task and verify that:
+            ExecTO execution = execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), 50, false);
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
+
+            // 3a. user was not pulled
+            try {
+                userService.read("pullFromLDAP");
+                fail("This should never happen");
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.NotFound, e.getType());
+            }
+
+            // 3b. remediation was created
+            Optional<RemediationTO> remediation = remediationService.list().stream().
+                    filter(r -> "uid=pullFromLDAP,ou=People,o=isp".equalsIgnoreCase(r.getRemoteName())).
+                    findFirst();
+            assertTrue(remediation.isPresent());
+            assertEquals(AnyTypeKind.USER, remediation.get().getAnyTypeKind());
+            assertEquals(ResourceOperation.CREATE, remediation.get().getOperation());
+            assertNotNull(remediation.get().getAnyTOPayload());
+            assertNull(remediation.get().getAnyPatchPayload());
+            assertNull(remediation.get().getKeyPayload());
+            assertTrue(remediation.get().getError().contains("RequiredValuesMissing [userId]"));
+
+            // 4. remedy by copying the email value to userId
+            UserTO user = (UserTO) remediation.get().getAnyTOPayload();
+            user.getResources().clear();
+
+            String email = user.getPlainAttr("email").get().getValues().get(0);
+            user.getPlainAttrs().add(new AttrTO.Builder().schema("userId").value(email).build());
+
+            remediationService.remedy(remediation.get().getKey(), user);
+
+            // 5. user is now found
+            user = userService.read("pullFromLDAP");
+            assertNotNull(user);
+            assertEquals(email, user.getPlainAttr("userId").get().getValues().get(0));
+
+            // 6. remediation was removed
+            try {
+                remediationService.read(remediation.get().getKey());
+                fail("This should never happen");
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.NotFound, e.getType());
+            }
+        } finally {
+            resourceService.delete(ldap.getKey());
         }
     }
 

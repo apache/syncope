@@ -219,6 +219,8 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             // remove all templates not contained in the TO
             pullTask.getTemplates().
                     removeIf(anyTemplate -> !pullTaskTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey()));
+
+            pullTask.setRemediation(pullTaskTO.isRemediation());
         }
 
         // 3. fill the remaining fields
@@ -407,6 +409,8 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                 pullTask.getTemplates().forEach(template -> {
                     pullTaskTO.getTemplates().put(template.getAnyType().getKey(), template.get());
                 });
+
+                pullTaskTO.setRemediation(pullTask.isRemediation());
                 break;
 
             case PUSH:

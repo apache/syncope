@@ -47,9 +47,12 @@ public enum EntityViolationType {
     InvalidPlainAttr("org.apache.syncope.core.persistence.validation.plainattr"),
     InvalidUsername("org.apache.syncope.core.persistence.validation.user.username"),
     InvalidValueList("org.apache.syncope.core.persistence.validation.attr.valueList"),
+    InvalidRemediation("org.apache.syncope.core.persistence.validation.remediation"),
     MoreThanOneNonNull("org.apache.syncope.core.persistence.validation.attrvalue.moreThanOneNonNull");
 
     private String message;
+
+    private String propertyPath;
 
     EntityViolationType(final String message) {
         this.message = message;
@@ -62,4 +65,13 @@ public enum EntityViolationType {
     public String getMessage() {
         return message;
     }
+
+    public String getPropertyPath() {
+        return propertyPath;
+    }
+
+    public void setPropertyPath(final String propertyPath) {
+        this.propertyPath = propertyPath;
+    }
+
 }

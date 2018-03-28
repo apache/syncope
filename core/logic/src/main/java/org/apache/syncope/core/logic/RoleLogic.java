@@ -59,7 +59,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_LIST + "')")
     @Transactional(readOnly = true)
     public List<RoleTO> list() {
-        return roleDAO.findAll().stream().map(role -> binder.getRoleTO(role)).collect(Collectors.toList());
+        return roleDAO.findAll().stream().map(binder::getRoleTO).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_CREATE + "')")

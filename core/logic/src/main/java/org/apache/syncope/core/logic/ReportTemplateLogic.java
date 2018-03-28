@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.entity.Report;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTemplateTO> {
@@ -59,6 +60,7 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_TEMPLATE_READ + "')")
+    @Transactional(readOnly = true)
     public ReportTemplateTO read(final String key) {
         ReportTemplate reportTemplate = reportTemplateDAO.find(key);
         if (reportTemplate == null) {
@@ -71,6 +73,7 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_TEMPLATE_LIST + "')")
+    @Transactional(readOnly = true)
     public List<ReportTemplateTO> list() {
         return reportTemplateDAO.findAll().stream().
                 map(template -> getReportTemplateTO(template.getKey())).collect(Collectors.toList());

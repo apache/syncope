@@ -95,6 +95,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.LOG_LIST + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
+    @Transactional(readOnly = true)
     public List<LogAppender> memoryAppenders() {
         return loggerLoader.getMemoryAppenders().keySet().stream().map(appender -> {
             LogAppender logAppender = new LogAppender();
@@ -105,6 +106,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.LOG_READ + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
+    @Transactional(readOnly = true)
     public List<LogStatementTO> getLastLogStatements(final String memoryAppender) {
         MemoryAppender appender = loggerLoader.getMemoryAppenders().get(memoryAppender);
         if (appender == null) {

@@ -16,20 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.core.persistence.api.dao;
 
-import org.apache.syncope.common.lib.to.ResourceHistoryConfTO;
-import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
+import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.Remediation;
+import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 
-public interface ResourceDataBinder {
+public interface RemediationDAO extends DAO<Remediation> {
 
-    ResourceTO getResourceTO(ExternalResource resource);
+    Remediation find(String key);
 
-    ExternalResource create(ResourceTO resourceTO);
+    List<Remediation> findByPullTask(PullTask pullTask);
 
-    ExternalResource update(ExternalResource resource, ResourceTO resourceTO);
+    List<Remediation> findAll();
 
-    ResourceHistoryConfTO getResourceHistoryConfTO(ExternalResourceHistoryConf history);
+    Remediation save(Remediation remediation);
+
+    void delete(Remediation remediation);
+
+    void delete(String key);
+
 }

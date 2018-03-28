@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -33,6 +34,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.PullMode;
@@ -70,6 +73,11 @@ public class JPAPullTask extends AbstractProvisioningTask implements PullTask {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "pullTask")
     private List<JPAAnyTemplatePullTask> templates = new ArrayList<>();
+
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer remediation;
 
     @Override
     public PullMode getPullMode() {
@@ -132,6 +140,16 @@ public class JPAPullTask extends AbstractProvisioningTask implements PullTask {
     @Override
     public List<? extends AnyTemplatePullTask> getTemplates() {
         return templates;
+    }
+
+    @Override
+    public void setRemediation(final boolean remediation) {
+        this.remediation = getBooleanAsInteger(remediation);
+    }
+
+    @Override
+    public boolean isRemediation() {
+        return isBooleanAsInteger(remediation);
     }
 
 }

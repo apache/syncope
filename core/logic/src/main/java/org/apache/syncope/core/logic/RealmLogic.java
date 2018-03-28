@@ -50,6 +50,7 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
@@ -70,6 +71,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
     private PropagationTaskExecutor taskExecutor;
 
     @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
     public List<RealmTO> list(final String fullPath) {
         Realm realm = realmDAO.findByFullPath(fullPath);
         if (realm == null) {

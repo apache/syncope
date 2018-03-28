@@ -28,56 +28,72 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.patch.StatusPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
-import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.to.RemediationTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.AnyQuery;
 
 /**
- * REST operations for users.
+ * REST operations for remediations.
  */
-@Tag(name = "Users")
+@Tag(name = "Remediations")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
     @SecurityRequirement(name = "Bearer") })
-@Path("users")
-public interface UserService extends AnyService<UserTO> {
-
-    @ApiResponses(
-            @ApiResponse(responseCode = "200", description =
-                    "User matching the provided key; if value looks like a UUID then it is interpreted as key,"
-                    + " otherwise as a username.", headers =
-                    @Header(name = HttpHeaders.ETAG, schema =
-                            @Schema(type = "string"),
-                            description = "Opaque identifier for the latest modification made to the entity returned"
-                            + " by this endpoint")))
-    @Override
-    UserTO read(String key);
-
-    @Override
-    PagedResult<UserTO> search(AnyQuery anyQuery);
+@Path("remediations")
+public interface RemediationService extends JAXRSService {
 
     /**
-     * Creates a new user.
+     * Returns a list of all remediations.
      *
-     * @param userTO user to be created
-     * @param storePassword whether password shall be stored internally
-     * @return Response object featuring Location header of created user as well as the user itself
+     * @return list of all remediations.
+     */
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    List<RemediationTO> list();
+
+    /**
+     * Returns remediation with matching key.
+     *
+     * @param key key of remediation to be read
+     * @return remediation with matching key
+     */
+    @GET
+    @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    RemediationTO read(@NotNull @PathParam("key") String key);
+
+    /**
+     * Deletes the remediation matching the given key.
+     *
+     * @param key key for remediation to be deleted
+     * @return an empty response if operation was successful
+     */
+    @DELETE
+    @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    Response delete(@NotNull @PathParam("key") String key);
+
+    /**
+     * Perform remediation by creating the provided user, group or any object.
+     *
+     * @param key key for remediation to act on
+     * @param anyTO user, group or any object to create
+     * @return Response object featuring Location header of created object as well as the object itself
      * enriched with propagation status information
      */
     @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
@@ -91,33 +107,33 @@ public interface UserService extends AnyService<UserTO> {
             @Schema(type = "boolean", defaultValue = "false"))
     @ApiResponses(
             @ApiResponse(responseCode = "201",
-                    description = "User successfully created enriched with propagation status information, as Entity,"
+                    description = "Object successfully created enriched with propagation status information, as Entity,"
                     + "or empty if 'Prefer: return-no-content' was specified",
                     content =
                     @Content(schema =
                             @Schema(implementation = ProvisioningResult.class)), headers = {
                 @Header(name = RESTHeaders.RESOURCE_KEY, schema =
                         @Schema(type = "string"),
-                        description = "UUID generated for the user created"),
+                        description = "UUID generated for the object created"),
                 @Header(name = HttpHeaders.LOCATION, schema =
                         @Schema(type = "string"),
-                        description = "URL of the user created"),
+                        description = "URL of the object created"),
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied") }))
     @POST
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response create(
-            @NotNull UserTO userTO,
-            @DefaultValue("true") @QueryParam("storePassword") boolean storePassword);
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    Response remedy(@NotNull @PathParam("key") String key, @NotNull AnyTO anyTO);
 
     /**
-     * Updates user matching the provided key.
+     * Perform remediation by updating the provided user, group or any object.
      *
-     * @param userPatch modification to be applied to user matching the provided key
-     * @return Response object featuring the updated user enriched with propagation status information
+     * @param key key for remediation to act on
+     * @param anyPatch user, group or any object to update
+     * @return Response object featuring the updated object enriched with propagation status information
      */
     @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
             description = "Allows client to specify a preference for the result to be returned from the server",
@@ -135,7 +151,7 @@ public interface UserService extends AnyService<UserTO> {
             @Schema(type = "boolean", defaultValue = "false"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
-                description = "User successfully updated enriched with propagation status information, as Entity",
+                description = "Object successfully updated enriched with propagation status information, as Entity",
                 content =
                 @Content(schema =
                         @Schema(implementation = ProvisioningResult.class))),
@@ -150,18 +166,18 @@ public interface UserService extends AnyService<UserTO> {
                 + " date of the entity") })
     @PATCH
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response update(@NotNull UserPatch userPatch);
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    Response remedy(@NotNull @PathParam("key") String key, @NotNull AnyPatch anyPatch);
 
     /**
-     * Updates user matching the provided key.
+     * Perform remediation by deleting the provided user, group or any object.
      *
-     * @param userTO complete update
-     * @return Response object featuring the updated user enriched with propagation status information
+     * @param key key for remediation to act on
+     * @param anyKey user's, group's or any object's key to delete
+     * @return Response object featuring the deleted object enriched with propagation status information
      */
-    @Parameter(
-            name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
+    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
             description = "Allows client to specify a preference for the result to be returned from the server",
             allowEmptyValue = true, schema =
             @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
@@ -177,7 +193,7 @@ public interface UserService extends AnyService<UserTO> {
             @Schema(type = "boolean", defaultValue = "false"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
-                description = "User successfully updated enriched with propagation status information, as Entity",
+                description = "Object successfully deleted enriched with propagation status information, as Entity",
                 content =
                 @Content(schema =
                         @Schema(implementation = ProvisioningResult.class))),
@@ -190,51 +206,8 @@ public interface UserService extends AnyService<UserTO> {
         @ApiResponse(responseCode = "412",
                 description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
                 + " date of the entity") })
-    @PUT
-    @Path("{key}")
+    @DELETE
+    @Path("{key}/{anyKey}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response update(@NotNull UserTO userTO);
-
-    /**
-     * Performs a status update on given user.
-     *
-     * @param statusPatch status update details
-     * @return Response object featuring the updated user enriched with propagation status information
-     */
-    @Parameter(
-            name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
-            description = "Allows client to specify a preference for the result to be returned from the server",
-            allowEmptyValue = true, schema =
-            @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
-    @Parameter(name = HttpHeaders.IF_MATCH, in = ParameterIn.HEADER,
-            description = "When the provided ETag value does not match the latest modification date of the entity, "
-            + "an error is reported and the requested operation is not performed.",
-            allowEmptyValue = true, schema =
-            @Schema(type = "string"))
-    @Parameter(name = RESTHeaders.NULL_PRIORITY_ASYNC, in = ParameterIn.HEADER,
-            description = "If 'true', instructs the propagation process not to wait for completion when communicating"
-            + " with External Resources with no priority set",
-            allowEmptyValue = true, schema =
-            @Schema(type = "boolean", defaultValue = "false"))
-    @ApiResponses({
-        @ApiResponse(responseCode = "200",
-                description = "User successfully updated enriched with propagation status information, as Entity",
-                content =
-                @Content(schema =
-                        @Schema(implementation = ProvisioningResult.class))),
-        @ApiResponse(responseCode = "204",
-                description = "No content if 'Prefer: return-no-content' was specified", headers =
-                @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
-                        @Schema(type = "string"),
-                        description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied")),
-        @ApiResponse(responseCode = "412",
-                description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
-                + " date of the entity") })
-    @POST
-    @Path("{key}/status")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response status(@NotNull StatusPatch statusPatch);
+    Response remedy(@NotNull @PathParam("key") String key, @NotNull String anyKey);
 }

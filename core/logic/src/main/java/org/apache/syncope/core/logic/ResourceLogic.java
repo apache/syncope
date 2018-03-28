@@ -274,8 +274,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_LIST + "')")
     @Transactional(readOnly = true)
     public List<ResourceTO> list() {
-        return resourceDAO.findAll().stream().
-                map(resource -> binder.getResourceTO(resource)).collect(Collectors.toList());
+        return resourceDAO.findAll().stream().map(binder::getResourceTO).collect(Collectors.toList());
     }
 
     private Triple<ExternalResource, AnyType, Provision> connObjectInit(

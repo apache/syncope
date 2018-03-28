@@ -89,6 +89,8 @@ public class InvalidEntityException extends ValidationException {
 
             entityViolationType.setMessage(message.trim());
 
+            entityViolationType.setPropertyPath(violation.getPropertyPath().toString());
+
             if (!this.violations.containsKey(violation.getLeafBean().getClass())) {
                 this.violations.put(violation.getLeafBean().getClass(), EnumSet.noneOf(EntityViolationType.class));
             }

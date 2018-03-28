@@ -50,6 +50,8 @@ public class PullTaskTO extends ProvisioningTaskTO implements TemplatableTO {
     @XmlElement(required = true)
     private String destinationRealm;
 
+    private boolean remediation;
+
     @XmlTransient
     @JsonProperty("@class")
     @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.PullTaskTO")
@@ -90,4 +92,13 @@ public class PullTaskTO extends ProvisioningTaskTO implements TemplatableTO {
     public Map<String, AnyTO> getTemplates() {
         return templates;
     }
+
+    public boolean isRemediation() {
+        return remediation;
+    }
+
+    public void setRemediation(final boolean remediation) {
+        this.remediation = remediation;
+    }
+
 }

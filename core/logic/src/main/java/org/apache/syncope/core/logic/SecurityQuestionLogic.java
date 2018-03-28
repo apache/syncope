@@ -50,8 +50,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<SecurityQuestionTO> list() {
-        return securityQuestionDAO.findAll().stream().
-                map(securityQuestion -> binder.getSecurityQuestionTO(securityQuestion)).collect(Collectors.toList());
+        return securityQuestionDAO.findAll().stream().map(binder::getSecurityQuestionTO).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.SECURITY_QUESTION_READ + "')")

@@ -240,8 +240,12 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
             destinationRealm.setNullValid(!(taskTO instanceof PullTaskTO));
             pullTaskSpecifics.add(destinationRealm);
 
+            AjaxCheckBoxPanel remediation = new AjaxCheckBoxPanel(
+                    "remediation", "remediation", new PropertyModel<>(taskTO, "remediation"), false);
+            pullTaskSpecifics.add(remediation);
+
             // ------------------------------
-            // Only for pull tasks
+            // Only for push tasks
             // ------------------------------  
             WebMarkupContainer pushTaskSpecifics = new WebMarkupContainer("pushTaskSpecifics");
             add(pushTaskSpecifics.setRenderBodyOnly(true));

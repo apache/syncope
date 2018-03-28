@@ -31,6 +31,7 @@ import org.apache.syncope.core.provisioning.api.data.DynRealmDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
@@ -42,6 +43,7 @@ public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
     private DynRealmDAO dynRealmDAO;
 
     @PreAuthorize("hasRole('" + StandardEntitlement.DYNREALM_READ + "')")
+    @Transactional(readOnly = true)
     public DynRealmTO read(final String key) {
         DynRealm dynRealm = dynRealmDAO.find(key);
         if (dynRealm == null) {
@@ -53,9 +55,9 @@ public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
         return binder.getDynRealmTO(dynRealm);
     }
 
+    @Transactional(readOnly = true)
     public List<DynRealmTO> list() {
-        return dynRealmDAO.findAll().stream().
-                map(dynRealm -> binder.getDynRealmTO(dynRealm)).collect(Collectors.toList());
+        return dynRealmDAO.findAll().stream().map(binder::getDynRealmTO).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.DYNREALM_CREATE + "')")

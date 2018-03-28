@@ -19,11 +19,9 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -47,8 +45,8 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConfigurationProperties;
-import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorKey;
+import org.identityconnectors.framework.common.objects.AttributeInfo;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,9 +147,8 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
                     try {
                         result = binder.getConnInstanceTO(connInstance);
                     } catch (NotFoundException e) {
-                        LOG.
-                                error("Connector '{}#{}' not found", connInstance.getBundleName(), connInstance.
-                                        getVersion());
+                        LOG.error("Connector '{}#{}' not found",
+                                connInstance.getBundleName(), connInstance.getVersion());
                     }
 
                     return result;
@@ -181,29 +178,31 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         }
 
         List<ConnBundleTO> connectorBundleTOs = new ArrayList<>();
-        for (Map.Entry<URI, ConnectorInfoManager> entry : connIdBundleManager.getConnInfoManagers().entrySet()) {
-            entry.getValue().getConnectorInfos().stream().map(bundle -> {
+        connIdBundleManager.getConnInfoManagers().forEach((uri, cim) -> {
+            connectorBundleTOs.addAll(cim.getConnectorInfos().stream().map(bundle -> {
                 ConnBundleTO connBundleTO = new ConnBundleTO();
                 connBundleTO.setDisplayName(bundle.getConnectorDisplayName());
-                connBundleTO.setLocation(entry.getKey().toString());
+
+                connBundleTO.setLocation(uri.toString());
+
                 ConnectorKey key = bundle.getConnectorKey();
                 connBundleTO.setBundleName(key.getBundleName());
                 connBundleTO.setConnectorName(key.getConnectorName());
                 connBundleTO.setVersion(key.getBundleVersion());
+
                 ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(bundle);
-                for (String propName : properties.getPropertyNames()) {
-                    connBundleTO.getProperties().add(binder.build(properties.getProperty(propName)));
-                }
+                connBundleTO.getProperties().addAll(properties.getPropertyNames().stream().
+                        map(propName -> binder.build(properties.getProperty(propName))).collect(Collectors.toList()));
+
                 return connBundleTO;
-            }).forEachOrdered(connBundleTO -> {
-                connectorBundleTOs.add(connBundleTO);
-            });
-        }
+            }).collect(Collectors.toList()));
+        });
 
         return connectorBundleTOs;
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")
+
     public List<ConnIdObjectClassTO> buildObjectClassInfo(
             final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
 
@@ -217,23 +216,19 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
                 connFactory.buildConnInstanceOverride(actual, connInstanceTO.getConf(), null)).
                 getObjectClassInfo();
 
-        List<ConnIdObjectClassTO> result = new ArrayList<>(objectClassInfo.size());
-        objectClassInfo.stream().map(info -> {
+        return objectClassInfo.stream().map(info -> {
             ConnIdObjectClassTO connIdObjectClassTO = new ConnIdObjectClassTO();
             connIdObjectClassTO.setType(info.getType());
             connIdObjectClassTO.setAuxiliary(info.isAuxiliary());
             connIdObjectClassTO.setContainer(info.isContainer());
-            info.getAttributeInfo().stream().
-                    filter(attrInfo -> includeSpecial || !AttributeUtil.isSpecialName(attrInfo.getName())).
-                    forEachOrdered(attrInfo -> {
-                        connIdObjectClassTO.getAttributes().add(attrInfo.getName());
-                    });
-            return connIdObjectClassTO;
-        }).forEachOrdered((connIdObjectClassTO) -> {
-            result.add(connIdObjectClassTO);
-        });
 
-        return result;
+            connIdObjectClassTO.getAttributes().addAll(info.getAttributeInfo().stream().
+                    filter(attrInfo -> includeSpecial || !AttributeUtil.isSpecialName(attrInfo.getName())).
+                    map(AttributeInfo::getName).
+                    collect(Collectors.toList()));
+
+            return connIdObjectClassTO;
+        }).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")

@@ -86,6 +86,7 @@ import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.common.rest.api.service.MailTemplateService;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
+import org.apache.syncope.common.rest.api.service.RemediationService;
 import org.apache.syncope.common.rest.api.service.ReportTemplateService;
 import org.apache.syncope.common.rest.api.service.ResourceHistoryService;
 import org.apache.syncope.common.rest.api.service.RoleService;
@@ -241,6 +242,8 @@ public abstract class AbstractITCase {
 
     protected static ImplementationService implementationService;
 
+    protected static RemediationService remediationService;
+
     protected static CamelRouteService camelRouteService;
 
     protected static SAML2SPService saml2SpService;
@@ -311,6 +314,7 @@ public abstract class AbstractITCase {
         schemaService = adminClient.getService(SchemaService.class);
         securityQuestionService = adminClient.getService(SecurityQuestionService.class);
         implementationService = adminClient.getService(ImplementationService.class);
+        remediationService = adminClient.getService(RemediationService.class);
         camelRouteService = adminClient.getService(CamelRouteService.class);
         saml2SpService = adminClient.getService(SAML2SPService.class);
         saml2IdPService = adminClient.getService(SAML2IdPService.class);

@@ -302,6 +302,14 @@ public final class StandardEntitlement {
 
     public static final String IMPLEMENTATION_DELETE = "IMPLEMENTATION_DELETE";
 
+    public static final String REMEDIATION_LIST = "REMEDIATION_LIST";
+
+    public static final String REMEDIATION_READ = "REMEDIATION_READ";
+
+    public static final String REMEDIATION_REMEDY = "REMEDIATION_REMEDY";
+
+    public static final String REMEDIATION_DELETE = "REMEDIATION_DELETE";
+
     private static final Set<String> VALUES;
 
     static {

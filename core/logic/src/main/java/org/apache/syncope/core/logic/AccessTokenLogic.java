@@ -113,7 +113,7 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
         Integer count = accessTokenDAO.count();
 
         List<AccessTokenTO> result = accessTokenDAO.findAll(page, size, orderByClauses).stream().
-                map(accessToken -> binder.getAccessTokenTO(accessToken)).collect(Collectors.toList());
+                map(binder::getAccessTokenTO).collect(Collectors.toList());
 
         return Pair.of(count, result);
     }

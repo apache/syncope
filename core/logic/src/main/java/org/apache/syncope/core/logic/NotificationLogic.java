@@ -38,6 +38,7 @@ import org.quartz.JobKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
@@ -49,6 +50,7 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     private NotificationDataBinder binder;
 
     @PreAuthorize("hasRole('" + StandardEntitlement.NOTIFICATION_READ + "')")
+    @Transactional(readOnly = true)
     public NotificationTO read(final String key) {
         Notification notification = notificationDAO.find(key);
         if (notification == null) {
@@ -61,9 +63,9 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.NOTIFICATION_LIST + "')")
+    @Transactional(readOnly = true)
     public List<NotificationTO> list() {
-        return notificationDAO.findAll().stream().
-                map(notification -> binder.getNotificationTO(notification)).collect(Collectors.toList());
+        return notificationDAO.findAll().stream().map(binder::getNotificationTO).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.NOTIFICATION_CREATE + "')")

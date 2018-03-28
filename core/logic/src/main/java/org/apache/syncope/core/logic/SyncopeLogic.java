@@ -23,6 +23,7 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -68,6 +69,7 @@ import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
@@ -210,8 +212,8 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
                 PLATFORM_INFO.setBuildNumber(buildNumber);
 
                 if (bundleManager.getLocations() != null) {
-                    bundleManager.getLocations().
-                            forEach(location -> PLATFORM_INFO.getConnIdLocations().add(location.toASCIIString()));
+                    PLATFORM_INFO.getConnIdLocations().addAll(bundleManager.getLocations().stream().
+                            map(URI::toASCIIString).collect(Collectors.toList()));
                 }
 
                 PLATFORM_INFO.setPropagationTaskExecutor(AopUtils.getTargetClass(propagationTaskExecutor).getName());
@@ -246,19 +248,19 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
             AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(), () -> {
                 PLATFORM_INFO.getAnyTypes().clear();
                 PLATFORM_INFO.getAnyTypes().addAll(anyTypeDAO.findAll().stream().
-                        map(type -> type.getKey()).collect(Collectors.toList()));
+                        map(Entity::getKey).collect(Collectors.toList()));
 
                 PLATFORM_INFO.getUserClasses().clear();
                 PLATFORM_INFO.getUserClasses().addAll(anyTypeDAO.findUser().getClasses().stream().
-                        map(cls -> cls.getKey()).collect(Collectors.toList()));
+                        map(Entity::getKey).collect(Collectors.toList()));
 
                 PLATFORM_INFO.getAnyTypeClasses().clear();
                 PLATFORM_INFO.getAnyTypeClasses().addAll(anyTypeClassDAO.findAll().stream().
-                        map(cls -> cls.getKey()).collect(Collectors.toList()));
+                        map(Entity::getKey).collect(Collectors.toList()));
 
                 PLATFORM_INFO.getResources().clear();
                 PLATFORM_INFO.getResources().addAll(resourceDAO.findAll().stream().
-                        map(resource -> resource.getKey()).collect(Collectors.toList()));
+                        map(Entity::getKey).collect(Collectors.toList()));
                 return null;
             });
         }

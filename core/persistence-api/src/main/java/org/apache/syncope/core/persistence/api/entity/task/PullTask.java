@@ -44,4 +44,9 @@ public interface PullTask extends ProvisioningTask {
     Optional<? extends AnyTemplatePullTask> getTemplate(AnyType anyType);
 
     List<? extends AnyTemplatePullTask> getTemplates();
+
+    void setRemediation(boolean remediation);
+
+    boolean isRemediation();
+
 }

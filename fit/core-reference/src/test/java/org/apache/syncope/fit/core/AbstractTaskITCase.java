@@ -35,7 +35,6 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
-import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -102,29 +101,20 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
      * Clean Syncope and LDAP resource status.
      */
     protected void ldapCleanup() {
-        PagedResult<GroupTO> matchingGroups = groupService.search(new AnyQuery.Builder().realm(
-                SyncopeConstants.ROOT_REALM).
+        groupService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query()).
-                build());
-        if (matchingGroups.getSize() > 0) {
-            for (GroupTO group : matchingGroups.getResult()) {
-                groupService.deassociate(new DeassociationPatch.Builder().key(group.getKey()).
-                        action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_LDAP).build());
-                groupService.delete(group.getKey());
-            }
-        }
-        PagedResult<UserTO> matchingUsers = userService.search(
-                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                        fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").
-                                query()).
-                        build());
-        if (matchingUsers.getSize() > 0) {
-            for (UserTO user : matchingUsers.getResult()) {
-                userService.deassociate(new DeassociationPatch.Builder().key(user.getKey()).
-                        action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_LDAP).build());
-                userService.delete(user.getKey());
-            }
-        }
+                build()).getResult().forEach(group -> {
+                    groupService.deassociate(new DeassociationPatch.Builder().key(group.getKey()).
+                            action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_LDAP).build());
+                    groupService.delete(group.getKey());
+                });
+        userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").query()).
+                build()).getResult().forEach(user -> {
+                    userService.deassociate(new DeassociationPatch.Builder().key(user.getKey()).
+                            action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_LDAP).build());
+                    userService.delete(user.getKey());
+                });
     }
 
     protected static ExecTO execTask(

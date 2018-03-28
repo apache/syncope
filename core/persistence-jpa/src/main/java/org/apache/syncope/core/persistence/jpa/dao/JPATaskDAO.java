@@ -25,6 +25,7 @@ import javax.persistence.TypedQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Entity;
@@ -41,12 +42,16 @@ import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPASchedTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.AbstractTask;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
 @Repository
 public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
+
+    @Autowired
+    private RemediationDAO remediationDAO;
 
     @Override
     public Class<? extends Task> getEntityReference(final TaskType type) {
@@ -303,6 +308,12 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
 
     @Override
     public void delete(final Task task) {
+        if (task instanceof PullTask) {
+            remediationDAO.findByPullTask((PullTask) task).forEach(remediation -> {
+                remediation.setPullTask(null);
+            });
+        }
+
         entityManager().remove(task);
     }
 

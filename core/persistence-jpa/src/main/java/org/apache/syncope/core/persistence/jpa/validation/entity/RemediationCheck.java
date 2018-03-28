@@ -16,20 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.core.persistence.jpa.validation.entity;
 
-import org.apache.syncope.common.lib.to.ResourceHistoryConfTO;
-import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface ResourceDataBinder {
+import javax.validation.Constraint;
+import javax.validation.Payload;
 
-    ResourceTO getResourceTO(ExternalResource resource);
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = RemediationValidator.class)
+@Documented
+public @interface RemediationCheck {
 
-    ExternalResource create(ResourceTO resourceTO);
+    String message() default "{org.apache.syncope.core.persistence.validation.remediation}";
 
-    ExternalResource update(ExternalResource resource, ResourceTO resourceTO);
+    Class<?>[] groups() default {};
 
-    ResourceHistoryConfTO getResourceHistoryConfTO(ExternalResourceHistoryConf history);
+    Class<? extends Payload>[] payload() default {};
 }
