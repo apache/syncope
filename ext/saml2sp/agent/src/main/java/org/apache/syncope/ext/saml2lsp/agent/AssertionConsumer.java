@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.ext.saml2lsp.agent;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -27,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
 
@@ -34,6 +37,9 @@ import org.apache.syncope.common.rest.api.service.SAML2SPService;
 public class AssertionConsumer extends AbstractSAML2SPServlet {
 
     private static final long serialVersionUID = 968480296813639041L;
+
+    private static final ObjectMapper MAPPER =
+            new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
     @Override
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
@@ -49,15 +55,33 @@ public class AssertionConsumer extends AbstractSAML2SPServlet {
                             request.getRemoteAddr(),
                             request.getInputStream()));
 
-            request.getSession(true).setAttribute(Constants.SAML2SPJWT, responseTO.getAccessToken());
-            request.getSession(true).setAttribute(Constants.SAML2SPJWT_EXPIRE, responseTO.getAccessTokenExpiryTime());
+            if (responseTO.isSelfReg()) {
+                responseTO.getAttrs().add(
+                        new AttrTO.Builder().schema("username").values(responseTO.getUsername()).build());
+                request.getSession(true).
+                        setAttribute(Constants.SAML2SP_USER_ATTRS, MAPPER.writeValueAsString(responseTO.getAttrs()));
 
-            String successURL = getServletContext().getInitParameter(Constants.CONTEXT_PARAM_LOGIN_SUCCESS_URL);
-            if (successURL == null) {
-                request.setAttribute("responseTO", responseTO);
-                request.getRequestDispatcher("loginSuccess.jsp").forward(request, response);
+                String selfRegRedirectURL =
+                        getServletContext().getInitParameter(Constants.CONTEXT_PARAM_REDIRECT_SELFREG_URL);
+                if (selfRegRedirectURL == null) {
+                    request.setAttribute("responseTO", responseTO);
+                    request.getRequestDispatcher("loginSuccess.jsp").forward(request, response);
+                } else {
+                    response.sendRedirect(selfRegRedirectURL);
+                }
             } else {
-                response.sendRedirect(successURL + "?sloSupported=" + responseTO.isSloSupported());
+                request.getSession(true).
+                        setAttribute(Constants.SAML2SPJWT, responseTO.getAccessToken());
+                request.getSession(true).
+                        setAttribute(Constants.SAML2SPJWT_EXPIRE, responseTO.getAccessTokenExpiryTime());
+
+                String successURL = getServletContext().getInitParameter(Constants.CONTEXT_PARAM_LOGIN_SUCCESS_URL);
+                if (successURL == null) {
+                    request.setAttribute("responseTO", responseTO);
+                    request.getRequestDispatcher("loginSuccess.jsp").forward(request, response);
+                } else {
+                    response.sendRedirect(successURL + "?sloSupported=" + responseTO.isSloSupported());
+                }
             }
         } catch (Exception e) {
             LOG.error("While processing authentication response from IdP", e);

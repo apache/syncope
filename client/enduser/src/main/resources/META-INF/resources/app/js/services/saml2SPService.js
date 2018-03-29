@@ -20,23 +20,23 @@
 'use strict';
 
 angular.module('self')
-        .factory('SAML2IdPService', ['$resource', '$q', '$http',
-          function ($resource, $q, $http) {
+        .factory('SAML2SPService', ['$q', '$http',
+          function ($q, $http) {
 
-            var saml2IdPService = {};
+            var saml2SPService = {};
 
-            saml2IdPService.getAvailableSAML2IdPs = function () {
-              return $http.get("../api/saml2IdPs")
+            saml2SPService.getSAML2SPUserAttrs = function () {
+              return $http.get("../api/saml2SPs/userAttrs")
                       .then(function (response) {
                         return response.data;
                       }, function (response) {
-                        console.error("Something went wrong during saml2Idp extension retrieval, exit with status: ",
+                        console.error("Something went wrong while getting saml2 user attributes, exit with status: ",
                                 response);
                         return $q.reject(response.data || response.statusText);
                       });
             };
 
-            return saml2IdPService;
+            return saml2SPService;
           }]);
 
 

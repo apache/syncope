@@ -111,6 +111,10 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
                     "field", "createUnmatching", new PropertyModel<Boolean>(idpTO, "createUnmatching"), false);
             fields.add(createUnmatching);
 
+            AjaxCheckBoxPanel selfRegUnmatching = new AjaxCheckBoxPanel(
+                    "field", "selfRegUnmatching", new PropertyModel<Boolean>(idpTO, "selfRegUnmatching"), false);
+            fields.add(selfRegUnmatching);
+
             AjaxCheckBoxPanel updateMatching = new AjaxCheckBoxPanel(
                     "field", "updateMatching", new PropertyModel<Boolean>(idpTO, "updateMatching"), false);
             fields.add(updateMatching);

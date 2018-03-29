@@ -45,6 +45,7 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.SAML2RequestTO;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.lib.to.SAML2ReceivedResponseTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
@@ -502,6 +503,22 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
                         return userManager.create(idp, responseTO, nameIDValue);
                     }
                 });
+            } else if (idp.isSelfRegUnmatching()) {
+                responseTO.setNameID(nameID.getValue());
+                UserTO userTO = new UserTO();
+
+                userManager.fill(idp, responseTO, userTO);
+
+                responseTO.getAttrs().clear();
+                responseTO.getAttrs().addAll(userTO.getPlainAttrs());
+                responseTO.getAttrs().addAll(userTO.getVirAttrs());
+                if (StringUtils.isNotBlank(userTO.getUsername())) {
+                    responseTO.setUsername(userTO.getUsername());
+                }
+                
+                responseTO.setSelfReg(true);
+
+                return responseTO;
             } else {
                 throw new NotFoundException("User matching the provided value " + keyValue);
             }

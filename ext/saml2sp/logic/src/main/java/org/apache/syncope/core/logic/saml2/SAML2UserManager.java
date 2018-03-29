@@ -192,7 +192,7 @@ public class SAML2UserManager {
         return actions;
     }
 
-    private void fill(final SAML2IdPEntity idp, final SAML2LoginResponseTO responseTO, final UserTO userTO) {
+    public void fill(final SAML2IdPEntity idp, final SAML2LoginResponseTO responseTO, final UserTO userTO) {
         for (ItemTO item : idp.getItems()) {
             List<String> values = Collections.emptyList();
             AttrTO samlAttr = responseTO.getAttr(item.getExtAttrName());

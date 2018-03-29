@@ -47,6 +47,11 @@ under the License.
     <param-name>saml2sp.logout.error.url</param-name>
     <param-value>../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.HomePage</param-value>
   </context-param>
+  
+  <context-param>
+    <param-name>saml2sp.redirect.selfreg</param-name>
+    <param-value>../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.SAML2SPSelfReg</param-value>
+  </context-param>
 
   <!-- SESSION TIMEOUT (MINUTES)-->
   <session-config>

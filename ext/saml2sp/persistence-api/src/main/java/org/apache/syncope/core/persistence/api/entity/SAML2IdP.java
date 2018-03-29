@@ -40,6 +40,10 @@ public interface SAML2IdP extends Entity {
 
     void setCreateUnmatching(boolean createUnmatching);
 
+    boolean isSelfRegUnmatching();
+
+    void setSelfRegUnmatching(boolean selfRegUnmatching);
+
     boolean isUpdateMatching();
 
     void setUpdateMatching(boolean updateMatching);

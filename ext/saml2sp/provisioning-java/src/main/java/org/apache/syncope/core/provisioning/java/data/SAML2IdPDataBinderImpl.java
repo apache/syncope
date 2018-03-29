@@ -178,6 +178,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         idp.setName(idpTO.getName());
         idp.setMetadata(Base64.decode(idpTO.getMetadata()));
         idp.setCreateUnmatching(idpTO.isCreateUnmatching());
+        idp.setSelfRegUnmatching(idpTO.isSelfRegUnmatching());
         idp.setUpdateMatching(idpTO.isUpdateMatching());
         idp.setUseDeflateEncoding(idpTO.isUseDeflateEncoding());
         idp.setSupportUnsolicited(idpTO.isSupportUnsolicited());
@@ -243,6 +244,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         idpTO.setSupportUnsolicited(idp.isSupportUnsolicited());
         idpTO.setBindingType(idp.getBindingType());
         idpTO.setCreateUnmatching(idp.isCreateUnmatching());
+        idpTO.setSelfRegUnmatching(idp.isSelfRegUnmatching());
         idpTO.setUpdateMatching(idp.isUpdateMatching());
         idpTO.setMetadata(Base64.encode(idp.getMetadata()));
 

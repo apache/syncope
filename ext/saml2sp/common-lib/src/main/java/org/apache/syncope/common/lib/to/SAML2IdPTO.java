@@ -51,6 +51,8 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO, ItemContai
 
     private boolean updateMatching;
 
+    private boolean selfRegUnmatching;
+
     private boolean useDeflateEncoding;
 
     private boolean supportUnsolicited;
@@ -106,6 +108,14 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO, ItemContai
 
     public void setCreateUnmatching(final boolean createUnmatching) {
         this.createUnmatching = createUnmatching;
+    }
+
+    public boolean isSelfRegUnmatching() {
+        return selfRegUnmatching;
+    }
+
+    public void setSelfRegUnmatching(final boolean selfRegUnmatching) {
+        this.selfRegUnmatching = selfRegUnmatching;
     }
 
     public boolean isUpdateMatching() {

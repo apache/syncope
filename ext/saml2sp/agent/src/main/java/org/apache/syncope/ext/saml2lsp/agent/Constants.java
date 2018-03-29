@@ -34,9 +34,13 @@ public final class Constants {
 
     public static final String CONTEXT_PARAM_LOGOUT_ERROR_URL = "saml2sp.logout.error.url";
 
+    public static final String CONTEXT_PARAM_REDIRECT_SELFREG_URL = "saml2sp.redirect.selfreg";
+
     public static final String SAML2SPJWT = "saml2sp.jwt";
 
     public static final String SAML2SPJWT_EXPIRE = "saml2sp.jwt.expire";
+
+    public static final String SAML2SP_USER_ATTRS = "saml2sp.userattrs";
 
     private Constants() {
         // private constructor for static utility class

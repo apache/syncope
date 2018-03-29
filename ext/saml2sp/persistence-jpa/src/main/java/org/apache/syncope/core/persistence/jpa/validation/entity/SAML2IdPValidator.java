@@ -30,6 +30,16 @@ public class SAML2IdPValidator extends AbstractValidator<SAML2IdPCheck, SAML2IdP
 
     @Override
     public boolean isValid(final SAML2IdP value, final ConstraintValidatorContext context) {
+
+        if (value.isSelfRegUnmatching() && value.isCreateUnmatching()) {
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.Standard,
+                            "Either selfRegUnmatching or createUnmatching, not both")).
+                    addPropertyNode("selfRegUnmatching").
+                    addPropertyNode("createUnmatching").addConstraintViolation();
+            return false;
+        }
+
         long connObjectKeys = IterableUtils.countMatches(value.getItems(), new Predicate<SAML2IdPItem>() {
 
             @Override
