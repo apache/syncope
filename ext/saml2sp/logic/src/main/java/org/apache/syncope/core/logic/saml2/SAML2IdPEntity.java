@@ -130,6 +130,10 @@ public class SAML2IdPEntity {
         return idpTO.isCreateUnmatching();
     }
 
+    public boolean isSelfRegUnmatching() {
+        return idpTO.isSelfRegUnmatching();
+    }
+
     public boolean isUpdateMatching() {
         return idpTO.isUpdateMatching();
     }

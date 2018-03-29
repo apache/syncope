@@ -38,6 +38,8 @@ public class HomePage extends WebPage {
         } else if (!parameters.get("successMessage").isNull()) {
             redirectUrl.append("#!self?successMessage=");
             appendMessage(redirectUrl, parameters.get("successMessage").toString());
+        } else if (!parameters.get("saml2SPUserAttrs").isNull()) {
+            redirectUrl.append("#!self-saml2sp");
         }
         throw new NonResettingRestartException(redirectUrl.toString());
     }

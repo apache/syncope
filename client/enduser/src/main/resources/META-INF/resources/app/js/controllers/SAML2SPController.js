@@ -18,25 +18,12 @@
  */
 
 'use strict';
+angular.module("login").controller("SAML2SPController", function ($scope, $rootScope, $location, userAttrs) {
+  $scope.selfCreate = function () {
+    $location.path("/self/create");
+  };
 
-angular.module('self')
-        .factory('SAML2IdPService', ['$resource', '$q', '$http',
-          function ($resource, $q, $http) {
+  $rootScope.saml2idps.userAttrs = userAttrs;
 
-            var saml2IdPService = {};
-
-            saml2IdPService.getAvailableSAML2IdPs = function () {
-              return $http.get("../api/saml2IdPs")
-                      .then(function (response) {
-                        return response.data;
-                      }, function (response) {
-                        console.error("Something went wrong during saml2Idp extension retrieval, exit with status: ",
-                                response);
-                        return $q.reject(response.data || response.statusText);
-                      });
-            };
-
-            return saml2IdPService;
-          }]);
-
-
+  $scope.selfCreate();
+});

@@ -109,6 +109,10 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
                     "field", "createUnmatching", new PropertyModel<>(idpTO, "createUnmatching"), false);
             fields.add(createUnmatching);
 
+            AjaxCheckBoxPanel selfRegUnmatching = new AjaxCheckBoxPanel(
+                    "field", "selfRegUnmatching", new PropertyModel<Boolean>(idpTO, "selfRegUnmatching"), false);
+            fields.add(selfRegUnmatching);
+
             AjaxCheckBoxPanel updateMatching = new AjaxCheckBoxPanel(
                     "field", "updateMatching", new PropertyModel<>(idpTO, "updateMatching"), false);
             fields.add(updateMatching);
@@ -127,14 +131,14 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
             bindingType.setChoices(Arrays.asList(SAML2BindingType.values()));
             fields.add(bindingType);
 
-            AjaxPalettePanel<String> actionsClassNames = new AjaxPalettePanel.Builder<String>().
+            AjaxPalettePanel<String> actions = new AjaxPalettePanel.Builder<String>().
                     setAllowMoveAll(true).setAllowOrder(true).
-                    setName(new StringResourceModel("actionsClassNames", directoryPanel).getString()).
+                    setName(new StringResourceModel("actions", directoryPanel).getString()).
                     build("field",
-                            new PropertyModel<List<String>>(idpTO, "actionsClassNames"),
+                            new PropertyModel<List<String>>(idpTO, "actions"),
                             new ListModel<>(actionsClasses.getObject()));
-            actionsClassNames.setOutputMarkupId(true);
-            fields.add(actionsClassNames);
+            actions.setOutputMarkupId(true);
+            fields.add(actions);
 
             add(new ListView<Component>("fields", fields) {
 

@@ -72,10 +72,10 @@ under the License.
   z-index : 10001;
 }
 
-treasure-overlay-spinner.treasure-overlay-spinner-active .treasure-overlay-spinner-content {
+treasure-overlay-spinner .treasure-overlay-spinner-content {
   height: 100%;
 }
-treasure-overlay-spinner.treasure-overlay-spinner-active {
+treasure-overlay-spinner {
   height: 100%;
   top: 0;
   bottom: 0;

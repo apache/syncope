@@ -199,7 +199,7 @@ public class SAML2UserManager {
         return actions;
     }
 
-    private void fill(final String idpKey, final SAML2LoginResponseTO responseTO, final UserTO userTO) {
+    public void fill(final String idpKey, final SAML2LoginResponseTO responseTO, final UserTO userTO) {
         SAML2IdP idp = idpDAO.find(idpKey);
         if (idp == null) {
             LOG.warn("Invalid IdP: {}", idpKey);

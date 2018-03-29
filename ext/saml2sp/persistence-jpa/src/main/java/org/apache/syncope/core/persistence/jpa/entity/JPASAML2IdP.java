@@ -76,6 +76,11 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
     @Min(0)
     @Max(1)
     @Column(nullable = false)
+    private Integer selfRegUnmatching;
+
+    @Min(0)
+    @Max(1)
+    @Column(nullable = false)
     private Integer updateMatching;
 
     @Min(0)
@@ -140,6 +145,16 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
     @Override
     public void setCreateUnmatching(final boolean createUnmatching) {
         this.createUnmatching = getBooleanAsInteger(createUnmatching);
+    }
+
+    @Override
+    public boolean isSelfRegUnmatching() {
+        return isBooleanAsInteger(selfRegUnmatching);
+    }
+
+    @Override
+    public void setSelfRegUnmatching(final boolean selfRegUnmatching) {
+        this.selfRegUnmatching = getBooleanAsInteger(selfRegUnmatching);
     }
 
     @Override

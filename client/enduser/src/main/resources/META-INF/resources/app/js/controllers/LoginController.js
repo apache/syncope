@@ -61,12 +61,15 @@ angular.module("login").controller("LoginController", ['$scope', '$rootScope', '
         console.error("error retrieving user login status", response);
       });
     };
+
     $scope.selfCreate = function () {
       $location.path("/self/create");
     };
+
     $scope.passwordReset = function () {
       $location.path("/passwordreset");
     };
+
     $scope.$watch(function () {
       return $location.search().successMessage;
     }, function (successMessage) {
@@ -76,6 +79,7 @@ angular.module("login").controller("LoginController", ['$scope', '$rootScope', '
         delete $location.$$search.successMessage;
       }
     });
+
     $scope.$watch(function () {
       return $location.search().errorMessage;
     }, function (errorMessage) {

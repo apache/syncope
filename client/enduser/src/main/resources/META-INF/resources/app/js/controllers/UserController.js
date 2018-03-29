@@ -43,6 +43,10 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       value: ""
     };
 
+    /* <Extensions> */
+    $scope.loadFromSAML2AuthSelfReg = $rootScope.saml2idps.userAttrs && $rootScope.saml2idps.userAttrs.length;
+    /* </Extensions> */
+
     $scope.initUser = function () {
       $scope.dynamicForm = {
         plainSchemas: [],
@@ -59,6 +63,12 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         selectedGroups: [],
         selectedAuxClasses: [],
         groupSchemas: ['own']
+      };
+
+      var findLoadedSAML2AttrValue = function (schemaKey) {
+        var found = $filter('filter')($rootScope.saml2idps.userAttrs, {"schema": schemaKey}, true);
+        return (found && found.length && found[0].values && found[0].values.length)
+                ? found[0].values : [];
       };
 
       var initUserSchemas = function (anyTypeClass, group) {
@@ -113,6 +123,11 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
               schema: plainSchemaKey,
               values: initialAttributeValues
             };
+
+            if ($scope.loadFromSAML2AuthSelfReg) {
+              $scope.user.plainAttrs[plainSchemaKey].values = findLoadedSAML2AttrValue(plainSchemaKey);
+            }
+
             if (schemas.plainSchemas[i].multivalue) {
               // initialize multivalue schema and support table: create mode, default multivalues
               if (initialAttributeValues.length > 0) {
@@ -162,6 +177,11 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
               schema: virSchemaKey,
               values: []
             };
+
+            if ($scope.loadFromSAML2AuthSelfReg) {
+              $scope.user.virAttrs[virSchemaKey].values = findLoadedSAML2AttrValue(virSchemaKey);
+            }
+
             // initialize multivalue attribute and support table: create mode, only first value
             $scope.dynamicForm.virtualAttributeTable[schemas.virSchemas[i].key] = {
               fields: [schemas.virSchemas[i].key + "_" + 0]
@@ -182,6 +202,9 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         $scope.dynamicForm.plainSchemas = $scope.dynamicForm.plainSchemas.concat(schemas.plainSchemas);
         $scope.dynamicForm.derSchemas = $scope.dynamicForm.derSchemas.concat(schemas.derSchemas);
         $scope.dynamicForm.virSchemas = $scope.dynamicForm.virSchemas.concat(schemas.virSchemas);
+
+        //clean SAML Self Reg user attributes variable
+        delete $rootScope.saml2idps.userAttrs;
       };
 
       var initSecurityQuestions = function () {
@@ -421,6 +444,13 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           initUserSchemas(null, $scope.dynamicForm.selectedGroups[index]);
         }
         initProperties();
+
+        if ($scope.loadFromSAML2AuthSelfReg) {
+          var username = findLoadedSAML2AttrValue("username");
+          if (username.length) {
+            $scope.user.username = username[0];
+          }
+        }
       } else {
         // read user from syncope core
         readUser();

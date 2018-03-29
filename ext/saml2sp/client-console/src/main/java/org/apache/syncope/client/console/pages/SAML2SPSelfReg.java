@@ -1,4 +1,4 @@
-/* 
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,27 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.syncope.client.console.pages;
 
-'use strict';
+import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-angular.module('self')
-        .factory('SAML2IdPService', ['$resource', '$q', '$http',
-          function ($resource, $q, $http) {
+public class SAML2SPSelfReg extends WebPage {
 
-            var saml2IdPService = {};
+    private static final long serialVersionUID = -4330637558823990359L;
 
-            saml2IdPService.getAvailableSAML2IdPs = function () {
-              return $http.get("../api/saml2IdPs")
-                      .then(function (response) {
-                        return response.data;
-                      }, function (response) {
-                        console.error("Something went wrong during saml2Idp extension retrieval, exit with status: ",
-                                response);
-                        return $q.reject(response.data || response.statusText);
-                      });
-            };
+    private static final String SAML_ACCESS_ERROR = 
+            "SAML 2.0 error - Admin Console does not support Self Registration";
 
-            return saml2IdPService;
-          }]);
+    public SAML2SPSelfReg(final PageParameters parameters) {
+        super(parameters);
 
-
+        PageParameters params = new PageParameters();
+        params.add("errorMessage", SAML_ACCESS_ERROR);
+        setResponsePage(Login.class, params);
+    }
+}

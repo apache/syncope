@@ -73,6 +73,19 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
               url: '/self?errorMessage',
               templateUrl: 'views/self.html'
             })
+            /* <Extensions> */
+            .state('self-saml2sp', {
+              url: '/self-saml2sp',
+              templateUrl: 'views/self.html',
+              controller: 'SAML2SPController',
+              resolve: {
+                'userAttrs': ['SAML2SPService',
+                  function (SAML2SPService) {
+                    return SAML2SPService.getSAML2SPUserAttrs();
+                  }]
+              }
+            })
+            /* </Extensions> */
             .state('user-self-update', {
               url: '/user-self-update',
               templateUrl: 'views/home.html',

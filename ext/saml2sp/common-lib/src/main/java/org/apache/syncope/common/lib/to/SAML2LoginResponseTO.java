@@ -56,6 +56,8 @@ public class SAML2LoginResponseTO extends AbstractBaseBean {
 
     private boolean sloSupported;
 
+    private boolean selfReg;
+
     public String getNameID() {
         return nameID;
     }
@@ -152,6 +154,14 @@ public class SAML2LoginResponseTO extends AbstractBaseBean {
 
     public void setSloSupported(final boolean sloSupported) {
         this.sloSupported = sloSupported;
+    }
+
+    public boolean isSelfReg() {
+        return selfReg;
+    }
+
+    public void setSelfReg(final boolean selfReg) {
+        this.selfReg = selfReg;
     }
 
 }
