@@ -85,7 +85,7 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
                   }]
               }
             })
-            /* <Extensions> */
+            /* </Extensions> */
             .state('user-self-update', {
               url: '/user-self-update',
               templateUrl: 'views/home.html',

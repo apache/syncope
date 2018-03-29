@@ -45,7 +45,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
     /* <Extensions> */
     $scope.loadFromSAML2AuthSelfReg = $rootScope.saml2idps.userAttrs && $rootScope.saml2idps.userAttrs.length;
-    /* <Extensions> */
+    /* </Extensions> */
 
     $scope.initUser = function () {
       $scope.dynamicForm = {
