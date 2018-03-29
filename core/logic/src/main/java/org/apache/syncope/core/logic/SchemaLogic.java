@@ -147,20 +147,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public <T extends SchemaTO> List<T> list(final SchemaType schemaType, final List<String> anyTypeClasses) {
-        return doSearch(schemaType, anyTypeClasses, null);
-    }
-
-    @PreAuthorize("isAuthenticated()")
-    @Transactional(readOnly = true)
     public <T extends SchemaTO> List<T> search(
-            final SchemaType schemaType, final List<String> anyTypeClasses, final String keyword) {
-
-        return doSearch(schemaType, anyTypeClasses, keyword == null ? null : keyword.replace('*', '%'));
-    }
-
-    @SuppressWarnings({ "unchecked", "Convert2Lambda" })
-    private <T extends SchemaTO> List<T> doSearch(
             final SchemaType schemaType, final List<String> anyTypeClasses, final String keyword) {
 
         List<AnyTypeClass> classes = new ArrayList<>(anyTypeClasses == null ? 0 : anyTypeClasses.size());

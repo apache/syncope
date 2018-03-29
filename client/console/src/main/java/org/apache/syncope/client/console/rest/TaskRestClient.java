@@ -60,23 +60,23 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     public int count(final TaskType kind) {
-        return getService(TaskService.class).list(
+        return getService(TaskService.class).search(
                 new TaskQuery.Builder(kind).page(1).size(1).build()).getTotalCount();
     }
 
     public int count(final String resource, final TaskType kind) {
-        return getService(TaskService.class).list(
+        return getService(TaskService.class).search(
                 new TaskQuery.Builder(kind).resource(resource).page(1).size(1).build()).getTotalCount();
     }
 
     public int count(final AnyTypeKind anyTypeKind, final String entityKey, final TaskType kind) {
-        return getService(TaskService.class).list(
+        return getService(TaskService.class).search(
                 new TaskQuery.Builder(kind).anyTypeKind(anyTypeKind).entityKey(entityKey).page(1).size(1).build()).
                 getTotalCount();
     }
 
     public int count(final AnyTypeKind anyTypeKind, final String entityKey, final String notification) {
-        return getService(TaskService.class).list(
+        return getService(TaskService.class).search(
                 new TaskQuery.Builder(TaskType.NOTIFICATION).notification(notification).
                         anyTypeKind(anyTypeKind).entityKey(entityKey).page(1).size(1).build()).
                 getTotalCount();
@@ -92,7 +92,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
             final String resource, final int page, final int size, final SortParam<String> sort) {
 
         return getService(TaskService.class).
-                <PropagationTaskTO>list(new TaskQuery.Builder(TaskType.PROPAGATION).
+                <PropagationTaskTO>search(new TaskQuery.Builder(TaskType.PROPAGATION).
                         resource(resource).
                         page(page).size(size).
                         orderBy(toOrderBy(sort)).build()).
@@ -104,7 +104,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
             final int page, final int size, final SortParam<String> sort) {
 
         return getService(TaskService.class).
-                <PropagationTaskTO>list(new TaskQuery.Builder(TaskType.PROPAGATION).
+                <PropagationTaskTO>search(new TaskQuery.Builder(TaskType.PROPAGATION).
                         anyTypeKind(anyTypeKind).entityKey(entityKey).
                         page(page).size(size).
                         orderBy(toOrderBy(sort)).build()).
@@ -133,7 +133,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         }
 
         PagedResult<NotificationTaskTO> list = getService(TaskService.class).
-                list(builder.page(page).size(size).orderBy(toOrderBy(sort)).build());
+                search(builder.page(page).size(size).orderBy(toOrderBy(sort)).build());
         return list.getResult();
     }
 
@@ -142,9 +142,8 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
             final Class<T> reference, final int page, final int size, final SortParam<String> sort) {
 
         return (List<T>) getService(TaskService.class).
-                list(new TaskQuery.Builder(getTaskType(reference)).page(page).size(size).
-                        orderBy(toOrderBy(sort)).build()).
-                getResult();
+                search(new TaskQuery.Builder(getTaskType(reference)).page(page).size(size).
+                        orderBy(toOrderBy(sort)).build()).getResult();
     }
 
     @SuppressWarnings("unchecked")
@@ -156,9 +155,8 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
             final SortParam<String> sort) {
 
         return (List<T>) getService(TaskService.class).
-                list(new TaskQuery.Builder(getTaskType(reference)).page(page).size(size).resource(resource).
-                        orderBy(toOrderBy(sort)).build()).
-                getResult();
+                search(new TaskQuery.Builder(getTaskType(reference)).page(page).size(size).resource(resource).
+                        orderBy(toOrderBy(sort)).build()).getResult();
     }
 
     @Override

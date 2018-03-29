@@ -169,7 +169,9 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
             assertEquals(1, taskTO.getExecutions().size());
         } finally {
             // Remove execution to make test re-runnable
-            taskService.deleteExecution(taskTO.getExecutions().get(0).getKey());
+            if (!taskTO.getExecutions().isEmpty()) {
+                taskService.deleteExecution(taskTO.getExecutions().get(0).getKey());
+            }
         }
     }
 
@@ -276,7 +278,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         assertTrue(taskTO.getRecipients().containsAll(
                 new TestNotificationRecipientsProvider().provideRecipients(null)));
 
-        NotificationTaskTO foundViaList = taskService.<NotificationTaskTO>list(
+        NotificationTaskTO foundViaList = taskService.<NotificationTaskTO>search(
                 new TaskQuery.Builder(TaskType.NOTIFICATION).notification(notification.getKey()).build()).
                 getResult().get(0);
         assertEquals(taskTO, foundViaList);
@@ -295,7 +297,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
 
         // verify that no task was created for disabled notification
         PagedResult<NotificationTaskTO> tasks =
-                taskService.list(new TaskQuery.Builder(TaskType.NOTIFICATION).notification(created.getLeft()).build());
+                taskService.search(new TaskQuery.Builder(TaskType.NOTIFICATION).notification(created.getLeft()).build());
         assertEquals(0, tasks.getSize());
     }
 

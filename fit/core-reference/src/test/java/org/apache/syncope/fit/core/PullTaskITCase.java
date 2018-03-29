@@ -140,7 +140,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void list() {
-        PagedResult<PullTaskTO> tasks = taskService.list(new TaskQuery.Builder(TaskType.PULL).build());
+        PagedResult<PullTaskTO> tasks = taskService.search(new TaskQuery.Builder(TaskType.PULL).build());
         assertFalse(tasks.getResult().isEmpty());
         tasks.getResult().stream().
                 filter(task -> (!(task instanceof PullTaskTO))).
@@ -677,7 +677,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ldap = createResource(ldap);
 
         // 2. create PullTask with remediation enabled, for the new resource
-        PullTaskTO pullTask = (PullTaskTO) taskService.list(new TaskQuery.Builder(TaskType.PULL).
+        PullTaskTO pullTask = (PullTaskTO) taskService.search(new TaskQuery.Builder(TaskType.PULL).
                 resource(RESOURCE_NAME_LDAP).build()).getResult().get(0);
         assertNotNull(pullTask);
         pullTask.setResource(ldap.getKey());
@@ -1206,7 +1206,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().get(0)));
 
             // ...and propagated
-            PagedResult<TaskTO> propagationTasks = taskService.list(new TaskQuery.Builder(TaskType.PROPAGATION).
+            PagedResult<TaskTO> propagationTasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
                     resource(RESOURCE_NAME_DBPULL).
                     anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
             assertEquals(1, propagationTasks.getSize());
@@ -1229,7 +1229,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals("pullFromLDAP2@syncope.apache.org", user.getPlainAttr("email").get().getValues().get(0));
 
             // ...and propagated
-            propagationTasks = taskService.list(new TaskQuery.Builder(TaskType.PROPAGATION).
+            propagationTasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
                     resource(RESOURCE_NAME_DBPULL).
                     anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
             assertEquals(2, propagationTasks.getSize());

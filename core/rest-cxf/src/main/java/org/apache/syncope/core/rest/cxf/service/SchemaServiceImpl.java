@@ -53,7 +53,8 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
 
     @Override
     public <T extends SchemaTO> List<T> search(final SchemaQuery query) {
-        return logic.search(query.getType(), query.getAnyTypeClasses(), query.getKeyword());
+        String keyword = query.getKeyword() == null ? null : query.getKeyword().replace('*', '%');
+        return logic.search(query.getType(), query.getAnyTypeClasses(), keyword);
     }
 
     @Override

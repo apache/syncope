@@ -159,7 +159,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
-    public <T extends TaskTO> Pair<Integer, List<T>> list(
+    public <T extends TaskTO> Pair<Integer, List<T>> search(
             final TaskType type,
             final String resource,
             final String notification,
