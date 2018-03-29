@@ -43,6 +43,7 @@ import org.apache.syncope.core.spring.security.Encryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> {
@@ -107,6 +108,7 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ACCESS_TOKEN_LIST + "')")
+    @Transactional(readOnly = true)
     public Pair<Integer, List<AccessTokenTO>> list(
             final int page,
             final int size,

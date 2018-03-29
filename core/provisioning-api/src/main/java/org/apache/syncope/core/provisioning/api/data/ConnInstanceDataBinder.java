@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
+import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
+import org.apache.syncope.core.persistence.api.entity.ConnInstanceHistoryConf;
 import org.identityconnectors.framework.api.ConfigurationProperty;
 
 public interface ConnInstanceDataBinder {
@@ -30,6 +32,8 @@ public interface ConnInstanceDataBinder {
     ConnInstance getConnInstance(ConnInstanceTO connInstanceTO);
 
     ConnInstanceTO getConnInstanceTO(ConnInstance connInstance);
+
+    ConnInstanceHistoryConfTO getConnInstanceHistoryConfTO(ConnInstanceHistoryConf history);
 
     ConnInstance update(ConnInstanceTO connInstanceTO);
 

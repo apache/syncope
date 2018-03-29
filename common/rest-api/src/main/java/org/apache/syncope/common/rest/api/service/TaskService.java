@@ -83,7 +83,7 @@ public interface TaskService extends ExecutableService {
     @GET
     @Path("{type}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    <T extends TaskTO> PagedResult<T> list(@BeanParam TaskQuery query);
+    <T extends TaskTO> PagedResult<T> search(@BeanParam TaskQuery query);
 
     /**
      * Creates a new task.

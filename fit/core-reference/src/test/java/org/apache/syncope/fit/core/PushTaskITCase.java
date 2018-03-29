@@ -88,7 +88,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void list() {
-        PagedResult<PushTaskTO> tasks = taskService.list(new TaskQuery.Builder(TaskType.PUSH).build());
+        PagedResult<PushTaskTO> tasks = taskService.search(new TaskQuery.Builder(TaskType.PUSH).build());
         assertFalse(tasks.getResult().isEmpty());
         for (TaskTO task : tasks.getResult()) {
             if (!(task instanceof PushTaskTO)) {

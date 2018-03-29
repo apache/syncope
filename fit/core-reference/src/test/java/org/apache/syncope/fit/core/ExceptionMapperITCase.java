@@ -156,19 +156,19 @@ public class ExceptionMapperITCase extends AbstractITCase {
     @Test
     public void invalidRequests() {
         try {
-            taskService.list(new TaskQuery.Builder(TaskType.NOTIFICATION).resource(RESOURCE_NAME_LDAP).build());
+            taskService.search(new TaskQuery.Builder(TaskType.NOTIFICATION).resource(RESOURCE_NAME_LDAP).build());
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidRequest, e.getType());
         }
         try {
-            taskService.list(new TaskQuery.Builder(TaskType.PULL).anyTypeKind(AnyTypeKind.ANY_OBJECT).build());
+            taskService.search(new TaskQuery.Builder(TaskType.PULL).anyTypeKind(AnyTypeKind.ANY_OBJECT).build());
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidRequest, e.getType());
         }
         try {
-            taskService.list(new TaskQuery.Builder(TaskType.PULL).
+            taskService.search(new TaskQuery.Builder(TaskType.PULL).
                     notification("e00945b5-1184-4d43-8e45-4318a8dcdfd4").build());
             fail();
         } catch (SyncopeClientException e) {

@@ -34,6 +34,7 @@ import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class ConnectorHistoryLogic extends AbstractTransactionalLogic<ConnInstanceHistoryConfTO> {
@@ -47,17 +48,8 @@ public class ConnectorHistoryLogic extends AbstractTransactionalLogic<ConnInstan
     @Autowired
     private ConnInstanceDataBinder binder;
 
-    private ConnInstanceHistoryConfTO getConnInstanceHistoryConfTO(final ConnInstanceHistoryConf history) {
-        ConnInstanceHistoryConfTO historyTO = new ConnInstanceHistoryConfTO();
-        historyTO.setKey(history.getKey());
-        historyTO.setCreator(history.getCreator());
-        historyTO.setCreation(history.getCreation());
-        historyTO.setConnInstanceTO(history.getConf());
-
-        return historyTO;
-    }
-
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_HISTORY_LIST + "')")
+    @Transactional(readOnly = true)
     public List<ConnInstanceHistoryConfTO> list(final String key) {
         ConnInstance connInstance = connInstanceDAO.find(key);
         if (connInstance == null) {
@@ -69,7 +61,7 @@ public class ConnectorHistoryLogic extends AbstractTransactionalLogic<ConnInstan
 
             @Override
             public ConnInstanceHistoryConfTO transform(final ConnInstanceHistoryConf input) {
-                return getConnInstanceHistoryConfTO(input);
+                return binder.getConnInstanceHistoryConfTO(input);
             }
 
         }, new ArrayList<ConnInstanceHistoryConfTO>());
@@ -102,7 +94,7 @@ public class ConnectorHistoryLogic extends AbstractTransactionalLogic<ConnInstan
         if (!"list".equals(method.getName())) {
             try {
                 String key = (String) args[0];
-                return getConnInstanceHistoryConfTO(connInstanceHistoryConfDAO.find(key));
+                return binder.getConnInstanceHistoryConfTO(connInstanceHistoryConfDAO.find(key));
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

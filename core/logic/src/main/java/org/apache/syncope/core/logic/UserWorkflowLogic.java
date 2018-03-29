@@ -58,7 +58,7 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
     private UserDAO userDAO;
 
     @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_FORM_CLAIM + "')")
-    @Transactional(rollbackFor = { Throwable.class })
+
     public WorkflowFormTO claimForm(final String taskId) {
         return uwfAdapter.claimForm(taskId);
     }
@@ -82,20 +82,19 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
 
     @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_FORM_READ + "') and hasRole('"
             + StandardEntitlement.USER_READ + "')")
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true)
     public WorkflowFormTO getFormForUser(final String key) {
         User user = userDAO.authFind(key);
         return uwfAdapter.getForm(user.getWorkflowId());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_FORM_LIST + "')")
-    @Transactional(rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true)
     public List<WorkflowFormTO> getForms() {
         return uwfAdapter.getForms();
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_FORM_SUBMIT + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     public UserTO submitForm(final WorkflowFormTO form) {
         WorkflowResult<? extends AnyPatch> updated = uwfAdapter.submitForm(form);
 

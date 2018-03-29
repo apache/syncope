@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.OrgUnitTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.ResourceHistoryConfTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -596,5 +597,16 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.getPropagationActionsClassNames().addAll(resource.getPropagationActionsClassNames());
 
         return resourceTO;
+    }
+
+    @Override
+    public ResourceHistoryConfTO getResourceHistoryConfTO(final ExternalResourceHistoryConf history) {
+        ResourceHistoryConfTO historyTO = new ResourceHistoryConfTO();
+        historyTO.setKey(history.getKey());
+        historyTO.setCreator(history.getCreator());
+        historyTO.setCreation(history.getCreation());
+        historyTO.setResourceTO(history.getConf());
+
+        return historyTO;
     }
 }

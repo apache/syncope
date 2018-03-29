@@ -35,6 +35,7 @@ import org.apache.syncope.core.provisioning.api.data.DomainDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class DomainLogic extends AbstractTransactionalLogic<DomainTO> {
@@ -50,6 +51,7 @@ public class DomainLogic extends AbstractTransactionalLogic<DomainTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.DOMAIN_READ + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
+    @Transactional(readOnly = true)
     public DomainTO read(final String key) {
         Domain domain = domainDAO.find(key);
         if (domain == null) {
@@ -62,6 +64,7 @@ public class DomainLogic extends AbstractTransactionalLogic<DomainTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
     public List<DomainTO> list() {
         return CollectionUtils.collect(domainDAO.findAll(), new Transformer<Domain, DomainTO>() {
 

@@ -211,7 +211,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
             }
 
             PagedResult<NotificationTaskTO> tasks =
-                    taskService.list(new TaskQuery.Builder(TaskType.NOTIFICATION).notification(notification).build());
+                    taskService.search(new TaskQuery.Builder(TaskType.NOTIFICATION).notification(notification).build());
             if (!tasks.getResult().isEmpty()) {
                 notificationTask = tasks.getResult().get(0);
             }

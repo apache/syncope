@@ -40,6 +40,7 @@ import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO> {
@@ -60,6 +61,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.MAIL_TEMPLATE_READ + "')")
+    @Transactional(readOnly = true)
     public MailTemplateTO read(final String key) {
         MailTemplate mailTemplate = mailTemplateDAO.find(key);
         if (mailTemplate == null) {
@@ -72,6 +74,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.MAIL_TEMPLATE_LIST + "')")
+    @Transactional(readOnly = true)
     public List<MailTemplateTO> list() {
         return CollectionUtils.collect(mailTemplateDAO.findAll(), new Transformer<MailTemplate, MailTemplateTO>() {
 

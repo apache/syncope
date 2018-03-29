@@ -426,7 +426,7 @@ public class MigrationITCase extends AbstractTaskITCase {
     public void migrateFromSyncope12() throws InterruptedException {
         // 1. cleanup
         try {
-            for (TaskTO task : taskService.list(
+            for (TaskTO task : taskService.search(
                     new TaskQuery.Builder(TaskType.PULL).resource(RESOURCE_KEY).build()).getResult()) {
 
                 if (PULL_TASK_NAME.equals(PullTaskTO.class.cast(task).getName())) {

@@ -60,7 +60,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
     @Test
     public void list() {
         PagedResult<SchedTaskTO> tasks =
-                taskService.list(new TaskQuery.Builder(TaskType.SCHEDULED).build());
+                taskService.search(new TaskQuery.Builder(TaskType.SCHEDULED).build());
         assertFalse(tasks.getResult().isEmpty());
         for (TaskTO task : tasks.getResult()) {
             if (!(task instanceof SchedTaskTO) || task instanceof PullTaskTO || task instanceof PushTaskTO) {

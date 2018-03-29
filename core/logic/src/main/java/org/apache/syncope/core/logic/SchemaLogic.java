@@ -48,6 +48,7 @@ import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
@@ -145,18 +146,8 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public <T extends SchemaTO> List<T> list(final SchemaType schemaType, final List<String> anyTypeClasses) {
-        return doSearch(schemaType, anyTypeClasses, null);
-    }
-
-    @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
     public <T extends SchemaTO> List<T> search(
-            final SchemaType schemaType, final List<String> anyTypeClasses, final String keyword) {
-
-        return doSearch(schemaType, anyTypeClasses, keyword == null ? null : keyword.replace('*', '%'));
-    }
-
-    private <T extends SchemaTO> List<T> doSearch(
             final SchemaType schemaType, final List<String> anyTypeClasses, final String keyword) {
 
         List<AnyTypeClass> classes = new ArrayList<>(anyTypeClasses == null ? 0 : anyTypeClasses.size());

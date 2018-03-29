@@ -34,6 +34,7 @@ import org.apache.syncope.core.provisioning.api.data.RelationshipTypeDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class RelationshipTypeLogic extends AbstractTransactionalLogic<RelationshipTypeTO> {
@@ -45,6 +46,7 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
     private RelationshipTypeDAO relationshipTypeDAO;
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RELATIONSHIPTYPE_READ + "')")
+    @Transactional(readOnly = true)
     public RelationshipTypeTO read(final String key) {
         RelationshipType relationshipType = relationshipTypeDAO.find(key);
         if (relationshipType == null) {
@@ -57,6 +59,7 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RELATIONSHIPTYPE_LIST + "')")
+    @Transactional(readOnly = true)
     public List<RelationshipTypeTO> list() {
         return CollectionUtils.collect(relationshipTypeDAO.findAll(),
                 new Transformer<RelationshipType, RelationshipTypeTO>() {

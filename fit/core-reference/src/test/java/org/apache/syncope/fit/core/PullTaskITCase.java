@@ -120,7 +120,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void list() {
-        PagedResult<PullTaskTO> tasks = taskService.list(new TaskQuery.Builder(TaskType.PULL).build());
+        PagedResult<PullTaskTO> tasks = taskService.search(new TaskQuery.Builder(TaskType.PULL).build());
         assertFalse(tasks.getResult().isEmpty());
         for (TaskTO task : tasks.getResult()) {
             if (!(task instanceof PullTaskTO)) {
@@ -1059,7 +1059,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().get(0)));
 
             // ...and propagated
-            PagedResult<TaskTO> propagationTasks = taskService.list(new TaskQuery.Builder(TaskType.PROPAGATION).
+            PagedResult<TaskTO> propagationTasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
                     resource(RESOURCE_NAME_DBPULL).
                     anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
             assertEquals(1, propagationTasks.getSize());
@@ -1082,7 +1082,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals("pullFromLDAP2@syncope.apache.org", user.getPlainAttr("email").getValues().get(0));
 
             // ...and propagated
-            propagationTasks = taskService.list(new TaskQuery.Builder(TaskType.PROPAGATION).
+            propagationTasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
                     resource(RESOURCE_NAME_DBPULL).
                     anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
             assertEquals(2, propagationTasks.getSize());

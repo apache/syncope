@@ -77,6 +77,7 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<AttrTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONFIGURATION_LIST + "')")
+    @Transactional(readOnly = true)
     public List<AttrTO> list() {
         return binder.getConfTO();
     }

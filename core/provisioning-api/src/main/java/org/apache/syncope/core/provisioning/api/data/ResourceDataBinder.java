@@ -18,8 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
+import org.apache.syncope.common.lib.to.ResourceHistoryConfTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
 
 public interface ResourceDataBinder {
 
@@ -28,5 +30,7 @@ public interface ResourceDataBinder {
     ExternalResource create(ResourceTO resourceTO);
 
     ExternalResource update(ExternalResource resource, ResourceTO resourceTO);
+
+    ResourceHistoryConfTO getResourceHistoryConfTO(ExternalResourceHistoryConf history);
 
 }

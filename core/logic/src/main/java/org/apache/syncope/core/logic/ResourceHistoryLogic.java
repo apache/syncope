@@ -34,6 +34,7 @@ import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class ResourceHistoryLogic extends AbstractTransactionalLogic<ResourceHistoryConfTO> {
@@ -47,17 +48,8 @@ public class ResourceHistoryLogic extends AbstractTransactionalLogic<ResourceHis
     @Autowired
     private ResourceDataBinder binder;
 
-    private ResourceHistoryConfTO getResourceHistoryConfTO(final ExternalResourceHistoryConf history) {
-        ResourceHistoryConfTO historyTO = new ResourceHistoryConfTO();
-        historyTO.setKey(history.getKey());
-        historyTO.setCreator(history.getCreator());
-        historyTO.setCreation(history.getCreation());
-        historyTO.setResourceTO(history.getConf());
-
-        return historyTO;
-    }
-
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_HISTORY_LIST + "')")
+    @Transactional(readOnly = true)
     public List<ResourceHistoryConfTO> list(final String key) {
         ExternalResource resource = resourceDAO.find(key);
         if (resource == null) {
@@ -69,7 +61,7 @@ public class ResourceHistoryLogic extends AbstractTransactionalLogic<ResourceHis
 
             @Override
             public ResourceHistoryConfTO transform(final ExternalResourceHistoryConf input) {
-                return getResourceHistoryConfTO(input);
+                return binder.getResourceHistoryConfTO(input);
             }
         }, new ArrayList<ResourceHistoryConfTO>());
     }
@@ -101,7 +93,7 @@ public class ResourceHistoryLogic extends AbstractTransactionalLogic<ResourceHis
         if (!"list".equals(method.getName())) {
             try {
                 String key = (String) args[0];
-                return getResourceHistoryConfTO(resourceHistoryConfDAO.find(key));
+                return binder.getResourceHistoryConfTO(resourceHistoryConfDAO.find(key));
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

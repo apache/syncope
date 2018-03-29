@@ -21,6 +21,7 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -53,7 +54,8 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
 
     @Override
     public <T extends SchemaTO> List<T> search(final SchemaQuery query) {
-        return logic.search(query.getType(), query.getAnyTypeClasses(), query.getKeyword());
+        String keyword = StringUtils.isBlank(query.getKeyword()) ? null : query.getKeyword().replace('*', '%');
+        return logic.search(query.getType(), query.getAnyTypeClasses(), keyword);
     }
 
     @Override

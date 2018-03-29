@@ -65,6 +65,7 @@ import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
@@ -159,7 +160,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
     @SuppressWarnings("unchecked")
-    public <T extends TaskTO> Pair<Integer, List<T>> list(
+    @Transactional(readOnly = true)
+    public <T extends TaskTO> Pair<Integer, List<T>> search(
             final TaskType type,
             final String resource,
             final String notification,
@@ -197,6 +199,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
+    @Transactional(readOnly = true)
     public <T extends TaskTO> T read(final TaskType type, final String key, final boolean details) {
         Task task = taskDAO.find(key);
         if (task == null) {

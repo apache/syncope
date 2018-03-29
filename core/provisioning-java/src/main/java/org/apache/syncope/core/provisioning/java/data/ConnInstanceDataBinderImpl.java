@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -275,5 +276,16 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         }
 
         return connInstanceTO;
+    }
+
+    @Override
+    public ConnInstanceHistoryConfTO getConnInstanceHistoryConfTO(final ConnInstanceHistoryConf history) {
+        ConnInstanceHistoryConfTO historyTO = new ConnInstanceHistoryConfTO();
+        historyTO.setKey(history.getKey());
+        historyTO.setCreator(history.getCreator());
+        historyTO.setCreation(history.getCreation());
+        historyTO.setConnInstanceTO(history.getConf());
+
+        return historyTO;
     }
 }
