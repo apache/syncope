@@ -77,7 +77,7 @@ public class ItemTransformerWidget extends AlertWidget<String> {
 
     @Override
     protected Icon getIcon(final String iconid) {
-        return new Icon(
-                iconid, FontAwesomeIconTypeBuilder.on(FontAwesomeIconTypeBuilder.FontAwesomeGraphic.magic).build());
+        return new Icon(iconid,
+                FontAwesomeIconTypeBuilder.on(FontAwesomeIconTypeBuilder.FontAwesomeGraphic.magic).build());
     }
 }

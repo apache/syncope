@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.widgets;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.image.Icon;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesomeIconTypeBuilder;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -122,6 +124,12 @@ public class ApprovalsWidget extends AlertWidget<WorkflowFormTO> {
         BookmarkablePageLink<Approvals> approvals = BookmarkablePageLinkBuilder.build(linkid, Approvals.class);
         MetaDataRoleAuthorizationStrategy.authorize(approvals, WebPage.ENABLE, StandardEntitlement.WORKFLOW_FORM_LIST);
         return approvals;
+    }
+
+    @Override
+    protected Icon getIcon(final String iconid) {
+        return new Icon(iconid,
+                FontAwesomeIconTypeBuilder.on(FontAwesomeIconTypeBuilder.FontAwesomeGraphic.handshake_o).build());
     }
 
     public static final class InnerPanel extends Panel {
