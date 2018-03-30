@@ -18,7 +18,7 @@
 //
 ==== Install connector bundles
 
-<<external-resources,Connector bundles>> are made available as JAR files and can be configured, for a given deployment:
+<<connector-bundles,Connector bundles>> are made available as JAR files and can be configured, for a given deployment:
 
 * for Maven project, in local sources;
 * for all distributions, at run-time.
@@ -29,7 +29,7 @@
 
 First of all, verify which connector bundles are predefined in your project by looking at your project's parent
 ifeval::["{snapshotOrRelease}" == "release"]
-http://central.maven.org/maven2/org/apache/syncope/syncope/2.0.0-M4/{docVersion}[POM^].
+http://central.maven.org/maven2/org/apache/syncope/syncope/{docVersion}[POM^].
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://repository.apache.org/content/groups/snapshots/org/apache/syncope/syncope/{docVersion}[POM^].
