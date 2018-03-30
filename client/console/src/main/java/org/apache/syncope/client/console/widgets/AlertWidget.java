@@ -19,8 +19,6 @@
 package org.apache.syncope.client.console.widgets;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.Icon;
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesomeIconTypeBuilder;
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesomeIconTypeBuilder.FontAwesomeGraphic;
 import java.io.Serializable;
 import java.util.List;
 import org.apache.wicket.markup.ComponentTag;
@@ -126,9 +124,7 @@ public abstract class AlertWidget<T extends Serializable> extends Panel {
 
     protected abstract AbstractLink getEventsLink(final String linkid);
 
-    protected Icon getIcon(final String iconid) {
-        return new Icon(iconid, FontAwesomeIconTypeBuilder.on(FontAwesomeGraphic.flag_o).build());
-    }
+    protected abstract Icon getIcon(String iconid);
 
     public static class AlertLink<T> extends Panel {
 

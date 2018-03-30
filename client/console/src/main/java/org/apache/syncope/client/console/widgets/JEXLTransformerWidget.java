@@ -89,7 +89,7 @@ public class JEXLTransformerWidget extends AlertWidget<String> {
 
     @Override
     protected Icon getIcon(final String iconid) {
-        return new Icon(
-                iconid, FontAwesomeIconTypeBuilder.on(FontAwesomeIconTypeBuilder.FontAwesomeGraphic.repeat).build());
+        return new Icon(iconid,
+                FontAwesomeIconTypeBuilder.on(FontAwesomeIconTypeBuilder.FontAwesomeGraphic.repeat).build());
     }
 }
