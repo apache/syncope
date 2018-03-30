@@ -35,12 +35,10 @@ import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
-import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
@@ -76,9 +74,6 @@ public class SAML2UserManager {
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
-
-    @Autowired
-    private ImplementationDAO implementationDAO;
 
     @Autowired
     private IntAttrNameParser intAttrNameParser;
@@ -179,20 +174,15 @@ public class SAML2UserManager {
     private List<SAML2IdPActions> getActions(final SAML2IdPEntity idp) {
         List<SAML2IdPActions> actions = new ArrayList<>();
 
-        idp.getActions().forEach(key -> {
-            Implementation impl = implementationDAO.find(key);
-            if (impl == null) {
-                LOG.warn("Invalid implementation: {}", key);
-            } else {
-                try {
-                    Class<?> actionsClass = Class.forName(impl.getBody());
-                    SAML2IdPActions idpActions = (SAML2IdPActions) ApplicationContextProvider.getBeanFactory().
-                            createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+        idp.getActionsClassNames().forEach(className -> {
+            try {
+                Class<?> actionsClass = Class.forName(className);
+                SAML2IdPActions idpActions = (SAML2IdPActions) ApplicationContextProvider.getBeanFactory().
+                        createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
 
-                    actions.add(idpActions);
-                } catch (Exception e) {
-                    LOG.warn("Class '{}' not found", impl.getBody(), e);
-                }
+                actions.add(idpActions);
+            } catch (Exception e) {
+                LOG.warn("Class '{}' not found", className, e);
             }
         });
 

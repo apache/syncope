@@ -61,7 +61,7 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO, ItemContai
 
     private final List<ItemTO> items = new ArrayList<>();
 
-    private final List<String> actions = new ArrayList<>();
+    private final List<String> actionsClassNames = new ArrayList<>();
 
     @Override
     public String getKey() {
@@ -190,11 +190,11 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO, ItemContai
         return this.items.remove(item);
     }
 
-    @XmlElementWrapper(name = "actions")
-    @XmlElement(name = "action")
+    @XmlElementWrapper(name = "actionsClassNames")
+    @XmlElement(name = "actionsClassNames")
     @JsonProperty("actions")
-    public List<String> getActions() {
-        return actions;
+    public List<String> getActionsClassNames() {
+        return actionsClassNames;
     }
 
     public boolean isSupportUnsolicited() {

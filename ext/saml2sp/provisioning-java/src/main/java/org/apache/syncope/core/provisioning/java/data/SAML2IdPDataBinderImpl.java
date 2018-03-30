@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.text.ParseException;
 import java.util.Base64;
 import java.util.stream.Collectors;
-import java.text.ParseException;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -32,13 +32,16 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.SAML2EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdPItem;
 import org.apache.syncope.core.persistence.api.entity.SAML2UserTemplate;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.SAML2IdPDataBinder;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
@@ -61,9 +64,6 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
 
     @Autowired
     private SAML2IdPDAO saml2IdPDAO;
-
-    @Autowired
-    private ImplementationDAO implementationDAO;
 
     @Autowired
     private SAML2EntityFactory entityFactory;
@@ -201,32 +201,22 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         AnyTypeClassTO allowedSchemas = new AnyTypeClassTO();
         anyTypeDAO.findUser().getClasses().forEach(anyTypeClass -> {
             allowedSchemas.getPlainSchemas().addAll(anyTypeClass.getPlainSchemas().stream().
-                    map(s -> s.getKey()).collect(Collectors.toList()));
+                    map(Entity::getKey).collect(Collectors.toList()));
             allowedSchemas.getDerSchemas().addAll(anyTypeClass.getDerSchemas().stream().
-                    map(s -> s.getKey()).collect(Collectors.toList()));
+                    map(Entity::getKey).collect(Collectors.toList()));
             allowedSchemas.getVirSchemas().addAll(anyTypeClass.getVirSchemas().stream().
-                    map(s -> s.getKey()).collect(Collectors.toList()));
+                    map(Entity::getKey).collect(Collectors.toList()));
         });
         populateItems(idpTO, idp, allowedSchemas);
 
-        idpTO.getActions().forEach(implementationKey -> {
-            Implementation implementation = implementationDAO.find(implementationKey);
-            if (implementation == null) {
-                LOG.debug("Invalid " + Implementation.class.getSimpleName() + "{}, ignoring...", implementationKey);
-            } else {
-                idp.add(implementation);
-            }
-        });
-        // remove all implementations not contained in the TO
-        idp.getActions().removeAll(idp.getActions().stream().
-                filter(implementation -> !idpTO.getActions().contains(implementation.getKey())).
-                collect(Collectors.toList()));
+        idp.getActionsClassNames().clear();
+        idp.getActionsClassNames().addAll(idpTO.getActionsClassNames());
 
         return saml2IdPDAO.save(idp);
     }
 
     private void populateItems(final SAML2IdP idp, final SAML2IdPTO idpTO) {
-        idp.getItems().forEach(item -> {
+        for (SAML2IdPItem item : idp.getItems()) {
             ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());
             BeanUtils.copyProperties(item, itemTO, ITEM_IGNORE_PROPERTIES);
@@ -237,7 +227,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
             } else {
                 idpTO.add(itemTO);
             }
-        });
+        }
     }
 
     @Override
@@ -261,9 +251,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
 
         populateItems(idp, idpTO);
 
-        idp.getActions().forEach(action -> {
-            idpTO.getActions().add(action.getKey());
-        });
+        idpTO.getActionsClassNames().addAll(idp.getActionsClassNames());
 
         return idpTO;
     }

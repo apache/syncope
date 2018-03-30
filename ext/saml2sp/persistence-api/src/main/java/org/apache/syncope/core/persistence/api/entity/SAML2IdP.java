@@ -72,7 +72,5 @@ public interface SAML2IdP extends Entity {
 
     List<? extends SAML2IdPItem> getItems();
 
-    boolean add(Implementation action);
-
-    List<? extends Implementation> getActions();
+    List<String> getActionsClassNames();
 }

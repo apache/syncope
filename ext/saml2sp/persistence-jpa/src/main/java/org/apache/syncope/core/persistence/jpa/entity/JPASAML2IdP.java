@@ -24,22 +24,20 @@ import java.util.Optional;
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdPItem;
 import org.apache.syncope.core.persistence.api.entity.SAML2UserTemplate;
@@ -99,13 +97,12 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "idp")
     private JPASAML2UserTemplate userTemplate;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = TABLE + "Action",
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name = "actionClassName")
+    @CollectionTable(name = TABLE + "_actionsClassNames",
             joinColumns =
-            @JoinColumn(name = "idp_id"),
-            inverseJoinColumns =
-            @JoinColumn(name = "implementation_id"))
-    private List<JPAImplementation> actions = new ArrayList<>();
+            @JoinColumn(name = "saml2IdP_id", referencedColumnName = "id"))
+    private List<String> actionsClassNames = new ArrayList<>();
 
     @Override
     public String getEntityID() {
@@ -231,14 +228,7 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
     }
 
     @Override
-    public boolean add(final Implementation action) {
-        checkType(action, JPAImplementation.class);
-        checkImplementationType(action, ImplementationType.LOGIC_ACTIONS);
-        return this.actions.add((JPAImplementation) action);
-    }
-
-    @Override
-    public List<? extends Implementation> getActions() {
-        return actions;
+    public List<String> getActionsClassNames() {
+        return actionsClassNames;
     }
 }

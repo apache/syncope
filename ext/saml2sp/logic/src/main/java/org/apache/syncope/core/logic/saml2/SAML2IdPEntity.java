@@ -158,8 +158,8 @@ public class SAML2IdPEntity {
         return idpTO.getUserTemplate();
     }
 
-    public List<String> getActions() {
-        return idpTO.getActions();
+    public List<String> getActionsClassNames() {
+        return idpTO.getActionsClassNames();
     }
 
     public Endpoint getSSOLocation(final SAML2BindingType bindingType) {
