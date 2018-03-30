@@ -40,8 +40,8 @@ import org.apache.syncope.common.lib.to.ResourceHistoryConfTO;
  */
 @Tag(name = "ResourceHistory")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication")
-    , @SecurityRequirement(name = "Bearer") })
+    @SecurityRequirement(name = "BasicAuthentication"),
+    @SecurityRequirement(name = "Bearer") })
 @Path("resourcesHistory")
 public interface ResourceHistoryService extends JAXRSService {
 

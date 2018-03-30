@@ -48,8 +48,8 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
  */
 @Tag(name = "Policies")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication")
-    , @SecurityRequirement(name = "Bearer") })
+    @SecurityRequirement(name = "BasicAuthentication"),
+    @SecurityRequirement(name = "Bearer") })
 @Path("policies")
 public interface PolicyService extends JAXRSService {
 
@@ -90,8 +90,8 @@ public interface PolicyService extends JAXRSService {
                     description = "Policy successfully created", headers = {
                 @Header(name = RESTHeaders.RESOURCE_KEY, schema =
                         @Schema(type = "string"),
-                        description = "UUID generated for the entity created")
-                , @Header(name = HttpHeaders.LOCATION, schema =
+                        description = "UUID generated for the entity created"),
+                @Header(name = HttpHeaders.LOCATION, schema =
                         @Schema(type = "string"),
                         description = "URL of the entity created") }))
     @POST

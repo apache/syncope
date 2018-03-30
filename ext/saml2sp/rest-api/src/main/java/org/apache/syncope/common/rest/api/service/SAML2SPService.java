@@ -41,8 +41,8 @@ import org.apache.syncope.common.lib.to.SAML2ReceivedResponseTO;
  */
 @Tag(name = "SAML2SP")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication")
-    , @SecurityRequirement(name = "Bearer") })
+    @SecurityRequirement(name = "BasicAuthentication"),
+    @SecurityRequirement(name = "Bearer") })
 @Path("saml2sp/serviceProvider")
 public interface SAML2SPService extends JAXRSService {
 

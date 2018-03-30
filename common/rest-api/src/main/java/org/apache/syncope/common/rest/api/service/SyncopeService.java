@@ -44,8 +44,8 @@ import org.apache.syncope.common.lib.to.TypeExtensionTO;
  */
 @Tag(name = "Syncope")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication")
-    , @SecurityRequirement(name = "Bearer") })
+    @SecurityRequirement(name = "BasicAuthentication"),
+    @SecurityRequirement(name = "Bearer") })
 @Path("")
 public interface SyncopeService extends JAXRSService {
 

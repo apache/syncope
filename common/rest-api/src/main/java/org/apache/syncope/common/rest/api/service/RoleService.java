@@ -48,8 +48,8 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
  */
 @Tag(name = "Roles")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication")
-    , @SecurityRequirement(name = "Bearer") })
+    @SecurityRequirement(name = "BasicAuthentication"),
+    @SecurityRequirement(name = "Bearer") })
 @Path("roles")
 public interface RoleService extends JAXRSService {
 
@@ -84,8 +84,8 @@ public interface RoleService extends JAXRSService {
                     description = "Role successfully created", headers = {
                 @Header(name = RESTHeaders.RESOURCE_KEY, schema =
                         @Schema(type = "string"),
-                        description = "Key value for the entity created")
-                , @Header(name = HttpHeaders.LOCATION, schema =
+                        description = "Key value for the entity created"),
+                @Header(name = HttpHeaders.LOCATION, schema =
                         @Schema(type = "string"),
                         description = "URL of the entity created") }))
     @POST

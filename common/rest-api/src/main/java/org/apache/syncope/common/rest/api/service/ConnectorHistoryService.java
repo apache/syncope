@@ -40,8 +40,8 @@ import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
  */
 @Tag(name = "ConnectorHistory")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication")
-    , @SecurityRequirement(name = "Bearer") })
+    @SecurityRequirement(name = "BasicAuthentication"),
+    @SecurityRequirement(name = "Bearer") })
 @Path("connectorsHistory")
 public interface ConnectorHistoryService extends JAXRSService {
 

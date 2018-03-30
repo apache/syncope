@@ -60,10 +60,10 @@ public interface AccessTokenService extends JAXRSService {
         @ApiResponse(responseCode = "204",
                 description = "JWT successfully generated", headers = {
                     @Header(name = RESTHeaders.TOKEN, schema =
-                            @Schema(type = "string"), description = "Generated JWT")
-                    , @Header(name = RESTHeaders.TOKEN_EXPIRE, schema =
-                            @Schema(type = "string"), description = "Expiration of the generated JWT") })
-        , @ApiResponse(responseCode = "401", description = "Invalid username or password")
+                            @Schema(type = "string"), description = "Generated JWT"),
+                    @Header(name = RESTHeaders.TOKEN_EXPIRE, schema =
+                            @Schema(type = "string"), description = "Expiration of the generated JWT") }),
+        @ApiResponse(responseCode = "401", description = "Invalid username or password")
     })
     @POST
     @Path("login")
@@ -83,8 +83,8 @@ public interface AccessTokenService extends JAXRSService {
                     description = "JWT successfully refreshed", headers = {
                 @Header(name = RESTHeaders.TOKEN, schema =
                         @Schema(type = "string"),
-                        description = "Generated JWT")
-                , @Header(name = RESTHeaders.TOKEN_EXPIRE, schema =
+                        description = "Generated JWT"),
+                @Header(name = RESTHeaders.TOKEN_EXPIRE, schema =
                         @Schema(type = "string"),
                         description = "Expiration of the refreshed JWT") }))
     @POST
@@ -110,9 +110,9 @@ public interface AccessTokenService extends JAXRSService {
      * @param query query conditions
      * @return paged list of existing access tokens matching the given query
      */
-    @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication"),
-        @Authorization(value = "Bearer") })
+    @Operation(security = {
+        @SecurityRequirement(name = "BasicAuthentication"),
+        @SecurityRequirement(name = "Bearer") })
     @GET
     @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -123,9 +123,9 @@ public interface AccessTokenService extends JAXRSService {
      *
      * @param key access token key
      */
-    @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication"),
-        @Authorization(value = "Bearer") })
+    @Operation(security = {
+        @SecurityRequirement(name = "BasicAuthentication"),
+        @SecurityRequirement(name = "Bearer") })
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE

@@ -39,8 +39,8 @@ import org.apache.syncope.common.lib.to.WorkflowFormTO;
  */
 @Tag(name = "UserWorkflow")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication")
-    , @SecurityRequirement(name = "Bearer") })
+    @SecurityRequirement(name = "BasicAuthentication"),
+    @SecurityRequirement(name = "Bearer") })
 @Path("userworkflow")
 public interface UserWorkflowService extends JAXRSService {
 

@@ -49,8 +49,8 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
  */
 @Tag(name = "MailTemplates")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication")
-    , @SecurityRequirement(name = "Bearer") })
+    @SecurityRequirement(name = "BasicAuthentication"),
+    @SecurityRequirement(name = "Bearer") })
 @Path("mailTemplates")
 public interface MailTemplateService extends JAXRSService {
 
@@ -74,8 +74,8 @@ public interface MailTemplateService extends JAXRSService {
                     description = "MailTemplate successfully created", headers = {
                 @Header(name = RESTHeaders.RESOURCE_KEY, schema =
                         @Schema(type = "string"),
-                        description = "Key value for the entity created")
-                , @Header(name = HttpHeaders.LOCATION, schema =
+                        description = "Key value for the entity created"),
+                @Header(name = HttpHeaders.LOCATION, schema =
                         @Schema(type = "string"),
                         description = "URL of the entity created") }))
     @POST

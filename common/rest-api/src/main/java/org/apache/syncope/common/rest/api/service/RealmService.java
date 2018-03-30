@@ -51,8 +51,8 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
  */
 @Tag(name = "Realms")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication")
-    , @SecurityRequirement(name = "Bearer") })
+    @SecurityRequirement(name = "BasicAuthentication"),
+    @SecurityRequirement(name = "Bearer") })
 @Path("realms")
 public interface RealmService extends JAXRSService {
 
@@ -102,11 +102,11 @@ public interface RealmService extends JAXRSService {
                             @Schema(implementation = ProvisioningResult.class)), headers = {
                 @Header(name = RESTHeaders.RESOURCE_KEY, schema =
                         @Schema(type = "string"),
-                        description = "UUID generated for the realm created")
-                , @Header(name = HttpHeaders.LOCATION, schema =
+                        description = "UUID generated for the realm created"),
+                @Header(name = HttpHeaders.LOCATION, schema =
                         @Schema(type = "string"),
-                        description = "URL of the realm created")
-                , @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
+                        description = "URL of the realm created"),
+                @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied") }))
@@ -136,8 +136,8 @@ public interface RealmService extends JAXRSService {
                 description = "Realm successfully updated enriched with propagation status information, as Entity",
                 content =
                 @Content(schema =
-                        @Schema(implementation = ProvisioningResult.class)))
-        , @ApiResponse(responseCode = "204",
+                        @Schema(implementation = ProvisioningResult.class))),
+        @ApiResponse(responseCode = "204",
                 description = "No content if 'Prefer: return-no-content' was specified", headers =
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
@@ -169,8 +169,8 @@ public interface RealmService extends JAXRSService {
                 description = "Realm successfully deleted enriched with propagation status information, as Entity",
                 content =
                 @Content(schema =
-                        @Schema(implementation = ProvisioningResult.class)))
-        , @ApiResponse(responseCode = "204",
+                        @Schema(implementation = ProvisioningResult.class))),
+        @ApiResponse(responseCode = "204",
                 description = "No content if 'Prefer: return-no-content' was specified", headers =
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),

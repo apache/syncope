@@ -43,8 +43,8 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
  */
 @Tag(name = "CamelRoutes")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication")
-    , @SecurityRequirement(name = "Bearer") })
+    @SecurityRequirement(name = "BasicAuthentication"),
+    @SecurityRequirement(name = "Bearer") })
 @Path("camelRoutes")
 public interface CamelRouteService extends JAXRSService {
 

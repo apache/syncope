@@ -45,8 +45,8 @@ import org.apache.syncope.common.lib.types.LoggerType;
  */
 @Tag(name = "Loggers")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication")
-    , @SecurityRequirement(name = "Bearer") })
+    @SecurityRequirement(name = "BasicAuthentication"),
+    @SecurityRequirement(name = "Bearer") })
 @Path("loggers")
 public interface LoggerService extends JAXRSService {
 

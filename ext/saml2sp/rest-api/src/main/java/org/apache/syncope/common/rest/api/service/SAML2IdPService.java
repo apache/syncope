@@ -45,8 +45,8 @@ import org.apache.syncope.common.lib.to.SAML2IdPTO;
  */
 @Tag(name = "SAML2IdP")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication")
-    , @SecurityRequirement(name = "Bearer") })
+    @SecurityRequirement(name = "BasicAuthentication"),
+    @SecurityRequirement(name = "Bearer") })
 @Path("saml2sp/identityProviders")
 public interface SAML2IdPService extends JAXRSService {
 

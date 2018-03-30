@@ -47,8 +47,8 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
  */
 @Tag(name = "Domains")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication")
-    , @SecurityRequirement(name = "Bearer") })
+    @SecurityRequirement(name = "BasicAuthentication"),
+    @SecurityRequirement(name = "Bearer") })
 @Path("domains")
 public interface DomainService extends JAXRSService {
 
@@ -83,8 +83,8 @@ public interface DomainService extends JAXRSService {
                     description = "Domain successfully created", headers = {
                 @Header(name = RESTHeaders.RESOURCE_KEY, schema =
                         @Schema(type = "string"),
-                        description = "Key value for the entity created")
-                , @Header(name = HttpHeaders.LOCATION, schema =
+                        description = "Key value for the entity created"),
+                @Header(name = HttpHeaders.LOCATION, schema =
                         @Schema(type = "string"),
                         description = "URL of the entity created") }))
     @POST

@@ -38,8 +38,8 @@ import org.apache.syncope.common.lib.scim.SCIMConf;
  */
 @Tag(name = "SCIMConf")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication")
-    , @SecurityRequirement(name = "Bearer") })
+    @SecurityRequirement(name = "BasicAuthentication"),
+    @SecurityRequirement(name = "Bearer") })
 @Path("scimv2conf")
 public interface SCIMConfService extends JAXRSService {
 

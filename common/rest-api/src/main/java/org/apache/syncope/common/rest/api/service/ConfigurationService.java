@@ -42,8 +42,8 @@ import org.apache.syncope.common.lib.to.AttrTO;
  */
 @Tag(name = "Configuration")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication")
-    , @SecurityRequirement(name = "Bearer") })
+    @SecurityRequirement(name = "BasicAuthentication"),
+    @SecurityRequirement(name = "Bearer") })
 @Path("configurations")
 public interface ConfigurationService extends JAXRSService {
 

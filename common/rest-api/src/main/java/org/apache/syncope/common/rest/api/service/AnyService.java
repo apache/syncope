@@ -168,14 +168,14 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
                 description = "User, Group or Any Object successfully deleted enriched with propagation status "
                 + "information, as Entity", content =
                 @Content(schema =
-                        @Schema(implementation = ProvisioningResult.class)))
-        , @ApiResponse(responseCode = "204",
+                        @Schema(implementation = ProvisioningResult.class))),
+        @ApiResponse(responseCode = "204",
                 description = "No content if 'Prefer: return-no-content' was specified", headers =
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
                         description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied"))
-        , @ApiResponse(responseCode = "412",
+                        + "client about the fact that a specified preference was applied")),
+        @ApiResponse(responseCode = "412",
                 description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
                 + " date of the entity") })
     @DELETE
@@ -207,14 +207,14 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
         @ApiResponse(responseCode = "200",
                 description = "Bulk action result", content =
                 @Content(schema =
-                        @Schema(implementation = BulkActionResult.class)))
-        , @ApiResponse(responseCode = "204",
+                        @Schema(implementation = BulkActionResult.class))),
+        @ApiResponse(responseCode = "204",
                 description = "No content if 'Prefer: return-no-content' was specified", headers =
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
                         description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied"))
-        , @ApiResponse(responseCode = "412",
+                        + "client about the fact that a specified preference was applied")),
+        @ApiResponse(responseCode = "412",
                 description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
                 + " date of the entity") })
     @POST
@@ -247,14 +247,14 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
         @ApiResponse(responseCode = "200",
                 description = "Bulk action result", content =
                 @Content(schema =
-                        @Schema(implementation = BulkActionResult.class)))
-        , @ApiResponse(responseCode = "204",
+                        @Schema(implementation = BulkActionResult.class))),
+        @ApiResponse(responseCode = "204",
                 description = "No content if 'Prefer: return-no-content' was specified", headers =
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
                         description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied"))
-        , @ApiResponse(responseCode = "412",
+                        + "client about the fact that a specified preference was applied")),
+        @ApiResponse(responseCode = "412",
                 description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
                 + " date of the entity") })
     @POST
@@ -282,8 +282,8 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
         @ApiResponse(responseCode = "200",
                 description = "Bulk action result", content =
                 @Content(schema =
-                        @Schema(implementation = BulkActionResult.class)))
-        , @ApiResponse(responseCode = "204",
+                        @Schema(implementation = BulkActionResult.class))),
+        @ApiResponse(responseCode = "204",
                 description = "No content if 'Prefer: return-no-content' was specified", headers =
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),

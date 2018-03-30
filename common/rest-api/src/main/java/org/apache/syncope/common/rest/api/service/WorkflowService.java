@@ -43,8 +43,8 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
  */
 @Tag(name = "Workflow")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication")
-    , @SecurityRequirement(name = "Bearer") })
+    @SecurityRequirement(name = "BasicAuthentication"),
+    @SecurityRequirement(name = "Bearer") })
 @Path("workflows")
 public interface WorkflowService extends JAXRSService {
 

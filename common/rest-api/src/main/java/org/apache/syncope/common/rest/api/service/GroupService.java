@@ -41,6 +41,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -55,8 +56,8 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
  */
 @Tag(name = "Groups")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication")
-    , @SecurityRequirement(name = "Bearer") })
+    @SecurityRequirement(name = "BasicAuthentication"),
+    @SecurityRequirement(name = "Bearer") })
 @Path("groups")
 public interface GroupService extends AnyService<GroupTO> {
 
@@ -99,11 +100,11 @@ public interface GroupService extends AnyService<GroupTO> {
                             @Schema(implementation = ProvisioningResult.class)), headers = {
                 @Header(name = RESTHeaders.RESOURCE_KEY, schema =
                         @Schema(type = "string"),
-                        description = "UUID generated for the group created")
-                , @Header(name = HttpHeaders.LOCATION, schema =
+                        description = "UUID generated for the group created"),
+                @Header(name = HttpHeaders.LOCATION, schema =
                         @Schema(type = "string"),
-                        description = "URL of the group created")
-                , @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
+                        description = "URL of the group created"),
+                @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied") }))
@@ -137,14 +138,14 @@ public interface GroupService extends AnyService<GroupTO> {
                 description = "Group successfully updated enriched with propagation status information, as Entity",
                 content =
                 @Content(schema =
-                        @Schema(implementation = ProvisioningResult.class)))
-        , @ApiResponse(responseCode = "204",
+                        @Schema(implementation = ProvisioningResult.class))),
+        @ApiResponse(responseCode = "204",
                 description = "No content if 'Prefer: return-no-content' was specified", headers =
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
                         description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied"))
-        , @ApiResponse(responseCode = "412",
+                        + "client about the fact that a specified preference was applied")),
+        @ApiResponse(responseCode = "412",
                 description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
                 + " date of the entity") })
     @PATCH
@@ -178,14 +179,14 @@ public interface GroupService extends AnyService<GroupTO> {
                 description = "Group successfully updated enriched with propagation status information, as Entity",
                 content =
                 @Content(schema =
-                        @Schema(implementation = ProvisioningResult.class)))
-        , @ApiResponse(responseCode = "204",
+                        @Schema(implementation = ProvisioningResult.class))),
+        @ApiResponse(responseCode = "204",
                 description = "No content if 'Prefer: return-no-content' was specified", headers =
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
                         @Schema(type = "string"),
                         description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied"))
-        , @ApiResponse(responseCode = "412",
+                        + "client about the fact that a specified preference was applied")),
+        @ApiResponse(responseCode = "412",
                 description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
                 + " date of the entity") })
     @PUT
