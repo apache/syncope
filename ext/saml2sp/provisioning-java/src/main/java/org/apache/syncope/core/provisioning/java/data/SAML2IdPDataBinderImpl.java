@@ -33,15 +33,11 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.Entity;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.SAML2EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdPItem;
 import org.apache.syncope.core.persistence.api.entity.SAML2UserTemplate;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.SAML2IdPDataBinder;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
@@ -216,7 +212,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
     }
 
     private void populateItems(final SAML2IdP idp, final SAML2IdPTO idpTO) {
-        for (SAML2IdPItem item : idp.getItems()) {
+        idp.getItems().forEach(item -> {
             ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());
             BeanUtils.copyProperties(item, itemTO, ITEM_IGNORE_PROPERTIES);
@@ -227,7 +223,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
             } else {
                 idpTO.add(itemTO);
             }
-        }
+        });
     }
 
     @Override
