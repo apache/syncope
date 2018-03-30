@@ -29,6 +29,22 @@ provisioning. For each entity supported by the related connector bundle (user, g
 <<mapping,mapping>> information can be specified.
 ****
 
+==== Connector Bundles
+
+Several Connector Bundles come included with Apache Syncope:
+
+* https://connid.atlassian.net/wiki/pages/viewpage.action?pageId=360482[Active Directory^]
+* https://connid.atlassian.net/wiki/display/BASE/Azure[Azure^]
+* https://connid.atlassian.net/wiki/display/BASE/CSV+Directory[CSV Directory^]
+* https://connid.atlassian.net/wiki/spaces/BASE/pages/360497/Database+Table[Database Table^] and
+https://connid.atlassian.net/wiki/spaces/BASE/pages/5570564/Scripted+SQL[Scripted SQL^]
+* https://connid.atlassian.net/wiki/display/BASE/Google+Apps[Google Apps^]
+* https://connid.atlassian.net/wiki/display/BASE/LDAP[LDAP^]
+* https://connid.atlassian.net/wiki/display/BASE/REST[Scripted REST^]
+* https://connid.atlassian.net/wiki/display/BASE/SOAP[SOAP^]
+
+More Connector Bundles can be <<install-connector-bundles,installed>>, if needed.
+
 ==== Connector Instance details
 
 When defining a connector instance, the following information must be provided:

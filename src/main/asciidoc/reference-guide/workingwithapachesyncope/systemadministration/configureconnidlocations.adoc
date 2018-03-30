@@ -18,7 +18,7 @@
 //
 ==== Configure ConnId locations
 
-Apache Syncope can be configured to use either local or remote <<external-resources,connector bundles>>:
+Apache Syncope can be configured to use either local or remote <<connector-bundles,connector bundles>>:
 
 * *local* connector bundles are located somewhere in the same filesystem where the Java EE container running 
 Apache Syncope is deployed;

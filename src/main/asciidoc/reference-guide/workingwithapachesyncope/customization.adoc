@@ -82,7 +82,7 @@ extensions need to be explicitly selected and enabled, as shown in the following
 ****
 Apache Syncope needs three base directories to be defined:
 
-* bundles - where the <<external-resources,connector bundles>> are stored;
+* bundles - where the <<connector-bundles,connector bundles>> are stored;
 * log - where all the system logs are written;
 * conf (optional) - where configuration files are located, if overriding the default values is needed.
 
