@@ -312,8 +312,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         synchronized (clientFactory) {
             SyncopeClientFactoryBean.ContentType preType = clientFactory.getContentType();
 
-            clientFactory.
-                    setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
+            clientFactory.setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
             service = clientFactory.create(getJWT()).getService(serviceClass);
 
             clientFactory.setContentType(preType);

@@ -36,6 +36,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
@@ -43,8 +44,8 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
  * REST operations for configuration.
  */
 @Api(tags = "SecurityQuestions", authorizations = {
-    @Authorization(value = "BasicAuthentication")
-    , @Authorization(value = "Bearer") })
+    @Authorization(value = "BasicAuthentication"),
+    @Authorization(value = "Bearer") })
 @Path("securityQuestions")
 public interface SecurityQuestionService extends JAXRSService {
 
@@ -54,7 +55,7 @@ public interface SecurityQuestionService extends JAXRSService {
      * @return list of all security questions
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<SecurityQuestionTO> list();
 
     /**
@@ -65,7 +66,7 @@ public interface SecurityQuestionService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     SecurityQuestionTO read(@NotNull @PathParam("key") String key);
 
     /**
@@ -78,12 +79,12 @@ public interface SecurityQuestionService extends JAXRSService {
             @ApiResponse(code = 201,
                     message = "SecurityQuestion successfully created", responseHeaders = {
                 @ResponseHeader(name = RESTHeaders.RESOURCE_KEY, response = String.class,
-                        description = "UUID generated for the entity created")
-                , @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
+                        description = "UUID generated for the entity created"),
+                @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
                         description = "URL of the entity created") }))
     @POST
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response create(@NotNull SecurityQuestionTO securityQuestionTO);
 
     /**
@@ -95,8 +96,8 @@ public interface SecurityQuestionService extends JAXRSService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @PUT
     @Path("{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void update(@NotNull SecurityQuestionTO securityQuestionTO);
 
     /**
@@ -108,7 +109,7 @@ public interface SecurityQuestionService extends JAXRSService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @DELETE
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("key") String key);
 
     /**
@@ -119,7 +120,7 @@ public interface SecurityQuestionService extends JAXRSService {
      */
     @GET
     @Path("byUser/{username}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     SecurityQuestionTO readByUser(@NotNull @PathParam("username") String username);
 }

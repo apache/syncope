@@ -65,6 +65,8 @@ under the License.
     <property name="mapper" ref="jacksonObjectMapper"/>
   </bean>
 
+  <bean id="yamlProvider" class="com.fasterxml.jackson.jaxrs.yaml.JacksonJaxbYAMLProvider"/>
+
   <bean id="exceptionMapper" class="org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper"/>
 
   <bean id="validationProvider" class="org.apache.cxf.validation.BeanValidationProvider"/>
@@ -147,6 +149,7 @@ under the License.
       <ref bean="dateParamConverterProvider"/>
       <ref bean="jaxbProvider"/>
       <ref bean="jsonProvider"/>
+      <ref bean="yamlProvider"/>
       <ref bean="exceptionMapper"/>
       <ref bean="searchContextProvider"/>
       <ref bean="addDomainFilter"/>

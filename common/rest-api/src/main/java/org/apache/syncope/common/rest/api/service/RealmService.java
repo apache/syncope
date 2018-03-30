@@ -38,6 +38,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -46,8 +47,8 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
  * REST operations for realms.
  */
 @Api(tags = "Realms", authorizations = {
-    @Authorization(value = "BasicAuthentication")
-    , @Authorization(value = "Bearer") })
+    @Authorization(value = "BasicAuthentication"),
+    @Authorization(value = "Bearer") })
 @Path("realms")
 public interface RealmService extends JAXRSService {
 
@@ -57,7 +58,7 @@ public interface RealmService extends JAXRSService {
      * @return list of all realms.
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<RealmTO> list();
 
     /**
@@ -68,7 +69,7 @@ public interface RealmService extends JAXRSService {
      */
     @GET
     @Path("{fullPath:.*}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<RealmTO> list(@NotNull @PathParam("fullPath") String fullPath);
 
     /**
@@ -83,8 +84,8 @@ public interface RealmService extends JAXRSService {
         @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
                 value = "Allows the client to specify a preference for the result to be returned from the server",
                 defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                allowEmptyValue = true)
-        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                allowEmptyValue = true),
+        @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
                 value = "If 'true', instructs the propagation process not to wait for completion when communicating"
                 + " with External Resources with no priority set",
                 defaultValue = "false", allowEmptyValue = true) })
@@ -94,16 +95,16 @@ public interface RealmService extends JAXRSService {
                     + "or empty if 'Prefer: return-no-content' was specified",
                     response = ProvisioningResult.class, responseHeaders = {
                 @ResponseHeader(name = RESTHeaders.RESOURCE_KEY, response = String.class,
-                        description = "UUID generated for the realm created")
-                , @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
-                        description = "URL of the realm created")
-                , @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
+                        description = "UUID generated for the realm created"),
+                @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
+                        description = "URL of the realm created"),
+                @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied") }))
     @POST
     @Path("{parentPath:.*}")
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response create(@NotNull @PathParam("parentPath") String parentPath, @NotNull RealmTO realmTO);
 
     /**
@@ -116,24 +117,24 @@ public interface RealmService extends JAXRSService {
         @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
                 value = "Allows the client to specify a preference for the result to be returned from the server",
                 defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                allowEmptyValue = true)
-        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                allowEmptyValue = true),
+        @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
                 value = "If 'true', instructs the propagation process not to wait for completion when communicating"
                 + " with External Resources with no priority set",
                 defaultValue = "false", allowEmptyValue = true) })
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "Realm successfully updated enriched with propagation status information, as Entity",
-                response = ProvisioningResult.class)
-        , @ApiResponse(code = 204,
+                response = ProvisioningResult.class),
+        @ApiResponse(code = 204,
                 message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
                 @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied")) })
     @PUT
     @Path("{fullPath:.*}")
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response update(@NotNull RealmTO realmTO);
 
     /**
@@ -146,22 +147,22 @@ public interface RealmService extends JAXRSService {
         @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
                 value = "Allows the client to specify a preference for the result to be returned from the server",
                 defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                allowEmptyValue = true)
-        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                allowEmptyValue = true),
+        @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
                 value = "If 'true', instructs the propagation process not to wait for completion when communicating"
                 + " with External Resources with no priority set",
                 defaultValue = "false", allowEmptyValue = true) })
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "Realm successfully deleted enriched with propagation status information, as Entity",
-                response = ProvisioningResult.class)
-        , @ApiResponse(code = 204,
+                response = ProvisioningResult.class),
+        @ApiResponse(code = 204,
                 message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
                 @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied")) })
     @DELETE
     @Path("{fullPath:.*}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response delete(@NotNull @PathParam("fullPath") String fullPath);
 }

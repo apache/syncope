@@ -38,6 +38,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -51,8 +52,8 @@ import org.apache.syncope.common.rest.api.beans.TaskQuery;
  * REST operations for tasks.
  */
 @Api(tags = "Tasks", authorizations = {
-    @Authorization(value = "BasicAuthentication")
-    , @Authorization(value = "Bearer") })
+    @Authorization(value = "BasicAuthentication"),
+    @Authorization(value = "Bearer") })
 @Path("tasks")
 public interface TaskService extends ExecutableService {
 
@@ -67,7 +68,7 @@ public interface TaskService extends ExecutableService {
      */
     @GET
     @Path("{type}/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     <T extends TaskTO> T read(
             @NotNull @PathParam("type") TaskType type,
             @NotNull @PathParam("key") String key,
@@ -82,7 +83,7 @@ public interface TaskService extends ExecutableService {
      */
     @GET
     @Path("{type}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     <T extends TaskTO> PagedResult<T> search(@BeanParam TaskQuery query);
 
     /**
@@ -96,13 +97,13 @@ public interface TaskService extends ExecutableService {
             @ApiResponse(code = 201,
                     message = "Task successfully created", responseHeaders = {
                 @ResponseHeader(name = RESTHeaders.RESOURCE_KEY, response = String.class,
-                        description = "UUID generated for the entity created")
-                , @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
+                        description = "UUID generated for the entity created"),
+                @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
                         description = "URL of the entity created") }))
     @POST
     @Path("{type}")
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response create(@NotNull @PathParam("type") TaskType type, @NotNull SchedTaskTO taskTO);
 
     /**
@@ -115,8 +116,8 @@ public interface TaskService extends ExecutableService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @PUT
     @Path("{type}/{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void update(@NotNull @PathParam("type") TaskType type, @NotNull SchedTaskTO taskTO);
 
     /**
@@ -129,7 +130,7 @@ public interface TaskService extends ExecutableService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @DELETE
     @Path("{type}/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("type") TaskType type, @NotNull @PathParam("key") String key);
 
     /**
@@ -140,7 +141,7 @@ public interface TaskService extends ExecutableService {
      */
     @POST
     @Path("bulk")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     BulkActionResult bulk(@NotNull BulkAction bulkAction);
 }

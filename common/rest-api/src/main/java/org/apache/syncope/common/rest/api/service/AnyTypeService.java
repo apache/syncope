@@ -36,6 +36,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
@@ -43,8 +44,8 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
  * REST operations for any types.
  */
 @Api(tags = "AnyTypes", authorizations = {
-    @Authorization(value = "BasicAuthentication")
-    , @Authorization(value = "Bearer") })
+    @Authorization(value = "BasicAuthentication"),
+    @Authorization(value = "Bearer") })
 @Path("anyTypes")
 public interface AnyTypeService extends JAXRSService {
 
@@ -54,7 +55,7 @@ public interface AnyTypeService extends JAXRSService {
      * @return list of all anyTypes.
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<AnyTypeTO> list();
 
     /**
@@ -65,7 +66,7 @@ public interface AnyTypeService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     AnyTypeTO read(@NotNull @PathParam("key") String key);
 
     /**
@@ -78,11 +79,11 @@ public interface AnyTypeService extends JAXRSService {
             @ApiResponse(code = 201,
                     message = "AnyType successfully created", responseHeaders = {
                 @ResponseHeader(name = RESTHeaders.RESOURCE_KEY, response = String.class,
-                        description = "Key value for the entity created")
-                , @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
+                        description = "Key value for the entity created"),
+                @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
                         description = "URL of the entity created") }))
     @POST
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response create(@NotNull AnyTypeTO anyTypeTO);
 
     /**
@@ -94,7 +95,7 @@ public interface AnyTypeService extends JAXRSService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @PUT
     @Path("{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void update(@NotNull AnyTypeTO anyTypeTO);
 
     /**
@@ -106,6 +107,6 @@ public interface AnyTypeService extends JAXRSService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @DELETE
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("key") String key);
 }

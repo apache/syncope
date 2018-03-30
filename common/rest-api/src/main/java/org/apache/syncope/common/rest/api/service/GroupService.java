@@ -38,6 +38,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.ext.PATCH;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -51,8 +52,8 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
  * REST operations for groups.
  */
 @Api(tags = "Groups", authorizations = {
-    @Authorization(value = "BasicAuthentication")
-    , @Authorization(value = "Bearer") })
+    @Authorization(value = "BasicAuthentication"),
+    @Authorization(value = "Bearer") })
 @Path("groups")
 public interface GroupService extends AnyService<GroupTO> {
 
@@ -81,8 +82,8 @@ public interface GroupService extends AnyService<GroupTO> {
         @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
                 value = "Allows the client to specify a preference for the result to be returned from the server",
                 defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                allowEmptyValue = true)
-        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                allowEmptyValue = true),
+        @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
                 value = "If 'true', instructs the propagation process not to wait for completion when communicating"
                 + " with External Resources with no priority set",
                 defaultValue = "false", allowEmptyValue = true) })
@@ -92,15 +93,15 @@ public interface GroupService extends AnyService<GroupTO> {
                     + "or empty if 'Prefer: return-no-content' was specified",
                     response = ProvisioningResult.class, responseHeaders = {
                 @ResponseHeader(name = RESTHeaders.RESOURCE_KEY, response = String.class,
-                        description = "UUID generated for the group created")
-                , @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
-                        description = "URL of the group created")
-                , @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
+                        description = "UUID generated for the group created"),
+                @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
+                        description = "URL of the group created"),
+                @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied") }))
     @POST
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response create(@NotNull GroupTO groupTO);
 
     /**
@@ -113,31 +114,31 @@ public interface GroupService extends AnyService<GroupTO> {
         @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
                 value = "Allows the client to specify a preference for the result to be returned from the server",
                 defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                allowEmptyValue = true)
-        , @ApiImplicitParam(name = HttpHeaders.IF_MATCH, paramType = "header", dataType = "string",
+                allowEmptyValue = true),
+        @ApiImplicitParam(name = HttpHeaders.IF_MATCH, paramType = "header", dataType = "string",
                 value = "When the provided ETag value does not match the latest modification date of the entity, "
                 + "an error is reported and the requested operation is not performed.",
-                allowEmptyValue = true)
-        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                allowEmptyValue = true),
+        @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
                 value = "If 'true', instructs the propagation process not to wait for completion when communicating"
                 + " with External Resources with no priority set",
                 defaultValue = "false", allowEmptyValue = true) })
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "Group successfully updated enriched with propagation status information, as Entity",
-                response = ProvisioningResult.class)
-        , @ApiResponse(code = 204,
+                response = ProvisioningResult.class),
+        @ApiResponse(code = 204,
                 message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
                 @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
                         description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied"))
-        , @ApiResponse(code = 412,
+                        + "client about the fact that a specified preference was applied")),
+        @ApiResponse(code = 412,
                 message = "The ETag value provided via the 'If-Match' header does not match the latest modification "
                 + "date of the entity") })
     @PATCH
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response update(@NotNull GroupPatch groupPatch);
 
     /**
@@ -150,31 +151,31 @@ public interface GroupService extends AnyService<GroupTO> {
         @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
                 value = "Allows the client to specify a preference for the result to be returned from the server",
                 defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                allowEmptyValue = true)
-        , @ApiImplicitParam(name = HttpHeaders.IF_MATCH, paramType = "header", dataType = "string",
+                allowEmptyValue = true),
+        @ApiImplicitParam(name = HttpHeaders.IF_MATCH, paramType = "header", dataType = "string",
                 value = "When the provided ETag value does not match the latest modification date of the entity, "
                 + "an error is reported and the requested operation is not performed.",
-                allowEmptyValue = true)
-        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                allowEmptyValue = true),
+        @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
                 value = "If 'true', instructs the propagation process not to wait for completion when communicating"
                 + " with External Resources with no priority set",
                 defaultValue = "false", allowEmptyValue = true) })
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "Group successfully updated enriched with propagation status information, as Entity",
-                response = ProvisioningResult.class)
-        , @ApiResponse(code = 204,
+                response = ProvisioningResult.class),
+        @ApiResponse(code = 204,
                 message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
                 @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
                         description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied"))
-        , @ApiResponse(code = 412,
+                        + "client about the fact that a specified preference was applied")),
+        @ApiResponse(code = 412,
                 message = "The ETag value provided via the 'If-Match' header does not match the latest modification "
                 + "date of the entity") })
     @PUT
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response update(@NotNull GroupTO groupTO);
 
     /**
@@ -184,7 +185,7 @@ public interface GroupService extends AnyService<GroupTO> {
      */
     @GET
     @Path("own")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<GroupTO> own();
 
     /**
@@ -196,7 +197,7 @@ public interface GroupService extends AnyService<GroupTO> {
      */
     @POST
     @Path("{key}/members/{actionType}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     ExecTO bulkMembersAction(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("actionType") BulkMembersActionType actionType);

@@ -38,6 +38,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -47,8 +48,8 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
  * REST operations for connector bundles and instances.
  */
 @Api(tags = "Connectors", authorizations = {
-    @Authorization(value = "BasicAuthentication")
-    , @Authorization(value = "Bearer") })
+    @Authorization(value = "BasicAuthentication"),
+    @Authorization(value = "Bearer") })
 @Path("connectors")
 public interface ConnectorService extends JAXRSService {
 
@@ -60,7 +61,7 @@ public interface ConnectorService extends JAXRSService {
      */
     @GET
     @Path("bundles")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<ConnBundleTO> getBundles(@QueryParam("lang") String lang);
 
     /**
@@ -75,8 +76,8 @@ public interface ConnectorService extends JAXRSService {
      */
     @POST
     @Path("{key}/supportedObjectClasses")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<ConnIdObjectClassTO> buildObjectClassInfo(
             @NotNull ConnInstanceTO connInstanceTO,
             @QueryParam("includeSpecial") @DefaultValue("false") boolean includeSpecial);
@@ -91,7 +92,7 @@ public interface ConnectorService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     ConnInstanceTO read(@NotNull @PathParam("key") String key, @QueryParam("lang") String lang);
 
     /**
@@ -104,7 +105,7 @@ public interface ConnectorService extends JAXRSService {
      */
     @GET
     @Path("byResource/{resourceName}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     ConnInstanceTO readByResource(
             @NotNull @PathParam("resourceName") String resourceName, @QueryParam("lang") String lang);
 
@@ -116,7 +117,7 @@ public interface ConnectorService extends JAXRSService {
      * @return list of all connector instances with property keys in the matching language
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<ConnInstanceTO> list(@QueryParam("lang") String lang);
 
     /**
@@ -129,12 +130,12 @@ public interface ConnectorService extends JAXRSService {
             @ApiResponse(code = 201,
                     message = "ConnInstance successfully created", responseHeaders = {
                 @ResponseHeader(name = RESTHeaders.RESOURCE_KEY, response = String.class,
-                        description = "UUID generated for the entity created")
-                , @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
+                        description = "UUID generated for the entity created"),
+                @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
                         description = "URL of the entity created") }))
     @POST
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response create(@NotNull ConnInstanceTO connInstanceTO);
 
     /**
@@ -146,8 +147,8 @@ public interface ConnectorService extends JAXRSService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @PUT
     @Path("{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void update(@NotNull ConnInstanceTO connInstanceTO);
 
     /**
@@ -159,7 +160,7 @@ public interface ConnectorService extends JAXRSService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @DELETE
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("key") String key);
 
     /**
@@ -171,8 +172,8 @@ public interface ConnectorService extends JAXRSService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @POST
     @Path("check")
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void check(@NotNull ConnInstanceTO connInstanceTO);
 
     /**
@@ -182,6 +183,6 @@ public interface ConnectorService extends JAXRSService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @POST
     @Path("reload")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void reload();
 }

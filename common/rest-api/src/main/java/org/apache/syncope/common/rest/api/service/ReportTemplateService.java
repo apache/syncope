@@ -37,6 +37,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -45,8 +46,8 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
  * REST operations for report templates.
  */
 @Api(tags = "ReportTemplates", authorizations = {
-    @Authorization(value = "BasicAuthentication")
-    , @Authorization(value = "Bearer") })
+    @Authorization(value = "BasicAuthentication"),
+    @Authorization(value = "Bearer") })
 @Path("reportTemplates")
 public interface ReportTemplateService extends JAXRSService {
 
@@ -56,7 +57,7 @@ public interface ReportTemplateService extends JAXRSService {
      * @return list of all report templates.
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<ReportTemplateTO> list();
 
     /**
@@ -69,11 +70,11 @@ public interface ReportTemplateService extends JAXRSService {
             @ApiResponse(code = 201,
                     message = "ReportTemplate successfully created", responseHeaders = {
                 @ResponseHeader(name = RESTHeaders.RESOURCE_KEY, response = String.class,
-                        description = "Key value for the entity created")
-                , @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
+                        description = "Key value for the entity created"),
+                @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
                         description = "URL of the entity created") }))
     @POST
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response create(@NotNull ReportTemplateTO reportTemplateTO);
 
     /**
@@ -84,7 +85,7 @@ public interface ReportTemplateService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     ReportTemplateTO read(@NotNull @PathParam("key") String key);
 
     /**
@@ -96,7 +97,7 @@ public interface ReportTemplateService extends JAXRSService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @DELETE
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("key") String key);
 
     /**

@@ -32,6 +32,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.CamelMetrics;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -40,8 +41,8 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
  * REST operations for Camel routes.
  */
 @Api(tags = "CamelRoutes", authorizations = {
-    @Authorization(value = "BasicAuthentication")
-    , @Authorization(value = "Bearer") })
+    @Authorization(value = "BasicAuthentication"),
+    @Authorization(value = "Bearer") })
 @Path("camelRoutes")
 public interface CamelRouteService extends JAXRSService {
 
@@ -53,7 +54,7 @@ public interface CamelRouteService extends JAXRSService {
      */
     @GET
     @Path("{anyTypeKind}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<CamelRouteTO> list(@NotNull @PathParam("anyTypeKind") AnyTypeKind anyTypeKind);
 
     /**
@@ -65,7 +66,7 @@ public interface CamelRouteService extends JAXRSService {
      */
     @GET
     @Path("{anyTypeKind}/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     CamelRouteTO read(
             @NotNull @PathParam("anyTypeKind") AnyTypeKind anyTypeKind,
             @NotNull @PathParam("key") String key);
@@ -80,8 +81,8 @@ public interface CamelRouteService extends JAXRSService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @PUT
     @Path("{anyTypeKind}/{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void update(@NotNull @PathParam("anyTypeKind") AnyTypeKind anyTypeKind, @NotNull CamelRouteTO route);
 
     /**
@@ -91,7 +92,7 @@ public interface CamelRouteService extends JAXRSService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @POST
     @Path("restartContext")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void restartContext();
 
     /**
@@ -101,6 +102,6 @@ public interface CamelRouteService extends JAXRSService {
      */
     @GET
     @Path("metrics")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     CamelMetrics metrics();
 }

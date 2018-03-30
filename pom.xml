@@ -823,17 +823,6 @@ under the License.
         <version>${jackson.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-joda</artifactId>
-        <version>${jackson.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>    
-      <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
         <version>${jackson.version}</version>
@@ -844,13 +833,13 @@ under the License.
         <version>${jackson.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.fasterxml.jackson.module</groupId>
-        <artifactId>jackson-module-afterburner</artifactId>
+        <groupId>com.fasterxml.jackson.jaxrs</groupId>
+        <artifactId>jackson-jaxrs-yaml-provider</artifactId>
         <version>${jackson.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-yaml</artifactId>
+        <groupId>com.fasterxml.jackson.module</groupId>
+        <artifactId>jackson-module-afterburner</artifactId>
         <version>${jackson.version}</version>
       </dependency>
       <dependency>
@@ -878,6 +867,17 @@ under the License.
           </exclusion>
         </exclusions>
       </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-joda</artifactId>
+        <version>${jackson.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>    
 
       <dependency>
         <groupId>joda-time</groupId>

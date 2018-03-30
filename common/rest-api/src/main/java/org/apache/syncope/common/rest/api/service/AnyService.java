@@ -37,6 +37,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -63,7 +64,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      */
     @GET
     @Path("{key}/{schemaType}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Set<AttrTO> read(@NotNull @PathParam("key") String key, @NotNull @PathParam("schemaType") SchemaType schemaType);
 
     /**
@@ -79,7 +80,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      */
     @GET
     @Path("{key}/{schemaType}/{schema}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     AttrTO read(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("schemaType") SchemaType schemaType,
@@ -93,7 +94,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     TO read(@NotNull @PathParam("key") String key);
 
     /**
@@ -103,7 +104,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      * @return paged list of any objects matching the given query
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     PagedResult<TO> search(@BeanParam AnyQuery anyQuery);
 
     /**
@@ -116,8 +117,8 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      */
     @PUT
     @Path("{key}/{schemaType}/{schema}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response update(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("schemaType") SchemaType schemaType,
@@ -134,7 +135,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @DELETE
     @Path("{key}/{schemaType}/{schema}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("schemaType") SchemaType schemaType,
@@ -150,12 +151,12 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
         @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
                 value = "Allows the client to specify a preference for the result to be returned from the server",
                 defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                allowEmptyValue = true)
-        , @ApiImplicitParam(name = HttpHeaders.IF_MATCH, paramType = "header", dataType = "string",
+                allowEmptyValue = true),
+        @ApiImplicitParam(name = HttpHeaders.IF_MATCH, paramType = "header", dataType = "string",
                 value = "When the provided ETag value does not match the latest modification date of the entity, "
                 + "an error is reported and the requested operation is not performed.",
-                allowEmptyValue = true)
-        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                allowEmptyValue = true),
+        @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
                 value = "If 'true', instructs the propagation process not to wait for completion when communicating"
                 + " with External Resources with no priority set",
                 defaultValue = "false", allowEmptyValue = true) })
@@ -163,18 +164,18 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
         @ApiResponse(code = 200,
                 message = "User, Group or Any Object successfully deleted enriched with propagation status information,"
                 + " as Entity",
-                response = ProvisioningResult.class)
-        , @ApiResponse(code = 204,
+                response = ProvisioningResult.class),
+        @ApiResponse(code = 204,
                 message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
                 @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
                         description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied"))
-        , @ApiResponse(code = 412,
+                        + "client about the fact that a specified preference was applied")),
+        @ApiResponse(code = 412,
                 message = "The ETag value provided via the 'If-Match' header does not match the latest modification "
                 + "date of the entity") })
     @DELETE
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response delete(@NotNull @PathParam("key") String key);
 
     /**
@@ -187,29 +188,29 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
         @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
                 value = "Allows the client to specify a preference for the result to be returned from the server",
                 defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                allowEmptyValue = true)
-        , @ApiImplicitParam(name = HttpHeaders.IF_MATCH, paramType = "header", dataType = "string",
+                allowEmptyValue = true),
+        @ApiImplicitParam(name = HttpHeaders.IF_MATCH, paramType = "header", dataType = "string",
                 value = "When the provided ETag value does not match the latest modification date of the entity, "
                 + "an error is reported and the requested operation is not performed.",
-                allowEmptyValue = true)
-        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                allowEmptyValue = true),
+        @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
                 value = "If 'true', instructs the propagation process not to wait for completion when communicating"
                 + " with External Resources with no priority set",
                 defaultValue = "false", allowEmptyValue = true) })
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Bulk action result", response = BulkActionResult.class)
-        , @ApiResponse(code = 204,
+        @ApiResponse(code = 200, message = "Bulk action result", response = BulkActionResult.class),
+        @ApiResponse(code = 204,
                 message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
                 @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
                         description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied"))
-        , @ApiResponse(code = 412,
+                        + "client about the fact that a specified preference was applied")),
+        @ApiResponse(code = 412,
                 message = "The ETag value provided via the 'If-Match' header does not match the latest modification "
                 + "date of the entity") })
     @POST
     @Path("{key}/deassociate/{action}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response deassociate(@NotNull DeassociationPatch patch);
 
     /**
@@ -222,29 +223,29 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
         @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
                 value = "Allows the client to specify a preference for the result to be returned from the server",
                 defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                allowEmptyValue = true)
-        , @ApiImplicitParam(name = HttpHeaders.IF_MATCH, paramType = "header", dataType = "string",
+                allowEmptyValue = true),
+        @ApiImplicitParam(name = HttpHeaders.IF_MATCH, paramType = "header", dataType = "string",
                 value = "When the provided ETag value does not match the latest modification date of the entity, "
                 + "an error is reported and the requested operation is not performed.",
-                allowEmptyValue = true)
-        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                allowEmptyValue = true),
+        @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
                 value = "If 'true', instructs the propagation process not to wait for completion when communicating"
                 + " with External Resources with no priority set",
                 defaultValue = "false", allowEmptyValue = true) })
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Bulk action result", response = BulkActionResult.class)
-        , @ApiResponse(code = 204,
+        @ApiResponse(code = 200, message = "Bulk action result", response = BulkActionResult.class),
+        @ApiResponse(code = 204,
                 message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
                 @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
                         description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied"))
-        , @ApiResponse(code = 412,
+                        + "client about the fact that a specified preference was applied")),
+        @ApiResponse(code = 412,
                 message = "The ETag value provided via the 'If-Match' header does not match the latest modification "
                 + "date of the entity") })
     @POST
     @Path("{key}/associate/{action}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response associate(@NotNull AssociationPatch patch);
 
     /**
@@ -257,21 +258,21 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
         @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
                 value = "Allows the client to specify a preference for the result to be returned from the server",
                 defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                allowEmptyValue = true)
-        , @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
+                allowEmptyValue = true),
+        @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
                 value = "If 'true', instructs the propagation process not to wait for completion when communicating"
                 + " with External Resources with no priority set",
                 defaultValue = "false", allowEmptyValue = true) })
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Bulk action result", response = BulkActionResult.class)
-        , @ApiResponse(code = 204,
+        @ApiResponse(code = 200, message = "Bulk action result", response = BulkActionResult.class),
+        @ApiResponse(code = 204,
                 message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
                 @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied")) })
     @POST
     @Path("bulk")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response bulk(@NotNull BulkAction bulkAction);
 }

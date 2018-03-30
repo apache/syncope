@@ -40,6 +40,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.ext.PATCH;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -59,19 +60,18 @@ public interface UserSelfService extends JAXRSService {
      * @return calling user data, including own UUID and entitlements
      */
     @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication")
-        , @Authorization(value = "Bearer") })
+        @Authorization(value = "BasicAuthentication"),
+        @Authorization(value = "Bearer") })
     @ApiResponses(
             @ApiResponse(code = 200, message = "Calling user data, including own UUID and entitlements",
                     response = UserTO.class, responseHeaders = {
                 @ResponseHeader(name = RESTHeaders.RESOURCE_KEY, response = String.class,
-                        description = "UUID of the calling user")
-                ,
+                        description = "UUID of the calling user"),
                 @ResponseHeader(name = RESTHeaders.OWNED_ENTITLEMENTS, response = String.class,
                         description = "List of entitlements owned by the calling user")
             }))
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response read();
 
     /**
@@ -93,15 +93,15 @@ public interface UserSelfService extends JAXRSService {
                     + "or empty if 'Prefer: return-no-content' was specified",
                     response = ProvisioningResult.class, responseHeaders = {
                 @ResponseHeader(name = RESTHeaders.RESOURCE_KEY, response = String.class,
-                        description = "UUID generated for the user created")
-                , @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
-                        description = "URL of the user created")
-                , @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
+                        description = "UUID generated for the user created"),
+                @ResponseHeader(name = HttpHeaders.LOCATION, response = String.class,
+                        description = "URL of the user created"),
+                @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied") }))
     @POST
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response create(@NotNull UserTO userTO,
             @DefaultValue("true") @QueryParam("storePassword") boolean storePassword);
 
@@ -112,8 +112,8 @@ public interface UserSelfService extends JAXRSService {
      * @return Response object featuring the updated user
      */
     @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication")
-        , @Authorization(value = "Bearer") })
+        @Authorization(value = "BasicAuthentication"),
+        @Authorization(value = "Bearer") })
     @ApiImplicitParams(
             @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
                     value = "Allows the client to specify a preference for the result to be returned from the server",
@@ -122,16 +122,16 @@ public interface UserSelfService extends JAXRSService {
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "User successfully updated enriched with propagation status information, as Entity",
-                response = ProvisioningResult.class)
-        , @ApiResponse(code = 204,
+                response = ProvisioningResult.class),
+        @ApiResponse(code = 204,
                 message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
                 @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied")) })
     @PATCH
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response update(@NotNull UserPatch patch);
 
     /**
@@ -141,8 +141,8 @@ public interface UserSelfService extends JAXRSService {
      * @return Response object featuring the updated user
      */
     @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication")
-        , @Authorization(value = "Bearer") })
+        @Authorization(value = "BasicAuthentication"),
+        @Authorization(value = "Bearer") })
     @ApiImplicitParams(
             @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
                     value = "Allows the client to specify a preference for the result to be returned from the server",
@@ -151,16 +151,16 @@ public interface UserSelfService extends JAXRSService {
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "User successfully updated enriched with propagation status information, as Entity",
-                response = ProvisioningResult.class)
-        , @ApiResponse(code = 204,
+                response = ProvisioningResult.class),
+        @ApiResponse(code = 204,
                 message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
                 @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied")) })
     @PUT
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response update(@NotNull UserTO user);
 
     /**
@@ -170,8 +170,8 @@ public interface UserSelfService extends JAXRSService {
      * @return Response object featuring the updated user enriched with propagation status information
      */
     @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication")
-        , @Authorization(value = "Bearer") })
+        @Authorization(value = "BasicAuthentication"),
+        @Authorization(value = "Bearer") })
     @ApiImplicitParams(
             @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
                     value = "Allows the client to specify a preference for the result to be returned from the server",
@@ -180,16 +180,16 @@ public interface UserSelfService extends JAXRSService {
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "User successfully updated enriched with propagation status information, as Entity",
-                response = ProvisioningResult.class)
-        , @ApiResponse(code = 204,
+                response = ProvisioningResult.class),
+        @ApiResponse(code = 204,
                 message = "No content if 'Prefer: return-no-content' was specified", responseHeaders =
                 @ResponseHeader(name = RESTHeaders.PREFERENCE_APPLIED, response = String.class,
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied")) })
     @POST
     @Path("{key}/status")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response status(@NotNull StatusPatch statusPatch);
 
     /**
@@ -198,10 +198,10 @@ public interface UserSelfService extends JAXRSService {
      * @return Response object featuring the deleted user
      */
     @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication")
-        , @Authorization(value = "Bearer") })
+        @Authorization(value = "BasicAuthentication"),
+        @Authorization(value = "Bearer") })
     @DELETE
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response delete();
 
     /**
@@ -212,11 +212,11 @@ public interface UserSelfService extends JAXRSService {
      * @return Response object featuring the updated user
      */
     @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication")
-        , @Authorization(value = "Bearer") })
+        @Authorization(value = "BasicAuthentication"),
+        @Authorization(value = "Bearer") })
     @POST
     @Path("changePassword")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response changePassword(String password);
 
     /**
@@ -231,7 +231,7 @@ public interface UserSelfService extends JAXRSService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @POST
     @Path("requestPasswordReset")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void requestPasswordReset(@NotNull @QueryParam("username") String username, String securityAnswer);
 
     /**
@@ -247,6 +247,6 @@ public interface UserSelfService extends JAXRSService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @POST
     @Path("confirmPasswordReset")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void confirmPasswordReset(@NotNull @QueryParam("token") String token, String password);
 }

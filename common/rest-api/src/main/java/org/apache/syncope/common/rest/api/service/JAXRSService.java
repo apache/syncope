@@ -31,8 +31,8 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
                 response = ErrorTO.class,
                 responseHeaders = {
                     @ResponseHeader(name = RESTHeaders.ERROR_CODE, response = String.class,
-                            description = "Error code")
-                    , @ResponseHeader(name = RESTHeaders.ERROR_INFO, response = String.class,
+                            description = "Error code"),
+                    @ResponseHeader(name = RESTHeaders.ERROR_INFO, response = String.class,
                             description = "Error message") })
 )
 public interface JAXRSService {

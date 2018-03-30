@@ -34,6 +34,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -58,13 +59,13 @@ public interface AccessTokenService extends JAXRSService {
         @ApiResponse(code = 204,
                 message = "JWT successfully generated", responseHeaders = {
                     @ResponseHeader(name = RESTHeaders.TOKEN, response = String.class,
-                            description = "Generated JWT")
-                    , @ResponseHeader(name = RESTHeaders.TOKEN_EXPIRE, response = String.class,
-                            description = "Expiration of the generated JWT") })
-        , @ApiResponse(code = 401, message = "Invalid username or password") })
+                            description = "Generated JWT"),
+                    @ResponseHeader(name = RESTHeaders.TOKEN_EXPIRE, response = String.class,
+                            description = "Expiration of the generated JWT") }),
+        @ApiResponse(code = 401, message = "Invalid username or password") })
     @POST
     @Path("login")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response login();
 
     /**
@@ -79,12 +80,12 @@ public interface AccessTokenService extends JAXRSService {
             @ApiResponse(code = 204,
                     message = "JWT successfully refreshed", responseHeaders = {
                 @ResponseHeader(name = RESTHeaders.TOKEN, response = String.class,
-                        description = "Generated JWT")
-                , @ResponseHeader(name = RESTHeaders.TOKEN_EXPIRE, response = String.class,
+                        description = "Generated JWT"),
+                @ResponseHeader(name = RESTHeaders.TOKEN_EXPIRE, response = String.class,
                         description = "Expiration of the refreshed JWT") }))
     @POST
     @Path("refresh")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response refresh();
 
     /**
@@ -96,7 +97,7 @@ public interface AccessTokenService extends JAXRSService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @POST
     @Path("logout")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void logout();
 
     /**
@@ -106,11 +107,11 @@ public interface AccessTokenService extends JAXRSService {
      * @return paged list of existing access tokens matching the given query
      */
     @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication")
-        , @Authorization(value = "Bearer") })
+        @Authorization(value = "BasicAuthentication"),
+        @Authorization(value = "Bearer") })
     @GET
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     PagedResult<AccessTokenTO> list(@BeanParam AccessTokenQuery query);
 
     /**
@@ -119,12 +120,12 @@ public interface AccessTokenService extends JAXRSService {
      * @param key access token key
      */
     @ApiOperation(value = "", authorizations = {
-        @Authorization(value = "BasicAuthentication")
-        , @Authorization(value = "Bearer") })
+        @Authorization(value = "BasicAuthentication"),
+        @Authorization(value = "Bearer") })
     @ApiResponses(
             @ApiResponse(code = 204, message = "Operation was successful"))
     @DELETE
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@PathParam("key") String key);
 }

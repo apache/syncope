@@ -37,7 +37,7 @@ which enables in-browser access to all the REST endpoints defined.
 
 At a technical level, the RESTful interface is a fully-compliant 
 https://en.wikipedia.org/wiki/Java_API_for_RESTful_Web_Services[JAX-RS 2.0^] implementation based on 
-http://cxf.apache.org[Apache CXF^], natively dealing both with JSON and XML payloads.
+http://cxf.apache.org[Apache CXF^], natively dealing either with JSON, YAML and XML payloads.
 
 More details are available in the dedicated <<restful-services,usage>> section.
 

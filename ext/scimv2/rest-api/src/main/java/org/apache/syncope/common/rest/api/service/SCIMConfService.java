@@ -29,14 +29,15 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 
 /**
  * REST operations for SCIM 2.0 configuration.
  */
 @Api(tags = "SCIMConf", authorizations = {
-    @Authorization(value = "BasicAuthentication")
-    , @Authorization(value = "Bearer") })
+    @Authorization(value = "BasicAuthentication"),
+    @Authorization(value = "Bearer") })
 @Path("scimv2conf")
 public interface SCIMConfService extends JAXRSService {
 
@@ -46,7 +47,7 @@ public interface SCIMConfService extends JAXRSService {
      * @return SCIM configuration
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     SCIMConf get();
 
     /**
@@ -57,7 +58,7 @@ public interface SCIMConfService extends JAXRSService {
     @ApiResponses(
             @ApiResponse(code = 204, message = "Operation was successful"))
     @PUT
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void set(@NotNull SCIMConf conf);
 }

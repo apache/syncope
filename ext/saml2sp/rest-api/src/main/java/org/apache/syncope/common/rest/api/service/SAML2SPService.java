@@ -30,6 +30,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.SAML2RequestTO;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.lib.to.SAML2ReceivedResponseTO;
@@ -38,8 +39,8 @@ import org.apache.syncope.common.lib.to.SAML2ReceivedResponseTO;
  * REST operations for the provided SAML 2.0 Service Provider.
  */
 @Api(tags = "SAML2SP", authorizations = {
-    @Authorization(value = "BasicAuthentication")
-    , @Authorization(value = "Bearer") })
+    @Authorization(value = "BasicAuthentication"),
+    @Authorization(value = "Bearer") })
 @Path("saml2sp/serviceProvider")
 public interface SAML2SPService extends JAXRSService {
 
@@ -63,7 +64,7 @@ public interface SAML2SPService extends JAXRSService {
      */
     @POST
     @Path("loginRequest")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     SAML2RequestTO createLoginRequest(
             @QueryParam("spEntityID") String spEntityID,
             @QueryParam("idpEntityID") String idpEntityID);
@@ -76,8 +77,8 @@ public interface SAML2SPService extends JAXRSService {
      */
     @POST
     @Path("loginResponse")
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     SAML2LoginResponseTO validateLoginResponse(SAML2ReceivedResponseTO response);
 
     /**
@@ -88,7 +89,7 @@ public interface SAML2SPService extends JAXRSService {
      */
     @POST
     @Path("logoutRequest")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     SAML2RequestTO createLogoutRequest(@QueryParam("spEntityID") String spEntityID);
 
     /**
@@ -100,7 +101,7 @@ public interface SAML2SPService extends JAXRSService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @POST
     @Path("logoutResponse")
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void validateLogoutResponse(SAML2ReceivedResponseTO response);
 }

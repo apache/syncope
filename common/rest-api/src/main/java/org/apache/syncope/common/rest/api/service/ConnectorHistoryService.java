@@ -31,14 +31,15 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
 
 /**
  * REST operations for connector configuration versioning.
  */
 @Api(tags = "ConnectorHistory", authorizations = {
-    @Authorization(value = "BasicAuthentication")
-    , @Authorization(value = "Bearer") })
+    @Authorization(value = "BasicAuthentication"),
+    @Authorization(value = "Bearer") })
 @Path("connectorsHistory")
 public interface ConnectorHistoryService extends JAXRSService {
 
@@ -50,7 +51,7 @@ public interface ConnectorHistoryService extends JAXRSService {
      */
     @GET
     @Path("{connectorKey}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<ConnInstanceHistoryConfTO> list(@NotNull @PathParam("connectorKey") String connectorKey);
 
     /**
@@ -62,7 +63,7 @@ public interface ConnectorHistoryService extends JAXRSService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @POST
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void restore(@NotNull @PathParam("key") String key);
 
     /**
@@ -74,6 +75,6 @@ public interface ConnectorHistoryService extends JAXRSService {
             @ApiResponse(code = 204, message = "Operation was successful"))
     @DELETE
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("key") String key);
 }
