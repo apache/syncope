@@ -24,9 +24,7 @@ More information at http://syncope.apache.org
 <a href="https://bestpractices.coreinfrastructure.org/projects/154">
   <img src="https://bestpractices.coreinfrastructure.org/projects/154/badge"/>
 </a>
-<a href="https://maven-badges.herokuapp.com/maven-central/org.apache.syncope/syncope/">
-  <img src="https://maven-badges.herokuapp.com/maven-central/org.apache.syncope/syncope/badge.svg"/>
-</a>
+<img src="https://img.shields.io/maven-central/v/org.apache.syncope/syncope.svg"/>
 <a href="https://travis-ci.org/apache/syncope"><img src="https://api.travis-ci.org/apache/syncope.png"/></a>
 <a href="https://ci.appveyor.com/project/ApacheSoftwareFoundation/syncope">
   <img src="https://ci.appveyor.com/api/projects/status/k3moao48iilrq2pw?svg=true"/>
