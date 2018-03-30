@@ -108,8 +108,8 @@ public interface GroupService extends AnyService<GroupTO> {
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied") }))
     @POST
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response create(@NotNull GroupTO groupTO);
 
     /**
@@ -149,8 +149,8 @@ public interface GroupService extends AnyService<GroupTO> {
                 + " date of the entity") })
     @PATCH
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response update(@NotNull GroupPatch groupPatch);
 
     /**
@@ -190,8 +190,8 @@ public interface GroupService extends AnyService<GroupTO> {
                 + " date of the entity") })
     @PUT
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response update(@NotNull GroupTO groupTO);
 
     /**
@@ -201,7 +201,7 @@ public interface GroupService extends AnyService<GroupTO> {
      */
     @GET
     @Path("own")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<GroupTO> own();
 
     /**
@@ -213,7 +213,7 @@ public interface GroupService extends AnyService<GroupTO> {
      */
     @POST
     @Path("{key}/members/{actionType}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     ExecTO bulkMembersAction(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("actionType") BulkMembersActionType actionType);

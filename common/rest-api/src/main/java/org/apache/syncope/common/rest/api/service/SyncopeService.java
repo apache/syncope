@@ -31,6 +31,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.info.PlatformInfo;
@@ -57,7 +58,7 @@ public interface SyncopeService extends JAXRSService {
      */
     @GET
     @Path("/platform")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     PlatformInfo platform();
 
     /**
@@ -67,7 +68,7 @@ public interface SyncopeService extends JAXRSService {
      */
     @GET
     @Path("/system")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     SystemInfo system();
 
     /** *
@@ -77,7 +78,7 @@ public interface SyncopeService extends JAXRSService {
      */
     @GET
     @Path("/numbers")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     NumbersInfo numbers();
 
     /**
@@ -93,7 +94,7 @@ public interface SyncopeService extends JAXRSService {
      */
     @POST
     @Path("/assignableGroups/{realm:.*}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     PagedResult<GroupTO> searchAssignableGroups(
             @NotNull @PathParam("realm") String realm,
             @QueryParam("term") String term,
@@ -108,7 +109,6 @@ public interface SyncopeService extends JAXRSService {
      */
     @GET
     @Path("/userTypeExtension/{groupName}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    TypeExtensionTO readUserTypeExtension(
-            @NotNull @PathParam("groupName") String groupName);
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    TypeExtensionTO readUserTypeExtension(@NotNull @PathParam("groupName") String groupName);
 }

@@ -33,6 +33,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -52,7 +53,7 @@ public interface ExecutableService extends JAXRSService {
      */
     @GET
     @Path("{key}/executions")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     PagedResult<ExecTO> listExecutions(@BeanParam ExecQuery query);
 
     /**
@@ -63,7 +64,7 @@ public interface ExecutableService extends JAXRSService {
      */
     @GET
     @Path("executions/recent")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<ExecTO> listRecentExecutions(@Min(1) @QueryParam(JAXRSService.PARAM_MAX) @DefaultValue("25") int max);
 
     /**
@@ -75,7 +76,7 @@ public interface ExecutableService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("executions/{executionKey}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void deleteExecution(@NotNull @PathParam("executionKey") String executionKey);
 
     /**
@@ -86,7 +87,7 @@ public interface ExecutableService extends JAXRSService {
      */
     @DELETE
     @Path("{key}/executions")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     BulkActionResult deleteExecutions(@BeanParam BulkExecDeleteQuery query);
 
     /**
@@ -97,7 +98,7 @@ public interface ExecutableService extends JAXRSService {
      */
     @POST
     @Path("{key}/execute")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     ExecTO execute(@BeanParam ExecuteQuery query);
 
     /**
@@ -108,7 +109,7 @@ public interface ExecutableService extends JAXRSService {
      */
     @GET
     @Path("jobs/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     JobTO getJob(@PathParam("key") String key);
 
     /**
@@ -118,7 +119,7 @@ public interface ExecutableService extends JAXRSService {
      */
     @GET
     @Path("jobs")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<JobTO> listJobs();
 
     /**

@@ -30,6 +30,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 
@@ -50,7 +51,7 @@ public interface UserWorkflowService extends JAXRSService {
      */
     @GET
     @Path("forms")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<WorkflowFormTO> getForms();
 
     /**
@@ -61,7 +62,7 @@ public interface UserWorkflowService extends JAXRSService {
      */
     @GET
     @Path("forms/{userKey}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     WorkflowFormTO getFormForUser(@NotNull @PathParam("userKey") String userKey);
 
     /**
@@ -72,7 +73,7 @@ public interface UserWorkflowService extends JAXRSService {
      */
     @POST
     @Path("forms/{taskId}/claim")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     WorkflowFormTO claimForm(@NotNull @PathParam("taskId") String taskId);
 
     /**
@@ -83,8 +84,8 @@ public interface UserWorkflowService extends JAXRSService {
      */
     @POST
     @Path("forms")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     UserTO submitForm(@NotNull WorkflowFormTO form);
 
     /**
@@ -96,7 +97,7 @@ public interface UserWorkflowService extends JAXRSService {
      */
     @POST
     @Path("tasks/{taskId}/execute")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     UserTO executeTask(@NotNull @PathParam("taskId") String taskId, @NotNull UserTO userTO);
 }
