@@ -95,9 +95,7 @@ Apache, Syncope, Apache Syncope, the Apache feather logo and the Apache Syncope 
       <a href="https://bestpractices.coreinfrastructure.org/projects/154">
         <img src="https://bestpractices.coreinfrastructure.org/projects/154/badge" style="vertical-align: top"/>
       </a>
-      <a href="https://maven-badges.herokuapp.com/maven-central/org.apache.syncope/syncope/">
-        <img src="https://maven-badges.herokuapp.com/maven-central/org.apache.syncope/syncope/badge.svg" style="vertical-align: top"/>
-      </a>
+      <img src="https://img.shields.io/maven-central/v/org.apache.syncope/syncope.png" style="vertical-align: top"/>
       <a href="https://travis-ci.org/apache/syncope">
         <img src="https://api.travis-ci.org/apache/syncope.png" style="vertical-align: top"/>
       </a>
