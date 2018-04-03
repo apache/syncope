@@ -388,7 +388,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -noverify -javaagent:${env.REBEL_HOME}/legacy/jrebel.jar -Drebel.spring_plugin=true
+                    -noverify -agentpath:${env.REBEL_HOME}/lib/libjrebel64.so -Drebel.spring_plugin=true
                     -Dwicket.configuration=development
                     -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
