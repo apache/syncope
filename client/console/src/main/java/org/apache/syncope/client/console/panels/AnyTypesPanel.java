@@ -80,8 +80,8 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
                             } else {
                                 restClient.update(modelObject);
                             }
+
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                            SyncopeConsoleSession.get().refreshAuthorization();
                             AnyTypesPanel.this.updateResultTable(target);
                             modal.close(target);
                         } catch (Exception e) {
