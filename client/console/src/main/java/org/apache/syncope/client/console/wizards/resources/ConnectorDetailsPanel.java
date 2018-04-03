@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -56,14 +55,12 @@ public class ConnectorDetailsPanel extends WizardStep {
 
             @Override
             protected List<String> load() {
-                List<RealmTO> allRealms = new RealmRestClient().list();
-                allRealms.removeAll(allRealms.stream().filter(realm
-                        -> authRealms.stream().anyMatch(fullpath -> realm.getFullPath().startsWith(fullpath))).
-                        collect(Collectors.toList()));
-
-                List<String> result = allRealms.stream().map(RealmTO::getFullPath).collect(Collectors.toList());
-                Collections.sort(result);
-                return result;
+                return new RealmRestClient().list().stream().
+                        filter(realm -> authRealms.stream().
+                        anyMatch(authRealm -> realm.getFullPath().startsWith(authRealm))).
+                        map(RealmTO::getFullPath).
+                        sorted().
+                        collect(Collectors.toList());
             }
         };
 
