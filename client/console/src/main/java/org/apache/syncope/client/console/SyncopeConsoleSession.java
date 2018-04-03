@@ -146,10 +146,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         return client == null ? null : client.getJWT();
     }
 
-    private void afterAuthentication() {
-        refreshAuthorization();
-    }
-
     @Override
     public boolean authenticate(final String username, final String password) {
         boolean authenticated = false;
@@ -157,7 +153,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         try {
             client = clientFactory.setDomain(getDomain()).create(username, password);
 
-            afterAuthentication();
+            refreshAuth();
 
             authenticated = true;
         } catch (Exception e) {
@@ -173,7 +169,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         try {
             client = clientFactory.setDomain(getDomain()).create(jwt);
 
-            afterAuthentication();
+            refreshAuth();
 
             authenticated = true;
         } catch (Exception e) {
@@ -192,6 +188,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         client = null;
         auth = null;
         selfTO = null;
+        services.clear();
     }
 
     @Override
@@ -262,14 +259,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     }
 
     public void refreshAuth() {
-        client.refresh();
-        roles = null;
-    }
-
-    public void refreshAuthorization() {
         Pair<Map<String, Set<String>>, UserTO> self = client.self();
         auth = self.getLeft();
         selfTO = self.getRight();
+        roles = null;
     }
 
     @SuppressWarnings("unchecked")
