@@ -75,6 +75,7 @@ When defining a pull task, the following information must be provided:
 * chosen <<pull-mode,pull mode>>
 * destination <<realms,Realm>> - where entities selected for creation are going to be placed
 * whether creation, update or deletion on internal storage are allowed or not
+* whether <<remediation,remediation>> is enabled
 * whether to synchronize the status information from the related identity store
 * selected <<provisioning-pull,matching and unmatching rules>>
 * optional <<pullactions,pull action(s)>>
