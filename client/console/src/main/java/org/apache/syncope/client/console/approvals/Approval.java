@@ -190,7 +190,7 @@ public abstract class Approval extends Panel {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                viewDetails(formTO, target);
+                viewDetails(target);
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(userDetails, ENABLE, StandardEntitlement.USER_READ);
@@ -202,5 +202,5 @@ public abstract class Approval extends Panel {
         add(userDetails);
     }
 
-    protected abstract void viewDetails(final WorkflowFormTO formTO, final AjaxRequestTarget target);
+    protected abstract void viewDetails(AjaxRequestTarget target);
 }

@@ -643,10 +643,7 @@ public class JobWidget extends BaseWidget {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-
-                    StringResourceModel stringResourceModel = new StringResourceModel("execution.view", JobWidget.this,
-                            model);
-                    detailModal.header(stringResourceModel);
+                    detailModal.header(new StringResourceModel("execution.view", JobWidget.this, model));
                     detailModal.setContent(new ExecMessageModal(model.getObject().getMessage()));
                     detailModal.show(true);
                     target.add(detailModal);

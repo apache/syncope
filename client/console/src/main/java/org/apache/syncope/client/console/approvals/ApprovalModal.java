@@ -36,6 +36,8 @@ public class ApprovalModal extends Panel implements SubmitableModalPanel, Wizard
 
     private static final long serialVersionUID = -8847854414429745216L;
 
+    private final UserWorkflowRestClient restClient = new UserWorkflowRestClient();
+
     private final BaseModal<?> modal;
 
     private final WorkflowFormTO formTO;
@@ -49,22 +51,21 @@ public class ApprovalModal extends Panel implements SubmitableModalPanel, Wizard
         this.pageRef = pageRef;
 
         final MultilevelPanel mlp = new MultilevelPanel("approval");
-        add(mlp);
-
         mlp.setFirstLevel(new Approval(pageRef, formTO) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 
             @Override
-            protected void viewDetails(final WorkflowFormTO formTO, final AjaxRequestTarget target) {
+            protected void viewDetails(final AjaxRequestTarget target) {
                 mlp.next(getString("approval.details"), new ApprovalDetails(pageRef, formTO), target);
             }
         });
+        add(mlp);
     }
 
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        new UserWorkflowRestClient().submitForm(formTO);
+        this.restClient.submitForm(formTO);
         this.modal.show(false);
         this.modal.close(target);
         SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));

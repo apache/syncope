@@ -115,7 +115,6 @@ public class ApprovalDirectoryPanel
 
     @Override
     protected List<IColumn<WorkflowFormTO, String>> getColumns() {
-
         List<IColumn<WorkflowFormTO, String>> columns = new ArrayList<>();
         columns.add(new PropertyColumn<WorkflowFormTO, String>(
                 new ResourceModel("taskId"), "taskId", "taskId"));
@@ -155,11 +154,10 @@ public class ApprovalDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final WorkflowFormTO ignore) {
-                final IModel<WorkflowFormTO> formModel = new CompoundPropertyModel<>(model.getObject());
-                manageApprovalModal.setFormModel(formModel);
+                manageApprovalModal.setFormModel(new CompoundPropertyModel<>(model.getObject()));
 
-                target.add(manageApprovalModal.setContent(new ApprovalModal(manageApprovalModal, pageRef, model.
-                        getObject()) {
+                target.add(manageApprovalModal.setContent(
+                        new ApprovalModal(manageApprovalModal, pageRef, model.getObject()) {
 
                     private static final long serialVersionUID = 5546519445061007248L;
 
@@ -281,14 +279,14 @@ public class ApprovalDirectoryPanel
         }
 
         @Override
-        public IModel<WorkflowFormTO> model(final WorkflowFormTO configuration) {
+        public IModel<WorkflowFormTO> model(final WorkflowFormTO form) {
             return new AbstractReadOnlyModel<WorkflowFormTO>() {
 
                 private static final long serialVersionUID = -2566070996511906708L;
 
                 @Override
                 public WorkflowFormTO getObject() {
-                    return configuration;
+                    return form;
                 }
             };
         }
