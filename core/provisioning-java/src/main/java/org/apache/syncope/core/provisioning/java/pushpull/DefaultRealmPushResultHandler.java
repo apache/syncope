@@ -197,13 +197,18 @@ public class DefaultRealmPushResultHandler
         // Try to read remote object BEFORE any actual operation
         OrgUnit orgUnit = profile.getTask().getResource().getOrgUnit();
         Optional<? extends OrgUnitItem> connObjectKey = orgUnit.getConnObjectKeyItem();
-        String connObjecKeyValue = mappingManager.getConnObjectKeyValue(realm, orgUnit);
+        Optional<String> connObjecKeyValue = mappingManager.getConnObjectKeyValue(realm, orgUnit);
 
-        ConnectorObject beforeObj = getRemoteObject(
-                orgUnit.getObjectClass(),
-                connObjectKey.get().getExtAttrName(),
-                connObjecKeyValue,
-                orgUnit.getItems().iterator());
+        ConnectorObject beforeObj = null;
+        if (connObjectKey.isPresent() && connObjecKeyValue.isPresent()) {
+            beforeObj = getRemoteObject(
+                    orgUnit.getObjectClass(),
+                    connObjectKey.get().getExtAttrName(),
+                    connObjecKeyValue.get(),
+                    orgUnit.getItems().iterator());
+        } else {
+            LOG.debug("OrgUnitItem {} or its value {} are null", connObjectKey, connObjecKeyValue);
+        }
 
         if (profile.isDryRun()) {
             if (beforeObj == null) {
@@ -373,11 +378,13 @@ public class DefaultRealmPushResultHandler
                     result.setStatus(ProvisioningReport.Status.SUCCESS);
                 }
                 resultStatus = AuditElements.Result.SUCCESS;
-                output = getRemoteObject(
-                        orgUnit.getObjectClass(),
-                        connObjectKey.get().getExtAttrName(),
-                        connObjecKeyValue,
-                        orgUnit.getItems().iterator());
+                if (connObjectKey.isPresent() && connObjecKeyValue.isPresent()) {
+                    output = getRemoteObject(
+                            orgUnit.getObjectClass(),
+                            connObjectKey.get().getExtAttrName(),
+                            connObjecKeyValue.get(),
+                            orgUnit.getItems().iterator());
+                }
             } catch (IgnoreProvisionException e) {
                 throw e;
             } catch (Exception e) {

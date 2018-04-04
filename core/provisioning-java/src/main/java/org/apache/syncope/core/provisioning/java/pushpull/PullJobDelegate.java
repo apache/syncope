@@ -141,7 +141,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 group.setGroupOwner(null);
                 group.setUserOwner(null);
             } else {
-                Optional<String> userKey = pullUtils.findMatchingAnyKey(
+                Optional<String> userKey = pullUtils.match(
                         anyTypeDAO.findUser(),
                         entry.getValue(),
                         ghandler.getProfile().getTask().getResource(),
@@ -150,7 +150,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 if (userKey.isPresent()) {
                     group.setUserOwner(userDAO.find(userKey.get()));
                 } else {
-                    Optional<String> groupKey = pullUtils.findMatchingAnyKey(
+                    Optional<String> groupKey = pullUtils.match(
                             anyTypeDAO.findGroup(),
                             entry.getValue(),
                             ghandler.getProfile().getTask().getResource(),

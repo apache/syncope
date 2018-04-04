@@ -115,7 +115,7 @@ public class PullUtils {
     @Autowired
     private IntAttrNameParser intAttrNameParser;
 
-    public Optional<String> findMatchingAnyKey(
+    public Optional<String> match(
             final AnyType anyType,
             final String name,
             final ExternalResource resource,
@@ -146,7 +146,7 @@ public class PullUtils {
 
             ConnectorObject connObj = found.iterator().next();
             try {
-                List<String> anyKeys = findExisting(connObj.getUid().getUidValue(), connObj, provision.get(), anyUtils);
+                List<String> anyKeys = match(connObj, provision.get(), anyUtils);
                 if (anyKeys.isEmpty()) {
                     LOG.debug("No matching {} found for {}, aborting", anyUtils.getAnyTypeKind(), connObj);
                 } else {
@@ -172,19 +172,29 @@ public class PullUtils {
                         : groupDAO;
     }
 
-    private List<String> findByConnObjectKeyItem(
-            final String uid, final Provision provision, final AnyUtils anyUtils) {
+    private List<String> findByConnObjectKey(
+            final ConnectorObject connObj, final Provision provision, final AnyUtils anyUtils) {
+
+        String connObjectKey = null;
 
         Optional<MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+        if (connObjectKeyItem.isPresent()) {
+            Attribute connObjectKeyAttr = connObj.getAttributeByName(connObjectKeyItem.get().getExtAttrName());
+            if (connObjectKeyAttr != null) {
+                connObjectKey = AttributeUtil.getStringValue(connObjectKeyAttr);
+            }
+        }
+        if (connObjectKey == null) {
+            return Collections.emptyList();
+        }
 
-        String transfUid = uid;
         for (ItemTransformer transformer : MappingUtils.getItemTransformers(connObjectKeyItem.get())) {
             List<Object> output = transformer.beforePull(
                     connObjectKeyItem.get(),
                     null,
-                    Collections.<Object>singletonList(transfUid));
+                    Collections.<Object>singletonList(connObjectKey));
             if (output != null && !output.isEmpty()) {
-                transfUid = output.get(0).toString();
+                connObjectKey = output.get(0).toString();
             }
         }
 
@@ -203,25 +213,25 @@ public class PullUtils {
         if (intAttrName.getField() != null) {
             switch (intAttrName.getField()) {
                 case "key":
-                    Any<?> any = getAnyDAO(provision.getAnyType().getKind()).find(transfUid);
+                    Any<?> any = getAnyDAO(provision.getAnyType().getKind()).find(connObjectKey);
                     if (any != null) {
                         result.add(any.getKey());
                     }
                     break;
 
                 case "username":
-                    User user = userDAO.findByUsername(transfUid);
+                    User user = userDAO.findByUsername(connObjectKey);
                     if (user != null) {
                         result.add(user.getKey());
                     }
                     break;
 
                 case "name":
-                    Group group = groupDAO.findByName(transfUid);
+                    Group group = groupDAO.findByName(connObjectKey);
                     if (group != null) {
                         result.add(group.getKey());
                     }
-                    AnyObject anyObject = anyObjectDAO.findByName(transfUid);
+                    AnyObject anyObject = anyObjectDAO.findByName(connObjectKey);
                     if (anyObject != null) {
                         result.add(anyObject.getKey());
                     }
@@ -236,29 +246,25 @@ public class PullUtils {
 
                     PlainSchema schema = plainSchemaDAO.find(intAttrName.getSchemaName());
                     if (schema == null) {
-                        value.setStringValue(transfUid);
+                        value.setStringValue(connObjectKey);
                     } else {
                         try {
-                            value.parseValue(schema, transfUid);
+                            value.parseValue(schema, connObjectKey);
                         } catch (ParsingValidationException e) {
-                            LOG.error("While parsing provided __UID__ {}", transfUid, e);
-                            value.setStringValue(transfUid);
+                            LOG.error("While parsing provided __UID__ {}", value, e);
+                            value.setStringValue(connObjectKey);
                         }
                     }
 
-                    List<? extends Any<?>> anys = getAnyDAO(provision.getAnyType().getKind()).
-                            findByPlainAttrValue(intAttrName.getSchemaName(), value);
-                    anys.forEach(any -> {
-                        result.add(any.getKey());
-                    });
+                    result.addAll(getAnyDAO(provision.getAnyType().getKind()).
+                            findByPlainAttrValue(intAttrName.getSchemaName(), value).stream().
+                            map(Entity::getKey).collect(Collectors.toList()));
                     break;
 
                 case DERIVED:
-                    anys = getAnyDAO(provision.getAnyType().getKind()).
-                            findByDerAttrValue(intAttrName.getSchemaName(), transfUid);
-                    anys.forEach(any -> {
-                        result.add(any.getKey());
-                    });
+                    result.addAll(getAnyDAO(provision.getAnyType().getKind()).
+                            findByDerAttrValue(intAttrName.getSchemaName(), connObjectKey).stream().
+                            map(Entity::getKey).collect(Collectors.toList()));
                     break;
 
                 default:
@@ -279,16 +285,14 @@ public class PullUtils {
     }
 
     /**
-     * Find any objects based on mapped uid value (or previous uid value, if updated).
+     * Finds internal entities based on external attributes and mapping.
      *
-     * @param uid for finding by connObjectKey
-     * @param connObj for finding by attribute value
-     * @param provision external resource
-     * @param anyUtils any util
-     * @return list of matching users / groups
+     * @param connObj external attributes
+     * @param provision mapping
+     * @param anyUtils any utils
+     * @return list of matching users' / groups' / any objects' keys
      */
-    public List<String> findExisting(
-            final String uid,
+    public List<String> match(
             final ConnectorObject connObj,
             final Provision provision,
             final AnyUtils anyUtils) {
@@ -309,27 +313,44 @@ public class PullUtils {
         try {
             return rule.isPresent()
                     ? findByCorrelationRule(connObj, provision, rule.get(), anyUtils.getAnyTypeKind())
-                    : findByConnObjectKeyItem(uid, provision, anyUtils);
+                    : findByConnObjectKey(connObj, provision, anyUtils);
         } catch (RuntimeException e) {
+            LOG.error("Could not match {} with any existing {}", connObj, provision.getAnyType(), e);
             return Collections.<String>emptyList();
         }
     }
 
-    public List<String> findExisting(
-            final String uid,
+    /**
+     * Finds internal realms based on external attributes and mapping.
+     *
+     * @param connObj external attributes
+     * @param orgUnit mapping
+     * @return list of matching realms' keys.
+     */
+    public List<String> match(
             final ConnectorObject connObj,
             final OrgUnit orgUnit) {
 
-        Optional<? extends OrgUnitItem> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
+        String connObjectKey = null;
 
-        String transfUid = uid;
+        Optional<? extends OrgUnitItem> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
+        if (connObjectKeyItem != null) {
+            Attribute connObjectKeyAttr = connObj.getAttributeByName(connObjectKeyItem.get().getExtAttrName());
+            if (connObjectKeyAttr != null) {
+                connObjectKey = AttributeUtil.getStringValue(connObjectKeyAttr);
+            }
+        }
+        if (connObjectKey == null) {
+            return Collections.emptyList();
+        }
+
         for (ItemTransformer transformer : MappingUtils.getItemTransformers(connObjectKeyItem.get())) {
             List<Object> output = transformer.beforePull(
                     connObjectKeyItem.get(),
                     null,
-                    Collections.<Object>singletonList(transfUid));
+                    Collections.<Object>singletonList(connObjectKey));
             if (output != null && !output.isEmpty()) {
-                transfUid = output.get(0).toString();
+                connObjectKey = output.get(0).toString();
             }
         }
 
@@ -338,19 +359,19 @@ public class PullUtils {
         Realm realm;
         switch (connObjectKeyItem.get().getIntAttrName()) {
             case "key":
-                realm = realmDAO.find(transfUid);
+                realm = realmDAO.find(connObjectKey);
                 if (realm != null) {
                     result.add(realm.getKey());
                 }
                 break;
 
             case "name":
-                result.addAll(realmDAO.findByName(transfUid).stream().
-                        map(r -> r.getKey()).collect(Collectors.toList()));
+                result.addAll(realmDAO.findByName(connObjectKey).stream().
+                        map(Entity::getKey).collect(Collectors.toList()));
                 break;
 
             case "fullpath":
-                realm = realmDAO.findByFullPath(transfUid);
+                realm = realmDAO.findByFullPath(connObjectKey);
                 if (realm != null) {
                     result.add(realm.getKey());
                 }

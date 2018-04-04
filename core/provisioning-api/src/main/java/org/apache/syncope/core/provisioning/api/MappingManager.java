@@ -51,7 +51,7 @@ public interface MappingManager {
      * @param orgUnit orgUnit information
      * @return connObjectKey internal value
      */
-    String getConnObjectKeyValue(Realm realm, OrgUnit orgUnit);
+    Optional<String> getConnObjectKeyValue(Realm realm, OrgUnit orgUnit);
 
     /**
      * Get attribute values for the given {@link Item} and any object.

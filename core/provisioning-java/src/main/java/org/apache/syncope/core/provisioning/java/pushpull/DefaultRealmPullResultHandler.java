@@ -679,11 +679,7 @@ public class DefaultRealmPullResultHandler
         LOG.debug("Transformed {} for {} as {}",
                 processed.getDeltaType(), processed.getUid().getUidValue(), processed.getObject().getObjectClass());
 
-        String uid = processed.getPreviousUid() == null
-                ? processed.getUid().getUidValue()
-                : processed.getPreviousUid().getUidValue();
-
-        List<String> keys = pullUtils.findExisting(uid, processed.getObject(), orgUnit);
+        List<String> keys = pullUtils.match(processed.getObject(), orgUnit);
         LOG.debug("Match found for {} as {}: {}",
                 processed.getUid().getUidValue(), processed.getObject().getObjectClass(), keys);
 

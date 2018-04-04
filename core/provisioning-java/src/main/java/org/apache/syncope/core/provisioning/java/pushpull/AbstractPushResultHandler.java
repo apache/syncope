@@ -266,11 +266,16 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         Optional<MappingItem> connObjectKey = MappingUtils.getConnObjectKeyItem(provision.get());
         Optional<String> connObjecKeyValue = mappingManager.getConnObjectKeyValue(any, provision.get());
 
-        ConnectorObject beforeObj = getRemoteObject(
-                provision.get().getObjectClass(),
-                connObjectKey.get().getExtAttrName(),
-                connObjecKeyValue.get(),
-                provision.get().getMapping().getItems().iterator());
+        ConnectorObject beforeObj = null;
+        if (connObjectKey.isPresent() && connObjecKeyValue.isPresent()) {
+            beforeObj = getRemoteObject(
+                    provision.get().getObjectClass(),
+                    connObjectKey.get().getExtAttrName(),
+                    connObjecKeyValue.get(),
+                    provision.get().getMapping().getItems().iterator());
+        } else {
+            LOG.debug("ConnObjectKeyItem {} or its value {} are null", connObjectKey, connObjecKeyValue);
+        }
 
         Boolean status = profile.getTask().isSyncStatus() ? enabled : null;
 
@@ -435,11 +440,13 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     result.setStatus(ProvisioningReport.Status.SUCCESS);
                 }
                 resultStatus = AuditElements.Result.SUCCESS;
-                output = getRemoteObject(
-                        provision.get().getObjectClass(),
-                        connObjectKey.get().getExtAttrName(),
-                        connObjecKeyValue.get(),
-                        provision.get().getMapping().getItems().iterator());
+                if (connObjectKey.isPresent() && connObjecKeyValue.isPresent()) {
+                    output = getRemoteObject(
+                            provision.get().getObjectClass(),
+                            connObjectKey.get().getExtAttrName(),
+                            connObjecKeyValue.get(),
+                            provision.get().getMapping().getItems().iterator());
+                }
             } catch (IgnoreProvisionException e) {
                 throw e;
             } catch (Exception e) {

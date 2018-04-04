@@ -282,14 +282,15 @@ public class MappingManagerImpl implements MappingManager {
             }
         }
 
-        Attribute connObjectKeyExtAttr =
-                AttributeUtil.find(orgUnit.getConnObjectKeyItem().get().getExtAttrName(), attributes);
-        if (connObjectKeyExtAttr != null) {
-            attributes.remove(connObjectKeyExtAttr);
-            attributes.add(
-                    AttributeBuilder.build(orgUnit.getConnObjectKeyItem().get().getExtAttrName(), connObjectKey));
+        Optional<? extends OrgUnitItem> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
+        if (connObjectKeyItem.isPresent()) {
+            Attribute connObjectKeyExtAttr = AttributeUtil.find(connObjectKeyItem.get().getExtAttrName(), attributes);
+            if (connObjectKeyExtAttr != null) {
+                attributes.remove(connObjectKeyExtAttr);
+                attributes.add(AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKey));
+            }
+            attributes.add(MappingUtils.evaluateNAME(realm, orgUnit, connObjectKey));
         }
-        attributes.add(MappingUtils.evaluateNAME(realm, orgUnit, connObjectKey));
 
         return Pair.of(connObjectKey, attributes);
     }
@@ -619,8 +620,12 @@ public class MappingManagerImpl implements MappingManager {
     }
 
     private String getGroupOwnerValue(final Provision provision, final Any<?> any) {
-        Pair<String, Attribute> preparedAttr =
-                prepareAttr(provision, MappingUtils.getConnObjectKeyItem(provision).get(), any, null);
+        Optional<MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+
+        Pair<String, Attribute> preparedAttr = null;
+        if (connObjectKeyItem.isPresent()) {
+            preparedAttr = prepareAttr(provision, connObjectKeyItem.get(), any, null);
+        }
 
         return preparedAttr == null
                 ? null
@@ -649,10 +654,10 @@ public class MappingManagerImpl implements MappingManager {
 
     @Transactional(readOnly = true)
     @Override
-    public String getConnObjectKeyValue(final Realm realm, final OrgUnit orgUnit) {
+    public Optional<String> getConnObjectKeyValue(final Realm realm, final OrgUnit orgUnit) {
         OrgUnitItem orgUnitItem = orgUnit.getConnObjectKeyItem().get();
 
-        return getIntValue(realm, orgUnitItem);
+        return Optional.ofNullable(orgUnitItem == null ? null : getIntValue(realm, orgUnitItem));
     }
 
     @Transactional(readOnly = true)

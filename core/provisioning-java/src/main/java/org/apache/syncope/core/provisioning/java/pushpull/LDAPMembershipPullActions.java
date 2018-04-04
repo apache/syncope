@@ -173,7 +173,7 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
     public void afterAll(final ProvisioningProfile<?, ?> profile) throws JobExecutionException {
         Map<String, Set<String>> resolvedMemberships = new HashMap<>();
         this.memberships.forEach((name, memb) -> {
-            Optional<String> userKey = pullUtils.findMatchingAnyKey(
+            Optional<String> userKey = pullUtils.match(
                     anyTypeDAO.findUser(),
                     name,
                     profile.getTask().getResource(),
