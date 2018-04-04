@@ -274,13 +274,15 @@ public class MappingManagerImpl implements MappingManager {
             }
         }
 
-        Attribute connObjectKeyExtAttr =
-                AttributeUtil.find(orgUnit.getConnObjectKeyItem().getExtAttrName(), attributes);
-        if (connObjectKeyExtAttr != null) {
-            attributes.remove(connObjectKeyExtAttr);
-            attributes.add(AttributeBuilder.build(orgUnit.getConnObjectKeyItem().getExtAttrName(), connObjectKey));
+        OrgUnitItem connObjectKeyItem = orgUnit.getConnObjectKeyItem();
+        if (connObjectKeyItem != null) {
+            Attribute connObjectKeyExtAttr = AttributeUtil.find(connObjectKeyItem.getExtAttrName(), attributes);
+            if (connObjectKeyExtAttr != null) {
+                attributes.remove(connObjectKeyExtAttr);
+                attributes.add(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKey));
+            }
+            attributes.add(MappingUtils.evaluateNAME(realm, orgUnit, connObjectKey));
         }
-        attributes.add(MappingUtils.evaluateNAME(realm, orgUnit, connObjectKey));
 
         return Pair.of(connObjectKey, attributes);
     }
@@ -592,8 +594,12 @@ public class MappingManagerImpl implements MappingManager {
     }
 
     private String getGroupOwnerValue(final Provision provision, final Any<?> any) {
-        Pair<String, Attribute> preparedAttr =
-                prepareAttr(provision, MappingUtils.getConnObjectKeyItem(provision), any, null);
+        MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+
+        Pair<String, Attribute> preparedAttr = null;
+        if (connObjectKeyItem != null) {
+            preparedAttr = prepareAttr(provision, connObjectKeyItem, any, null);
+        }
 
         return preparedAttr == null
                 ? null
@@ -625,7 +631,7 @@ public class MappingManagerImpl implements MappingManager {
     public String getConnObjectKeyValue(final Realm realm, final OrgUnit orgUnit) {
         OrgUnitItem orgUnitItem = orgUnit.getConnObjectKeyItem();
 
-        return getIntValue(realm, orgUnitItem);
+        return orgUnitItem == null ? null : getIntValue(realm, orgUnitItem);
     }
 
     @Transactional(readOnly = true)

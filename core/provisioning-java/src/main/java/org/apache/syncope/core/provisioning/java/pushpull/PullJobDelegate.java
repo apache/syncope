@@ -142,14 +142,14 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 group.setGroupOwner(null);
                 group.setUserOwner(null);
             } else {
-                String userKey = pullUtils.findMatchingAnyKey(
+                String userKey = pullUtils.match(
                         anyTypeDAO.findUser(),
                         entry.getValue(),
                         ghandler.getProfile().getTask().getResource(),
                         ghandler.getProfile().getConnector());
 
                 if (userKey == null) {
-                    String groupKey = pullUtils.findMatchingAnyKey(
+                    String groupKey = pullUtils.match(
                             anyTypeDAO.findGroup(),
                             entry.getValue(),
                             ghandler.getProfile().getTask().getResource(),

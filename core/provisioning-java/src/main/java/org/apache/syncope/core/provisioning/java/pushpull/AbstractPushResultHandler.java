@@ -265,11 +265,16 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         MappingItem connObjectKey = MappingUtils.getConnObjectKeyItem(provision);
         String connObjecKeyValue = mappingManager.getConnObjectKeyValue(any, provision);
 
-        ConnectorObject beforeObj = getRemoteObject(
-                provision.getObjectClass(),
-                connObjectKey.getExtAttrName(),
-                connObjecKeyValue,
-                provision.getMapping().getItems().iterator());
+        ConnectorObject beforeObj = null;
+        if (connObjectKey == null || connObjecKeyValue == null) {
+            LOG.debug("ConnObjectKeyItem {} or its value {} are null", connObjectKey, connObjecKeyValue);
+        } else {
+            beforeObj = getRemoteObject(
+                    provision.getObjectClass(),
+                    connObjectKey.getExtAttrName(),
+                    connObjecKeyValue,
+                    provision.getMapping().getItems().iterator());
+        }
 
         Boolean status = profile.getTask().isSyncStatus() ? enabled : null;
 
@@ -434,11 +439,13 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     result.setStatus(ProvisioningReport.Status.SUCCESS);
                 }
                 resultStatus = AuditElements.Result.SUCCESS;
-                output = getRemoteObject(
-                        provision.getObjectClass(),
-                        connObjectKey.getExtAttrName(),
-                        connObjecKeyValue,
-                        provision.getMapping().getItems().iterator());
+                if (connObjectKey != null && connObjecKeyValue != null) {
+                    output = getRemoteObject(
+                            provision.getObjectClass(),
+                            connObjectKey.getExtAttrName(),
+                            connObjecKeyValue,
+                            provision.getMapping().getItems().iterator());
+                }
             } catch (IgnoreProvisionException e) {
                 throw e;
             } catch (Exception e) {
