@@ -67,6 +67,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
     private final MultiFieldPanel<String> enumerationKeys;
 
     private final AjaxDropDownChoicePanel<String> validator;
+    
+    private final AjaxDropDownChoicePanel<AttrSchemaType> type;
 
     public PlainSchemaDetails(
             final String id,
@@ -74,9 +76,9 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             final PlainSchemaTO schemaTO) {
 
         super(id, pageReference, schemaTO);
-
-        final AjaxDropDownChoicePanel<AttrSchemaType> type = new AjaxDropDownChoicePanel<>(
-                "type", getString("type"), new PropertyModel<>(schemaTO, "type"));
+        
+        type = new AjaxDropDownChoicePanel<>(
+                "type", getString("type"), new PropertyModel<AttrSchemaType>(schemaTO, "type"));
 
         type.setChoices(Arrays.asList(AttrSchemaType.values()));
         type.setEnabled(schemaTO == null || schemaTO.getKey() == null || schemaTO.getKey().isEmpty());
@@ -329,8 +331,6 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             binaryParams.setVisible(false);
             mimeType.setModelObject(null);
             mimeType.setChoices(null);
-
-            schema.setValidator(null);
         } else if (AttrSchemaType.Enum.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -355,8 +355,6 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             binaryParams.setVisible(false);
             mimeType.setModelObject(null);
             mimeType.setChoices(null);
-
-            schema.setValidator(null);
         } else if (AttrSchemaType.Encrypted.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -379,8 +377,6 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             binaryParams.setVisible(false);
             mimeType.setModelObject(null);
             mimeType.setChoices(null);
-
-            schema.setValidator(null);
         } else if (AttrSchemaType.Binary.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -430,7 +426,9 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             binaryParams.setVisible(false);
             mimeType.setModelObject(null);
             mimeType.setChoices(null);
+        }
 
+        if (type.isEnabled() && AttrSchemaType.Binary.ordinal() != typeOrdinal) {
             schema.setValidator(null);
         }
     }
