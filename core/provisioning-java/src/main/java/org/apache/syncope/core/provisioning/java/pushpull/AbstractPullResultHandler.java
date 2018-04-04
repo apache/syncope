@@ -217,7 +217,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 action.beforeAssign(profile, delta, anyTO);
             }
 
-            create(anyTO, delta, UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), result);
+            create(anyTO, delta, UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), provision, result);
         }
 
         return Collections.singletonList(result);
@@ -249,7 +249,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 action.beforeProvision(profile, delta, anyTO);
             }
 
-            create(anyTO, delta, UnmatchingRule.toEventName(UnmatchingRule.PROVISION), result);
+            create(anyTO, delta, UnmatchingRule.toEventName(UnmatchingRule.PROVISION), provision, result);
         }
 
         return Collections.singletonList(result);
@@ -277,6 +277,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             final AnyTO anyTO,
             final SyncDelta delta,
             final String operation,
+            final Provision provision,
             final ProvisioningReport result)
             throws JobExecutionException {
 
@@ -312,7 +313,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
             if (profile.getTask().isRemediation()) {
                 Remediation entity = entityFactory.newEntity(Remediation.class);
-                entity.setAnyTypeKind(getAnyUtils().getAnyTypeKind());
+                entity.setAnyType(provision.getAnyType());
                 entity.setOperation(ResourceOperation.CREATE);
                 entity.setPayload(anyTO);
                 entity.setError(result.getMessage());
@@ -411,7 +412,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
                         if (profile.getTask().isRemediation()) {
                             Remediation entity = entityFactory.newEntity(Remediation.class);
-                            entity.setAnyTypeKind(provision.getAnyType().getKind());
+                            entity.setAnyType(provision.getAnyType());
                             entity.setOperation(ResourceOperation.UPDATE);
                             entity.setPayload(anyPatch);
                             entity.setError(result.getMessage());
@@ -699,7 +700,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
                         if (profile.getTask().isRemediation()) {
                             Remediation entity = entityFactory.newEntity(Remediation.class);
-                            entity.setAnyTypeKind(provision.getAnyType().getKind());
+                            entity.setAnyType(provision.getAnyType());
                             entity.setOperation(ResourceOperation.DELETE);
                             entity.setPayload(key);
                             entity.setError(result.getMessage());

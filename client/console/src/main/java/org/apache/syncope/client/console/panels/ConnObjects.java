@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.commons.Constants;
@@ -49,8 +48,9 @@ public class ConnObjects extends Panel implements ModalPanel {
         super(BaseModal.CONTENT_ID);
 
         List<String> availableAnyTypes = resource.getProvisions().stream().
-                map(ProvisionTO::getAnyType).collect(Collectors.toList());
-        Collections.sort(availableAnyTypes, new AnyTypeRestClient.AnyTypeKeyComparator());
+                map(ProvisionTO::getAnyType).
+                sorted(AnyTypeRestClient.KEY_COMPARATOR).
+                collect(Collectors.toList());
         if (resource.getOrgUnit() != null) {
             availableAnyTypes.add(0, SyncopeConstants.REALM_ANYTYPE);
         }

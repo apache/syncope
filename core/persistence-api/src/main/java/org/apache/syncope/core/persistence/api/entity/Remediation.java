@@ -21,15 +21,14 @@ package org.apache.syncope.core.persistence.api.entity;
 import java.util.Date;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 
 public interface Remediation extends Entity {
 
-    AnyTypeKind getAnyTypeKind();
+    AnyType getAnyType();
 
-    void setAnyTypeKind(AnyTypeKind anyTypeKind);
+    void setAnyType(AnyType anyType);
 
     ResourceOperation getOperation();
 

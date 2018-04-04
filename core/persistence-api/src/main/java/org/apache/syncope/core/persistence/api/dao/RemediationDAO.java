@@ -19,12 +19,15 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 
 public interface RemediationDAO extends DAO<Remediation> {
 
     Remediation find(String key);
+
+    List<Remediation> findByAnyType(AnyType anyType);
 
     List<Remediation> findByPullTask(PullTask pullTask);
 

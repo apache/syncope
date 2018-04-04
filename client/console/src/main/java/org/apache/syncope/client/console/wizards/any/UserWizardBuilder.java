@@ -54,7 +54,7 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
     }
 
     /**
-     * Constructor to be used for Approval details only.
+     * Constructor to be used for Approval and Remediation details only.
      *
      * @param previousUserTO previous user status.
      * @param userTO new user status to be approved.

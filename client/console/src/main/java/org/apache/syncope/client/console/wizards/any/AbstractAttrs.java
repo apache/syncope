@@ -52,6 +52,8 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
 
     private static final long serialVersionUID = -5387344116983102292L;
 
+    protected final Comparator<AttrTO> attrComparator = new AttrComparator();
+
     private final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
     private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
@@ -208,7 +210,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
         return null;
     }
 
-    protected class AttrComparator implements Comparator<AttrTO>, Serializable {
+    private class AttrComparator implements Comparator<AttrTO>, Serializable {
 
         private static final long serialVersionUID = -5105030477767941060L;
 

@@ -102,7 +102,7 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
         }
 
         ProvisioningResult<?> result;
-        switch (remediation.getAnyTypeKind()) {
+        switch (remediation.getAnyType().getKind()) {
             case USER:
             default:
                 result = userLogic.create((UserTO) anyTO, true, nullPriorityAsync);
@@ -131,7 +131,7 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
         }
 
         ProvisioningResult<?> result;
-        switch (remediation.getAnyTypeKind()) {
+        switch (remediation.getAnyType().getKind()) {
             case USER:
             default:
                 result = userLogic.update((UserPatch) anyPatch, nullPriorityAsync);
@@ -160,7 +160,7 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
         }
 
         ProvisioningResult<?> result;
-        switch (remediation.getAnyTypeKind()) {
+        switch (remediation.getAnyType().getKind()) {
             case USER:
             default:
                 result = userLogic.delete(anyKey, nullPriorityAsync);

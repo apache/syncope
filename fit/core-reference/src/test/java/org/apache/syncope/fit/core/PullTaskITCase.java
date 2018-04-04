@@ -709,7 +709,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     filter(r -> "uid=pullFromLDAP,ou=People,o=isp".equalsIgnoreCase(r.getRemoteName())).
                     findFirst();
             assertTrue(remediation.isPresent());
-            assertEquals(AnyTypeKind.USER, remediation.get().getAnyTypeKind());
+            assertEquals(AnyTypeKind.USER.name(), remediation.get().getAnyType());
             assertEquals(ResourceOperation.CREATE, remediation.get().getOperation());
             assertNotNull(remediation.get().getAnyTOPayload());
             assertNull(remediation.get().getAnyPatchPayload());

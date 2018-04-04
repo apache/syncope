@@ -28,10 +28,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
@@ -47,6 +47,9 @@ public class RemediationTest extends AbstractTest {
     private RemediationDAO remediationDAO;
 
     @Autowired
+    private AnyTypeDAO anyTypeDAO;
+
+    @Autowired
     private TaskDAO taskDAO;
 
     @Test
@@ -58,7 +61,7 @@ public class RemediationTest extends AbstractTest {
     @Test
     public void create() {
         Remediation remediation = entityFactory.newEntity(Remediation.class);
-        remediation.setAnyTypeKind(AnyTypeKind.ANY_OBJECT);
+        remediation.setAnyType(anyTypeDAO.find("PRINTER"));
         remediation.setOperation(ResourceOperation.CREATE);
         remediation.setError("Error");
         remediation.setInstant(new Date());

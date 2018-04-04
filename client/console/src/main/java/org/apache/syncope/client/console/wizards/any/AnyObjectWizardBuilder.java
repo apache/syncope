@@ -42,7 +42,26 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
             final AnyObjectFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
 
-        super(anyObjectTO, anyTypeClasses, formLayoutInfo, pageRef);
+        super(anyObjectTO == null ? null : new AnyObjectWrapper(anyObjectTO), anyTypeClasses, formLayoutInfo, pageRef);
+    }
+
+    /**
+     * Constructor to be used for Remediation details only.
+     *
+     * @param previousAnyObjectTO previous anyObject status.
+     * @param anyObjectTO new anyObject status to be approved.
+     * @param anyTypeClasses any type classes.
+     * @param formLayoutInfo from layout.
+     * @param pageRef reference page.
+     */
+    public AnyObjectWizardBuilder(
+            final AnyObjectTO previousAnyObjectTO,
+            final AnyObjectTO anyObjectTO,
+            final List<String> anyTypeClasses,
+            final AnyObjectFormLayoutInfo formLayoutInfo,
+            final PageReference pageRef) {
+
+        super(new AnyObjectWrapper(previousAnyObjectTO, anyObjectTO), anyTypeClasses, formLayoutInfo, pageRef);
     }
 
     @Override

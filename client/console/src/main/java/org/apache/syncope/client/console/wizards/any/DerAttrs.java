@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -98,16 +99,12 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
 
     @Override
     protected List<AttrTO> getAttrsFromTO() {
-        final List<AttrTO> res = new ArrayList<>(anyTO.getDerAttrs());
-        Collections.sort(res, new AttrComparator());
-        return res;
+        return anyTO.getDerAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
     }
 
     @Override
     protected List<AttrTO> getAttrsFromTO(final MembershipTO membershipTO) {
-        final List<AttrTO> res = new ArrayList<>(membershipTO.getDerAttrs());
-        Collections.sort(res, new AttrComparator());
-        return res;
+        return membershipTO.getDerAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
     }
 
     @Override
@@ -116,7 +113,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
 
         Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(anyTO.getDerAttrs());
 
-        for (DerSchemaTO schema : schemas.values()) {
+        schemas.values().forEach(schema -> {
             AttrTO attrTO = new AttrTO();
             attrTO.setSchema(schema.getKey());
             if (attrMap.containsKey(schema.getKey())) {
@@ -124,7 +121,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
             }
 
             attrs.add(attrTO);
-        }
+        });
 
         anyTO.getDerAttrs().clear();
         anyTO.getDerAttrs().addAll(attrs);

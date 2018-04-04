@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.jpa.entity.JPARemediation;
@@ -32,6 +33,15 @@ public class JPARemediationDAO extends AbstractDAO<Remediation> implements Remed
     @Override
     public Remediation find(final String key) {
         return entityManager().find(JPARemediation.class, key);
+    }
+
+    @Override
+    public List<Remediation> findByAnyType(final AnyType anyType) {
+        TypedQuery<Remediation> query = entityManager().createQuery(
+                "SELECT e FROM " + JPARemediation.class.getSimpleName() + " e WHERE e.anyType=:anyType",
+                Remediation.class);
+        query.setParameter("anyType", anyType);
+        return query.getResultList();
     }
 
     @Override

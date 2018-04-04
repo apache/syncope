@@ -22,14 +22,19 @@ import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPAAnyTypeDAO extends AbstractDAO<AnyType> implements AnyTypeDAO {
+
+    @Autowired
+    private RemediationDAO remediationDAO;
 
     @Transactional(readOnly = true)
     @Override
@@ -81,6 +86,11 @@ public class JPAAnyTypeDAO extends AbstractDAO<AnyType> implements AnyTypeDAO {
         if (anyType.equals(findUser()) || anyType.equals(findGroup())) {
             throw new IllegalArgumentException(key + " cannot be deleted");
         }
+
+        remediationDAO.findByAnyType(anyType).forEach(remediation -> {
+            remediation.setAnyType(null);
+            remediationDAO.delete(remediation);
+        });
 
         entityManager().remove(anyType);
     }

@@ -49,6 +49,25 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
     }
 
     /**
+     * Constructor to be used for Remediation details only.
+     *
+     * @param previousGroupTO previous group status.
+     * @param groupTO new group status to be approved.
+     * @param anyTypeClasses any type classes.
+     * @param formLayoutInfo from layout.
+     * @param pageRef reference page.
+     */
+    public GroupWizardBuilder(
+            final GroupTO previousGroupTO,
+            final GroupTO groupTO,
+            final List<String> anyTypeClasses,
+            final GroupFormLayoutInfo formLayoutInfo,
+            final PageReference pageRef) {
+
+        super(new GroupWrapper(previousGroupTO, groupTO), anyTypeClasses, formLayoutInfo, pageRef);
+    }
+
+    /**
      * This method has been overridden to manage asynchronous translation of FIQL string to search classes list and
      * viceversa.
      *

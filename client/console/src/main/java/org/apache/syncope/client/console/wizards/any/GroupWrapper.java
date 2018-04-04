@@ -31,14 +31,25 @@ public class GroupWrapper extends AnyWrapper<GroupTO> {
 
     private static final long serialVersionUID = 8058288034211558376L;
 
+    private GroupTO previousGroupTO;
+
     private List<SearchClause> uDynClauses;
 
     private Map<String, List<SearchClause>> aDynClauses;
 
     public GroupWrapper(final GroupTO groupTO) {
+        this(null, groupTO);
+    }
+
+    public GroupWrapper(final GroupTO previousGroupTO, final GroupTO groupTO) {
         super(groupTO);
+        this.previousGroupTO = previousGroupTO;
         getUDynClauses();
         getADynClauses();
+    }
+
+    public GroupTO getPreviousGroupTO() {
+        return previousGroupTO;
     }
 
     public final List<SearchClause> getUDynClauses() {

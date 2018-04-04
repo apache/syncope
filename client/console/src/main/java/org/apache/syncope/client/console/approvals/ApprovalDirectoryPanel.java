@@ -115,8 +115,8 @@ public class ApprovalDirectoryPanel
 
     @Override
     protected List<IColumn<WorkflowFormTO, String>> getColumns() {
-
         List<IColumn<WorkflowFormTO, String>> columns = new ArrayList<>();
+
         columns.add(new PropertyColumn<>(
                 new ResourceModel("taskId"), "taskId", "taskId"));
         columns.add(new PropertyColumn<>(
@@ -155,11 +155,10 @@ public class ApprovalDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final WorkflowFormTO ignore) {
-                final IModel<WorkflowFormTO> formModel = new CompoundPropertyModel<>(model.getObject());
-                manageApprovalModal.setFormModel(formModel);
+                manageApprovalModal.setFormModel(new CompoundPropertyModel<>(model.getObject()));
 
-                target.add(manageApprovalModal.setContent(new ApprovalModal(manageApprovalModal, pageRef, model.
-                        getObject()) {
+                target.add(manageApprovalModal.setContent(
+                        new ApprovalModal(manageApprovalModal, pageRef, model.getObject()) {
 
                     private static final long serialVersionUID = 5546519445061007248L;
 
@@ -196,12 +195,11 @@ public class ApprovalDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final WorkflowFormTO ignore) {
-                final IModel<WorkflowFormTO> formModel = new CompoundPropertyModel<>(model.getObject());
-                modal.setFormModel(formModel);
+                modal.setFormModel(new CompoundPropertyModel<>(model.getObject()));
 
-                final WorkflowFormTO formTO = formModel.getObject();
-                final UserTO newUserTO;
-                final UserTO previousUserTO;
+                WorkflowFormTO formTO = model.getObject();
+                UserTO newUserTO;
+                UserTO previousUserTO;
                 if (formTO.getUserPatch() == null) {
                     newUserTO = formTO.getUserTO();
                     previousUserTO = null;
@@ -219,16 +217,14 @@ public class ApprovalDirectoryPanel
 
                 AjaxWizard.EditItemActionEvent<UserTO> editItemActionEvent =
                         new AjaxWizard.EditItemActionEvent<>(newUserTO, target);
-
-                editItemActionEvent.forceModalPanel(
-                        new ApprovalUserWizardBuilder(
-                                formModel.getObject(),
-                                previousUserTO,
-                                newUserTO,
-                                new AnyTypeRestClient().read(AnyTypeKind.USER.name()).getClasses(),
-                                FormLayoutInfoUtils.fetch(Collections.singletonList(AnyTypeKind.USER.name())).getLeft(),
-                                pageRef
-                        ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
+                editItemActionEvent.forceModalPanel(new ApprovalUserWizardBuilder(
+                        model.getObject(),
+                        previousUserTO,
+                        newUserTO,
+                        new AnyTypeRestClient().read(AnyTypeKind.USER.name()).getClasses(),
+                        FormLayoutInfoUtils.fetch(Collections.singletonList(AnyTypeKind.USER.name())).getLeft(),
+                        pageRef
+                ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
 
                 send(ApprovalDirectoryPanel.this, Broadcast.EXACT, editItemActionEvent);
             }
@@ -281,14 +277,14 @@ public class ApprovalDirectoryPanel
         }
 
         @Override
-        public IModel<WorkflowFormTO> model(final WorkflowFormTO configuration) {
+        public IModel<WorkflowFormTO> model(final WorkflowFormTO form) {
             return new AbstractReadOnlyModel<WorkflowFormTO>() {
 
                 private static final long serialVersionUID = -2566070996511906708L;
 
                 @Override
                 public WorkflowFormTO getObject() {
-                    return configuration;
+                    return form;
                 }
             };
         }

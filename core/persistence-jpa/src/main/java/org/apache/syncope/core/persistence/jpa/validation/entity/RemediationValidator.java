@@ -31,11 +31,11 @@ public class RemediationValidator extends AbstractValidator<RemediationCheck, Re
 
         switch (remediation.getOperation()) {
             case CREATE:
-                if (remediation.getPayloadAsTO(remediation.getAnyTypeKind().getTOClass()) == null) {
+                if (remediation.getPayloadAsTO(remediation.getAnyType().getKind().getTOClass()) == null) {
                     context.disableDefaultConstraintViolation();
                     context.buildConstraintViolationWithTemplate(
                             getTemplate(EntityViolationType.InvalidRemediation,
-                                    "Expected " + remediation.getAnyTypeKind().getTOClass().getName())).
+                                    "Expected " + remediation.getAnyType().getKind().getTOClass().getName())).
                             addPropertyNode("payload").addConstraintViolation();
 
                     isValid = false;
@@ -43,11 +43,11 @@ public class RemediationValidator extends AbstractValidator<RemediationCheck, Re
                 break;
 
             case UPDATE:
-                if (remediation.getPayloadAsPatch(remediation.getAnyTypeKind().getPatchClass()) == null) {
+                if (remediation.getPayloadAsPatch(remediation.getAnyType().getKind().getPatchClass()) == null) {
                     context.disableDefaultConstraintViolation();
                     context.buildConstraintViolationWithTemplate(
                             getTemplate(EntityViolationType.InvalidRemediation,
-                                    "Expected " + remediation.getAnyTypeKind().getPatchClass().getName())).
+                                    "Expected " + remediation.getAnyType().getKind().getPatchClass().getName())).
                             addPropertyNode("payload").addConstraintViolation();
 
                     isValid = false;

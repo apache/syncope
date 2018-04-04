@@ -65,6 +65,8 @@ public final class Constants {
 
     public static final String SEARCH_ERROR = "search_error";
 
+    public static final String UNEXPECTED_CONDITION_ERROR = "unexpected_condition_error";
+
     public static final String ERROR = "error";
 
     public static final String BEFORE_LOGOUT_PAGE = "beforeLogoutPage";
@@ -117,7 +119,9 @@ public final class Constants {
 
     public static final String PREF_ACCESS_TOKEN_PAGINATOR_ROWS = "accessToken.paginator.rows";
 
-    public static final String PREF_WORKFLOW_FORM_PAGINATOR_ROWS = "role.paginator.workflow.form";
+    public static final String PREF_WORKFLOW_FORM_PAGINATOR_ROWS = "workflow.paginator.rows";
+
+    public static final String PREF_REMEDIATION_PAGINATOR_ROWS = "remediation.paginator.rows";
 
     public static final String PREF_RESOURCES_PAGINATOR_ROWS = "resources.paginator.rows";
 

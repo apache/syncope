@@ -16,22 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.commons;
+package org.apache.syncope.client.console.wizards.any;
 
-import java.io.Serializable;
-import java.util.Comparator;
-import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 
-public class GroupComparator implements Comparator<GroupTO>, Serializable {
+public class AnyObjectWrapper extends AnyWrapper<AnyObjectTO> {
 
-    private static final long serialVersionUID = 3584905855352863080L;
+    private static final long serialVersionUID = 8058288034211558376L;
 
-    @Override
-    public int compare(final GroupTO left, final GroupTO right) {
-        return left == null || left.getName() == null
-                ? -1
-                : right == null || right.getName() == null
-                ? 1
-                : left.getName().compareTo(right.getName());
+    private AnyObjectTO previousAnyObjectTO;
+
+    public AnyObjectWrapper(final AnyObjectTO anyObjectTO) {
+        this(null, anyObjectTO);
     }
+
+    public AnyObjectWrapper(final AnyObjectTO previousAnyObjectTO, final AnyObjectTO anyObjectTO) {
+        super(anyObjectTO);
+        this.previousAnyObjectTO = previousAnyObjectTO;
+    }
+
+    public AnyObjectTO getPreviousAnyObjectTO() {
+        return previousAnyObjectTO;
+    }
+
 }

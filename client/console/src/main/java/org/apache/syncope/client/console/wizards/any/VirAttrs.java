@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
@@ -108,16 +109,12 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
     @Override
     protected List<AttrTO> getAttrsFromTO() {
-        final List<AttrTO> res = new ArrayList<>(anyTO.getVirAttrs());
-        Collections.sort(res, new AttrComparator());
-        return res;
+        return anyTO.getVirAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
     }
 
     @Override
     protected List<AttrTO> getAttrsFromTO(final MembershipTO membershipTO) {
-        final List<AttrTO> res = new ArrayList<>(membershipTO.getVirAttrs());
-        Collections.sort(res, new AttrComparator());
-        return res;
+        return membershipTO.getVirAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
     }
 
     @Override

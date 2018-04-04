@@ -19,10 +19,10 @@
 package org.apache.syncope.client.console.rest;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.service.PolicyService;
@@ -33,6 +33,8 @@ import org.apache.syncope.common.rest.api.service.PolicyService;
 public class PolicyRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1392090291817187902L;
+
+    private static final PolicyComparator COMPARATOR = new PolicyComparator();
 
     public <T extends PolicyTO> T getPolicy(final PolicyType type, final String key) {
         T policy = null;
@@ -46,16 +48,14 @@ public class PolicyRestClient extends BaseRestClient {
 
     @SuppressWarnings("unchecked")
     public <T extends PolicyTO> List<T> getPolicies(final PolicyType type) {
-        final List<T> res = new ArrayList<>();
-
         try {
-            res.addAll((List<T>) getService(PolicyService.class).list(type));
-            Collections.sort(res, new PolicyComparator());
+            return getService(PolicyService.class).<T>list(type).stream().
+                    sorted(COMPARATOR).
+                    collect(Collectors.toList());
         } catch (Exception ignore) {
             LOG.debug("No policy found", ignore);
+            return Collections.<T>emptyList();
         }
-
-        return res;
     }
 
     public <T extends PolicyTO> void createPolicy(final PolicyType type, final T policy) {
@@ -70,7 +70,7 @@ public class PolicyRestClient extends BaseRestClient {
         getService(PolicyService.class).delete(type, key);
     }
 
-    private class PolicyComparator implements Comparator<PolicyTO>, Serializable {
+    private static class PolicyComparator implements Comparator<PolicyTO>, Serializable {
 
         private static final long serialVersionUID = -4921433085213223115L;
 

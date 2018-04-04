@@ -25,7 +25,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.button.Buttons;
 import de.agilecoders.wicket.core.markup.html.bootstrap.button.dropdown.DropDownButton;
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.GlyphIconType;
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.IconType;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,6 +32,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -307,9 +307,9 @@ public class RealmChoicePanel extends Panel {
     }
 
     private Map<String, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap() {
-        final List<RealmTO> realms = realmRestClient.list();
-        Collections.sort(realms, new RealmNameComparator());
-        return reloadRealmParentMap(realms);
+        return reloadRealmParentMap(realmRestClient.list().stream().
+                sorted(Comparator.comparing(RealmTO::getName)).
+                collect(Collectors.toList()));
     }
 
     private Map<String, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap(final List<RealmTO> realms) {
@@ -337,24 +337,6 @@ public class RealmChoicePanel extends Panel {
         });
 
         return tree;
-    }
-
-    private static class RealmNameComparator implements Comparator<RealmTO>, Serializable {
-
-        private static final long serialVersionUID = 7085057398406518811L;
-
-        @Override
-        public int compare(final RealmTO r1, final RealmTO r2) {
-            if (r1 == null && r2 == null) {
-                return 0;
-            } else if (r1 != null && r2 != null) {
-                return r1.getName().compareTo(r2.getName());
-            } else if (r1 == null && r2 != null) {
-                return -1;
-            } else {
-                return 1;
-            }
-        }
     }
 
     /**

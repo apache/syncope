@@ -25,39 +25,36 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.pages.Approvals;
-import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
+import org.apache.syncope.client.console.pages.Remediations;
+import org.apache.syncope.client.console.rest.RemediationRestClient;
 import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
-import org.apache.syncope.common.lib.to.WorkflowFormTO;
+import org.apache.syncope.common.lib.to.RemediationTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.time.Duration;
 
-public class ApprovalsWidget extends AlertWidget<WorkflowFormTO> {
+public class RemediationsWidget extends AlertWidget<RemediationTO> {
 
-    private static final long serialVersionUID = 7667120094526529934L;
+    private static final long serialVersionUID = 1817429725840355068L;
 
-    private final UserWorkflowRestClient restClient = new UserWorkflowRestClient();
+    private final RemediationRestClient restClient = new RemediationRestClient();
 
-    private final List<WorkflowFormTO> lastApprovals = new ArrayList<>();
+    private final List<RemediationTO> lastRemediations = new ArrayList<>();
 
-    public ApprovalsWidget(final String id, final PageReference pageRef) {
+    public RemediationsWidget(final String id, final PageReference pageRef) {
         super(id);
         setOutputMarkupId(true);
 
@@ -67,7 +64,7 @@ public class ApprovalsWidget extends AlertWidget<WorkflowFormTO> {
 
             @Override
             protected void onTimer(final AjaxRequestTarget target) {
-                if (!latestAlerts.getObject().equals(lastApprovals)) {
+                if (!latestAlerts.getObject().equals(lastRemediations)) {
                     refreshLatestAlerts(target);
                 }
             }
@@ -76,7 +73,7 @@ public class ApprovalsWidget extends AlertWidget<WorkflowFormTO> {
 
     public final void refreshLatestAlerts(final AjaxRequestTarget target) {
         latestAlerts.getObject().clear();
-        latestAlerts.getObject().addAll(lastApprovals);
+        latestAlerts.getObject().addAll(lastRemediations);
 
         linkAlertsNumber.setDefaultModelObject(latestAlerts.getObject().size());
         target.add(linkAlertsNumber);
@@ -87,60 +84,60 @@ public class ApprovalsWidget extends AlertWidget<WorkflowFormTO> {
         latestFive.removeAll();
         target.add(latestAlertsList);
 
-        lastApprovals.clear();
-        lastApprovals.addAll(latestAlerts.getObject());
+        lastRemediations.clear();
+        lastRemediations.addAll(latestAlerts.getObject());
     }
 
     @Override
-    protected IModel<List<WorkflowFormTO>> getLatestAlerts() {
-        return new ListModel<WorkflowFormTO>() {
+    protected IModel<List<RemediationTO>> getLatestAlerts() {
+        return new ListModel<RemediationTO>() {
 
-            private static final long serialVersionUID = -2583290457773357445L;
+            private static final long serialVersionUID = 541491929575585613L;
 
             @Override
-            public List<WorkflowFormTO> getObject() {
-                List<WorkflowFormTO> updatedApprovals;
-                if (SyncopeConsoleSession.get().owns(StandardEntitlement.WORKFLOW_FORM_LIST)
-                        && SyncopeConsoleSession.get().owns(StandardEntitlement.WORKFLOW_FORM_READ)) {
+            public List<RemediationTO> getObject() {
+                List<RemediationTO> updatedRemediations;
+                if (SyncopeConsoleSession.get().owns(StandardEntitlement.REMEDIATION_LIST)
+                        && SyncopeConsoleSession.get().owns(StandardEntitlement.REMEDIATION_READ)) {
 
-                    updatedApprovals = restClient.getForms().stream().
-                            sorted(Comparator.comparing(WorkflowFormTO::getCreateTime)).
+                    updatedRemediations = restClient.getRemediations().stream().
+                            sorted(Comparator.comparing(RemediationTO::getInstant)).
                             collect(Collectors.toList());
                 } else {
-                    updatedApprovals = Collections.<WorkflowFormTO>emptyList();
+                    updatedRemediations = Collections.<RemediationTO>emptyList();
                 }
 
-                return updatedApprovals;
+                return updatedRemediations;
             }
         };
     }
 
     @Override
-    protected Panel getAlertLink(final String panelid, final WorkflowFormTO event) {
-        return new ApprovalsWidget.InnerPanel(panelid, event);
+    protected Panel getAlertLink(final String panelid, final RemediationTO event) {
+        return new RemediationsWidget.InnerPanel(panelid, event);
     }
 
     @Override
     protected AbstractLink getEventsLink(final String linkid) {
-        BookmarkablePageLink<Approvals> approvals = BookmarkablePageLinkBuilder.build(linkid, Approvals.class);
-        MetaDataRoleAuthorizationStrategy.authorize(approvals, WebPage.ENABLE, StandardEntitlement.WORKFLOW_FORM_LIST);
-        return approvals;
+        BookmarkablePageLink<Remediations> remediations = BookmarkablePageLinkBuilder.build(linkid, Remediations.class);
+        MetaDataRoleAuthorizationStrategy.authorize(remediations, WebPage.ENABLE, StandardEntitlement.REMEDIATION_LIST);
+        return remediations;
     }
 
     @Override
     protected Icon getIcon(final String iconid) {
         return new Icon(iconid,
-                FontAwesomeIconTypeBuilder.on(FontAwesomeIconTypeBuilder.FontAwesomeGraphic.handshake_o).build());
+                FontAwesomeIconTypeBuilder.on(FontAwesomeIconTypeBuilder.FontAwesomeGraphic.medkit).build());
     }
 
     public static final class InnerPanel extends Panel {
 
-        private static final long serialVersionUID = 3829642687027801451L;
+        private static final long serialVersionUID = 8074027899915634928L;
 
-        public InnerPanel(final String id, final WorkflowFormTO alert) {
+        public InnerPanel(final String id, final RemediationTO alert) {
             super(id);
 
-            final AjaxLink<String> approval = new AjaxLink<String>("approval") {
+            AjaxLink<String> approval = new AjaxLink<String>("remediation") {
 
                 private static final long serialVersionUID = 7021195294339489084L;
 
@@ -152,36 +149,19 @@ public class ApprovalsWidget extends AlertWidget<WorkflowFormTO> {
                 @Override
                 protected void onComponentTag(final ComponentTag tag) {
                     super.onComponentTag(tag);
-                    if (StringUtils.isNotBlank(alert.getUsername())) {
-                        tag.put("title", alert.getUsername().trim());
-                    }
+                    tag.put("title", alert.getRemoteName().trim());
                 }
             };
 
             add(approval);
 
-            approval.add(new Label("key", new ResourceModel(alert.getKey(), alert.getKey())).
+            approval.add(new Label("label", alert.getOperation().name() + " " + alert.getAnyType()));
+
+            approval.add(new Label("resource", alert.getResource()));
+
+            approval.add(new Label("instant",
+                    SyncopeConsoleSession.get().getDateFormat().format(alert.getInstant())).
                     setRenderBodyOnly(true));
-
-            approval.add(new Label("owner", alert.getOwner()));
-
-            approval.add(new Label("createTime",
-                    SyncopeConsoleSession.get().getDateFormat().format(alert.getCreateTime())).
-                    setRenderBodyOnly(true));
-
-            WebMarkupContainer dueDateContainer = new WebMarkupContainer("dueDateContainer");
-            dueDateContainer.setOutputMarkupId(true);
-            approval.add(dueDateContainer);
-
-            if (alert.getDueDate() == null) {
-                dueDateContainer.add(new Label("dueDate"));
-                dueDateContainer.setVisible(false);
-            } else {
-                dueDateContainer.add(new Label("dueDate",
-                        SyncopeConsoleSession.get().getDateFormat().format(alert.getDueDate())).
-                        setRenderBodyOnly(true));
-            }
         }
-
     }
 }

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.SchemaUtils;
@@ -151,16 +152,12 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     @Override
     protected List<AttrTO> getAttrsFromTO() {
-        final List<AttrTO> res = new ArrayList<>(anyTO.getPlainAttrs());
-        Collections.sort(res, new AttrComparator());
-        return res;
+        return anyTO.getPlainAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
     }
 
     @Override
     protected List<AttrTO> getAttrsFromTO(final MembershipTO membershipTO) {
-        final List<AttrTO> res = new ArrayList<>(membershipTO.getPlainAttrs());
-        Collections.sort(res, new AttrComparator());
-        return res;
+        return membershipTO.getPlainAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
     }
 
     @Override

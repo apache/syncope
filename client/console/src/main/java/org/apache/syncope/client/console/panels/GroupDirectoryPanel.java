@@ -214,8 +214,9 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                         new AjaxWizard.EditItemActionEvent<>(new GroupWrapper(
                                 restClient.read(model.getObject().getKey())), target));
             }
-        }, ActionType.EDIT, new StringBuilder().append(StandardEntitlement.GROUP_READ).append(",").
-                append(StandardEntitlement.GROUP_UPDATE).toString()).setRealm(realm);
+        }, ActionType.EDIT, StringUtils.join(
+                new String[] { StandardEntitlement.GROUP_READ, StandardEntitlement.GROUP_UPDATE }, ",")).
+                setRealm(realm);
 
         panel.add(new ActionLink<GroupTO>() {
 
@@ -262,8 +263,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             public boolean isIndicatorEnabled() {
                 return false;
             }
-        }, ActionType.MEMBERS, new StringBuilder().append(StandardEntitlement.GROUP_READ).append(",").
-                append(StandardEntitlement.GROUP_UPDATE).toString()).setRealm(realm);
+        }, ActionType.MEMBERS, StandardEntitlement.GROUP_UPDATE).setRealm(realm);
 
         panel.add(new ActionLink<GroupTO>() {
 

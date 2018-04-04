@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.status;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.commons.Constants;
@@ -51,8 +50,9 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
         super(baseModal, pageReference, resource, null, false);
 
         List<String> availableAnyTypes = resource.getProvisions().stream().
-                map(ProvisionTO::getAnyType).collect(Collectors.toList());
-        Collections.sort(availableAnyTypes, new AnyTypeRestClient.AnyTypeKeyComparator());
+                map(ProvisionTO::getAnyType).
+                sorted(AnyTypeRestClient.KEY_COMPARATOR).
+                collect(Collectors.toList());
 
         AjaxDropDownChoicePanel<String> anyTypes =
                 new AjaxDropDownChoicePanel<>("anyTypes", "anyTypes", typeModel, false);

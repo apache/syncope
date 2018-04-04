@@ -184,23 +184,23 @@ public abstract class Approval extends Panel {
             }
         };
 
-        final AjaxLink<String> userDetails = new AjaxLink<String>("userDetails") {
+        AjaxLink<String> userDetails = new AjaxLink<String>("userDetails") {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                viewDetails(formTO, target);
+                viewDetails(target);
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(userDetails, ENABLE, StandardEntitlement.USER_READ);
 
-        final boolean enabled = formTO.getUserTO() != null;
+        boolean enabled = formTO.getUserTO() != null;
         userDetails.setVisible(enabled).setEnabled(enabled);
 
         add(propView);
         add(userDetails);
     }
 
-    protected abstract void viewDetails(final WorkflowFormTO formTO, final AjaxRequestTarget target);
+    protected abstract void viewDetails(final AjaxRequestTarget target);
 }

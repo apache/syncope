@@ -30,8 +30,8 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTask;
@@ -47,9 +47,8 @@ public class JPARemediation extends AbstractGeneratedKeyEntity implements Remedi
 
     public static final String TABLE = "Remediation";
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private AnyTypeKind anyTypeKind;
+    @ManyToOne
+    private JPAAnyType anyType;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -74,13 +73,14 @@ public class JPARemediation extends AbstractGeneratedKeyEntity implements Remedi
     private String remoteName;
 
     @Override
-    public AnyTypeKind getAnyTypeKind() {
-        return anyTypeKind;
+    public AnyType getAnyType() {
+        return anyType;
     }
 
     @Override
-    public void setAnyTypeKind(final AnyTypeKind anyTypeKind) {
-        this.anyTypeKind = anyTypeKind;
+    public void setAnyType(final AnyType anyType) {
+        checkType(anyType, JPAAnyType.class);
+        this.anyType = (JPAAnyType) anyType;
     }
 
     @Override

@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 public class RemediationDataBinderImpl implements RemediationDataBinder {
 
     private static final String[] IGNORE_PROPERTIES = {
-        "payload", "anyTOPayload", "anyPatchPayload", "keyPayload", "pullTask" };
+        "anyType", "payload", "anyTOPayload", "anyPatchPayload", "keyPayload", "pullTask" };
 
     @Override
     public RemediationTO getRemediationTO(final Remediation remediation) {
@@ -39,12 +39,12 @@ public class RemediationDataBinderImpl implements RemediationDataBinder {
         switch (remediation.getOperation()) {
             case CREATE:
                 remediationTO.setAnyTOPayload(
-                        remediation.getPayloadAsTO(remediation.getAnyTypeKind().getTOClass()));
+                        remediation.getPayloadAsTO(remediation.getAnyType().getKind().getTOClass()));
                 break;
 
             case UPDATE:
                 remediationTO.setAnyPatchPayload(
-                        remediation.getPayloadAsPatch(remediation.getAnyTypeKind().getPatchClass()));
+                        remediation.getPayloadAsPatch(remediation.getAnyType().getKind().getPatchClass()));
                 break;
 
             case DELETE:
@@ -53,6 +53,8 @@ public class RemediationDataBinderImpl implements RemediationDataBinder {
 
             default:
         }
+
+        remediationTO.setAnyType(remediation.getAnyType().getKey());
 
         if (remediation.getPullTask() != null) {
             remediationTO.setPullTask(remediation.getPullTask().getKey());

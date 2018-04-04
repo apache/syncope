@@ -304,8 +304,8 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
     }
 
     private void sortProvisions() {
-        Collections.sort(provisions, (o1, o2)
-                -> new AnyTypeRestClient.AnyTypeKeyComparator().compare(o1.getAnyType(), o2.getAnyType()));
+        Collections.sort(provisions,
+                (o1, o2) -> AnyTypeRestClient.KEY_COMPARATOR.compare(o1.getAnyType(), o2.getAnyType()));
     }
 
     private LoadableDetachableModel<List<String>> getAnyTypes() {
@@ -322,7 +322,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     anyTypes.add(SyncopeConstants.REALM_ANYTYPE);
                 }
 
-                Collections.sort(anyTypes, new AnyTypeRestClient.AnyTypeKeyComparator());
+                Collections.sort(anyTypes, AnyTypeRestClient.KEY_COMPARATOR);
                 return anyTypes;
             }
         };

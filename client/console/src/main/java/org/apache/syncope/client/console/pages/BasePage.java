@@ -35,6 +35,7 @@ import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.widgets.ApprovalsWidget;
+import org.apache.syncope.client.console.widgets.RemediationsWidget;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -82,6 +83,8 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     protected ApprovalsWidget approvalsWidget;
 
+    protected RemediationsWidget remediationWidget;
+
     public BasePage() {
         this(null);
     }
@@ -101,6 +104,9 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
         // header, footer
         body.add(new Label("username", SyncopeConsoleSession.get().getSelfTO().getUsername()));
+
+        remediationWidget = new RemediationsWidget("remediationWidget", getPageReference());
+        body.add(remediationWidget.setRenderBodyOnly(true));
 
         approvalsWidget = new ApprovalsWidget("approvalsWidget", getPageReference());
         body.add(approvalsWidget.setRenderBodyOnly(true));
@@ -164,10 +170,9 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         liContainer = new WebMarkupContainer(getLIContainerId("topology"));
         body.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("topology", Topology.class);
-        StringBuilder bld = new StringBuilder();
-        bld.append(StandardEntitlement.CONNECTOR_LIST).append(",").
-                append(StandardEntitlement.RESOURCE_LIST).append(",");
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, bld.toString());
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER,
+                StringUtils.join(
+                        new String[] { StandardEntitlement.CONNECTOR_LIST, StandardEntitlement.CONNECTOR_LIST }, ","));
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("reports"));
@@ -216,10 +221,9 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         liContainer = new WebMarkupContainer(getLIContainerId("security"));
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("security", Security.class);
-        bld = new StringBuilder();
-        bld.append(StandardEntitlement.ROLE_LIST).append(",").
-                append(StandardEntitlement.APPLICATION_LIST);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, bld.toString());
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER,
+                StringUtils.join(
+                        new String[] { StandardEntitlement.ROLE_LIST, StandardEntitlement.APPLICATION_LIST }, ","));
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("policies"));
@@ -419,6 +423,10 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     public NotificationPanel getNotificationPanel() {
         return notificationPanel;
+    }
+
+    public RemediationsWidget getRemediationWidget() {
+        return remediationWidget;
     }
 
     public ApprovalsWidget getApprovalsWidget() {

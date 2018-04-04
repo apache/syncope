@@ -76,23 +76,22 @@ public class RemediationServiceImpl extends AbstractServiceImpl implements Remed
         RemediationTO remediation = logic.read(key);
 
         AnyDAO<?> anyDAO;
-        switch (remediation.getAnyTypeKind()) {
-            case USER:
-            default:
+        switch (remediation.getAnyType()) {
+            case "USER":
                 anyDAO = userDAO;
                 break;
 
-            case GROUP:
+            case "GROUP":
                 anyDAO = groupDAO;
                 break;
 
-            case ANY_OBJECT:
+            default:
                 anyDAO = anyObjectDAO;
         }
 
         Date etagDate = anyDAO.findLastChange(anyKey);
         if (etagDate == null) {
-            throw new NotFoundException(remediation.getAnyTypeKind().name() + " for " + key);
+            throw new NotFoundException(remediation.getAnyType() + " for " + key);
         }
         checkETag(String.valueOf(etagDate.getTime()));
     }

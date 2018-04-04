@@ -25,7 +25,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 
 @XmlRootElement(name = "remediation")
@@ -36,7 +35,7 @@ public class RemediationTO extends AbstractBaseBean implements EntityTO {
 
     private String key;
 
-    private AnyTypeKind anyTypeKind;
+    private String anyType;
 
     private ResourceOperation operation;
 
@@ -68,12 +67,12 @@ public class RemediationTO extends AbstractBaseBean implements EntityTO {
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    public AnyTypeKind getAnyTypeKind() {
-        return anyTypeKind;
+    public String getAnyType() {
+        return anyType;
     }
 
-    public void setAnyTypeKind(final AnyTypeKind anyTypeKind) {
-        this.anyTypeKind = anyTypeKind;
+    public void setAnyType(final String anyType) {
+        this.anyType = anyType;
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
