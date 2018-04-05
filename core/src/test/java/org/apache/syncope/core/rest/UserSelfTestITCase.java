@@ -39,6 +39,7 @@ import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
+import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.services.UserSelfService;
 import org.apache.syncope.common.services.UserService;
 import org.apache.syncope.common.to.MembershipTO;
@@ -272,6 +273,9 @@ public class UserSelfTestITCase extends AbstractTest {
         UserTO read = authClient.getService(UserSelfService.class).read();
         assertNotNull(read);
 
+        // SYNCOPE-1293:get users with token not null before requesting password reset
+        PagedResult<UserTO> before = userService.search("token!=$null");
+
         // 3. request password reset (as anonymous) providing the expected security answer
         SyncopeClient anonClient = clientFactory.createAnonymous();
         try {
@@ -281,6 +285,10 @@ public class UserSelfTestITCase extends AbstractTest {
             assertEquals(ClientExceptionType.InvalidSecurityAnswer, e.getType());
         }
         anonClient.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "Rossi");
+
+        // SYNCOPE-1293:get users with token not null before requesting password reset
+        PagedResult<UserTO> after = userService.search("token!=$null");
+        assertEquals(before.getTotalCount() + 1, after.getTotalCount());
 
         // 4. get token (normally sent via e-mail, now reading as admin)
         String token = userService.read(read.getId()).getToken();

@@ -177,6 +177,20 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                 throw new IllegalArgumentException(String.format("Condition type %s is not supported", ct.name()));
         }
 
+        // SYNCOPE-1293: explicitly re-process to allow 'token==$null' or 'token!=$null'
+        if (leaf.getAttributeCond() != null
+                && "token".equals(leaf.getAttributeCond().getSchema())
+                && (leaf.getAttributeCond().getType() == AttributeCond.Type.ISNULL
+                || leaf.getAttributeCond().getType() == AttributeCond.Type.ISNOTNULL)
+                && leaf.getAttributeCond().getExpression() == null) {
+
+            SubjectCond tokenCond = new SubjectCond();
+            tokenCond.setSchema(leaf.getAttributeCond().getSchema());
+            tokenCond.setType(leaf.getAttributeCond().getType());
+            tokenCond.setExpression(null);
+            leaf = SearchCond.getLeafCond(tokenCond);
+        }
+
         return leaf;
     }
 
