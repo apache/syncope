@@ -117,10 +117,10 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
         }
 
         columns.add(new DatePropertyColumn<T>(
-                new StringResourceModel("lastExec", this), "lastExec", "lastExec"));
+                new StringResourceModel("lastExec", this), null, "lastExec"));
 
         columns.add(new DatePropertyColumn<T>(
-                new StringResourceModel("nextExec", this), "nextExec", "nextExec"));
+                new StringResourceModel("nextExec", this), null, "nextExec"));
 
         columns.add(new PropertyColumn<T, String>(
                 new StringResourceModel("latestExecStatus", this), "latestExecStatus", "latestExecStatus"));

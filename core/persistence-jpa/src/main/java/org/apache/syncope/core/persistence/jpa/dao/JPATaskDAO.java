@@ -18,11 +18,17 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Query;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -37,6 +43,7 @@ import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPASchedTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.AbstractTask;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskExec;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
@@ -75,6 +82,36 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         return result;
     }
 
+    private String getEntityTableName(final TaskType type) {
+        String result = null;
+
+        switch (type) {
+            case NOTIFICATION:
+                result = JPANotificationTask.class.getAnnotation(DiscriminatorValue.class).value();
+                break;
+
+            case PROPAGATION:
+                result = JPAPropagationTask.class.getAnnotation(DiscriminatorValue.class).value();
+                break;
+
+            case PUSH:
+                result = JPAPushTask.class.getAnnotation(DiscriminatorValue.class).value();
+                break;
+
+            case SCHEDULED:
+                result = JPASchedTask.class.getAnnotation(DiscriminatorValue.class).value();
+                break;
+
+            case PULL:
+                result = JPAPullTask.class.getAnnotation(DiscriminatorValue.class).value();
+                break;
+
+            default:
+        }
+
+        return result;
+    }
+
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     @Override
@@ -82,7 +119,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         return (T) entityManager().find(AbstractTask.class, key);
     }
 
-    private <T extends Task> StringBuilder buildFindAllQuery(final TaskType type) {
+    private <T extends Task> StringBuilder buildFindAllQueryJPA(final TaskType type) {
         StringBuilder builder = new StringBuilder("SELECT t FROM ").
                 append(getEntityReference(type).getSimpleName()).
                 append(" t WHERE ");
@@ -102,7 +139,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Task> List<T> findToExec(final TaskType type) {
-        StringBuilder queryString = buildFindAllQuery(type).append("AND ");
+        StringBuilder queryString = buildFindAllQueryJPA(type).append("AND ");
 
         if (type == TaskType.NOTIFICATION) {
             queryString.append("t.executed = 0 ");
@@ -126,7 +163,9 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
             final ExternalResource resource,
             final Notification notification,
             final AnyTypeKind anyTypeKind,
-            final String entityKey) {
+            final String entityKey,
+            final boolean orderByTaskExecInfo,
+            final List<Object> queryParameters) {
 
         if (resource != null
                 && type != TaskType.PROPAGATION && type != TaskType.PUSH && type != TaskType.PULL) {
@@ -144,38 +183,135 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
             throw new IllegalArgumentException(type + " is not related to notifications");
         }
 
-        StringBuilder queryString = buildFindAllQuery(type);
+        StringBuilder queryString = new StringBuilder("SELECT ").
+                append(AbstractTask.TABLE).
+                append(".id FROM ").
+                append(AbstractTask.TABLE);
+        if (orderByTaskExecInfo) {
+            queryString.append(" LEFT OUTER JOIN ").
+                    append(JPATaskExec.TABLE).
+                    append(" ON ").
+                    append(AbstractTask.TABLE).
+                    append(".id = ").
+                    append(JPATaskExec.TABLE).
+                    append(".task_id");
+        }
+        queryString.append(" WHERE ").
+                append(AbstractTask.TABLE).
+                append(".DTYPE = ?1");
+        queryParameters.add(getEntityTableName(type));
+        if (type == TaskType.SCHEDULED) {
+            queryString.append(" AND ").
+                    append(AbstractTask.TABLE).
+                    append(".id NOT IN (SELECT ").append(AbstractTask.TABLE).append(".id FROM ").
+                    append(AbstractTask.TABLE).append(" WHERE ").
+                    append(AbstractTask.TABLE).append(".DTYPE = ?2)").
+                    append(" AND ").
+                    append(AbstractTask.TABLE).
+                    append(".id NOT IN (SELECT id FROM ").
+                    append(AbstractTask.TABLE).append(" WHERE ").
+                    append(AbstractTask.TABLE).append(".DTYPE = ?3)");
+
+            queryParameters.add(JPAPushTask.class.getAnnotation(DiscriminatorValue.class).value());
+            queryParameters.add(JPAPullTask.class.getAnnotation(DiscriminatorValue.class).value());
+        }
+        queryString.append(' ');
 
         if (resource != null) {
-            queryString.append("AND t.resource=:resource ");
+            queryParameters.add(resource.getKey());
+
+            queryString.append("AND ").
+                    append(AbstractTask.TABLE).
+                    append(".resource_id=?").append(queryParameters.size());
         }
         if (notification != null) {
-            queryString.append("AND t.notification=:notification ");
+            queryParameters.add(notification.getKey());
+
+            queryString.append("AND ").
+                    append(AbstractTask.TABLE).
+                    append(".notification_id=?").append(queryParameters.size());
         }
         if (anyTypeKind != null && entityKey != null) {
-            queryString.append("AND t.anyTypeKind=:anyTypeKind AND t.entityKey=:entityKey ");
+            queryParameters.add(anyTypeKind.name());
+            queryParameters.add(entityKey);
+
+            queryString.append("AND ").
+                    append(AbstractTask.TABLE).
+                    append(".anyTypeKind=?").append(queryParameters.size() - 1).
+                    append(" AND ").
+                    append(AbstractTask.TABLE).
+                    append(".entityKey=?").append(queryParameters.size());
         }
 
         return queryString;
     }
 
     private String toOrderByStatement(
-            final Class<? extends Task> beanClass, final List<OrderByClause> orderByClauses) {
+            final Class<? extends Task> beanClass,
+            final List<OrderByClause> orderByClauses,
+            final boolean orderByTaskExecInfo) {
 
         StringBuilder statement = new StringBuilder();
 
+        if (orderByTaskExecInfo) {
+            statement.append(" AND (").
+                    append(JPATaskExec.TABLE).
+                    append(".startDate IS NULL OR ").
+                    append(JPATaskExec.TABLE).
+                    append(".startDate = (SELECT MAX(").
+                    append(JPATaskExec.TABLE).
+                    append(".startDate) FROM ").
+                    append(JPATaskExec.TABLE).
+                    append(" WHERE ").
+                    append(AbstractTask.TABLE).
+                    append(".id = ").
+                    append(JPATaskExec.TABLE).
+                    append(".task_id))");
+        }
+        statement.append(" ORDER BY ");
+
+        StringBuilder subStatement = new StringBuilder();
         for (OrderByClause clause : orderByClauses) {
             String field = clause.getField().trim();
-            if (ReflectionUtils.findField(beanClass, field) != null) {
-                statement.append("t.").append(field).append(' ').append(clause.getDirection().name());
+            String table = JPATaskExec.TABLE;
+            switch (field) {
+                case "latestExecStatus":
+                    field = "status";
+                    break;
+
+                case "start":
+                    field = "startDate";
+                    break;
+
+                case "end":
+                    field = "endDate";
+                    break;
+
+                default:
+                    Field beanField = ReflectionUtils.findField(beanClass, field);
+                    if (beanField != null
+                            && (beanField.getAnnotation(ManyToOne.class) != null
+                            || beanField.getAnnotation(OneToMany.class) != null)) {
+                        field += "_id";
+                    }
+                    table = AbstractTask.TABLE;
             }
+            subStatement.append(table).
+                    append(".").
+                    append(field).
+                    append(' ').
+                    append(clause.getDirection().name()).
+                    append(',');
         }
 
-        if (statement.length() == 0) {
-            statement.append("ORDER BY t.id DESC");
+        if (subStatement.length() == 0) {
+            statement.append(AbstractTask.TABLE).
+                    append(".id DESC");
         } else {
-            statement.insert(0, "ORDER BY ");
+            subStatement.deleteCharAt(subStatement.length() - 1);
+            statement.append(subStatement);
         }
+
         return statement.toString();
     }
 
@@ -191,19 +327,31 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
             final int itemsPerPage,
             final List<OrderByClause> orderByClauses) {
 
-        StringBuilder queryString = buildFindAllQuery(type, resource, notification, anyTypeKind, entityKey).
-                append(toOrderByStatement(getEntityReference(type), orderByClauses));
+        List<Object> queryParameters = new ArrayList<>();
 
-        Query query = entityManager().createQuery(queryString.toString());
-        if (resource != null) {
-            query.setParameter("resource", resource);
-        }
-        if (notification != null) {
-            query.setParameter("notification", notification);
-        }
-        if (anyTypeKind != null && entityKey != null) {
-            query.setParameter("anyTypeKind", anyTypeKind);
-            query.setParameter("entityKey", entityKey);
+        boolean orderByTaskExecInfo = IterableUtils.matchesAny(orderByClauses, new Predicate<OrderByClause>() {
+
+            @Override
+            public boolean evaluate(final OrderByClause object) {
+                return object.getField().equals("start")
+                        || object.getField().equals("end")
+                        || object.getField().equals("latestExecStatus")
+                        || object.getField().equals("status");
+            }
+        });
+        StringBuilder queryString = buildFindAllQuery(type,
+                resource,
+                notification,
+                anyTypeKind,
+                entityKey,
+                orderByTaskExecInfo,
+                queryParameters).
+                append(toOrderByStatement(getEntityReference(type), orderByClauses, orderByTaskExecInfo));
+
+        Query query = entityManager().createNativeQuery(queryString.toString());
+
+        for (int i = 1; i <= queryParameters.size(); i++) {
+            query.setParameter(i, queryParameters.get(i - 1));
         }
 
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
@@ -212,7 +360,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
             query.setMaxResults(itemsPerPage);
         }
 
-        return query.getResultList();
+        return buildResult(query.getResultList());
     }
 
     @Override
@@ -223,19 +371,18 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
             final AnyTypeKind anyTypeKind,
             final String entityKey) {
 
-        StringBuilder queryString = buildFindAllQuery(type, resource, notification, anyTypeKind, entityKey);
+        List<Object> queryParameters = new ArrayList<>();
 
-        Query query = entityManager().createQuery(StringUtils.replaceOnce(
-                queryString.toString(), "SELECT t", "SELECT COUNT(t)"));
-        if (resource != null) {
-            query.setParameter("resource", resource);
-        }
-        if (notification != null) {
-            query.setParameter("notification", notification);
-        }
-        if (anyTypeKind != null && entityKey != null) {
-            query.setParameter("anyTypeKind", anyTypeKind);
-            query.setParameter("entityKey", entityKey);
+        StringBuilder queryString =
+                buildFindAllQuery(type, resource, notification, anyTypeKind, entityKey, false, queryParameters);
+
+        Query query = entityManager().createNativeQuery(StringUtils.replaceOnce(
+                queryString.toString(),
+                "SELECT " + AbstractTask.TABLE + ".id",
+                "SELECT COUNT(" + AbstractTask.TABLE + ".id)"));
+
+        for (int i = 1; i <= queryParameters.size(); i++) {
+            query.setParameter(i, queryParameters.get(i - 1));
         }
 
         return ((Number) query.getSingleResult()).intValue();
@@ -273,5 +420,25 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
                 delete(input.getKey());
             }
         });
+    }
+
+    private <T extends Task> List<T> buildResult(final List<Object> raw) {
+        List<T> result = new ArrayList<>();
+
+        for (Object anyKey : raw) {
+            String actualKey = anyKey instanceof Object[]
+                    ? (String) ((Object[]) anyKey)[0]
+                    : ((String) anyKey);
+
+            @SuppressWarnings("unchecked")
+            T any = find(actualKey);
+            if (any == null) {
+                LOG.error("Could not find task with id {}, even if returned by native query", actualKey);
+            } else if (!result.contains(any)) {
+                result.add(any);
+            }
+        }
+
+        return result;
     }
 }
