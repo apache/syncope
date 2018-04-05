@@ -385,7 +385,7 @@ under the License.
 
     <groovy.version>3.0.0-alpha-1</groovy.version>
 
-    <flowable.version>6.2.1</flowable.version>
+    <flowable.version>6.3.0</flowable.version>
 
     <camel.version>2.21.0</camel.version>	
 

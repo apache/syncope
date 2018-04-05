@@ -240,6 +240,7 @@ under the License.
           <include>save-model.html</include>
           <include>app-cfg.js</include>
           <include>url-config.js</include>
+          <include>toolbar.js</include>
         </includes>
       </resource>
       <resource>
