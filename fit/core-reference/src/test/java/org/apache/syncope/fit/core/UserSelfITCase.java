@@ -44,12 +44,14 @@ import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -279,6 +281,9 @@ public class UserSelfITCase extends AbstractITCase {
         UserTO read = authClient.self().getValue();
         assertNotNull(read);
 
+        // SYNCOPE-1293:get users with token not null before requesting password reset
+        PagedResult<UserTO> before = userService.search(new AnyQuery.Builder().fiql("token!=$null").build());
+
         // 3. request password reset (as anonymous) providing the expected security answer
         SyncopeClient anonClient = clientFactory.create();
         try {
@@ -288,6 +293,10 @@ public class UserSelfITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.InvalidSecurityAnswer, e.getType());
         }
         anonClient.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "Rossi");
+
+        // SYNCOPE-1293:get users with token not null before requesting password reset
+        PagedResult<UserTO> after = userService.search(new AnyQuery.Builder().fiql("token!=$null").build());
+        assertEquals(before.getTotalCount() + 1, after.getTotalCount());
 
         // 4. get token (normally sent via e-mail, now reading as admin)
         String token = userService.read(read.getKey()).getToken();
