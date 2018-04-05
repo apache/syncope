@@ -24,9 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -88,6 +90,21 @@ public class TaskTest extends AbstractTest {
         assertNotNull(task.getExecs());
         assertFalse(task.getExecs().isEmpty());
         assertEquals(1, task.getExecs().size());
+    }
+
+    @Test
+    public void readMultipleOrderBy() {
+        List<OrderByClause> orderByClauses = new ArrayList<>();
+        OrderByClause clause1 = new OrderByClause();
+        clause1.setField("start");
+        OrderByClause clause2 = new OrderByClause();
+        clause2.setField("latestExecStatus");
+        OrderByClause clause3 = new OrderByClause();
+        clause3.setField("connObjectKey");
+        orderByClauses.add(clause1);
+        orderByClauses.add(clause2);
+        orderByClauses.add(clause3);
+        assertFalse(taskDAO.findAll(TaskType.PROPAGATION, null, null, null, null, -1, -1, orderByClauses).isEmpty());
     }
 
     @Test

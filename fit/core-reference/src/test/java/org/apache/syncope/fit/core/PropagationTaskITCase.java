@@ -24,9 +24,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.syncope.common.lib.patch.AttrPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -42,6 +46,7 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MappingPurpose;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
@@ -225,4 +230,76 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
                 page(1).size(2).build());
         assertTrue(execs.getTotalCount() >= execs.getResult().size());
     }
+
+    @Test
+    public void issueSYNCOPE1288() {
+        // create a new user
+        UserTO userTO = UserITCase.getUniqueSampleTO("xxxyyy@xxx.xxx");
+        userTO.getResources().add(RESOURCE_NAME_LDAP);
+
+        userTO = createUser(userTO).getEntity();
+        assertNotNull(userTO);
+
+        // generate some PropagationTasks
+        for (int i = 0; i < 9; i++) {
+            UserPatch userPatch = new UserPatch();
+            userPatch.setKey(userTO.getKey());
+            userPatch.getPlainAttrs().add(new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).
+                    attrTO(new AttrTO.Builder().schema("userId").value(
+                            "test" + getUUIDString() + i + "@test.com").build()).
+                    build());
+
+            userService.update(userPatch);
+        }
+
+        // ASC order
+        PagedResult<TaskTO> unorderedTasks = taskService.search(
+                new TaskQuery.Builder(TaskType.PROPAGATION).
+                        resource(RESOURCE_NAME_LDAP).
+                        entityKey(userTO.getKey()).
+                        anyTypeKind(AnyTypeKind.USER).
+                        page(1).
+                        size(10).
+                        build());
+        Collections.sort(unorderedTasks.getResult(), new Comparator<TaskTO>() {
+
+            @Override
+            public int compare(final TaskTO o1, final TaskTO o2) {
+                return o1.getStart().compareTo(o2.getStart());
+            }
+        });
+        assertNotNull(unorderedTasks);
+        assertFalse(unorderedTasks.getResult().isEmpty());
+        assertEquals(10, unorderedTasks.getResult().size());
+
+        PagedResult<TaskTO> orderedTasks = taskService.search(
+                new TaskQuery.Builder(TaskType.PROPAGATION).
+                        resource(RESOURCE_NAME_LDAP).
+                        entityKey(userTO.getKey()).
+                        anyTypeKind(AnyTypeKind.USER).
+                        page(1).
+                        size(10).
+                        orderBy("start").
+                        build());
+        assertNotNull(orderedTasks);
+        assertFalse(orderedTasks.getResult().isEmpty());
+        assertEquals(10, orderedTasks.getResult().size());
+
+        assertTrue(orderedTasks.getResult().equals(unorderedTasks.getResult()));
+
+        // DESC order
+        Collections.reverse(unorderedTasks.getResult());
+        orderedTasks = taskService.search(
+                new TaskQuery.Builder(TaskType.PROPAGATION).
+                        resource(RESOURCE_NAME_LDAP).
+                        entityKey(userTO.getKey()).
+                        anyTypeKind(AnyTypeKind.USER).
+                        page(1).
+                        size(10).
+                        orderBy("start DESC").
+                        build());
+
+        assertTrue(orderedTasks.getResult().equals(unorderedTasks.getResult()));
+    }
+
 }
