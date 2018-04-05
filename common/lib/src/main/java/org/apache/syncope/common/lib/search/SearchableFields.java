@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 public final class SearchableFields {
 
@@ -42,17 +41,13 @@ public final class SearchableFields {
     private static final Set<String> ANY_FIELDS = new HashSet<>();
 
     static {
-        ANY_FIELDS.addAll(SearchableFields.get(UserTO.class));
-        ANY_FIELDS.addAll(SearchableFields.get(GroupTO.class));
-        ANY_FIELDS.addAll(SearchableFields.get(AnyObjectTO.class));
+        ANY_FIELDS.addAll(get(UserTO.class));
+        ANY_FIELDS.addAll(get(GroupTO.class));
+        ANY_FIELDS.addAll(get(AnyObjectTO.class));
     }
 
     public static boolean contains(final String schema) {
         return ANY_FIELDS.contains(schema);
-    }
-
-    public static List<String> get(final AnyTypeKind anyTypeKind) {
-        return get(anyTypeKind.getTOClass());
     }
 
     public static List<String> get(final Class<? extends AnyTO> anyRef) {

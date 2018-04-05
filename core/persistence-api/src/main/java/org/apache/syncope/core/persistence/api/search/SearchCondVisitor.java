@@ -194,7 +194,9 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                             && leaf.getAttributeCond().getType() == AttributeCond.Type.ISNULL) {
 
                         leaf.getAttributeCond().setType(AttributeCond.Type.ISNOTNULL);
-                    } else if (leaf.getAnyCond() != null && leaf.getAnyCond().getType() == AnyCond.Type.ISNULL) {
+                    } else if (leaf.getAnyCond() != null
+                            && leaf.getAnyCond().getType() == AttributeCond.Type.ISNULL) {
+
                         leaf.getAnyCond().setType(AttributeCond.Type.ISNOTNULL);
                     } else {
                         leaf = SearchCond.getNotLeafCond(leaf);
@@ -224,6 +226,20 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
             default:
                 throw new IllegalArgumentException(String.format("Condition type %s is not supported", ct.name()));
+        }
+
+        // SYNCOPE-1293: explicitly re-process to allow 'token==$null' or 'token!=$null'
+        if (leaf.getAttributeCond() != null
+                && "token".equals(leaf.getAttributeCond().getSchema())
+                && (leaf.getAttributeCond().getType() == AttributeCond.Type.ISNULL
+                || leaf.getAttributeCond().getType() == AttributeCond.Type.ISNOTNULL)
+                && leaf.getAttributeCond().getExpression() == null) {
+
+            AnyCond tokenCond = new AnyCond();
+            tokenCond.setSchema(leaf.getAttributeCond().getSchema());
+            tokenCond.setType(leaf.getAttributeCond().getType());
+            tokenCond.setExpression(null);
+            leaf = SearchCond.getLeafCond(tokenCond);
         }
 
         return leaf;

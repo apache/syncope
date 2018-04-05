@@ -175,7 +175,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
             @Override
             protected List<String> load() {
-                return SearchableFields.get(typeKind);
+                return SearchableFields.get(typeKind.getTOClass());
             }
         };
 
