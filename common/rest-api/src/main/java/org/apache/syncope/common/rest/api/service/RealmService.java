@@ -121,7 +121,9 @@ public interface RealmService extends JAXRSService {
         @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
                 value = "If 'true', instructs the propagation process not to wait for completion when communicating"
                 + " with External Resources with no priority set",
-                defaultValue = "false", allowEmptyValue = true) })
+                defaultValue = "false", allowEmptyValue = true),
+        @ApiImplicitParam(name = "fullPath", paramType = "path", dataType = "string",
+                value = "Realm's fullPath") })
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "Realm successfully updated enriched with propagation status information, as Entity",

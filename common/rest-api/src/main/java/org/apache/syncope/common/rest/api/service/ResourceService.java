@@ -19,6 +19,8 @@
 package org.apache.syncope.common.rest.api.service;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
@@ -131,6 +133,9 @@ public interface ResourceService extends JAXRSService {
      *
      * @param resourceTO resource to be stored
      */
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "key", paramType = "path", dataType = "string",
+                value = "Resource's key") })
     @ApiResponses(
             @ApiResponse(code = 204, message = "Operation was successful"))
     @PUT
@@ -202,6 +207,14 @@ public interface ResourceService extends JAXRSService {
      * @param patch any objects to be used for propagation-related operations
      * @return Bulk action result
      */
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "key", paramType = "path", dataType = "string",
+                value = "Resource's key"),
+        @ApiImplicitParam(name = "anyTypeKey", paramType = "path", dataType = "string",
+                value = "Entity's key"),
+        @ApiImplicitParam(name = "action", paramType = "path", dataType = "string",
+                allowableValues = "UNLINK,DEPROVISION,UNASSIGN",
+                value = "Deassociation action") })
     @POST
     @Path("{key}/bulkDeassociation/{anyTypeKey}/{action}")
     @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })

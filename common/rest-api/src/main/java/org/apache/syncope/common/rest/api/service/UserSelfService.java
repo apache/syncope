@@ -114,11 +114,13 @@ public interface UserSelfService extends JAXRSService {
     @ApiOperation(value = "", authorizations = {
         @Authorization(value = "BasicAuthentication"),
         @Authorization(value = "Bearer") })
-    @ApiImplicitParams(
-            @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
-                    value = "Allows the client to specify a preference for the result to be returned from the server",
-                    defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                    allowEmptyValue = true))
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
+                value = "Allows the client to specify a preference for the result to be returned from the server",
+                defaultValue = "return-content", allowableValues = "return-content, return-no-content",
+                allowEmptyValue = true),
+        @ApiImplicitParam(name = "key", paramType = "path", dataType = "string",
+                value = "User's key") })
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "User successfully updated enriched with propagation status information, as Entity",
@@ -143,11 +145,13 @@ public interface UserSelfService extends JAXRSService {
     @ApiOperation(value = "", authorizations = {
         @Authorization(value = "BasicAuthentication"),
         @Authorization(value = "Bearer") })
-    @ApiImplicitParams(
-            @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
-                    value = "Allows the client to specify a preference for the result to be returned from the server",
-                    defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                    allowEmptyValue = true))
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
+                value = "Allows the client to specify a preference for the result to be returned from the server",
+                defaultValue = "return-content", allowableValues = "return-content, return-no-content",
+                allowEmptyValue = true),
+        @ApiImplicitParam(name = "key", paramType = "path", dataType = "string",
+                value = "User's key") })
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "User successfully updated enriched with propagation status information, as Entity",
@@ -172,11 +176,13 @@ public interface UserSelfService extends JAXRSService {
     @ApiOperation(value = "", authorizations = {
         @Authorization(value = "BasicAuthentication"),
         @Authorization(value = "Bearer") })
-    @ApiImplicitParams(
-            @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
-                    value = "Allows the client to specify a preference for the result to be returned from the server",
-                    defaultValue = "return-content", allowableValues = "return-content, return-no-content",
-                    allowEmptyValue = true))
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = RESTHeaders.PREFER, paramType = "header", dataType = "string",
+                value = "Allows the client to specify a preference for the result to be returned from the server",
+                defaultValue = "return-content", allowableValues = "return-content, return-no-content",
+                allowEmptyValue = true),
+        @ApiImplicitParam(name = "key", paramType = "path", dataType = "string",
+                value = "User's key") })
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "User successfully updated enriched with propagation status information, as Entity",

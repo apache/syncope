@@ -115,6 +115,9 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      * @param attrTO attribute
      * @return Response object featuring the updated any object attribute - as Entity
      */
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "schema", paramType = "path", dataType = "string",
+                value = "Attribute schema's key") })
     @PUT
     @Path("{key}/{schemaType}/{schema}")
     @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -179,7 +182,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
     Response delete(@NotNull @PathParam("key") String key);
 
     /**
-     * Executes resource-related operations on given any object.
+     * Executes resource-related operations on given entity.
      *
      * @param patch external resources to be used for propagation-related operations
      * @return Response object featuring BulkActionResult as Entity
@@ -196,7 +199,12 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
         @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
                 value = "If 'true', instructs the propagation process not to wait for completion when communicating"
                 + " with External Resources with no priority set",
-                defaultValue = "false", allowEmptyValue = true) })
+                defaultValue = "false", allowEmptyValue = true),
+        @ApiImplicitParam(name = "key", paramType = "path", dataType = "string",
+                value = "Entity's key"),
+        @ApiImplicitParam(name = "action", paramType = "path", dataType = "string",
+                allowableValues = "UNLINK,DEPROVISION,UNASSIGN",
+                value = "Deassociation action") })
     @ApiResponses({
         @ApiResponse(code = 200, message = "Bulk action result", response = BulkActionResult.class),
         @ApiResponse(code = 204,
@@ -214,7 +222,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
     Response deassociate(@NotNull DeassociationPatch patch);
 
     /**
-     * Executes resource-related operations on given any object.
+     * Executes resource-related operations on given entity.
      *
      * @param patch external resources to be used for propagation-related operations
      * @return Response object featuring BulkActionResult as Entity
@@ -231,7 +239,12 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
         @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
                 value = "If 'true', instructs the propagation process not to wait for completion when communicating"
                 + " with External Resources with no priority set",
-                defaultValue = "false", allowEmptyValue = true) })
+                defaultValue = "false", allowEmptyValue = true),
+        @ApiImplicitParam(name = "key", paramType = "path", dataType = "string",
+                value = "Entity's key"),
+        @ApiImplicitParam(name = "action", paramType = "path", dataType = "string",
+                allowableValues = "LINK,PROVISION,ASSIGN",
+                value = "Association action") })
     @ApiResponses({
         @ApiResponse(code = 200, message = "Bulk action result", response = BulkActionResult.class),
         @ApiResponse(code = 204,

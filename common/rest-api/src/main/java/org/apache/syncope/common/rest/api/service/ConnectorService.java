@@ -19,6 +19,8 @@
 package org.apache.syncope.common.rest.api.service;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
@@ -74,6 +76,9 @@ public interface ConnectorService extends JAXRSService {
      * @return supported object classes info for the connector bundle matching the given connector instance key, with
      * the provided configuration
      */
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "key", paramType = "path", dataType = "string",
+                value = "Connector instance' key") })
     @POST
     @Path("{key}/supportedObjectClasses")
     @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -143,6 +148,9 @@ public interface ConnectorService extends JAXRSService {
      *
      * @param connInstanceTO connector instance to be stored
      */
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "key", paramType = "path", dataType = "string",
+                value = "Connector instance' key") })
     @ApiResponses(
             @ApiResponse(code = 204, message = "Operation was successful"))
     @PUT

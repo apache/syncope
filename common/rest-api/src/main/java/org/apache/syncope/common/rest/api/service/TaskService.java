@@ -19,6 +19,8 @@
 package org.apache.syncope.common.rest.api.service;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
@@ -112,6 +114,9 @@ public interface TaskService extends ExecutableService {
      * @param type task type
      * @param taskTO updated task to be stored
      */
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "key", paramType = "path", dataType = "string",
+                value = "Task's key") })
     @ApiResponses(
             @ApiResponse(code = 204, message = "Operation was successful"))
     @PUT

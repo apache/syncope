@@ -19,6 +19,8 @@
 package org.apache.syncope.common.rest.api.service;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
@@ -79,6 +81,9 @@ public interface ConfigurationService extends JAXRSService {
      *
      * @param value parameter value
      */
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "schema", paramType = "path", dataType = "string",
+                value = "Configuration schema") })
     @ApiResponses(
             @ApiResponse(code = 204, message = "Operation was successful"))
     @PUT

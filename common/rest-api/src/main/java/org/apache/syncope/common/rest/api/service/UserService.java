@@ -123,7 +123,9 @@ public interface UserService extends AnyService<UserTO> {
         @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
                 value = "If 'true', instructs the propagation process not to wait for completion when communicating"
                 + " with External Resources with no priority set",
-                defaultValue = "false", allowEmptyValue = true) })
+                defaultValue = "false", allowEmptyValue = true),
+        @ApiImplicitParam(name = "key", paramType = "path", dataType = "string",
+                value = "User's key") })
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "User successfully updated enriched with propagation status information, as Entity",
@@ -160,7 +162,9 @@ public interface UserService extends AnyService<UserTO> {
         @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
                 value = "If 'true', instructs the propagation process not to wait for completion when communicating"
                 + " with External Resources with no priority set",
-                defaultValue = "false", allowEmptyValue = true) })
+                defaultValue = "false", allowEmptyValue = true),
+        @ApiImplicitParam(name = "key", paramType = "path", dataType = "string",
+                value = "User's key") })
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "User successfully updated enriched with propagation status information, as Entity",
@@ -197,7 +201,9 @@ public interface UserService extends AnyService<UserTO> {
         @ApiImplicitParam(name = RESTHeaders.NULL_PRIORITY_ASYNC, paramType = "header", dataType = "boolean",
                 value = "If 'true', instructs the propagation process not to wait for completion when communicating"
                 + " with External Resources with no priority set",
-                defaultValue = "false", allowEmptyValue = true) })
+                defaultValue = "false", allowEmptyValue = true),
+        @ApiImplicitParam(name = "key", paramType = "path", dataType = "string",
+                value = "User's key") })
     @ApiResponses({
         @ApiResponse(code = 200,
                 message = "User successfully updated enriched with propagation status information, as Entity",
