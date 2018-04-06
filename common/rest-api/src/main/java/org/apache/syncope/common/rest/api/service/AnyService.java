@@ -48,6 +48,8 @@ import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.types.ResourceAssociationAction;
+import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
@@ -117,6 +119,8 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      * @param attrTO attribute
      * @return Response object featuring the updated any object attribute - as Entity
      */
+    @Parameter(name = "schema", description = "Attribute schema's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @PUT
     @Path("{key}/{schemaType}/{schema}")
     @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -184,7 +188,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
     Response delete(@NotNull @PathParam("key") String key);
 
     /**
-     * Executes resource-related operations on given any object.
+     * Executes resource-related operations on given entity.
      *
      * @param patch external resources to be used for propagation-related operations
      * @return Response object featuring BulkActionResult as Entity
@@ -203,6 +207,10 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
             + " with External Resources with no priority set",
             allowEmptyValue = true, schema =
             @Schema(type = "boolean", defaultValue = "false"))
+    @Parameter(name = "key", description = "Entity's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
+    @Parameter(name = "action", description = "Deassociation action", in = ParameterIn.PATH, schema =
+            @Schema(implementation = ResourceDeassociationAction.class))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "Bulk action result", content =
@@ -224,7 +232,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
     Response deassociate(@NotNull DeassociationPatch patch);
 
     /**
-     * Executes resource-related operations on given any object.
+     * Executes resource-related operations on given entity.
      *
      * @param patch external resources to be used for propagation-related operations
      * @return Response object featuring BulkActionResult as Entity
@@ -243,6 +251,10 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
             + " with External Resources with no priority set",
             allowEmptyValue = true, schema =
             @Schema(type = "boolean", defaultValue = "false"))
+    @Parameter(name = "key", description = "Entity's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
+    @Parameter(name = "action", description = "Association action", in = ParameterIn.PATH, schema =
+            @Schema(implementation = ResourceAssociationAction.class))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "Bulk action result", content =

@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -96,6 +99,8 @@ public interface SAML2IdPService extends JAXRSService {
      *
      * @param saml2IdpTO idp configuration to be stored
      */
+    @Parameter(name = "key", description = "IdP's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT

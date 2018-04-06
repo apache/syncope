@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -98,6 +100,8 @@ public interface RoleService extends JAXRSService {
      *
      * @param roleTO role to be stored
      */
+    @Parameter(name = "key", description = "Role's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT

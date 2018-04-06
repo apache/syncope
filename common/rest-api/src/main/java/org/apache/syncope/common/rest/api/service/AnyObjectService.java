@@ -129,6 +129,8 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
             + " with External Resources with no priority set",
             allowEmptyValue = true, schema =
             @Schema(type = "boolean", defaultValue = "false"))
+    @Parameter(name = "key", description = "Any Object's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "Any object successfully updated enriched with propagation status information, as Entity",
@@ -170,6 +172,8 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
             + " with External Resources with no priority set",
             allowEmptyValue = true, schema =
             @Schema(type = "boolean", defaultValue = "false"))
+    @Parameter(name = "key", description = "Any Object's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "Any object successfully updated enriched with propagation status information, as Entity",

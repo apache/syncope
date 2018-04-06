@@ -67,8 +67,8 @@ public class RemediationServiceImpl extends AbstractServiceImpl implements Remed
     }
 
     @Override
-    public Response remedy(final String key, final AnyTO anyTO) {
-        ProvisioningResult<?> created = logic.remedy(key, anyTO, isNullPriorityAsync());
+    public Response remedy(final String remediationKey, final AnyTO anyTO) {
+        ProvisioningResult<?> created = logic.remedy(remediationKey, anyTO, isNullPriorityAsync());
         return createResponse(created);
     }
 
@@ -97,18 +97,18 @@ public class RemediationServiceImpl extends AbstractServiceImpl implements Remed
     }
 
     @Override
-    public Response remedy(final String key, final AnyPatch anyPatch) {
-        check(key, anyPatch.getKey());
+    public Response remedy(final String remediationKey, final AnyPatch anyPatch) {
+        check(remediationKey, anyPatch.getKey());
 
-        ProvisioningResult<?> updated = logic.remedy(key, anyPatch, isNullPriorityAsync());
+        ProvisioningResult<?> updated = logic.remedy(remediationKey, anyPatch, isNullPriorityAsync());
         return modificationResponse(updated);
     }
 
     @Override
-    public Response remedy(final String key, final String anyKey) {
-        check(key, anyKey);
+    public Response remedy(final String remediationKey, final String anyKey) {
+        check(remediationKey, anyKey);
 
-        ProvisioningResult<?> deleted = logic.remedy(key, anyKey, isNullPriorityAsync());
+        ProvisioningResult<?> deleted = logic.remedy(remediationKey, anyKey, isNullPriorityAsync());
         return modificationResponse(deleted);
     }
 

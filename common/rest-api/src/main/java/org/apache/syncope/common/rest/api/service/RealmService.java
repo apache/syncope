@@ -131,6 +131,8 @@ public interface RealmService extends JAXRSService {
             + " with External Resources with no priority set",
             allowEmptyValue = true, schema =
             @Schema(type = "boolean", defaultValue = "false"))
+    @Parameter(name = "fullPath", description = "Realm's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "Realm successfully updated enriched with propagation status information, as Entity",

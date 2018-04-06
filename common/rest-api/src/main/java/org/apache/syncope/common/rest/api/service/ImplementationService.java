@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -76,6 +79,10 @@ public interface ImplementationService extends JAXRSService {
      * @param implementationTO implementation.
      * @return Response object featuring Location header of created implementation
      */
+    @Parameter(name = "type", description = "Implementation's type", in = ParameterIn.PATH, schema =
+            @Schema(implementation = ImplementationType.class))
+    @Parameter(name = "key", description = "Implementation's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @POST
     @Path("{type}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -88,6 +95,10 @@ public interface ImplementationService extends JAXRSService {
      * @param implementationTO implementation.
      * @return an empty response if operation was successful
      */
+    @Parameter(name = "type", description = "Implementation's type", in = ParameterIn.PATH, schema =
+            @Schema(implementation = ImplementationType.class))
+    @Parameter(name = "key", description = "Implementation's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @PUT
     @Path("{type}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })

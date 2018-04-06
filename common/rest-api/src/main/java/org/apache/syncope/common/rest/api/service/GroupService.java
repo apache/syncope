@@ -133,6 +133,8 @@ public interface GroupService extends AnyService<GroupTO> {
             + " with External Resources with no priority set",
             allowEmptyValue = true, schema =
             @Schema(type = "boolean", defaultValue = "false"))
+    @Parameter(name = "key", description = "Group's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "Group successfully updated enriched with propagation status information, as Entity",
@@ -174,6 +176,8 @@ public interface GroupService extends AnyService<GroupTO> {
             + " with External Resources with no priority set",
             allowEmptyValue = true, schema =
             @Schema(type = "boolean", defaultValue = "false"))
+    @Parameter(name = "key", description = "Group's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "Group successfully updated enriched with propagation status information, as Entity",

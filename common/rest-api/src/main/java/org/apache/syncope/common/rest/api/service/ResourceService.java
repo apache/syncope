@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -45,6 +47,7 @@ import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
 
@@ -136,6 +139,8 @@ public interface ResourceService extends JAXRSService {
      *
      * @param resourceTO resource to be stored
      */
+    @Parameter(name = "key", description = "Resource's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
@@ -207,6 +212,12 @@ public interface ResourceService extends JAXRSService {
      * @param patch any objects to be used for propagation-related operations
      * @return Bulk action result
      */
+    @Parameter(name = "key", description = "Resource's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
+    @Parameter(name = "anyTypeKey", description = "AnyType's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
+    @Parameter(name = "action", description = "Deassociation action", in = ParameterIn.PATH, schema =
+            @Schema(implementation = ResourceDeassociationAction.class))
     @POST
     @Path("{key}/bulkDeassociation/{anyTypeKey}/{action}")
     @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })

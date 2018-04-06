@@ -134,6 +134,8 @@ public interface UserService extends AnyService<UserTO> {
             + " with External Resources with no priority set",
             allowEmptyValue = true, schema =
             @Schema(type = "boolean", defaultValue = "false"))
+    @Parameter(name = "key", description = "User's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "User successfully updated enriched with propagation status information, as Entity",
@@ -176,6 +178,8 @@ public interface UserService extends AnyService<UserTO> {
             + " with External Resources with no priority set",
             allowEmptyValue = true, schema =
             @Schema(type = "boolean", defaultValue = "false"))
+    @Parameter(name = "key", description = "User's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "User successfully updated enriched with propagation status information, as Entity",
@@ -218,6 +222,8 @@ public interface UserService extends AnyService<UserTO> {
             + " with External Resources with no priority set",
             allowEmptyValue = true, schema =
             @Schema(type = "boolean", defaultValue = "false"))
+    @Parameter(name = "key", description = "User's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "User successfully updated enriched with propagation status information, as Entity",

@@ -128,6 +128,8 @@ public interface UserSelfService extends JAXRSService {
             description = "Allows client to specify a preference for the result to be returned from the server",
             allowEmptyValue = true, schema =
             @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @Parameter(name = "key", description = "User's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "User successfully updated enriched with propagation status information, as Entity",
@@ -159,6 +161,8 @@ public interface UserSelfService extends JAXRSService {
             description = "Allows client to specify a preference for the result to be returned from the server",
             allowEmptyValue = true, schema =
             @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @Parameter(name = "key", description = "User's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "User successfully updated enriched with propagation status information, as Entity",
@@ -190,6 +194,8 @@ public interface UserSelfService extends JAXRSService {
             description = "Allows client to specify a preference for the result to be returned from the server",
             allowEmptyValue = true, schema =
             @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
+    @Parameter(name = "key", description = "User's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "User successfully updated enriched with propagation status information, as Entity",

@@ -92,7 +92,7 @@ public interface RemediationService extends JAXRSService {
     /**
      * Perform remediation by creating the provided user, group or any object.
      *
-     * @param key key for remediation to act on
+     * @param remediationKey key for remediation to act on
      * @param anyTO user, group or any object to create
      * @return Response object featuring Location header of created object as well as the object itself
      * enriched with propagation status information
@@ -106,6 +106,8 @@ public interface RemediationService extends JAXRSService {
             + " with External Resources with no priority set",
             allowEmptyValue = true, schema =
             @Schema(type = "boolean", defaultValue = "false"))
+    @Parameter(name = "key", description = "Entity's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @ApiResponses(
             @ApiResponse(responseCode = "201",
                     description = "Object successfully created enriched with propagation status information, as Entity,"
@@ -124,15 +126,15 @@ public interface RemediationService extends JAXRSService {
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied") }))
     @POST
-    @Path("{key}")
+    @Path("{remediationKey}")
     @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response remedy(@NotNull @PathParam("key") String key, @NotNull AnyTO anyTO);
+    Response remedy(@NotNull @PathParam("remediationKey") String remediationKey, @NotNull AnyTO anyTO);
 
     /**
      * Perform remediation by updating the provided user, group or any object.
      *
-     * @param key key for remediation to act on
+     * @param remediationKey key for remediation to act on
      * @param anyPatch user, group or any object to update
      * @return Response object featuring the updated object enriched with propagation status information
      */
@@ -150,6 +152,8 @@ public interface RemediationService extends JAXRSService {
             + " with External Resources with no priority set",
             allowEmptyValue = true, schema =
             @Schema(type = "boolean", defaultValue = "false"))
+    @Parameter(name = "key", description = "Entity's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "Object successfully updated enriched with propagation status information, as Entity",
@@ -166,15 +170,15 @@ public interface RemediationService extends JAXRSService {
                 description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
                 + " date of the entity") })
     @PATCH
-    @Path("{key}")
+    @Path("{remediationKey}")
     @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response remedy(@NotNull @PathParam("key") String key, @NotNull AnyPatch anyPatch);
+    Response remedy(@NotNull @PathParam("remediationKey") String remediationKey, @NotNull AnyPatch anyPatch);
 
     /**
      * Perform remediation by deleting the provided user, group or any object.
      *
-     * @param key key for remediation to act on
+     * @param remediationKey key for remediation to act on
      * @param anyKey user's, group's or any object's key to delete
      * @return Response object featuring the deleted object enriched with propagation status information
      */
@@ -208,7 +212,9 @@ public interface RemediationService extends JAXRSService {
                 description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
                 + " date of the entity") })
     @DELETE
-    @Path("{key}/{anyKey}")
+    @Path("{remediationKey}/{anyKey}")
     @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response remedy(@NotNull @PathParam("key") String key, @NotNull String anyKey);
+    Response remedy(
+            @NotNull @PathParam("remediationKey") String remediationKey,
+            @NotNull @PathParam("anyKey") String anyKey);
 }

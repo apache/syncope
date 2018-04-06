@@ -98,6 +98,7 @@ public class DeassociationPatch extends AbstractBaseBean {
         return action;
     }
 
+    @PathParam("action")
     public void setAction(final ResourceDeassociationAction action) {
         this.action = action;
     }
