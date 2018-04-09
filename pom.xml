@@ -395,7 +395,7 @@ under the License.
     <elasticsearch.version>6.2.3</elasticsearch.version>
 
     <log4j.version>2.11.0</log4j.version>
-    <disruptor.version>3.4.1</disruptor.version>
+    <disruptor.version>3.4.2</disruptor.version>
 
     <commons-io.version>2.6</commons-io.version>
     <commons-email.version>1.5</commons-email.version>
@@ -410,7 +410,7 @@ under the License.
 
     <h2.version>1.4.197</h2.version>
 
-    <junit.version>5.1.0</junit.version>
+    <junit.version>5.1.1</junit.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
