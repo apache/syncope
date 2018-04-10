@@ -141,8 +141,8 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                                 new UserWrapper(new UserRestClient().read(model.getObject().getKey())),
                                 target));
             }
-        }, ActionType.EDIT, StringUtils.join(
-                new String[] { StandardEntitlement.USER_READ, StandardEntitlement.USER_UPDATE }, ",")).
+        }, ActionType.EDIT,
+                String.format("%s,%s", StandardEntitlement.USER_READ, StandardEntitlement.USER_UPDATE)).
                 setRealm(realm);
 
         panel.add(new ActionLink<UserTO>() {
@@ -281,7 +281,9 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
                     altDefaultModal.show(true);
                 }
-            }, ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_UPDATE).setRealm(realm);
+            }, ActionType.MANAGE_RESOURCES,
+                    String.format("%s,%s", StandardEntitlement.USER_READ, StandardEntitlement.USER_UPDATE)).
+                    setRealm(realm);
 
             panel.add(new ActionLink<UserTO>() {
 

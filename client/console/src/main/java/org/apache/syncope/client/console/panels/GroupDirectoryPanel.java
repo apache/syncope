@@ -214,8 +214,8 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                         new AjaxWizard.EditItemActionEvent<>(new GroupWrapper(
                                 restClient.read(model.getObject().getKey())), target));
             }
-        }, ActionType.EDIT, StringUtils.join(
-                new String[] { StandardEntitlement.GROUP_READ, StandardEntitlement.GROUP_UPDATE }, ",")).
+        }, ActionType.EDIT,
+                String.format("%s,%s", StandardEntitlement.GROUP_READ, StandardEntitlement.GROUP_UPDATE)).
                 setRealm(realm);
 
         panel.add(new ActionLink<GroupTO>() {
@@ -263,7 +263,9 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             public boolean isIndicatorEnabled() {
                 return false;
             }
-        }, ActionType.MEMBERS, StandardEntitlement.GROUP_UPDATE).setRealm(realm);
+        }, ActionType.MEMBERS,
+                String.format("%s,%s", StandardEntitlement.GROUP_READ, StandardEntitlement.GROUP_UPDATE)).
+                setRealm(realm);
 
         panel.add(new ActionLink<GroupTO>() {
 
@@ -283,7 +285,8 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }, ActionType.PROVISION_MEMBERS,
-                String.format("%s,%s", StandardEntitlement.TASK_CREATE, StandardEntitlement.TASK_EXECUTE));
+                String.format("%s,%s", StandardEntitlement.TASK_CREATE, StandardEntitlement.TASK_EXECUTE)).
+                setRealm(realm);
 
         panel.add(
                 new ActionLink<GroupTO>() {
@@ -304,7 +307,8 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }, ActionType.DEPROVISION_MEMBERS,
-                String.format("%s,%s", StandardEntitlement.TASK_CREATE, StandardEntitlement.TASK_EXECUTE));
+                String.format("%s,%s", StandardEntitlement.TASK_CREATE, StandardEntitlement.TASK_EXECUTE)).
+                setRealm(realm);
 
         panel.add(new ActionLink<GroupTO>() {
 
@@ -328,7 +332,9 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
 
                 altDefaultModal.show(true);
             }
-        }, ActionType.MANAGE_RESOURCES, StandardEntitlement.GROUP_READ).setRealm(realm);
+        }, ActionType.MANAGE_RESOURCES,
+                String.format("%s,%s", StandardEntitlement.GROUP_READ, StandardEntitlement.GROUP_UPDATE)).
+                setRealm(realm);
 
         panel.add(new ActionLink<GroupTO>() {
 

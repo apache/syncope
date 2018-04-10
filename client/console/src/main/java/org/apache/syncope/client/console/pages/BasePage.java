@@ -171,8 +171,9 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         body.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("topology", Topology.class);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER,
-                StringUtils.join(
-                        new String[] { StandardEntitlement.CONNECTOR_LIST, StandardEntitlement.CONNECTOR_LIST }, ","));
+                String.format("%s,%s",
+                        StandardEntitlement.CONNECTOR_LIST,
+                        StandardEntitlement.RESOURCE_LIST));
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("reports"));
@@ -222,8 +223,9 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("security", Security.class);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER,
-                StringUtils.join(
-                        new String[] { StandardEntitlement.ROLE_LIST, StandardEntitlement.APPLICATION_LIST }, ","));
+                String.format("%s,%s",
+                        StandardEntitlement.ROLE_LIST,
+                        StandardEntitlement.APPLICATION_LIST));
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("policies"));

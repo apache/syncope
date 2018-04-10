@@ -369,7 +369,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")
     @Override
     public List<JobTO> listJobs() {
-        return super.doListJobs();
+        return super.doListJobs(false);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
@@ -382,7 +382,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
         JobTO jobTO = null;
         try {
-            jobTO = getJobTO(JobNamer.getJobKey(report));
+            jobTO = getJobTO(JobNamer.getJobKey(report), false);
         } catch (SchedulerException e) {
             LOG.error("Problems while retrieving scheduled job {}", JobNamer.getJobKey(report), e);
 

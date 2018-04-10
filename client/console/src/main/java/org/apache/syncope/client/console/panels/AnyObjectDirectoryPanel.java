@@ -109,8 +109,8 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                                 new AnyWrapper<>(new AnyObjectRestClient().read(model.getObject().getKey())),
                                 target));
             }
-        }, ActionType.EDIT, StringUtils.join(
-                new String[] { AnyEntitlement.READ.getFor(type), AnyEntitlement.UPDATE.getFor(type) }, ",")).
+        }, ActionType.EDIT,
+                String.format("%s,%s", AnyEntitlement.READ.getFor(type), AnyEntitlement.UPDATE.getFor(type))).
                 setRealm(realm);
 
         panel.add(new ActionLink<AnyObjectTO>() {
@@ -154,7 +154,9 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
 
                     altDefaultModal.show(true);
                 }
-            }, ActionType.MANAGE_RESOURCES, AnyEntitlement.UPDATE.getFor(type)).setRealm(realm);
+            }, ActionType.MANAGE_RESOURCES,
+                    String.format("%s,%s", AnyEntitlement.READ.getFor(type), AnyEntitlement.UPDATE.getFor(type))).
+                    setRealm(realm);
 
             panel.add(
                     new ActionLink<AnyObjectTO>() {

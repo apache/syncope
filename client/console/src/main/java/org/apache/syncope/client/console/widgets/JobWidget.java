@@ -393,7 +393,7 @@ public class JobWidget extends BaseWidget {
                             break;
 
                         case REPORT:
-                            ReportTO reportTO = new ReportRestClient().read(jobTO.getRefKey());
+                            ReportTO reportTO = reportRestClient.read(jobTO.getRefKey());
 
                             ReportWizardBuilder rwb = new ReportWizardBuilder(reportTO, pageRef);
                             rwb.setEventSink(AvailableJobsPanel.this);
@@ -411,11 +411,11 @@ public class JobWidget extends BaseWidget {
                         case TASK:
                             ProvisioningTaskTO schedTaskTO;
                             try {
-                                schedTaskTO = new TaskRestClient().readTask(TaskType.PULL, jobTO.getRefKey());
+                                schedTaskTO = taskRestClient.readTask(TaskType.PULL, jobTO.getRefKey());
                             } catch (Exception e) {
                                 LOG.debug("Failed to read {} as {}, attempting {}",
                                         jobTO.getRefKey(), TaskType.PULL, TaskType.PUSH, e);
-                                schedTaskTO = new TaskRestClient().readTask(TaskType.PUSH, jobTO.getRefKey());
+                                schedTaskTO = taskRestClient.readTask(TaskType.PUSH, jobTO.getRefKey());
                             }
 
                             SchedTaskWizardBuilder<ProvisioningTaskTO> swb =
@@ -459,7 +459,7 @@ public class JobWidget extends BaseWidget {
 
                             case REPORT:
 
-                                final ReportTO reportTO = new ReportRestClient().read(jobTO.getRefKey());
+                                final ReportTO reportTO = reportRestClient.read(jobTO.getRefKey());
 
                                 target.add(AvailableJobsPanel.this.reportModal.setContent(
                                         new ReportletDirectoryPanel(reportModal, jobTO.getRefKey(), pageRef)));
@@ -506,11 +506,11 @@ public class JobWidget extends BaseWidget {
                                     break;
 
                                 case REPORT:
-                                    new ReportRestClient().actionJob(jobTO.getRefKey(), JobAction.DELETE);
+                                    reportRestClient.actionJob(jobTO.getRefKey(), JobAction.DELETE);
                                     break;
 
                                 case TASK:
-                                    new TaskRestClient().actionJob(jobTO.getRefKey(), JobAction.DELETE);
+                                    taskRestClient.actionJob(jobTO.getRefKey(), JobAction.DELETE);
                                     break;
 
                                 default:

@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlEnum;
 public enum JobType {
     NOTIFICATION,
     REPORT,
-    TASK;
+    TASK,
+    CUSTOM;
 
 }
