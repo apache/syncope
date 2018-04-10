@@ -71,8 +71,7 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
         container.add(getEmptyFragment());
     }
 
-    public void updateHeader(
-            final AjaxRequestTarget target, final Serializable modelObject) {
+    public void updateHeader(final AjaxRequestTarget target, final Serializable modelObject) {
         final String header;
         if (modelObject == null) {
             header = new ResourceModel("actions", StringUtils.EMPTY).getObject();
@@ -125,6 +124,7 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
         } else {
             header = new ResourceModel("actions", StringUtils.EMPTY).getObject();
         }
+
         setHeader(target, StringUtils.abbreviate(header, HEADER_FIRST_ABBREVIATION));
     }
 

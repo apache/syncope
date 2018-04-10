@@ -162,10 +162,10 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         liContainer = new WebMarkupContainer(getLIContainerId("topology"));
         body.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("topology", Topology.class);
-        StringBuilder bld = new StringBuilder();
-        bld.append(StandardEntitlement.CONNECTOR_LIST).append(",").
-                append(StandardEntitlement.RESOURCE_LIST).append(",");
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, bld.toString());
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER,
+                String.format("%s,%s",
+                        StandardEntitlement.CONNECTOR_LIST,
+                        StandardEntitlement.RESOURCE_LIST));
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("reports"));
@@ -201,12 +201,12 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
         liContainer = new WebMarkupContainer(getLIContainerId("securityquestions"));
         confULContainer.add(liContainer);
-        bld = new StringBuilder();
-        bld.append(StandardEntitlement.SECURITY_QUESTION_CREATE).append(",").
-                append(StandardEntitlement.SECURITY_QUESTION_DELETE).append(",").
-                append(StandardEntitlement.SECURITY_QUESTION_UPDATE);
         link = BookmarkablePageLinkBuilder.build("securityquestions", SecurityQuestions.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, bld.toString());
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER,
+                String.format("%s,%s,%s",
+                        StandardEntitlement.SECURITY_QUESTION_CREATE,
+                        StandardEntitlement.SECURITY_QUESTION_DELETE,
+                        StandardEntitlement.SECURITY_QUESTION_UPDATE));
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("types"));

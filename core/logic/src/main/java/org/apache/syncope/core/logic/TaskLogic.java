@@ -403,7 +403,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
     @Override
     public List<JobTO> listJobs() {
-        return super.doListJobs();
+        return super.doListJobs(true);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
@@ -416,7 +416,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
         JobTO jobTO = null;
         try {
-            jobTO = getJobTO(JobNamer.getJobKey(task));
+            jobTO = getJobTO(JobNamer.getJobKey(task), false);
         } catch (SchedulerException e) {
             LOG.error("Problems while retrieving scheduled job {}", JobNamer.getJobKey(task), e);
 

@@ -118,7 +118,7 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.NOTIFICATION_LIST + "')")
     public JobTO getJob() {
-        List<JobTO> jobs = super.doListJobs();
+        List<JobTO> jobs = super.doListJobs(false);
         return jobs.isEmpty() ? null : jobs.get(0);
     }
 
