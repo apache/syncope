@@ -460,7 +460,6 @@ under the License.
     <httpclient.version>4.5.5</httpclient.version>
     <maven-invoker.version>3.0.0</maven-invoker.version>
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
-    <maven-jar-plugin-version>3.0.0</maven-jar-plugin-version>
 
     <tycho.version>1.1.0</tycho.version>
     <netbeans.version>RELEASE82</netbeans.version>
@@ -1755,7 +1754,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.0.2</version>
+          <version>3.1.0</version>
         </plugin>
         
         <plugin>
