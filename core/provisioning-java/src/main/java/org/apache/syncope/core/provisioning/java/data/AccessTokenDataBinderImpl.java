@@ -135,11 +135,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
                 accessToken.setAuthorities(authorities);
             }
 
-            accessTokenDAO.save(accessToken);
-        }
-
-        if (replaceExisting && existing != null) {
-            accessTokenDAO.delete(existing);
+            accessTokenDAO.replace(replaceExisting, accessToken);
         }
 
         return Pair.of(body, expiryTime);

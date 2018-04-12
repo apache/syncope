@@ -116,6 +116,16 @@ public class JPAAccessTokenDAO extends AbstractDAO<AccessToken> implements Acces
     }
 
     @Override
+    public AccessToken replace(final boolean replaceExisting, final AccessToken accessToken) {
+        AccessToken existing = findByOwner(accessToken.getOwner());
+        if (replaceExisting && existing != null) {
+            delete(existing.getKey());
+        }
+
+        return replaceExisting ? save(accessToken) : existing;
+    }
+
+    @Override
     public void delete(final String key) {
         AccessToken accessToken = find(key);
         if (accessToken == null) {

@@ -34,6 +34,8 @@ public interface AccessTokenDAO extends DAO<AccessToken> {
 
     AccessToken save(AccessToken accessToken);
 
+    AccessToken replace(boolean replaceExisting, AccessToken accessToken);
+
     void delete(String key);
 
     void delete(AccessToken accessToken);
