@@ -161,7 +161,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             ProvisioningReport ignoreResult = new ProvisioningReport();
             ignoreResult.setOperation(ResourceOperation.NONE);
             ignoreResult.setAnyType(provision == null
-                    ? getAnyUtils().getAnyTypeKind().name() : provision.getAnyType().getKey());
+                    ? getAnyUtils().anyTypeKind().name() : provision.getAnyType().getKey());
             ignoreResult.setStatus(ProvisioningReport.Status.IGNORE);
             ignoreResult.setKey(null);
             ignoreResult.setName(delta.getObject().getName().getNameValue());
@@ -863,7 +863,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         }
 
         notificationManager.createTasks(AuditElements.EventCategoryType.PULL,
-                getAnyUtils().getAnyTypeKind().name().toLowerCase(),
+                getAnyUtils().anyTypeKind().name().toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,
                 result,
@@ -873,7 +873,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 furtherInput);
 
         auditManager.audit(AuditElements.EventCategoryType.PULL,
-                getAnyUtils().getAnyTypeKind().name().toLowerCase(),
+                getAnyUtils().anyTypeKind().name().toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,
                 result,

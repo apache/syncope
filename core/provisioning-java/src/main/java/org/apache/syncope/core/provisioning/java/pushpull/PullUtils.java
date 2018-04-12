@@ -28,11 +28,10 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
-import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -154,10 +153,10 @@ public class PullUtils {
             try {
                 List<String> anyKeys = match(connObj, provision, anyUtils);
                 if (anyKeys.isEmpty()) {
-                    LOG.debug("No matching {} found for {}, aborting", anyUtils.getAnyTypeKind(), connObj);
+                    LOG.debug("No matching {} found for {}, aborting", anyUtils.anyTypeKind(), connObj);
                 } else {
                     if (anyKeys.size() > 1) {
-                        LOG.warn("More than one {} found {} - taking first only", anyUtils.getAnyTypeKind(), anyKeys);
+                        LOG.warn("More than one {} found {} - taking first only", anyUtils.anyTypeKind(), anyKeys);
                     }
 
                     result = anyKeys.iterator().next();
@@ -168,14 +167,6 @@ public class PullUtils {
         }
 
         return result;
-    }
-
-    private AnyDAO<?> getAnyDAO(final AnyTypeKind anyTypeKind) {
-        return AnyTypeKind.USER == anyTypeKind
-                ? userDAO
-                : AnyTypeKind.ANY_OBJECT == anyTypeKind
-                        ? anyObjectDAO
-                        : groupDAO;
     }
 
     private List<String> findByConnObjectKey(
@@ -217,7 +208,7 @@ public class PullUtils {
         if (intAttrName.getField() != null) {
             switch (intAttrName.getField()) {
                 case "key":
-                    Any<?> any = getAnyDAO(provision.getAnyType().getKind()).find(connObjectKey);
+                    Any<?> any = anyUtils.dao().find(connObjectKey);
                     if (any != null) {
                         result.add(any.getKey());
                     }
@@ -260,17 +251,13 @@ public class PullUtils {
                         }
                     }
 
-                    List<? extends Any<?>> anys = getAnyDAO(provision.getAnyType().getKind()).
-                            findByPlainAttrValue(intAttrName.getSchemaName(), value);
-                    for (Any<?> any : anys) {
+                    for (Any<?> any : anyUtils.dao().findByPlainAttrValue(intAttrName.getSchemaName(), value)) {
                         result.add(any.getKey());
                     }
                     break;
 
                 case DERIVED:
-                    anys = getAnyDAO(provision.getAnyType().getKind()).
-                            findByDerAttrValue(intAttrName.getSchemaName(), connObjectKey);
-                    for (Any<?> any : anys) {
+                    for (Any<?> any : anyUtils.dao().findByDerAttrValue(intAttrName.getSchemaName(), connObjectKey)) {
                         result.add(any.getKey());
                     }
                     break;
@@ -331,7 +318,7 @@ public class PullUtils {
         try {
             return pullRule == null
                     ? findByConnObjectKey(connObj, provision, anyUtils)
-                    : findByCorrelationRule(connObj, pullRule, anyUtils.getAnyTypeKind());
+                    : findByCorrelationRule(connObj, pullRule, anyUtils.anyTypeKind());
         } catch (RuntimeException e) {
             LOG.error("Could not match {} with any existing {}", connObj, provision.getAnyType(), e);
             return Collections.<String>emptyList();

@@ -71,7 +71,7 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
 
     @Override
     public Response update(final AnyObjectTO anyObjectTO) {
-        anyObjectTO.setKey(getActualKey(anyObjectTO.getKey()));
+        anyObjectTO.setKey(getActualKey(getAnyDAO(), anyObjectTO.getKey()));
         AnyObjectTO before = logic.read(anyObjectTO.getKey());
 
         checkETag(before.getETagValue());

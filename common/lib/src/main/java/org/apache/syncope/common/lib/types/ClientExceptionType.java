@@ -72,6 +72,7 @@ public enum ClientExceptionType {
     InUseByNotifications(Response.Status.BAD_REQUEST),
     Scheduling(Response.Status.BAD_REQUEST),
     DelegatedAdministration(Response.Status.FORBIDDEN),
+    Reconciliation(Response.Status.BAD_REQUEST),
     Unknown(Response.Status.BAD_REQUEST),
     Workflow(Response.Status.BAD_REQUEST);
 

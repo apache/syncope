@@ -37,12 +37,15 @@ import org.apache.cxf.jaxrs.ext.search.SearchCondition;
 import org.apache.cxf.jaxrs.ext.search.SearchContext;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -63,6 +66,18 @@ abstract class AbstractServiceImpl implements JAXRSService {
 
     @Context
     protected SearchContext searchContext;
+
+    protected String getActualKey(final AnyDAO<?> dao, final String pretendingKey) {
+        String actualKey = pretendingKey;
+        if (!SyncopeConstants.UUID_PATTERN.matcher(pretendingKey).matches()) {
+            actualKey = dao.findKey(pretendingKey);
+            if (actualKey == null) {
+                throw new NotFoundException("User, Group or Any Object for " + pretendingKey);
+            }
+        }
+
+        return actualKey;
+    }
 
     protected boolean isNullPriorityAsync() {
         return BooleanUtils.toBoolean(messageContext.getHttpHeaders().getHeaderString(RESTHeaders.NULL_PRIORITY_ASYNC));

@@ -22,11 +22,12 @@ import java.util.Set;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface AnyUtils {
 
-    AnyTypeKind getAnyTypeKind();
+    AnyTypeKind anyTypeKind();
 
     <T extends Any<?>> Class<T> anyClass();
 
@@ -45,8 +46,10 @@ public interface AnyUtils {
     <T extends PlainAttrValue> T newPlainAttrUniqueValue();
 
     <T extends PlainAttrValue> T clonePlainAttrValue(T src);
-    
+
     <T extends AnyTO> T newAnyTO();
+
+    <A extends Any<?>> AnyDAO<A> dao();
 
     Set<ExternalResource> getAllResources(Any<?> any);
 

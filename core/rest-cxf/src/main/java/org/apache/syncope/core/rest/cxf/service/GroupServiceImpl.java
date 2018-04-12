@@ -68,7 +68,7 @@ public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupPatch> im
 
     @Override
     public Response update(final GroupTO groupTO) {
-        groupTO.setKey(getActualKey(groupTO.getKey()));
+        groupTO.setKey(getActualKey(getAnyDAO(), groupTO.getKey()));
         GroupTO before = logic.read(groupTO.getKey());
 
         checkETag(before.getETagValue());

@@ -19,8 +19,10 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.PathParam;
@@ -50,7 +52,7 @@ public class RealmTO extends AbstractBaseBean implements EntityTO, TemplatableTO
 
     private String passwordPolicy;
 
-    private final Set<String> actionsClassNames = new HashSet<>();
+    private final List<String> actionsClassNames = new ArrayList<>();
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     private final Map<String, AnyTO> templates = new HashMap<>();
@@ -111,7 +113,7 @@ public class RealmTO extends AbstractBaseBean implements EntityTO, TemplatableTO
     @XmlElementWrapper(name = "actionsClassNames")
     @XmlElement(name = "actionsClassName")
     @JsonProperty("actionsClassNames")
-    public Set<String> getActionsClassNames() {
+    public List<String> getActionsClassNames() {
         return actionsClassNames;
     }
 

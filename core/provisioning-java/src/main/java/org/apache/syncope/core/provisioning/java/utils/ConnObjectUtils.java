@@ -246,8 +246,8 @@ public class ConnObjectUtils {
         updated.setKey(key);
 
         T anyPatch = null;
-        if (null != anyUtils.getAnyTypeKind()) {
-            switch (anyUtils.getAnyTypeKind()) {
+        if (null != anyUtils.anyTypeKind()) {
+            switch (anyUtils.anyTypeKind()) {
                 case USER:
                     UserTO originalUser = (UserTO) original;
                     UserTO updatedUser = (UserTO) updated;

@@ -255,7 +255,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 : null;
 
         LOG.debug("Propagating {} with key {} towards {}",
-                anyUtils.getAnyTypeKind(), any.getKey(), profile.getTask().getResource());
+                anyUtils.anyTypeKind(), any.getKey(), profile.getTask().getResource());
 
         Object output = null;
         Result resultStatus = null;

@@ -648,7 +648,7 @@ public class MappingManagerImpl implements MappingManager {
 
         IntAttrName intAttrName;
         try {
-            intAttrName = intAttrNameParser.parse(mapItem.getIntAttrName(), anyUtils.getAnyTypeKind());
+            intAttrName = intAttrNameParser.parse(mapItem.getIntAttrName(), anyUtils.anyTypeKind());
         } catch (ParseException e) {
             LOG.error("Invalid intAttrName '{}' specified, ignoring", mapItem.getIntAttrName(), e);
             return;

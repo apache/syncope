@@ -20,11 +20,10 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
@@ -53,7 +52,7 @@ public abstract class ProvisioningTaskTO extends SchedTaskTO {
 
     private MatchingRule matchingRule;
 
-    private final Set<String> actionsClassNames = new HashSet<>();
+    private final List<String> actionsClassNames = new ArrayList<>();
 
     @JsonProperty(required = true)
     @XmlElement(required = true)
@@ -100,7 +99,7 @@ public abstract class ProvisioningTaskTO extends SchedTaskTO {
     @XmlElementWrapper(name = "actionsClassNames")
     @XmlElement(name = "actionsClassName")
     @JsonProperty("actionsClassNames")
-    public Set<String> getActionsClassNames() {
+    public List<String> getActionsClassNames() {
         return actionsClassNames;
     }
 
