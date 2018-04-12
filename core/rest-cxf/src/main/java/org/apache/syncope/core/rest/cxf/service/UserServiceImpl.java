@@ -67,7 +67,7 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserPatch> imple
 
     @Override
     public Response update(final UserTO userTO) {
-        userTO.setKey(getActualKey(userTO.getKey()));
+        userTO.setKey(getActualKey(getAnyDAO(), userTO.getKey()));
         UserTO before = logic.read(userTO.getKey());
 
         checkETag(before.getETagValue());

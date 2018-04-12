@@ -92,8 +92,8 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
 
     @Transactional(readOnly = true)
     @Override
-    public String findKey(final String username) {
-        return findKey(username, JPAAnyObject.TABLE);
+    public String findKey(final String name) {
+        return findKey(name, JPAAnyObject.TABLE);
     }
 
     @Transactional(readOnly = true)

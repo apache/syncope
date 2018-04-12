@@ -33,8 +33,7 @@ import org.apache.syncope.common.lib.types.UnmatchingRule;
 @XmlRootElement(name = "provisioningTask")
 @XmlType
 @XmlSeeAlso({ PushTaskTO.class, PullTaskTO.class })
-@Schema(
-        allOf = { SchedTaskTO.class },
+@Schema(allOf = { SchedTaskTO.class },
         subTypes = { PushTaskTO.class, PullTaskTO.class }, discriminatorProperty = "@class")
 public abstract class ProvisioningTaskTO extends SchedTaskTO {
 

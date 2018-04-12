@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -113,7 +114,7 @@ public class JPAAnyUtils implements AnyUtils {
     }
 
     @Override
-    public AnyTypeKind getAnyTypeKind() {
+    public AnyTypeKind anyTypeKind() {
         return anyTypeKind;
     }
 
@@ -329,6 +330,29 @@ public class JPAAnyUtils implements AnyUtils {
 
             case ANY_OBJECT:
                 result = (T) new AnyObjectTO();
+                break;
+
+            default:
+        }
+
+        return result;
+    }
+
+    @Override
+    public <A extends Any<?>> AnyDAO<A> dao() {
+        AnyDAO<A> result = null;
+
+        switch (anyTypeKind) {
+            case USER:
+                result = (AnyDAO<A>) userDAO;
+                break;
+
+            case GROUP:
+                result = (AnyDAO<A>) groupDAO;
+                break;
+
+            case ANY_OBJECT:
+                result = (AnyDAO<A>) anyObjectDAO;
                 break;
 
             default:
