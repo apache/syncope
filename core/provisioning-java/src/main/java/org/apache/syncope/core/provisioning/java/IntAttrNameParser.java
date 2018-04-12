@@ -41,11 +41,18 @@ public class IntAttrNameParser {
     private static final Pattern ENCLOSING_GROUP_PATTERN = Pattern.compile(
             "^groups\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]\\.(.+)");
 
+    private static final Pattern RELATED_USER_PATTERN = Pattern.compile(
+            "^users\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]\\.(.+)");
+
     private static final Pattern RELATED_ANY_OBJECT_PATTERN = Pattern.compile(
             "^anyObjects\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]\\.(.+)");
 
     private static final Pattern MEMBERSHIP_PATTERN = Pattern.compile(
             "^memberships\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]\\.(.+)");
+
+    private static final Pattern RELATIONSHIP_PATTERN = Pattern.compile(
+            "^relationships\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]"
+            + "\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]\\.(.+)");
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
@@ -124,7 +131,22 @@ public class IntAttrNameParser {
                         result.setMembershipOfGroup(matcher.group(1));
                         setFieldOrSchemaName(matcher.group(2), result.getAnyTypeKind(), result);
                     } else {
-                        throw new ParseException("Unparsable expression: " + intAttrName, 0);
+                        matcher = RELATED_USER_PATTERN.matcher(intAttrName);
+                        if (matcher.matches()) {
+                            result.setAnyTypeKind(AnyTypeKind.USER);
+                            result.setRelatedUser(matcher.group(1));
+                            setFieldOrSchemaName(matcher.group(2), result.getAnyTypeKind(), result);
+                        } else {
+                            matcher = RELATIONSHIP_PATTERN.matcher(intAttrName);
+                            if (matcher.matches()) {
+                                result.setAnyTypeKind(AnyTypeKind.ANY_OBJECT);
+                                result.setRelationshipType(matcher.group(1));
+                                result.setRelationshipAnyType(matcher.group(2));
+                                setFieldOrSchemaName(matcher.group(3), result.getAnyTypeKind(), result);
+                            } else {
+                                throw new ParseException("Unparsable expression: " + intAttrName, 0);
+                            }
+                        }
                     }
                 }
             }
