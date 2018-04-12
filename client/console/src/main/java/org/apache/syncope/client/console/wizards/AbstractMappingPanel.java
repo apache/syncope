@@ -153,7 +153,9 @@ public abstract class AbstractMappingPanel extends Panel {
                 Model.<String>of(),
                 Model.of(getString("intAttrNameInfo.help")
                         + "<code>groups[groupName].attribute</code>, "
-                        + "<code>anyObjects[anyObjectName].attribute</code> or "
+                        + "<code>users[userName].attribute</code>, "
+                        + "<code>anyObjects[anyObjectName].attribute</code>, "
+                        + "<code>relationships[relationshipType][anyType].attribute</code> or "
                         + "<code>memberships[groupName].attribute</code>"),
                 new PopoverConfig().withHtml(true).withPlacement(TooltipConfig.Placement.right)) {
 

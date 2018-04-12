@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -40,6 +41,7 @@ import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -48,8 +50,11 @@ import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
@@ -59,6 +64,8 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -117,6 +124,12 @@ public class MappingManagerImpl implements MappingManager {
 
     @Autowired
     private GroupDAO groupDAO;
+
+    @Autowired
+    private UserDAO userDAO;
+
+    @Autowired
+    private RelationshipTypeDAO relationshipTypeDAO;
 
     @Autowired
     private RealmDAO realmDAO;
@@ -401,10 +414,14 @@ public class MappingManagerImpl implements MappingManager {
 
         LOG.debug("Get internal values for {} as '{}' on {}", any, mapItem.getIntAttrName(), provision.getResource());
 
-        Any<?> reference = null;
+        List<Any<?>> references = new ArrayList<>();
         Membership<?> membership = null;
-        if (intAttrName.getEnclosingGroup() == null && intAttrName.getRelatedAnyObject() == null) {
-            reference = any;
+        if (intAttrName.getEnclosingGroup() == null
+                && intAttrName.getRelatedAnyObject() == null
+                && intAttrName.getRelationshipAnyType() == null
+                && intAttrName.getRelationshipType() == null
+                && intAttrName.getRelatedUser() == null) {
+            references.add(any);
         }
         if (any instanceof GroupableRelatable) {
             GroupableRelatable<?, ?, ?, ?, ?> groupableRelatable = (GroupableRelatable<?, ?, ?, ?, ?>) any;
@@ -415,7 +432,17 @@ public class MappingManagerImpl implements MappingManager {
                     LOG.warn("No membership for {} in {}, ignoring",
                             intAttrName.getEnclosingGroup(), groupableRelatable);
                 } else {
-                    reference = group;
+                    references.add(group);
+                }
+            } else if (intAttrName.getRelatedUser() != null) {
+                User user = userDAO.findByUsername(intAttrName.getRelatedUser());
+                if (user == null || user.getRelationships(groupableRelatable.getKey()).isEmpty()) {
+                    LOG.warn("No relationship for {} in {}, ignoring",
+                            intAttrName.getRelatedUser(), groupableRelatable);
+                } else if (groupableRelatable.getType().getKind() == AnyTypeKind.USER) {
+                    LOG.warn("Users cannot have relationship with other users, ignoring");
+                } else {
+                    references.add(user);
                 }
             } else if (intAttrName.getRelatedAnyObject() != null) {
                 AnyObject anyObject = anyObjectDAO.findByName(intAttrName.getRelatedAnyObject());
@@ -423,14 +450,37 @@ public class MappingManagerImpl implements MappingManager {
                     LOG.warn("No relationship for {} in {}, ignoring",
                             intAttrName.getRelatedAnyObject(), groupableRelatable);
                 } else {
-                    reference = anyObject;
+                    references.add(anyObject);
+                }
+            } else if (intAttrName.getRelationshipAnyType() != null && intAttrName.getRelationshipType() != null) {
+                RelationshipType relationshipType = relationshipTypeDAO.find(intAttrName.getRelationshipType());
+                final AnyType anyType = anyTypeDAO.find(intAttrName.getRelationshipAnyType());
+                if (relationshipType == null || groupableRelatable.getRelationships(relationshipType).isEmpty()) {
+                    LOG.warn("No relationship for type {} in {}, ignoring",
+                            intAttrName.getRelationshipType(), groupableRelatable);
+                } else if (anyType == null) {
+                    LOG.warn("No anyType {}, ignoring", intAttrName.getRelationshipAnyType());
+                } else {
+                    @SuppressWarnings("unchecked")
+                    List<Relationship<?, ?>> results = (List<Relationship<?, ?>>) ListUtils.select(
+                            groupableRelatable.getRelationships(relationshipType),
+                            new Predicate<Relationship<?, ?>>() {
+
+                        @Override
+                        public boolean evaluate(final Relationship<?, ?> relationship) {
+                            return anyType.equals(relationship.getRightEnd().getType());
+                        }
+                    });
+                    for (Relationship<?, ?> result : results) {
+                        references.add(result.getRightEnd());
+                    }
                 }
             } else if (intAttrName.getMembershipOfGroup() != null) {
                 Group group = groupDAO.findByName(intAttrName.getMembershipOfGroup());
                 membership = groupableRelatable.getMembership(group.getKey());
             }
         }
-        if (reference == null) {
+        if (references.isEmpty()) {
             LOG.warn("Could not determine the reference instance for {}", mapItem.getIntAttrName());
             return Collections.emptyList();
         }
@@ -438,143 +488,145 @@ public class MappingManagerImpl implements MappingManager {
         List<PlainAttrValue> values = new ArrayList<>();
         boolean transform = true;
 
-        AnyUtils anyUtils = anyUtilsFactory.getInstance(reference);
-        if (intAttrName.getField() != null) {
-            PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+        for (Any<?> reference : references) {
+            AnyUtils anyUtils = anyUtilsFactory.getInstance(reference);
+            if (intAttrName.getField() != null) {
+                PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
 
-            switch (intAttrName.getField()) {
-                case "key":
-                    attrValue.setStringValue(reference.getKey());
-                    values.add(attrValue);
-                    break;
-
-                case "realm":
-                    attrValue.setStringValue(reference.getRealm().getFullPath());
-                    values.add(attrValue);
-                    break;
-
-                case "password":
-                    // ignore
-                    break;
-
-                case "userOwner":
-                case "groupOwner":
-                    Mapping uMapping = provision.getAnyType().equals(anyTypeDAO.findUser())
-                            ? provision.getMapping()
-                            : null;
-                    Mapping gMapping = provision.getAnyType().equals(anyTypeDAO.findGroup())
-                            ? provision.getMapping()
-                            : null;
-
-                    if (reference instanceof Group) {
-                        Group group = (Group) reference;
-                        String groupOwnerValue = null;
-                        if (group.getUserOwner() != null && uMapping != null) {
-                            groupOwnerValue = getGroupOwnerValue(provision, group.getUserOwner());
-                        }
-                        if (group.getGroupOwner() != null && gMapping != null) {
-                            groupOwnerValue = getGroupOwnerValue(provision, group.getGroupOwner());
-                        }
-
-                        if (StringUtils.isNotBlank(groupOwnerValue)) {
-                            attrValue.setStringValue(groupOwnerValue);
-                            values.add(attrValue);
-                        }
-                    }
-                    break;
-
-                case "suspended":
-                    if (reference instanceof User) {
-                        attrValue.setBooleanValue(((User) reference).isSuspended());
+                switch (intAttrName.getField()) {
+                    case "key":
+                        attrValue.setStringValue(reference.getKey());
                         values.add(attrValue);
-                    }
-                    break;
+                        break;
 
-                case "mustChangePassword":
-                    if (reference instanceof User) {
-                        attrValue.setBooleanValue(((User) reference).isMustChangePassword());
+                    case "realm":
+                        attrValue.setStringValue(reference.getRealm().getFullPath());
                         values.add(attrValue);
-                    }
-                    break;
+                        break;
 
-                default:
-                    try {
-                        Object fieldValue = FieldUtils.readField(reference, intAttrName.getField(), true);
-                        if (fieldValue instanceof Date) {
-                            // needed because ConnId does not natively supports the Date type
-                            attrValue.setStringValue(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.
-                                    format((Date) fieldValue));
-                        } else if (Boolean.TYPE.isInstance(fieldValue)) {
-                            attrValue.setBooleanValue((Boolean) fieldValue);
-                        } else if (Double.TYPE.isInstance(fieldValue) || Float.TYPE.isInstance(fieldValue)) {
-                            attrValue.setDoubleValue((Double) fieldValue);
-                        } else if (Long.TYPE.isInstance(fieldValue) || Integer.TYPE.isInstance(fieldValue)) {
-                            attrValue.setLongValue((Long) fieldValue);
-                        } else {
-                            attrValue.setStringValue(fieldValue.toString());
-                        }
-                        values.add(attrValue);
-                    } catch (Exception e) {
-                        LOG.error("Could not read value of '{}' from {}", intAttrName.getField(), reference, e);
-                    }
-            }
-        } else if (intAttrName.getSchemaType() != null) {
-            switch (intAttrName.getSchemaType()) {
-                case PLAIN:
-                    PlainAttr<?> attr;
-                    if (membership == null) {
-                        attr = reference.getPlainAttr(intAttrName.getSchemaName());
-                    } else {
-                        attr = ((GroupableRelatable<?, ?, ?, ?, ?>) reference).getPlainAttr(
-                                intAttrName.getSchemaName(), membership);
-                    }
-                    if (attr != null) {
-                        if (attr.getUniqueValue() != null) {
-                            values.add(anyUtils.clonePlainAttrValue(attr.getUniqueValue()));
-                        } else if (attr.getValues() != null) {
-                            for (PlainAttrValue value : attr.getValues()) {
-                                values.add(anyUtils.clonePlainAttrValue(value));
+                    case "password":
+                        // ignore
+                        break;
+
+                    case "userOwner":
+                    case "groupOwner":
+                        Mapping uMapping = provision.getAnyType().equals(anyTypeDAO.findUser())
+                                ? provision.getMapping()
+                                : null;
+                        Mapping gMapping = provision.getAnyType().equals(anyTypeDAO.findGroup())
+                                ? provision.getMapping()
+                                : null;
+
+                        if (reference instanceof Group) {
+                            Group group = (Group) reference;
+                            String groupOwnerValue = null;
+                            if (group.getUserOwner() != null && uMapping != null) {
+                                groupOwnerValue = getGroupOwnerValue(provision, group.getUserOwner());
+                            }
+                            if (group.getGroupOwner() != null && gMapping != null) {
+                                groupOwnerValue = getGroupOwnerValue(provision, group.getGroupOwner());
+                            }
+
+                            if (StringUtils.isNotBlank(groupOwnerValue)) {
+                                attrValue.setStringValue(groupOwnerValue);
+                                values.add(attrValue);
                             }
                         }
-                    }
-                    break;
+                        break;
 
-                case DERIVED:
-                    DerSchema derSchema = derSchemaDAO.find(intAttrName.getSchemaName());
-                    if (derSchema != null) {
-                        String value = membership == null
-                                ? derAttrHandler.getValue(reference, derSchema)
-                                : derAttrHandler.getValue(reference, membership, derSchema);
-                        if (value != null) {
-                            PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                            attrValue.setStringValue(value);
+                    case "suspended":
+                        if (reference instanceof User) {
+                            attrValue.setBooleanValue(((User) reference).isSuspended());
                             values.add(attrValue);
                         }
-                    }
-                    break;
+                        break;
 
-                case VIRTUAL:
-                    // virtual attributes don't get transformed
-                    transform = false;
-
-                    VirSchema virSchema = virSchemaDAO.find(intAttrName.getSchemaName());
-                    if (virSchema != null) {
-                        LOG.debug("Expire entry cache {}-{}", reference, intAttrName.getSchemaName());
-                        virAttrCache.expire(
-                                reference.getType().getKey(), reference.getKey(), intAttrName.getSchemaName());
-
-                        List<String> virValues = membership == null
-                                ? virAttrHandler.getValues(reference, virSchema)
-                                : virAttrHandler.getValues(reference, membership, virSchema);
-                        for (String value : virValues) {
-                            PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                            attrValue.setStringValue(value);
+                    case "mustChangePassword":
+                        if (reference instanceof User) {
+                            attrValue.setBooleanValue(((User) reference).isMustChangePassword());
                             values.add(attrValue);
                         }
-                    }
-                    break;
+                        break;
 
-                default:
+                    default:
+                        try {
+                            Object fieldValue = FieldUtils.readField(reference, intAttrName.getField(), true);
+                            if (fieldValue instanceof Date) {
+                                // needed because ConnId does not natively supports the Date type
+                                attrValue.setStringValue(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.
+                                        format((Date) fieldValue));
+                            } else if (Boolean.TYPE.isInstance(fieldValue)) {
+                                attrValue.setBooleanValue((Boolean) fieldValue);
+                            } else if (Double.TYPE.isInstance(fieldValue) || Float.TYPE.isInstance(fieldValue)) {
+                                attrValue.setDoubleValue((Double) fieldValue);
+                            } else if (Long.TYPE.isInstance(fieldValue) || Integer.TYPE.isInstance(fieldValue)) {
+                                attrValue.setLongValue((Long) fieldValue);
+                            } else {
+                                attrValue.setStringValue(fieldValue.toString());
+                            }
+                            values.add(attrValue);
+                        } catch (Exception e) {
+                            LOG.error("Could not read value of '{}' from {}", intAttrName.getField(), reference, e);
+                        }
+                }
+            } else if (intAttrName.getSchemaType() != null) {
+                switch (intAttrName.getSchemaType()) {
+                    case PLAIN:
+                        PlainAttr<?> attr;
+                        if (membership == null) {
+                            attr = reference.getPlainAttr(intAttrName.getSchemaName());
+                        } else {
+                            attr = ((GroupableRelatable<?, ?, ?, ?, ?>) reference).getPlainAttr(
+                                    intAttrName.getSchemaName(), membership);
+                        }
+                        if (attr != null) {
+                            if (attr.getUniqueValue() != null) {
+                                values.add(anyUtils.clonePlainAttrValue(attr.getUniqueValue()));
+                            } else if (attr.getValues() != null) {
+                                for (PlainAttrValue value : attr.getValues()) {
+                                    values.add(anyUtils.clonePlainAttrValue(value));
+                                }
+                            }
+                        }
+                        break;
+
+                    case DERIVED:
+                        DerSchema derSchema = derSchemaDAO.find(intAttrName.getSchemaName());
+                        if (derSchema != null) {
+                            String value = membership == null
+                                    ? derAttrHandler.getValue(reference, derSchema)
+                                    : derAttrHandler.getValue(reference, membership, derSchema);
+                            if (value != null) {
+                                PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+                                attrValue.setStringValue(value);
+                                values.add(attrValue);
+                            }
+                        }
+                        break;
+
+                    case VIRTUAL:
+                        // virtual attributes don't get transformed
+                        transform = false;
+
+                        VirSchema virSchema = virSchemaDAO.find(intAttrName.getSchemaName());
+                        if (virSchema != null) {
+                            LOG.debug("Expire entry cache {}-{}", reference, intAttrName.getSchemaName());
+                            virAttrCache.expire(
+                                    reference.getType().getKey(), reference.getKey(), intAttrName.getSchemaName());
+
+                            List<String> virValues = membership == null
+                                    ? virAttrHandler.getValues(reference, virSchema)
+                                    : virAttrHandler.getValues(reference, membership, virSchema);
+                            for (String value : virValues) {
+                                PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+                                attrValue.setStringValue(value);
+                                values.add(attrValue);
+                            }
+                        }
+                        break;
+
+                    default:
+                }
             }
         }
 

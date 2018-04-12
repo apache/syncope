@@ -480,6 +480,21 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                                         "No need to map virtual schema on linking resource");
                             }
                         }
+                        if (intAttrName.getRelatedUser() != null
+                                && item.getPurpose() != MappingPurpose.PROPAGATION) {
+
+                            invalidMapping.getElements().add(
+                                    "Only " + MappingPurpose.PROPAGATION.name()
+                                    + " allowed when referring to users");
+                        }
+                        if ((intAttrName.getRelationshipType() != null
+                                || intAttrName.getRelationshipAnyType() != null)
+                                && item.getPurpose() != MappingPurpose.PROPAGATION) {
+
+                            invalidMapping.getElements().add(
+                                    "Only " + MappingPurpose.PROPAGATION.name()
+                                    + " allowed when referring to relationships");
+                        }
                     } else {
                         LOG.error("'{}' not allowed", itemTO.getIntAttrName());
                         invalidMapping.getElements().add("'" + itemTO.getIntAttrName() + "' not allowed");

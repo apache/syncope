@@ -35,9 +35,15 @@ public class IntAttrName {
 
     private String enclosingGroup;
 
+    private String relatedUser;
+
     private String relatedAnyObject;
 
     private String membershipOfGroup;
+
+    private String relationshipType;
+
+    private String relationshipAnyType;
 
     public AnyTypeKind getAnyTypeKind() {
         return anyTypeKind;
@@ -79,6 +85,14 @@ public class IntAttrName {
         this.enclosingGroup = enclosingGroup;
     }
 
+    public String getRelatedUser() {
+        return relatedUser;
+    }
+
+    public void setRelatedUser(final String relatedUser) {
+        this.relatedUser = relatedUser;
+    }
+
     public String getRelatedAnyObject() {
         return relatedAnyObject;
     }
@@ -93,6 +107,22 @@ public class IntAttrName {
 
     public void setMembershipOfGroup(final String membershipOfGroup) {
         this.membershipOfGroup = membershipOfGroup;
+    }
+
+    public String getRelationshipType() {
+        return relationshipType;
+    }
+
+    public void setRelationshipType(final String relationshipType) {
+        this.relationshipType = relationshipType;
+    }
+
+    public String getRelationshipAnyType() {
+        return relationshipAnyType;
+    }
+
+    public void setRelationshipAnyType(final String relationshipAnyType) {
+        this.relationshipAnyType = relationshipAnyType;
     }
 
     @Override
