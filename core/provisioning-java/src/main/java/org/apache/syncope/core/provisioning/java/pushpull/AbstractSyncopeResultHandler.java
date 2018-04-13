@@ -69,6 +69,7 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
 
+    @Autowired
     protected AnyObjectWorkflowAdapter awfAdapter;
 
     /**

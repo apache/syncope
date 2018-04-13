@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -45,12 +46,12 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             final Provision provision,
             final Connector connector,
             final Any<?> any,
-            final List<String> actionsClassNames) throws JobExecutionException {
+            final PushTaskTO pushTaskTO) throws JobExecutionException {
 
         LOG.debug("Executing push on {}", provision.getResource());
 
         List<PushActions> actions = new ArrayList<>();
-        for (String className : actionsClassNames) {
+        for (String className : pushTaskTO.getActionsClassNames()) {
             try {
                 Class<?> actionsClass = Class.forName(className);
 
@@ -65,10 +66,13 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
         try {
             PushTask pushTask = entityFactory.newEntity(PushTask.class);
             pushTask.setResource(provision.getResource());
-            pushTask.setMatchingRule(MatchingRule.UPDATE);
-            pushTask.setUnmatchingRule(UnmatchingRule.PROVISION);
-            pushTask.setPerformCreate(true);
-            pushTask.setPerformUpdate(true);
+            pushTask.setMatchingRule(pushTaskTO.getMatchingRule() == null
+                    ? MatchingRule.LINK : pushTaskTO.getMatchingRule());
+            pushTask.setUnmatchingRule(pushTaskTO.getUnmatchingRule() == null
+                    ? UnmatchingRule.ASSIGN : pushTaskTO.getUnmatchingRule());
+            pushTask.setPerformCreate(pushTaskTO.isPerformCreate());
+            pushTask.setPerformUpdate(pushTaskTO.isPerformUpdate());
+            pushTask.setPerformDelete(pushTaskTO.isPerformDelete());
 
             profile = new ProvisioningProfile<>(connector, pushTask);
             profile.getActions().addAll(actions);

@@ -29,14 +29,14 @@ import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.syncope.common.lib.to.ReconciliationRequest;
+import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconciliationStatus;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -75,9 +75,6 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<AbstractBase
 
     @Autowired
     private VirSchemaDAO virSchemaDAO;
-
-    @Autowired
-    private RealmDAO realmDAO;
 
     @Autowired
     private MappingManager mappingManager;
@@ -187,37 +184,52 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<AbstractBase
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
-    public void reconcile(final ReconciliationRequest request) {
-        Pair<Any<?>, Provision> init = init(request.getAnyTypeKind(), request.getAnyKey(), request.getResourceKey());
+    public void push(
+            final AnyTypeKind anyTypeKind,
+            final String anyKey,
+            final String resourceKey,
+            final PushTaskTO pushTask) {
+
+        Pair<Any<?>, Provision> init = init(anyTypeKind, anyKey, resourceKey);
 
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
         try {
-            List<ProvisioningReport> results = null;
-            switch (request.getAction()) {
-                case PUSH:
-                    results = singlePushExecutor.push(
-                            init.getRight(),
-                            connFactory.getConnector(init.getRight().getResource()),
-                            init.getLeft(),
-                            request.getActionsClassNames());
-                    break;
-
-                case PULL:
-                    results = singlePullExecutor.pull(
-                            init.getRight(),
-                            connFactory.getConnector(init.getRight().getResource()),
-                            init.getRight().getMapping().getConnObjectKeyItem().getExtAttrName(),
-                            mappingManager.getConnObjectKeyValue(init.getLeft(), init.getRight()),
-                            realmDAO.findByFullPath(init.getLeft().getRealm().getFullPath()),
-                            request.getActionsClassNames());
-                    break;
-
-                default:
+            List<ProvisioningReport> results = singlePushExecutor.push(
+                    init.getRight(),
+                    connFactory.getConnector(init.getRight().getResource()),
+                    init.getLeft(),
+                    pushTask);
+            if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
+                sce.getElements().add(results.get(0).getMessage());
             }
+        } catch (JobExecutionException e) {
+            sce.getElements().add(e.getMessage());
+        }
 
-            if (results != null && !results.isEmpty()
-                    && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
+        if (!sce.isEmpty()) {
+            throw sce;
+        }
+    }
 
+    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
+    public void pull(
+            final AnyTypeKind anyTypeKind,
+            final String anyKey,
+            final String resourceKey,
+            final PullTaskTO pullTask) {
+
+        Pair<Any<?>, Provision> init = init(anyTypeKind, anyKey, resourceKey);
+
+        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
+        try {
+            List<ProvisioningReport> results = singlePullExecutor.pull(
+                    init.getRight(),
+                    connFactory.getConnector(init.getRight().getResource()),
+                    init.getRight().getMapping().getConnObjectKeyItem().getExtAttrName(),
+                    mappingManager.getConnObjectKeyValue(init.getLeft(), init.getRight()),
+                    init.getLeft().getRealm(),
+                    pullTask);
+            if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
                 sce.getElements().add(results.get(0).getMessage());
             }
         } catch (JobExecutionException e) {

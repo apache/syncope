@@ -19,6 +19,8 @@
 package org.apache.syncope.common.rest.api.service;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -29,7 +31,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.ReconciliationRequest;
+import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconciliationStatus;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
@@ -60,13 +63,44 @@ public interface ReconciliationService extends JAXRSService {
             @NotNull @QueryParam("resourceKey") String resourceKey);
 
     /**
-     * Perform the required reconciliation action (PUSH or PULL) to the given user, group or any object and
-     * External Resource.
+     * Pushes the given user, group or any object in Syncope onto the External Resource.
      *
-     * @param request reconciliation request
+     * @param anyTypeKind anyTypeKind
+     * @param anyKey user, group or any object: if value looks like a UUID then it is interpreted as key, otherwise as
+     * a (user)name
+     * @param resourceKey resource key
+     * @param pushTask push specification
      */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
     @POST
+    @Path("push")
     @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void reconcile(@NotNull ReconciliationRequest request);
+    void push(
+            @NotNull @QueryParam("anyTypeKind") AnyTypeKind anyTypeKind,
+            @NotNull @QueryParam("anyKey") String anyKey,
+            @NotNull @QueryParam("resourceKey") String resourceKey,
+            @NotNull PushTaskTO pushTask);
+
+    /**
+     * Pulls the given user, group or any object from the External Resource into Syncope.
+     *
+     * @param anyTypeKind anyTypeKind
+     * @param anyKey user, group or any object: if value looks like a UUID then it is interpreted as key, otherwise as
+     * a (user)name
+     * @param resourceKey resource key
+     * @param pullTask pull specification
+     */
+    @ApiResponses(
+            @ApiResponse(code = 204, message = "Operation was successful"))
+    @POST
+    @Path("pull")
+    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    void pull(
+            @NotNull @QueryParam("anyTypeKind") AnyTypeKind anyTypeKind,
+            @NotNull @QueryParam("anyKey") String anyKey,
+            @NotNull @QueryParam("resourceKey") String resourceKey,
+            @NotNull PullTaskTO pullTask);
 }
