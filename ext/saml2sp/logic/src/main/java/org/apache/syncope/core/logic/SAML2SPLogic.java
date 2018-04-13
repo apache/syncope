@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.logic;
 
-import org.apache.syncope.core.logic.saml2.SAML2UserManager;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import java.io.OutputStream;
@@ -34,7 +33,6 @@ import java.util.Map;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
 import org.apache.cxf.rs.security.saml.sso.SSOValidatorResponse;
@@ -52,6 +50,7 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.logic.saml2.SAML2ReaderWriter;
 import org.apache.syncope.core.logic.saml2.SAML2IdPCache;
 import org.apache.syncope.core.logic.saml2.SAML2IdPEntity;
+import org.apache.syncope.core.logic.saml2.SAML2UserManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
@@ -324,13 +323,13 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
             // 3. generate relay state as JWT
             Map<String, Object> claims = new HashMap<>();
             claims.put(JWT_CLAIM_IDP_DEFLATE, idp.isUseDeflateEncoding());
-            Triple<String, String, Date> relayState =
-                    accessTokenDataBinder.generateJWT(authnRequest.getID(), JWT_RELAY_STATE_DURATION, claims);
+            Pair<String, Date> relayState = accessTokenDataBinder.generateJWT(
+                    UUID_GENERATOR.generate().toString(), authnRequest.getID(), JWT_RELAY_STATE_DURATION, claims);
 
             // 4. sign and encode AuthnRequest
             switch (idp.getBindingType()) {
                 case REDIRECT:
-                    requestTO.setRelayState(URLEncoder.encode(relayState.getMiddle(), StandardCharsets.UTF_8.name()));
+                    requestTO.setRelayState(URLEncoder.encode(relayState.getLeft(), StandardCharsets.UTF_8.name()));
                     requestTO.setContent(URLEncoder.encode(
                             saml2rw.encode(authnRequest, true), StandardCharsets.UTF_8.name()));
                     requestTO.setSignAlg(URLEncoder.encode(saml2rw.getSigAlgo(), StandardCharsets.UTF_8.name()));
@@ -341,7 +340,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
                 case POST:
                 default:
-                    requestTO.setRelayState(relayState.getMiddle());
+                    requestTO.setRelayState(relayState.getLeft());
                     saml2rw.sign(authnRequest);
                     requestTO.setContent(saml2rw.encode(authnRequest, idp.isUseDeflateEncoding()));
             }
@@ -606,9 +605,9 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
             Map<String, Object> claims = new HashMap<>();
             claims.put(JWT_CLAIM_IDP_DEFLATE,
                     idp.getBindingType() == SAML2BindingType.REDIRECT ? true : idp.isUseDeflateEncoding());
-            Triple<String, String, Date> relayState =
-                    accessTokenDataBinder.generateJWT(logoutRequest.getID(), JWT_RELAY_STATE_DURATION, claims);
-            requestTO.setRelayState(relayState.getMiddle());
+            Pair<String, Date> relayState = accessTokenDataBinder.generateJWT(
+                    UUID_GENERATOR.generate().toString(), logoutRequest.getID(), JWT_RELAY_STATE_DURATION, claims);
+            requestTO.setRelayState(relayState.getLeft());
 
             // 4. sign and encode AuthnRequest
             switch (idp.getBindingType()) {
