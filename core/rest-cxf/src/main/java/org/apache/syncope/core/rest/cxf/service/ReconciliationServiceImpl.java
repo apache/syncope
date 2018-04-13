@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import org.apache.syncope.common.lib.to.ReconciliationRequest;
+import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconciliationStatus;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.service.ReconciliationService;
@@ -45,9 +46,30 @@ public class ReconciliationServiceImpl extends AbstractServiceImpl implements Re
     }
 
     @Override
-    public void reconcile(final ReconciliationRequest request) {
-        request.setAnyKey(
-                getActualKey(anyUtilsFactory.getInstance(request.getAnyTypeKind()).dao(), request.getAnyKey()));
-        logic.reconcile(request);
+    public void push(
+            final AnyTypeKind anyTypeKind,
+            final String anyKey,
+            final String resourceKey,
+            final PushTaskTO pushTask) {
+
+        logic.push(
+                anyTypeKind,
+                getActualKey(anyUtilsFactory.getInstance(anyTypeKind).dao(), anyKey),
+                resourceKey,
+                pushTask);
+    }
+
+    @Override
+    public void pull(
+            final AnyTypeKind anyTypeKind,
+            final String anyKey,
+            final String resourceKey,
+            final PullTaskTO pullTask) {
+
+        logic.pull(
+                anyTypeKind,
+                getActualKey(anyUtilsFactory.getInstance(anyTypeKind).dao(), anyKey),
+                resourceKey,
+                pullTask);
     }
 }

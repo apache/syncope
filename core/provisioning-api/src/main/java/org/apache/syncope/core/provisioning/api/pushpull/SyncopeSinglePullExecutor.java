@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.api.pushpull;
 
 import java.util.List;
+import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -32,6 +33,5 @@ public interface SyncopeSinglePullExecutor {
             String connObjectKey,
             String connObjectValue,
             Realm realm,
-            boolean remediation,
-            List<String> actions) throws JobExecutionException;
+            PullTaskTO pullTaskTO) throws JobExecutionException;
 }

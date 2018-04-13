@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.collections.IteratorChain;
+import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.MatchingRule;
@@ -31,9 +33,11 @@ import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
@@ -45,6 +49,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandle
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePullExecutor;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
+import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.filter.Filter;
@@ -59,6 +64,9 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
     @Autowired
     private ImplementationDAO implementationDAO;
 
+    @Autowired
+    private TemplateUtils templateUtils;
+
     @Override
     public List<ProvisioningReport> pull(
             final Provision provision,
@@ -66,13 +74,12 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             final String connObjectKey,
             final String connObjectValue,
             final Realm realm,
-            final boolean remediation,
-            final List<String> actionKeys) throws JobExecutionException {
+            final PullTaskTO pullTaskTO) throws JobExecutionException {
 
         LOG.debug("Executing pull on {}", provision.getResource());
 
         List<PullActions> actions = new ArrayList<>();
-        actionKeys.forEach(key -> {
+        pullTaskTO.getActions().forEach(key -> {
             Implementation impl = implementationDAO.find(key);
             if (impl == null || impl.getType() != ImplementationType.PULL_ACTIONS) {
                 LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key);
@@ -95,13 +102,34 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
 
             PullTask pullTask = entityFactory.newEntity(PullTask.class);
             pullTask.setResource(provision.getResource());
-            pullTask.setMatchingRule(MatchingRule.UPDATE);
-            pullTask.setUnmatchingRule(UnmatchingRule.PROVISION);
+            pullTask.setMatchingRule(pullTaskTO.getMatchingRule() == null
+                    ? MatchingRule.UPDATE : pullTaskTO.getMatchingRule());
+            pullTask.setUnmatchingRule(pullTaskTO.getUnmatchingRule() == null
+                    ? UnmatchingRule.PROVISION : pullTaskTO.getUnmatchingRule());
             pullTask.setPullMode(PullMode.FILTERED_RECONCILIATION);
-            pullTask.setPerformCreate(true);
-            pullTask.setPerformUpdate(true);
-            pullTask.setRemediation(remediation);
+            pullTask.setPerformCreate(pullTaskTO.isPerformCreate());
+            pullTask.setPerformUpdate(pullTaskTO.isPerformUpdate());
+            pullTask.setPerformDelete(pullTaskTO.isPerformDelete());
             pullTask.setDestinationRealm(realm);
+            pullTask.setRemediation(pullTaskTO.isRemediation());
+            // validate JEXL expressions from templates and proceed if fine
+            templateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
+            pullTaskTO.getTemplates().forEach((type, template) -> {
+                AnyType anyType = anyTypeDAO.find(type);
+                if (anyType == null) {
+                    LOG.debug("Invalid AnyType {} specified, ignoring...", type);
+                } else {
+                    AnyTemplatePullTask anyTemplate = pullTask.getTemplate(anyType).orElse(null);
+                    if (anyTemplate == null) {
+                        anyTemplate = entityFactory.newEntity(AnyTemplatePullTask.class);
+                        anyTemplate.setAnyType(anyType);
+                        anyTemplate.setPullTask(pullTask);
+
+                        pullTask.add(anyTemplate);
+                    }
+                    anyTemplate.set(template);
+                }
+            });
 
             profile = new ProvisioningProfile<>(connector, pullTask);
             profile.setDryRun(false);
