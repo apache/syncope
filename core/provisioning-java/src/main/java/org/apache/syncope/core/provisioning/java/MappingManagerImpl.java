@@ -392,12 +392,10 @@ public class MappingManagerImpl implements MappingManager {
                 } else {
                     result = Pair.of(null, AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()));
                 }
-            } else if (schema != null && schema.isMultivalue()) {
-                result = Pair.of(null, AttributeBuilder.build(mapItem.getExtAttrName(), objValues));
             } else {
                 result = Pair.of(null, objValues.isEmpty()
                         ? AttributeBuilder.build(mapItem.getExtAttrName())
-                        : AttributeBuilder.build(mapItem.getExtAttrName(), objValues.iterator().next()));
+                        : AttributeBuilder.build(mapItem.getExtAttrName(), objValues));
             }
         }
 
