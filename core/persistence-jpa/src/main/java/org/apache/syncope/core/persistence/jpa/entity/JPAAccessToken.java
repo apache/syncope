@@ -44,7 +44,7 @@ public class JPAAccessToken extends AbstractProvidedKeyEntity implements AccessT
     @Temporal(TemporalType.TIMESTAMP)
     private Date expiryTime;
 
-    @Column(nullable = true)
+    @Column(unique = true)
     private String owner;
 
     @Lob

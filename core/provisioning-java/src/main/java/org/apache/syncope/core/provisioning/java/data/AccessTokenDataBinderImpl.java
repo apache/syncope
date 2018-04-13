@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.Map;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.rs.security.jose.common.JoseType;
 import org.apache.cxf.rs.security.jose.jws.JwsHeaders;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
@@ -45,8 +44,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
-
-    private static final String[] IGNORE_PROPERTIES = { "owner" };
 
     private static final RandomBasedGenerator UUID_GENERATOR = Generators.randomBasedGenerator();
 
@@ -72,8 +69,11 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
     private DefaultCredentialChecker credentialChecker;
 
     @Override
-    public Triple<String, String, Date> generateJWT(
-            final String subject, final long duration, final Map<String, Object> claims) {
+    public Pair<String, Date> generateJWT(
+            final String tokenId,
+            final String subject,
+            final long duration,
+            final Map<String, Object> claims) {
 
         credentialChecker.checkIsDefaultJWSKeyInUse();
 
@@ -81,7 +81,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
         long expiryTime = currentTime + 60L * duration;
 
         JwtClaims jwtClaims = new JwtClaims();
-        jwtClaims.setTokenId(UUID_GENERATOR.generate().toString());
+        jwtClaims.setTokenId(tokenId);
         jwtClaims.setSubject(subject);
         jwtClaims.setIssuedAt(currentTime);
         jwtClaims.setIssuer(jwtIssuer);
@@ -97,7 +97,30 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
         String signed = producer.signWith(jwsSignatureProvider);
 
-        return Triple.of(jwtClaims.getTokenId(), signed, new Date(expiryTime * 1000L));
+        return Pair.of(signed, new Date(expiryTime * 1000L));
+    }
+
+    private AccessToken replace(
+            final String subject,
+            final Map<String, Object> claims,
+            final byte[] authorities,
+            final AccessToken accessToken) {
+
+        Pair<String, Date> generated = generateJWT(
+                accessToken.getKey(),
+                subject,
+                confDAO.find("jwt.lifetime.minutes", 120L),
+                claims);
+
+        accessToken.setBody(generated.getLeft());
+        accessToken.setExpiryTime(generated.getRight());
+        accessToken.setOwner(subject);
+
+        if (!adminUser.equals(accessToken.getOwner())) {
+            accessToken.setAuthorities(authorities);
+        }
+
+        return accessTokenDAO.save(accessToken);
     }
 
     @Override
@@ -105,44 +128,21 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
             final String subject,
             final Map<String, Object> claims,
             final byte[] authorities,
-            final boolean replaceExisting) {
+            final boolean replace) {
 
-        String body = null;
-        Date expiryTime = null;
+        AccessToken accessToken = accessTokenDAO.findByOwner(subject);
+        if (accessToken == null) {
+            // no AccessToken found: create new
+            accessToken = entityFactory.newEntity(AccessToken.class);
+            accessToken.setKey(UUID_GENERATOR.generate().toString());
 
-        AccessToken existing = accessTokenDAO.findByOwner(subject);
-        if (existing != null) {
-            body = existing.getBody();
-            expiryTime = existing.getExpiryTime();
+            accessToken = replace(subject, claims, authorities, accessToken);
+        } else if (replace) {
+            // AccessToken found, but replace requested: update existing
+            accessToken = replace(subject, claims, authorities, accessToken);
         }
 
-        if (replaceExisting || body == null) {
-            Triple<String, String, Date> created = generateJWT(
-                    subject,
-                    confDAO.find("jwt.lifetime.minutes", 120L),
-                    claims);
-
-            body = created.getMiddle();
-            expiryTime = created.getRight();
-
-            AccessToken accessToken = entityFactory.newEntity(AccessToken.class);
-            accessToken.setKey(created.getLeft());
-            accessToken.setBody(body);
-            accessToken.setExpiryTime(expiryTime);
-            accessToken.setOwner(subject);
-
-            if (!adminUser.equals(accessToken.getOwner())) {
-                accessToken.setAuthorities(authorities);
-            }
-
-            accessTokenDAO.save(accessToken);
-        }
-
-        if (replaceExisting && existing != null) {
-            accessTokenDAO.delete(existing);
-        }
-
-        return Pair.of(body, expiryTime);
+        return Pair.of(accessToken.getBody(), accessToken.getExpiryTime());
     }
 
     @Override
@@ -179,8 +179,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
     @Override
     public AccessTokenTO getAccessTokenTO(final AccessToken accessToken) {
         AccessTokenTO accessTokenTO = new AccessTokenTO();
-        BeanUtils.copyProperties(accessToken, accessTokenTO, IGNORE_PROPERTIES);
-        accessTokenTO.setOwner(accessToken.getOwner());
+        BeanUtils.copyProperties(accessToken, accessTokenTO);
 
         return accessTokenTO;
     }
