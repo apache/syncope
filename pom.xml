@@ -410,7 +410,7 @@ under the License.
 
     <h2.version>1.4.197</h2.version>
 
-    <junit.version>5.1.1</junit.version>
+    <junit.version>5.2.0-M1</junit.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -1827,7 +1827,7 @@ under the License.
             <dependency>
               <groupId>org.junit.platform</groupId>
               <artifactId>junit-platform-surefire-provider</artifactId>
-              <version>1.2.0-SNAPSHOT</version>
+              <version>1.2.0-M1</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -1845,7 +1845,7 @@ under the License.
             <dependency>
               <groupId>org.junit.platform</groupId>
               <artifactId>junit-platform-surefire-provider</artifactId>
-              <version>1.2.0-SNAPSHOT</version>
+              <version>1.2.0-M1</version>
             </dependency>
           </dependencies>
           <executions>
