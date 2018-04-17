@@ -89,6 +89,8 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         PROVISION("update"),
         DEPROVISION_MEMBERS("update"),
         PROVISION_MEMBERS("update"),
+        RECONCILIATION_PUSH("update"),
+        RECONCILIATION_PULL("update"),
         MANAGE_RESOURCES("update"),
         MANAGE_USERS("update"),
         MANAGE_GROUPS("update"),

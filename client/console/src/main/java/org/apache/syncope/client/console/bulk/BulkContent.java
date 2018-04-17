@@ -203,37 +203,36 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
 
                             for (Map.Entry<String, List<StatusBean>> entry : beans.entrySet()) {
                                 final String etag = anyRestClient.read(entry.getKey()).getETagValue();
-                                switch (actionToBeAddresed.name()) {
-                                    case "DEPROVISION":
+                                switch (actionToBeAddresed) {
+                                    case DEPROVISION:
                                         res = anyRestClient.deprovision(etag, entry.getKey(), entry.getValue());
                                         break;
-                                    case "UNASSIGN":
+                                    case UNASSIGN:
                                         res = anyRestClient.unassign(etag, entry.getKey(), entry.getValue());
                                         break;
-                                    case "UNLINK":
+                                    case UNLINK:
                                         res = anyRestClient.unlink(etag, entry.getKey(), entry.getValue());
                                         break;
-                                    case "ASSIGN":
+                                    case ASSIGN:
                                         res = anyRestClient.assign(etag, entry.getKey(), entry.getValue());
                                         break;
-                                    case "LINK":
+                                    case LINK:
                                         res = anyRestClient.link(etag, entry.getKey(), entry.getValue());
                                         break;
-                                    case "PROVISION":
+                                    case PROVISION:
                                         res = anyRestClient.provision(etag, entry.getKey(), entry.getValue());
                                         break;
-                                    case "REACTIVATE":
+                                    case REACTIVATE:
                                         res = ((UserRestClient) anyRestClient).
                                                 reactivate(etag, entry.getKey(), entry.getValue());
                                         fieldName = "resource";
                                         break;
-                                    case "SUSPEND":
+                                    case SUSPEND:
                                         res = ((UserRestClient) anyRestClient).
                                                 suspend(etag, entry.getKey(), entry.getValue());
                                         fieldName = "resource";
                                         break;
                                     default:
-                                        break;
                                 }
                             }
                         }

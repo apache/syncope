@@ -28,13 +28,13 @@ public class ConnObjectWrapper implements Serializable {
 
     private final AnyTO any;
 
-    private final String resourceName;
+    private final String resource;
 
     private final ConnObjectTO connObjectTO;
 
-    public ConnObjectWrapper(final AnyTO any, final String resourceName, final ConnObjectTO connObjectTO) {
+    public ConnObjectWrapper(final AnyTO any, final String resource, final ConnObjectTO connObjectTO) {
         this.any = any;
-        this.resourceName = resourceName;
+        this.resource = resource;
         this.connObjectTO = connObjectTO;
     }
 
@@ -42,8 +42,8 @@ public class ConnObjectWrapper implements Serializable {
         return any;
     }
 
-    public String getResourceName() {
-        return resourceName;
+    public String getResource() {
+        return resource;
     }
 
     public ConnObjectTO getConnObjectTO() {

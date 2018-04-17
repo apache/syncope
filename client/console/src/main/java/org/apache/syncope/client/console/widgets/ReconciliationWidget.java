@@ -414,7 +414,7 @@ public class ReconciliationWidget extends BaseWidget {
                                                 rowModel.getObject().getType()
                                                 + " " + rowModel.getObject().getKey()
                                                 + " " + rowModel.getObject().getName()));
-                                        modal.setContent(new ReconciliationDetailsModalPanel(
+                                        modal.setContent(new ReconDetailsModalPanel(
                                                 modal,
                                                 resource,
                                                 misaligned,

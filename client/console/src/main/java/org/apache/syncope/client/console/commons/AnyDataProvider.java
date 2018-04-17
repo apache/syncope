@@ -121,9 +121,9 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
         try {
             if (filtered) {
-                result = fiql == null ? 0 : restClient.searchCount(realm, fiql, type);
+                result = fiql == null ? 0 : restClient.count(realm, fiql, type);
             } else {
-                result = restClient.searchCount(realm, null, type);
+                result = restClient.count(realm, null, type);
             }
         } catch (Exception e) {
             LOG.error("While requesting for size() with FIQL {}", fiql, e);

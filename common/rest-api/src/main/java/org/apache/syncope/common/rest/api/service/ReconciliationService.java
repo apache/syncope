@@ -34,7 +34,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
-import org.apache.syncope.common.lib.to.ReconciliationStatus;
+import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 /**
@@ -59,7 +59,7 @@ public interface ReconciliationService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    ReconciliationStatus status(
+    ReconStatus status(
             @NotNull @QueryParam("anyTypeKind") AnyTypeKind anyTypeKind,
             @NotNull @QueryParam("anyKey") String anyKey,
             @NotNull @QueryParam("resourceKey") String resourceKey);

@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
@@ -69,7 +68,7 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
     }
 
     @Override
-    public int searchCount(final String realm, final String fiql, final String type) {
+    public int count(final String realm, final String fiql, final String type) {
         return getService(UserService.class).
                 search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(1).size(1).build()).
                 getTotalCount();
@@ -97,29 +96,29 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
         statusPatch.setKey(userKey);
         statusPatch.setType(StatusPatchType.SUSPEND);
 
-        BulkActionResult result;
+        BulkActionResult bulkActionResult;
         synchronized (this) {
-            result = new BulkActionResult();
-            Map<String, BulkActionResult.Status> res = result.getResults();
+            bulkActionResult = new BulkActionResult();
+            Map<String, BulkActionResult.Status> results = bulkActionResult.getResults();
             UserService service = getService(etag, UserService.class);
 
-            @SuppressWarnings("unchecked")
-            ProvisioningResult<UserTO> provisions = (ProvisioningResult<UserTO>) service.status(statusPatch).
-                    readEntity(ProvisioningResult.class);
+            ProvisioningResult<UserTO> provisioningResult = service.status(statusPatch).readEntity(
+                    new GenericType<ProvisioningResult<UserTO>>() {
+            });
 
             if (statusPatch.isOnSyncope()) {
-                res.put(StringUtils.capitalize(Constants.SYNCOPE),
-                        "suspended".equalsIgnoreCase(provisions.getEntity().getStatus())
+                results.put(Constants.SYNCOPE,
+                        "suspended".equalsIgnoreCase(provisioningResult.getEntity().getStatus())
                         ? BulkActionResult.Status.SUCCESS
                         : BulkActionResult.Status.FAILURE);
             }
 
-            for (PropagationStatus status : provisions.getPropagationStatuses()) {
-                res.put(status.getResource(), BulkActionResult.Status.valueOf(status.getStatus().name()));
+            for (PropagationStatus status : provisioningResult.getPropagationStatuses()) {
+                results.put(status.getResource(), BulkActionResult.Status.valueOf(status.getStatus().name()));
             }
             resetClient(UserService.class);
         }
-        return result;
+        return bulkActionResult;
     }
 
     public BulkActionResult reactivate(final String etag, final String userKey, final List<StatusBean> statuses) {
@@ -127,28 +126,28 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
         statusPatch.setKey(userKey);
         statusPatch.setType(StatusPatchType.REACTIVATE);
 
-        BulkActionResult result;
+        BulkActionResult bulkActionResult;
         synchronized (this) {
-            result = new BulkActionResult();
-            Map<String, BulkActionResult.Status> res = result.getResults();
+            bulkActionResult = new BulkActionResult();
+            Map<String, BulkActionResult.Status> results = bulkActionResult.getResults();
             UserService service = getService(etag, UserService.class);
 
-            @SuppressWarnings("unchecked")
-            ProvisioningResult<UserTO> provisions = (ProvisioningResult<UserTO>) service.status(statusPatch).
-                    readEntity(ProvisioningResult.class);
+            ProvisioningResult<UserTO> provisioningResult = service.status(statusPatch).readEntity(
+                    new GenericType<ProvisioningResult<UserTO>>() {
+            });
 
             if (statusPatch.isOnSyncope()) {
-                res.put(StringUtils.capitalize(Constants.SYNCOPE),
-                        "active".equalsIgnoreCase(provisions.getEntity().getStatus())
+                results.put(Constants.SYNCOPE,
+                        "active".equalsIgnoreCase(provisioningResult.getEntity().getStatus())
                         ? BulkActionResult.Status.SUCCESS
                         : BulkActionResult.Status.FAILURE);
             }
 
-            for (PropagationStatus status : provisions.getPropagationStatuses()) {
-                res.put(status.getResource(), BulkActionResult.Status.valueOf(status.getStatus().name()));
+            for (PropagationStatus status : provisioningResult.getPropagationStatuses()) {
+                results.put(status.getResource(), BulkActionResult.Status.valueOf(status.getStatus().name()));
             }
             resetClient(UserService.class);
         }
-        return result;
+        return bulkActionResult;
     }
 }

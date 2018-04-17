@@ -110,6 +110,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             pullTask.setPerformCreate(pullTaskTO.isPerformCreate());
             pullTask.setPerformUpdate(pullTaskTO.isPerformUpdate());
             pullTask.setPerformDelete(pullTaskTO.isPerformDelete());
+            pullTask.setSyncStatus(pullTaskTO.isSyncStatus());
             pullTask.setDestinationRealm(realm);
             pullTask.setRemediation(pullTaskTO.isRemediation());
             // validate JEXL expressions from templates and proceed if fine

@@ -80,6 +80,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             pushTask.setPerformCreate(pushTaskTO.isPerformCreate());
             pushTask.setPerformUpdate(pushTaskTO.isPerformUpdate());
             pushTask.setPerformDelete(pushTaskTO.isPerformDelete());
+            pushTask.setSyncStatus(pushTaskTO.isSyncStatus());
 
             profile = new ProvisioningProfile<>(connector, pushTask);
             profile.getActions().addAll(actions);

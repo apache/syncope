@@ -19,19 +19,20 @@
 package org.apache.syncope.client.console.status;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.status.AbstractStatusBeanProvider;
-import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.console.commons.status.Status;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
-import org.apache.syncope.client.console.panels.ConnObjectDetails;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
@@ -42,9 +43,15 @@ import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.PushTaskTO;
+import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -70,9 +77,11 @@ public class AnyStatusDirectoryPanel
 
     private final AnyTO anyTO;
 
+    private final AnyTypeKind anyTypeKind;
+
     private final boolean statusOnly;
 
-    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
+    private final List<String> resources;
 
     public AnyStatusDirectoryPanel(
             final BaseModal<?> baseModal,
@@ -91,11 +100,18 @@ public class AnyStatusDirectoryPanel
 
         if (anyTO instanceof UserTO) {
             this.restClient = new UserRestClient();
+            anyTypeKind = AnyTypeKind.USER;
         } else if (anyTO instanceof GroupTO) {
             this.restClient = new GroupRestClient();
+            anyTypeKind = AnyTypeKind.GROUP;
         } else {
             this.restClient = new AnyObjectRestClient();
+            anyTypeKind = AnyTypeKind.ANY_OBJECT;
         }
+
+        resources = new ResourceRestClient().list().stream().
+                filter(resource -> resource.getProvision(anyTO.getType()).isPresent()).
+                map(EntityTO::getKey).collect(Collectors.toList());
 
         initResultTable();
     }
@@ -126,7 +142,9 @@ public class AnyStatusDirectoryPanel
 
                     @Override
                     protected void onComponentTag(final ComponentTag tag) {
-                        if (model.getObject().isLinked()) {
+                        if (anyTO.getResources().contains(model.getObject().getResource())
+                                || Constants.SYNCOPE.equalsIgnoreCase(model.getObject().getResource())) {
+
                             super.onComponentTag(tag);
                         } else {
                             tag.put("style", "font-style: italic");
@@ -136,26 +154,29 @@ public class AnyStatusDirectoryPanel
             }
         });
 
-        columns.add(new PropertyColumn<>(
-                new StringResourceModel("connObjectLink", this), "connObjectLink", "connObjectLink"));
+        if (statusOnly) {
+            columns.add(new PropertyColumn<>(
+                    new StringResourceModel("connObjectLink", this), "connObjectLink", "connObjectLink"));
 
-        columns.add(new AbstractColumn<StatusBean, String>(new StringResourceModel("status", this)) {
+            columns.add(new AbstractColumn<StatusBean, String>(new StringResourceModel("status", this)) {
 
-            private static final long serialVersionUID = -3503023501954863131L;
+                private static final long serialVersionUID = -3503023501954863131L;
 
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<StatusBean>> cellItem,
-                    final String componentId,
-                    final IModel<StatusBean> model) {
+                @Override
+                public void populateItem(
+                        final Item<ICellPopulator<StatusBean>> cellItem,
+                        final String componentId,
+                        final IModel<StatusBean> model) {
 
-                if (model.getObject().isLinked()) {
-                    cellItem.add(StatusUtils.getStatusImage(componentId, model.getObject().getStatus()));
-                } else {
-                    cellItem.add(new Label(componentId, ""));
+                    if (model.getObject().isLinked()) {
+                        cellItem.add(StatusUtils.getStatusImage(componentId, model.getObject().getStatus()));
+                    } else {
+                        cellItem.add(new Label(componentId, ""));
+                    }
                 }
-            }
-        });
+            });
+        }
+
         return columns;
     }
 
@@ -163,32 +184,70 @@ public class AnyStatusDirectoryPanel
     public ActionsPanel<StatusBean> getActions(final IModel<StatusBean> model) {
         final ActionsPanel<StatusBean> panel = super.getActions(model);
 
-        panel.add(new ActionLink<StatusBean>() {
+        if (!Constants.SYNCOPE.equalsIgnoreCase(model.getObject().getResource())) {
+            panel.add(new ActionLink<StatusBean>() {
 
-            private static final long serialVersionUID = -7978723352517770645L;
+                private static final long serialVersionUID = -7978723352517770645L;
 
-            @Override
-            protected boolean statusCondition(final StatusBean bean) {
-                return bean != null && bean.getConnObjectLink() != null
-                        && !bean.getResource().equalsIgnoreCase(Constants.SYNCOPE);
-            }
+                @Override
+                public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
+                    multiLevelPanelRef.next(bean.getResource(),
+                            new ReconStatusPanel(bean.getResource(), anyTypeKind, anyTO.getKey()),
+                            target);
+                    target.add(multiLevelPanelRef);
+                    AnyStatusDirectoryPanel.this.getTogglePanel().close(target);
+                }
+            }, ActionLink.ActionType.VIEW, StandardEntitlement.RESOURCE_GET_CONNOBJECT);
+        }
 
-            @Override
-            public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
-                multiLevelPanelRef.next(bean.getResource(),
-                        new ConnObjectDetails(resourceRestClient.readConnObject(
-                                bean.getResource(), anyTO.getType(), anyTO.getKey())), target);
-                target.add(multiLevelPanelRef);
-                AnyStatusDirectoryPanel.this.getTogglePanel().close(target);
-            }
-        }, ActionLink.ActionType.VIEW, StandardEntitlement.RESOURCE_GET_CONNOBJECT);
+        if (!statusOnly) {
+            panel.add(new ActionLink<StatusBean>() {
+
+                private static final long serialVersionUID = -7978723352517770645L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
+                    multiLevelPanelRef.next("PUSH " + bean.getResource(),
+                            new ReconTaskPanel(
+                                    bean.getResource(),
+                                    new PushTaskTO(),
+                                    anyTypeKind,
+                                    anyTO.getKey(),
+                                    multiLevelPanelRef,
+                                    pageRef),
+                            target);
+                    target.add(multiLevelPanelRef);
+                    AnyStatusDirectoryPanel.this.getTogglePanel().close(target);
+                }
+            }, ActionLink.ActionType.RECONCILIATION_PUSH, StandardEntitlement.TASK_EXECUTE);
+
+            panel.add(new ActionLink<StatusBean>() {
+
+                private static final long serialVersionUID = -7978723352517770645L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
+                    multiLevelPanelRef.next("PULL " + bean.getResource(),
+                            new ReconTaskPanel(
+                                    bean.getResource(),
+                                    new PullTaskTO(),
+                                    anyTypeKind,
+                                    anyTO.getKey(),
+                                    multiLevelPanelRef,
+                                    pageRef),
+                            target);
+                    target.add(multiLevelPanelRef);
+                    AnyStatusDirectoryPanel.this.getTogglePanel().close(target);
+                }
+            }, ActionLink.ActionType.RECONCILIATION_PULL, StandardEntitlement.TASK_EXECUTE);
+        }
 
         return panel;
     }
 
     @Override
     protected Collection<ActionLink.ActionType> getBulkActions() {
-        final List<ActionLink.ActionType> bulkActions = new ArrayList<>();
+        List<ActionLink.ActionType> bulkActions = new ArrayList<>();
         if (statusOnly) {
             bulkActions.add(ActionLink.ActionType.SUSPEND);
             bulkActions.add(ActionLink.ActionType.REACTIVATE);
@@ -199,14 +258,13 @@ public class AnyStatusDirectoryPanel
             bulkActions.add(ActionLink.ActionType.PROVISION);
             bulkActions.add(ActionLink.ActionType.ASSIGN);
             bulkActions.add(ActionLink.ActionType.UNASSIGN);
-
         }
         return bulkActions;
     }
 
     @Override
-    protected AttributableStatusProvider dataProvider() {
-        return new AttributableStatusProvider();
+    protected AnyStatusProvider dataProvider() {
+        return new AnyStatusProvider();
     }
 
     @Override
@@ -214,74 +272,82 @@ public class AnyStatusDirectoryPanel
         return StringUtils.EMPTY;
     }
 
-    public class AttributableStatusProvider extends AbstractStatusBeanProvider {
+    protected class AnyStatusProvider extends AbstractStatusBeanProvider {
 
         private static final long serialVersionUID = 4586969457669796621L;
 
-        private final StatusUtils statusUtils;
-
-        AttributableStatusProvider() {
-            super(statusOnly ? "resource" : "connObjectLink");
-            statusUtils = new StatusUtils();
+        AnyStatusProvider() {
+            super("resource");
         }
 
-        @SuppressWarnings("unchecked")
         @Override
-        public List<StatusBean> getStatusBeans() {
+        protected List<StatusBean> getStatusBeans(final long first, final long count) {
             // this is required to retrieve updated data by reloading table
             final AnyTO actual = restClient.read(anyTO.getKey());
 
-            final List<String> resources = new ArrayList<>();
-            new ResourceRestClient().list().forEach(resourceTO -> {
-                resources.add(resourceTO.getKey());
-            });
+            List<StatusBean> statusBeans = actual.getResources().stream().map(resource -> {
+                List<ReconStatus> statuses = Collections.emptyList();
+                if (statusOnly) {
+                    statuses = StatusUtils.
+                            getReconStatuses(anyTypeKind, anyTO.getKey(), Arrays.asList(resource));
+                }
 
-            final List<ConnObjectWrapper> connObjects = statusUtils.getConnectorObjects(actual);
-
-            final List<StatusBean> statusBeans = new ArrayList<>(connObjects.size() + 1);
-
-            connObjects.forEach(entry -> {
-                final StatusBean statusBean = statusUtils.getStatusBean(actual,
-                        entry.getResourceName(),
-                        entry.getConnObjectTO(),
+                return StatusUtils.getStatusBean(
+                        actual,
+                        resource,
+                        statuses.isEmpty() ? null : statuses.get(0).getOnResource(),
                         actual instanceof GroupTO);
-
-                statusBeans.add(statusBean);
-                resources.remove(entry.getResourceName());
-            });
+            }).collect(Collectors.toList());
 
             if (statusOnly) {
-                final StatusBean syncope = new StatusBean(actual, "Syncope");
+                StatusBean syncope = new StatusBean(actual, Constants.SYNCOPE);
+                switch (anyTypeKind) {
+                    case USER:
+                        syncope.setConnObjectLink(((UserTO) actual).getUsername());
+                        break;
 
-                syncope.setConnObjectLink(((UserTO) actual).getUsername());
+                    case GROUP:
+                        syncope.setConnObjectLink(((GroupTO) actual).getName());
+                        break;
+
+                    case ANY_OBJECT:
+                        syncope.setConnObjectLink(((AnyObjectTO) actual).getName());
+                        break;
+
+                    default:
+                }
 
                 Status syncopeStatus = Status.UNDEFINED;
-                if (((UserTO) actual).getStatus() != null) {
+                if (actual.getStatus() != null) {
                     try {
-                        syncopeStatus = Status.valueOf(((UserTO) actual).getStatus().toUpperCase());
+                        syncopeStatus = Status.valueOf(actual.getStatus().toUpperCase());
                     } catch (IllegalArgumentException e) {
-                        LOG.warn("Unexpected status found: {}", ((UserTO) actual).getStatus(), e);
+                        LOG.warn("Unexpected status found: {}", actual.getStatus(), e);
                     }
                 }
                 syncope.setStatus(syncopeStatus);
 
-                statusBeans.add(syncope);
+                Collections.sort(statusBeans, comparator);
+                statusBeans.add(0, syncope);
             } else {
-                resources.stream().
-                        map(resource -> statusUtils.getStatusBean(actual,
-                        resource,
-                        null,
-                        actual instanceof GroupTO)).
-                        map(statusBean -> {
+                statusBeans.addAll(resources.stream().
+                        filter(resource -> !anyTO.getResources().contains(resource)).
+                        map(resource -> {
+                            StatusBean statusBean = StatusUtils.getStatusBean(
+                                    actual,
+                                    resource,
+                                    null,
+                                    actual instanceof GroupTO);
                             statusBean.setLinked(false);
                             return statusBean;
-                        }).
-                        forEachOrdered(statusBean -> {
-                            statusBeans.add(statusBean);
-                        });
+                        }).collect(Collectors.toList()));
+
+                Collections.sort(statusBeans, comparator);
             }
 
-            return statusBeans;
+            return first == -1 && count == -1
+                    ? statusBeans
+                    : statusBeans.subList((int) first, (int) first + (int) count);
         }
     }
 }

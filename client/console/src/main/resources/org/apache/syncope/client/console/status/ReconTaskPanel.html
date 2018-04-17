@@ -18,7 +18,20 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <span wicket:id="eventSelection"/>
+    <form wicket:id="form">
+      <div class="form-group form-palette">
+        <span wicket:id="actions">[actions]</span>
+      </div>
+      <div class="form-group"><span wicket:id="matchingRule">[matchingRule]</span></div>
+      <div class="form-group"><span wicket:id="unmatchingRule">[unmatchingRule]</span></div>
+      <div class="form-group"><span wicket:id="performCreate">[performCreate]</span></div>
+      <div class="form-group"><span wicket:id="performUpdate">[performUpdate]</span></div>
+      <div class="form-group"><span wicket:id="performDelete">[performDelete]</span></div>
+      <div class="form-group"><span wicket:id="syncStatus">[syncStatus]</span></div>
+
+      <div style="float: right;">
+        <a href="#" wicket:id="reconcile" class="btn btn-primary btn-circle btn-lg"><i class="fa fa-recycle" alt="reconcile" title="Reconcile"></i></a>
+      </div>
+    </form>
   </wicket:panel>
 </html>
-

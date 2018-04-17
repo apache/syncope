@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
@@ -48,7 +49,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
-public class ReconciliationDetailsModalPanel extends AbstractModalPanel<Any> {
+public class ReconDetailsModalPanel extends AbstractModalPanel<Any> {
 
     private static final long serialVersionUID = 1469396040405535283L;
 
@@ -58,7 +59,7 @@ public class ReconciliationDetailsModalPanel extends AbstractModalPanel<Any> {
 
     private final List<Misaligned> misaligned;
 
-    public ReconciliationDetailsModalPanel(
+    public ReconDetailsModalPanel(
             final BaseModal<Any> modal,
             final String resource,
             final List<Misaligned> misaligned,
@@ -112,7 +113,7 @@ public class ReconciliationDetailsModalPanel extends AbstractModalPanel<Any> {
 
             columns.add(new PropertyColumn<>(new ResourceModel("key"), "name", "name"));
 
-            columns.add(new AbstractColumn<Misaligned, String>(Model.of("Syncope")) {
+            columns.add(new AbstractColumn<Misaligned, String>(Model.of(Constants.SYNCOPE)) {
 
                 private static final long serialVersionUID = 2054811145491901166L;
 

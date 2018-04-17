@@ -249,15 +249,17 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
                 }
 
                 if (builder.multiLevelPanel == null) {
-                    bulkModal.header(new ResourceModel("bulk.action", "Bulk action"));
+                    bulkModal.header(new ResourceModel("bulk.action"));
                     bulkModal.changeCloseButtonLabel(getString("cancel", null, "Cancel"), target);
 
                     target.add(bulkModal.setContent(new BulkActionModal<>(
                             bulkModal,
                             builder.pageRef,
                             new ArrayList<>(group.getModelObject()),
+                            builder.columns.size() == 1
+                            ? builder.columns
                             // serialization problem with sublist only
-                            new ArrayList<>(builder.columns.subList(1, builder.columns.size())),
+                            : new ArrayList<>(builder.columns.subList(1, builder.columns.size())),
                             builder.bulkActions,
                             builder.bulkActionExecutor,
                             builder.itemKeyField)));
@@ -269,8 +271,10 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
                             new BulkContent<>(
                                     builder.baseModal,
                                     new ArrayList<>(group.getModelObject()),
+                                    builder.columns.size() == 1
+                                    ? builder.columns
                                     // serialization problem with sublist only
-                                    new ArrayList<>(builder.columns.subList(1, builder.columns.size() - 1)),
+                                    : new ArrayList<>(builder.columns.subList(1, builder.columns.size())),
                                     builder.bulkActions,
                                     builder.bulkActionExecutor,
                                     builder.itemKeyField),

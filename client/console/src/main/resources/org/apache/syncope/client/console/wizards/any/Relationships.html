@@ -17,25 +17,22 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head><title></title></head>
-  <body>
-    <wicket:panel>
-      <div class="wizard-step-title">
-        <div><span wicket:id="title">[RELATIONSHIPS]</span></div><span wicket:id="changed"></span>
+  <wicket:panel>
+    <div class="wizard-step-title">
+      <div><span wicket:id="title">[RELATIONSHIPS]</span></div><span wicket:id="changed"></span>
+    </div>
+
+    <div id="emptyPlaceholder"/>
+    <span wicket:id="relationships"/>
+
+    <wicket:fragment wicket:id="viewFragment">
+      <div wicket:id="relationships"/>
+      <div id="inline-actions" class="modal-footer">
+        <span wicket:id="actions" class="circular-actions">[ACTIONS]</span>
       </div>
-
-      <div id="emptyPlaceholder"/>
-      <span wicket:id="relationships"/>
-
-      <wicket:fragment wicket:id="viewFragment">
-        <div wicket:id="relationships"/>
-        <div id="inline-actions" class="modal-footer">
-          <span wicket:id="actions" class="circular-actions">[ACTIONS]</span>
-        </div>
-      </wicket:fragment>
-      <wicket:fragment wicket:id="addFragment">
-        <span wicket:id="specification" />
-      </wicket:fragment>
-    </wicket:panel>
-  </body>
+    </wicket:fragment>
+    <wicket:fragment wicket:id="addFragment">
+      <span wicket:id="specification" />
+    </wicket:fragment>
+  </wicket:panel>
 </html>

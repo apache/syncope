@@ -31,7 +31,7 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
-import org.apache.syncope.common.lib.to.ReconciliationStatus;
+import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -131,9 +131,10 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<AbstractBase
         MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision).orElseThrow(()
                 -> new NotFoundException("ConnObjectKey for " + any.getType()
                         + " on resource '" + provision.getResource().getKey() + "'"));
-        String connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, provision).orElseThrow(()
-                -> new NotFoundException("Value for ConnObjectKey for " + any.getType()
-                        + " on resource '" + provision.getResource().getKey() + "'"));
+        String connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, provision).orElse(null);
+        if (connObjectKeyValue == null) {
+            return null;
+        }
 
         // 2. determine attributes to query
         Set<MappingItem> linkinMappingItems = virSchemaDAO.findByProvision(provision).stream().
@@ -166,10 +167,11 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<AbstractBase
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_GET_CONNOBJECT + "')")
-    public ReconciliationStatus status(final AnyTypeKind anyTypeKind, final String anyKey, final String resourceKey) {
+    public ReconStatus status(final AnyTypeKind anyTypeKind, final String anyKey, final String resourceKey) {
         Pair<Any<?>, Provision> init = init(anyTypeKind, anyKey, resourceKey);
 
-        ReconciliationStatus status = new ReconciliationStatus();
+        ReconStatus status = new ReconStatus();
+        status.setResource(resourceKey);
         status.setOnSyncope(getOnSyncope(init.getLeft(), init.getRight(), resourceKey));
         status.setOnResource(getOnResource(init.getLeft(), init.getRight()));
 

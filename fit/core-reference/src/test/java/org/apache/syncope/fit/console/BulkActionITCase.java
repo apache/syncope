@@ -96,7 +96,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
-        formTester.select("checkgroup", 2);
+        formTester.select("checkgroup", 0);
 
         TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
@@ -116,7 +116,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
 
     @Test
     public void userStatusOnSyncopeOnlyBulkAction() {
-        userStatusBulkAction(0, "Syncope");
+        userStatusBulkAction(0, Constants.SYNCOPE);
     }
 
     private void userStatusBulkAction(final int index, final String resource) {
@@ -169,7 +169,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         TESTER.cleanupFeedbackMessages();
 
         TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
-                + "secondLevelContainer:second:container:selectedObjects:body:rows:1:cells:3:cell", "SUCCESS");
+                + "secondLevelContainer:second:container:selectedObjects:body:rows:1:cells:4:cell", "SUCCESS");
 
         TESTER.executeAjaxEvent(TAB_PANEL
                 + "outerObjectsRepeater:2:outer:form:content:status:secondLevelContainer:back",
@@ -224,7 +224,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         TESTER.cleanupFeedbackMessages();
 
         TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
-                + "secondLevelContainer:second:container:selectedObjects:body:rows:1:cells:3:cell", "SUCCESS");
+                + "secondLevelContainer:second:container:selectedObjects:body:rows:1:cells:4:cell", "SUCCESS");
 
         TESTER.executeAjaxEvent(TAB_PANEL
                 + "outerObjectsRepeater:2:outer:form:content:status:secondLevelContainer:back",
@@ -268,7 +268,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         component = findComponentByProp("resource",
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
-                + "checkgroup:dataTable", "ws-target-resource-1");
+                + "checkgroup:dataTable", "resource-ldap");
         assertNotNull(component);
 
         FormTester formTester = TESTER.newFormTester(
@@ -276,7 +276,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
-        formTester.select("checkgroup", 7);
+        formTester.select("checkgroup", 0);
 
         TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
@@ -286,7 +286,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
         assertNotNull(findComponentByProp("resource", TAB_PANEL + "outerObjectsRepeater:2:outer:"
-                + "form:content:status:secondLevelContainer:second:container:selectedObjects", "resource-testdb2"));
+                + "form:content:status:secondLevelContainer:second:container:selectedObjects", "resource-ldap"));
     }
 
     @Test
@@ -316,7 +316,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         component = findComponentByProp("resource",
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
-                + "checkgroup:dataTable", "ws-target-resource-1");
+                + "checkgroup:dataTable", "resource-db-scripted");
         assertNotNull(component);
 
         FormTester formTester = TESTER.newFormTester(
@@ -324,7 +324,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
-        formTester.select("checkgroup", 7);
+        formTester.select("checkgroup", 0);
 
         TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
@@ -334,7 +334,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
         assertNotNull(findComponentByProp("resource", TAB_PANEL + "outerObjectsRepeater:2:outer:"
-                + "form:content:status:secondLevelContainer:second:container:selectedObjects", "resource-testdb2"));
+                + "form:content:status:secondLevelContainer:second:container:selectedObjects", "resource-db-scripted"));
     }
 
     @Test

@@ -17,38 +17,35 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head><title></title></head>
-  <body>
-    <wicket:panel>
-      <div id="ownership">
-        <span wicket:id="ownership">[OWNERSHIP]</span>
+  <wicket:panel>
+    <div id="ownership">
+      <span wicket:id="ownership">[OWNERSHIP]</span>
+    </div>
+
+    <div wicket:id="ownerContainer">
+      <span wicket:id="search">[SEARCH]</span>
+    </div>
+
+    <wicket:fragment wicket:id="userSearchFragment">
+      <div class="form-group input-group">
+        <span wicket:id="userOwner"/>
+        <a href="#" wicket:id="userOwnerReset" class="input-group-addon"><i class="glyphicon glyphicon-remove-circle" alt="reset user owner" title="Reset"></i></a>
       </div>
-
-      <div wicket:id="ownerContainer">
-        <span wicket:id="search">[SEARCH]</span>
+      <span wicket:id="usersearch">[USER SEARCH]</span>
+      <div class="searchResult">
+        <span wicket:id="searchResult">[USER SEARCH RESULT]</span>
       </div>
+    </wicket:fragment>
 
-      <wicket:fragment wicket:id="userSearchFragment">
-        <div class="form-group input-group">
-          <span wicket:id="userOwner"/>
-          <a href="#" wicket:id="userOwnerReset" class="input-group-addon"><i class="glyphicon glyphicon-remove-circle" alt="reset user owner" title="Reset"></i></a>
-        </div>
-        <span wicket:id="usersearch">[USER SEARCH]</span>
-        <div class="searchResult">
-          <span wicket:id="searchResult">[USER SEARCH RESULT]</span>
-        </div>
-      </wicket:fragment>
-
-      <wicket:fragment wicket:id="groupSearchFragment">
-        <div class="form-group input-group">
-          <span wicket:id="groupOwner"/>
-          <a href="#" wicket:id="groupOwnerReset" class="input-group-addon"><i class="glyphicon glyphicon-remove-circle" alt="reset group owner" title="Reset"></i></a>
-        </div>
-        <span wicket:id="groupsearch">[GROUP SEARCH]</span>
-        <div class="searchResult">
-          <span wicket:id="searchResult">[GROUP SEARCH RESULT]</span>
-        </div>
-      </wicket:fragment>
-    </wicket:panel>
-  </body>
+    <wicket:fragment wicket:id="groupSearchFragment">
+      <div class="form-group input-group">
+        <span wicket:id="groupOwner"/>
+        <a href="#" wicket:id="groupOwnerReset" class="input-group-addon"><i class="glyphicon glyphicon-remove-circle" alt="reset group owner" title="Reset"></i></a>
+      </div>
+      <span wicket:id="groupsearch">[GROUP SEARCH]</span>
+      <div class="searchResult">
+        <span wicket:id="searchResult">[GROUP SEARCH RESULT]</span>
+      </div>
+    </wicket:fragment>
+  </wicket:panel>
 </html>

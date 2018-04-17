@@ -76,9 +76,9 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
     protected Serializable onApplyInternal(final AnyWrapper<UserTO> modelObject) {
         UserTO inner = modelObject.getInnerObject();
 
-        ProvisioningResult<UserTO> actual;
+        ProvisioningResult<UserTO> result;
         if (inner.getKey() == null) {
-            actual = userRestClient.create(inner, modelObject instanceof UserWrapper
+            result = userRestClient.create(inner, modelObject instanceof UserWrapper
                     ? UserWrapper.class.cast(modelObject).isStorePasswordInSyncope()
                     : StringUtils.isNotBlank(inner.getPassword()));
         } else {
@@ -92,14 +92,14 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
 
             // update just if it is changed
             if (patch.isEmpty()) {
-                actual = new ProvisioningResult<>();
-                actual.setEntity(inner);
+                result = new ProvisioningResult<>();
+                result.setEntity(inner);
             } else {
-                actual = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
+                result = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
             }
         }
 
-        return actual;
+        return result;
     }
 
     @Override

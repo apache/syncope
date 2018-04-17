@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AnyDataProvider;
 import org.apache.syncope.client.console.commons.Constants;
@@ -285,15 +285,14 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                 panelId,
                 ((ProvisioningResult<A>) result).getEntity(),
                 new ListModel<>(new ArrayList<>()),
-                ((ProvisioningResult<A>) result).getPropagationStatuses().stream().
-                        map(input -> {
-                            ConnObjectTO before = input.getBeforeObj();
-                            ConnObjectWrapper afterObjWrapper = new ConnObjectWrapper(
-                                    ((ProvisioningResult<A>) result).getEntity(),
-                                    input.getResource(),
-                                    input.getAfterObj());
-                            return Pair.of(before, afterObjWrapper);
-                        }).collect(Collectors.toList()),
+                ((ProvisioningResult<A>) result).getPropagationStatuses().stream().map(status -> {
+                    ConnObjectTO before = status.getBeforeObj();
+                    ConnObjectWrapper afterObjWrapper = new ConnObjectWrapper(
+                            ((ProvisioningResult<A>) result).getEntity(),
+                            status.getResource(),
+                            status.getAfterObj());
+                    return Triple.of(before, afterObjWrapper, status.getFailureReason());
+                }).collect(Collectors.toList()),
                 pageRef);
     }
 }

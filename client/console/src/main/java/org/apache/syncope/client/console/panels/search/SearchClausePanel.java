@@ -23,13 +23,10 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.boot
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.Constants;
@@ -378,7 +375,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         final AjaxTextFieldPanel property = new AjaxTextFieldPanel(
                 "property",
                 "property",
-                new PropertyModel<String>(searchClause, "property"),
+                new PropertyModel<>(searchClause, "property"),
                 false);
         property.hideLabel().setOutputMarkupId(true).setEnabled(true);
         property.setChoices(properties.getObject());
@@ -424,16 +421,8 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                                     AnyObjectSearchPanel.MAX_GROUP_LIST_CARDINALITY,
                                     new SortParam<>("name", true),
                                     null);
-                            Collection<String> newList = CollectionUtils.collect(filteredGroups,
-                                    new Transformer<GroupTO, String>() {
-
-                                @Override
-                                public String transform(final GroupTO input) {
-                                    return input.getName();
-                                }
-                            });
-
-                            final List<String> names = new ArrayList<>(newList);
+                            List<String> names = filteredGroups.stream().
+                                    map(GroupTO::getName).collect(Collectors.toList());
                             Collections.sort(names);
                             property.setChoices(names);
                         }
@@ -614,7 +603,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     properties.detach();
                     property.setChoices(properties.getObject());
                     break;
-                    
+
                 case GROUP_MEMBERSHIP:
                     value.setEnabled(false);
                     value.setModelObject(StringUtils.EMPTY);

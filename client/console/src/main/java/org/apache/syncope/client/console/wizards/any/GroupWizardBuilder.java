@@ -87,9 +87,9 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
                 ? GroupWrapper.class.cast(modelObject).fillDynamicConditions()
                 : modelObject.getInnerObject();
 
-        ProvisioningResult<GroupTO> actual;
+        ProvisioningResult<GroupTO> result;
         if (inner.getKey() == null) {
-            actual = groupRestClient.create(inner);
+            result = groupRestClient.create(inner);
         } else {
             GroupPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
             GroupTO originaObj = getOriginalItem().getInnerObject();
@@ -107,14 +107,14 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
 
             // update just if it is changed
             if (patch.isEmpty() && !othersNotEqualsOrBlanks) {
-                actual = new ProvisioningResult<>();
-                actual.setEntity(inner);
+                result = new ProvisioningResult<>();
+                result.setEntity(inner);
             } else {
-                actual = groupRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
+                result = groupRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
             }
         }
 
-        return actual;
+        return result;
     }
 
     @Override

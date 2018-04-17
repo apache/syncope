@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -48,7 +49,12 @@ public class ConnObjectPanel extends Panel {
 
     private static final long serialVersionUID = -6469290753080058487L;
 
-    public ConnObjectPanel(final String id, final Pair<ConnObjectTO, ConnObjectTO> connObjectTOs, final boolean view) {
+    public ConnObjectPanel(
+            final String id,
+            final Pair<IModel<?>, IModel<?>> titles,
+            final Pair<ConnObjectTO, ConnObjectTO> connObjectTOs,
+            final boolean hideLeft) {
+
         super(id);
 
         final IModel<List<String>> formProps = new LoadableDetachableModel<List<String>>() {
@@ -60,29 +66,28 @@ public class ConnObjectPanel extends Panel {
                 List<AttrTO> right = new ArrayList<>(connObjectTOs == null || connObjectTOs.getRight() == null
                         ? Collections.<AttrTO>emptyList()
                         : connObjectTOs.getRight().getAttrs());
-
                 List<AttrTO> left = new ArrayList<>(connObjectTOs == null || connObjectTOs.getLeft() == null
                         ? Collections.<AttrTO>emptyList()
                         : connObjectTOs.getLeft().getAttrs());
 
-                final List<String> schemas = ListUtils.sum(
+                List<String> schemas = ListUtils.sum(
                         right.stream().map(AttrTO::getSchema).collect(Collectors.toList()),
                         left.stream().map(AttrTO::getSchema).collect(Collectors.toList()));
-
                 Collections.sort(schemas);
-
                 return schemas;
             }
         };
 
-        final Map<String, AttrTO> beforeProfile = connObjectTOs == null || connObjectTOs.getLeft() == null
+        add(new Label("leftTitle", titles.getLeft()).setOutputMarkupPlaceholderTag(true).setVisible(!hideLeft));
+        add(new Label("rightTitle", titles.getRight()));
+
+        final Map<String, AttrTO> leftProfile = connObjectTOs == null || connObjectTOs.getLeft() == null
                 ? null
                 : EntityTOUtils.buildAttrMap(connObjectTOs.getLeft().getAttrs());
-        final Map<String, AttrTO> afterProfile = connObjectTOs == null || connObjectTOs.getRight() == null
+        final Map<String, AttrTO> rightProfile = connObjectTOs == null || connObjectTOs.getRight() == null
                 ? null
                 : EntityTOUtils.buildAttrMap(connObjectTOs.getRight().getAttrs());
-
-        final ListView<String> propView = new ListView<String>("propView", formProps) {
+        ListView<String> propView = new ListView<String>("propView", formProps) {
 
             private static final long serialVersionUID = 3109256773218160485L;
 
@@ -91,29 +96,25 @@ public class ConnObjectPanel extends Panel {
                 final String prop = item.getModelObject();
 
                 final Fragment valueFragment;
-                final AttrTO before = beforeProfile == null ? null : beforeProfile.get(prop);
-                final AttrTO after = afterProfile == null ? null : afterProfile.get(prop);
+                final AttrTO left = leftProfile == null ? null : leftProfile.get(prop);
+                final AttrTO right = rightProfile == null ? null : rightProfile.get(prop);
 
                 valueFragment = new Fragment("value", "doubleValue", ConnObjectPanel.this);
+                valueFragment.add(getValuePanel("leftAttribute", prop, left).
+                        setOutputMarkupPlaceholderTag(true).setVisible(!hideLeft));
+                valueFragment.add(getValuePanel("rightAttribute", prop, right));
 
-                Panel oldAttribute = getValuePanel("oldAttribute", prop, before);
-                oldAttribute.setOutputMarkupPlaceholderTag(true);
-                oldAttribute.setVisible(!view);
-                valueFragment.add(oldAttribute);
-
-                valueFragment.add(getValuePanel("newAttribute", prop, after));
-
-                if (before == null || after == null
-                        || (CollectionUtils.isNotEmpty(after.getValues())
-                        && CollectionUtils.isEmpty(before.getValues()))
-                        || (CollectionUtils.isEmpty(after.getValues())
-                        && CollectionUtils.isNotEmpty(before.getValues()))
-                        || (CollectionUtils.isNotEmpty(after.getValues())
-                        && CollectionUtils.isNotEmpty(before.getValues())
-                        && after.getValues().size() != before.getValues().size())
-                        || (CollectionUtils.isNotEmpty(after.getValues())
-                        && CollectionUtils.isNotEmpty(before.getValues())
-                        && !after.getValues().equals(before.getValues()))) {
+                if (left == null || right == null
+                        || (CollectionUtils.isNotEmpty(right.getValues())
+                        && CollectionUtils.isEmpty(left.getValues()))
+                        || (CollectionUtils.isEmpty(right.getValues())
+                        && CollectionUtils.isNotEmpty(left.getValues()))
+                        || (CollectionUtils.isNotEmpty(right.getValues())
+                        && CollectionUtils.isNotEmpty(left.getValues())
+                        && right.getValues().size() != left.getValues().size())
+                        || (CollectionUtils.isNotEmpty(right.getValues())
+                        && CollectionUtils.isNotEmpty(left.getValues())
+                        && !right.getValues().equals(left.getValues()))) {
 
                     valueFragment.add(new Behavior() {
 
@@ -158,5 +159,4 @@ public class ConnObjectPanel extends Panel {
         field.setEnabled(false);
         return field;
     }
-
 }

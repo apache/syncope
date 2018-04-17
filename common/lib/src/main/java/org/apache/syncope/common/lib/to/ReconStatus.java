@@ -28,13 +28,24 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlRootElement(name = "reconciliationStatus")
 @XmlType
-public class ReconciliationStatus extends AbstractBaseBean {
+public class ReconStatus extends AbstractBaseBean {
 
     private static final long serialVersionUID = -8516345256596521490L;
+
+    private String resource;
 
     private ConnObjectTO onSyncope;
 
     private ConnObjectTO onResource;
+
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    public String getResource() {
+        return resource;
+    }
+
+    public void setResource(final String resource) {
+        this.resource = resource;
+    }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public ConnObjectTO getOnSyncope() {

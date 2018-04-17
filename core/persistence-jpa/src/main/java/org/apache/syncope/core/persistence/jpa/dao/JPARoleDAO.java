@@ -101,11 +101,10 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
         Role merged = entityManager().merge(role);
 
         // refresh dynamic memberships
+        clearDynMembers(merged);
         if (merged.getDynMembership() != null) {
             List<User> matching = searchDAO().search(
                     SearchCondConverter.convert(merged.getDynMembership().getFIQLCond()), AnyTypeKind.USER);
-
-            clearDynMembers(merged);
 
             matching.forEach((user) -> {
                 Query insert = entityManager().createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
