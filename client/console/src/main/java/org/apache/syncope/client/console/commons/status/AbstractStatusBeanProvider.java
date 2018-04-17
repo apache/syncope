@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.commons.status;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
@@ -31,7 +30,7 @@ public abstract class AbstractStatusBeanProvider extends DirectoryDataProvider<S
 
     private static final long serialVersionUID = 4287357360778016173L;
 
-    private final SortableDataProviderComparator<StatusBean> comparator;
+    protected final SortableDataProviderComparator<StatusBean> comparator;
 
     public AbstractStatusBeanProvider(final String sort) {
         super(10);
@@ -42,29 +41,27 @@ public abstract class AbstractStatusBeanProvider extends DirectoryDataProvider<S
 
     @Override
     public Iterator<StatusBean> iterator(final long first, final long count) {
-        List<StatusBean> list = getStatusBeans();
-        Collections.sort(list, comparator);
-        return list.subList((int) first, (int) first + (int) count).iterator();
+        return getStatusBeans(first, count).iterator();
     }
 
     @Override
     public long size() {
-        return getStatusBeans().size();
+        return getStatusBeans(-1, -1).size();
     }
 
     @Override
-    public IModel<StatusBean> model(final StatusBean resource) {
+    public IModel<StatusBean> model(final StatusBean statusBean) {
         return new AbstractReadOnlyModel<StatusBean>() {
 
             private static final long serialVersionUID = -7802635613997243712L;
 
             @Override
             public StatusBean getObject() {
-                return resource;
+                return statusBean;
             }
         };
     }
 
-    public abstract List<StatusBean> getStatusBeans();
+    protected abstract List<StatusBean> getStatusBeans(long first, long count);
 
 }

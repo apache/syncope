@@ -41,4 +41,12 @@ public enum AnyTypeKind {
         return toClass;
     }
 
+    public static AnyTypeKind fromTOClass(final Class<? extends AnyTO> clazz) {
+        return UserTO.class.isAssignableFrom(clazz)
+                ? AnyTypeKind.USER
+                : GroupTO.class.isAssignableFrom(clazz)
+                ? AnyTypeKind.GROUP
+                : AnyTypeKind.ANY_OBJECT;
+    }
+
 }

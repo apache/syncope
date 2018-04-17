@@ -181,16 +181,17 @@ public class RealmsITCase extends AbstractConsoleITCase {
         TESTER.clickLink(component.getPageRelativePath() + ":actions:actionRepeater:0:action:action");
 
         TESTER.assertLabel("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:0:value:oldAttribute:field-label", "__NAME__");
+                + "secondLevelContainer:second:remoteObject:propView:0:value:leftAttribute:field-label", "__NAME__");
 
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:0:value:oldAttribute:textField", null);
+                + "secondLevelContainer:second:remoteObject:propView:0:value:leftAttribute:textField", null);
 
         TESTER.assertLabel("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:0:value:newAttribute:field-label", "__NAME__");
+                + "secondLevelContainer:second:remoteObject:propView:0:value:rightAttribute:field-label", "__NAME__");
 
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:0:value:newAttribute:textField", "ou=even,o=isp");
+                + "secondLevelContainer:second:remoteObject:propView:0:value:rightAttribute:textField",
+                "ou=even,o=isp");
 
         TESTER.clickLink("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
                 + "secondLevelContainer:back");
@@ -226,16 +227,16 @@ public class RealmsITCase extends AbstractConsoleITCase {
         TESTER.clickLink(component.getPageRelativePath() + ":actions:actionRepeater:0:action:action");
 
         TESTER.assertLabel("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:4:value:oldAttribute:field-label", "ou");
+                + "secondLevelContainer:second:remoteObject:propView:4:value:leftAttribute:field-label", "ou");
 
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:4:value:oldAttribute:textField", "even");
+                + "secondLevelContainer:second:remoteObject:propView:4:value:leftAttribute:textField", "even");
 
         TESTER.assertLabel("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:4:value:newAttribute:field-label", "ou");
+                + "secondLevelContainer:second:remoteObject:propView:4:value:rightAttribute:field-label", "ou");
 
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:4:value:newAttribute:textField", null);
+                + "secondLevelContainer:second:remoteObject:propView:4:value:rightAttribute:textField", null);
 
         TESTER.clickLink("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
                 + "secondLevelContainer:back");

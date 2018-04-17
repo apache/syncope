@@ -47,13 +47,13 @@ public class RealmWizardBuilder extends AjaxWizardBuilder<RealmTO> {
 
     @Override
     protected Serializable onApplyInternal(final RealmTO modelObject) {
-        final ProvisioningResult<RealmTO> res;
+        ProvisioningResult<RealmTO> result;
         if (modelObject.getKey() == null) {
-            res = realmRestClient.create(this.parentPath, modelObject);
+            result = realmRestClient.create(this.parentPath, modelObject);
         } else {
-            res = realmRestClient.update(modelObject);
+            result = realmRestClient.update(modelObject);
         }
-        return res;
+        return result;
     }
 
     @Override

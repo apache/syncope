@@ -244,7 +244,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
             pullTaskSpecifics.add(destinationRealm);
 
             // ------------------------------
-            // Only for pull tasks
+            // Only for push tasks
             // ------------------------------  
             WebMarkupContainer pushTaskSpecifics = new WebMarkupContainer("pushTaskSpecifics");
             add(pushTaskSpecifics.setRenderBodyOnly(true));

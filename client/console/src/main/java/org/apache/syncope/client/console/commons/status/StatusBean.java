@@ -23,6 +23,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -44,18 +45,20 @@ public class StatusBean implements Serializable {
 
     private boolean linked = true;
 
-    public StatusBean(final AnyTO any, final String resourceName) {
+    public StatusBean(final AnyTO any, final String resource) {
         this.key = any.getKey();
         this.name = any instanceof UserTO
                 ? ((UserTO) any).getUsername()
-                : any instanceof GroupTO ? ((GroupTO) any).getName() : String.valueOf(any.getKey());
-        this.resource = resourceName;
+                : any instanceof GroupTO
+                        ? ((GroupTO) any).getName()
+                        : ((AnyObjectTO) any).getName();
+        this.resource = resource;
     }
 
-    public StatusBean(final RealmTO realm, final String resourceName) {
+    public StatusBean(final RealmTO realm, final String resource) {
         this.key = realm.getKey();
         this.name = realm.getFullPath();
-        this.resource = resourceName;
+        this.resource = resource;
     }
 
     public String getConnObjectLink() {

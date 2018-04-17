@@ -16,60 +16,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.rest.cxf.service;
+package org.apache.syncope.client.console.rest;
 
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.service.ReconciliationService;
-import org.apache.syncope.core.logic.ReconciliationLogic;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
-public class ReconciliationServiceImpl extends AbstractServiceImpl implements ReconciliationService {
+public class ReconciliationRestClient extends BaseRestClient {
 
-    @Autowired
-    private ReconciliationLogic logic;
+    private static final long serialVersionUID = -3161863874876938094L;
 
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
-
-    @Override
     public ReconStatus status(final AnyTypeKind anyTypeKind, final String anyKey, final String resourceKey) {
-        return logic.status(
-                anyTypeKind,
-                getActualKey(anyUtilsFactory.getInstance(anyTypeKind).dao(), anyKey),
-                resourceKey);
+        return getService(ReconciliationService.class).status(anyTypeKind, anyKey, resourceKey);
     }
 
-    @Override
     public void push(
             final AnyTypeKind anyTypeKind,
             final String anyKey,
             final String resourceKey,
             final PushTaskTO pushTask) {
 
-        logic.push(
-                anyTypeKind,
-                getActualKey(anyUtilsFactory.getInstance(anyTypeKind).dao(), anyKey),
-                resourceKey,
-                pushTask);
+        getService(ReconciliationService.class).push(anyTypeKind, anyKey, resourceKey, pushTask);
     }
 
-    @Override
     public void pull(
             final AnyTypeKind anyTypeKind,
             final String anyKey,
             final String resourceKey,
             final PullTaskTO pullTask) {
 
-        logic.pull(
-                anyTypeKind,
-                getActualKey(anyUtilsFactory.getInstance(anyTypeKind).dao(), anyKey),
-                resourceKey,
-                pullTask);
+        getService(ReconciliationService.class).pull(anyTypeKind, anyKey, resourceKey, pullTask);
     }
 }

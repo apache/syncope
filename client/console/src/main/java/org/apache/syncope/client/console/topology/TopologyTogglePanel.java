@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.topology;
 
-
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.text.MessageFormat;
@@ -417,7 +416,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.RESOURCE_READ);
         fragment.add(edit);
 
-        AjaxLink<String> status = new IndicatingAjaxLink<String>("status") {
+        AjaxLink<String> status = new IndicatingAjaxLink<String>("reconciliation") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -426,8 +425,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 ResourceTO modelObject = resourceRestClient.read(node.getKey());
                 target.add(propTaskModal.setContent(
                         new ResourceStatusModal(propTaskModal, pageRef, modelObject)));
-                propTaskModal.header(new Model<>(MessageFormat.format(getString("resource.provisioning.status"),
-                        node.getKey())));
+                propTaskModal.header(
+                        new Model<>(MessageFormat.format(getString("resource.reconciliation"), node.getKey())));
                 propTaskModal.show(true);
             }
 

@@ -58,7 +58,9 @@ import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,8 +168,8 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
             }
         });
 
-        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo
-                = FormLayoutInfoUtils.fetch(CollectionUtils.collect(anyTypes, EntityTOUtils.keyTransformer()));
+        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo =
+                FormLayoutInfoUtils.fetch(CollectionUtils.collect(anyTypes, EntityTOUtils.keyTransformer()));
 
         for (final AnyTypeTO anyType : anyTypes) {
             tabs.add(new ITabComponent(
@@ -205,7 +207,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         syncope.setStatus(PropagationTaskExecStatus.SUCCESS);
         syncope.setResource(Constants.SYNCOPE);
 
-        ArrayList<PropagationStatus> propagations = new ArrayList<>();
+        List<PropagationStatus> propagations = new ArrayList<>();
         propagations.add(syncope);
         propagations.addAll(((ProvisioningResult) result).getPropagationStatuses());
 
@@ -253,10 +255,25 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
             }
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final PropagationStatus bean) {
-                mlp.next(bean.getResource(), new RemoteRealmPanel(bean), target);
+            public void onClick(final AjaxRequestTarget target, final PropagationStatus status) {
+                mlp.next(status.getResource(), new RemoteRealmPanel(status), target);
             }
         }, ActionLink.ActionType.VIEW, StandardEntitlement.RESOURCE_GET_CONNOBJECT);
+
+        builder.addAction(new ActionLink<PropagationStatus>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            protected boolean statusCondition(final PropagationStatus status) {
+                return StringUtils.isNotBlank(status.getFailureReason());
+            }
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final PropagationStatus status) {
+                mlp.next(status.getResource(), new PropagationErrorPanel(status.getFailureReason()), target);
+            }
+        }, ActionLink.ActionType.PROPAGATION_TASKS, StringUtils.EMPTY);
 
         mlp.setFirstLevel(builder.build(MultilevelPanel.FIRST_LEVEL_ID));
         return mlp;
@@ -270,19 +287,23 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
     protected abstract void onClickDelete(final AjaxRequestTarget target, final RealmTO realmTO);
 
-    public class RemoteRealmPanel extends RemoteObjectPanel {
+    class RemoteRealmPanel extends RemoteObjectPanel {
 
         private static final long serialVersionUID = 4303365227411467563L;
 
         private final PropagationStatus bean;
 
-        public RemoteRealmPanel(final PropagationStatus bean) {
+        RemoteRealmPanel(final PropagationStatus bean) {
             this.bean = bean;
-            add(new ConnObjectPanel(REMOTE_OBJECT_PANEL_ID, getConnObjectTO(), false));
+            add(new ConnObjectPanel(
+                    REMOTE_OBJECT_PANEL_ID,
+                    Pair.<IModel<?>, IModel<?>>of(new ResourceModel("before"), new ResourceModel("after")),
+                    getConnObjectTOs(),
+                    false));
         }
 
         @Override
-        protected final Pair<ConnObjectTO, ConnObjectTO> getConnObjectTO() {
+        protected final Pair<ConnObjectTO, ConnObjectTO> getConnObjectTOs() {
             return Pair.of(bean.getBeforeObj(), bean.getAfterObj());
         }
     }

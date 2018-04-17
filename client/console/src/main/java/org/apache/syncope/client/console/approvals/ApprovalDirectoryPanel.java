@@ -327,13 +327,13 @@ public class ApprovalDirectoryPanel
         protected Serializable onApplyInternal(final AnyWrapper<UserTO> modelObject) {
             UserTO inner = modelObject.getInnerObject();
 
-            ProvisioningResult<UserTO> actual;
+            ProvisioningResult<UserTO> result;
 
             if (formTO.getUserPatch() == null) {
-                actual = new ProvisioningResult<>();
+                result = new ProvisioningResult<>();
                 UserTO user = new UserWorkflowRestClient().executeTask("default", inner);
-                actual.setEntity(user);
-                claimForm(restClient.getFormForUser(actual.getEntity().getKey()).getTaskId());
+                result.setEntity(user);
+                claimForm(restClient.getFormForUser(result.getEntity().getKey()).getTaskId());
             } else {
                 UserPatch patch = AnyOperations.diff(inner, formTO.getUserTO(), false);
 
@@ -346,11 +346,11 @@ public class ApprovalDirectoryPanel
                 }
                 // update just if it is changed
                 if (patch.isEmpty()) {
-                    actual = new ProvisioningResult<>();
-                    actual.setEntity(inner);
+                    result = new ProvisioningResult<>();
+                    result.setEntity(inner);
                 } else {
-                    actual = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
-                    WorkflowFormTO workFlowTO = restClient.getFormForUser(actual.getEntity().getKey());
+                    result = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
+                    WorkflowFormTO workFlowTO = restClient.getFormForUser(result.getEntity().getKey());
                     if (workFlowTO != null) {
                         claimForm(workFlowTO.getTaskId());
                     }
@@ -358,7 +358,7 @@ public class ApprovalDirectoryPanel
 
             }
 
-            return actual;
+            return result;
         }
     }
 

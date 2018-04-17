@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
-import org.apache.syncope.common.lib.to.ReconciliationStatus;
+import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.fit.AbstractITCase;
@@ -63,7 +63,7 @@ public class ReconciliationITCase extends AbstractITCase {
                 "SELECT id FROM testPRINTER WHERE printername=?", printer.getName()).size());
 
         // 3. verify reconciliation status
-        ReconciliationStatus status =
+        ReconStatus status =
                 reconciliationService.status(AnyTypeKind.ANY_OBJECT, printer.getName(), "resource-db-scripted");
         assertNotNull(status);
         assertNotNull(status.getOnSyncope());
@@ -113,7 +113,7 @@ public class ReconciliationITCase extends AbstractITCase {
                 printer.getKey(), printer.getName(), "Nowhere", false, new Date());
 
         // 3. verify reconciliation status
-        ReconciliationStatus status =
+        ReconStatus status =
                 reconciliationService.status(AnyTypeKind.ANY_OBJECT, printer.getName(), "resource-db-scripted");
         assertNotNull(status);
         assertNotNull(status.getOnSyncope());

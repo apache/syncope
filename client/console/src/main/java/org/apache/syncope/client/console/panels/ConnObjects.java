@@ -81,7 +81,7 @@ public class ConnObjects extends Panel implements ModalPanel {
             private static final long serialVersionUID = 1473786800290434002L;
 
             @Override
-            protected void prev(final AjaxRequestTarget target) {
+            public void prev(final AjaxRequestTarget target) {
                 anyTypes.setEnabled(true);
                 target.add(anyTypes);
 

@@ -19,14 +19,13 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.console.panels.MultilevelPanel.SecondLevel;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 
-public abstract class RemoteObjectPanel extends SecondLevel {
+public abstract class RemoteObjectPanel extends MultilevelPanel.SecondLevel {
 
     private static final long serialVersionUID = 4303365227411467563L;
 
     protected static final String REMOTE_OBJECT_PANEL_ID = "remoteObject";
 
-    protected abstract Pair<ConnObjectTO, ConnObjectTO> getConnObjectTO();
+    protected abstract Pair<ConnObjectTO, ConnObjectTO> getConnObjectTOs();
 }

@@ -17,48 +17,45 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head><title></title></head>
-  <body>
-    <wicket:panel>
-      <div class="information">
-        <div class="infoleft">
-          <div class="infolabel"> 
-            <wicket:message key="creationDate"/>:
-          </div>
-          <div>
-            <span wicket:id="creationDate" />
-          </div>
+  <wicket:panel>
+    <div class="information">
+      <div class="infoleft">
+        <div class="infolabel"> 
+          <wicket:message key="creationDate"/>:
         </div>
-
-        <div class="inforight">
-          <div class="infolabel">
-            <wicket:message key="lastChangeDate"/>:
-          </div>
-          <div>
-            <span wicket:id="lastChangeDate" />
-          </div>
+        <div>
+          <span wicket:id="creationDate" />
         </div>
-
-        <div class="infoleft">
-          <div class="infolabel">
-            <wicket:message key="creator"/>:
-          </div>
-          <div>
-            <span wicket:id="creator" />
-          </div>
-        </div>
-
-        <div class="inforight">
-          <div class="infolabel">
-            <wicket:message key="lastModifier"/>:
-          </div>
-          <div>
-            <span wicket:id="lastModifier" />
-          </div>
-        </div>
-
-        <wicket:child />
       </div>
-    </wicket:panel>
-  </body>
+
+      <div class="inforight">
+        <div class="infolabel">
+          <wicket:message key="lastChangeDate"/>:
+        </div>
+        <div>
+          <span wicket:id="lastChangeDate" />
+        </div>
+      </div>
+
+      <div class="infoleft">
+        <div class="infolabel">
+          <wicket:message key="creator"/>:
+        </div>
+        <div>
+          <span wicket:id="creator" />
+        </div>
+      </div>
+
+      <div class="inforight">
+        <div class="infolabel">
+          <wicket:message key="lastModifier"/>:
+        </div>
+        <div>
+          <span wicket:id="lastModifier" />
+        </div>
+      </div>
+
+      <wicket:child />
+    </div>
+  </wicket:panel>
 </html>

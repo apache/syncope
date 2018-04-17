@@ -22,17 +22,21 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.PredicateUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.LabelPanel;
-import org.apache.syncope.client.console.rest.ResourceRestClient;
+import org.apache.syncope.client.console.rest.ReconciliationRestClient;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.to.ReconStatus;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.basic.Label;
@@ -40,118 +44,72 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StatusUtils implements Serializable {
+public final class StatusUtils implements Serializable {
 
     private static final long serialVersionUID = 7238009174387184309L;
 
     private static final Logger LOG = LoggerFactory.getLogger(StatusUtils.class);
 
-    private final ResourceRestClient restClient = new ResourceRestClient();
+    private static final ReconciliationRestClient RECONCILIATION_REST_CLIENT = new ReconciliationRestClient();
 
-    public List<ConnObjectWrapper> getConnectorObjects(final AnyTO any) {
-        final List<ConnObjectWrapper> objects = new ArrayList<>();
-        objects.addAll(getConnectorObjects(any, any.getResources()));
-        return objects;
-    }
+    public static List<ReconStatus> getReconStatuses(
+            final AnyTypeKind anyTypeKind, final String anyKey, final Collection<String> resources) {
 
-    public List<ConnObjectWrapper> getConnectorObjects(
-            final Collection<AnyTO> anys, final Collection<String> resources) {
+        List<ReconStatus> result = CollectionUtils.collect(resources, new Transformer<String, ReconStatus>() {
 
-        final List<ConnObjectWrapper> objects = new ArrayList<>();
-
-        for (AnyTO any : anys) {
-            objects.addAll(getConnectorObjects(any, resources));
-        }
-
-        return objects;
-    }
-
-    public List<ConnObjectWrapper> getConnectorObjects(
-            final AnyTO any, final Collection<String> resources) {
-
-        final List<ConnObjectWrapper> objects = new ArrayList<>();
-
-        for (String resourceName : resources) {
-            ConnObjectTO objectTO = null;
-            try {
-                objectTO = restClient.readConnObject(resourceName, any.getType(), any.getKey());
-            } catch (Exception e) {
-                LOG.warn("ConnObject '{}' not found on resource '{}'", any.getKey(), resourceName);
+            @Override
+            public ReconStatus transform(final String resource) {
+                try {
+                    return RECONCILIATION_REST_CLIENT.status(anyTypeKind, anyKey, resource);
+                } catch (Exception e) {
+                    LOG.warn("Unexpected error for {} {} on {}", anyTypeKind, anyKey, resource, e);
+                    return null;
+                }
             }
+        }, new ArrayList<ReconStatus>());
+        CollectionUtils.filter(result, PredicateUtils.notNullPredicate());
 
-            objects.add(new ConnObjectWrapper(any, resourceName, objectTO));
-        }
-
-        return objects;
+        return result;
     }
 
-    public StatusBean getStatusBean(
+    public static StatusBean getStatusBean(
             final AnyTO anyTO,
-            final String resourceName,
-            final ConnObjectTO objectTO,
+            final String resource,
+            final ConnObjectTO connObjectTO,
             final boolean notUser) {
 
-        final StatusBean statusBean = new StatusBean(anyTO, resourceName);
+        StatusBean statusBean = new StatusBean(anyTO, resource);
 
-        if (objectTO != null) {
-            final Boolean enabled = isEnabled(objectTO);
-
-            final Status status = enabled == null
+        if (connObjectTO != null) {
+            Boolean enabled = isEnabled(connObjectTO);
+            statusBean.setStatus(enabled == null
                     ? (notUser ? Status.ACTIVE : Status.UNDEFINED)
                     : enabled
                             ? Status.ACTIVE
-                            : Status.SUSPENDED;
+                            : Status.SUSPENDED);
 
-            String connObjectLink = getConnObjectLink(objectTO);
-
-            statusBean.setStatus(status);
-            statusBean.setConnObjectLink(connObjectLink);
+            statusBean.setConnObjectLink(getConnObjectLink(connObjectTO));
         }
 
         return statusBean;
     }
 
-    public StatusBean getStatusBean(
-            final RealmTO anyTO,
-            final String resourceName,
-            final ConnObjectTO objectTO) {
-
-        final StatusBean statusBean = new StatusBean(anyTO, resourceName);
-
-        if (objectTO != null) {
-            final Boolean enabled = isEnabled(objectTO);
-
-            final Status status = enabled == null
-                    ? Status.ACTIVE
-                    : enabled
-                            ? Status.ACTIVE
-                            : Status.SUSPENDED;
-
-            String connObjectLink = getConnObjectLink(objectTO);
-
-            statusBean.setStatus(status);
-            statusBean.setConnObjectLink(connObjectLink);
-        }
-
-        return statusBean;
-    }
-
-    private Boolean isEnabled(final ConnObjectTO objectTO) {
-        final AttrTO status = objectTO.getAttr(ConnIdSpecialName.ENABLE);
+    private static Boolean isEnabled(final ConnObjectTO objectTO) {
+        AttrTO status = objectTO.getAttr(ConnIdSpecialName.ENABLE);
         return status != null && status.getValues() != null && !status.getValues().isEmpty()
                 ? Boolean.valueOf(status.getValues().get(0))
                 : Boolean.FALSE;
     }
 
-    private String getConnObjectLink(final ConnObjectTO objectTO) {
-        final AttrTO name = objectTO == null ? null : objectTO.getAttr(ConnIdSpecialName.NAME);
+    private static String getConnObjectLink(final ConnObjectTO objectTO) {
+        AttrTO name = objectTO == null ? null : objectTO.getAttr(ConnIdSpecialName.NAME);
         return name != null && name.getValues() != null && !name.getValues().isEmpty()
                 ? name.getValues().get(0)
                 : null;
     }
 
     public static PasswordPatch buildPasswordPatch(final String password, final Collection<StatusBean> statuses) {
-        final PasswordPatch.Builder builder = new PasswordPatch.Builder();
+        PasswordPatch.Builder builder = new PasswordPatch.Builder();
         builder.value(password);
 
         for (StatusBean status : statuses) {
@@ -293,5 +251,9 @@ public class StatusUtils implements Serializable {
                 tag.put("class", clazz);
             }
         };
+    }
+
+    private StatusUtils() {
+        // private constructor for static utility class
     }
 }

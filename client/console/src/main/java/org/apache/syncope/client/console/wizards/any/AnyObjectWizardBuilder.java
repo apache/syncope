@@ -49,22 +49,22 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
     protected Serializable onApplyInternal(final AnyWrapper<AnyObjectTO> modelObject) {
         final AnyObjectTO inner = modelObject.getInnerObject();
 
-        ProvisioningResult<AnyObjectTO> actual;
+        ProvisioningResult<AnyObjectTO> result;
         if (inner.getKey() == null) {
-            actual = anyObjectRestClient.create(inner);
+            result = anyObjectRestClient.create(inner);
         } else {
             AnyObjectPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
 
             // update just if it is changed
             if (patch.isEmpty()) {
-                actual = new ProvisioningResult<>();
-                actual.setEntity(inner);
+                result = new ProvisioningResult<>();
+                result.setEntity(inner);
             } else {
-                actual = anyObjectRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
+                result = anyObjectRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
             }
         }
 
-        return actual;
+        return result;
     }
 
     @Override

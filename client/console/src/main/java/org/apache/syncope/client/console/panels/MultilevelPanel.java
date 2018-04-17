@@ -34,11 +34,11 @@ public class MultilevelPanel extends Panel implements IHeaderContributor {
 
     protected static final Logger LOG = LoggerFactory.getLogger(MultilevelPanel.class);
 
-    private boolean isFirstLevel = true;
-
     public static final String FIRST_LEVEL_ID = "first";
 
     public static final String SECOND_LEVEL_ID = "second";
+
+    private boolean isFirstLevel = true;
 
     private final WebMarkupContainer firstLevelContainer;
 
@@ -85,7 +85,7 @@ public class MultilevelPanel extends Panel implements IHeaderContributor {
         }
     }
 
-    protected void prev(final AjaxRequestTarget target) {
+    public void prev(final AjaxRequestTarget target) {
         if (isFirstLevel) {
             LOG.warn("No further level available");
         } else {

@@ -84,7 +84,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         Component component = findComponentByProp("key", "body:resources", "ws-target-resource-1");
         assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
-        TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:status");
+        TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:reconciliation");
 
         TESTER.assertComponent("body:toggle:outerObjectsRepeater:1:outer", Modal.class);
 
