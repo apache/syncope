@@ -72,15 +72,16 @@ public class StatusPanel extends Panel {
         super(id);
         init(any, model, CollectionUtils.collect(StatusUtils.getReconStatuses(
                 AnyTypeKind.fromTOClass(any.getClass()), any.getKey(), any.getResources()),
-                new SerializableTransformer<ReconStatus, Triple<ConnObjectTO, ConnObjectWrapper, String>>() {
+                new SerializableTransformer<
+                        Pair<String, ReconStatus>, Triple<ConnObjectTO, ConnObjectWrapper, String>>() {
 
             private static final long serialVersionUID = 2658691884036294287L;
 
             @Override
-            public Triple<ConnObjectTO, ConnObjectWrapper, String> transform(final ReconStatus status) {
+            public Triple<ConnObjectTO, ConnObjectWrapper, String> transform(final Pair<String, ReconStatus> status) {
                 return Triple.of(
-                        status.getOnSyncope(),
-                        new ConnObjectWrapper(any, status.getResource(), status.getOnResource()),
+                        status.getRight().getOnSyncope(),
+                        new ConnObjectWrapper(any, status.getLeft(), status.getRight().getOnResource()),
                         null);
             }
 

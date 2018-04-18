@@ -26,6 +26,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.PredicateUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.LabelPanel;
@@ -52,21 +53,22 @@ public final class StatusUtils implements Serializable {
 
     private static final ReconciliationRestClient RECONCILIATION_REST_CLIENT = new ReconciliationRestClient();
 
-    public static List<ReconStatus> getReconStatuses(
+    public static List<Pair<String, ReconStatus>> getReconStatuses(
             final AnyTypeKind anyTypeKind, final String anyKey, final Collection<String> resources) {
 
-        List<ReconStatus> result = CollectionUtils.collect(resources, new Transformer<String, ReconStatus>() {
+        List<Pair<String, ReconStatus>> result = CollectionUtils.collect(resources,
+                new Transformer<String, Pair<String, ReconStatus>>() {
 
             @Override
-            public ReconStatus transform(final String resource) {
+            public Pair<String, ReconStatus> transform(final String resource) {
                 try {
-                    return RECONCILIATION_REST_CLIENT.status(anyTypeKind, anyKey, resource);
+                    return Pair.of(resource, RECONCILIATION_REST_CLIENT.status(anyTypeKind, anyKey, resource));
                 } catch (Exception e) {
                     LOG.warn("Unexpected error for {} {} on {}", anyTypeKind, anyKey, resource, e);
                     return null;
                 }
             }
-        }, new ArrayList<ReconStatus>());
+        }, new ArrayList<Pair<String, ReconStatus>>());
         CollectionUtils.filter(result, PredicateUtils.notNullPredicate());
 
         return result;
