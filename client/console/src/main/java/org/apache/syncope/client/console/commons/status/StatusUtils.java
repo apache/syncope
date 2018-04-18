@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.LabelPanel;
@@ -52,12 +53,12 @@ public final class StatusUtils implements Serializable {
 
     private static final ReconciliationRestClient RECONCILIATION_REST_CLIENT = new ReconciliationRestClient();
 
-    public static List<ReconStatus> getReconStatuses(
+    public static List<Pair<String, ReconStatus>> getReconStatuses(
             final AnyTypeKind anyTypeKind, final String anyKey, final Collection<String> resources) {
 
         return resources.stream().map(resource -> {
             try {
-                return RECONCILIATION_REST_CLIENT.status(anyTypeKind, anyKey, resource);
+                return Pair.of(resource, RECONCILIATION_REST_CLIENT.status(anyTypeKind, anyKey, resource));
             } catch (Exception e) {
                 LOG.warn("Unexpected error for {} {} on {}", anyTypeKind, anyKey, resource, e);
                 return null;

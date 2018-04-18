@@ -60,9 +60,11 @@ public class ReconStatusPanel extends RemoteObjectPanel {
 
     @Override
     protected Pair<ConnObjectTO, ConnObjectTO> getConnObjectTOs() {
-        List<ReconStatus> statuses =
+        List<Pair<String, ReconStatus>> statuses =
                 StatusUtils.getReconStatuses(anyTypeKind, anyKey, Arrays.asList(resource));
 
-        return statuses.isEmpty() ? null : Pair.of(statuses.get(0).getOnSyncope(), statuses.get(0).getOnResource());
+        return statuses.isEmpty()
+                ? null
+                : Pair.of(statuses.get(0).getRight().getOnSyncope(), statuses.get(0).getRight().getOnResource());
     }
 }

@@ -171,7 +171,6 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<AbstractBase
         Pair<Any<?>, Provision> init = init(anyTypeKind, anyKey, resourceKey);
 
         ReconStatus status = new ReconStatus();
-        status.setResource(resourceKey);
         status.setOnSyncope(getOnSyncope(init.getLeft(), init.getRight(), resourceKey));
         status.setOnResource(getOnResource(init.getLeft(), init.getRight()));
 

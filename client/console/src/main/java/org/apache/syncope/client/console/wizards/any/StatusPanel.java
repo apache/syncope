@@ -72,8 +72,8 @@ public class StatusPanel extends Panel {
         init(any, model, StatusUtils.getReconStatuses(
                 AnyTypeKind.fromTOClass(any.getClass()), any.getKey(), any.getResources()).stream().
                 map(status -> Triple.<ConnObjectTO, ConnObjectWrapper, String>of(
-                status.getOnSyncope(),
-                new ConnObjectWrapper(any, status.getResource(), status.getOnResource()),
+                status.getRight().getOnSyncope(),
+                new ConnObjectWrapper(any, status.getLeft(), status.getRight().getOnResource()),
                 null)).
                 collect(Collectors.toList()), pageRef, false);
     }

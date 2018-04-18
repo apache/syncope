@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.status.AbstractStatusBeanProvider;
@@ -286,7 +287,7 @@ public class AnyStatusDirectoryPanel
             final AnyTO actual = restClient.read(anyTO.getKey());
 
             List<StatusBean> statusBeans = actual.getResources().stream().map(resource -> {
-                List<ReconStatus> statuses = Collections.emptyList();
+                List<Pair<String, ReconStatus>> statuses = Collections.emptyList();
                 if (statusOnly) {
                     statuses = StatusUtils.
                             getReconStatuses(anyTypeKind, anyTO.getKey(), Arrays.asList(resource));
@@ -295,7 +296,7 @@ public class AnyStatusDirectoryPanel
                 return StatusUtils.getStatusBean(
                         actual,
                         resource,
-                        statuses.isEmpty() ? null : statuses.get(0).getOnResource(),
+                        statuses.isEmpty() ? null : statuses.get(0).getRight().getOnResource(),
                         actual instanceof GroupTO);
             }).collect(Collectors.toList());
 
