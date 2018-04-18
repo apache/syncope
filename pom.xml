@@ -2189,7 +2189,6 @@ under the License.
               <report>index</report>
               <report>project-team</report>
               <report>issue-tracking</report>
-              <report>license</report>
             </reports>
           </reportSet>
         </reportSets>

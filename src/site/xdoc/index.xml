@@ -46,7 +46,7 @@ under the License.
         <i>Who has access to What, When, How, and Why?</i>
       </p>
     </div>
-
+    
     <div class="row" style="margin-bottom: 20px;">
       <div class="col-sm-offset-5 col-sm-2 text-center">
         <div class="btn-group" data-toggle="buttons">
@@ -86,6 +86,12 @@ under the License.
         
     <p style="text-align:center;">
       <img src="docs/images/identityLifecycle.png" alt="Identity lifecycle" width="500"/>
+    </p>
+
+    <p>    
+      <a href="https://www.apache.org/events/current-event">
+        <img src="https://www.apache.org/events/current-event-234x60.png" align="right"/>
+      </a>
     </p>
   </body>
 </document>
