@@ -63,12 +63,7 @@ under the License.
       <groupId>org.flowable</groupId>
       <artifactId>flowable-json-converter</artifactId>
     </dependency>
-          
-    <dependency>
-      <groupId>org.codehaus.groovy</groupId>
-      <artifactId>groovy-all</artifactId>
-    </dependency>
-      
+
     <dependency>
       <groupId>org.apache.syncope.core</groupId>
       <artifactId>syncope-core-workflow-java</artifactId>

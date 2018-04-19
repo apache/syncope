@@ -174,9 +174,8 @@ under the License.
                 <zip destfile="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-fit-build-tools.war" basedir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-fit-build-tools" />
                 <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-fit-build-tools" />
 
-                <!-- Tomcat shared libraries: H2, groovy, StAX2 API, Woodstox -->
+                <!-- Tomcat shared libraries: H2, StAX2 API, Woodstox -->
                 <copy file="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" todir="${work.dir}/apache-tomcat-${tomcat.version}/lib" />
-                <copy file="${settings.localRepository}/org/codehaus/groovy/groovy-all/${groovy.version}/groovy-all-${groovy.version}.jar" todir="${work.dir}/apache-tomcat-${tomcat.version}/lib" />
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/lib">
                   <fileset dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/lib" includes="stax2-api-*.jar" />
                   <fileset dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/lib" includes="woodstox-core-asl-*.jar" />
