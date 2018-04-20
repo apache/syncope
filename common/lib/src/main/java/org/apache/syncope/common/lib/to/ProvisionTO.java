@@ -43,6 +43,8 @@ public class ProvisionTO extends AbstractBaseBean implements EntityTO {
 
     private String syncToken;
 
+    private boolean ignoreCaseMatch;
+
     private MappingTO mapping;
 
     private final List<String> virSchemas = new ArrayList<>();
@@ -86,6 +88,14 @@ public class ProvisionTO extends AbstractBaseBean implements EntityTO {
 
     public void setSyncToken(final String syncToken) {
         this.syncToken = syncToken;
+    }
+
+    public boolean isIgnoreCaseMatch() {
+        return ignoreCaseMatch;
+    }
+
+    public void setIgnoreCaseMatch(final boolean ignoreCaseMatch) {
+        this.ignoreCaseMatch = ignoreCaseMatch;
     }
 
     public MappingTO getMapping() {

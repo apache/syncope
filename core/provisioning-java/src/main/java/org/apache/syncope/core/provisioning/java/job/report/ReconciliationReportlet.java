@@ -296,6 +296,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                     ConnectorObject connectorObject = connector.getObject(
                             provision.getObjectClass(),
                             AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue),
+                            provision.isIgnoreCaseMatch(),
                             MappingUtils.buildOperationOptions(provision.getMapping().getItems().iterator()));
 
                     if (connectorObject == null) {

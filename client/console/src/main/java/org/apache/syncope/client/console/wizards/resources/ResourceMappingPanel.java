@@ -142,13 +142,13 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
                     LOG.error("Could not read AnyType classes for {}", anyType.getClasses(), e);
                 }
             }
-            for (String auxClass : provision.getAuxClasses()) {
+            provision.getAuxClasses().forEach(auxClass -> {
                 try {
                     anyTypeClassTOs.add(anyTypeClassRestClient.read(auxClass));
                 } catch (Exception e) {
                     LOG.error("Could not read AnyTypeClass for {}", auxClass, e);
                 }
-            }
+            });
 
             switch (provision.getAnyType()) {
                 case "USER":
@@ -163,14 +163,14 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
                     choices.addAll(ANY_OBJECT_FIELD_NAMES);
             }
 
-            for (AnyTypeClassTO anyTypeClassTO : anyTypeClassTOs) {
+            anyTypeClassTOs.forEach(anyTypeClassTO -> {
                 choices.addAll(anyTypeClassTO.getPlainSchemas());
                 choices.addAll(anyTypeClassTO.getDerSchemas());
                 choices.addAll(anyTypeClassTO.getVirSchemas());
-            }
+            });
         }
 
-        final List<String> names = new ArrayList<>(choices);
+        List<String> names = new ArrayList<>(choices);
         Collections.sort(names);
         toBeUpdated.setChoices(names);
     }

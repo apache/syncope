@@ -195,19 +195,27 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         return result;
     }
 
-    private Query findByPlainAttrValueQuery(final String entityName) {
-        return entityManager().createQuery("SELECT e FROM " + entityName + " e"
+    private Query findByPlainAttrValueQuery(final String entityName, final boolean ignoreCaseMatch) {
+        String query = "SELECT e FROM " + entityName + " e"
                 + " WHERE e.attribute.schema.id = :schemaKey AND (e.stringValue IS NOT NULL"
-                + " AND e.stringValue = :stringValue)"
+                + " AND "
+                + (ignoreCaseMatch ? "LOWER(" : "") + "e.stringValue" + (ignoreCaseMatch ? ")" : "")
+                + " = "
+                + (ignoreCaseMatch ? "LOWER(" : "") + ":stringValue" + (ignoreCaseMatch ? ")" : "") + ")"
                 + " OR (e.booleanValue IS NOT NULL AND e.booleanValue = :booleanValue)"
                 + " OR (e.dateValue IS NOT NULL AND e.dateValue = :dateValue)"
                 + " OR (e.longValue IS NOT NULL AND e.longValue = :longValue)"
-                + " OR (e.doubleValue IS NOT NULL AND e.doubleValue = :doubleValue)");
+                + " OR (e.doubleValue IS NOT NULL AND e.doubleValue = :doubleValue)";
+        return entityManager().createQuery(query);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<A> findByPlainAttrValue(final String schemaKey, final PlainAttrValue attrValue) {
+    public List<A> findByPlainAttrValue(
+            final String schemaKey,
+            final PlainAttrValue attrValue,
+            final boolean ignoreCaseMatch) {
+
         PlainSchema schema = plainSchemaDAO().find(schemaKey);
         if (schema == null) {
             LOG.error("Invalid schema name '{}'", schemaKey);
@@ -217,7 +225,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         String entityName = schema.isUniqueConstraint()
                 ? anyUtils().plainAttrUniqueValueClass().getName()
                 : anyUtils().plainAttrValueClass().getName();
-        Query query = findByPlainAttrValueQuery(entityName);
+        Query query = findByPlainAttrValueQuery(entityName, ignoreCaseMatch);
         query.setParameter("schemaKey", schemaKey);
         query.setParameter("stringValue", attrValue.getStringValue());
         query.setParameter("booleanValue", attrValue.getBooleanValue() == null
@@ -243,7 +251,11 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     }
 
     @Override
-    public A findByPlainAttrUniqueValue(final String schemaKey, final PlainAttrValue attrUniqueValue) {
+    public A findByPlainAttrUniqueValue(
+            final String schemaKey,
+            final PlainAttrValue attrUniqueValue,
+            final boolean ignoreCaseMatch) {
+
         PlainSchema schema = plainSchemaDAO().find(schemaKey);
         if (schema == null) {
             LOG.error("Invalid schema name '{}'", schemaKey);
@@ -254,7 +266,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
             return null;
         }
 
-        List<A> result = findByPlainAttrValue(schemaKey, attrUniqueValue);
+        List<A> result = findByPlainAttrValue(schemaKey, attrUniqueValue, ignoreCaseMatch);
         return result.isEmpty()
                 ? null
                 : result.iterator().next();
@@ -283,15 +295,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         return attrValues;
     }
 
-    /**
-     * Generate one where clause for each different attribute schema into the derived schema expression provided.
-     *
-     * @param expression derived schema expression
-     * @param value derived attribute value
-     * @param attrUtils USER / GROUP
-     * @return where clauses to use to build the query
-     */
-    private Set<String> getWhereClause(final String expression, final String value) {
+    private Set<String> getWhereClause(final String expression, final String value, final boolean ignoreCaseMatch) {
         Parser parser = new Parser(new StringReader(expression));
 
         // Schema names
@@ -386,10 +390,16 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
                             bld.append("v.dateValue = '").append(attrValues.get(i)).append("'");
                             break;
                         default:
-                            bld.append("v.stringValue = '").append(attrValues.get(i)).append("'");
+                            if (ignoreCaseMatch) {
+                                bld.append("LOWER(v.stringValue) = '").
+                                        append(attrValues.get(i).toLowerCase()).append("'");
+                            } else {
+                                bld.append("v.stringValue = '").
+                                        append(attrValues.get(i)).append("'");
+                            }
                     }
 
-                    bld.append(")");
+                    bld.append(')');
 
                     used.add(identifiers.get(i));
 
@@ -404,7 +414,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     }
 
     @Override
-    public List<A> findByDerAttrValue(final String schemaKey, final String value) {
+    public List<A> findByDerAttrValue(final String schemaKey, final String value, final boolean ignoreCaseMatch) {
         DerSchema schema = derSchemaDAO().find(schemaKey);
         if (schema == null) {
             LOG.error("Invalid schema name '{}'", schemaKey);
@@ -415,7 +425,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         StringBuilder querystring = new StringBuilder();
 
         boolean subquery = false;
-        for (String clause : getWhereClause(schema.getExpression(), value)) {
+        for (String clause : getWhereClause(schema.getExpression(), value, ignoreCaseMatch)) {
             if (querystring.length() > 0) {
                 subquery = true;
                 querystring.append(" AND a.owner_id IN ( ");

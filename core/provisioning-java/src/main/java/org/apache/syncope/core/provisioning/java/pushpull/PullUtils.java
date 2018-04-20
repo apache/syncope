@@ -58,16 +58,19 @@ import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
-import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
+import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.spring.ImplementationManager;
+import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
 
 @Transactional(readOnly = true)
 @Component
@@ -118,7 +121,8 @@ public class PullUtils {
             final AnyType anyType,
             final String name,
             final ExternalResource resource,
-            final Connector connector) {
+            final Connector connector,
+            final boolean ignoreCaseMatch) {
 
         Optional<? extends Provision> provision = resource.getProvision(anyType);
         if (!provision.isPresent()) {
@@ -129,9 +133,11 @@ public class PullUtils {
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(anyType.getKind());
 
-        final List<ConnectorObject> found = new ArrayList<>();
+        List<ConnectorObject> found = new ArrayList<>();
+        Name nameAttr = new Name(name);
         connector.search(provision.get().getObjectClass(),
-                new EqualsFilter(new Name(name)), obj -> found.add(obj),
+                ignoreCaseMatch ? FilterBuilder.equalsIgnoreCase(nameAttr) : FilterBuilder.equalTo(nameAttr),
+                obj -> found.add(obj),
                 MappingUtils.buildOperationOptions(
                         MappingUtils.getPullItems(provision.get().getMapping().getItems()).iterator()));
 
@@ -211,20 +217,45 @@ public class PullUtils {
                     break;
 
                 case "username":
-                    User user = userDAO.findByUsername(connObjectKey);
-                    if (user != null) {
-                        result.add(user.getKey());
+                    if (provision.getAnyType().getKind() == AnyTypeKind.USER && provision.isIgnoreCaseMatch()) {
+                        AnyCond cond = new AnyCond(AttributeCond.Type.IEQ);
+                        cond.setSchema("username");
+                        cond.setExpression(connObjectKey);
+                        result.addAll(searchDAO.search(SearchCond.getLeafCond(cond), AnyTypeKind.USER).
+                                stream().map(Entity::getKey).collect(Collectors.toList()));
+                    } else {
+                        User user = userDAO.findByUsername(connObjectKey);
+                        if (user != null) {
+                            result.add(user.getKey());
+                        }
                     }
                     break;
 
                 case "name":
-                    Group group = groupDAO.findByName(connObjectKey);
-                    if (group != null) {
-                        result.add(group.getKey());
+                    if (provision.getAnyType().getKind() == AnyTypeKind.GROUP && provision.isIgnoreCaseMatch()) {
+                        AnyCond cond = new AnyCond(AttributeCond.Type.IEQ);
+                        cond.setSchema("name");
+                        cond.setExpression(connObjectKey);
+                        result.addAll(searchDAO.search(SearchCond.getLeafCond(cond), AnyTypeKind.GROUP).
+                                stream().map(Entity::getKey).collect(Collectors.toList()));
+                    } else {
+                        Group group = groupDAO.findByName(connObjectKey);
+                        if (group != null) {
+                            result.add(group.getKey());
+                        }
                     }
-                    AnyObject anyObject = anyObjectDAO.findByName(connObjectKey);
-                    if (anyObject != null) {
-                        result.add(anyObject.getKey());
+
+                    if (provision.getAnyType().getKind() == AnyTypeKind.ANY_OBJECT && provision.isIgnoreCaseMatch()) {
+                        AnyCond cond = new AnyCond(AttributeCond.Type.IEQ);
+                        cond.setSchema("name");
+                        cond.setExpression(connObjectKey);
+                        result.addAll(searchDAO.search(SearchCond.getLeafCond(cond), AnyTypeKind.ANY_OBJECT).
+                                stream().map(Entity::getKey).collect(Collectors.toList()));
+                    } else {
+                        AnyObject anyObject = anyObjectDAO.findByName(connObjectKey);
+                        if (anyObject != null) {
+                            result.add(anyObject.getKey());
+                        }
                     }
                     break;
 
@@ -247,15 +278,15 @@ public class PullUtils {
                         }
                     }
 
-                    result.addAll(anyUtils.dao().
-                            findByPlainAttrValue(intAttrName.getSchemaName(), value).stream().
-                            map(Entity::getKey).collect(Collectors.toList()));
+                    result.addAll(anyUtils.dao().findByPlainAttrValue(
+                            intAttrName.getSchemaName(), value, provision.isIgnoreCaseMatch()).
+                            stream().map(Entity::getKey).collect(Collectors.toList()));
                     break;
 
                 case DERIVED:
-                    result.addAll(anyUtils.dao().
-                            findByDerAttrValue(intAttrName.getSchemaName(), connObjectKey).stream().
-                            map(Entity::getKey).collect(Collectors.toList()));
+                    result.addAll(anyUtils.dao().findByDerAttrValue(
+                            intAttrName.getSchemaName(), connObjectKey, provision.isIgnoreCaseMatch()).
+                            stream().map(Entity::getKey).collect(Collectors.toList()));
                     break;
 
                 default:
@@ -325,7 +356,7 @@ public class PullUtils {
         String connObjectKey = null;
 
         Optional<? extends OrgUnitItem> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
-        if (connObjectKeyItem != null) {
+        if (connObjectKeyItem.isPresent()) {
             Attribute connObjectKeyAttr = connObj.getAttributeByName(connObjectKeyItem.get().getExtAttrName());
             if (connObjectKeyAttr != null) {
                 connObjectKey = AttributeUtil.getStringValue(connObjectKeyAttr);
@@ -357,8 +388,15 @@ public class PullUtils {
                 break;
 
             case "name":
-                result.addAll(realmDAO.findByName(connObjectKey).stream().
-                        map(Entity::getKey).collect(Collectors.toList()));
+                if (orgUnit.isIgnoreCaseMatch()) {
+                    final String realmName = connObjectKey;
+                    result.addAll(realmDAO.findAll().stream().
+                            filter(r -> r.getName().equalsIgnoreCase(realmName)).
+                            map(Entity::getKey).collect(Collectors.toList()));
+                } else {
+                    result.addAll(realmDAO.findByName(connObjectKey).stream().
+                            map(Entity::getKey).collect(Collectors.toList()));
+                }
                 break;
 
             case "fullpath":

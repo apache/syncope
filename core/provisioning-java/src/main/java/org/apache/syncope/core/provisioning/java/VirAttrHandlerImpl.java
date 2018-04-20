@@ -74,7 +74,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
 
         Map<Provision, Set<VirSchema>> toRead = new HashMap<>();
 
-        for (VirSchema schema : schemas) {
+        schemas.forEach(schema -> {
             if (ownedResources.contains(schema.getProvision().getResource())) {
                 VirAttrCacheValue virAttrCacheValue =
                         virAttrCache.get(any.getType().getKey(), any.getKey(), schema.getKey());
@@ -94,35 +94,36 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                 LOG.debug("Not considering {} since {} is not assigned to {}",
                         schema, any, schema.getProvision().getResource());
             }
-        }
+        });
 
-        for (Map.Entry<Provision, Set<VirSchema>> entry : toRead.entrySet()) {
-            LOG.debug("About to read from {}: {}", entry.getKey(), entry.getValue());
+        toRead.forEach((provision, schemasToRead) -> {
+            LOG.debug("About to read from {}: {}", provision, schemasToRead);
 
-            Optional<MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(entry.getKey());
+            Optional<MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
             String connObjectKeyValue = connObjectKeyItem.isPresent()
-                    ? mappingManager.getConnObjectKeyValue(any, entry.getKey()).orElse(null)
+                    ? mappingManager.getConnObjectKeyValue(any, provision).orElse(null)
                     : null;
             if (!connObjectKeyItem.isPresent() || connObjectKeyValue == null) {
-                LOG.error("No ConnObjectKey or value found for {}, ignoring...", entry.getKey());
+                LOG.error("No ConnObjectKey or value found for {}, ignoring...", provision);
             } else {
                 Set<MappingItem> linkingMappingItems = new HashSet<>();
                 linkingMappingItems.add(connObjectKeyItem.get());
-                linkingMappingItems.addAll(entry.getValue().stream().
+                linkingMappingItems.addAll(schemasToRead.stream().
                         map(schema -> schema.asLinkingMappingItem()).collect(Collectors.toSet()));
 
-                Connector connector = connFactory.getConnector(entry.getKey().getResource());
+                Connector connector = connFactory.getConnector(provision.getResource());
                 try {
                     ConnectorObject connectorObject = connector.getObject(
-                            entry.getKey().getObjectClass(),
+                            provision.getObjectClass(),
                             AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue),
+                            provision.isIgnoreCaseMatch(),
                             MappingUtils.buildOperationOptions(linkingMappingItems.iterator()));
 
                     if (connectorObject == null) {
                         LOG.debug("No read from {} with filter '{} == {}'",
-                                entry.getKey(), connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue);
+                                provision, connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue);
                     } else {
-                        entry.getValue().forEach(schema -> {
+                        schemasToRead.forEach(schema -> {
                             Attribute attr = connectorObject.getAttributeByName(schema.getExtAttrName());
                             if (attr != null) {
                                 VirAttrCacheValue virAttrCacheValue = new VirAttrCacheValue();
@@ -137,10 +138,10 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                         });
                     }
                 } catch (Exception e) {
-                    LOG.error("Error reading from {}", entry.getKey(), e);
+                    LOG.error("Error reading from {}", provision, e);
                 }
             }
-        }
+        });
 
         return result;
     }

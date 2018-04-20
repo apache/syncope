@@ -606,6 +606,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 obj = connector.getObject(
                         new ObjectClass(task.getObjectClassName()),
                         AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKey),
+                        provision.isIgnoreCaseMatch(),
                         MappingUtils.buildOperationOptions(new IteratorChain<>(
                                 MappingUtils.getPropagationItems(provision.getMapping().getItems()).iterator(),
                                 linkingMappingItems.iterator())));
@@ -656,6 +657,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             try {
                 obj = connector.getObject(new ObjectClass(task.getObjectClassName()),
                         AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKey),
+                        orgUnit.isIgnoreCaseMatch(),
                         MappingUtils.buildOperationOptions(
                                 MappingUtils.getPropagationItems(orgUnit.getItems()).iterator()));
             } catch (TimeoutException toe) {

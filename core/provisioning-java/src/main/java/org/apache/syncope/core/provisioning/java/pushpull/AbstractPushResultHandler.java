@@ -199,6 +199,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             final ObjectClass objectClass,
             final String connObjectKey,
             final String connObjectKeyValue,
+            final boolean ignoreCaseMatch,
             final Iterator<? extends Item> iterator) {
 
         ConnectorObject obj = null;
@@ -206,6 +207,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             obj = profile.getConnector().getObject(
                     objectClass,
                     AttributeBuilder.build(connObjectKey, connObjectKeyValue),
+                    ignoreCaseMatch,
                     MappingUtils.buildOperationOptions(iterator));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
@@ -272,6 +274,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     provision.get().getObjectClass(),
                     connObjectKey.get().getExtAttrName(),
                     connObjecKeyValue.get(),
+                    provision.get().isIgnoreCaseMatch(),
                     provision.get().getMapping().getItems().iterator());
         } else {
             LOG.debug("ConnObjectKeyItem {} or its value {} are null", connObjectKey, connObjecKeyValue);
@@ -445,6 +448,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                             provision.get().getObjectClass(),
                             connObjectKey.get().getExtAttrName(),
                             connObjecKeyValue.get(),
+                            provision.get().isIgnoreCaseMatch(),
                             provision.get().getMapping().getItems().iterator());
                 }
             } catch (IgnoreProvisionException e) {

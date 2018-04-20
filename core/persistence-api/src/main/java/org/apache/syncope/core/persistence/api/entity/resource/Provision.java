@@ -49,6 +49,10 @@ public interface Provision extends Entity {
 
     void setSyncToken(SyncToken syncToken);
 
+    boolean isIgnoreCaseMatch();
+
+    void setIgnoreCaseMatch(boolean ignoreCaseMatch);
+
     Mapping getMapping();
 
     void setMapping(Mapping mapping);

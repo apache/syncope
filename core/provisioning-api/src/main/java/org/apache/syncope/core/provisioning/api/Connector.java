@@ -143,10 +143,15 @@ public interface Connector {
      *
      * @param objectClass ConnId's object class
      * @param connObjectKey ConnId's key attribute
+     * @param ignoreCaseMatch whether match should be performed regardless of the value case
      * @param options ConnId's OperationOptions
      * @return ConnId's connector object for given uid
      */
-    ConnectorObject getObject(ObjectClass objectClass, Attribute connObjectKey, OperationOptions options);
+    ConnectorObject getObject(
+            ObjectClass objectClass,
+            Attribute connObjectKey,
+            boolean ignoreCaseMatch,
+            OperationOptions options);
 
     /**
      * Search for remote objects.

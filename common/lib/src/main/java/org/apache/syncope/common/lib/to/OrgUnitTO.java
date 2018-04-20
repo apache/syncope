@@ -39,6 +39,8 @@ public class OrgUnitTO extends AbstractBaseBean implements EntityTO, ItemContain
 
     private String syncToken;
 
+    private boolean ignoreCaseMatch;
+
     private String connObjectLink;
 
     private final List<ItemTO> items = new ArrayList<>();
@@ -67,6 +69,14 @@ public class OrgUnitTO extends AbstractBaseBean implements EntityTO, ItemContain
 
     public void setSyncToken(final String syncToken) {
         this.syncToken = syncToken;
+    }
+
+    public boolean isIgnoreCaseMatch() {
+        return ignoreCaseMatch;
+    }
+
+    public void setIgnoreCaseMatch(final boolean ignoreCaseMatch) {
+        this.ignoreCaseMatch = ignoreCaseMatch;
     }
 
     public String getConnObjectLink() {

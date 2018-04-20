@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.collections.IteratorChain;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -123,7 +124,11 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         return status.get();
     }
 
-    protected void setGroupOwners(final GroupPullResultHandler ghandler) {
+    protected void setGroupOwners(
+            final GroupPullResultHandler ghandler,
+            final boolean userIgnoreCaseMatch,
+            final boolean groupIgnoreCaseMatch) {
+
         ghandler.getGroupOwnerMap().entrySet().stream().map(entry -> {
             Group group = groupDAO.find(entry.getKey());
             if (group == null) {
@@ -137,7 +142,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                         anyTypeDAO.findUser(),
                         entry.getValue(),
                         ghandler.getProfile().getTask().getResource(),
-                        ghandler.getProfile().getConnector());
+                        ghandler.getProfile().getConnector(),
+                        userIgnoreCaseMatch);
 
                 if (userKey.isPresent()) {
                     group.setUserOwner(userDAO.find(userKey.get()));
@@ -146,7 +152,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                             anyTypeDAO.findGroup(),
                             entry.getValue(),
                             ghandler.getProfile().getTask().getResource(),
-                            ghandler.getProfile().getConnector());
+                            ghandler.getProfile().getConnector(),
+                            groupIgnoreCaseMatch);
 
                     if (groupKey.isPresent()) {
                         group.setGroupOwner(groupDAO.find(groupKey.get()));
@@ -272,8 +279,16 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         // ...then provisions for any types
         SyncopePullResultHandler handler;
         GroupPullResultHandler ghandler = buildGroupHandler();
+        boolean userIgnoreCaseMatch = false;
+        boolean groupIgnoreCaseMatch = false;
         for (Provision provision : pullTask.getResource().getProvisions()) {
             if (provision.getMapping() != null) {
+                if (provision.getAnyType().getKind() == AnyTypeKind.USER) {
+                    userIgnoreCaseMatch = provision.isIgnoreCaseMatch();
+                } else if (provision.getAnyType().getKind() == AnyTypeKind.GROUP) {
+                    groupIgnoreCaseMatch = provision.isIgnoreCaseMatch();
+                }
+
                 status.set("Pulling " + provision.getObjectClass().getObjectClassValue());
 
                 switch (provision.getAnyType().getKind()) {
@@ -340,7 +355,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             }
         }
         try {
-            setGroupOwners(ghandler);
+            setGroupOwners(ghandler, userIgnoreCaseMatch, groupIgnoreCaseMatch);
         } catch (Exception e) {
             LOG.error("While setting group owners", e);
         }

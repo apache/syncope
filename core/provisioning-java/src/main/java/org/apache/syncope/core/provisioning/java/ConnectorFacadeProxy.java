@@ -392,12 +392,13 @@ public class ConnectorFacadeProxy implements Connector {
     public ConnectorObject getObject(
             final ObjectClass objectClass,
             final Attribute connObjectKey,
+            final boolean ignoreCaseMatch,
             final OperationOptions options) {
 
         Future<ConnectorObject> future = null;
 
         if (connInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
-            future = asyncFacade.getObject(connector, objectClass, connObjectKey, options);
+            future = asyncFacade.getObject(connector, objectClass, connObjectKey, ignoreCaseMatch, options);
         } else {
             LOG.info("Search was attempted, although the connector only has these capabilities: {}. No action.",
                     connInstance.getCapabilities());

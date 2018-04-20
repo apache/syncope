@@ -36,15 +36,16 @@ public abstract class ObjectTypeTogglePanel extends TogglePanel<Serializable> {
 
     ObjectTypeTogglePanel(
             final String id,
-            final ResourceProvision item,
+            final ResourceProvision resourceProvision,
             final LoadableDetachableModel<List<String>> anyTypes,
             final PageReference pageRef) {
+
         super(id, pageRef);
 
         Form<?> form = new Form<>("objectTypeForm");
         addInnerObject(form);
 
-        PropertyModel<String> typeModel = new PropertyModel<>(item, "anyType");
+        PropertyModel<String> typeModel = new PropertyModel<>(resourceProvision, "anyType");
 
         form.add(new AjaxDropDownChoicePanel<>(
                 "type", "type", typeModel, false).

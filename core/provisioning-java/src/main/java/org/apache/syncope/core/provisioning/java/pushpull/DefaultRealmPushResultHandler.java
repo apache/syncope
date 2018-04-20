@@ -163,6 +163,7 @@ public class DefaultRealmPushResultHandler
             final ObjectClass objectClass,
             final String connObjectKey,
             final String connObjectKeyValue,
+            final boolean ignoreCaseMatch,
             final Iterator<? extends Item> iterator) {
 
         ConnectorObject obj = null;
@@ -170,6 +171,7 @@ public class DefaultRealmPushResultHandler
             obj = profile.getConnector().getObject(
                     objectClass,
                     AttributeBuilder.build(connObjectKey, connObjectKeyValue),
+                    ignoreCaseMatch,
                     MappingUtils.buildOperationOptions(iterator));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
@@ -205,6 +207,7 @@ public class DefaultRealmPushResultHandler
                     orgUnit.getObjectClass(),
                     connObjectKey.get().getExtAttrName(),
                     connObjecKeyValue.get(),
+                    orgUnit.isIgnoreCaseMatch(),
                     orgUnit.getItems().iterator());
         } else {
             LOG.debug("OrgUnitItem {} or its value {} are null", connObjectKey, connObjecKeyValue);
@@ -383,6 +386,7 @@ public class DefaultRealmPushResultHandler
                             orgUnit.getObjectClass(),
                             connObjectKey.get().getExtAttrName(),
                             connObjecKeyValue.get(),
+                            orgUnit.isIgnoreCaseMatch(),
                             orgUnit.getItems().iterator());
                 }
             } catch (IgnoreProvisionException e) {

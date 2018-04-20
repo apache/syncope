@@ -100,13 +100,17 @@ public class AsyncConnectorFacade {
             final ConnectorFacade connector,
             final ObjectClass objectClass,
             final Attribute connObjectKey,
+            final boolean ignoreCaseMatch,
             final OperationOptions options) {
 
         ConnectorObject[] objects = new ConnectorObject[1];
-        connector.search(objectClass, FilterBuilder.equalTo(connObjectKey), connectorObject -> {
-            objects[0] = connectorObject;
-            return false;
-        }, options);
+        connector.search(
+                objectClass,
+                ignoreCaseMatch ? FilterBuilder.equalsIgnoreCase(connObjectKey) : FilterBuilder.equalTo(connObjectKey),
+                connectorObject -> {
+                    objects[0] = connectorObject;
+                    return false;
+                }, options);
 
         return new AsyncResult<>(objects[0]);
     }

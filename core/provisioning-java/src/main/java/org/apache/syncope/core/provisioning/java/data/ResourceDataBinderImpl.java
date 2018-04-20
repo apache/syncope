@@ -197,6 +197,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 provision.getAuxClasses().
                         removeIf(anyTypeClass -> !provisionTO.getAuxClasses().contains(anyTypeClass.getKey()));
 
+                provision.setIgnoreCaseMatch(provisionTO.isIgnoreCaseMatch());
+
                 if (provisionTO.getMapping() == null) {
                     provision.setMapping(null);
                 } else {
@@ -279,6 +281,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 throw sce;
             }
             orgUnit.setObjectClass(new ObjectClass(orgUnitTO.getObjectClass()));
+
+            orgUnit.setIgnoreCaseMatch(orgUnitTO.isIgnoreCaseMatch());
 
             if (orgUnitTO.getConnObjectLink() == null) {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidOrgUnit);
@@ -594,6 +598,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             provisionTO.getAuxClasses().addAll(provision.getAuxClasses().stream().
                     map(cls -> cls.getKey()).collect(Collectors.toList()));
             provisionTO.setSyncToken(provision.getSerializedSyncToken());
+            provisionTO.setIgnoreCaseMatch(provision.isIgnoreCaseMatch());
 
             if (provision.getMapping() != null) {
                 MappingTO mappingTO = new MappingTO();
@@ -625,6 +630,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             orgUnitTO.setKey(orgUnit.getKey());
             orgUnitTO.setObjectClass(orgUnit.getObjectClass().getObjectClassValue());
             orgUnitTO.setSyncToken(orgUnit.getSerializedSyncToken());
+            orgUnitTO.setIgnoreCaseMatch(orgUnit.isIgnoreCaseMatch());
             orgUnitTO.setConnObjectLink(orgUnit.getConnObjectLink());
             populateItems(orgUnit.getItems(), orgUnitTO);
 

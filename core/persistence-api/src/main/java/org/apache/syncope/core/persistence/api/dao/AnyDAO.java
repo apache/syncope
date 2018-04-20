@@ -41,9 +41,9 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
     A findByWorkflowId(String workflowId);
 
-    List<A> findByPlainAttrValue(String schemaName, PlainAttrValue attrValue);
+    List<A> findByPlainAttrValue(String schemaName, PlainAttrValue attrValue, boolean ignoreCaseMatch);
 
-    A findByPlainAttrUniqueValue(String schemaName, PlainAttrValue attrUniqueValue);
+    A findByPlainAttrUniqueValue(String schemaName, PlainAttrValue attrUniqueValue, boolean ignoreCaseMatch);
 
     /**
      * Find any objects by derived attribute value. This method could fail if one or more string literals contained
@@ -53,9 +53,10 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
      *
      * @param schemaName derived schema name
      * @param value derived attribute value
+     * @param ignoreCaseMatch whether comparison for string values should take case into account or not
      * @return list of any objects
      */
-    List<A> findByDerAttrValue(String schemaName, String value);
+    List<A> findByDerAttrValue(String schemaName, String value, boolean ignoreCaseMatch);
 
     List<A> findByResource(ExternalResource resource);
 

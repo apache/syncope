@@ -155,13 +155,13 @@ public class SAML2UserManager {
                         }
                     }
 
-                    result.addAll(userDAO.findByPlainAttrValue(intAttrName.getSchemaName(), value).stream().
-                            map(user -> user.getUsername()).collect(Collectors.toList()));
+                    result.addAll(userDAO.findByPlainAttrValue(intAttrName.getSchemaName(), value, false).stream().
+                            map(User::getUsername).collect(Collectors.toList()));
                     break;
 
                 case DERIVED:
-                    result.addAll(userDAO.findByDerAttrValue(intAttrName.getSchemaName(), transformed).stream().
-                            map(user -> user.getUsername()).collect(Collectors.toList()));
+                    result.addAll(userDAO.findByDerAttrValue(intAttrName.getSchemaName(), transformed, false).stream().
+                            map(User::getUsername).collect(Collectors.toList()));
                     break;
 
                 default:

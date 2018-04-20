@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.collections.IteratorChain;
@@ -166,8 +167,16 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
                     handler,
                     options);
 
+            Optional<? extends Provision> userProvision = provision.getResource().getProvision(anyTypeDAO.findUser());
+            boolean userIgnoreCaseMatch = userProvision.isPresent()
+                    ? userProvision.get().isIgnoreCaseMatch()
+                    : false;
+            Optional<? extends Provision> groupProvision = provision.getResource().getProvision(anyTypeDAO.findGroup());
+            boolean groupIgnoreCaseMatch = groupProvision.isPresent()
+                    ? groupProvision.get().isIgnoreCaseMatch()
+                    : false;
             try {
-                setGroupOwners(ghandler);
+                setGroupOwners(ghandler, userIgnoreCaseMatch, groupIgnoreCaseMatch);
             } catch (Exception e) {
                 LOG.error("While setting group owners", e);
             }

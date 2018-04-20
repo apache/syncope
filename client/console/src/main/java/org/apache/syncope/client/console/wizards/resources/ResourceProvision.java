@@ -128,6 +128,18 @@ public class ResourceProvision implements Serializable {
         return provisionTO == null ? Collections.<String>emptyList() : provisionTO.getAuxClasses();
     }
 
+    public boolean isIgnoreCaseMatch() {
+        return provisionTO == null ? orgUnitTO.isIgnoreCaseMatch() : provisionTO.isIgnoreCaseMatch();
+    }
+
+    public void setIgnoreCaseMatch(final boolean ignoreCaseMatch) {
+        if (provisionTO == null) {
+            orgUnitTO.setIgnoreCaseMatch(ignoreCaseMatch);
+        } else {
+            provisionTO.setIgnoreCaseMatch(ignoreCaseMatch);
+        }
+    }
+
     public String getConnObjectLink() {
         return provisionTO == null
                 ? orgUnitTO == null

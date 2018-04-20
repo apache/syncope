@@ -150,6 +150,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<AbstractBase
         ConnectorObject connectorObject = connector.getObject(
                 provision.getObjectClass(),
                 AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue),
+                provision.isIgnoreCaseMatch(),
                 MappingUtils.buildOperationOptions(mapItems));
         if (connectorObject != null) {
             Set<Attribute> attributes = connectorObject.getAttributes();

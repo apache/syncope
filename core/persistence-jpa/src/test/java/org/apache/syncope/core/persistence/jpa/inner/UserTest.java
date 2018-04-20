@@ -88,36 +88,50 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void findByDerAttributeValue() {
-        final List<User> list = userDAO.findByDerAttrValue("cn", "Vivaldi, Antonio");
+    public void findByDerAttrValue() {
+        List<User> list = userDAO.findByDerAttrValue("cn", "Vivaldi, Antonio", false);
+        assertEquals(1, list.size());
+
+        list = userDAO.findByDerAttrValue("cn", "VIVALDI, ANTONIO", false);
+        assertEquals(0, list.size());
+
+        list = userDAO.findByDerAttrValue("cn", "VIVALDI, ANTONIO", true);
         assertEquals(1, list.size());
     }
 
     @Test
     public void findByInvalidDerAttrValue() {
-        assertTrue(userDAO.findByDerAttrValue("cn", "Antonio, Maria, Rossi").isEmpty());
+        assertTrue(userDAO.findByDerAttrValue("cn", "Antonio, Maria, Rossi", false).isEmpty());
     }
 
     @Test
     public void findByInvalidDerAttrExpression() {
-        assertTrue(userDAO.findByDerAttrValue("noschema", "Antonio, Maria").isEmpty());
+        assertTrue(userDAO.findByDerAttrValue("noschema", "Antonio, Maria", false).isEmpty());
     }
 
     @Test
-    public void findByAttributeValue() {
-        final UPlainAttrValue fullnameValue = entityFactory.newEntity(UPlainAttrValue.class);
+    public void findByPlainAttrValue() {
+        UPlainAttrValue fullnameValue = entityFactory.newEntity(UPlainAttrValue.class);
         fullnameValue.setStringValue("Gioacchino Rossini");
 
-        final List<User> list = userDAO.findByPlainAttrValue("fullname", fullnameValue);
+        List<User> list = userDAO.findByPlainAttrValue("fullname", fullnameValue, false);
+        assertEquals(1, list.size());
+
+        fullnameValue.setStringValue("Gioacchino ROSSINI");
+
+        list = userDAO.findByPlainAttrValue("fullname", fullnameValue, false);
+        assertEquals(0, list.size());
+
+        list = userDAO.findByPlainAttrValue("fullname", fullnameValue, true);
         assertEquals(1, list.size());
     }
 
     @Test
-    public void findByAttributeBooleanValue() {
+    public void findByPlainAttrBooleanValue() {
         final UPlainAttrValue coolValue = entityFactory.newEntity(UPlainAttrValue.class);
         coolValue.setBooleanValue(true);
 
-        final List<User> list = userDAO.findByPlainAttrValue("cool", coolValue);
+        final List<User> list = userDAO.findByPlainAttrValue("cool", coolValue, false);
         assertEquals(1, list.size());
     }
 

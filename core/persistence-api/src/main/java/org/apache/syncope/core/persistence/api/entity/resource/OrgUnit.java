@@ -40,6 +40,10 @@ public interface OrgUnit extends Entity {
 
     void setSyncToken(SyncToken syncToken);
 
+    boolean isIgnoreCaseMatch();
+
+    void setIgnoreCaseMatch(boolean ignoreCaseMatch);
+
     String getConnObjectLink();
 
     void setConnObjectLink(String connObjectLink);

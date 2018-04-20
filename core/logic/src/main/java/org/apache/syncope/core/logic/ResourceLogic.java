@@ -331,6 +331,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         ConnectorObject connectorObject = connector.getObject(
                 init.getRight().getObjectClass(),
                 AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue.get()),
+                init.getRight().isIgnoreCaseMatch(),
                 MappingUtils.buildOperationOptions(mapItems));
         if (connectorObject == null) {
             throw new NotFoundException(

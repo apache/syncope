@@ -105,7 +105,7 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
         if (membAttr == null) {
             OperationOptionsBuilder oob = new OperationOptionsBuilder();
             oob.setAttributesToGet(groupMemberName);
-            ConnectorObject remoteObj = connector.getObject(ObjectClass.GROUP, delta.getUid(), oob.build());
+            ConnectorObject remoteObj = connector.getObject(ObjectClass.GROUP, delta.getUid(), false, oob.build());
             if (remoteObj == null) {
                 LOG.debug("Object for '{}' not found", delta.getUid().getUidValue());
             } else {
@@ -177,7 +177,8 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
                     anyTypeDAO.findUser(),
                     name,
                     profile.getTask().getResource(),
-                    profile.getConnector());
+                    profile.getConnector(),
+                    false);
             if (userKey.isPresent()) {
                 resolvedMemberships.put(userKey.get(), memb);
             } else {
