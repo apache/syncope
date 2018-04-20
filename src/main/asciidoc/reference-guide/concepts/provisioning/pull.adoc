@@ -25,8 +25,8 @@ Pull is the mechanism used to acquire identity data from Identity Stores; for ea
 Pull task execution involves querying the external resource and then processing each entity in an isolated transaction; 
 a retrieved entity can be:
 
-. _matching_ if a corresponding internal entity was found, according to the <<policies-pull,pull policy>> set for the
-enclosing external resource;
+. _matching_ if a corresponding internal entity was found, according to the <<mapping,mapping>> of - or the
+<<policies-pull,pull policy>> set for, if present - the enclosing external resource;
 . _unmatching_ otherwise.
 
 Once this has been assessed, entities are processed according to the matching / unmatching rules specified for the pull task:
