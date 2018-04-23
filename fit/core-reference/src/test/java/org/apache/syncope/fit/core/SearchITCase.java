@@ -525,4 +525,12 @@ public class SearchITCase extends AbstractITCase {
             userService.update(patch);
         }
     }
+
+    @Test
+    public void issueSYNCOPE1304() {
+        PagedResult<GroupTO> groups = groupService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                orderBy("userOwner DESC").build());
+        assertNotNull(groups);
+        assertFalse(groups.getResult().isEmpty());
+    }
 }

@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -63,6 +64,8 @@ import org.springframework.util.ReflectionUtils;
 public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
     private static final String EMPTY_QUERY = "SELECT any_id FROM user_search_attr WHERE 1=2";
+
+    private static final String[] RELATIONSHIP_FIELDS = new String[] { "realm", "userOwner", "groupOwner" };
 
     private Pair<String, Set<String>> getAdminRealmsFilter(
             final Set<String> adminRealms,
@@ -223,9 +226,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
     private StringBuilder buildSelect(final OrderBySupport obs) {
         final StringBuilder select = new StringBuilder("SELECT u.any_id");
 
-        for (OrderBySupport.Item item : obs.items) {
+        obs.items.forEach(item -> {
             select.append(',').append(item.select);
-        }
+        });
         select.append(" FROM ");
 
         return select;
@@ -233,7 +236,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
     private StringBuilder buildWhere(final SearchSupport svs, final OrderBySupport obs) {
         StringBuilder where = new StringBuilder(" u");
-        for (SearchSupport.SearchView searchView : obs.views) {
+        obs.views.forEach(searchView -> {
             where.append(',');
             if (searchView.name.equals(svs.attr().name)) {
                 where.append(" (SELECT * FROM ").append(searchView.name);
@@ -247,17 +250,17 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 where.append(searchView.name);
             }
             where.append(' ').append(searchView.alias);
-        }
+        });
         where.append(" WHERE ");
-        for (SearchSupport.SearchView searchView : obs.views) {
+        obs.views.forEach(searchView -> {
             where.append("u.any_id=").append(searchView.alias).append(".any_id AND ");
-        }
+        });
 
-        for (OrderBySupport.Item item : obs.items) {
-            if (StringUtils.isNotBlank(item.where)) {
-                where.append(item.where).append(" AND ");
-            }
-        }
+        obs.items.stream().
+                filter(item -> StringUtils.isNotBlank(item.where)).
+                forEachOrdered((item) -> {
+                    where.append(item.where).append(" AND ");
+                });
 
         return where;
     }
@@ -265,9 +268,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
     private StringBuilder buildOrderBy(final OrderBySupport obs) {
         StringBuilder orderBy = new StringBuilder();
 
-        for (OrderBySupport.Item item : obs.items) {
+        obs.items.forEach(item -> {
             orderBy.append(item.orderBy).append(',');
-        }
+        });
         if (!obs.items.isEmpty()) {
             orderBy.insert(0, " ORDER BY ");
             orderBy.deleteCharAt(orderBy.length() - 1);
@@ -283,7 +286,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         OrderBySupport obs = new OrderBySupport();
 
-        for (OrderByClause clause : filterOrderBy(orderBy)) {
+        filterOrderBy(orderBy).forEach(clause -> {
             OrderBySupport.Item item = new OrderBySupport.Item();
 
             // Manage difference among external key attribute and internal JPA @Id
@@ -319,7 +322,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 }
             } else {
                 // Adjust field name to column name
-                fieldName = "realm".equals(fieldName) ? "realm_id" : fieldName;
+                if (ArrayUtils.contains(RELATIONSHIP_FIELDS, fieldName)) {
+                    fieldName += "_id";
+                }
 
                 obs.views.add(svs.field());
 
@@ -333,7 +338,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             } else {
                 obs.items.add(item);
             }
-        }
+        });
 
         return obs;
     }
