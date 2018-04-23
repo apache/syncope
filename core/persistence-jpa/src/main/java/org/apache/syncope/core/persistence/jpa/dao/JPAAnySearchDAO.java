@@ -27,6 +27,7 @@ import java.util.Set;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -63,6 +64,8 @@ import org.springframework.util.ReflectionUtils;
 public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
     private static final String EMPTY_QUERY = "SELECT any_id FROM user_search_attr WHERE 1=2";
+
+    private static final String[] RELATIONSHIP_FIELDS = new String[] { "realm", "userOwner", "groupOwner" };
 
     private Pair<String, Set<String>> getAdminRealmsFilter(
             final Set<String> adminRealms,
@@ -318,7 +321,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 }
             } else {
                 // Adjust field name to column name
-                fieldName = "realm".equals(fieldName) ? "realm_id" : fieldName;
+                if (ArrayUtils.contains(RELATIONSHIP_FIELDS, fieldName)) {
+                    fieldName += "_id";
+                }
 
                 obs.views.add(svs.field());
 
