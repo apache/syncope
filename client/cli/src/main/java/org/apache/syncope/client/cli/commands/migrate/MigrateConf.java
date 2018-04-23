@@ -148,9 +148,6 @@ public class MigrateConf {
         reader.nextTag(); // dataset
 
         String realmUUID = UUID.randomUUID().toString();
-        writer.writeStartElement("Realm");
-        writer.writeAttribute("id", realmUUID);
-        writer.writeAttribute("name", "/");
 
         writer.writeStartElement("AnyType");
         writer.writeAttribute("id", "USER");
@@ -757,13 +754,13 @@ public class MigrateConf {
                                 break;
 
                             case "org.apache.syncope.core.sync.impl.LDAPPasswordSyncActions":
-                                syncActionClassName
-                                        = "org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions";
+                                syncActionClassName =
+                                        "org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions";
                                 break;
 
                             case "org.apache.syncope.core.sync.impl.DBPasswordSyncActions":
-                                syncActionClassName
-                                        = "org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions";
+                                syncActionClassName =
+                                        "org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions";
                                 break;
 
                             default:
@@ -885,6 +882,9 @@ public class MigrateConf {
             reader.next();
         }
 
+        writer.writeStartElement("Realm");
+        writer.writeAttribute("id", realmUUID);
+        writer.writeAttribute("name", "/");
         if (globalAccountPolicy != null) {
             writer.writeAttribute("accountPolicy_id", globalAccountPolicy);
         }
@@ -892,7 +892,7 @@ public class MigrateConf {
             writer.writeAttribute("passwordPolicy_id", globalPasswordPolicy);
         }
         writer.writeEndElement();
-
+        
         writer.writeEndElement();
         writer.writeEndDocument();
         writer.close();
