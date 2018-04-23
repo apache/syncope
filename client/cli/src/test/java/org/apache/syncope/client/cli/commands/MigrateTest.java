@@ -76,7 +76,6 @@ public class MigrateTest {
         // 3. attempt to set initial content from the migrated MasterContent.xml
         SAXParserFactory factory = SAXParserFactory.newInstance();
         try (InputStream in = new FileInputStream(args[3])) {
-
             SAXParser parser = factory.newSAXParser();
             parser.parse(in, new ContentLoaderHandler(dataSource, ROOT_ELEMENT, false));
         }
