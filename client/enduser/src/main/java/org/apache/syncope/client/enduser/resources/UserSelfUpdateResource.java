@@ -20,7 +20,6 @@ package org.apache.syncope.client.enduser.resources;
 
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
@@ -182,17 +181,16 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
     private void completeUserObject(final UserTO userTO, final UserTO selfTO) {
         // memberships plain and virtual attrs
         userTO.getMemberships().forEach(updatedTOMemb -> {
-            Optional<MembershipTO> oldTOMatchedMemb = selfTO.getMemberships().stream().
+            selfTO.getMemberships().stream().
                     filter(oldTOMemb -> updatedTOMemb.getGroupKey().equals(oldTOMemb.getGroupKey())).
-                    findFirst();
-            if (oldTOMatchedMemb.isPresent()) {
-                if (!updatedTOMemb.getPlainAttrs().isEmpty()) {
-                    completeAttrs(updatedTOMemb.getPlainAttrs(), oldTOMatchedMemb.get().getPlainAttrs());
-                }
-                if (!updatedTOMemb.getVirAttrs().isEmpty()) {
-                    completeAttrs(updatedTOMemb.getVirAttrs(), oldTOMatchedMemb.get().getVirAttrs());
-                }
-            }
+                    findFirst().ifPresent(oldTOMatchedMemb -> {
+                        if (!updatedTOMemb.getPlainAttrs().isEmpty()) {
+                            completeAttrs(updatedTOMemb.getPlainAttrs(), oldTOMatchedMemb.getPlainAttrs());
+                        }
+                        if (!updatedTOMemb.getVirAttrs().isEmpty()) {
+                            completeAttrs(updatedTOMemb.getVirAttrs(), oldTOMatchedMemb.getVirAttrs());
+                        }
+                    });
         });
         // plain attrs
         completeAttrs(userTO.getPlainAttrs(), selfTO.getPlainAttrs());

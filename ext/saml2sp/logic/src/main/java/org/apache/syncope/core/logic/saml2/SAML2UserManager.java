@@ -234,11 +234,11 @@ public class SAML2UserManager {
                 switch (intAttrName.getSchemaType()) {
                     case PLAIN:
                         Optional<AttrTO> attr = userTO.getPlainAttr(intAttrName.getSchemaName());
-                        if (!attr.isPresent()) {
+                        if (attr.isPresent()) {
+                            attr.get().getValues().clear();
+                        } else {
                             attr = Optional.of(new AttrTO.Builder().schema(intAttrName.getSchemaName()).build());
                             userTO.getPlainAttrs().add(attr.get());
-                        } else {
-                            attr.get().getValues().clear();
                         }
                         attr.get().getValues().addAll(values);
                         break;

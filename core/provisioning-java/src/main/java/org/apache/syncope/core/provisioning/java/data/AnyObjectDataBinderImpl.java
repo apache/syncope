@@ -274,12 +274,11 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             if (relationshipType == null) {
                 LOG.debug("Ignoring invalid relationship type {}", patch.getRelationshipTO().getType());
             } else {
-                Optional<? extends ARelationship> relationship =
-                        anyObject.getRelationship(relationshipType, patch.getRelationshipTO().getOtherEndKey());
-                if (relationship.isPresent()) {
-                    anyObject.getRelationships().remove(relationship.get());
-                    relationship.get().setLeftEnd(null);
-                }
+                anyObject.getRelationship(relationshipType, patch.getRelationshipTO().getOtherEndKey()).
+                        ifPresent(relationship -> {
+                            anyObject.getRelationships().remove(relationship);
+                            relationship.setLeftEnd(null);
+                        });
 
                 if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
                     if (StringUtils.isBlank(patch.getRelationshipTO().getOtherEndType())
@@ -339,24 +338,23 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         // memberships
         anyObjectPatch.getMemberships().stream().
                 filter((membPatch) -> (membPatch.getGroup() != null)).forEachOrdered(membPatch -> {
-            Optional<? extends AMembership> membership = anyObject.getMembership(membPatch.getGroup());
-            if (membership.isPresent()) {
-                anyObject.getMemberships().remove(membership.get());
-                membership.get().setLeftEnd(null);
-                anyObject.getPlainAttrs(membership.get()).forEach(attr -> {
+            anyObject.getMembership(membPatch.getGroup()).ifPresent(membership -> {
+                anyObject.getMemberships().remove(membership);
+                membership.setLeftEnd(null);
+                anyObject.getPlainAttrs(membership).forEach(attr -> {
                     anyObject.remove(attr);
                     attr.setOwner(null);
                 });
 
                 if (membPatch.getOperation() == PatchOperation.DELETE) {
-                    groupDAO.findAllResourceKeys(membership.get().getRightEnd().getKey()).stream().
+                    groupDAO.findAllResourceKeys(membership.getRightEnd().getKey()).stream().
                             filter(resource -> reasons.containsKey(resource)).
                             forEach(resource -> {
-                                reasons.get(resource).remove(membership.get().getRightEnd().getKey());
+                                reasons.get(resource).remove(membership.getRightEnd().getKey());
                                 toBeProvisioned.add(resource);
                             });
                 }
-            }
+            });
             if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
                 Group group = groupDAO.find(membPatch.getGroup());
                 if (group == null) {

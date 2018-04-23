@@ -428,11 +428,10 @@ public class SCIMDataBinder {
 
         values.forEach(value -> {
             if (value.getType() != null) {
-                Optional<SCIMComplexConf<E>> conf = confs.stream().
-                        filter(object -> value.getType().equals(object.getType().name())).findFirst();
-                if (conf.isPresent()) {
-                    attrs.add(new AttrTO.Builder().schema(conf.get().getValue()).value(value.getValue()).build());
-                }
+                confs.stream().
+                        filter(object -> value.getType().equals(object.getType().name())).findFirst().
+                        ifPresent(conf -> attrs.add(
+                        new AttrTO.Builder().schema(conf.getValue()).value(value.getValue()).build()));
             }
         });
     }

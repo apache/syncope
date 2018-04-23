@@ -48,7 +48,6 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntit
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -296,10 +295,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 }
 
                 for (Implementation impl : policy.getRules()) {
-                    Optional<PasswordRule> rule = ImplementationManager.buildPasswordRule(impl);
-                    if (rule.isPresent()) {
-                        rule.get().enforce(user);
-                    }
+                    ImplementationManager.buildPasswordRule(impl).ifPresent(rule -> rule.enforce(user));
                 }
 
                 if (user.verifyPasswordHistory(user.getClearPassword(), policy.getHistoryLength())) {

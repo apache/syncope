@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.util.Optional;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
@@ -50,7 +51,7 @@ public class DefaultAccountRule implements AccountRule {
     public void enforce(final User user) {
         this.conf.getSchemasNotPermitted().stream().
                 map(schema -> user.getPlainAttr(schema)).
-                filter(attr -> attr.isPresent()).
+                filter(Optional::isPresent).
                 map(attr -> attr.get().getValuesAsStrings()).
                 filter(values -> (values != null && !values.isEmpty())).
                 forEachOrdered(values -> this.conf.getWordsNotPermitted().add(values.get(0)));

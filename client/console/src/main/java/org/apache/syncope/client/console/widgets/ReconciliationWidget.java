@@ -56,7 +56,6 @@ import org.apache.syncope.client.console.widgets.reconciliation.ReconciliationRe
 import org.apache.syncope.client.console.widgets.reconciliation.ReconciliationReportParser;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.ExecTO;
-import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
@@ -122,20 +121,22 @@ public class ReconciliationWidget extends BaseWidget {
             protected void onTimer(final AjaxRequestTarget target) {
                 if (isCheckReconciliationJob()) {
                     try {
-                        Optional<JobTO> reportJobTO = restClient.listJobs().stream().
+                        restClient.listJobs().stream().
                                 filter(jobTO -> SyncopeConsoleApplication.get().
-                                getReconciliationReportKey().equals(jobTO.getRefKey())).findAny();
-                        if (reportJobTO.isPresent() && !reportJobTO.get().isRunning()) {
-                            LOG.debug("Report {} is not running",
-                                    SyncopeConsoleApplication.get().getReconciliationReportKey());
+                                getReconciliationReportKey().equals(jobTO.getRefKey())).
+                                findFirst().ifPresent(reportJobTO -> {
+                                    if (!reportJobTO.isRunning()) {
+                                        LOG.debug("Report {} is not running",
+                                                SyncopeConsoleApplication.get().getReconciliationReportKey());
 
-                            overlay.setVisible(false);
+                                        overlay.setVisible(false);
 
-                            container.addOrReplace(buildExecFragment());
+                                        container.addOrReplace(buildExecFragment());
 
-                            target.add(ReconciliationWidget.this);
-                            setCheckReconciliationJob(false);
-                        }
+                                        target.add(ReconciliationWidget.this);
+                                        setCheckReconciliationJob(false);
+                                    }
+                                });
                     } catch (Throwable t) {
                         LOG.error("Unexpected error while checking for updated reconciliation job info", t);
                     }
@@ -267,7 +268,7 @@ public class ReconciliationWidget extends BaseWidget {
         Optional<ExecTO> exec = Optional.empty();
         if (SyncopeConsoleSession.get().owns(StandardEntitlement.REPORT_LIST)) {
             exec = restClient.listRecentExecutions(ROWS).stream().
-                    filter(e -> reconciliationReportKey.equals(e.getRefKey())).findAny();
+                    filter(e -> reconciliationReportKey.equals(e.getRefKey())).findFirst();
         }
         if (!exec.isPresent()) {
             LOG.error("Could not find the last execution of reconciliation report");
@@ -391,11 +392,10 @@ public class ReconciliationWidget extends BaseWidget {
                             final String componentId,
                             final IModel<Any> rowModel) {
 
-                        final Any any = rowModel.getObject();
+                        Any any = rowModel.getObject();
 
-                        Optional<Missing> missing =
-                                any.getMissing().stream().
-                                        filter(object -> resource.equals(object.getResource())).findAny();
+                        Optional<Missing> missing = any.getMissing().stream().
+                                filter(object -> resource.equals(object.getResource())).findFirst();
                         List<Misaligned> misaligned = any.getMisaligned().stream().
                                 filter(object -> resource.equals(object.getResource())).collect(Collectors.toList());
 
@@ -404,7 +404,7 @@ public class ReconciliationWidget extends BaseWidget {
                             if (misaligned == null || misaligned.isEmpty()) {
                                 content = new Label(componentId, StringUtils.EMPTY);
                             } else {
-                                final Action<Any> action = new Action<>(new ActionLink<Any>() {
+                                Action<Any> action = new Action<>(new ActionLink<Any>() {
 
                                     private static final long serialVersionUID = -3722207913631435501L;
 
@@ -427,7 +427,7 @@ public class ReconciliationWidget extends BaseWidget {
                                 content = new ActionPanel<>(componentId, rowModel, action);
                             }
                         } else {
-                            final Action<Any> action = new Action<>(null, ActionLink.ActionType.NOT_FOUND);
+                            Action<Any> action = new Action<>(null, ActionLink.ActionType.NOT_FOUND);
                             action.hideLabel();
                             content = new ActionPanel<>(componentId, rowModel, action);
                         }

@@ -144,20 +144,16 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                         ghandler.getProfile().getTask().getResource(),
                         ghandler.getProfile().getConnector(),
                         userIgnoreCaseMatch);
-
                 if (userKey.isPresent()) {
                     group.setUserOwner(userDAO.find(userKey.get()));
                 } else {
-                    Optional<String> groupKey = pullUtils.match(
+                    pullUtils.match(
                             anyTypeDAO.findGroup(),
                             entry.getValue(),
                             ghandler.getProfile().getTask().getResource(),
                             ghandler.getProfile().getConnector(),
-                            groupIgnoreCaseMatch);
-
-                    if (groupKey.isPresent()) {
-                        group.setGroupOwner(groupDAO.find(groupKey.get()));
-                    }
+                            groupIgnoreCaseMatch).
+                            ifPresent(groupKey -> group.setGroupOwner(groupDAO.find(groupKey)));
                 }
             }
             return group;

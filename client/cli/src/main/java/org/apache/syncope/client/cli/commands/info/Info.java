@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.client.cli.commands.info;
 
-import java.util.Optional;
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -97,15 +95,14 @@ public class Info {
     }
 
     public void accountRules() {
-        Optional<JavaImplInfo> info = platformInfo.getJavaImplInfo(ImplementationType.ACCOUNT_RULE);
-        if (info.isPresent()) {
+        platformInfo.getJavaImplInfo(ImplementationType.ACCOUNT_RULE).ifPresent(info -> {
             try {
-                infoResultManager.printAccountRules(info.get().getClasses());
+                infoResultManager.printAccountRules(info.getClasses());
             } catch (final Exception ex) {
                 LOG.error("Information error", ex);
                 infoResultManager.genericError(ex.getMessage());
             }
-        }
+        });
     }
 
     public void connidLocations() {
@@ -118,135 +115,124 @@ public class Info {
     }
 
     public void reconFilterBuilders() {
-        Optional<JavaImplInfo> info = platformInfo.getJavaImplInfo(ImplementationType.RECON_FILTER_BUILDER);
-        if (info.isPresent()) {
+        platformInfo.getJavaImplInfo(ImplementationType.RECON_FILTER_BUILDER).ifPresent(info -> {
             try {
-                infoResultManager.printReconFilterBuilders(info.get().getClasses());
+                infoResultManager.printAccountRules(info.getClasses());
             } catch (final Exception ex) {
                 LOG.error("Information error", ex);
                 infoResultManager.genericError(ex.getMessage());
             }
-        }
+        });
     }
 
     public void logicActions() {
-        Optional<JavaImplInfo> info = platformInfo.getJavaImplInfo(ImplementationType.LOGIC_ACTIONS);
-        if (info.isPresent()) {
+        platformInfo.getJavaImplInfo(ImplementationType.LOGIC_ACTIONS).ifPresent(info -> {
             try {
-                infoResultManager.printLogicActions(info.get().getClasses());
+                infoResultManager.printAccountRules(info.getClasses());
             } catch (final Exception ex) {
                 LOG.error("Information error", ex);
                 infoResultManager.genericError(ex.getMessage());
             }
-        }
+        });
     }
 
     public void itemTransformers() {
-        Optional<JavaImplInfo> info = platformInfo.getJavaImplInfo(ImplementationType.ITEM_TRANSFORMER);
-        if (info.isPresent()) {
+        platformInfo.getJavaImplInfo(ImplementationType.ITEM_TRANSFORMER).ifPresent(info -> {
             try {
-                infoResultManager.printItemTransformers(info.get().getClasses());
+                infoResultManager.printAccountRules(info.getClasses());
             } catch (final Exception ex) {
                 LOG.error("Information error", ex);
                 infoResultManager.genericError(ex.getMessage());
             }
-        }
+        });
     }
 
     public void passwordRules() {
-        Optional<JavaImplInfo> info = platformInfo.getJavaImplInfo(ImplementationType.PASSWORD_RULE);
-        if (info.isPresent()) {
+        platformInfo.getJavaImplInfo(ImplementationType.PASSWORD_RULE).ifPresent(info -> {
             try {
-                infoResultManager.printPasswordRules(info.get().getClasses());
+                infoResultManager.printAccountRules(info.getClasses());
             } catch (final Exception ex) {
                 LOG.error("Information error", ex);
                 infoResultManager.genericError(ex.getMessage());
             }
-        }
+        });
     }
 
     public void propagationActions() {
-        Optional<JavaImplInfo> info = platformInfo.getJavaImplInfo(ImplementationType.PROPAGATION_ACTIONS);
-        if (info.isPresent()) {
+        platformInfo.getJavaImplInfo(ImplementationType.PROPAGATION_ACTIONS).ifPresent(info -> {
             try {
-                infoResultManager.printPropagationActions(info.get().getClasses());
+                infoResultManager.printAccountRules(info.getClasses());
             } catch (final Exception ex) {
                 LOG.error("Information error", ex);
                 infoResultManager.genericError(ex.getMessage());
             }
-        }
+        });
     }
 
     public void pushActions() {
-        Optional<JavaImplInfo> info = platformInfo.getJavaImplInfo(ImplementationType.PUSH_ACTIONS);
-        if (info.isPresent()) {
+        platformInfo.getJavaImplInfo(ImplementationType.PUSH_ACTIONS).ifPresent(info -> {
             try {
-                infoResultManager.printPushActions(info.get().getClasses());
+                infoResultManager.printAccountRules(info.getClasses());
             } catch (final Exception ex) {
                 LOG.error("Information error", ex);
                 infoResultManager.genericError(ex.getMessage());
             }
-        }
+        });
     }
 
     public void reportletConfs() {
-        Optional<JavaImplInfo> info = platformInfo.getJavaImplInfo(ImplementationType.REPORTLET);
-        if (info.isPresent()) {
+        platformInfo.getJavaImplInfo(ImplementationType.REPORTLET).ifPresent(info -> {
             try {
-                infoResultManager.printReportletConfs(info.get().getClasses());
+                infoResultManager.printAccountRules(info.getClasses());
             } catch (final Exception ex) {
                 LOG.error("Information error", ex);
                 infoResultManager.genericError(ex.getMessage());
             }
-        }
+        });
     }
 
     public void pullActions() {
-        Optional<JavaImplInfo> info = platformInfo.getJavaImplInfo(ImplementationType.PULL_ACTIONS);
-        if (info.isPresent()) {
+        platformInfo.getJavaImplInfo(ImplementationType.PULL_ACTIONS).ifPresent(info -> {
             try {
-                infoResultManager.printPullActions(info.get().getClasses());
+                infoResultManager.printAccountRules(info.getClasses());
             } catch (final Exception ex) {
                 LOG.error("Information error", ex);
                 infoResultManager.genericError(ex.getMessage());
             }
-        }
+        });
     }
 
     public void pullCorrelationRules() {
-        Optional<JavaImplInfo> info = platformInfo.getJavaImplInfo(ImplementationType.PULL_CORRELATION_RULE);
-        if (info.isPresent()) {
+        platformInfo.getJavaImplInfo(ImplementationType.PULL_CORRELATION_RULE).ifPresent(info -> {
             try {
-                infoResultManager.printCorrelationRules(info.get().getClasses());
+                infoResultManager.printAccountRules(info.getClasses());
             } catch (final Exception ex) {
                 LOG.error("Information error", ex);
                 infoResultManager.genericError(ex.getMessage());
             }
-        }
+        });
     }
 
     public void taskJobs() {
-        Optional<JavaImplInfo> info = platformInfo.getJavaImplInfo(ImplementationType.TASKJOB_DELEGATE);
-        if (info.isPresent()) {
+        platformInfo.getJavaImplInfo(ImplementationType.TASKJOB_DELEGATE).ifPresent(info -> {
             try {
-                infoResultManager.printJobs(info.get().getClasses());
+                infoResultManager.printAccountRules(info.getClasses());
             } catch (final Exception ex) {
                 LOG.error("Information error", ex);
                 infoResultManager.genericError(ex.getMessage());
             }
-        }
+        });
     }
 
     public void validators() {
-        Optional<JavaImplInfo> info = platformInfo.getJavaImplInfo(ImplementationType.VALIDATOR);
-        if (info.isPresent()) {
+        platformInfo.getJavaImplInfo(ImplementationType.VALIDATOR).ifPresent(info -> {
             try {
-                infoResultManager.printValidators(info.get().getClasses());
+                infoResultManager.printAccountRules(info.getClasses());
             } catch (final Exception ex) {
                 LOG.error("Information error", ex);
                 infoResultManager.genericError(ex.getMessage());
             }
-        }
+        });
     }
 
     public void passwordGenerator() {

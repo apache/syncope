@@ -20,10 +20,8 @@ package org.apache.syncope.core.spring.security;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
-import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.provisioning.api.utils.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.provisioning.api.utils.policy.PolicyPattern;
@@ -69,10 +67,11 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
 
         policies.stream().forEach(policy -> policy.getRules().forEach(impl -> {
             try {
-                Optional<PasswordRule> rule = ImplementationManager.buildPasswordRule(impl);
-                if (rule.isPresent() && rule.get().getConf() instanceof DefaultPasswordRuleConf) {
-                    defaultRuleConfs.add((DefaultPasswordRuleConf) rule.get().getConf());
-                }
+                ImplementationManager.buildPasswordRule(impl).ifPresent(rule -> {
+                    if (rule.getConf() instanceof DefaultPasswordRuleConf) {
+                        defaultRuleConfs.add((DefaultPasswordRuleConf) rule.getConf());
+                    }
+                });
             } catch (Exception e) {
                 LOG.error("Invalid {}, ignoring...", impl, e);
             }

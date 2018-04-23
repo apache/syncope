@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -155,11 +154,10 @@ public class TypeExtensionDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final TypeExtensionTO ignore) {
-                Optional<TypeExtensionTO> typeExt = groupTO.getTypeExtension(typeExtension.getAnyType());
-                if (typeExt.isPresent()) {
-                    groupTO.getTypeExtensions().remove(typeExt.get());
+                groupTO.getTypeExtension(typeExtension.getAnyType()).ifPresent(typeExt -> {
+                    groupTO.getTypeExtensions().remove(typeExt);
                     target.add(container);
-                }
+                });
             }
         }, ActionLink.ActionType.DELETE, StringUtils.EMPTY, true);
         return panel;

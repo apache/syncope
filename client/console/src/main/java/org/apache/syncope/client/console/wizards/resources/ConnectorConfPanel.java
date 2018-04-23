@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.wizards.resources;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -76,11 +75,12 @@ public abstract class ConnectorConfPanel extends AbstractConnConfPanel<ConnInsta
                     ConnConfProperty property = new ConnConfProperty();
                     property.setSchema(key);
 
-                    Optional<ConnConfProperty> conf = instance.getConf(key.getName());
-                    if (conf.isPresent() && conf.get().getValues() != null) {
-                        property.getValues().addAll(conf.get().getValues());
-                        property.setOverridable(conf.get().isOverridable());
-                    }
+                    instance.getConf(key.getName()).ifPresent(conf -> {
+                        if (conf.getValues() != null) {
+                            property.getValues().addAll(conf.getValues());
+                            property.setOverridable(conf.isOverridable());
+                        }
+                    });
 
                     if (property.getValues().isEmpty() && !key.getDefaultValues().isEmpty()) {
                         property.getValues().addAll(key.getDefaultValues());

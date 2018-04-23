@@ -21,7 +21,6 @@ package org.apache.syncope.common.lib;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -536,11 +535,9 @@ public final class AnyOperations {
                     if (membPatch.getGroup() == null) {
                         LOG.warn("Invalid {} specified: {}", MembershipPatch.class.getName(), membPatch);
                     } else {
-                        Optional<MembershipTO> memb = result.getMemberships().stream().
-                                filter(membership -> membPatch.getGroup().equals(membership.getGroupKey())).findFirst();
-                        if (memb.isPresent()) {
-                            result.getMemberships().remove(memb.get());
-                        }
+                        result.getMemberships().stream().
+                                filter(membership -> membPatch.getGroup().equals(membership.getGroupKey())).
+                                findFirst().ifPresent(memb -> result.getMemberships().remove(memb));
 
                         if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
                             MembershipTO newMembershipTO =
@@ -593,11 +590,9 @@ public final class AnyOperations {
                     if (membPatch.getGroup() == null) {
                         LOG.warn("Invalid {} specified: {}", MembershipPatch.class.getName(), membPatch);
                     } else {
-                        Optional<MembershipTO> memb = result.getMemberships().stream().
-                                filter(membership -> membPatch.getGroup().equals(membership.getGroupKey())).findFirst();
-                        if (memb.isPresent()) {
-                            result.getMemberships().remove(memb.get());
-                        }
+                        result.getMemberships().stream().
+                                filter(membership -> membPatch.getGroup().equals(membership.getGroupKey())).
+                                findFirst().ifPresent(memb -> result.getMemberships().remove(memb));
 
                         if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
                             MembershipTO newMembershipTO =

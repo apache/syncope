@@ -24,7 +24,6 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.Draggable
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.NotificationPanel;
@@ -215,7 +214,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
         if (submitButton == null) {
             submitButton = submit;
-            this.components.add(submitButton);
+            components.add(submitButton);
         } else {
             submitButton.replaceWith(submit);
             submitButton = submit;
@@ -229,11 +228,10 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
             throw new IllegalStateException();
         }
 
-        Optional<Component> button =
-                this.components.stream().filter(component -> SUBMIT.equals(component.getId())).findAny();
-        if (button.isPresent()) {
-            this.components.remove(button.get());
-        }
+        components.stream().
+                filter(component -> SUBMIT.equals(component.getId())).
+                findFirst().
+                ifPresent(button -> components.remove(button));
 
         submitButton = null;
     }

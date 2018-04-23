@@ -92,13 +92,12 @@ public class WadlGenerator extends org.apache.cxf.jaxrs.model.wadl.WadlGenerator
                             classResourceInfos.add(cri.get());
                         }
                         cri.get().setResourceClass(beanClass);
-                        continue;
-                    }
-
-                    cri = Optional.ofNullable(ResourceUtils.createClassResourceInfo(
-                            beanClass, beanClass, true, true, BusFactory.getDefaultBus()));
-                    if (cri.isPresent()) {
-                        classResourceInfos.add(cri.get());
+                    } else {
+                        cri = Optional.ofNullable(ResourceUtils.createClassResourceInfo(
+                                beanClass, beanClass, true, true, BusFactory.getDefaultBus()));
+                        if (cri.isPresent()) {
+                            classResourceInfos.add(cri.get());
+                        }
                     }
                 }
 

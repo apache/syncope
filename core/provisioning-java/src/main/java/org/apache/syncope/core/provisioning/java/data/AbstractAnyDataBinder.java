@@ -330,7 +330,7 @@ abstract class AbstractAnyDataBinder {
         }
 
         resources.stream().
-                filter(resource -> (resource.getProvision(any.getType()).isPresent())
+                filter(resource -> resource.getProvision(any.getType()).isPresent()
                 && resource.getProvision(any.getType()).get().getMapping() != null).
                 forEach(resource -> {
                     MappingUtils.getPropagationItems(
@@ -655,10 +655,8 @@ abstract class AbstractAnyDataBinder {
                             + " on resource '" + resource.getKey() + "'");
                 }
 
-                Optional<String> connObjectKey = mappingManager.getConnObjectKeyValue(any, provision.get());
-                if (connObjectKey.isPresent()) {
-                    connObjectKeys.put(resource.getKey(), connObjectKey.get());
-                }
+                mappingManager.getConnObjectKeyValue(any, provision.get()).
+                        ifPresent(connObjectKey -> connObjectKeys.put(resource.getKey(), connObjectKey));
             }
         });
 

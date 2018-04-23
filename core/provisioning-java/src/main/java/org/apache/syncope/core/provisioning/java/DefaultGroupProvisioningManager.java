@@ -23,14 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.GroupPatch;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
@@ -95,10 +93,8 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
         WorkflowResult<String> created = gwfAdapter.create(groupTO);
 
         // see ConnObjectUtils#getAnyTOFromConnObject for GroupOwnerSchema
-        Optional<AttrTO> groupOwner = groupTO.getPlainAttr(StringUtils.EMPTY);
-        if (groupOwner.isPresent()) {
-            groupOwnerMap.put(created.getResult(), groupOwner.get().getValues().iterator().next());
-        }
+        groupTO.getPlainAttr(StringUtils.EMPTY).ifPresent(groupOwner
+                -> groupOwnerMap.put(created.getResult(), groupOwner.getValues().iterator().next()));
 
         List<PropagationTaskTO> tasks = propagationManager.getCreateTasks(
                 AnyTypeKind.GROUP,
