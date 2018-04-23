@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -39,6 +40,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.TransformerException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.staxutils.PrettyPrintXMLStreamWriter;
 import org.apache.syncope.client.cli.Input;
@@ -127,7 +129,8 @@ public class MigrateConf {
         }
     }
 
-    private static void exec(final String src, final String dst) throws XMLStreamException, IOException {
+    private static void exec(final String src, final String dst) throws XMLStreamException, IOException,
+            TransformerException {
         XMLStreamWriter writer = new PrettyPrintXMLStreamWriter(
                 OUTPUT_FACTORY.createXMLStreamWriter(new FileWriter(dst)), 2);
         writer.writeStartDocument("UTF-8", "1.0");
@@ -143,6 +146,11 @@ public class MigrateConf {
         XMLStreamReader reader = INPUT_FACTORY.createXMLStreamReader(inputStream);
         reader.nextTag(); // root
         reader.nextTag(); // dataset
+
+        String realmUUID = UUID.randomUUID().toString();
+        writer.writeStartElement("Realm");
+        writer.writeAttribute("id", realmUUID);
+        writer.writeAttribute("name", "/");
 
         writer.writeStartElement("AnyType");
         writer.writeAttribute("id", "USER");
@@ -179,7 +187,7 @@ public class MigrateConf {
         Set<String> connInstanceCapabilities = new HashSet<>();
 
         String lastUUID;
-        String syncopeConf = UUID.randomUUID().toString();
+        String syncopeConf = "cd64d66f-6fff-4008-b966-a06b1cc1436d";
         Map<String, String> cPlainAttrs = new HashMap<>();
         Map<String, String> policies = new HashMap<>();
         Map<String, String> connInstances = new HashMap<>();
@@ -203,6 +211,7 @@ public class MigrateConf {
                     case "cschema":
                         writer.writeStartElement("SyncopeSchema");
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
+                        writer.writeEndElement();
 
                         writer.writeStartElement("PlainSchema");
                         copyAttrs(reader, writer);
@@ -233,6 +242,7 @@ public class MigrateConf {
                     case "uschema":
                         writer.writeStartElement("SyncopeSchema");
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
+                        writer.writeEndElement();
 
                         writer.writeStartElement("PlainSchema");
                         copyAttrs(reader, writer);
@@ -244,6 +254,7 @@ public class MigrateConf {
                     case "uderschema":
                         writer.writeStartElement("SyncopeSchema");
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
+                        writer.writeEndElement();
 
                         writer.writeStartElement("DerSchema");
                         copyAttrs(reader, writer);
@@ -262,6 +273,7 @@ public class MigrateConf {
                     case "rschema":
                         writer.writeStartElement("SyncopeSchema");
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
+                        writer.writeEndElement();
 
                         writer.writeStartElement("PlainSchema");
                         copyAttrs(reader, writer);
@@ -273,6 +285,7 @@ public class MigrateConf {
                     case "rderschema":
                         writer.writeStartElement("SyncopeSchema");
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
+                        writer.writeEndElement();
 
                         writer.writeStartElement("DerSchema");
                         copyAttrs(reader, writer);
@@ -291,6 +304,7 @@ public class MigrateConf {
                     case "mschema":
                         writer.writeStartElement("SyncopeSchema");
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
+                        writer.writeEndElement();
 
                         writer.writeStartElement("PlainSchema");
                         copyAttrs(reader, writer);
@@ -302,6 +316,7 @@ public class MigrateConf {
                     case "mderschema":
                         writer.writeStartElement("SyncopeSchema");
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
+                        writer.writeEndElement();
 
                         writer.writeStartElement("DerSchema");
                         copyAttrs(reader, writer);
@@ -530,7 +545,7 @@ public class MigrateConf {
                             reporter.writeEndElement();
                         } else {
                             writer.writeStartElement("MappingItem");
-                            copyAttrs(reader, writer,
+                            copyAttrs(reader, writer, "purpose",
                                     "accountid", "intMappingType", "mapping_id", "intMappingType", "intAttrName");
                             writer.writeAttribute("id", UUID.randomUUID().toString());
                             writer.writeAttribute("mapping_id", mappings.
@@ -540,8 +555,12 @@ public class MigrateConf {
                             writeIntAttrName(
                                     uIntMappingType,
                                     "intAttrName",
-                                    mappings.get(getAttributeValue(reader, "intAttrName")),
+                                    getAttributeValue(reader, "intAttrName"),
                                     writer);
+
+                            String purposeValue = getAttributeValue(reader, "purpose");
+                            writer.writeAttribute("purpose",
+                                    "SYNCHRONIZATION".equals(purposeValue) ? "PULL" : purposeValue);
 
                             writer.writeEndElement();
                         }
@@ -637,6 +656,7 @@ public class MigrateConf {
                             case "SyncTask":
                                 writer.writeAttribute("DTYPE", "PullTask");
                                 writer.writeAttribute("syncStatus", getAttributeValue(reader, "syncStatus"));
+                                writer.writeAttribute("destinationRealm_id", realmUUID);
 
                                 String fullReconciliation = getAttributeValue(reader, "fullReconciliation");
                                 if ("1".equals(fullReconciliation)) {
@@ -673,6 +693,7 @@ public class MigrateConf {
                                     writer.writeAttribute("template", template.toString());
                                     writer.writeEndElement();
                                 }
+
                                 break;
 
                             case "SchedTask":
@@ -731,18 +752,18 @@ public class MigrateConf {
                         String syncActionClassName = getAttributeValue(reader, "element");
                         switch (syncActionClassName) {
                             case "org.apache.syncope.core.sync.impl.LDAPMembershipSyncActions":
-                                syncActionClassName =
-                                        "org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions";
+                                syncActionClassName = "org.apache.syncope.core.provisioning."
+                                        + "java.pushpull.LDAPMembershipPullActions";
                                 break;
 
                             case "org.apache.syncope.core.sync.impl.LDAPPasswordSyncActions":
-                                syncActionClassName =
-                                        "org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions";
+                                syncActionClassName
+                                        = "org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions";
                                 break;
 
                             case "org.apache.syncope.core.sync.impl.DBPasswordSyncActions":
-                                syncActionClassName =
-                                        "org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions";
+                                syncActionClassName
+                                        = "org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions";
                                 break;
 
                             default:
@@ -804,7 +825,7 @@ public class MigrateConf {
                                 "notification_id", notifications.get(getAttributeValue(reader, "notification_id")));
                         writer.writeAttribute(
                                 "event", getAttributeValue(reader, "events").
-                                replaceAll("Controller", "Logic"));
+                                        replaceAll("Controller", "Logic"));
                         writer.writeEndElement();
                         break;
 
@@ -864,9 +885,6 @@ public class MigrateConf {
             reader.next();
         }
 
-        writer.writeStartElement("Realm");
-        writer.writeAttribute("id", UUID.randomUUID().toString());
-        writer.writeAttribute("name", "/");
         if (globalAccountPolicy != null) {
             writer.writeAttribute("accountPolicy_id", globalAccountPolicy);
         }
@@ -897,7 +915,10 @@ public class MigrateConf {
                         "Migration completed; file successfully created under " + input.secondParameter());
             } catch (Exception e) {
                 LOG.error("Error migrating configuration from {}", input.firstParameter(), e);
-                migrateResultManager.genericError("Error performing configuration migration: " + e.getMessage());
+                StringWriter errors = new StringWriter();
+                e.printStackTrace(new PrintWriter(errors));
+                migrateResultManager.genericError("Error performing configuration migration: "
+                        + errors.toString());
             }
         } else {
             migrateResultManager.commandOptionError(HELP_MESSAGE);
