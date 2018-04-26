@@ -27,7 +27,7 @@ class MultiParentNode<T> {
 
     private final T object;
 
-    private Set<MultiParentNode<T>> children;
+    private final Set<MultiParentNode<T>> children = new HashSet<>();
 
     private int level;
 
@@ -35,7 +35,6 @@ class MultiParentNode<T> {
 
     MultiParentNode(final T object) {
         this.object = object;
-        children = new HashSet<>();
     }
 
     public int getLevel() {

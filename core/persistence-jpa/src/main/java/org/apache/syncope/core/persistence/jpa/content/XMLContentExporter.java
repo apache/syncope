@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAccessToken;
+import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.apache.syncope.core.persistence.jpa.entity.JPAReportExec;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
@@ -70,6 +73,7 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrUniqueVa
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
@@ -95,6 +99,9 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
     protected static final Map<String, Set<String>> COLUMNS_TO_BE_NULLIFIED =
             Collections.singletonMap("SYNCOPEGROUP", Collections.singleton("USEROWNER_ID"));
 
+    @Autowired
+    private RealmDAO realmDAO;
+
     private boolean isTableAllowed(final String tableName) {
         return TABLE_PREFIXES_TO_BE_EXCLUDED.stream().
                 allMatch(prefix -> !tableName.toUpperCase().startsWith(prefix.toUpperCase()));
@@ -105,10 +112,10 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
 
         Set<MultiParentNode<String>> roots = new HashSet<>();
 
-        final DatabaseMetaData meta = conn.getMetaData();
+        DatabaseMetaData meta = conn.getMetaData();
 
-        final Map<String, MultiParentNode<String>> exploited = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        final Set<String> pkTableNames = new HashSet<>();
+        Map<String, MultiParentNode<String>> exploited = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        Set<String> pkTableNames = new HashSet<>();
 
         for (String tableName : tableNames) {
             MultiParentNode<String> node = exploited.get(tableName);
@@ -156,7 +163,7 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
             }
         }
 
-        final List<String> sortedTableNames = new ArrayList<>(tableNames.size());
+        List<String> sortedTableNames = new ArrayList<>(tableNames.size());
         MultiParentNodeOp.traverseTree(roots, sortedTableNames);
 
         // remove from sortedTableNames any table possibly added during lookup 
@@ -221,16 +228,13 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
         return res;
     }
 
-    private void doExportTable(
+    private void exportTable(
             final TransformerHandler handler,
-            final String dbSchema,
             final Connection conn,
             final String tableName,
             final String whereClause) throws SQLException, SAXException {
 
         LOG.debug("Export table {}", tableName);
-
-        AttributesImpl attrs = new AttributesImpl();
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -239,34 +243,8 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
 
             DatabaseMetaData meta = conn.getMetaData();
 
-            // ------------------------------------
-            // retrieve foreign keys (linked to the same table) to perform an ordered select
-            ResultSet pkeyRS = null;
-            try {
-                pkeyRS = meta.getImportedKeys(conn.getCatalog(), dbSchema, tableName);
-                while (pkeyRS.next()) {
-                    if (tableName.equals(pkeyRS.getString("PKTABLE_NAME"))) {
-                        String columnName = pkeyRS.getString("FKCOLUMN_NAME");
-                        if (columnName != null) {
-                            if (orderBy.length() > 0) {
-                                orderBy.append(",");
-                            }
-
-                            orderBy.append(columnName);
-                        }
-                    }
-                }
-            } finally {
-                if (pkeyRS != null) {
-                    try {
-                        pkeyRS.close();
-                    } catch (SQLException e) {
-                        LOG.error("While closing result set", e);
-                    }
-                }
-            }
-
             // retrieve primary keys to perform an ordered select
+            ResultSet pkeyRS = null;
             try {
                 pkeyRS = meta.getPrimaryKeys(null, null, tableName);
                 while (pkeyRS.next()) {
@@ -300,28 +278,49 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
             }
             stmt = conn.prepareStatement(query.toString());
 
+            List<Map<String, String>> rows = new ArrayList<>();
+
             rs = stmt.executeQuery();
             while (rs.next()) {
-                attrs.clear();
+                Map<String, String> row = new HashMap<>();
+                rows.add(row);
 
-                final ResultSetMetaData rsMeta = rs.getMetaData();
+                ResultSetMetaData rsMeta = rs.getMetaData();
                 for (int i = 0; i < rsMeta.getColumnCount(); i++) {
-                    final String columnName = rsMeta.getColumnName(i + 1);
-                    final Integer columnType = rsMeta.getColumnType(i + 1);
+                    String columnName = rsMeta.getColumnName(i + 1);
+                    Integer columnType = rsMeta.getColumnType(i + 1);
 
                     // Retrieve value taking care of binary values.
                     String value = getValues(rs, columnName, columnType);
                     if (value != null && (!COLUMNS_TO_BE_NULLIFIED.containsKey(tableName)
                             || !COLUMNS_TO_BE_NULLIFIED.get(tableName).contains(columnName))) {
 
-                        attrs.addAttribute("", "", columnName, "CDATA", value);
+                        row.put(columnName, value);
+                        LOG.debug("Add for table {}: {}=\"{}\"", tableName, columnName, value);
                     }
                 }
+            }
+
+            if (tableName.equalsIgnoreCase(JPARealm.TABLE)) {
+                List<Map<String, String>> realmRows = new ArrayList<>(rows);
+                rows.clear();
+                realmDAO.findAll().forEach(realm -> {
+                    realmRows.stream().filter(row -> {
+                        String id = row.get("ID");
+                        if (id == null) {
+                            id = row.get("id");
+                        }
+                        return realm.getKey().equals(id);
+                    }).findFirst().ifPresent(row -> rows.add(row));
+                });
+            }
+
+            for (Map<String, String> row : rows) {
+                AttributesImpl attrs = new AttributesImpl();
+                row.forEach((key, value) -> attrs.addAttribute("", "", key, "CDATA", value));
 
                 handler.startElement("", "", tableName, attrs);
                 handler.endElement("", "", tableName);
-
-                LOG.debug("Add record {}", attrs);
             }
         } finally {
             if (rs != null) {
@@ -335,7 +334,7 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
                 try {
                     stmt.close();
                 } catch (SQLException e) {
-                    LOG.error("While closing result set", e);
+                    LOG.error("While closing statement", e);
                 }
             }
         }
@@ -377,8 +376,7 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
             throw new IllegalArgumentException("Could not find DataSource for domain " + domain);
         }
 
-        String dbSchema = ApplicationContextProvider.getBeanFactory().getBean(domain + "DatabaseSchema",
-                String.class);
+        String schema = ApplicationContextProvider.getBeanFactory().getBean(domain + "DatabaseSchema", String.class);
 
         Connection conn = null;
         ResultSet rs = null;
@@ -386,7 +384,7 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
             conn = DataSourceUtils.getConnection(dataSource);
             final DatabaseMetaData meta = conn.getMetaData();
 
-            rs = meta.getTables(null, StringUtils.isBlank(dbSchema) ? null : dbSchema, null,
+            rs = meta.getTables(null, StringUtils.isBlank(schema) ? null : schema, null,
                     new String[] { "TABLE" });
 
             final Set<String> tableNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
@@ -402,10 +400,9 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
             LOG.debug("Tables to be exported {}", tableNames);
 
             // then sort tables based on foreign keys and dump
-            for (String tableName : sortByForeignKeys(dbSchema, conn, tableNames)) {
+            for (String tableName : sortByForeignKeys(schema, conn, tableNames)) {
                 try {
-                    doExportTable(
-                            handler, dbSchema, conn, tableName, TABLES_TO_BE_FILTERED.get(tableName.toUpperCase()));
+                    exportTable(handler, conn, tableName, TABLES_TO_BE_FILTERED.get(tableName.toUpperCase()));
                 } catch (Exception e) {
                     LOG.error("Failure exporting table {}", tableName, e);
                 }
