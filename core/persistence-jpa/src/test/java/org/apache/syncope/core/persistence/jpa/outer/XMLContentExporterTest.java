@@ -41,6 +41,11 @@ public class XMLContentExporterTest extends AbstractTest {
     @Autowired
     private ContentExporter exporter;
 
+    /**
+     * Also checks for SYNCOPE-1307.
+     *
+     * @throws Exception
+     */
     @Test
     public void issueSYNCOPE1128() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -61,9 +66,9 @@ public class XMLContentExporterTest extends AbstractTest {
         }, new ArrayList<String>());
         assertEquals(4, realms.size());
         assertTrue(realms.get(0).contains("NAME=\"/\""));
-        assertTrue(realms.get(1).contains("NAME=\"two\""));
-        assertTrue(realms.get(2).contains("NAME=\"odd\""));
-        assertTrue(realms.get(3).contains("NAME=\"even\""));
+        assertTrue(realms.get(1).contains("NAME=\"odd\""));
+        assertTrue(realms.get(2).contains("NAME=\"even\""));
+        assertTrue(realms.get(3).contains("NAME=\"two\""));
     }
 
 }
