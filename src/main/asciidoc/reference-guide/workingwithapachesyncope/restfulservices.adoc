@@ -326,6 +326,38 @@ username=~*iNi;(loginDate==$null,$roles==Other)
 ----
 ====
 
+===== Sorting Search Results
+
+Search results can be requested for sorting by passing the optional `orderBy` query parameter to the search endpoints
+available, e.g.
+
+* `GET /users?fiql=query&orderBy=sort`
+* `GET /groups?fiql=query&orderBy=sort`
+* `GET /anyObjects?fiql=query&orderBy=sort`
+
+where `sort` is an URL-encoded string representation of the sort request, as in the following examples.
+
+.Single attribute sort, default direction (`ASC`)
+====
+----
+username
+----
+====
+
+.Single attribute sort, with direction
+====
+----
+username DESC
+----
+====
+
+.Multiple attribute sort, with directions
+====
+----
+email DESC, username ASC
+----
+====
+
 ==== Client Library
 
 The Java client library simplifies the interaction with the <<core>> by hiding the underlying HTTP
