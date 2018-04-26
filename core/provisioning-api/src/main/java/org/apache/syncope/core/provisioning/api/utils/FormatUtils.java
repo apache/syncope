@@ -36,9 +36,7 @@ public final class FormatUtils {
 
         @Override
         protected SimpleDateFormat initialValue() {
-            SimpleDateFormat sdf = new SimpleDateFormat();
-            sdf.applyPattern(SyncopeConstants.DEFAULT_DATE_PATTERN);
-            return sdf;
+            return new SimpleDateFormat();
         }
     };
 
@@ -62,10 +60,15 @@ public final class FormatUtils {
 
     public static String format(final Date date, final boolean lenient, final String conversionPattern) {
         SimpleDateFormat sdf = DATE_FORMAT.get();
-        if (conversionPattern != null) {
+
+        if (conversionPattern == null) {
+            sdf.applyPattern(SyncopeConstants.DEFAULT_DATE_PATTERN);
+        } else {
             sdf.applyPattern(conversionPattern);
         }
+
         sdf.setLenient(lenient);
+
         return sdf.format(date);
     }
 
@@ -75,10 +78,17 @@ public final class FormatUtils {
 
     public static String format(final long number, final String conversionPattern) {
         DecimalFormat df = DECIMAL_FORMAT.get();
+
+        String previous = df.toPattern();
         if (conversionPattern != null) {
             df.applyPattern(conversionPattern);
         }
-        return df.format(number);
+
+        String formatted = df.format(number);
+
+        df.applyPattern(previous);
+
+        return formatted;
     }
 
     public static String format(final double number) {
@@ -87,10 +97,17 @@ public final class FormatUtils {
 
     public static String format(final double number, final String conversionPattern) {
         DecimalFormat df = DECIMAL_FORMAT.get();
+
+        String previous = df.toPattern();
         if (conversionPattern != null) {
             df.applyPattern(conversionPattern);
         }
-        return df.format(number);
+
+        String formatted = df.format(number);
+
+        df.applyPattern(previous);
+
+        return formatted;
     }
 
     public static Date parseDate(final String source) throws ParseException {

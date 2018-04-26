@@ -256,8 +256,7 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
                 result = getAttr() == null || getAttr().getSchema() == null
                         || getAttr().getSchema().getConversionPattern() == null
                         ? FormatUtils.format(getDateValue())
-                        : FormatUtils.format(
-                                getDateValue(), false, getAttr().getSchema().getConversionPattern());
+                        : FormatUtils.format(getDateValue(), false, getAttr().getSchema().getConversionPattern());
                 break;
 
             case Binary:
