@@ -410,7 +410,7 @@ under the License.
 
     <h2.version>1.4.197</h2.version>
 
-    <junit.version>5.2.0-RC1</junit.version>
+    <junit.version>5.2.0</junit.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -1857,7 +1857,7 @@ under the License.
             <dependency>
               <groupId>org.junit.platform</groupId>
               <artifactId>junit-platform-surefire-provider</artifactId>
-              <version>1.2.0-RC1</version>
+              <version>1.2.0</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -2430,7 +2430,7 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
-            <version>3.7</version>
+            <version>3.7.1</version>
             <dependencies>
               <dependency>
                 <groupId>org.apache.velocity</groupId>
