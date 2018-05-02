@@ -93,6 +93,7 @@ under the License.
     <module>swagger-ui</module>
     <module>saml2sp</module>
     <module>scimv2</module>
+    <module>oidcclient</module>
   </modules>
 
 </project>

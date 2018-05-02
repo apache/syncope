@@ -34,6 +34,8 @@ angular.module("login").controller("LoginController", ['$scope', '$rootScope', '
         $scope.credentials.errorMessage = '';
         // reset SAML 2.0 entityID
         $rootScope.saml2idps.selected.entityID = null;
+        // reset OIDC name
+        $rootScope.oidcops.selected.name = null;
         // got to update page
         $location.path("/self/update");
       }, function (response) {

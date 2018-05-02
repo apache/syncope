@@ -16,3 +16,4 @@
 # specific language governing permissions and limitations
 # under the License.
 dpkg-divert --add --package apache-syncope-enduser --rename --divert /etc/apache-syncope/saml2sp-agent.properties.disabled /etc/apache-syncope/saml2sp-agent.properties
+dpkg-divert --add --package apache-syncope-enduser --rename --divert /etc/apache-syncope/oidcclient-agent.properties.disabled /etc/apache-syncope/oidcclient-agent.properties

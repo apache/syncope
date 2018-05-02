@@ -233,6 +233,13 @@ under the License.
         </includes>
       </resource>
       <resource>
+        <directory>../ext/oidcclient/agent/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources/all</targetPath>
+        <includes>
+          <include>oidcclient-agent.properties</include>
+        </includes>
+      </resource>
+      <resource>
         <directory>../fit/console-reference/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources</targetPath>
         <includes>
@@ -247,6 +254,14 @@ under the License.
         <includes>
           <include>console.properties</include>
           <include>saml2sp-agent.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>../fit/console-reference/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/test/resources</targetPath>
+        <includes>
+          <include>console.properties</include>
+          <include>oidcclient-agent.properties</include>
         </includes>
       </resource>
       <resource>
@@ -270,6 +285,13 @@ under the License.
         </includes>
       </resource>
       <resource>
+        <directory>../ext/oidcclient/agent/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/resources/all</targetPath>
+        <includes>
+          <include>oidcclient-agent.properties</include>
+        </includes>
+      </resource>
+      <resource>
         <directory>../client/enduser/src/main/resources/META-INF/resources/app</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/webapp/app</targetPath>
       </resource>
@@ -286,6 +308,15 @@ under the License.
         <includes>
           <include>enduser.properties</include>
           <include>saml2sp-agent.properties</include>
+          <include>customForm.json</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>../fit/enduser-reference/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/test/resources</targetPath>
+        <includes>
+          <include>enduser.properties</include>
+          <include>oidcclient-agent.properties</include>
           <include>customForm.json</include>
         </includes>
       </resource>

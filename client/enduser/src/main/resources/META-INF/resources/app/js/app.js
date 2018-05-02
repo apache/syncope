@@ -341,7 +341,8 @@ app.run(['$rootScope', '$location', '$state', 'AuthService',
     };
   }]);
 app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'InfoService', 'SAML2IdPService',
-  function ($scope, $rootScope, $location, InfoService, SAML2IdPService) {
+  'OIDCProviderService',
+  function ($scope, $rootScope, $location, InfoService, SAML2IdPService, OIDCProviderService) {
     $scope.initApplication = function () {
       /* 
        * disable by default wizard buttons in self-registration
@@ -377,6 +378,10 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
         available: [],
         selected: {}
       };
+      $rootScope.oidcops = {
+        available: [],
+        selected: {}
+      };
 
       InfoService.getInfo().then(
               function (response) {
@@ -406,6 +411,19 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
       /* 
        * configuration getters
        */
+
+      /* <Extensions> */
+      OIDCProviderService.getAvailableOIDCProviders().then(
+              function (response) {
+                $rootScope.oidcops.available = response;
+              },
+              function (response) {
+                console.debug("No OIDC Client extension available", response);
+              });
+      /* </Extensions> */
+      /* 
+       * configuration getters
+       */
       $rootScope.isSelfRegAllowed = function () {
         return $rootScope.selfRegAllowed === true;
       };
@@ -417,6 +435,13 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
       };
       $rootScope.saml2login = function () {
         window.location.href = '../saml2sp/login?idp=' + $rootScope.saml2idps.selected.entityID;
+      };
+
+      $rootScope.oidcclientExtAvailable = function () {
+        return $rootScope.oidcops.available.length > 0;
+      };
+      $rootScope.oidclogin = function () {
+        window.location.href = '../oidcclient/login?op=' + $rootScope.oidcops.selected.name;
       };
       $rootScope.getVersion = function () {
         return $rootScope.version;

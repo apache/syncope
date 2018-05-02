@@ -30,7 +30,7 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.SAML2RequestTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
 
-@WebServlet(name = "login", urlPatterns = { "/saml2sp/login" })
+@WebServlet(name = "saml2spLogin", urlPatterns = { "/saml2sp/login" })
 public class Login extends AbstractSAML2SPServlet {
 
     private static final long serialVersionUID = 968480296813639041L;
