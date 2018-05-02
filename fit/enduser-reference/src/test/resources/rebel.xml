@@ -30,6 +30,10 @@ under the License.
     </dir>
     <dir name="${basedir}/../../ext/saml2sp/client-enduser/target/classes">
     </dir>
+    <dir name="${basedir}/../../ext/oidcclient/agent/target/classes">
+    </dir>
+    <dir name="${basedir}/../../ext/oidcclient/client-enduser/target/classes">
+    </dir>
   </classpath>
 
   <web>
@@ -43,6 +47,10 @@ under the License.
     </link>
     <link target="/">
       <dir name="${basedir}/../../ext/saml2sp/client-enduser/target/classes">
+      </dir>
+    </link>
+    <link target="/">
+      <dir name="${basedir}/../../ext/oidcclient/client-enduser/target/classes">
       </dir>
     </link>
   </web>

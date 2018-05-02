@@ -44,6 +44,11 @@ under the License.
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.syncope.ext.oidcclient</groupId>
+      <artifactId>syncope-ext-oidcclient-client-enduser</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.syncope.client</groupId>
       <artifactId>syncope-client-enduser</artifactId>
       <version>${project.version}</version>
@@ -101,6 +106,14 @@ under the License.
        <directory>${project.basedir}/../../ext/saml2sp/agent/src/main/resources</directory>
         <includes>
           <include>saml2sp-agent.properties</include>
+        </includes>
+        <targetPath>${project.build.directory}/etc</targetPath>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${project.basedir}/../../ext/oidcclient/agent/src/main/resources</directory>
+        <includes>
+          <include>oidcclient-agent.properties</include>
         </includes>
         <targetPath>${project.build.directory}/etc</targetPath>
         <filtering>true</filtering>

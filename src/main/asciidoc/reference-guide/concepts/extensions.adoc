@@ -116,6 +116,39 @@ This extension adds features to all components and layers that are available, an
 <<customization-extensions,new extensions>>.
 ====
 
+==== OpenID Connect Client 
+
+This extension can be leveraged to provide http://openid.net/connect/[OpenID Connect^]-based
+https://en.wikipedia.org/wiki/Single_sign-on[Single Sign-On^] access to the <<admin-console-component>>,
+the <<enduser-component>> or any other Java EE application dealing with the <<core>>.
+
+Once installed, one or more OpenID Providers can be created either from 
+the http://openid.net/specs/openid-connect-discovery-1_0.html[discovery document^] if it is supported or from inserting 
+manually the required attributes, in any case the client_id and the secret_id from the OAuth 2.0 credential and the issuer 
+are required.
+After configuration the OpenID provider, the http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[Authorization Code Flow^]
+is going to be implemented in order to reach the user information to be used by Syncope to match the internal users.
+
+
+[NOTE]
+.Extension Sources
+====
+The source code of this extension is available from the Apache Syncope
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/oidcclient[source tree^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/2_0_X/ext/oidcclient[source tree^]
+endif::[]
+.
+====
+
+[TIP]
+====
+This extension adds features to all components and layers that are available, and can be taken as reference when creating
+<<customization-extensions,new extensions>>.
+====
+
 ==== Elasticsearch
 
 This extension provides an alternate internal search engine for <<users-groups-and-any-objects>>, requiring an external 

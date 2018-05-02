@@ -53,6 +53,16 @@ under the License.
     <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.SAML2SPSelfReg</param-value>
   </context-param>
   
+  <!-- OIDC Client Parameters -->
+  <context-param>
+    <param-name>oidcclient.login.success.url</param-name>
+    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.OIDCClientLogin</param-value>
+  </context-param>
+  <context-param>
+    <param-name>oidcclient.login.error.url</param-name>
+    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.Login</param-value>
+  </context-param>
+
   <!-- SESSION TIMEOUT (MINUTES)-->
   <session-config>
     <session-timeout>30</session-timeout>

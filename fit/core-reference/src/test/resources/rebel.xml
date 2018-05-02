@@ -103,6 +103,23 @@ under the License.
     </dir>
     <dir name="${basedir}/../../ext/scimv2/logic/target/classes">
     </dir>
+    <dir name="${basedir}/../../ext/oidcclient/common-lib/target/classes">
+    </dir>
+    <dir name="${basedir}/../../ext/oidcclient/logic/target/classes">
+    </dir>
+    <dir name="${basedir}/../../ext/oidcclient/persistence-api/target/classes">
+    </dir>
+    <dir name="${basedir}/../../ext/oidcclient/persistence-jpa/target/classes">
+      <exclude name="org/apache/syncope/core/persistence/jpa/entity/**"/>
+    </dir>
+    <dir name="${basedir}/../../ext/oidcclient/provisioning-api/target/classes">
+    </dir>
+    <dir name="${basedir}/../../ext/oidcclient/provisioning-java/target/classes">
+    </dir>
+    <dir name="${basedir}/../../ext/oidcclient/rest-api/target/classes">
+    </dir>
+    <dir name="${basedir}/../../ext/oidcclient/rest-cxf/target/classes">
+    </dir>
   </classpath>
 
   <web>

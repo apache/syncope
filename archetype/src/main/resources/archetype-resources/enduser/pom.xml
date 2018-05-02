@@ -332,6 +332,12 @@ under the License.
           <artifactId>syncope-ext-saml2sp-client-enduser</artifactId>
           <version>${syncope.version}</version>
         </dependency>
+
+        <dependency>
+          <groupId>org.apache.syncope.ext.oidcclient</groupId>
+          <artifactId>syncope-ext-oidcclient-client-enduser</artifactId>
+          <version>${syncope.version}</version>
+        </dependency>
       </dependencies>
       
       <build>

@@ -350,6 +350,25 @@ Setup a <<keystore,keystore>> and place it under the <<properties-files-location
 the content of `core/src/main/resources/saml2sp-logic.properties` accordingly.
 
 [discrete]
+===== Enable the <<openid-connect-client>> extension
+
+Add the following dependencies to `core/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.ext.oidcclient</groupId>
+  <artifactId>syncope-ext-oidcclient-rest-cxf</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.syncope.ext.oidcclient</groupId>
+  <artifactId>syncope-ext-oidcclient-persistence-jpa</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+----
+
+[discrete]
 ===== Enable the <<elasticsearch>> extension
 
 Add the following dependencies to `core/pom.xml`:
@@ -474,6 +493,23 @@ Add the following dependencies to `console/pom.xml`:
 Copy `console/src/main/resources/all/saml2sp-agent.properties` to `console/src/main/resources/saml2sp-agent.properties`.
 
 [discrete]
+===== Enable the <<openid-connect-client>> extension
+
+Add the following dependencies to `console/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.ext.oidcclient</groupId>
+  <artifactId>syncope-ext-oidcclient-client-console</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+----
+
+Copy `console/src/main/resources/all/oidcclient-agent.properties` to `console/src/main/resources/oidcclient-agent.properties`.
+
+
+[discrete]
 ===== Enable the <<SCIM>> extension
 
 Add the following dependencies to `console/pom.xml`:
@@ -511,6 +547,22 @@ Add the following dependencies to `enduser/pom.xml`:
 ----
 
 Copy `enduser/src/main/resources/all/saml2sp-agent.properties` to `enduser/src/main/resources/saml2sp-agent.properties`.
+
+[discrete]
+===== Enable the <<openid-connect-client>> extension
+
+Add the following dependencies to `enduser/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.ext.oidcclient</groupId>
+  <artifactId>syncope-ext-oidcclient-client-enduser</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+----
+
+Copy `enduser/src/main/resources/all/oidcclient-agent.properties` to `enduser/src/main/resources/oidcclient-agent.properties`.
 
 [[customization-enduser-i18n]]
 ===== i18n 

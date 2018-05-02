@@ -2,3 +2,5 @@
 /etc/apache-syncope/enduser.properties
 /etc/apache-syncope/customForm.json
 /etc/apache-syncope/saml2sp-agent.properties
+/etc/apache-syncope/oidcclient-agent.properties
+

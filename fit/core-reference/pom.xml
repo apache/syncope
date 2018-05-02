@@ -185,6 +185,18 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.syncope.ext.oidcclient</groupId>
+      <artifactId>syncope-ext-oidcclient-rest-cxf</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>          
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.oidcclient</groupId>
+      <artifactId>syncope-ext-oidcclient-client-console</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
       <scope>test</scope>
@@ -1095,6 +1107,17 @@ under the License.
         <dependency>
           <groupId>org.apache.syncope.ext.saml2sp</groupId>
           <artifactId>syncope-ext-saml2sp-persistence-jpa</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+          <groupId>org.apache.syncope.ext.oidcclient</groupId>
+          <artifactId>syncope-ext-oidcclient-rest-cxf</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.syncope.ext.oidcclient</groupId>
+          <artifactId>syncope-ext-oidcclient-persistence-jpa</artifactId>
           <version>${project.version}</version>
         </dependency>
         
