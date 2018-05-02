@@ -98,13 +98,15 @@ public class SCIMLogic extends AbstractLogic<AbstractBaseBean> {
                 SERVICE_PROVIDER_CONFIG = new ServiceProviderConfig(
                         new Meta(
                                 Resource.ServiceProviderConfig,
-                                conf.getCreationDate(),
-                                conf.getLastChangeDate(),
-                                conf.getETagValue(),
+                                conf.getGeneralConf().getCreationDate(),
+                                conf.getGeneralConf().getLastChangeDate(),
+                                conf.getGeneralConf().getETagValue(),
                                 uriBuilder.build().toASCIIString()),
                         new ConfigurationOption(false),
-                        new BulkConfigurationOption(false, conf.getBulkMaxOperations(), conf.getBulkMaxPayloadSize()),
-                        new FilterConfigurationOption(true, conf.getFilterMaxResults()),
+                        new BulkConfigurationOption(false,
+                                conf.getGeneralConf().getBulkMaxOperations(),
+                                conf.getGeneralConf().getBulkMaxPayloadSize()),
+                        new FilterConfigurationOption(true, conf.getGeneralConf().getFilterMaxResults()),
                         new ConfigurationOption(true),
                         new ConfigurationOption(true),
                         new ConfigurationOption(true));

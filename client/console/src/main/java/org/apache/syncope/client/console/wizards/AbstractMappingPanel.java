@@ -22,17 +22,10 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverBehavi
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverConfig;
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
@@ -47,10 +40,7 @@ import org.apache.syncope.client.console.widgets.JEXLTransformerWidget;
 import org.apache.syncope.client.console.widgets.ItemTransformerWidget;
 import org.apache.syncope.client.console.wizards.resources.JEXLTransformersTogglePanel;
 import org.apache.syncope.client.console.wizards.resources.ItemTransformersTogglePanel;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -70,33 +60,6 @@ import org.apache.wicket.model.ResourceModel;
 public abstract class AbstractMappingPanel extends Panel {
 
     private static final long serialVersionUID = -8295587900937040104L;
-
-    protected static final Set<String> USER_FIELD_NAMES = new HashSet<>();
-
-    protected static final Set<String> GROUP_FIELD_NAMES = new HashSet<>();
-
-    protected static final Set<String> ANY_OBJECT_FIELD_NAMES = new HashSet<>();
-
-    static {
-        initFieldNames(UserTO.class, USER_FIELD_NAMES);
-        initFieldNames(GroupTO.class, GROUP_FIELD_NAMES);
-        initFieldNames(AnyObjectTO.class, ANY_OBJECT_FIELD_NAMES);
-    }
-
-    private static void initFieldNames(final Class<?> entityClass, final Set<String> keys) {
-        List<Class<?>> classes = ClassUtils.getAllSuperclasses(entityClass);
-        classes.add(entityClass);
-        for (Class<?> clazz : classes) {
-            for (Field field : clazz.getDeclaredFields()) {
-                if (!Modifier.isStatic(field.getModifiers())
-                        && !Collection.class.isAssignableFrom(field.getType())
-                        && !Map.class.isAssignableFrom(field.getType())) {
-
-                    keys.add(field.getName());
-                }
-            }
-        }
-    }
 
     /**
      * Any type rest client.

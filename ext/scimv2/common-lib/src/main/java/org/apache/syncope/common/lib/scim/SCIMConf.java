@@ -18,10 +18,7 @@
  */
 package org.apache.syncope.common.lib.scim;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
-import java.util.Date;
-import org.apache.commons.lang3.StringUtils;
 
 public class SCIMConf implements Serializable {
 
@@ -29,82 +26,18 @@ public class SCIMConf implements Serializable {
 
     public static final String KEY = "scimv2.conf";
 
-    private Date creationDate = new Date();
-
-    private Date lastChangeDate = new Date();
-
-    private int bulkMaxOperations = 1000;
-
-    private int bulkMaxPayloadSize = 1048576;
-
-    private int filterMaxResults = 200;
+    private SCIMGeneralConf generalConf;
 
     private SCIMUserConf userConf;
 
     private SCIMEnterpriseUserConf enterpriseUserConf;
 
-    public Date getCreationDate() {
-        if (creationDate != null) {
-            return new Date(creationDate.getTime());
-        }
-        return null;
+    public SCIMGeneralConf getGeneralConf() {
+        return generalConf;
     }
 
-    public void setCreationDate(final Date creationDate) {
-        if (creationDate != null) {
-            this.creationDate = new Date(creationDate.getTime());
-        } else {
-            this.creationDate = null;
-        }
-    }
-
-    public Date getLastChangeDate() {
-        if (lastChangeDate != null) {
-            return new Date(lastChangeDate.getTime());
-        }
-        return null;
-    }
-
-    public void setLastChangeDate(final Date lastChangeDate) {
-        if (lastChangeDate != null) {
-            this.lastChangeDate = new Date(lastChangeDate.getTime());
-        } else {
-            this.lastChangeDate = null;
-        }
-    }
-
-    @JsonIgnore
-    public String getETagValue() {
-        Date etagDate = getLastChangeDate() == null
-                ? getCreationDate() : getLastChangeDate();
-        return etagDate == null
-                ? StringUtils.EMPTY
-                : String.valueOf(etagDate.getTime());
-
-    }
-
-    public int getBulkMaxOperations() {
-        return bulkMaxOperations;
-    }
-
-    public void setBulkMaxOperations(final int bulkMaxOperations) {
-        this.bulkMaxOperations = bulkMaxOperations;
-    }
-
-    public int getBulkMaxPayloadSize() {
-        return bulkMaxPayloadSize;
-    }
-
-    public void setBulkMaxPayloadSize(final int bulkMaxPayloadSize) {
-        this.bulkMaxPayloadSize = bulkMaxPayloadSize;
-    }
-
-    public int getFilterMaxResults() {
-        return filterMaxResults;
-    }
-
-    public void setFilterMaxResults(final int filterMaxResults) {
-        this.filterMaxResults = filterMaxResults;
+    public void setGeneralConf(final SCIMGeneralConf generalConf) {
+        this.generalConf = generalConf;
     }
 
     public SCIMUserConf getUserConf() {

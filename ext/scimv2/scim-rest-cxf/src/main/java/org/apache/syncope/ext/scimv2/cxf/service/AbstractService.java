@@ -189,7 +189,7 @@ abstract class AbstractService<R extends SCIMResource> {
             throw new UnsupportedOperationException();
         }
 
-        if (request.getCount() > confManager().get().getFilterMaxResults()) {
+        if (request.getCount() > confManager().get().getGeneralConf().getFilterMaxResults()) {
             throw new BadRequestException(ErrorType.tooMany, "Too many results requested");
         }
 
@@ -223,7 +223,7 @@ abstract class AbstractService<R extends SCIMResource> {
                 SyncopeConstants.ROOT_REALM,
                 false);
 
-        if (result.getLeft() > confManager().get().getFilterMaxResults()) {
+        if (result.getLeft() > confManager().get().getGeneralConf().getFilterMaxResults()) {
             throw new BadRequestException(ErrorType.tooMany, "Too many results found");
         }
 

@@ -1,0 +1,109 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.client.console.pages;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.Serializable;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.annotations.ExtPage;
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.panels.SCIMConfPanel;
+import org.apache.syncope.client.console.rest.SCIMConfRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wizards.any.ResultPage;
+import org.apache.syncope.common.lib.scim.SCIMConf;
+import org.apache.syncope.common.lib.scim.types.SCIMEntitlement;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@ExtPage(label = "SCIM 2.0", icon = "fa-cloud", listEntitlement = SCIMEntitlement.SCIM_CONF_GET, priority = 100)
+public class SCIMConfPage extends BaseExtPage {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(SCIMConfPage.class);
+
+    private static final long serialVersionUID = -8156063343062111770L;
+
+    private final SCIMConfRestClient restClient = new SCIMConfRestClient();
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    private final WebMarkupContainer content;
+
+    public SCIMConfPage(final PageParameters parameters) {
+        super(parameters);
+
+        body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
+
+        content = new WebMarkupContainer("content");
+
+        content.add(new Label("body", "General"));
+        content.setOutputMarkupId(true);
+        body.add(content);
+
+        updateSCIMGeneralConfContent(restClient.get());
+    }
+
+    private WebMarkupContainer updateSCIMGeneralConfContent(final SCIMConf scimConf) {
+        if (scimConf == null) {
+            return content;
+        }
+        content.addOrReplace(new SCIMConfPanel("body", scimConf, SCIMConfPage.this.getPageReference()) {
+
+            private static final long serialVersionUID = 8221398624379357183L;
+
+            @Override
+            protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
+                modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+                    private static final long serialVersionUID = 8804221891699487139L;
+
+                    @Override
+                    public void onClose(final AjaxRequestTarget target) {
+                        if (modal.getContent() instanceof ResultPage) {
+                            Serializable result = ResultPage.class.cast(modal.getContent()).getResult();
+                            try {
+                                restClient.set(MAPPER.readValue(result.toString(), SCIMConf.class));
+
+                                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                                modal.show(false);
+                                target.add(content);
+                            } catch (Exception e) {
+                                LOG.error("While setting SCIM configuration", e);
+                                SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                                        ? e.getClass().getName() : e.getMessage());
+                            }
+                            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                        }
+                    }
+                });
+            }
+
+        });
+
+        return content;
+    }
+
+}

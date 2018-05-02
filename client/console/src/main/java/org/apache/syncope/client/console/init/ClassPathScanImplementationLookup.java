@@ -18,11 +18,16 @@
  */
 package org.apache.syncope.client.console.init;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.client.console.pages.BaseExtPage;
@@ -33,6 +38,9 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SSOLoginFormPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.syncope.client.console.widgets.BaseExtWidget;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -45,6 +53,33 @@ public class ClassPathScanImplementationLookup {
     private static final Logger LOG = LoggerFactory.getLogger(ClassPathScanImplementationLookup.class);
 
     private static final String DEFAULT_BASE_PACKAGE = "org.apache.syncope.client.console";
+
+    public static final Set<String> USER_FIELD_NAMES = new HashSet<>();
+
+    public static final Set<String> GROUP_FIELD_NAMES = new HashSet<>();
+
+    public static final Set<String> ANY_OBJECT_FIELD_NAMES = new HashSet<>();
+
+    static {
+        initFieldNames(UserTO.class, USER_FIELD_NAMES);
+        initFieldNames(GroupTO.class, GROUP_FIELD_NAMES);
+        initFieldNames(AnyObjectTO.class, ANY_OBJECT_FIELD_NAMES);
+    }
+
+    private static void initFieldNames(final Class<?> entityClass, final Set<String> keys) {
+        List<Class<?>> classes = org.apache.commons.lang3.ClassUtils.getAllSuperclasses(entityClass);
+        classes.add(entityClass);
+        for (Class<?> clazz : classes) {
+            for (Field field : clazz.getDeclaredFields()) {
+                if (!Modifier.isStatic(field.getModifiers())
+                        && !Collection.class.isAssignableFrom(field.getType())
+                        && !Map.class.isAssignableFrom(field.getType())) {
+
+                    keys.add(field.getName());
+                }
+            }
+        }
+    }
 
     private List<Class<? extends BasePage>> pages;
 

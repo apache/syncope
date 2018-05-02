@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AbstractMappingPanel;
@@ -152,15 +153,15 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
 
             switch (provision.getAnyType()) {
                 case "USER":
-                    choices.addAll(USER_FIELD_NAMES);
+                    choices.addAll(ClassPathScanImplementationLookup.USER_FIELD_NAMES);
                     break;
 
                 case "GROUP":
-                    choices.addAll(GROUP_FIELD_NAMES);
+                    choices.addAll(ClassPathScanImplementationLookup.GROUP_FIELD_NAMES);
                     break;
 
                 default:
-                    choices.addAll(ANY_OBJECT_FIELD_NAMES);
+                    choices.addAll(ClassPathScanImplementationLookup.ANY_OBJECT_FIELD_NAMES);
             }
 
             for (AnyTypeClassTO anyTypeClassTO : anyTypeClassTOs) {
