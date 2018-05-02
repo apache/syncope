@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic.scim;
 import java.util.Date;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.scim.SCIMConf;
+import org.apache.syncope.common.lib.scim.SCIMGeneralConf;
 import org.apache.syncope.common.lib.scim.types.SCIMEntitlement;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -84,7 +85,8 @@ public class SCIMConfManager {
             scimConf.setMimeType(MediaType.APPLICATION_JSON);
             schemaLogic.create(SchemaType.PLAIN, scimConf);
         }
-        conf.setLastChangeDate(new Date());
+        conf.setGeneralConf(new SCIMGeneralConf());
+        conf.getGeneralConf().setLastChangeDate(new Date());
 
         configurationLogic.set(new AttrTO.Builder().
                 schema(SCIMConf.KEY).value(Base64.encode(POJOHelper.serialize(conf).getBytes())).build());

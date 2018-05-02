@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.wizards;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.resources.ItemTransformersTogglePanel;
 import org.apache.syncope.client.console.wizards.resources.JEXLTransformersTogglePanel;
@@ -87,7 +88,7 @@ public class OIDCProviderMappingPanel extends AbstractMappingPanel {
         toBeUpdated.setRequired(true);
         toBeUpdated.setEnabled(true);
 
-        List<String> choices = new ArrayList<>(USER_FIELD_NAMES);
+        List<String> choices = new ArrayList<>(ClassPathScanImplementationLookup.USER_FIELD_NAMES);
 
         for (AnyTypeClassTO anyTypeClassTO : anyTypeClassRestClient.list(
                 anyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses())) {
