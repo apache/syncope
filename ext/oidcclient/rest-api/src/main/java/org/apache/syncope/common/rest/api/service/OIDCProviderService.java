@@ -90,7 +90,7 @@ public interface OIDCProviderService extends JAXRSService {
      */
     @ApiResponses(
             @ApiResponse(code = 201,
-                    message = "SecurityQuestion successfully created", responseHeaders = {
+                    message = "OIDC Provider successfully created", responseHeaders = {
                 @ResponseHeader(name = RESTHeaders.RESOURCE_KEY, response = String.class,
                         description = "UUID generated for the entity created")
                 ,
@@ -109,7 +109,7 @@ public interface OIDCProviderService extends JAXRSService {
      */
     @ApiResponses(
             @ApiResponse(code = 201,
-                    message = "SecurityQuestion successfully created", responseHeaders = {
+                    message = "OIDC Provider successfully created", responseHeaders = {
                 @ResponseHeader(name = RESTHeaders.RESOURCE_KEY, response = String.class,
                         description = "UUID generated for the entity created")
                 ,
