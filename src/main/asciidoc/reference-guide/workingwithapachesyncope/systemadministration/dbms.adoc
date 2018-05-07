@@ -47,6 +47,15 @@ Master.orm=META-INF/spring-orm.xml
 This assumes that you have a PostgreSQL instance running on localhost, listening on its default port 5432 with a
 database `syncope` fully accessible by user `syncope` with password `syncope`.
 
+Download
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/fit/core-reference/src/main/resources/postgres/views.xml[views.xml^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/2_0_X/fit/core-reference/src/main/resources/postgres/views.xml[views.xml^]
+endif::[]
+and save it under `core/src/main/resources/`.
+
 ===== MySQL
 
 In `provisioning.properties`:
@@ -167,3 +176,12 @@ Master.audit.sql=audit_sqlserver.sql
 [WARNING]
 This assumes that you have a MS SQL Server instance running on localhost, listening on its default port 1344 with a
 database `syncope` fully accessible by user `syncope` with password `syncope`.
+
+Download
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/fit/core-reference/src/main/resources/sqlserver/views.xml[views.xml^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/2_0_X/fit/core-reference/src/main/resources/sqlserver/views.xml[views.xml^]
+endif::[]
+and save it under `core/src/main/resources/`.
