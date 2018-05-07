@@ -561,6 +561,7 @@ under the License.
             <filtering>true</filtering>
             <excludes>
               <exclude>provisioning.properties</exclude>
+              <exclude>views.xml</exclude>
             </excludes>
           </resource>
           <resource>
@@ -568,6 +569,16 @@ under the License.
             <filtering>true</filtering>
           </resource>
         </resources>
+        <!-- Views need to be customized, so the PostgreSQL-specific views.xml need to be copied to target/test-classes,
+        e.g. the conf directory, in order to override classpath:views.xml -->
+        <testResources>
+          <testResource>
+            <directory>src/main/resources/postgres</directory>
+            <includes>
+              <include>views.xml</include>
+            </includes>            
+          </testResource>
+        </testResources>
       </build>
     </profile>
     
