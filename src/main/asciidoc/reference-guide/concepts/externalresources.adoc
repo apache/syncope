@@ -49,6 +49,8 @@ More Connector Bundles can be <<install-connector-bundles,installed>>, if needed
 
 When defining a connector instance, the following information must be provided:
 
+* administration realm - the <<realms,Realm>> under which administrators need to own <<entitlements,entitlements>> in
+order to be allowed to manage this connector and all related external resources
 * connector bundle - one of the several
 https://github.com/Tirasa/ConnId/tree/master/README.md#available-connectors[already available^], or some to be
 https://connid.atlassian.net/wiki/display/BASE/Create+new+connector[made from scratch^], in order to fulfill specific

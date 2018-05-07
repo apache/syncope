@@ -33,8 +33,8 @@ role.
 ==== Delegated Administration
 
 The idea is that any user U assigned to a role R, which provides entitlements E~1~...E~n~ for realms Re~1~...Re~m~, can 
-exercise E~i~ on entities (Users, Groups, Any Objects of given types, depending on E~i~) under any Re~j~ or related
-sub-realms.
+exercise E~i~ on entities (Users, Groups, Any Objects of given types - depending on E~i~ - or Connector Instances and 
+External Resources) under any Re~j~ or related sub-realms.
 
 Moreover, any user U assigned to a role R, which provides entitlements E~1~...E~n~ for dynamic realms DR~1~..DR~n~, can
 exercise E~i~ on entities (Users, Groups, Any Objects of given types, depending on E~i~) matching the conditions defined
