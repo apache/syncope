@@ -67,7 +67,7 @@ public class Login extends HttpServlet {
             UriBuilder ub = UriBuilder.fromUri(requestTO.getProviderAddress());
             ub.queryParam(OIDCConstants.CLIENT_ID, requestTO.getClientId());
             ub.queryParam(OIDCConstants.REDIRECT_URI, requestTO.getRedirectURI());
-            ub.queryParam(OIDCConstants.RESPOSNSE_TYPE, requestTO.getResponseType());
+            ub.queryParam(OIDCConstants.RESPONSE_TYPE, requestTO.getResponseType());
             ub.queryParam(OIDCConstants.SCOPE, requestTO.getScope());
             ub.queryParam(OIDCConstants.STATE, requestTO.getState());
             response.setHeader("Location", ub.build().toASCIIString());
