@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.core.logic;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.RandomBasedGenerator;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,19 +31,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.provider.json.JsonMapObjectProvider;
 import org.apache.cxf.rs.security.jose.jaxrs.JsonWebKeysProvider;
 import org.apache.cxf.rs.security.oauth2.client.Consumer;
 import org.apache.cxf.rs.security.oauth2.common.ClientAccessToken;
+import org.apache.cxf.rs.security.oauth2.utils.OAuthConstants;
 import org.apache.cxf.rs.security.oidc.common.IdToken;
 import org.apache.cxf.rs.security.oidc.common.UserInfo;
 import org.apache.cxf.rs.security.oidc.rp.IdTokenReader;
 import org.apache.cxf.rs.security.oidc.rp.UserInfoClient;
 import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.syncope.common.lib.OIDCConstants;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.OIDCLoginRequestTO;
@@ -68,8 +72,6 @@ import org.springframework.stereotype.Component;
 public class OIDCClientLogic extends AbstractTransactionalLogic<AbstractBaseBean> {
 
     private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private static final RandomBasedGenerator UUID_GENERATOR = Generators.randomBasedGenerator();
 
@@ -117,7 +119,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<AbstractBaseBean
         requestTO.setProviderAddress(op.getAuthorizationEndpoint());
         requestTO.setClientId(op.getClientID());
         requestTO.setScope("openid email profile");
-        requestTO.setResponseType("code");
+        requestTO.setResponseType(OAuthConstants.CODE_RESPONSE_TYPE);
         requestTO.setRedirectURI(redirectURI);
         requestTO.setState(UUID_GENERATOR.generate().toString());
         return requestTO;
@@ -128,17 +130,27 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<AbstractBaseBean
         OIDCProvider op = getOIDCProvider(opName);
 
         // 1. get OpenID Connect tokens
-        String body = OIDCConstants.CODE + "=" + authorizationCode
-                + "&" + OIDCConstants.CLIENT_ID + "=" + op.getClientID()
-                + "&" + OIDCConstants.CLIENT_SECRET + "=" + op.getClientSecret()
-                + "&" + OIDCConstants.REDIRECT_URI + "=" + redirectURI
-                + "&" + OIDCConstants.GRANT_TYPE + "=authorization_code";
-        TokenEndpointResponse tokenEndpointResponse = getOIDCTokens(op.getTokenEndpoint(), body);
+        String body = OAuthConstants.AUTHORIZATION_CODE_VALUE + "=" + authorizationCode
+                + "&" + OAuthConstants.CLIENT_ID + "=" + op.getClientID()
+                + "&" + OAuthConstants.CLIENT_SECRET + "=" + op.getClientSecret()
+                + "&" + OAuthConstants.REDIRECT_URI + "=" + redirectURI
+                + "&" + OAuthConstants.GRANT_TYPE + "=" + OAuthConstants.AUTHORIZATION_CODE_GRANT;
+        TokenEndpointResponse tokenEndpointResponse;
+        try {
+            tokenEndpointResponse = getOIDCTokens(op.getTokenEndpoint(), body);
+        } catch (IOException e) {
+            LOG.error("Unexpected response for OIDC Tokens", e);
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
+            sce.getElements().add("Unexpected response for OIDC Tokens: " + e.getMessage());
+            throw sce;
+        }
 
         // 1. get OpenID Connect tokens
         Consumer consumer = new Consumer(op.getClientID(), op.getClientSecret());
 
         // 2. validate token
+        LOG.debug("Id Token to be validated: {}", tokenEndpointResponse.getIdToken());
         IdToken idToken = getValidatedIdToken(op, consumer, tokenEndpointResponse.getIdToken());
 
         // 3. extract user information
@@ -152,7 +164,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<AbstractBaseBean
         responseTO.setName(userInfo.getName());
         responseTO.setSubject(userInfo.getSubject());
 
-        String keyValue = null;
+        String keyValue = userInfo.getEmail();
         for (OIDCProviderItem item : op.getItems()) {
             AttrTO attrTO = new AttrTO();
             attrTO.setSchema(item.getExtAttrName());
@@ -278,7 +290,14 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<AbstractBaseBean
                     break;
 
                 default:
-                    LOG.warn("Unsupported: {} ", item.getExtAttrName());
+                    String value = userInfo.getClaim(item.getExtAttrName()) == null
+                            ? null
+                            : userInfo.getClaim(item.getExtAttrName()).toString();
+                    attrTO.getValues().add(value);
+                    responseTO.getAttrs().add(attrTO);
+                    if (item.isConnObjectKey()) {
+                        keyValue = value;
+                    }
             }
         }
 
@@ -296,7 +315,9 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<AbstractBaseBean
                 username = AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(),
                         () -> userManager.create(op, responseTO, emailValue));
             } else {
-                throw new NotFoundException("User matching the provided value " + keyValue);
+                throw new NotFoundException(keyValue == null
+                        ? "User marching the provided claims"
+                        : "User matching the provided value " + keyValue);
             }
         } else if (matchingUsers.size() > 1) {
             throw new IllegalArgumentException("Several users match the provided value " + keyValue);
@@ -336,32 +357,30 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<AbstractBaseBean
         return responseTO;
     }
 
-    private TokenEndpointResponse getOIDCTokens(final String url, final String body) {
-        String oidcTokens = WebClient.create(url).
+    private TokenEndpointResponse getOIDCTokens(final String url, final String body) throws IOException {
+        Response response = WebClient.create(url, Arrays.asList(new JacksonJsonProvider())).
                 type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON).
-                post(body).
-                readEntity(String.class);
-        TokenEndpointResponse endpointResponse = null;
-        try {
-            endpointResponse = MAPPER.readValue(oidcTokens, TokenEndpointResponse.class);
-        } catch (Exception e) {
-            LOG.error("While getting the Tokens from the OP", e);
+                post(body);
+        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+            LOG.error("Unexpected response from OIDC Provider: {}\n{}\n{}",
+                    response.getStatus(), response.getHeaders(),
+                    IOUtils.toString((InputStream) response.getEntity()));
+
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
-            sce.getElements().add(e.getMessage());
+            sce.getElements().add("Unexpected response from OIDC Provider");
             throw sce;
         }
-        return endpointResponse;
+
+        return response.readEntity(TokenEndpointResponse.class);
     }
 
     private IdToken getValidatedIdToken(final OIDCProvider op, final Consumer consumer, final String jwtIdToken) {
         IdTokenReader idTokenReader = new IdTokenReader();
         idTokenReader.setClockOffset(10);
         idTokenReader.setIssuerId(op.getIssuer());
-        WebClient jwkSetClient = WebClient.create(
-                op.getJwksUri(), Arrays.asList(new JsonWebKeysProvider())).
-                accept(MediaType.APPLICATION_JSON);
-        idTokenReader.setJwkSetClient(jwkSetClient);
-        IdToken idToken = null;
+        idTokenReader.setJwkSetClient(WebClient.create(op.getJwksUri(), Arrays.asList(new JsonWebKeysProvider())).
+                accept(MediaType.APPLICATION_JSON));
+        IdToken idToken;
         try {
             idToken = idTokenReader.getIdToken(jwtIdToken, consumer);
         } catch (Exception e) {
@@ -382,7 +401,8 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<AbstractBaseBean
         WebClient userInfoServiceClient = WebClient.create(
                 op.getUserinfoEndpoint(), Arrays.asList(new JsonMapObjectProvider())).
                 accept(MediaType.APPLICATION_JSON);
-        ClientAccessToken clientAccessToken = new ClientAccessToken("Bearer", accessToken);
+        ClientAccessToken clientAccessToken =
+                new ClientAccessToken(OAuthConstants.BEARER_AUTHORIZATION_SCHEME, accessToken);
         UserInfoClient userInfoClient = new UserInfoClient();
         userInfoClient.setUserInfoServiceClient(userInfoServiceClient);
         UserInfo userInfo = null;
