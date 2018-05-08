@@ -32,7 +32,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-@ExtPage(label = "OIDC Client", icon = "fa-openid ", listEntitlement = OIDCClientEntitlement.OP_READ, priority = 100)
+@ExtPage(label = "OIDC Client", icon = "fa-openid ", listEntitlement = OIDCClientEntitlement.OP_READ, priority = 200)
 public class OIDCClient extends BaseExtPage {
 
     private static final long serialVersionUID = -599601954212606001L;
