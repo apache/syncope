@@ -33,7 +33,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-@ExtPage(label = "SAML 2.0 SP", icon = "fa-sign-in", listEntitlement = SAML2SPEntitlement.IDP_READ, priority = 100)
+@ExtPage(label = "SAML 2.0 SP", icon = "fa-sign-in", listEntitlement = SAML2SPEntitlement.IDP_READ, priority = 300)
 public class SAML2SP extends BaseExtPage {
 
     private static final long serialVersionUID = -4837201407211278956L;

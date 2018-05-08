@@ -43,7 +43,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-@ExtPage(label = "SCIM 2.0", icon = "fa-cloud", listEntitlement = SCIMEntitlement.SCIM_CONF_GET, priority = 100)
+@ExtPage(label = "SCIM 2.0", icon = "fa-cloud", listEntitlement = SCIMEntitlement.SCIM_CONF_GET, priority = 400)
 public class SCIMConf extends BaseExtPage {
 
     private static final long serialVersionUID = 9128779230455599119L;
