@@ -371,7 +371,7 @@ under the License.
     <jackson.version>2.9.5</jackson.version>
 
     <spring.version>5.0.6.RELEASE</spring.version>
-    <spring-security.version>5.0.4.RELEASE</spring-security.version>
+    <spring-security.version>5.0.5.RELEASE</spring-security.version>
 
     <openjpa.version>3.0.0-SNAPSHOT</openjpa.version>
     <hikaricp.version>3.1.0</hikaricp.version>
