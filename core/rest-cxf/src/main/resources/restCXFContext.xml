@@ -127,7 +127,7 @@ under the License.
       </map>
     </property>
   </bean>
-  <bean id="sw2OpenAPI" class="org.apache.syncope.core.rest.cxf.openapi.SwaggerToOpenApiConversionFilter"/>
+  <bean id="sw2OpenAPI" class="org.apache.cxf.jaxrs.swagger.openapi.SwaggerToOpenApiConversionFilter"/>
 
   <jaxrs:server id="restContainer" address="/"
                 basePackages="org.apache.syncope.common.rest.api.service, org.apache.syncope.core.rest.cxf.service" 

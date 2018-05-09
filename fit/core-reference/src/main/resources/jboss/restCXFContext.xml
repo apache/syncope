@@ -131,9 +131,9 @@ under the License.
     <property name="resourcePackage" value="org.apache.syncope.common.rest.api.service"/>
     <property name="scanAllResources" value="true"/>
     <property name="activateOnlyIfJaxrsSupported" value="true"/>
-    
-    <property name="customizer" ref="swagger2customizer"/>
 
+    <property name="customizer" ref="swagger2customizer"/>
+    
     <property name="securityDefinitions">
       <map>
         <entry key="BasicAuthentication" value-ref="basicAuth"/>
@@ -141,6 +141,7 @@ under the License.
       </map>
     </property>
   </bean>
+  <bean id="sw2OpenAPI" class="org.apache.cxf.jaxrs.swagger.openapi.SwaggerToOpenApiConversionFilter"/>
 
   <jaxrs:server id="restContainer" address="/"
                 basePackages="org.apache.syncope.common.rest.api.service, org.apache.syncope.core.rest.cxf.service" 
@@ -168,6 +169,7 @@ under the License.
       <ref bean="addDomainFilter"/>
       <ref bean="addETagFilter"/>
       <ref bean="wadlGenerator"/>
+      <ref bean="sw2OpenAPI"/>
     </jaxrs:providers>
     <jaxrs:features>
       <ref bean="swagger2Feature"/>
