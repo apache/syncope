@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.logic;
 
-import static org.apache.syncope.core.logic.AbstractLogic.LOG;
-
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -80,6 +78,7 @@ public class OIDCProviderLogic extends AbstractTransactionalLogic<OIDCProviderTO
         opTO.setJwksUri(discoveryDocument.getJwksUri());
         opTO.setTokenEndpoint(discoveryDocument.getTokenEndpoint());
         opTO.setUserinfoEndpoint(discoveryDocument.getUserinfoEndpoint());
+        opTO.setEndSessionEndpoint(discoveryDocument.getEndSessionEndpoint());
 
         return create(opTO);
     }

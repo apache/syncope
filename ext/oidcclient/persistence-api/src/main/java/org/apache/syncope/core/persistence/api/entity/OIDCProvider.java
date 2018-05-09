@@ -54,6 +54,10 @@ public interface OIDCProvider extends Entity {
     String getUserinfoEndpoint();
 
     void setUserinfoEndpoint(String userinfoEndpoint);
+    
+    String getEndSessionEndpoint();
+
+    void setEndSessionEndpoint(String endSessionEndpoint);
 
     boolean getHasDiscovery();
 

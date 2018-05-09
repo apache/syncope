@@ -182,6 +182,7 @@ public class OIDCProviderDataBinderImpl implements OIDCProviderDataBinder {
         op.setJwksUri(opTO.getJwksUri());
         op.setTokenEndpoint(opTO.getTokenEndpoint());
         op.setUserinfoEndpoint(opTO.getUserinfoEndpoint());
+        op.setEndSessionEndpoint(opTO.getEndSessionEndpoint());
         op.setHasDiscovery(opTO.getHasDiscovery());
         op.setCreateUnmatching(opTO.isCreateUnmatching());
         op.setUpdateMatching(opTO.isUpdateMatching());
@@ -248,6 +249,7 @@ public class OIDCProviderDataBinderImpl implements OIDCProviderDataBinder {
         opTO.setJwksUri(op.getJwksUri());
         opTO.setTokenEndpoint(op.getTokenEndpoint());
         opTO.setUserinfoEndpoint(op.getUserinfoEndpoint());
+        opTO.setEndSessionEndpoint(op.getEndSessionEndpoint());
         opTO.setHasDiscovery(op.getHasDiscovery());
         opTO.setCreateUnmatching(op.isCreateUnmatching());
         opTO.setUpdateMatching(op.isUpdateMatching());

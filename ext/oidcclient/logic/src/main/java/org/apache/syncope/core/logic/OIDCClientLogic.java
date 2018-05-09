@@ -41,6 +41,7 @@ import org.apache.cxf.rs.security.jose.jaxrs.JsonWebKeysProvider;
 import org.apache.cxf.rs.security.oauth2.client.Consumer;
 import org.apache.cxf.rs.security.oauth2.common.ClientAccessToken;
 import org.apache.cxf.rs.security.oauth2.utils.OAuthConstants;
+import org.apache.cxf.rs.security.oidc.common.AbstractUserInfo;
 import org.apache.cxf.rs.security.oidc.common.IdToken;
 import org.apache.cxf.rs.security.oidc.common.UserInfo;
 import org.apache.cxf.rs.security.oidc.rp.IdTokenReader;
@@ -50,6 +51,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.OIDCLoginRequestTO;
 import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
+import org.apache.syncope.common.lib.to.OIDCLogoutRequestTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -146,24 +148,22 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<AbstractBaseBean
             throw sce;
         }
 
-        // 1. get OpenID Connect tokens
         Consumer consumer = new Consumer(op.getClientID(), op.getClientSecret());
 
         // 2. validate token
         LOG.debug("Id Token to be validated: {}", tokenEndpointResponse.getIdToken());
         IdToken idToken = getValidatedIdToken(op, consumer, tokenEndpointResponse.getIdToken());
 
-        // 3. extract user information
-        UserInfo userInfo = getUserInfo(op, tokenEndpointResponse.getAccessToken(), idToken, consumer);
-
-        // 4. prepare the result: find matching user (if any) and return the received attributes
+        // 3. prepare the result:
         final OIDCLoginResponseTO responseTO = new OIDCLoginResponseTO();
-        responseTO.setEmail(userInfo.getEmail());
-        responseTO.setFamilyName(userInfo.getFamilyName());
-        responseTO.setGivenName(userInfo.getGivenName());
-        responseTO.setName(userInfo.getName());
-        responseTO.setSubject(userInfo.getSubject());
+        responseTO.setLogoutSupported(StringUtils.isNotBlank(op.getEndSessionEndpoint()));
 
+        // 3a. extract user info from userInfoEndpoint if exists otherwise from idToken
+        AbstractUserInfo userInfo = StringUtils.isBlank(op.getUserinfoEndpoint())
+                ? idToken
+                : getUserInfo(op.getUserinfoEndpoint(), tokenEndpointResponse.getAccessToken(), idToken, consumer);
+
+        // 3b. find matching user (if any) and return the received attributes
         String keyValue = userInfo.getEmail();
         for (OIDCProviderItem item : op.getItems()) {
             AttrTO attrTO = new AttrTO();
@@ -347,7 +347,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<AbstractBaseBean
 
         responseTO.setUsername(username);
 
-        // 5. generate JWT for further access
+        // 4. generate JWT for further access
         Map<String, Object> claims = new HashMap<>();
         claims.put(JWT_CLAIM_OP_ENTITYID, idToken.getIssuer());
         claims.put(JWT_CLAIM_USERID, idToken.getSubject());
@@ -405,13 +405,12 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<AbstractBaseBean
     }
 
     private UserInfo getUserInfo(
-            final OIDCProvider op,
+            final String endpoint,
             final String accessToken,
             final IdToken idToken,
             final Consumer consumer) {
 
-        WebClient userInfoServiceClient = WebClient.create(
-                op.getUserinfoEndpoint(), Arrays.asList(new JsonMapObjectProvider())).
+        WebClient userInfoServiceClient = WebClient.create(endpoint, Arrays.asList(new JsonMapObjectProvider())).
                 accept(MediaType.APPLICATION_JSON);
         ClientAccessToken clientAccessToken =
                 new ClientAccessToken(OAuthConstants.BEARER_AUTHORIZATION_SCHEME, accessToken);
@@ -427,6 +426,13 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<AbstractBaseBean
             throw sce;
         }
         return userInfo;
+    }
+
+    @PreAuthorize("isAuthenticated() and not(hasRole('" + StandardEntitlement.ANONYMOUS + "'))")
+    public OIDCLogoutRequestTO createLogoutRequest(final String op) {
+        OIDCLogoutRequestTO logoutRequest = new OIDCLogoutRequestTO();
+        logoutRequest.setEndSessionEndpoint(getOIDCProvider(op).getEndSessionEndpoint());
+        return logoutRequest;
     }
 
     @Override

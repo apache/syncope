@@ -16,30 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib;
+package org.apache.syncope.client.console.pages;
 
-public final class OIDCConstants {
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.wicket.markup.html.WebPage;
 
-    public static final String CLIENT_ID = "client_id";
+public class OIDCClientLogout extends WebPage {
 
-    public static final String CLIENT_SECRET = "client_secret";
+    private static final long serialVersionUID = -4862264444058746154L;
 
-    public static final String SCOPE = "scope";
+    public OIDCClientLogout() {
+        super();
 
-    public static final String RESPONSE_TYPE = "response_type";
+        SyncopeConsoleSession.get().cleanup();
 
-    public static final String STATE = "state";
-    
-    public static final String POST_LOGOUT_REDIRECT_URI = "post_logout_redirect_uri";
+        SyncopeConsoleSession.get().invalidate();
 
-    public static final String REDIRECT_URI = "redirect_uri";
-
-    public static final String CODE = "code";
-
-    public static final String OP = "op";
-
-    private OIDCConstants() {
-        // private constructor for static utility class
+        setResponsePage(getApplication().getHomePage());
     }
 
 }

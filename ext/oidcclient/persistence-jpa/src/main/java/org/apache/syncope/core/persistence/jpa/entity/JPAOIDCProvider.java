@@ -71,8 +71,11 @@ public class JPAOIDCProvider extends AbstractGeneratedKeyEntity implements OIDCP
     @Column(nullable = false)
     private String issuer;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String userinfoEndpoint;
+    
+    @Column(nullable = true)
+    private String endSessionEndpoint;
 
     @Column(nullable = false)
     private boolean hasDiscovery;
@@ -178,6 +181,16 @@ public class JPAOIDCProvider extends AbstractGeneratedKeyEntity implements OIDCP
     @Override
     public void setUserinfoEndpoint(final String userinfoEndpoint) {
         this.userinfoEndpoint = userinfoEndpoint;
+    }
+    
+    @Override
+    public String getEndSessionEndpoint() {
+        return endSessionEndpoint;
+    }
+
+    @Override
+    public void setEndSessionEndpoint(final String endSessionEndpoint) {
+        this.endSessionEndpoint = endSessionEndpoint;
     }
 
     @Override

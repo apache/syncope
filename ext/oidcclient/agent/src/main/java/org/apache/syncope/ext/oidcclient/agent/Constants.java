@@ -30,6 +30,10 @@ public final class Constants {
 
     public static final String CONTEXT_PARAM_LOGIN_ERROR_URL = "oidcclient.login.error.url";
 
+    public static final String CONTEXT_PARAM_LOGOUT_SUCCESS_URL = "oidcclient.logout.success.url";
+
+    public static final String CONTEXT_PARAM_LOGOUT_ERROR_URL = "oidcclient.logout.error.url";
+
     public static final String OIDCCLIENTJWT = "oidcclient.jwt";
 
     public static final String OIDCCLIENTJWT_EXPIRE = "oidcclient.jwt.expire";

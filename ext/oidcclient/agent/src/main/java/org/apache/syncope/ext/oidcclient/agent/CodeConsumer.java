@@ -69,7 +69,7 @@ public class CodeConsumer extends HttpServlet {
                     request.setAttribute("responseTO", responseTO);
                     request.getRequestDispatcher("loginSuccess.jsp").forward(request, response);
                 } else {
-                    response.sendRedirect(successURL);
+                    response.sendRedirect(successURL + "?logoutSupported=" + responseTO.isLogoutSupported());
                 }
             } else {
                 throw new IllegalArgumentException("Invalid " + OIDCConstants.STATE + " provided");

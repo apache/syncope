@@ -39,15 +39,7 @@ public class OIDCLoginResponseTO extends AbstractBaseBean {
 
     private String username;
 
-    private String email;
-
-    private String name;
-
-    private String subject;
-
-    private String givenName;
-
-    private String familyName;
+    private boolean logoutSupported;
 
     private String accessToken;
 
@@ -63,44 +55,12 @@ public class OIDCLoginResponseTO extends AbstractBaseBean {
         this.username = username;
     }
 
-    public String getEmail() {
-        return email;
+    public boolean isLogoutSupported() {
+        return logoutSupported;
     }
 
-    public void setEmail(final String email) {
-        this.email = email;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public void setSubject(final String subject) {
-        this.subject = subject;
-    }
-
-    public String getGivenName() {
-        return givenName;
-    }
-
-    public void setGivenName(final String givenName) {
-        this.givenName = givenName;
-    }
-
-    public String getFamilyName() {
-        return familyName;
-    }
-
-    public void setFamilyName(final String familyName) {
-        this.familyName = familyName;
+    public void setLogoutSupported(final boolean logoutSupported) {
+        this.logoutSupported = logoutSupported;
     }
 
     public String getAccessToken() {
