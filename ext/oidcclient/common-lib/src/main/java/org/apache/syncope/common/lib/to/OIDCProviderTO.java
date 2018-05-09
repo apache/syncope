@@ -54,6 +54,8 @@ public class OIDCProviderTO extends AbstractBaseBean implements EntityTO, ItemCo
 
     private String userinfoEndpoint;
 
+    private String endSessionEndpoint;
+
     private boolean hasDiscovery;
 
     private UserTO userTemplate;
@@ -139,6 +141,14 @@ public class OIDCProviderTO extends AbstractBaseBean implements EntityTO, ItemCo
 
     public void setUserinfoEndpoint(final String userinfoEndpoint) {
         this.userinfoEndpoint = userinfoEndpoint;
+    }
+
+    public String getEndSessionEndpoint() {
+        return endSessionEndpoint;
+    }
+
+    public void setEndSessionEndpoint(final String endSessionEndpoint) {
+        this.endSessionEndpoint = endSessionEndpoint;
     }
 
     public UserTO getUserTemplate() {

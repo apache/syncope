@@ -70,7 +70,7 @@ public class Login extends HttpServlet {
             ub.queryParam(OIDCConstants.RESPONSE_TYPE, requestTO.getResponseType());
             ub.queryParam(OIDCConstants.SCOPE, requestTO.getScope());
             ub.queryParam(OIDCConstants.STATE, requestTO.getState());
-            response.setHeader("Location", ub.build().toASCIIString());
+            response.setHeader(HttpHeaders.LOCATION, ub.build().toASCIIString());
         } catch (Exception e) {
             LOG.error("While preparing the Authentication Request", e);
 

@@ -1,4 +1,4 @@
-<!--
+<%--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
@@ -15,20 +15,13 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
--->
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:panel>
-    <div wicket:id="content">
-      <span wicket:id="issuer">[issuer]</span>
-      <span wicket:id="hasDiscovery">[hasDiscovery]</span>
-
-      <div wicket:id="visibleParams">
-        <span wicket:id="authorizationEndpoint">[authorizationEndpoint]</span>
-        <span wicket:id="tokenEndpoint">[tokenEndpoint]</span>
-        <span wicket:id="jwksUri">[jwksUri]</span>
-        <span wicket:id="userinfoEndpoint">[userinfoEndpoint]</span>
-        <span wicket:id="endSessionEndpoint">[endSessionEndpoint]</span>
-      </div>
-    </div>
-  </wicket:panel>
+--%>
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<html>
+  <head>
+    <title>Apache Syncope ${syncope.version} - OIDC CLIENT - Successful Logout</title>
+  </head>
+  <body>
+    <h1>You have been successfully logged out.</h1>
+  </body>
 </html>

@@ -24,6 +24,7 @@ import org.apache.syncope.core.logic.OIDCClientLogic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
+import org.apache.syncope.common.lib.to.OIDCLogoutRequestTO;
 
 @Service
 public class OIDCClientServiceImpl extends AbstractServiceImpl implements OIDCClientService {
@@ -39,6 +40,11 @@ public class OIDCClientServiceImpl extends AbstractServiceImpl implements OIDCCl
     @Override
     public OIDCLoginResponseTO login(final String redirectURI, final String authorizationCode, final String op) {
         return logic.login(redirectURI, authorizationCode, op);
+    }
+
+    @Override
+    public OIDCLogoutRequestTO createLogoutRequest(final String op) {
+        return logic.createLogoutRequest(op);
     }
 
 }

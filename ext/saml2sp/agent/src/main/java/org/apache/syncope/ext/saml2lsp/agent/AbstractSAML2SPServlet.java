@@ -55,7 +55,7 @@ public abstract class AbstractSAML2SPServlet extends HttpServlet {
                 ub.queryParam(SSOConstants.SIGNATURE, requestTO.getSignature());
 
                 response.setStatus(HttpServletResponse.SC_SEE_OTHER);
-                response.setHeader("Location", ub.build().toASCIIString());
+                response.setHeader(HttpHeaders.LOCATION, ub.build().toASCIIString());
                 break;
 
             case POST:

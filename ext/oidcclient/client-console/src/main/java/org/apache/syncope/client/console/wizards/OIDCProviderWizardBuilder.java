@@ -180,7 +180,6 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
 
             final AjaxTextFieldPanel userinfoEndpoint = new AjaxTextFieldPanel("userinfoEndpoint",
                     "userinfoEndpoint", new PropertyModel<String>(opTO, "userinfoEndpoint"));
-            userinfoEndpoint.addRequiredLabel();
             userinfoEndpoint.addValidator(urlValidator);
             content.add(userinfoEndpoint);
 
@@ -196,12 +195,18 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
             jwksUri.addValidator(urlValidator);
             content.add(jwksUri);
 
+            final AjaxTextFieldPanel endSessionEndpoint = new AjaxTextFieldPanel("endSessionEndpoint",
+                    "endSessionEndpoint", new PropertyModel<String>(opTO, "endSessionEndpoint"));
+            endSessionEndpoint.addValidator(urlValidator);
+            content.add(endSessionEndpoint);
+
             final WebMarkupContainer visibleParam = new WebMarkupContainer("visibleParams");
             visibleParam.setOutputMarkupPlaceholderTag(true);
             visibleParam.add(authorizationEndpoint);
             visibleParam.add(userinfoEndpoint);
             visibleParam.add(tokenEndpoint);
             visibleParam.add(jwksUri);
+            visibleParam.add(endSessionEndpoint);
             content.add(visibleParam);
 
             showHide(hasDiscovery, visibleParam);
@@ -256,12 +261,18 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
             jwksUri.setReadOnly(readOnly);
             content.add(jwksUri);
 
+            final AjaxTextFieldPanel endSessionEndpoint = new AjaxTextFieldPanel("endSessionEndpoint",
+                    "endSessionEndpoint", new PropertyModel<String>(opTO, "endSessionEndpoint"));
+            endSessionEndpoint.setReadOnly(readOnly);
+            content.add(endSessionEndpoint);
+
             final WebMarkupContainer visibleParam = new WebMarkupContainer("visibleParams");
             visibleParam.setOutputMarkupPlaceholderTag(true);
             visibleParam.add(authorizationEndpoint);
             visibleParam.add(userinfoEndpoint);
             visibleParam.add(tokenEndpoint);
             visibleParam.add(jwksUri);
+            visibleParam.add(endSessionEndpoint);
             content.add(visibleParam);
         }
     }

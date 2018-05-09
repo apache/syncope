@@ -52,6 +52,11 @@ public class OIDCClientLogin extends WebPage {
         IAuthenticationStrategy strategy = getApplication().getSecuritySettings().getAuthenticationStrategy();
 
         if (SyncopeConsoleSession.get().authenticate(token)) {
+            if (parameters.get("logoutSupported").toBoolean(false)) {
+                SyncopeConsoleSession.get().setAttribute(
+                        org.apache.syncope.client.console.commons.Constants.BEFORE_LOGOUT_PAGE,
+                        OIDCClientBeforeLogout.class);
+            }
 
             // If login has been called because the user was not yet logged in, than continue to the
             // original destination, otherwise to the Home page

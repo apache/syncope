@@ -30,6 +30,7 @@ import org.apache.syncope.common.lib.OIDCConstants;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.OIDCLoginRequestTO;
 import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
+import org.apache.syncope.common.lib.to.OIDCLogoutRequestTO;
 
 /**
  * REST operations for OpenID Connect Clients.
@@ -71,5 +72,16 @@ public interface OIDCClientService extends JAXRSService {
             @QueryParam(OIDCConstants.REDIRECT_URI) String redirectURI,
             @QueryParam("authorizationCode") String authorizationCode,
             @QueryParam(OIDCConstants.OP) String op);
+
+    /**
+     * Returns the endSession endpoint for the provided op.
+     *
+     * @param op OpenID Connect Provider
+     * @return endSession endpoint for the provided op
+     */
+    @POST
+    @Path("logout")
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    OIDCLogoutRequestTO createLogoutRequest(@QueryParam(OIDCConstants.OP) String op);
 
 }

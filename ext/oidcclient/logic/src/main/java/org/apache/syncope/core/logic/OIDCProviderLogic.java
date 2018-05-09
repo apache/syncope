@@ -76,6 +76,7 @@ public class OIDCProviderLogic extends AbstractTransactionalLogic<OIDCProviderTO
         opTO.setJwksUri(discoveryDocument.getJwksUri());
         opTO.setTokenEndpoint(discoveryDocument.getTokenEndpoint());
         opTO.setUserinfoEndpoint(discoveryDocument.getUserinfoEndpoint());
+        opTO.setEndSessionEndpoint(discoveryDocument.getEndSessionEndpoint());
 
         return create(opTO);
     }

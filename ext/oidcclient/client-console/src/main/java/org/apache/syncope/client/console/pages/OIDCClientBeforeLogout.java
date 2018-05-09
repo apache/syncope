@@ -16,30 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib;
+package org.apache.syncope.client.console.pages;
 
-public final class OIDCConstants {
+import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.request.UrlUtils;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 
-    public static final String CLIENT_ID = "client_id";
+public class OIDCClientBeforeLogout extends WebPage {
 
-    public static final String CLIENT_SECRET = "client_secret";
+    private static final long serialVersionUID = 4666948447239743855L;
 
-    public static final String SCOPE = "scope";
+    public OIDCClientBeforeLogout() {
+        super();
 
-    public static final String RESPONSE_TYPE = "response_type";
-
-    public static final String STATE = "state";
-    
-    public static final String POST_LOGOUT_REDIRECT_URI = "post_logout_redirect_uri";
-
-    public static final String REDIRECT_URI = "redirect_uri";
-
-    public static final String CODE = "code";
-
-    public static final String OP = "op";
-
-    private OIDCConstants() {
-        // private constructor for static utility class
+        RequestCycle.get().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(
+                UrlUtils.rewriteToContextRelative("oidcclient/beforelogout", RequestCycle.get())));
     }
-
 }

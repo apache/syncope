@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser.pages;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.commons.Constants;
 import org.apache.wicket.authentication.IAuthenticationStrategy;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
@@ -51,6 +52,10 @@ public class OIDCClientLogin extends WebPage {
         IAuthenticationStrategy strategy = getApplication().getSecuritySettings().getAuthenticationStrategy();
 
         if (SyncopeEnduserSession.get().authenticate(token)) {
+            if (parameters.get("logoutSupported").toBoolean(false)) {
+                SyncopeEnduserSession.get().setAttribute(Constants.BEFORE_LOGOUT, OIDCClientBeforeLogout.class);
+            }
+
             setResponsePage(getApplication().getHomePage());
         } else {
             PageParameters params = new PageParameters();

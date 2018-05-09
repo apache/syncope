@@ -16,30 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib;
+package org.apache.syncope.common.lib.to;
 
-public final class OIDCConstants {
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.AbstractBaseBean;
 
-    public static final String CLIENT_ID = "client_id";
+@XmlRootElement(name = "oidcLogoutRequest")
+@XmlType
+public class OIDCLogoutRequestTO extends AbstractBaseBean {
 
-    public static final String CLIENT_SECRET = "client_secret";
+    private static final long serialVersionUID = -4708360216757961537L;
 
-    public static final String SCOPE = "scope";
+    private String endSessionEndpoint;
 
-    public static final String RESPONSE_TYPE = "response_type";
+    public String getEndSessionEndpoint() {
+        return endSessionEndpoint;
+    }
 
-    public static final String STATE = "state";
-    
-    public static final String POST_LOGOUT_REDIRECT_URI = "post_logout_redirect_uri";
-
-    public static final String REDIRECT_URI = "redirect_uri";
-
-    public static final String CODE = "code";
-
-    public static final String OP = "op";
-
-    private OIDCConstants() {
-        // private constructor for static utility class
+    public void setEndSessionEndpoint(final String endSessionEndpoint) {
+        this.endSessionEndpoint = endSessionEndpoint;
     }
 
 }

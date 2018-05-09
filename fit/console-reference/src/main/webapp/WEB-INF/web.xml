@@ -62,6 +62,15 @@ under the License.
     <param-name>oidcclient.login.error.url</param-name>
     <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.Login</param-value>
   </context-param>
+  
+  <context-param>
+    <param-name>oidcclient.logout.success.url</param-name>
+    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.OIDCClientLogout</param-value>
+  </context-param>
+  <context-param>
+    <param-name>oidcclient.logout.error.url</param-name>
+    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.Login</param-value>
+  </context-param>
 
   <!-- SESSION TIMEOUT (MINUTES)-->
   <session-config>
