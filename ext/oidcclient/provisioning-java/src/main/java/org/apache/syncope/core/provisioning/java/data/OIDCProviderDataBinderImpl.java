@@ -185,6 +185,7 @@ public class OIDCProviderDataBinderImpl implements OIDCProviderDataBinder {
         op.setEndSessionEndpoint(opTO.getEndSessionEndpoint());
         op.setHasDiscovery(opTO.getHasDiscovery());
         op.setCreateUnmatching(opTO.isCreateUnmatching());
+        op.setSelfRegUnmatching(opTO.isSelfRegUnmatching());
         op.setUpdateMatching(opTO.isUpdateMatching());
 
         if (opTO.getUserTemplate() == null) {
@@ -252,6 +253,7 @@ public class OIDCProviderDataBinderImpl implements OIDCProviderDataBinder {
         opTO.setEndSessionEndpoint(op.getEndSessionEndpoint());
         opTO.setHasDiscovery(op.getHasDiscovery());
         opTO.setCreateUnmatching(op.isCreateUnmatching());
+        opTO.setSelfRegUnmatching(op.isSelfRegUnmatching());
         opTO.setUpdateMatching(op.isUpdateMatching());
 
         if (op.getUserTemplate() != null) {

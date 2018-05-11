@@ -54,7 +54,7 @@ public interface OIDCProvider extends Entity {
     String getUserinfoEndpoint();
 
     void setUserinfoEndpoint(String userinfoEndpoint);
-    
+
     String getEndSessionEndpoint();
 
     void setEndSessionEndpoint(String endSessionEndpoint);
@@ -62,10 +62,14 @@ public interface OIDCProvider extends Entity {
     boolean getHasDiscovery();
 
     void setHasDiscovery(boolean hasDiscovery);
-    
+
     boolean isCreateUnmatching();
 
     void setCreateUnmatching(boolean createUnmatching);
+
+    boolean isSelfRegUnmatching();
+
+    void setSelfRegUnmatching(boolean selfRegUnmatching);
 
     boolean isUpdateMatching();
 
