@@ -135,6 +135,11 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
                     false);
             add(createUnmatching);
 
+            AjaxCheckBoxPanel selfRegUnmatching = new AjaxCheckBoxPanel(
+                    "selfRegUnmatching", "selfRegUnmatching", new PropertyModel<Boolean>(opTO, "selfRegUnmatching"),
+                    false);
+            add(selfRegUnmatching);
+
             AjaxCheckBoxPanel updateMatching = new AjaxCheckBoxPanel(
                     "updateMatching", "updateMatching", new PropertyModel<Boolean>(opTO, "updateMatching"), false);
             add(updateMatching);

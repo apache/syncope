@@ -40,6 +40,8 @@ public class OIDCLoginResponseTO extends AbstractBaseBean {
 
     private boolean logoutSupported;
 
+    private boolean selfReg;
+
     private String accessToken;
 
     private Date accessTokenExpiryTime;
@@ -60,6 +62,14 @@ public class OIDCLoginResponseTO extends AbstractBaseBean {
 
     public void setLogoutSupported(final boolean logoutSupported) {
         this.logoutSupported = logoutSupported;
+    }
+
+    public boolean isSelfReg() {
+        return selfReg;
+    }
+
+    public void setSelfReg(final boolean selfReg) {
+        this.selfReg = selfReg;
     }
 
     public String getAccessToken() {

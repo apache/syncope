@@ -86,6 +86,20 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
               }
             })
             /* </Extensions> */
+            
+            /* <Extensions> */
+            .state('self-oidcclient', {
+              url: '/self-oidcclient',
+              templateUrl: 'views/self.html',
+              controller: 'OIDCClientController',
+              resolve: {
+                'userAttrs': ['OIDCClientService',
+                  function (OIDCClientService) {
+                    return OIDCClientService.getOIDCClientUserAttrs();
+                  }]
+              }
+            })
+            /* </Extensions> */
             .state('user-self-update', {
               url: '/user-self-update',
               templateUrl: 'views/home.html',

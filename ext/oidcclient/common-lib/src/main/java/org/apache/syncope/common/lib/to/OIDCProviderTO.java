@@ -64,6 +64,8 @@ public class OIDCProviderTO extends AbstractBaseBean implements EntityTO, ItemCo
 
     private boolean updateMatching;
 
+    private boolean selfRegUnmatching;
+
     private final List<ItemTO> items = new ArrayList<>();
 
     private final Set<String> actionsClassNames = new HashSet<>();
@@ -181,6 +183,14 @@ public class OIDCProviderTO extends AbstractBaseBean implements EntityTO, ItemCo
 
     public void setUpdateMatching(final boolean updateMatching) {
         this.updateMatching = updateMatching;
+    }
+
+    public boolean isSelfRegUnmatching() {
+        return selfRegUnmatching;
+    }
+
+    public void setSelfRegUnmatching(final boolean selfRegUnmatching) {
+        this.selfRegUnmatching = selfRegUnmatching;
     }
 
     @Override

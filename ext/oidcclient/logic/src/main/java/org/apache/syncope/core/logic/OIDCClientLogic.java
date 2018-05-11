@@ -52,6 +52,7 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.OIDCLoginRequestTO;
 import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
 import org.apache.syncope.common.lib.to.OIDCLogoutRequestTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -314,6 +315,21 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<AbstractBaseBean
                 final String emailValue = userInfo.getEmail();
                 username = AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(),
                         () -> userManager.create(op, responseTO, emailValue));
+            } else if (op.isSelfRegUnmatching()) {
+                UserTO userTO = new UserTO();
+
+                userManager.fill(op, responseTO, userTO);
+
+                responseTO.getAttrs().clear();
+                responseTO.getAttrs().addAll(userTO.getPlainAttrs());
+                responseTO.getAttrs().addAll(userTO.getVirAttrs());
+                if (StringUtils.isNotBlank(userTO.getUsername())) {
+                    responseTO.setUsername(userTO.getUsername());
+                }
+
+                responseTO.setSelfReg(true);
+
+                return responseTO;
             } else {
                 throw new NotFoundException(keyValue == null
                         ? "User marching the provided claims"

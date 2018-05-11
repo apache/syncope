@@ -40,6 +40,8 @@ public class HomePage extends WebPage {
             appendMessage(redirectUrl, parameters.get("successMessage").toString());
         } else if (!parameters.get("saml2SPUserAttrs").isNull()) {
             redirectUrl.append("#!self-saml2sp");
+        } else if (!parameters.get("oidcClientUserAttrs").isNull()) {
+            redirectUrl.append("#!self-oidcclient");
         }
         throw new NonResettingRestartException(redirectUrl.toString());
     }

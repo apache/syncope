@@ -71,6 +71,11 @@ under the License.
     <param-name>oidcclient.logout.error.url</param-name>
     <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.Login</param-value>
   </context-param>
+  
+  <context-param>
+    <param-name>oidcclient.redirect.selfreg</param-name>
+    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.OIDCClientSelfReg</param-value>
+  </context-param>
 
   <!-- SESSION TIMEOUT (MINUTES)-->
   <session-config>

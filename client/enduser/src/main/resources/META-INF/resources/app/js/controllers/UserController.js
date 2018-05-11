@@ -45,6 +45,8 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
     /* <Extensions> */
     $scope.loadFromSAML2AuthSelfReg = $rootScope.saml2idps.userAttrs && $rootScope.saml2idps.userAttrs.length;
+
+    $scope.loadFromOIDCAuthSelfReg = $rootScope.oidcops.userAttrs && $rootScope.oidcops.userAttrs.length;
     /* </Extensions> */
 
     $scope.initUser = function () {
@@ -67,6 +69,12 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
       var findLoadedSAML2AttrValue = function (schemaKey) {
         var found = $filter('filter')($rootScope.saml2idps.userAttrs, {"schema": schemaKey}, true);
+        return (found && found.length && found[0].values && found[0].values.length)
+                ? found[0].values : [];
+      };
+
+      var findLoadedOIDCAttrValue = function (schemaKey) {
+        var found = $filter('filter')($rootScope.oidcops.userAttrs, {"schema": schemaKey}, true);
         return (found && found.length && found[0].values && found[0].values.length)
                 ? found[0].values : [];
       };
@@ -127,6 +135,10 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             if ($scope.loadFromSAML2AuthSelfReg) {
               $scope.user.plainAttrs[plainSchemaKey].values = findLoadedSAML2AttrValue(plainSchemaKey);
             }
+            
+            if ($scope.loadFromOIDCAuthSelfReg) {
+              $scope.user.plainAttrs[plainSchemaKey].values = findLoadedOIDCAttrValue(plainSchemaKey);
+            }
 
             if (schemas.plainSchemas[i].multivalue) {
               // initialize multivalue schema and support table: create mode, default multivalues
@@ -181,6 +193,10 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             if ($scope.loadFromSAML2AuthSelfReg) {
               $scope.user.virAttrs[virSchemaKey].values = findLoadedSAML2AttrValue(virSchemaKey);
             }
+            
+             if ($scope.loadFromOIDCAuthSelfReg) {
+              $scope.user.virAttrs[virSchemaKey].values = findLoadedOIDCAttrValue(virSchemaKey);
+            }
 
             // initialize multivalue attribute and support table: create mode, only first value
             $scope.dynamicForm.virtualAttributeTable[schemas.virSchemas[i].key] = {
@@ -205,6 +221,9 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
         //clean SAML Self Reg user attributes variable
         delete $rootScope.saml2idps.userAttrs;
+        
+        //clean OIDC Self Reg user attributes variable
+        delete $rootScope.oidcops.userAttrs;
       };
 
       var initSecurityQuestions = function () {
@@ -450,7 +469,14 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           if (username.length) {
             $scope.user.username = username[0];
           }
-        }
+        } 
+        
+        if ($scope.loadFromOIDCAuthSelfReg) {
+          var username = findLoadedOIDCAttrValue("username");
+          if (username.length) {
+            $scope.user.username = username[0];
+          }
+        } 
       } else {
         // read user from syncope core
         readUser();

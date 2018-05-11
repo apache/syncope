@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.ext.oidcclient.agent;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -29,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.OIDCConstants;
+import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
 import org.apache.syncope.common.rest.api.service.OIDCClientService;
 import org.slf4j.Logger;
@@ -40,6 +43,9 @@ public class CodeConsumer extends HttpServlet {
     private static final long serialVersionUID = 968480296813639041L;
 
     protected static final Logger LOG = LoggerFactory.getLogger(CodeConsumer.class);
+
+    private static final ObjectMapper MAPPER =
+            new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
@@ -59,17 +65,34 @@ public class CodeConsumer extends HttpServlet {
                         request.getRequestURL().toString(),
                         authorizationCode,
                         request.getSession().getAttribute(OIDCConstants.OP).toString());
-                request.getSession().setAttribute(
-                        Constants.OIDCCLIENTJWT, responseTO.getAccessToken());
-                request.getSession().setAttribute(
-                        Constants.OIDCCLIENTJWT_EXPIRE, responseTO.getAccessTokenExpiryTime());
+                if (responseTO.isSelfReg()) {
+                    responseTO.getAttrs().add(
+                            new AttrTO.Builder().schema("username").values(responseTO.getUsername()).build());
+                    request.getSession(true).
+                            setAttribute(Constants.OIDCCLIENT_USER_ATTRS, MAPPER.writeValueAsString(responseTO.
+                                    getAttrs()));
 
-                String successURL = getServletContext().getInitParameter(Constants.CONTEXT_PARAM_LOGIN_SUCCESS_URL);
-                if (successURL == null) {
-                    request.setAttribute("responseTO", responseTO);
-                    request.getRequestDispatcher("loginSuccess.jsp").forward(request, response);
+                    String selfRegRedirectURL =
+                            getServletContext().getInitParameter(Constants.CONTEXT_PARAM_REDIRECT_SELFREG_URL);
+                    if (selfRegRedirectURL == null) {
+                        request.setAttribute("responseTO", responseTO);
+                        request.getRequestDispatcher("loginSuccess.jsp").forward(request, response);
+                    } else {
+                        response.sendRedirect(selfRegRedirectURL);
+                    }
                 } else {
-                    response.sendRedirect(successURL + "?logoutSupported=" + responseTO.isLogoutSupported());
+                    request.getSession().setAttribute(
+                            Constants.OIDCCLIENTJWT, responseTO.getAccessToken());
+                    request.getSession().setAttribute(
+                            Constants.OIDCCLIENTJWT_EXPIRE, responseTO.getAccessTokenExpiryTime());
+
+                    String successURL = getServletContext().getInitParameter(Constants.CONTEXT_PARAM_LOGIN_SUCCESS_URL);
+                    if (successURL == null) {
+                        request.setAttribute("responseTO", responseTO);
+                        request.getRequestDispatcher("loginSuccess.jsp").forward(request, response);
+                    } else {
+                        response.sendRedirect(successURL + "?logoutSupported=" + responseTO.isLogoutSupported());
+                    }
                 }
             } else {
                 throw new IllegalArgumentException("Invalid " + OIDCConstants.STATE + " provided");

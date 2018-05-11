@@ -39,10 +39,12 @@ import javax.validation.constraints.Min;
 import org.apache.syncope.core.persistence.api.entity.OIDCProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCProviderItem;
 import org.apache.syncope.core.persistence.api.entity.OIDCUserTemplate;
+import org.apache.syncope.core.persistence.jpa.validation.entity.OIDCProviderCheck;
 
 @Entity
 @Table(name = JPAOIDCProvider.TABLE)
 @Cacheable
+@OIDCProviderCheck
 public class JPAOIDCProvider extends AbstractGeneratedKeyEntity implements OIDCProvider {
 
     public static final String TABLE = "OIDCProvider";
@@ -72,7 +74,7 @@ public class JPAOIDCProvider extends AbstractGeneratedKeyEntity implements OIDCP
 
     @Column(nullable = true)
     private String userinfoEndpoint;
-    
+
     @Column(nullable = true)
     private String endSessionEndpoint;
 
@@ -89,6 +91,11 @@ public class JPAOIDCProvider extends AbstractGeneratedKeyEntity implements OIDCP
     @Max(1)
     @Column(nullable = false)
     private Integer createUnmatching;
+
+    @Min(0)
+    @Max(1)
+    @Column(nullable = false)
+    private Integer selfRegUnmatching;
 
     @Min(0)
     @Max(1)
@@ -181,7 +188,7 @@ public class JPAOIDCProvider extends AbstractGeneratedKeyEntity implements OIDCP
     public void setUserinfoEndpoint(final String userinfoEndpoint) {
         this.userinfoEndpoint = userinfoEndpoint;
     }
-    
+
     @Override
     public String getEndSessionEndpoint() {
         return endSessionEndpoint;
@@ -210,6 +217,16 @@ public class JPAOIDCProvider extends AbstractGeneratedKeyEntity implements OIDCP
     @Override
     public void setCreateUnmatching(final boolean createUnmatching) {
         this.createUnmatching = getBooleanAsInteger(createUnmatching);
+    }
+
+    @Override
+    public boolean isSelfRegUnmatching() {
+        return isBooleanAsInteger(selfRegUnmatching);
+    }
+
+    @Override
+    public void setSelfRegUnmatching(final boolean selfRegUnmatching) {
+        this.selfRegUnmatching = getBooleanAsInteger(selfRegUnmatching);
     }
 
     @Override

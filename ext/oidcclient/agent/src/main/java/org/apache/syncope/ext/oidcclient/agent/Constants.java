@@ -34,9 +34,13 @@ public final class Constants {
 
     public static final String CONTEXT_PARAM_LOGOUT_ERROR_URL = "oidcclient.logout.error.url";
 
+    public static final String CONTEXT_PARAM_REDIRECT_SELFREG_URL = "oidcclient.redirect.selfreg";
+
     public static final String OIDCCLIENTJWT = "oidcclient.jwt";
 
     public static final String OIDCCLIENTJWT_EXPIRE = "oidcclient.jwt.expire";
+
+    public static final String OIDCCLIENT_USER_ATTRS = "oidcclient.userattrs";
 
     private Constants() {
         // private constructor for static utility class
