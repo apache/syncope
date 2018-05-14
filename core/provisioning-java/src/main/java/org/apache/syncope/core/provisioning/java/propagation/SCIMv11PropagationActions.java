@@ -68,12 +68,6 @@ public class SCIMv11PropagationActions extends DefaultPropagationActions {
 
     @Transactional
     @Override
-    public void before(final PropagationTask task, final ConnectorObject beforeObj) {
-        super.before(task, beforeObj);
-    }
-
-    @Transactional
-    @Override
     public void after(final PropagationTask task, final TaskExec execution, final ConnectorObject afterObj) {
         if (task.getOperation() == ResourceOperation.DELETE || task.getOperation() == ResourceOperation.NONE) {
             return;
