@@ -67,11 +67,6 @@ public class SCIMv11PropagationActions implements PropagationActions {
         return "SCIMUserId";
     }
 
-    @Override
-    public void before(PropagationTask task, ConnectorObject beforeObj) {
-        PropagationActions.super.before(task, beforeObj);
-    }
-
     @Transactional
     @Override
     public void after(final PropagationTask task, final TaskExec execution, final ConnectorObject afterObj) {
