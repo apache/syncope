@@ -70,6 +70,7 @@ import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagati
 import org.apache.syncope.core.provisioning.java.propagation.GoogleAppsPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
+import org.apache.syncope.core.provisioning.java.propagation.SCIMv11PropagationActions;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
@@ -183,6 +184,7 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames.add(LDAPPasswordPropagationActions.class.getName());
             classNames.add(DBPasswordPropagationActions.class.getName());
             classNames.add(AzurePropagationActions.class.getName());
+            classNames.add(SCIMv11PropagationActions.class.getName());
             classNames.add(GoogleAppsPropagationActions.class.getName());
             put(ImplementationType.PROPAGATION_ACTIONS, classNames);
 
