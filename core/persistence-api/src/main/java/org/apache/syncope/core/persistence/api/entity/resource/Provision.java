@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.SyncToken;
 
@@ -52,6 +53,10 @@ public interface Provision extends Entity {
     boolean isIgnoreCaseMatch();
 
     void setIgnoreCaseMatch(boolean ignoreCaseMatch);
+
+    PlainSchema getUidOnCreate();
+
+    void setUidOnCreate(PlainSchema uidOnCreate);
 
     Mapping getMapping();
 

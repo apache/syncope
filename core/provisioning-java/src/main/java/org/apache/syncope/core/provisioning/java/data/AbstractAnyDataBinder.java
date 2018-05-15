@@ -261,7 +261,7 @@ abstract class AbstractAnyDataBinder {
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         // Check if there is some mandatory schema defined for which no value has been provided
-        AllowedSchemas<PlainSchema> allowedPlainSchemas = anyUtils.getAllowedSchemas(any, PlainSchema.class);
+        AllowedSchemas<PlainSchema> allowedPlainSchemas = anyUtils.dao().findAllowedSchemas(any, PlainSchema.class);
         allowedPlainSchemas.getForSelf().forEach(schema -> {
             checkMandatory(schema, any.getPlainAttr(schema.getKey()).orElse(null), any, reqValMissing);
         });

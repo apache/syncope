@@ -72,10 +72,6 @@ public class GoogleAppsPullActions implements PullActions {
 
     private final Map<String, String> googleAppsIds = new HashMap<>();
 
-    protected String getEmailSchema() {
-        return "email";
-    }
-
     protected String getGoogleAppsIdSchema() {
         return "GoogleAppsId";
     }

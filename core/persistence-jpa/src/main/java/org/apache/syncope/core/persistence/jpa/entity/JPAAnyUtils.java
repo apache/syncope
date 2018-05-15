@@ -31,7 +31,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -41,7 +41,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.Schema;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -58,11 +58,15 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class JPAAnyUtils implements AnyUtils {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AnyUtils.class);
 
     private static final Set<String> USER_FIELD_NAMES = new HashSet<>();
 
@@ -79,7 +83,7 @@ public class JPAAnyUtils implements AnyUtils {
     private static void initFieldNames(final Class<?> entityClass, final Set<String> keys) {
         List<Class<?>> classes = ClassUtils.getAllSuperclasses(entityClass);
         classes.add(entityClass);
-        for (Class<?> clazz : classes) {
+        classes.forEach(clazz -> {
             for (Field field : clazz.getDeclaredFields()) {
                 if (!Modifier.isStatic(field.getModifiers())
                         && !field.getName().startsWith("pc")
@@ -89,7 +93,7 @@ public class JPAAnyUtils implements AnyUtils {
                     keys.add("id".equals(field.getName()) ? "key" : field.getName());
                 }
             }
-        }
+        });
     }
 
     public static boolean matchesFieldName(final String candidate) {
@@ -377,19 +381,30 @@ public class JPAAnyUtils implements AnyUtils {
         return resources;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
-    public <S extends Schema> AllowedSchemas<S> getAllowedSchemas(final Any<?> any, final Class<S> reference) {
-        AllowedSchemas<S> result = null;
-
-        if (any instanceof User) {
-            result = userDAO.findAllowedSchemas((User) any, reference);
-        } else if (any instanceof Group) {
-            result = groupDAO.findAllowedSchemas((Group) any, reference);
-        } else if (any instanceof AnyObject) {
-            result = anyObjectDAO.findAllowedSchemas((AnyObject) any, reference);
+    public void addAttr(final String key, final PlainSchema schema, final String value) {
+        Any any = dao().find(key);
+        if (!dao().findAllowedSchemas(any, PlainSchema.class).forSelfContains(schema)) {
+            LOG.warn("Schema {} not allowed for {}, ignoring", schema, any);
+            return;
         }
 
-        return result;
+        PlainAttr<?> attr = (PlainAttr<?>) any.getPlainAttr(schema.getKey()).orElse(null);
+        if (attr == null) {
+            attr = newPlainAttr();
+            attr.setSchema(schema);
+            ((PlainAttr) attr).setOwner(any);
+            any.add(attr);
+
+            try {
+                attr.add(value, this);
+                dao().save(any);
+            } catch (InvalidPlainAttrValueException e) {
+                LOG.error("Invalid value for attribute {} and {}: {}", schema.getKey(), any, value, e);
+            }
+        } else {
+            LOG.debug("{} has already {} set: {}", any, schema.getKey(), attr.getValuesAsStrings());
+        }
     }
 }

@@ -21,15 +21,22 @@ package org.apache.syncope.client.console.panels;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +46,12 @@ public class ProvisionAuxClassesPanel extends Panel {
     private static final long serialVersionUID = -3962956154520358784L;
 
     private static final Logger LOG = LoggerFactory.getLogger(ProvisionAuxClassesPanel.class);
+
+    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
+
+    private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
+
+    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
     private final ProvisionTO provision;
 
@@ -53,6 +66,7 @@ public class ProvisionAuxClassesPanel extends Panel {
     protected void onBeforeRender() {
         super.onBeforeRender();
 
+        AnyTypeTO anyType = null;
         IModel<List<String>> model;
         List<String> choices;
         if (provision == null) {
@@ -62,25 +76,41 @@ public class ProvisionAuxClassesPanel extends Panel {
             model = new PropertyModel<>(provision, "auxClasses");
             choices = new ArrayList<>();
 
-            AnyTypeTO anyType = null;
             try {
-                anyType = new AnyTypeRestClient().read(provision.getAnyType());
+                anyType = anyTypeRestClient.read(provision.getAnyType());
             } catch (Exception e) {
                 LOG.error("Could not read AnyType {}", provision.getAnyType(), e);
             }
             if (anyType != null) {
-                for (AnyTypeClassTO aux : new AnyTypeClassRestClient().list()) {
+                for (AnyTypeClassTO aux : anyTypeClassRestClient.list()) {
                     if (!anyType.getClasses().contains(aux.getKey())) {
                         choices.add(aux.getKey());
                     }
                 }
             }
         }
+
         addOrReplace(
                 new AjaxPalettePanel.Builder<String>().build("auxClasses", model, new ListModel<>(choices)).
                         hideLabel().
                         setOutputMarkupId(true).
                         setEnabled(provision != null));
+
+        AjaxTextFieldPanel uidOnCreate = new AjaxTextFieldPanel(
+                "uidOnCreate", new ResourceModel("uidOnCreate", "uidOnCreate").getObject(),
+                new PropertyModel<>(provision, "uidOnCreate"));
+        uidOnCreate.setChoices(getSchemas(anyType, model.getObject()));
+        uidOnCreate.setOutputMarkupId(true).
+                setEnabled(provision != null);
+        addOrReplace(uidOnCreate);
     }
 
+    private List<String> getSchemas(final AnyTypeTO anyType, final List<String> anyTypeClasses) {
+        List<String> classes = new ArrayList<>(anyType.getClasses());
+        classes.addAll(anyTypeClasses);
+
+        return schemaRestClient.<PlainSchemaTO>getSchemas(
+                SchemaType.PLAIN, null, classes.toArray(new String[] {})).
+                stream().map(EntityTO::getKey).collect(Collectors.toList());
+    }
 }

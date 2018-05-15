@@ -315,14 +315,16 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
                 forEach(policy -> policy.getResources().remove(resource));
 
         resource.getProvisions().stream().
-                filter(provision -> provision.getMapping() != null).
-                peek(provision -> provision.getMapping().getItems().forEach(item -> item.setMapping(null))).
                 peek(provision -> {
-                    provision.getMapping().getItems().clear();
+                    provision.setUidOnCreate(null);
+                    if (provision.getMapping() != null) {
+                        provision.getMapping().getItems().forEach(item -> item.setMapping(null));
+                        provision.getMapping().getItems().clear();
+                    }
                     provision.setMapping(null);
                     provision.setResource(null);
                 }).
-                forEachOrdered(provision -> virSchemaDAO().findByProvision(provision).
+                forEach(provision -> virSchemaDAO().findByProvision(provision).
                 forEach(schema -> virSchemaDAO().delete(schema.getKey())));
 
         externalResourceHistoryConfDAO().deleteByEntity(resource);

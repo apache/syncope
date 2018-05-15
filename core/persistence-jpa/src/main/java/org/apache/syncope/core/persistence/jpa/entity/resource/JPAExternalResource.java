@@ -210,13 +210,21 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     }
 
     @Override
-    public Optional<? extends Provision> getProvision(final ObjectClass objectClass) {
-        return getProvisions().stream().filter(provision -> provision.getObjectClass().equals(objectClass)).findFirst();
+    public Optional<? extends Provision> getProvision(final String anyType) {
+        return getProvisions().stream().
+                filter(provision -> provision.getAnyType().getKey().equals(anyType)).findFirst();
     }
 
     @Override
     public Optional<? extends Provision> getProvision(final AnyType anyType) {
-        return getProvisions().stream().filter(provision -> provision.getAnyType().equals(anyType)).findFirst();
+        return getProvisions().stream().
+                filter(provision -> provision.getAnyType().equals(anyType)).findFirst();
+    }
+
+    @Override
+    public Optional<? extends Provision> getProvision(final ObjectClass objectClass) {
+        return getProvisions().stream().
+                filter(provision -> provision.getObjectClass().equals(objectClass)).findFirst();
     }
 
     @Override

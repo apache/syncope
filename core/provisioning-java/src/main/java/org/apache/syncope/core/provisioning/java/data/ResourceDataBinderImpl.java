@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.collections.IteratorChain;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -55,11 +56,13 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceHistoryConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
@@ -107,6 +110,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
     @Autowired
     private ImplementationDAO implementationDAO;
+
+    @Autowired
+    private PlainSchemaDAO plainSchemaDAO;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -198,6 +204,15 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         removeIf(anyTypeClass -> !provisionTO.getAuxClasses().contains(anyTypeClass.getKey()));
 
                 provision.setIgnoreCaseMatch(provisionTO.isIgnoreCaseMatch());
+
+                if (StringUtils.isNotBlank(provisionTO.getUidOnCreate())) {
+                    PlainSchema uidOnCreate = plainSchemaDAO.find(provisionTO.getUidOnCreate());
+                    if (uidOnCreate == null) {
+                        LOG.warn("Ignoring invalid schema for uidOnCreate(): {}", provisionTO.getUidOnCreate());
+                    } else {
+                        provision.setUidOnCreate(uidOnCreate);
+                    }
+                }
 
                 if (provisionTO.getMapping() == null) {
                     provision.setMapping(null);
@@ -599,6 +614,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     map(cls -> cls.getKey()).collect(Collectors.toList()));
             provisionTO.setSyncToken(provision.getSerializedSyncToken());
             provisionTO.setIgnoreCaseMatch(provision.isIgnoreCaseMatch());
+            if (provision.getUidOnCreate() != null) {
+                provisionTO.setUidOnCreate(provision.getUidOnCreate().getKey());
+            }
 
             if (provision.getMapping() != null) {
                 MappingTO mappingTO = new MappingTO();

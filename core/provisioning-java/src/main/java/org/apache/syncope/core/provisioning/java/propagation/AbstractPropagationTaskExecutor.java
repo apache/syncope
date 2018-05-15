@@ -56,6 +56,7 @@ import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
@@ -103,22 +104,22 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected ConnObjectUtils connObjectUtils;
 
     /**
-     * Any object DAO.
-     */
-    @Autowired
-    protected AnyObjectDAO anyObjectDAO;
-
-    /**
      * User DAO.
      */
     @Autowired
     protected UserDAO userDAO;
 
     /**
-     * User DAO.
+     * Group DAO.
      */
     @Autowired
     protected GroupDAO groupDAO;
+
+    /**
+     * Any object DAO.
+     */
+    @Autowired
+    protected AnyObjectDAO anyObjectDAO;
 
     /**
      * Task DAO.
@@ -151,6 +152,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected TaskDataBinder taskDataBinder;
 
     @Autowired
+    protected AnyUtilsFactory anyUtilsFactory;
+
+    @Autowired
     protected TaskUtilsFactory taskUtilsFactory;
 
     @Autowired
@@ -178,6 +182,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return result;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected Uid createOrUpdate(
             final PropagationTask task,
             final ConnectorObject beforeObj,
@@ -213,6 +218,13 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             LOG.debug("Create {} on {}", attributes, task.getResource().getKey());
             result = connector.create(
                     new ObjectClass(task.getObjectClassName()), attributes, null, propagationAttempted);
+
+            task.getResource().getProvision(task.getAnyType()).ifPresent(provision -> {
+                if (provision.getUidOnCreate() != null) {
+                    anyUtilsFactory.getInstance(task.getAnyTypeKind()).
+                            addAttr(task.getEntityKey(), provision.getUidOnCreate(), result.getUidValue());
+                }
+            });
         } else {
             // 1. check if rename is really required
             Name newName = AttributeUtil.getNameFromAttributes(attributes);

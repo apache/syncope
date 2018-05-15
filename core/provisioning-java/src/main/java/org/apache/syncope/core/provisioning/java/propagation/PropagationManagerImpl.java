@@ -340,7 +340,8 @@ public class PropagationManagerImpl implements PropagationManager {
                     LOG.warn("Ignoring invalid {} {}", VirSchema.class.getSimpleName(), vAttr.getSchema());
                 } else if (schema.isReadonly()) {
                     LOG.warn("Ignoring read-only {} {}", VirSchema.class.getSimpleName(), vAttr.getSchema());
-                } else if (anyUtilsFactory.getInstance(any).getAllowedSchemas(any, VirSchema.class).contains(schema)
+                } else if (anyUtilsFactory.getInstance(any).dao().
+                        findAllowedSchemas(any, VirSchema.class).contains(schema)
                         && virtualResources.contains(schema.getProvision().getResource().getKey())) {
 
                     Set<Attribute> values = vAttrMap.get(schema.getProvision().getResource().getKey());

@@ -821,13 +821,16 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
             if (SyncDeltaType.CREATE_OR_UPDATE == processed.getDeltaType()) {
                 if (anyKeys.isEmpty()) {
+                    List<ProvisioningReport> forUidOnCreate = null;
                     switch (profile.getTask().getUnmatchingRule()) {
                         case ASSIGN:
-                            profile.getResults().addAll(assign(processed, provision, anyUtils));
+                            forUidOnCreate = assign(processed, provision, anyUtils);
+                            profile.getResults().addAll(forUidOnCreate);
                             break;
 
                         case PROVISION:
-                            profile.getResults().addAll(provision(processed, provision, anyUtils));
+                            forUidOnCreate = provision(processed, provision, anyUtils);
+                            profile.getResults().addAll(forUidOnCreate);
                             break;
 
                         case IGNORE:
@@ -836,6 +839,12 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
                         default:
                         // do nothing
+                    }
+
+                    if (forUidOnCreate != null && provision.getUidOnCreate() != null) {
+                        forUidOnCreate.forEach(report -> {
+                            anyUtils.addAttr(report.getKey(), provision.getUidOnCreate(), delta.getUid().getUidValue());
+                        });
                     }
                 } else {
                     // update VirAttrCache

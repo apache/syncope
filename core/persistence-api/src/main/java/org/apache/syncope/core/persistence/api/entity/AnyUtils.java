@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.api.entity;
 import java.util.Set;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
@@ -53,5 +52,5 @@ public interface AnyUtils {
 
     Set<ExternalResource> getAllResources(Any<?> any);
 
-    <S extends Schema> AllowedSchemas<S> getAllowedSchemas(Any<?> any, Class<S> reference);
+    void addAttr(String key, PlainSchema schema, String value);
 }

@@ -153,16 +153,17 @@ complex statements to be expressed such as 'be mandatory only if this other attr
 
 Besides the items documented above, some more data needs to be specified for a complete mapping:
 
-* ConnId `objectClass` - which
+* which
 http://connid.tirasa.net/apidocs/1.4/org/identityconnectors/framework/common/objects/ObjectClass.html[object class^]
 shall be used during communication with the Identity Store; predefined are `\\__ACCOUNT__` for Users and 
 `\\__GROUP__` for Groups
 * whether matches between user / group / any object's attribute values and their counterparts on the Identity Store
 should be performed in a case-sensitive fashion or not
-* Object link - only required by some connector bundles as
+* which schema shall be used to hold values for identifiers generated upon create by the Identity Store - required by
+some cloud providers not accepting provided values as unique references
+* the model for generating the DN (distinguished name) values - only required by some connector bundles as
 https://connid.atlassian.net/wiki/display/BASE/LDAP[LDAP^] and
-https://connid.atlassian.net/wiki/pages/viewpage.action?pageId=360482[Active Directory^], generally specifies the model
-for generating the DN (distinguished name) values
+https://connid.atlassian.net/wiki/pages/viewpage.action?pageId=360482[Active Directory^]
 
 .Mapping items
 ====

@@ -95,6 +95,8 @@ public interface ExternalResource extends ProvidedKeyEntity {
 
     boolean add(Provision provision);
 
+    Optional<? extends Provision> getProvision(String anyType);
+
     Optional<? extends Provision> getProvision(AnyType anyType);
 
     Optional<? extends Provision> getProvision(ObjectClass objectClass);

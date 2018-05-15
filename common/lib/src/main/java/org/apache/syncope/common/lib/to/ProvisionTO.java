@@ -45,6 +45,8 @@ public class ProvisionTO extends AbstractBaseBean implements EntityTO {
 
     private boolean ignoreCaseMatch;
 
+    private String uidOnCreate;
+
     private MappingTO mapping;
 
     private final List<String> virSchemas = new ArrayList<>();
@@ -96,6 +98,14 @@ public class ProvisionTO extends AbstractBaseBean implements EntityTO {
 
     public void setIgnoreCaseMatch(final boolean ignoreCaseMatch) {
         this.ignoreCaseMatch = ignoreCaseMatch;
+    }
+
+    public String getUidOnCreate() {
+        return uidOnCreate;
+    }
+
+    public void setUidOnCreate(final String uidOnCreate) {
+        this.uidOnCreate = uidOnCreate;
     }
 
     public MappingTO getMapping() {

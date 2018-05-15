@@ -38,12 +38,14 @@ import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
+import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.SyncToken;
 
@@ -79,6 +81,9 @@ public class JPAProvision extends AbstractGeneratedKeyEntity implements Provisio
     @Min(0)
     @Max(1)
     private Integer ignoreCaseMatch;
+
+    @ManyToOne
+    private JPAPlainSchema uidOnCreate;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "provision")
     private JPAMapping mapping;
@@ -153,6 +158,17 @@ public class JPAProvision extends AbstractGeneratedKeyEntity implements Provisio
     @Override
     public void setIgnoreCaseMatch(final boolean ignoreCaseMatch) {
         this.ignoreCaseMatch = getBooleanAsInteger(ignoreCaseMatch);
+    }
+
+    @Override
+    public PlainSchema getUidOnCreate() {
+        return uidOnCreate;
+    }
+
+    @Override
+    public void setUidOnCreate(final PlainSchema uidOnCreate) {
+        checkType(uidOnCreate, JPAPlainSchema.class);
+        this.uidOnCreate = (JPAPlainSchema) uidOnCreate;
     }
 
     @Override

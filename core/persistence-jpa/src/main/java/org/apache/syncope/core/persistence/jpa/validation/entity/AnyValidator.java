@@ -58,7 +58,7 @@ public class AnyValidator extends AbstractValidator<AnyCheck, Any> {
 
         if (!(any instanceof Conf)) {
             AllowedSchemas<PlainSchema> allowedPlainSchemas = new JPAAnyUtilsFactory().
-                    getInstance(any.getType().getKind()).getAllowedSchemas(any, PlainSchema.class);
+                    getInstance(any.getType().getKind()).dao().findAllowedSchemas(any, PlainSchema.class);
 
             for (PlainAttr<?> attr : ((Any<?>) any).getPlainAttrs()) {
                 if (attr != null && !allowedPlainSchemas.forSelfContains(attr.getSchema().getKey())) {
