@@ -72,8 +72,8 @@ public class GoogleAppsPropagationActions extends DefaultPropagationActions {
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
 
-    protected String getEmailSchema() {
-        return "email";
+    protected String getEmailAttrName() {
+        return "emails";
     }
 
     protected String getGoogleAppsIdSchema() {
@@ -92,17 +92,16 @@ public class GoogleAppsPropagationActions extends DefaultPropagationActions {
 
         Set<Attribute> attrs = new HashSet<>(task.getAttributes());
 
-        // ensure to set __NAME__ value to user's email (e.g. primary e-mail address)
-        User user = userDAO.find(task.getEntityKey());
-        if (user == null) {
-            LOG.error("Could not find user {}, skipping", task.getEntityKey());
-        } else {
-            Name name = AttributeUtil.getNameFromAttributes(attrs);
-            if (name != null) {
-                attrs.remove(name);
-            }
-            attrs.add(new Name(user.getPlainAttr(getEmailSchema()).getValuesAsStrings().get(0)));
+        if (AttributeUtil.find(getEmailAttrName(), attrs) == null) {
+            LOG.warn("Can't find {} attribute to set as __NAME__ attribute value, skipping...", getEmailAttrName());
+            return;
         }
+
+        Name name = AttributeUtil.getNameFromAttributes(attrs);
+        if (name != null) {
+            attrs.remove(name);
+        }
+        attrs.add(new Name(AttributeUtil.find(getEmailAttrName(), attrs).getValue().get(0).toString()));
 
         task.setAttributes(attrs);
     }
@@ -154,5 +153,4 @@ public class GoogleAppsPropagationActions extends DefaultPropagationActions {
             }
         }
     }
-
 }

@@ -74,11 +74,11 @@ public class AzurePropagationActions extends DefaultPropagationActions {
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
 
-    private static final String USER_MAIL_NICKNAME = "mailNickname";
+    protected String getEmailAttrName() {
+        return "mailNickname";
+    }
 
-    private static final String GROUP_MAIL_NICKNAME = "mailNickname";
-
-    protected String getAzureIdSchema() {
+    protected String getAzureUserIdSchema() {
         return "AzureUserId";
     }
 
@@ -97,15 +97,32 @@ public class AzurePropagationActions extends DefaultPropagationActions {
 
         switch (task.getAnyTypeKind()) {
             case USER:
-                setName(task, USER_MAIL_NICKNAME);
+                setName(task);
                 break;
             case GROUP:
-                setName(task, GROUP_MAIL_NICKNAME);
+                setName(task);
                 break;
             default:
                 LOG.debug("Not about user, or group, not doing anything");
                 break;
         }
+    }
+
+    private void setName(final PropagationTask task) {
+        Set<Attribute> attrs = new HashSet<>(task.getAttributes());
+
+        if (AttributeUtil.find(getEmailAttrName(), attrs) == null) {
+            LOG.warn("Can't find {} attribute to set as __NAME__ attribute value, skipping...", getEmailAttrName());
+            return;
+        }
+
+        Name name = AttributeUtil.getNameFromAttributes(attrs);
+        if (name != null) {
+            attrs.remove(name);
+        }
+        attrs.add(new Name(AttributeUtil.find(getEmailAttrName(), attrs).getValue().get(0).toString()));
+
+        task.setAttributes(attrs);
     }
 
     @Transactional
@@ -116,7 +133,6 @@ public class AzurePropagationActions extends DefaultPropagationActions {
         }
 
         if (AnyTypeKind.USER.equals(task.getAnyTypeKind())) {
-
             User user = userDAO.find(task.getEntityKey());
             if (user == null) {
                 LOG.error("Could not find user {}, skipping", task.getEntityKey());
@@ -125,12 +141,12 @@ public class AzurePropagationActions extends DefaultPropagationActions {
                 AnyUtils anyUtils = anyUtilsFactory.getInstance(user);
 
                 // Azure User ID
-                PlainSchema azureId = plainSchemaDAO.find(getAzureIdSchema());
+                PlainSchema azureId = plainSchemaDAO.find(getAzureUserIdSchema());
                 if (azureId == null) {
-                    LOG.error("Could not find schema {}, skipping", getAzureIdSchema());
+                    LOG.error("Could not find schema {}, skipping", getAzureUserIdSchema());
                 } else {
                     // set back the __UID__ received by Azure
-                    UPlainAttr attr = user.getPlainAttr(getAzureIdSchema());
+                    UPlainAttr attr = user.getPlainAttr(getAzureUserIdSchema());
                     if (attr == null) {
                         attr = entityFactory.newEntity(UPlainAttr.class);
                         attr.setSchema(azureId);
@@ -155,7 +171,6 @@ public class AzurePropagationActions extends DefaultPropagationActions {
                 }
             }
         } else if (AnyTypeKind.GROUP.equals(task.getAnyTypeKind())) {
-
             Group group = groupDAO.find(task.getEntityKey());
             if (group == null) {
                 LOG.error("Could not find group {}, skipping", task.getEntityKey());
@@ -195,23 +210,4 @@ public class AzurePropagationActions extends DefaultPropagationActions {
             }
         }
     }
-
-    private void setName(final PropagationTask task, final String attributeName) {
-        Set<Attribute> attributes = new HashSet<>(task.getAttributes());
-
-        if (AttributeUtil.find(attributeName, attributes) == null) {
-            LOG.warn("Can't find {} attribute to set as __NAME__ attribute value, skipping...", attributeName);
-            return;
-        }
-
-        Name name = AttributeUtil.getNameFromAttributes(attributes);
-        if (name != null) {
-            attributes.remove(name);
-        }
-        attributes.add(
-                new Name(AttributeUtil.find(attributeName, attributes).getValue().get(0).toString()));
-
-        task.setAttributes(attributes);
-    }
-
 }

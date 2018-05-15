@@ -147,8 +147,8 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
 
     @Override
     public List<String> getValues(final Any<?> any, final VirSchema schema) {
-        if (!anyUtilsFactory.getInstance(any).
-                getAllowedSchemas(any, VirSchema.class).forSelfContains(schema)) {
+        if (!anyUtilsFactory.getInstance(any).dao().
+                findAllowedSchemas(any, VirSchema.class).forSelfContains(schema)) {
 
             LOG.debug("{} not allowed for {}", schema, any);
             return Collections.emptyList();
@@ -159,8 +159,8 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
 
     @Override
     public List<String> getValues(final Any<?> any, final Membership<?> membership, final VirSchema schema) {
-        if (!anyUtilsFactory.getInstance(any).
-                getAllowedSchemas(any, VirSchema.class).getForMembership(membership.getRightEnd()).contains(schema)) {
+        if (!anyUtilsFactory.getInstance(any).dao().
+                findAllowedSchemas(any, VirSchema.class).getForMembership(membership.getRightEnd()).contains(schema)) {
 
             LOG.debug("{} not allowed for {}", schema, any);
             return Collections.emptyList();
@@ -173,14 +173,14 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
     public Map<VirSchema, List<String>> getValues(final Any<?> any) {
         return getValues(
                 any,
-                anyUtilsFactory.getInstance(any).getAllowedSchemas(any, VirSchema.class).getForSelf());
+                anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, VirSchema.class).getForSelf());
     }
 
     @Override
     public Map<VirSchema, List<String>> getValues(final Any<?> any, final Membership<?> membership) {
         return getValues(
                 any,
-                anyUtilsFactory.getInstance(any).getAllowedSchemas(any, VirSchema.class).
+                anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, VirSchema.class).
                         getForMembership(membership.getRightEnd()));
     }
 

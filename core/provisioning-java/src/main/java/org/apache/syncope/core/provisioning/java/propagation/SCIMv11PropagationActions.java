@@ -74,7 +74,6 @@ public class SCIMv11PropagationActions extends DefaultPropagationActions {
         }
 
         if (AnyTypeKind.USER.equals(task.getAnyTypeKind())) {
-
             User user = userDAO.find(task.getEntityKey());
             if (user == null) {
                 LOG.error("Could not find user {}, skipping", task.getEntityKey());
@@ -114,5 +113,4 @@ public class SCIMv11PropagationActions extends DefaultPropagationActions {
             }
         }
     }
-
 }

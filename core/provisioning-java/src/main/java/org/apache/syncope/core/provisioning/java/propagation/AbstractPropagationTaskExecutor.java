@@ -104,12 +104,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected ConnObjectUtils connObjectUtils;
 
     /**
-     * Any object DAO.
-     */
-    @Autowired
-    protected AnyObjectDAO anyObjectDAO;
-
-    /**
      * User DAO.
      */
     @Autowired
@@ -120,6 +114,12 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      */
     @Autowired
     protected GroupDAO groupDAO;
+
+    /**
+     * Any object DAO.
+     */
+    @Autowired
+    protected AnyObjectDAO anyObjectDAO;
 
     /**
      * Task DAO.

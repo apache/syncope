@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -41,7 +40,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -375,21 +373,5 @@ public class JPAAnyUtils implements AnyUtils {
         }
 
         return resources;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public <S extends Schema> AllowedSchemas<S> getAllowedSchemas(final Any<?> any, final Class<S> reference) {
-        AllowedSchemas<S> result = null;
-
-        if (any instanceof User) {
-            result = userDAO.findAllowedSchemas((User) any, reference);
-        } else if (any instanceof Group) {
-            result = groupDAO.findAllowedSchemas((Group) any, reference);
-        } else if (any instanceof AnyObject) {
-            result = anyObjectDAO.findAllowedSchemas((AnyObject) any, reference);
-        }
-
-        return result;
     }
 }
