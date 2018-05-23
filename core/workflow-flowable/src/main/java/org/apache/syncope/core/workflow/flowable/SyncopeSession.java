@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.workflow.flowable;
 
-import org.flowable.engine.common.impl.interceptor.Session;
+import org.flowable.common.engine.impl.interceptor.Session;
 
 public interface SyncopeSession extends Session {
 

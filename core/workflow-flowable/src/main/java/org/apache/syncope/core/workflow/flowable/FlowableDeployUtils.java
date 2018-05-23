@@ -32,7 +32,7 @@ import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.editor.constants.ModelDataJsonConstants;
 import org.flowable.editor.language.json.converter.BpmnJsonConverter;
 import org.flowable.engine.ProcessEngine;
-import org.flowable.engine.common.api.FlowableException;
+import org.flowable.common.engine.api.FlowableException;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.Model;
 import org.flowable.engine.repository.ProcessDefinition;

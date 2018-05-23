@@ -36,10 +36,10 @@ under the License.
   <bean id="syncopeIdmEngineConfiguration" class="org.flowable.idm.spring.SpringIdmEngineConfiguration">
     <property name="idmIdentityService" ref="syncopeIdmIdentityService"/> 
   </bean>
-  <bean id="syncopeIdmEngineConfigurator" class="org.flowable.spring.configurator.SpringIdmEngineConfigurator">
+  <bean id="syncopeIdmEngineConfigurator" class="org.flowable.idm.spring.configurator.SpringIdmEngineConfigurator">
     <property name="idmEngineConfiguration" ref="syncopeIdmEngineConfiguration"/> 
   </bean>
-  
+
   <bean class="org.flowable.spring.SpringProcessEngineConfiguration" scope="prototype">
     <property name="databaseSchemaUpdate" value="true"/>
 
