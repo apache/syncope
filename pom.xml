@@ -366,6 +366,7 @@ under the License.
     <connid.googleapps.version>1.4.1</connid.googleapps.version>
     <connid.azure.version>1.0.1</connid.azure.version>
     <connid.scimv11.version>1.0.0</connid.scimv11.version>
+    <connid.servicenow.version>1.0.0-SNAPSHOT</connid.servicenow.version>
 
     <cxf.version>3.2.5-SNAPSHOT</cxf.version>
 
@@ -1792,6 +1793,11 @@ under the License.
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.scimv11</artifactId>
                 <version>${connid.scimv11.version}</version>
+              </artifactItem>
+              <artifactItem>
+                <groupId>net.tirasa.connid.bundles</groupId>
+                <artifactId>net.tirasa.connid.bundles.servicenow</artifactId>
+                <version>${connid.servicenow.version}</version>
               </artifactItem>
             </artifactItems>
           </configuration>
