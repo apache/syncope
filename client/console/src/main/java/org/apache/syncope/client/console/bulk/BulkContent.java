@@ -135,8 +135,6 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                             throw new IllegalArgumentException("Invalid items");
                         }
 
-                        String fieldName = keyFieldName;
-
                         BulkActionResult res = null;
                         try {
                             T singleItem = items.iterator().next();
@@ -225,12 +223,10 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                                     case REACTIVATE:
                                         res = ((UserRestClient) anyRestClient).
                                                 reactivate(etag, entry.getKey(), entry.getValue());
-                                        fieldName = "resource";
                                         break;
                                     case SUSPEND:
                                         res = ((UserRestClient) anyRestClient).
                                                 suspend(etag, entry.getKey(), entry.getValue());
-                                        fieldName = "resource";
                                         break;
                                     default:
                                 }
@@ -242,7 +238,7 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                         }
 
                         final List<IColumn<T, S>> newColumnList = new ArrayList<>(columns);
-                        newColumnList.add(newColumnList.size(), new BulkActionResultColumn<>(res, fieldName));
+                        newColumnList.add(newColumnList.size(), new BulkActionResultColumn<>(res, keyFieldName));
 
                         container.addOrReplace(new AjaxFallbackDefaultDataTable<>(
                                 "selectedObjects",
