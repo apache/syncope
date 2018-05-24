@@ -358,7 +358,7 @@ under the License.
 
     <connid.version>1.4.4.0-SNAPSHOT</connid.version>
     <connid.soap.version>1.4.2-SNAPSHOT</connid.soap.version>
-    <connid.rest.version>1.0.2</connid.rest.version>
+    <connid.rest.version>1.0.3</connid.rest.version>
     <connid.database.version>2.2.5</connid.database.version>
     <connid.csvdir.version>0.8.7</connid.csvdir.version>
     <connid.ldap.version>1.5.2</connid.ldap.version>
@@ -366,7 +366,7 @@ under the License.
     <connid.googleapps.version>1.4.1</connid.googleapps.version>
     <connid.azure.version>1.0.1</connid.azure.version>
     <connid.scimv11.version>1.0.0</connid.scimv11.version>
-    <connid.servicenow.version>1.0.0-SNAPSHOT</connid.servicenow.version>
+    <connid.servicenow.version>1.0.0</connid.servicenow.version>
 
     <cxf.version>3.2.5-SNAPSHOT</cxf.version>
 
