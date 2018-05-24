@@ -82,7 +82,7 @@ public class ResourceStatusDirectoryPanel
         this.multiLevelPanelRef = multiLevelPanelRef;
         this.type = type;
         this.resource = resource;
-        this.itemKeyFieldName = "name";
+        this.itemKeyFieldName = "resource";
 
         initResultTable();
     }
