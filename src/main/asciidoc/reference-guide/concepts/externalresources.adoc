@@ -41,6 +41,8 @@ https://connid.atlassian.net/wiki/spaces/BASE/pages/5570564/Scripted+SQL[Scripte
 * https://connid.atlassian.net/wiki/display/BASE/Google+Apps[Google Apps^]
 * https://connid.atlassian.net/wiki/display/BASE/LDAP[LDAP^]
 * https://connid.atlassian.net/wiki/display/BASE/REST[Scripted REST^]
+* https://connid.atlassian.net/wiki/display/BASE/ServiceNow[ServiceNow^]
+* https://connid.atlassian.net/wiki/spaces/BASE/pages/413433857/SCIM+1.1[SCIM 1.1^]
 * https://connid.atlassian.net/wiki/display/BASE/SOAP[SOAP^]
 
 More Connector Bundles can be <<install-connector-bundles,installed>>, if needed.
