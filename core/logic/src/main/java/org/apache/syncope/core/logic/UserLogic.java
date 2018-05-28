@@ -44,7 +44,9 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -70,6 +72,12 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
     @Autowired
     protected AnySearchDAO searchDAO;
+
+    @Autowired
+    protected ConfDAO confDAO;
+
+    @Autowired
+    protected AccessTokenDAO accessTokenDAO;
 
     @Autowired
     protected UserDataBinder binder;
@@ -168,7 +176,18 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     public ProvisioningResult<UserTO> selfUpdate(final UserPatch userPatch, final boolean nullPriorityAsync) {
         UserTO userTO = binder.getAuthenticatedUserTO();
         userPatch.setKey(userTO.getKey());
-        return doUpdate(userPatch, true, nullPriorityAsync);
+        ProvisioningResult<UserTO> updated = doUpdate(userPatch, true, nullPriorityAsync);
+
+        // Ensures that, if the self update above moves the user into a status from which no authentication
+        // is possible, the existing Access Token is clean up to avoid issues with future authentications
+        if (!confDAO.getValuesAsStrings("authentication.statuses").contains(updated.getEntity().getStatus())) {
+            String accessToken = accessTokenDAO.findByOwner(updated.getEntity().getUsername()).getKey();
+            if (accessToken != null) {
+                accessTokenDAO.delete(accessToken);
+            }
+        }
+
+        return updated;
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
@@ -267,7 +286,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "')")
-    public ProvisioningResult<UserTO> changePassword(final String password, final boolean nullPriorityAsync) {
+    public ProvisioningResult<UserTO> mustChangePassword(final String password, final boolean nullPriorityAsync) {
         UserPatch userPatch = new UserPatch();
         userPatch.setPassword(new PasswordPatch.Builder().value(password).build());
         userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(false).build());

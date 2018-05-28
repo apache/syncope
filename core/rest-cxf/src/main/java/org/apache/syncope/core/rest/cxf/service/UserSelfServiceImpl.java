@@ -90,8 +90,8 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     }
 
     @Override
-    public Response changePassword(final String password) {
-        ProvisioningResult<UserTO> updated = logic.changePassword(password, isNullPriorityAsync());
+    public Response mustChangePassword(final String password) {
+        ProvisioningResult<UserTO> updated = logic.mustChangePassword(password, isNullPriorityAsync());
         return modificationResponse(updated);
     }
 

@@ -213,8 +213,7 @@ public class AuthDataAccessor {
                 throw new DisabledException("User " + user.getUsername() + " is suspended");
             }
 
-            CPlainAttr authStatuses = confDAO.find("authentication.statuses");
-            if (authStatuses != null && !authStatuses.getValuesAsStrings().contains(user.getStatus())) {
+            if (!confDAO.getValuesAsStrings("authentication.statuses").contains(user.getStatus())) {
                 throw new DisabledException("User " + user.getUsername() + " not allowed to authenticate");
             }
 
@@ -420,8 +419,7 @@ public class AuthDataAccessor {
                 throw new DisabledException("User " + username + " is suspended");
             }
 
-            CPlainAttr authStatuses = confDAO.find("authentication.statuses");
-            if (authStatuses != null && !authStatuses.getValuesAsStrings().contains(user.getStatus())) {
+            if (!confDAO.getValuesAsStrings("authentication.statuses").contains(user.getStatus())) {
                 throw new DisabledException("User " + username + " not allowed to authenticate");
             }
 

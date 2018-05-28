@@ -166,14 +166,22 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
                 }
                 // create diff patch
                 UserPatch userPatch = AnyOperations.diff(userTO, selfTO, false);
-                // update user by patch
-                Response res = SyncopeEnduserSession.get().
-                        getService(userTO.getETagValue(), UserSelfService.class).update(userPatch);
+                if (userPatch.isEmpty()) {
+                    // nothing to do
+                    buildResponse(response,
+                            Response.Status.OK.getStatusCode(),
+                            "No need to update [" + selfTO.getUsername() + "]");
+                } else {
+                    // update user by patch
+                    Response coreResponse = SyncopeEnduserSession.get().
+                            getService(userTO.getETagValue(), UserSelfService.class).update(userPatch);
 
-                buildResponse(response, res.getStatus(), res.getStatusInfo().getFamily().equals(
-                        Response.Status.Family.SUCCESSFUL)
-                                ? "User [" + userTO.getUsername() + "] successfully updated"
-                                : "ErrorMessage{{ " + res.getStatusInfo().getReasonPhrase() + " }}");
+                    buildResponse(response,
+                            coreResponse.getStatus(),
+                            coreResponse.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL
+                            ? "User [" + selfTO.getUsername() + "] successfully updated"
+                            : "ErrorMessage{{ " + coreResponse.getStatusInfo().getReasonPhrase() + " }}");
+                }
             } else {
                 LOG.warn(
                         "Incoming update request [{}] is not compliant with form customization rules."

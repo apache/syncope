@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.enduser;
 
-import java.security.AccessControlException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -143,7 +142,7 @@ public class SyncopeEnduserSession extends WebSession {
         if (isAuthenticated()) {
             try {
                 client.logout();
-            } catch (AccessControlException e) {
+            } catch (Exception e) {
                 LOG.debug("Unexpected exception while logging out", e);
             } finally {
                 client = null;

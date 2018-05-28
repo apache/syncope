@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.util.Collections;
+import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
@@ -47,6 +49,13 @@ public class JPAConfDAO extends AbstractDAO<Conf> implements ConfDAO {
     @Override
     public CPlainAttr find(final String key) {
         return get().getPlainAttr(key);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<String> getValuesAsStrings(final String key) {
+        CPlainAttr attr = find(key);
+        return attr == null ? Collections.<String>emptyList() : attr.getValuesAsStrings();
     }
 
     @Transactional(readOnly = true)
