@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.tasks;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -187,10 +186,10 @@ public abstract class ExecutionsDirectoryPanel
 
         @Override
         public Iterator<ExecTO> iterator(final long first, final long count) {
-            final int page = ((int) first / paginatorRows);
-            List<ExecTO> list = restClient.listExecutions(taskKey, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
-            Collections.sort(list, comparator);
-            return list.iterator();
+            int page = ((int) first / paginatorRows);
+            return restClient.listExecutions(
+                    taskKey, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
+                    iterator();
         }
 
         @Override

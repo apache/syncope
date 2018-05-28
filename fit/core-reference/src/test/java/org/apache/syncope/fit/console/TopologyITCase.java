@@ -369,9 +369,9 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
         TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:propagation");
 
-        component = findComponentByProp("operation", "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:"
+        component = findComponentByPropNotNull("start", "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
-                + "checkgroup:dataTable", ResourceOperation.CREATE);
+                + "checkgroup:dataTable");
 
         assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);

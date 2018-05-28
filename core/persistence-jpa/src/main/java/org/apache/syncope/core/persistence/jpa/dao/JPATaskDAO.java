@@ -479,11 +479,11 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
                     : ((String) anyKey);
 
             @SuppressWarnings("unchecked")
-            T any = find(actualKey);
-            if (any == null) {
+            T task = find(actualKey);
+            if (task == null) {
                 LOG.error("Could not find task with id {}, even if returned by native query", actualKey);
-            } else if (!result.contains(any)) {
-                result.add(any);
+            } else if (!result.contains(task)) {
+                result.add(task);
             }
         }
 

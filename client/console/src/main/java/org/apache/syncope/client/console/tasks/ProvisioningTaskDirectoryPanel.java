@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.tasks;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
@@ -185,13 +184,10 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
 
         @Override
         public Iterator<T> iterator(final long first, final long count) {
-            final int page = ((int) first / paginatorRows);
-
-            final List<T> tasks = restClient.list(
-                    resource, reference, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
-
-            Collections.sort(tasks, getComparator());
-            return tasks.iterator();
+            int page = ((int) first / paginatorRows);
+            return restClient.list(
+                    resource, reference, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
+                    iterator();
         }
     }
 }

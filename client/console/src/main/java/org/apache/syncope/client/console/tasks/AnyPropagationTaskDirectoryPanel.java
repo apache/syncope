@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
@@ -67,13 +65,10 @@ public abstract class AnyPropagationTaskDirectoryPanel extends PropagationTaskDi
 
         @Override
         public Iterator<PropagationTaskTO> iterator(final long first, final long count) {
-            final int page = ((int) first / paginatorRows);
-
-            final List<PropagationTaskTO> tasks = restClient.listPropagationTasks(
-                    anyTypeKind, entityKey, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
-
-            Collections.sort(tasks, getComparator());
-            return tasks.iterator();
+            int page = ((int) first / paginatorRows);
+            return restClient.listPropagationTasks(
+                    anyTypeKind, entityKey, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
+                    iterator();
         }
     }
 }

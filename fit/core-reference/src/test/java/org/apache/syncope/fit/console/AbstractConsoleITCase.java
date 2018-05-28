@@ -89,6 +89,27 @@ public abstract class AbstractConsoleITCase {
                 });
     }
 
+    protected <V extends Serializable> Component findComponentByPropNotNull(
+            final String property, final String searchPath) {
+
+        Component component = TESTER.getComponentFromLastRenderedPage(searchPath);
+        return (component instanceof MarkupContainer ? MarkupContainer.class.cast(component) : component.getPage()).
+                visitChildren(ListItem.class, new IVisitor<ListItem<?>, Component>() {
+
+                    @Override
+                    public void component(final ListItem<?> object, final IVisit<Component> visit) {
+                        try {
+                            Method getter = PropertyResolver.getPropertyGetter(property, object.getModelObject());
+                            if (getter != null && getter.invoke(object.getModelObject()) != null) {
+                                visit.stop(object);
+                            }
+                        } catch (Exception e) {
+                            LOG.error("Error invoke method", e);
+                        }
+                    }
+                });
+    }
+
     protected Component findComponentById(final String searchPath, final String id) {
         Component component = TESTER.getComponentFromLastRenderedPage(searchPath);
         return (component instanceof MarkupContainer ? MarkupContainer.class.cast(component) : component.getPage()).
