@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.tasks;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
@@ -328,10 +327,9 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         @Override
         public Iterator<T> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-
-            List<T> tasks = restClient.list(reference, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
-            Collections.sort(tasks, getComparator());
-            return tasks.iterator();
+            return restClient.list(
+                    reference, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
+                    iterator();
         }
     }
 }

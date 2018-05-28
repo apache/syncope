@@ -30,7 +30,6 @@ import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
-import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AccessTokenDirectoryPanel.AccessTokenDataProvider;
 import org.apache.syncope.client.console.rest.AccessTokenRestClient;
@@ -162,24 +161,20 @@ public class AccessTokenDirectoryPanel
 
         private static final long serialVersionUID = 6267494272884913376L;
 
-        private final SortableDataProviderComparator<AccessTokenTO> comparator;
-
         private final AccessTokenRestClient restClient = new AccessTokenRestClient();
 
         public AccessTokenDataProvider(final int paginatorRows) {
             super(paginatorRows);
 
             setSort("owner", SortOrder.ASCENDING);
-            this.comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<AccessTokenTO> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            List<AccessTokenTO> tasks = restClient.list((page < 0 ? 0 : page) + 1, paginatorRows, getSort());
-
-            Collections.sort(tasks, comparator);
-            return tasks.iterator();
+            return restClient.list(
+                    (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
+                    iterator();
         }
 
         @Override
