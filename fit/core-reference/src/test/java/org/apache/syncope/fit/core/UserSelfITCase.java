@@ -393,7 +393,7 @@ public class UserSelfITCase extends AbstractITCase {
         }
 
         // 3. change password
-        vivaldiClient.getService(UserSelfService.class).changePassword("password123");
+        vivaldiClient.getService(UserSelfService.class).mustChangePassword("password123");
 
         // 4. verify it worked
         self = clientFactory.create("vivaldi", "password123").self();

@@ -80,10 +80,6 @@ public class AzurePullActions implements PullActions {
 
     private final Map<EntityTO, String> azureRefs = new HashMap<>();
 
-    protected String getEmailAttrName() {
-        return "mailNickname";
-    }
-
     protected String getAzureUserIdSchema() {
         return "AzureUserId";
     }
@@ -217,5 +213,4 @@ public class AzurePullActions implements PullActions {
             }
         }
     }
-
 }

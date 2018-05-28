@@ -237,9 +237,9 @@ public interface UserSelfService extends JAXRSService {
         @SecurityRequirement(name = "BasicAuthentication"),
         @SecurityRequirement(name = "Bearer") })
     @POST
-    @Path("changePassword")
+    @Path("mustChangePassword")
     @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response changePassword(String password);
+    Response mustChangePassword(String password);
 
     /**
      * Provides answer for the security question configured for user matching the given username, if any.

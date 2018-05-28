@@ -53,9 +53,7 @@ public class UserSelfChangePassword extends BaseResource {
                 throw new Exception("A new correct password should be provided");
             }
             SyncopeEnduserSession.get().getService(UserSelfService.class).
-                    changePassword(parameters.get("newPassword")[0]);
-
-            final String responseMessage = new StringBuilder().append("Password changed correctly").toString();
+                    mustChangePassword(parameters.get("newPassword")[0]);
 
             response.setTextEncoding(StandardCharsets.UTF_8.name());
 
@@ -63,7 +61,7 @@ public class UserSelfChangePassword extends BaseResource {
 
                 @Override
                 public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(responseMessage);
+                    attributes.getResponse().write("Password changed correctly");
                 }
             });
 

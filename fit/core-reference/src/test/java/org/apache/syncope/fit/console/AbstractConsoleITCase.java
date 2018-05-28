@@ -31,7 +31,6 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.apache.wicket.util.visit.IVisit;
-import org.apache.wicket.util.visit.IVisitor;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +77,7 @@ public abstract class AbstractConsoleITCase {
 
         Component component = TESTER.getComponentFromLastRenderedPage(searchPath);
         return (component instanceof MarkupContainer ? MarkupContainer.class.cast(component) : component.getPage()).
-                visitChildren(ListItem.class, (final ListItem<?> object, final IVisit<Component> visit) -> {
+                visitChildren(ListItem.class, (ListItem<?> object, IVisit<Component> visit) -> {
                     try {
                         Method getter = PropertyResolver.getPropertyGetter(property, object.getModelObject());
                         if (getter != null && getter.invoke(object.getModelObject()).equals(key)) {
@@ -95,18 +94,14 @@ public abstract class AbstractConsoleITCase {
 
         Component component = TESTER.getComponentFromLastRenderedPage(searchPath);
         return (component instanceof MarkupContainer ? MarkupContainer.class.cast(component) : component.getPage()).
-                visitChildren(ListItem.class, new IVisitor<ListItem<?>, Component>() {
-
-                    @Override
-                    public void component(final ListItem<?> object, final IVisit<Component> visit) {
-                        try {
-                            Method getter = PropertyResolver.getPropertyGetter(property, object.getModelObject());
-                            if (getter != null && getter.invoke(object.getModelObject()) != null) {
-                                visit.stop(object);
-                            }
-                        } catch (Exception e) {
-                            LOG.error("Error invoke method", e);
+                visitChildren(ListItem.class, (ListItem<?> object, IVisit<Component> visit) -> {
+                    try {
+                        Method getter = PropertyResolver.getPropertyGetter(property, object.getModelObject());
+                        if (getter != null && getter.invoke(object.getModelObject()) != null) {
+                            visit.stop(object);
                         }
+                    } catch (Exception e) {
+                        LOG.error("Error invoke method", e);
                     }
                 });
     }

@@ -109,12 +109,13 @@ public class JPAAccessTokenDAO extends AbstractDAO<AccessToken> implements Acces
         return query.getResultList();
     }
 
-    @Override
     @Transactional(rollbackFor = Throwable.class)
+    @Override
     public AccessToken save(final AccessToken accessToken) {
         return entityManager().merge(accessToken);
     }
 
+    @Transactional(rollbackFor = Throwable.class)
     @Override
     public void delete(final String key) {
         AccessToken accessToken = find(key);

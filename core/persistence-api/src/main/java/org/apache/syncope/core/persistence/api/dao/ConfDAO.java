@@ -19,12 +19,15 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.Optional;
+import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 
 public interface ConfDAO extends DAO<Conf> {
 
     Optional<? extends CPlainAttr> find(String key);
+
+    List<String> getValuesAsStrings(String key);
 
     <T> T find(String key, T defaultValue);
 

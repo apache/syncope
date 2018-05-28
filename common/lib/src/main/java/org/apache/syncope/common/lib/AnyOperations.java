@@ -19,9 +19,11 @@
 package org.apache.syncope.common.lib;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -55,6 +57,8 @@ public final class AnyOperations {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnyOperations.class);
 
+    private static final Set<String> NULL_SINGLETON = Collections.singleton(null);
+
     private AnyOperations() {
         // empty constructor for static utility classes
     }
@@ -68,29 +72,6 @@ public final class AnyOperations {
 
         proto.setValue(updated);
         return proto;
-    }
-
-    private static void diff(
-            final MembershipTO updated,
-            final MembershipTO original,
-            final MembershipPatch result,
-            final boolean incremental) {
-
-        // check same key
-        if (updated.getGroupKey() == null && original.getGroupKey() != null
-                || (updated.getGroupKey() != null && !updated.getGroupKey().equals(original.getGroupKey()))) {
-
-            throw new IllegalArgumentException("Memberships must be the same");
-        }
-        result.setGroup(updated.getGroupKey());
-
-        // 1. plain attributes
-        result.getPlainAttrs().clear();
-        result.getPlainAttrs().addAll(updated.getPlainAttrs());
-
-        // 2. virtual attributes
-        result.getVirAttrs().clear();
-        result.getVirAttrs().addAll(updated.getVirAttrs());
     }
 
     private static void diff(
@@ -226,13 +207,18 @@ public final class AnyOperations {
         Map<String, MembershipTO> updatedMembs = EntityTOUtils.buildMembershipMap(updated.getMemberships());
         Map<String, MembershipTO> originalMembs = EntityTOUtils.buildMembershipMap(original.getMemberships());
 
-        updatedMembs.entrySet().stream().
-                filter(entry -> (!originalMembs.containsKey(entry.getKey()))).
-                forEachOrdered(entry -> {
-                    result.getMemberships().add(new MembershipPatch.Builder().
-                            operation(PatchOperation.ADD_REPLACE).group(entry.getValue().getGroupKey()).
-                            build());
-                });
+        updatedMembs.forEach((key, value) -> {
+            MembershipPatch membershipPatch = new MembershipPatch.Builder().
+                    operation(PatchOperation.ADD_REPLACE).group(value.getGroupKey()).build();
+
+            diff(value, membershipPatch);
+
+            if (!originalMembs.containsKey(key)
+                    || (!membershipPatch.getPlainAttrs().isEmpty() || !membershipPatch.getVirAttrs().isEmpty())) {
+
+                result.getMemberships().add(membershipPatch);
+            }
+        });
 
         if (!incremental) {
             originalMembs.keySet().stream().filter(membership -> !updatedMembs.containsKey(membership)).
@@ -243,6 +229,20 @@ public final class AnyOperations {
         }
 
         return result;
+    }
+
+    private static void diff(
+            final MembershipTO updated,
+            final MembershipPatch result) {
+
+        // 1. plain attributes
+        result.getPlainAttrs().addAll(updated.getPlainAttrs().stream().
+                filter(attrTO -> !attrTO.getValues().isEmpty() && NULL_SINGLETON.equals(attrTO.getValues())).
+                collect(Collectors.toSet()));
+
+        // 2. virtual attributes
+        result.getVirAttrs().clear();
+        result.getVirAttrs().addAll(updated.getVirAttrs());
     }
 
     /**
@@ -329,24 +329,18 @@ public final class AnyOperations {
         Map<String, MembershipTO> updatedMembs = EntityTOUtils.buildMembershipMap(updated.getMemberships());
         Map<String, MembershipTO> originalMembs = EntityTOUtils.buildMembershipMap(original.getMemberships());
 
-        updatedMembs.entrySet().stream().
-                map(entry -> {
-                    MembershipPatch membershipPatch = new MembershipPatch.Builder().
-                            operation(PatchOperation.ADD_REPLACE).group(entry.getValue().getGroupKey()).build();
-                    MembershipTO omemb;
-                    if (originalMembs.containsKey(entry.getKey())) {
-                        // get the original membership
-                        omemb = originalMembs.get(entry.getKey());
-                    } else {
-                        // create an empty one to generate the patch
-                        omemb = new MembershipTO.Builder().group(entry.getKey()).build();
-                    }
-                    diff(entry.getValue(), omemb, membershipPatch, incremental);
-                    return membershipPatch;
-                }).
-                forEachOrdered(membershipPatch -> {
-                    result.getMemberships().add(membershipPatch);
-                });
+        updatedMembs.forEach((key, value) -> {
+            MembershipPatch membershipPatch = new MembershipPatch.Builder().
+                    operation(PatchOperation.ADD_REPLACE).group(value.getGroupKey()).build();
+
+            diff(value, membershipPatch);
+
+            if (!originalMembs.containsKey(key)
+                    || (!membershipPatch.getPlainAttrs().isEmpty() || !membershipPatch.getVirAttrs().isEmpty())) {
+
+                result.getMemberships().add(membershipPatch);
+            }
+        });
 
         if (!incremental) {
             originalMembs.keySet().stream().filter(membership -> !updatedMembs.containsKey(membership)).
@@ -416,7 +410,7 @@ public final class AnyOperations {
                 if (removed != null && removed.getSchemaInfo() != null) {
                     patch.getAttrTO().setSchemaInfo(removed.getSchemaInfo());
                 }
-                if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
+                if (patch.getOperation() == PatchOperation.ADD_REPLACE && !patch.getAttrTO().getValues().isEmpty()) {
                     rwattrs.put(patch.getAttrTO().getSchema(), patch.getAttrTO());
                 }
             }
