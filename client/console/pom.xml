@@ -172,6 +172,8 @@ under the License.
         <filtering>true</filtering>
         <excludes>
           <exclude>org/apache/syncope/**/*.properties</exclude>
+          <exclude>**/*.woff</exclude>
+          <exclude>**/*.woff2</exclude>
         </excludes>
       </resource>
       <resource>
@@ -179,6 +181,8 @@ under the License.
         <filtering>false</filtering>
         <includes>
           <include>org/apache/syncope/**/*.properties</include>
+          <include>**/*.woff</include>
+          <include>**/*.woff2</include>
         </includes>
       </resource>
       
