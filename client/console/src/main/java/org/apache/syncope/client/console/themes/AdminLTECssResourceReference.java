@@ -27,12 +27,12 @@ import org.apache.wicket.request.resource.CssResourceReference;
 
 public class AdminLTECssResourceReference extends CssResourceReference {
 
+    private static final long serialVersionUID = -7658929012906790600L;
+
     /**
-     * Singleton instance of this reference
+     * Singleton instance of this reference.
      */
     public static final AdminLTECssResourceReference INSTANCE = new AdminLTECssResourceReference();
-
-    private static final long serialVersionUID = -7658929012906790600L;
 
     public AdminLTECssResourceReference() {
         super(AdminLTECssResourceReference.class, "css/AdminLTE.css");

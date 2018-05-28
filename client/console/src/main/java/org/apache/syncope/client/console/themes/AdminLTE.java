@@ -34,10 +34,9 @@ public class AdminLTE extends Theme {
 
     @Override
     public List<HeaderItem> getDependencies() {
-        final List<HeaderItem> references = new ArrayList<>();
+        List<HeaderItem> references = new ArrayList<>();
         references.add(JavaScriptHeaderItem.forReference(
                 new JQueryPluginResourceReference(AdminLTE.class, "js/AdminLTE-app.min.js"), "adminltejs"));
-
         references.add(CssHeaderItem.forReference(AdminLTECssResourceReference.INSTANCE));
         references.addAll(super.getDependencies());
         return references;
