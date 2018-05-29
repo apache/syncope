@@ -35,6 +35,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -190,7 +191,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         ClassPathScanImplementationLookup lookup = (ClassPathScanImplementationLookup) getServletContext().
                 getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
         lookup.getPageClasses().
-                forEach(cls -> MetaDataRoleAuthorizationStrategy.authorize(cls, SyncopeConsoleSession.AUTHENTICATED));
+                forEach(cls -> MetaDataRoleAuthorizationStrategy.authorize(cls, Constants.ROLE_AUTHENTICATED));
 
         getMarkupSettings().setStripWicketTags(true);
         getMarkupSettings().setCompressWhitespace(true);
