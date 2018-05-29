@@ -174,6 +174,7 @@ public class TemplateUtils {
 
             fillRelationships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
             fillMemberships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
+            ((UserTO) anyTO).getRoles().addAll(((UserTO) template).getRoles());
         } else if (template instanceof GroupTO) {
             if (StringUtils.isNotBlank(((GroupTO) template).getName())) {
                 String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), jexlContext);
