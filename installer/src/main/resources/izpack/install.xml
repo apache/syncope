@@ -142,7 +142,7 @@ under the License.
   <jar src="lib/jasypt-@{jasypt.version}.jar"/>
   
   <jar src="lib/maven-invoker-@{maven-invoker.version}.jar"/>
-  <jar src="lib/plexus-utils-3.0.24.jar"/>
+  <jar src="lib/plexus-utils-1.5.6.jar"/>
   
   <panels>
     <panel classname="HTMLHelloPanel" id="welcome"/>
