@@ -46,16 +46,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * This class is required during setup of an External Resource based on the ConnId
- * <a href="https://github.com/Tirasa/ConnIdSCIMv11Bundle">SCIM connector</a>.
+ * <a href="https://github.com/Tirasa/ConnIdServiceNowBundle">ServiceNow connector</a>.
  *
  * It manages:
  * <ol>
- * <li>the id provided by SCIM in response to create, which will need to be used for all subsequent operations</li>
+ * <li>the id provided by ServiceNow in response to create, which will need to be used for all subsequent
+ * operations</li>
  * </ol>
  */
-public class SCIMv11PullActions implements PullActions {
+public class ServiceNowPullActions implements PullActions {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SCIMv11PullActions.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ServiceNowPullActions.class);
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
@@ -69,10 +70,10 @@ public class SCIMv11PullActions implements PullActions {
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
 
-    private final Map<String, String> scimRefs = new HashMap<>();
+    private final Map<String, String> serviceNowRefs = new HashMap<>();
 
-    protected String getSCIMIdSchema() {
-        return "SCIMUserId";
+    protected String getServiceNowIdSchema() {
+        return "ServiceNowUserId";
     }
 
     @Override
@@ -117,28 +118,28 @@ public class SCIMv11PullActions implements PullActions {
             return;
         }
 
-        scimRefs.put(entity.getKey(), delta.getUid().getUidValue());
+        serviceNowRefs.put(entity.getKey(), delta.getUid().getUidValue());
     }
 
     @Transactional
     @Override
     public void afterAll(final ProvisioningProfile<?, ?> profile) throws JobExecutionException {
-        for (Map.Entry<String, String> entry : scimRefs.entrySet()) {
+        for (Map.Entry<String, String> entry : serviceNowRefs.entrySet()) {
             User user = userDAO.find(entry.getKey());
             if (user == null) {
                 LOG.error("Could not find user {}, skipping", entry.getKey());
             } else {
                 AnyUtils anyUtils = anyUtilsFactory.getInstance(user);
 
-                // stores the __UID__ received by SCIM
-                PlainSchema scimId = plainSchemaDAO.find(getSCIMIdSchema());
-                if (scimId == null) {
-                    LOG.error("Could not find schema {}, skipping", getSCIMIdSchema());
+                // stores the __UID__ received by ServiceNow
+                PlainSchema serviceNowId = plainSchemaDAO.find(getServiceNowIdSchema());
+                if (serviceNowId == null) {
+                    LOG.error("Could not find schema {}, skipping", getServiceNowIdSchema());
                 } else {
-                    UPlainAttr attr = user.getPlainAttr(getSCIMIdSchema()).orElse(null);
+                    UPlainAttr attr = user.getPlainAttr(getServiceNowIdSchema()).orElse(null);
                     if (attr == null) {
                         attr = entityFactory.newEntity(UPlainAttr.class);
-                        attr.setSchema(scimId);
+                        attr.setSchema(serviceNowId);
                         attr.setOwner(user);
                         user.add(attr);
 
@@ -147,10 +148,10 @@ public class SCIMv11PullActions implements PullActions {
                             userDAO.save(user);
                         } catch (InvalidPlainAttrValueException e) {
                             LOG.error("Invalid value for attribute {}: {}",
-                                    scimId.getKey(), entry.getValue(), e);
+                                    serviceNowId.getKey(), entry.getValue(), e);
                         }
                     } else {
-                        LOG.debug("User {} has already a {} assigned: {}", user, getSCIMIdSchema(),
+                        LOG.debug("User {} has already a {} assigned: {}", user, getServiceNowIdSchema(),
                                 attr.getValuesAsStrings());
                     }
                 }
