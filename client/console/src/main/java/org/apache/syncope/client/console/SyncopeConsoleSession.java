@@ -103,6 +103,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         executor.setCorePoolSize(5);
         executor.setMaxPoolSize(10);
         executor.setQueueCapacity(50);
+        executor.initialize();
     }
 
     public MediaType getMediaType() {
