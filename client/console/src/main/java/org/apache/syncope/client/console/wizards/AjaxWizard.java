@@ -379,11 +379,11 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
     private Serializable onApply(final AjaxRequestTarget target) throws TimeoutException {
         try {
-            final Future<Pair<Serializable, Serializable>> executor
-                    = SyncopeConsoleSession.get().execute(new ApplyFuture(target));
+            Future<Pair<Serializable, Serializable>> executor =
+                    SyncopeConsoleSession.get().execute(new ApplyFuture(target));
 
-            final Pair<Serializable, Serializable> res
-                    = executor.get(SyncopeConsoleApplication.get().getMaxWaitTimeInSeconds(), TimeUnit.SECONDS);
+            Pair<Serializable, Serializable> res =
+                    executor.get(SyncopeConsoleApplication.get().getMaxWaitTimeInSeconds(), TimeUnit.SECONDS);
 
             if (res.getLeft() != null) {
                 send(pageRef.getPage(), Broadcast.BUBBLE, res.getLeft());

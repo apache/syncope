@@ -27,9 +27,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.collections4.list.SetUniqueList;
@@ -37,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -51,25 +50,13 @@ import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.request.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     private static final long serialVersionUID = 747562246415852166L;
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleSession.class);
-
-    private static final ThreadPoolExecutorFactoryBean THREAD_POOL_FACTORY;
-
-    public static final String AUTHENTICATED = "AUTHENTICATED";
-
-    public static final String MENU_COLLAPSE = "MENU_COLLAPSE";
-
-    static {
-        THREAD_POOL_FACTORY = new ThreadPoolExecutorFactoryBean();
-        THREAD_POOL_FACTORY.setThreadNamePrefix(SyncopeConsoleSession.class.getSimpleName());
-        THREAD_POOL_FACTORY.setDaemon(true);
-    }
 
     private final SyncopeClientFactoryBean clientFactory;
 
@@ -79,11 +66,11 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     private final SystemInfo systemInfo;
 
-    private String domain;
-
     private final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<>());
 
-    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5, THREAD_POOL_FACTORY);
+    private final ThreadPoolTaskExecutor executor;
+
+    private String domain;
 
     private SyncopeClient client;
 
@@ -108,6 +95,12 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
         platformInfo = anonymousClient.getService(SyncopeService.class).platform();
         systemInfo = anonymousClient.getService(SyncopeService.class).system();
+
+        executor = new ThreadPoolTaskExecutor();
+        executor.setWaitForTasksToCompleteOnShutdown(false);
+        executor.setCorePoolSize(5);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(50);
     }
 
     public MediaType getMediaType() {
@@ -119,11 +112,11 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     }
 
     public void execute(final Runnable command) {
-        executorService.execute(command);
+        executor.execute(command);
     }
 
     public <T> Future<T> execute(final Callable<T> command) {
-        return executorService.submit(command);
+        return executor.submit(command);
     }
 
     public PlatformInfo getPlatformInfo() {
@@ -199,7 +192,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
             }
             cleanup();
         }
-        executorService.shutdown();
+        executor.shutdown();
         super.invalidate();
     }
 
@@ -211,7 +204,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
             }
             cleanup();
         }
-        executorService.shutdownNow();
+        executor.shutdown();
         super.invalidateNow();
     }
 
@@ -252,7 +245,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     public Roles getRoles() {
         if (isSignedIn() && roles == null && auth != null) {
             roles = new Roles(auth.keySet().toArray(new String[] {}));
-            roles.add(AUTHENTICATED);
+            roles.add(Constants.ROLE_AUTHENTICATED);
         }
 
         return roles;

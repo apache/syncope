@@ -29,6 +29,10 @@ public final class Constants {
 
     public static final String SYNCOPE = "syncope";
 
+    public static final String ROLE_AUTHENTICATED = "AUTHENTICATED";
+
+    public static final String MENU_COLLAPSE = "MENU_COLLAPSE";
+
     public static final String VEIL_INDICATOR_MARKUP_ID = "veil";
 
     public static final String FLOWABLE_MODELER_CONTEXT = "flowable-modeler";
