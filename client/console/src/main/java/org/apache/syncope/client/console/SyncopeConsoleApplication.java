@@ -193,7 +193,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         ClassPathScanImplementationLookup lookup = (ClassPathScanImplementationLookup) getServletContext().
                 getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
         for (Class<? extends BasePage> clazz : lookup.getPageClasses()) {
-            MetaDataRoleAuthorizationStrategy.authorize(clazz, SyncopeConsoleSession.AUTHENTICATED);
+            MetaDataRoleAuthorizationStrategy.authorize(clazz, Constants.ROLE_AUTHENTICATED);
         }
 
         getMarkupSettings().setStripWicketTags(true);
