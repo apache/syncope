@@ -27,7 +27,6 @@ import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -78,9 +77,7 @@ public class AzurePullActions extends DefaultPullActions {
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
 
-    private final Map<String, String> azureIds = new HashMap<>();
-
-    private AnyTypeKind entityType;
+    private final Map<EntityTO, String> azureRefs = new HashMap<>();
 
     protected String getEmailAttrName() {
         return "mailNickname";
@@ -147,24 +144,17 @@ public class AzurePullActions extends DefaultPullActions {
             return;
         }
 
-        if (entity instanceof UserTO) {
-            entityType = AnyTypeKind.USER;
-        } else if (entity instanceof GroupTO) {
-            entityType = AnyTypeKind.GROUP;
-        }
-
-        azureIds.put(entity.getKey(), delta.getUid().getUidValue());
+        azureRefs.put(entity, delta.getUid().getUidValue());
     }
 
     @Transactional
     @Override
     public void afterAll(final ProvisioningProfile<?, ?> profile) throws JobExecutionException {
-        for (Map.Entry<String, String> entry : azureIds.entrySet()) {
-
-            if (AnyTypeKind.USER.equals(entityType)) {
-                User user = userDAO.find(entry.getKey());
+        for (Map.Entry<EntityTO, String> entry : azureRefs.entrySet()) {
+            if (entry.getKey() instanceof UserTO) {
+                User user = userDAO.find(entry.getKey().getKey());
                 if (user == null) {
-                    LOG.error("Could not find user {}, skipping", entry.getKey());
+                    LOG.error("Could not find user {}, skipping", entry.getKey().getKey());
                 } else {
                     AnyUtils anyUtils = anyUtilsFactory.getInstance(user);
 
@@ -193,10 +183,10 @@ public class AzurePullActions extends DefaultPullActions {
                         }
                     }
                 }
-            } else if (AnyTypeKind.GROUP.equals(entityType)) {
-                Group group = groupDAO.find(entry.getKey());
+            } else if (entry.getKey() instanceof GroupTO) {
+                Group group = groupDAO.find(entry.getKey().getKey());
                 if (group == null) {
-                    LOG.error("Could not find group {}, skipping", entry.getKey());
+                    LOG.error("Could not find group {}, skipping", entry.getKey().getKey());
                 } else {
                     AnyUtils anyUtils = anyUtilsFactory.getInstance(group);
 
@@ -226,7 +216,6 @@ public class AzurePullActions extends DefaultPullActions {
                     }
                 }
             }
-
         }
     }
 
