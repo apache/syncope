@@ -90,7 +90,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         super(parameters);
 
         body = new WebMarkupContainer("body");
-        Serializable leftMenuCollapse = SyncopeConsoleSession.get().getAttribute(SyncopeConsoleSession.MENU_COLLAPSE);
+        Serializable leftMenuCollapse = SyncopeConsoleSession.get().getAttribute(Constants.MENU_COLLAPSE);
         if ((leftMenuCollapse instanceof Boolean) && ((Boolean) leftMenuCollapse)) {
             body.add(new AttributeAppender("class", " sidebar-collapse"));
         }
@@ -245,10 +245,10 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                SyncopeConsoleSession.get().setAttribute(SyncopeConsoleSession.MENU_COLLAPSE,
-                        SyncopeConsoleSession.get().getAttribute(SyncopeConsoleSession.MENU_COLLAPSE) == null
+                SyncopeConsoleSession.get().setAttribute(Constants.MENU_COLLAPSE,
+                        SyncopeConsoleSession.get().getAttribute(Constants.MENU_COLLAPSE) == null
                         ? true
-                        : !(Boolean) SyncopeConsoleSession.get().getAttribute(SyncopeConsoleSession.MENU_COLLAPSE));
+                        : !(Boolean) SyncopeConsoleSession.get().getAttribute(Constants.MENU_COLLAPSE));
             }
         });
         body.add(new Label("domain", SyncopeConsoleSession.get().getDomain()));
