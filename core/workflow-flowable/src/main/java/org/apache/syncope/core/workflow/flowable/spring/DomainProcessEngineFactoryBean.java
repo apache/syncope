@@ -57,34 +57,33 @@ public class DomainProcessEngineFactoryBean
         if (engine == null) {
             Map<String, ProcessEngine> engines = new HashMap<>();
 
-            ctx.getBeansOfType(DataSource.class).entrySet().stream().
-                    filter(entry -> (!entry.getKey().startsWith("local"))).
-                    forEachOrdered(entry -> {
-                        String domain = StringUtils.substringBefore(entry.getKey(), DataSource.class.getSimpleName());
-                        DataSource dataSource = entry.getValue();
-                        PlatformTransactionManager transactionManager = ctx.getBean(
-                                domain + "TransactionManager", PlatformTransactionManager.class);
-                        Object entityManagerFactory = ctx.getBean(domain + "EntityManagerFactory");
+            ctx.getBeansOfType(DataSource.class).forEach((key, dataSource) -> {
+                if (!key.startsWith("local")) {
+                    String domain = StringUtils.substringBefore(key, DataSource.class.getSimpleName());
+                    PlatformTransactionManager transactionManager = ctx.getBean(
+                            domain + "TransactionManager", PlatformTransactionManager.class);
+                    Object entityManagerFactory = ctx.getBean(domain + "EntityManagerFactory");
 
-                        SpringProcessEngineConfiguration conf = ctx.getBean(SpringProcessEngineConfiguration.class);
-                        conf.setDataSource(dataSource);
-                        conf.setTransactionManager(transactionManager);
-                        conf.setTransactionsExternallyManaged(true);
-                        conf.setJpaEntityManagerFactory(entityManagerFactory);
-                        if (conf.getBeans() == null) {
-                            conf.setBeans(new SpringBeanFactoryProxyMap(ctx));
-                        }
-                        if (conf.getExpressionManager() == null) {
-                            conf.setExpressionManager(new SpringExpressionManager(ctx, conf.getBeans()));
-                        }
-                        if (EngineServiceUtil.getIdmEngineConfiguration(conf) == null) {
-                            conf.addEngineConfiguration(
-                                    EngineConfigurationConstants.KEY_IDM_ENGINE_CONFIG,
-                                    ctx.getBean(SpringIdmEngineConfiguration.class));
-                        }
+                    SpringProcessEngineConfiguration conf = ctx.getBean(SpringProcessEngineConfiguration.class);
+                    conf.setDataSource(dataSource);
+                    conf.setTransactionManager(transactionManager);
+                    conf.setTransactionsExternallyManaged(true);
+                    conf.setJpaEntityManagerFactory(entityManagerFactory);
+                    if (conf.getBeans() == null) {
+                        conf.setBeans(new SpringBeanFactoryProxyMap(ctx));
+                    }
+                    if (conf.getExpressionManager() == null) {
+                        conf.setExpressionManager(new SpringExpressionManager(ctx, conf.getBeans()));
+                    }
+                    if (EngineServiceUtil.getIdmEngineConfiguration(conf) == null) {
+                        conf.addEngineConfiguration(
+                                EngineConfigurationConstants.KEY_IDM_ENGINE_CONFIG,
+                                ctx.getBean(SpringIdmEngineConfiguration.class));
+                    }
 
-                        engines.put(domain, conf.buildProcessEngine());
-                    });
+                    engines.put(domain, conf.buildProcessEngine());
+                }
+            });
 
             engine = new DomainProcessEngine(engines);
         }
