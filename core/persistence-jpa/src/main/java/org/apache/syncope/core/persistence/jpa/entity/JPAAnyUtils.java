@@ -386,6 +386,7 @@ public class JPAAnyUtils implements AnyUtils {
     @Override
     public void addAttr(final String key, final PlainSchema schema, final String value) {
         Any any = dao().find(key);
+
         Set<AnyTypeClass> typeOwnClasses = new HashSet<>();
         typeOwnClasses.addAll(any.getType().getClasses());
         typeOwnClasses.addAll(any.getAuxClasses());
