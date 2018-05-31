@@ -37,6 +37,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
@@ -385,7 +386,10 @@ public class JPAAnyUtils implements AnyUtils {
     @Override
     public void addAttr(final String key, final PlainSchema schema, final String value) {
         Any any = dao().find(key);
-        if (!dao().findAllowedSchemas(any, PlainSchema.class).forSelfContains(schema)) {
+        Set<AnyTypeClass> typeOwnClasses = new HashSet<>();
+        typeOwnClasses.addAll(any.getType().getClasses());
+        typeOwnClasses.addAll(any.getAuxClasses());
+        if (!typeOwnClasses.stream().anyMatch(clazz -> clazz.getPlainSchemas().contains(schema))) {
             LOG.warn("Schema {} not allowed for {}, ignoring", schema, any);
             return;
         }

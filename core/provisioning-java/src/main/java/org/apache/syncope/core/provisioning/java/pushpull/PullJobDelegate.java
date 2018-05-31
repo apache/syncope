@@ -31,11 +31,14 @@ import org.apache.syncope.common.lib.collections.IteratorChain;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
@@ -74,6 +77,9 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
     @Autowired
     protected PullUtils pullUtils;
+
+    @Autowired
+    protected AnyUtilsFactory anyUtilsFactory;
 
     protected final Map<ObjectClass, SyncToken> latestSyncTokens = new HashMap<>();
 
@@ -344,6 +350,15 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                                     handler,
                                     options);
                             break;
+                    }
+
+                    if (provision.getUidOnCreate() != null) {
+                        AnyUtils anyUtils = anyUtilsFactory.getInstance(provision.getAnyType().getKind());
+                        profile.getResults().stream().filter(result
+                                -> result.getUidValue() != null && result.getOperation() == ResourceOperation.CREATE)
+                                .forEach(result -> {
+                                    anyUtils.addAttr(result.getKey(), provision.getUidOnCreate(), result.getUidValue());
+                                });
                     }
                 } catch (Throwable t) {
                     throw new JobExecutionException("While pulling from connector", t);

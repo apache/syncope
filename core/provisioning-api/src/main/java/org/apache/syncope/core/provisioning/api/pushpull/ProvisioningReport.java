@@ -47,6 +47,8 @@ public class ProvisioningReport {
 
     private String name;
 
+    private String uidValue;
+
     public String getMessage() {
         return message;
     }
@@ -93,6 +95,14 @@ public class ProvisioningReport {
 
     public void setOperation(final ResourceOperation operation) {
         this.operation = operation;
+    }
+
+    public String getUidValue() {
+        return uidValue;
+    }
+
+    public void setUidValue(final String uidValue) {
+        this.uidValue = uidValue;
     }
 
     @Override

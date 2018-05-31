@@ -208,6 +208,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         result.setAnyType(provision.getAnyType().getKey());
         result.setStatus(ProvisioningReport.Status.SUCCESS);
         result.setName(getName(anyTO));
+        result.setUidValue(delta.getUid().getUidValue());
 
         if (profile.isDryRun()) {
             result.setKey(null);
@@ -240,6 +241,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         result.setAnyType(provision.getAnyType().getKey());
         result.setStatus(ProvisioningReport.Status.SUCCESS);
         result.setName(getName(anyTO));
+        result.setUidValue(delta.getUid().getUidValue());
 
         if (profile.isDryRun()) {
             result.setKey(null);
@@ -821,16 +823,13 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
             if (SyncDeltaType.CREATE_OR_UPDATE == processed.getDeltaType()) {
                 if (anyKeys.isEmpty()) {
-                    List<ProvisioningReport> forUidOnCreate = null;
                     switch (profile.getTask().getUnmatchingRule()) {
                         case ASSIGN:
-                            forUidOnCreate = assign(processed, provision, anyUtils);
-                            profile.getResults().addAll(forUidOnCreate);
+                            profile.getResults().addAll(assign(processed, provision, anyUtils));
                             break;
 
                         case PROVISION:
-                            forUidOnCreate = provision(processed, provision, anyUtils);
-                            profile.getResults().addAll(forUidOnCreate);
+                            profile.getResults().addAll(provision(processed, provision, anyUtils));
                             break;
 
                         case IGNORE:
@@ -839,12 +838,6 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
                         default:
                         // do nothing
-                    }
-
-                    if (forUidOnCreate != null && provision.getUidOnCreate() != null) {
-                        forUidOnCreate.forEach(report -> {
-                            anyUtils.addAttr(report.getKey(), provision.getUidOnCreate(), delta.getUid().getUidValue());
-                        });
                     }
                 } else {
                     // update VirAttrCache
