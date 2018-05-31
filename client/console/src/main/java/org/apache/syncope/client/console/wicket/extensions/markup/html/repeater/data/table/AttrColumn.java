@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table;
 
+import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
@@ -49,29 +49,25 @@ public class AttrColumn<T extends AttributableTO> extends AbstractColumn<T, Stri
     public void populateItem(
             final Item<ICellPopulator<T>> cellItem, final String componentId, final IModel<T> rowModel) {
 
-        List<String> values = null;
+        List<String> values = new ArrayList<>();
 
-        AttrTO attr = null;
         switch (schemaType) {
             case PLAIN:
-                attr = rowModel.getObject().getPlainAttr(name).get();
+                rowModel.getObject().getPlainAttr(name).ifPresent(attr -> values.addAll(attr.getValues()));
                 break;
 
             case DERIVED:
-                attr = rowModel.getObject().getDerAttr(name).get();
+                rowModel.getObject().getDerAttr(name).ifPresent(attr -> values.addAll(attr.getValues()));
                 break;
 
             case VIRTUAL:
-                attr = rowModel.getObject().getVirAttr(name).get();
+                rowModel.getObject().getVirAttr(name).ifPresent(attr -> values.addAll(attr.getValues()));
                 break;
 
             default:
         }
-        if (attr != null) {
-            values = attr.getValues();
-        }
 
-        if (values == null || values.isEmpty()) {
+        if (values.isEmpty()) {
             cellItem.add(new Label(componentId, ""));
         } else if (values.size() == 1) {
             cellItem.add(new Label(componentId, values.get(0)));

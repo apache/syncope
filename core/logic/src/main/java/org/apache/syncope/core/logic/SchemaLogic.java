@@ -21,7 +21,6 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -147,6 +146,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
+    @SuppressWarnings("unchecked")
     public <T extends SchemaTO> List<T> search(
             final SchemaType schemaType, final List<String> anyTypeClasses, final String keyword) {
 
@@ -171,14 +171,8 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
                         ? keyword == null
                                 ? virSchemaDAO.findAll()
                                 : virSchemaDAO.findByKeyword(keyword)
-                        : virSchemaDAO.findByAnyTypeClasses(classes)).
-                        stream().map(new Function<VirSchema, T>() {
-
-                            @Override
-                            public T apply(final VirSchema schema) {
-                                return (T) binder.getVirSchemaTO(schema);
-                            }
-                        }).collect(Collectors.toList());
+                        : virSchemaDAO.findByAnyTypeClasses(classes)).stream().
+                        map(schema -> (T) binder.getVirSchemaTO(schema)).collect(Collectors.toList());
                 break;
 
             case DERIVED:
@@ -186,14 +180,8 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
                         ? keyword == null
                                 ? derSchemaDAO.findAll()
                                 : derSchemaDAO.findByKeyword(keyword)
-                        : derSchemaDAO.findByAnyTypeClasses(classes)).
-                        stream().map(new Function<DerSchema, T>() {
-
-                            @Override
-                            public T apply(final DerSchema schema) {
-                                return (T) binder.getDerSchemaTO(schema);
-                            }
-                        }).collect(Collectors.toList());
+                        : derSchemaDAO.findByAnyTypeClasses(classes)).stream().
+                        map(schema -> (T) binder.getDerSchemaTO(schema)).collect(Collectors.toList());
                 break;
 
             case PLAIN:
@@ -202,14 +190,8 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
                         ? keyword == null
                                 ? plainSchemaDAO.findAll()
                                 : plainSchemaDAO.findByKeyword(keyword)
-                        : plainSchemaDAO.findByAnyTypeClasses(classes)).
-                        stream().map(new Function<PlainSchema, T>() {
-
-                            @Override
-                            public T apply(final PlainSchema schema) {
-                                return (T) binder.getPlainSchemaTO(schema);
-                            }
-                        }).collect(Collectors.toList());
+                        : plainSchemaDAO.findByAnyTypeClasses(classes)).stream().
+                        map(schema -> (T) binder.getPlainSchemaTO(schema)).collect(Collectors.toList());
         }
 
         return result;
