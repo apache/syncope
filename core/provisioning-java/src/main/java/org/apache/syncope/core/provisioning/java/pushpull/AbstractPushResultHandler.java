@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
@@ -225,12 +227,24 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             doHandle(any);
             return true;
         } catch (IgnoreProvisionException e) {
-            ProvisioningReport result = new ProvisioningReport();
+            ProvisioningReport result
+                    = IterableUtils.find(profile.getResults(), new Predicate<ProvisioningReport>() {
+
+                        @Override
+                        public boolean evaluate(final ProvisioningReport report) {
+                            return anyKey.equalsIgnoreCase(report.getKey());
+                        }
+                    });
+
+            if (result == null) {
+                result = new ProvisioningReport();
+                profile.getResults().add(result);
+            }
+
             result.setOperation(ResourceOperation.NONE);
             result.setAnyType(any == null ? null : any.getType().getKey());
             result.setStatus(ProvisioningReport.Status.IGNORE);
             result.setKey(anyKey);
-            profile.getResults().add(result);
 
             LOG.warn("Ignoring during push", e);
             return true;
