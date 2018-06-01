@@ -228,12 +228,20 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             doHandle(any);
             return true;
         } catch (IgnoreProvisionException e) {
-            ProvisioningReport result = new ProvisioningReport();
+            ProvisioningReport result = profile.getResults().stream()
+                    .filter(r -> anyKey.equalsIgnoreCase(r.getKey()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (result == null) {
+                result = new ProvisioningReport();
+                profile.getResults().add(result);
+            }
+
             result.setOperation(ResourceOperation.NONE);
             result.setAnyType(any == null ? null : any.getType().getKey());
             result.setStatus(ProvisioningReport.Status.IGNORE);
             result.setKey(anyKey);
-            profile.getResults().add(result);
 
             LOG.warn("Ignoring during push", e);
             return true;
