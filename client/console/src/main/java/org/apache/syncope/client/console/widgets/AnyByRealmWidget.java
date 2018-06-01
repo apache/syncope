@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.client.console.widgets;
 
-import com.pingunaut.wicket.chartjs.chart.impl.Bar;
-import com.pingunaut.wicket.chartjs.core.panel.BarChartPanel;
-import com.pingunaut.wicket.chartjs.data.sets.BarDataSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -28,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.chartjs.Bar;
+import org.apache.syncope.client.console.chartjs.BarDataSet;
+import org.apache.syncope.client.console.chartjs.ChartJSPanel;
 import org.apache.wicket.model.Model;
 
 public class AnyByRealmWidget extends BaseWidget {
@@ -48,7 +48,7 @@ public class AnyByRealmWidget extends BaseWidget {
 
     private Map<String, Integer> any2ByRealm;
 
-    private final BarChartPanel chart;
+    private final ChartJSPanel chart;
 
     public AnyByRealmWidget(
             final String id,
@@ -68,7 +68,7 @@ public class AnyByRealmWidget extends BaseWidget {
         this.any2ByRealm = any2ByRealm;
         setOutputMarkupId(true);
 
-        chart = new BarChartPanel(
+        chart = new ChartJSPanel(
                 "chart",
                 Model.of(build(usersByRealm, groupsByRealm, anyType1, any1ByRealm, anyType2, any2ByRealm)));
         add(chart);
@@ -101,8 +101,19 @@ public class AnyByRealmWidget extends BaseWidget {
         List<String> realms = new ArrayList<>(realmSet);
         Collections.sort(realms);
 
+        Bar bar = new Bar();
+        bar.getOptions().setScaleBeginAtZero(true);
+        bar.getOptions().setBarShowStroke(true);
+        bar.getOptions().setBarStrokeWidth(2);
+        bar.getOptions().setBarValueSpacing(5);
+        bar.getOptions().setBarDatasetSpacing(1);
+        bar.getOptions().setResponsive(true);
+        bar.getOptions().setMaintainAspectRatio(true);
+        bar.getOptions().setMultiTooltipTemplate("<%= datasetLabel %> - <%= value %>");
+
         for (int i = 0; i < realms.size() && i < MAX_REALMS; i++) {
-            labels.add(StringUtils.prependIfMissing(StringUtils.substringAfterLast(realms.get(i), "/"), "/"));
+            bar.getData().getLabels().add(
+                    StringUtils.prependIfMissing(StringUtils.substringAfterLast(realms.get(i), "/"), "/"));
 
             userValues.add(usersByRealm.get(realms.get(i)));
             groupValues.add(groupsByRealm.get(realms.get(i)));
@@ -114,42 +125,26 @@ public class AnyByRealmWidget extends BaseWidget {
             }
         }
 
-        Bar bar = new Bar();
-        bar.getOptions().setScaleBeginAtZero(true);
-        bar.getOptions().setScaleShowGridLines(true);
-        bar.getOptions().setScaleGridLineWidth(1);
-        bar.getOptions().setBarShowStroke(true);
-        bar.getOptions().setBarStrokeWidth(2);
-        bar.getOptions().setBarValueSpacing(5);
-        bar.getOptions().setBarDatasetSpacing(1);
-        bar.getOptions().setResponsive(true);
-        bar.getOptions().setMaintainAspectRatio(true);
-        bar.getOptions().setMultiTooltipTemplate("<%= datasetLabel %> - <%= value %>");
-
-        bar.getData().setLabels(labels);
-
-        List<BarDataSet> datasets = new ArrayList<>();
-        LabeledBarDataSet userDataSet = new LabeledBarDataSet(userValues);
+        BarDataSet userDataSet = new BarDataSet(userValues);
         userDataSet.setFillColor("orange");
         userDataSet.setLabel(getString("users"));
-        datasets.add(userDataSet);
-        LabeledBarDataSet groupDataSet = new LabeledBarDataSet(groupValues);
+        bar.getData().getDatasets().add(userDataSet);
+        BarDataSet groupDataSet = new BarDataSet(groupValues);
         groupDataSet.setFillColor("red");
         groupDataSet.setLabel(getString("groups"));
-        datasets.add(groupDataSet);
+        bar.getData().getDatasets().add(groupDataSet);
         if (anyType1 != null) {
-            LabeledBarDataSet any1DataSet = new LabeledBarDataSet(any1Values);
+            BarDataSet any1DataSet = new BarDataSet(any1Values);
             any1DataSet.setFillColor("green");
             any1DataSet.setLabel(anyType1);
-            datasets.add(any1DataSet);
+            bar.getData().getDatasets().add(any1DataSet);
         }
         if (anyType2 != null) {
-            LabeledBarDataSet any2DataSet = new LabeledBarDataSet(any2Values);
+            BarDataSet any2DataSet = new BarDataSet(any2Values);
             any2DataSet.setFillColor("aqua");
             any2DataSet.setLabel(anyType2);
-            datasets.add(any2DataSet);
+            bar.getData().getDatasets().add(any2DataSet);
         }
-        bar.getData().setDatasets(datasets);
 
         return bar;
     }

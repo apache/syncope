@@ -17,22 +17,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:head>
-    <script type="text/javascript" src="webjars/chart.js/${chartjs.version}/Chart.min.js"></script>
-    <script type="text/javascript">
-      var WicketCharts = {};
-      // Get context with jQuery - using jQuery's .get() method.
-      function buildChart(markupId) {
-        var ctx = $('#' + markupId).get(0).getContext('2d');
-        return new Chart(ctx);
-      }
-    </script>
-  </wicket:head>
-  <wicket:extend>
-    <section class="content" wicket:id="content">
-      <div class="box">
-        <div class="box-body" wicket:id="tabbedPanel"/>
-      </div>
-    </section>
-  </wicket:extend>
+  <wicket:panel>
+    <canvas wicket:id="chart"></canvas>
+  </wicket:panel>
 </html>

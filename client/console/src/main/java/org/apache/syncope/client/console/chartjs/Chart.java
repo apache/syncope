@@ -16,31 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.widgets;
+package org.apache.syncope.client.console.chartjs;
 
-import com.pingunaut.wicket.chartjs.data.DoughnutChartData;
+import java.io.Serializable;
 
-public class LabeledDoughnutChartData extends DoughnutChartData {
+/**
+ * Provides chart options and a pojo-json mapper to communicate with javascript.
+ *
+ * @param <O> the generic type of options
+ */
+public abstract class Chart<O extends ChartOptions> implements Serializable {
 
-    private static final long serialVersionUID = -660949108690472467L;
+    private static final long serialVersionUID = 4733939203616971674L;
 
-    private String label;
+    /** The options. */
+    protected O options;
 
-    public LabeledDoughnutChartData(final Integer value, final String color) {
-        super(value, color);
+    public O getOptions() {
+        return options;
     }
-
-    public LabeledDoughnutChartData(final Integer value, final String color, final String label) {
-        super(value, color);
-        this.label = label;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(final String label) {
-        this.label = label;
-    }
-
 }
