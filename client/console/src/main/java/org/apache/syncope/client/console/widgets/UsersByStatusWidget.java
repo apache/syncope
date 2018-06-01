@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.client.console.widgets;
 
-import com.pingunaut.wicket.chartjs.chart.impl.Doughnut;
-import com.pingunaut.wicket.chartjs.core.panel.DoughnutChartPanel;
 import java.util.Map;
+import org.apache.syncope.client.console.chartjs.ChartJSPanel;
+import org.apache.syncope.client.console.chartjs.Doughnut;
+import org.apache.syncope.client.console.chartjs.DoughnutChartData;
 import org.apache.wicket.model.Model;
 
 public class UsersByStatusWidget extends BaseWidget {
@@ -31,14 +32,14 @@ public class UsersByStatusWidget extends BaseWidget {
 
     private Map<String, Integer> usersByStatus;
 
-    private final DoughnutChartPanel chart;
+    private final ChartJSPanel chart;
 
     public UsersByStatusWidget(final String id, final Map<String, Integer> usersByStatus) {
         super(id);
         this.usersByStatus = usersByStatus;
         setOutputMarkupId(true);
 
-        chart = new DoughnutChartPanel("chart", Model.of(build(usersByStatus)));
+        chart = new ChartJSPanel("chart", Model.of(build(usersByStatus)));
         add(chart);
     }
 
@@ -49,7 +50,7 @@ public class UsersByStatusWidget extends BaseWidget {
 
         int i = 0;
         for (Map.Entry<String, Integer> entry : usersByStatus.entrySet()) {
-            doughnut.getData().add(new LabeledDoughnutChartData(entry.getValue(), COLORS[i % 5], entry.getKey()));
+            doughnut.getData().add(new DoughnutChartData(entry.getValue(), COLORS[i % 5], entry.getKey()));
             i++;
         }
 
@@ -64,5 +65,4 @@ public class UsersByStatusWidget extends BaseWidget {
         }
         return false;
     }
-
 }

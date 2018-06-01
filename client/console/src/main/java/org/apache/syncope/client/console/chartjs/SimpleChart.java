@@ -16,27 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.widgets;
+package org.apache.syncope.client.console.chartjs;
 
-import com.pingunaut.wicket.chartjs.data.sets.BarDataSet;
 import java.util.List;
 
-public class LabeledBarDataSet extends BarDataSet {
+/**
+ * Provides chart data and options.
+ *
+ * @param <D> the generic type of chart data
+ * @param <O> the generic type of chart options
+ */
+public abstract class SimpleChart<D extends SimpleColorValueChartData, O extends ChartOptions> extends Chart<O> {
 
-    private static final long serialVersionUID = -6571823370630502272L;
+    private static final long serialVersionUID = 4176838766615656412L;
 
-    private String label;
+    /** The data. */
+    protected List<D> data;
 
-    public LabeledBarDataSet(final List<? extends Number> values) {
-        super(values);
+    public List<D> getData() {
+        return data;
     }
 
-    public String getLabel() {
-        return label;
+    public void setData(final List<D> data) {
+        this.data = data;
     }
-
-    public void setLabel(final String label) {
-        this.label = label;
-    }
-
 }

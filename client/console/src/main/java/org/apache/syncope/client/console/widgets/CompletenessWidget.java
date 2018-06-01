@@ -18,12 +18,13 @@
  */
 package org.apache.syncope.client.console.widgets;
 
-import com.pingunaut.wicket.chartjs.chart.impl.Doughnut;
-import com.pingunaut.wicket.chartjs.core.panel.DoughnutChartPanel;
 import java.util.Map;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
+import org.apache.syncope.client.console.chartjs.ChartJSPanel;
+import org.apache.syncope.client.console.chartjs.Doughnut;
+import org.apache.syncope.client.console.chartjs.DoughnutChartData;
 import org.apache.syncope.client.console.pages.Notifications;
 import org.apache.syncope.client.console.pages.Policies;
 import org.apache.syncope.client.console.pages.Administration;
@@ -45,7 +46,7 @@ public class CompletenessWidget extends BaseWidget {
 
     private Map<String, Boolean> confCompleteness;
 
-    private final DoughnutChartPanel chart;
+    private final ChartJSPanel chart;
 
     private final WebMarkupContainer actions;
 
@@ -68,7 +69,7 @@ public class CompletenessWidget extends BaseWidget {
 
         Pair<Doughnut, Integer> built = build(confCompleteness);
 
-        chart = new DoughnutChartPanel("chart", Model.of(built.getLeft()));
+        chart = new ChartJSPanel("chart", Model.of(built.getLeft()));
         add(chart);
 
         actions = new WebMarkupContainer("actions");
@@ -138,9 +139,9 @@ public class CompletenessWidget extends BaseWidget {
         }
 
         doughnut.getData().add(
-                new LabeledDoughnutChartData(done, "blue", getString("done")));
+                new DoughnutChartData(done, "blue", getString("done")));
         doughnut.getData().add(
-                new LabeledDoughnutChartData(100 - done, "red", getString("todo") + ": " + todo));
+                new DoughnutChartData(100 - done, "red", getString("todo") + ": " + todo));
 
         return Pair.of(doughnut, todo);
     }

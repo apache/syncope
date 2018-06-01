@@ -18,15 +18,14 @@
  */
 package org.apache.syncope.client.console.widgets;
 
-import com.pingunaut.wicket.chartjs.chart.impl.Bar;
-import com.pingunaut.wicket.chartjs.core.panel.BarChartPanel;
-import com.pingunaut.wicket.chartjs.data.sets.BarDataSet;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.annotations.ExtWidget;
+import org.apache.syncope.client.console.chartjs.Bar;
+import org.apache.syncope.client.console.chartjs.BarDataSet;
+import org.apache.syncope.client.console.chartjs.ChartJSPanel;
 import org.apache.syncope.client.console.rest.CamelRoutesRestClient;
 import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.common.lib.to.CamelMetrics;
@@ -43,7 +42,7 @@ public class CamelMetricsWidget extends BaseExtWidget {
 
     private List<CamelMetrics.MeanRate> meanRates;
 
-    private final BarChartPanel chart;
+    private final ChartJSPanel chart;
 
     private final CamelRoutesRestClient restClient = new CamelRoutesRestClient();
 
@@ -60,7 +59,7 @@ public class CamelMetricsWidget extends BaseExtWidget {
             meanRates.add(metrics.getResponseMeanRates().get(i));
         }
 
-        chart = new BarChartPanel("chart", Model.of(build(meanRates)));
+        chart = new ChartJSPanel("chart", Model.of(build(meanRates)));
         container.add(chart);
 
         container.add(new IndicatorAjaxTimerBehavior(Duration.seconds(60)) {
@@ -85,8 +84,6 @@ public class CamelMetricsWidget extends BaseExtWidget {
     private Bar build(final List<CamelMetrics.MeanRate> meanRates) {
         Bar bar = new Bar();
         bar.getOptions().setScaleBeginAtZero(true);
-        bar.getOptions().setScaleShowGridLines(true);
-        bar.getOptions().setScaleGridLineWidth(1);
         bar.getOptions().setBarShowStroke(true);
         bar.getOptions().setBarStrokeWidth(2);
         bar.getOptions().setBarValueSpacing(5);
@@ -94,13 +91,14 @@ public class CamelMetricsWidget extends BaseExtWidget {
         bar.getOptions().setResponsive(true);
         bar.getOptions().setMaintainAspectRatio(true);
 
-        bar.getData().setLabels(CollectionUtils.collect(meanRates, new Transformer<CamelMetrics.MeanRate, String>() {
+        bar.getData().getLabels().addAll(
+                CollectionUtils.collect(meanRates, new Transformer<CamelMetrics.MeanRate, String>() {
 
-            @Override
-            public String transform(final CamelMetrics.MeanRate input) {
-                return input.getRouteId();
-            }
-        }, new ArrayList<String>()));
+                    @Override
+                    public String transform(final CamelMetrics.MeanRate input) {
+                        return input.getRouteId();
+                    }
+                }, new ArrayList<String>()));
 
         BarDataSet dataset = new BarDataSet(CollectionUtils.collect(meanRates,
                 new Transformer<CamelMetrics.MeanRate, Double>() {
@@ -111,7 +109,7 @@ public class CamelMetricsWidget extends BaseExtWidget {
             }
         }, new ArrayList<Double>()));
         dataset.setFillColor("blue");
-        bar.getData().setDatasets(Collections.singletonList(dataset));
+        bar.getData().getDatasets().add(dataset);
 
         return bar;
     }

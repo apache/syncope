@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.client.console.widgets;
 
-import com.pingunaut.wicket.chartjs.chart.impl.Line;
-import com.pingunaut.wicket.chartjs.core.panel.LineChartPanel;
-import com.pingunaut.wicket.chartjs.data.sets.LineDataSet;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.syncope.client.console.chartjs.ChartJSPanel;
+import org.apache.syncope.client.console.chartjs.Line;
+import org.apache.syncope.client.console.chartjs.LineDataSet;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.wicket.model.Model;
 
@@ -31,29 +31,19 @@ public class LoadWidget extends BaseWidget {
 
     private static final long serialVersionUID = -816175678514035085L;
 
-    private final LineChartPanel chart;
+    private final ChartJSPanel chart;
 
     public LoadWidget(final String id, final SystemInfo systeminfo) {
         super(id);
         setOutputMarkupId(true);
 
-        chart = new LineChartPanel("chart", Model.of(build(systeminfo)));
+        chart = new ChartJSPanel("chart", Model.of(build(systeminfo)));
         add(chart);
     }
 
     private Line build(final SystemInfo systeminfo) {
-        List<String> labels = new ArrayList<>();
-
         List<Double> cpuValues = new ArrayList<>();
         List<Long> memValues = new ArrayList<>();
-
-        for (SystemInfo.LoadInstant instant : systeminfo.getLoad()) {
-            labels.add(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.
-                    format(systeminfo.getStartTime() + instant.getUptime()));
-
-            cpuValues.add(instant.getSystemLoadAverage() * 1000);
-            memValues.add(instant.getTotalMemory());
-        }
 
         Line line = new Line();
         line.getOptions().setPointDot(false);
@@ -63,21 +53,25 @@ public class LoadWidget extends BaseWidget {
         line.getOptions().setShowScale(false);
         line.getOptions().setMultiTooltipTemplate("<%= datasetLabel %>");
 
-        line.getData().setLabels(labels);
+        for (SystemInfo.LoadInstant instant : systeminfo.getLoad()) {
+            line.getData().getLabels().add(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.
+                    format(systeminfo.getStartTime() + instant.getUptime()));
 
-        List<LineDataSet> datasets = new ArrayList<>();
+            cpuValues.add(instant.getSystemLoadAverage() * 1000);
+            memValues.add(instant.getTotalMemory());
+        }
+
         LineDataSet cpuDataSet = new LineDataSet(cpuValues);
         cpuDataSet.setLabel("CPU");
         cpuDataSet.setPointColor("purple");
         cpuDataSet.setStrokeColor("purple");
-        datasets.add(cpuDataSet);
+        line.getData().getDatasets().add(cpuDataSet);
 
         LineDataSet memDataSet = new LineDataSet(memValues);
         memDataSet.setLabel("MEM");
         memDataSet.setPointColor("grey");
         memDataSet.setStrokeColor("grey");
-        datasets.add(memDataSet);
-        line.getData().setDatasets(datasets);
+        line.getData().getDatasets().add(memDataSet);
 
         return line;
     }

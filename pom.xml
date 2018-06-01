@@ -443,11 +443,11 @@ under the License.
     <codemirror.version>5.33.0</codemirror.version>
     <googlediffmatchpath.version>20121119-1</googlediffmatchpath.version>
     <jsplumb.version>2.0.7</jsplumb.version>
+    <chartjs.version>1.0.2</chartjs.version>
     
     <wicket.version>7.10.0</wicket.version>
     <wicket-jqueryui.version>7.10.2</wicket-jqueryui.version>
     <wicket-bootstrap.version>0.10.17</wicket-bootstrap.version>
-    <wicket-chartjs.version>7.0.1</wicket-chartjs.version>
 
     <angular.version>1.6.10</angular.version>
     <angular-ui-router.version>0.3.2</angular-ui-router.version>
@@ -1328,22 +1328,7 @@ under the License.
             <artifactId>momentjs</artifactId>
           </exclusion>
         </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>com.pingunaut</groupId>
-        <artifactId>wicket-chartjs</artifactId>
-        <version>${wicket-chartjs.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>			
+      </dependency>		
       <!-- /Wicket -->
       
       <dependency>
@@ -1468,6 +1453,11 @@ under the License.
         <groupId>org.webjars</groupId>
         <artifactId>jsplumb</artifactId>
         <version>${jsplumb.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars.bower</groupId>
+        <artifactId>chart.js</artifactId>
+        <version>${chartjs.version}</version>
       </dependency>
       <dependency>
         <groupId>org.webjars</groupId>
