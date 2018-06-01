@@ -1839,7 +1839,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.6.7</version>
+          <version>1.6.8</version>
           <configuration>
             <container>
               <containerId>tomcat9x</containerId>
