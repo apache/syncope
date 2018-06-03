@@ -46,8 +46,8 @@ domain and MySQL): please also check that the connection parameters are the same
           testOnBorrow="true" testOnReturn="true"
           validationQuery="SELECT 1" validationInterval="30000"
           maxActive="100" minIdle="2" maxWait="10000" initialSize="2"
-          removeAbandonedTimeout="20000" removeAbandoned="true" logAbandoned="true"
-          suspectTimeout="20000" timeBetweenEvictionRunsMillis="5000"
+          removeAbandonedTimeout="20" removeAbandoned="true" logAbandoned="true"
+          suspectTimeout="20" timeBetweenEvictionRunsMillis="5000"
           minEvictableIdleTimeMillis="5000" defaultAutoCommit="false"
           jdbcInterceptors="org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;
             org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer"
