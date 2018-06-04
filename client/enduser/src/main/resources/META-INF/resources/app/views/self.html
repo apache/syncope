@@ -75,12 +75,12 @@ under the License.
           </div>
         </div>
         <div class="text-center" ng-show="$root.isSelfRegAllowed()">
-          <a href="javascript:void(0);" class="btn btn-link" ng-click="selfCreate()" id="register">
+          <a href="#" class="btn btn-link" ng-click="$event.preventDefault();selfCreate();" id="register">
             {{ 'SELFREGISTRATION' | translate}}
           </a>
         </div>
         <div class="text-center" ng-show="$root.isPwdResetAllowed()">
-          <a href="javascript:void(0);" class="btn btn-link" ng-click="passwordReset()" id="passwordreset">
+          <a href="#" class="btn btn-link" ng-click="$event.preventDefault();passwordReset();" id="passwordreset">
             {{ 'PASSWORDRESET' | translate}}
           </a>
         </div>
