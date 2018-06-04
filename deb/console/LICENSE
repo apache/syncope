@@ -262,11 +262,6 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Wicket-chartjs (https://pingunaut.com/wicket-chartjs/):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For JAX-B (http://jaxb.java.net/):
 This is licensed under the CDDL 1.0:
 
@@ -663,6 +658,11 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For Swagger (http://swagger.io/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Ionicons (http://ionicons.com/):
 This is licensed under the MIT license, see above.
 
@@ -770,6 +770,11 @@ This is licensed under the AL 2.0, see above.
 
 For ThreeTen Backport (http://www.threeten.org/threetenbp/):
 This is licensed under the BSD license, see above.
+
+==
+
+For Chart.js (http://www.chartjs.org/):
+This is licensed under the AL 2.0, see above.
 
 ==
 

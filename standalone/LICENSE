@@ -496,11 +496,6 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Wicket-chartjs (https://pingunaut.com/wicket-chartjs/):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For JAX-B (http://jaxb.java.net/):
 This is licensed under the CDDL 1.0:
 
@@ -1164,6 +1159,11 @@ This is licensed under the MIT license, see above.
 
 For Bootstrap File Input (http://plugins.krajee.com/file-input):
 This is licensed under the BSD license, see above.
+
+==
+
+For Chart.js (http://www.chartjs.org/):
+This is licensed under the AL 2.0, see above.
 
 ==
 
