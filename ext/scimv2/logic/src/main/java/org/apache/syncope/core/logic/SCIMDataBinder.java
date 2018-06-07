@@ -559,9 +559,9 @@ public class SCIMDataBinder {
                             setAttribute(userTO, addressConf.getLocality(),
                                     address.getLocality());
                         }
-                        if (addressConf.getRegion() != null && address.getFormatted() != null) {
-                            setAttribute(userTO, addressConf.getFormatted(),
-                                    address.getFormatted());
+                        if (addressConf.getRegion() != null && address.getRegion() != null) {
+                            setAttribute(userTO, addressConf.getRegion(),
+                                    address.getRegion());
                         }
                         if (addressConf.getPostalCode() != null && address.getPostalCode() != null) {
                             setAttribute(userTO, addressConf.getPostalCode(),
