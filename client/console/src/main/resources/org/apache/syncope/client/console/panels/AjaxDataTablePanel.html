@@ -40,5 +40,12 @@ under the License.
       <table class="ui-widget ui-widget-content table-hover" wicket:id="dataTable">[DataTable]</table>
     </wicket:fragment>
 
+    <script type="text/javascript">
+      var elem = $('.dataTable form table th.checkGroupColumn, .dataTable form table td.checkGroupColumn')
+      if (elem)
+        elem.off('click.resetScroll').on('click.resetScroll', function (event) {
+          event.stopPropagation()
+        })
+    </script>
   </wicket:panel>
 </html>
