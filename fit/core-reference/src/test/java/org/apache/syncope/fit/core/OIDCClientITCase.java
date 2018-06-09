@@ -18,12 +18,13 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
@@ -39,10 +40,9 @@ import org.apache.syncope.common.rest.api.service.OIDCClientService;
 import org.apache.syncope.common.rest.api.service.OIDCProviderService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.OIDCClientDetector;
-import org.junit.AfterClass;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class OIDCClientITCase extends AbstractITCase {
 
@@ -50,7 +50,7 @@ public class OIDCClientITCase extends AbstractITCase {
 
     private static SyncopeClient admin;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         anonymous = new SyncopeClientFactoryBean().
                 setAddress(ADDRESS).
@@ -61,7 +61,7 @@ public class OIDCClientITCase extends AbstractITCase {
                 create(new BasicAuthenticationHandler(ADMIN_UNAME, ADMIN_PWD));
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void createOIDCProviderWithoutDiscovery() throws Exception {
         if (!OIDCClientDetector.isOIDCClientAvailable()) {
             return;
@@ -82,7 +82,7 @@ public class OIDCClientITCase extends AbstractITCase {
         admin.getService(OIDCProviderService.class).create(oidcProviderTO);
     }
 
-    @AfterClass
+    @AfterAll
     public static void clearProviders() throws Exception {
         if (!OIDCClientDetector.isOIDCClientAvailable()) {
             return;
@@ -95,7 +95,7 @@ public class OIDCClientITCase extends AbstractITCase {
 
     @Test
     public void createLoginRequest() {
-        Assume.assumeTrue(OIDCClientDetector.isOIDCClientAvailable());
+        assumeTrue(OIDCClientDetector.isOIDCClientAvailable());
 
         OIDCLoginRequestTO loginRequest = anonymous.getService(OIDCClientService.class).
                 createLoginRequest("http://localhost:9080/syncope-console/oidcclient/code-consumer", "Google");
@@ -111,7 +111,7 @@ public class OIDCClientITCase extends AbstractITCase {
 
     @Test
     public void setProviderMapping() {
-        Assume.assumeTrue(OIDCClientDetector.isOIDCClientAvailable());
+        assumeTrue(OIDCClientDetector.isOIDCClientAvailable());
 
         OIDCProviderTO ssoCircle = IterableUtils.find(oidcProviderService.list(), new Predicate<OIDCProviderTO>() {
 
