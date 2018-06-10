@@ -36,7 +36,7 @@ public class OIDCClientDetector {
                 try {
                     new SyncopeClientFactoryBean().
                             setAddress(AbstractITCase.ADDRESS).
-                            setContentType(SyncopeClientFactoryBean.ContentType.XML).
+                            setContentType(SyncopeClientFactoryBean.ContentType.JSON).
                             create(new AnonymousAuthenticationHandler(
                                     AbstractITCase.ANONYMOUS_UNAME, AbstractITCase.ANONYMOUS_KEY)).
                             getService(OIDCProviderService.class).list();

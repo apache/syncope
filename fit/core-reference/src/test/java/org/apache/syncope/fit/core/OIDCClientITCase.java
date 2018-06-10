@@ -28,15 +28,12 @@ import static org.junit.Assert.assertTrue;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
-import org.apache.syncope.client.lib.BasicAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.OIDCLoginRequestTO;
 import org.apache.syncope.common.lib.to.OIDCProviderTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.OIDCClientService;
-import org.apache.syncope.common.rest.api.service.OIDCProviderService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.OIDCClientDetector;
 import org.junit.AfterClass;
@@ -46,21 +43,6 @@ import org.junit.Test;
 
 public class OIDCClientITCase extends AbstractITCase {
 
-    private static SyncopeClient anonymous;
-
-    private static SyncopeClient admin;
-
-    @BeforeClass
-    public static void setup() {
-        anonymous = new SyncopeClientFactoryBean().
-                setAddress(ADDRESS).
-                create(new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
-
-        admin = new SyncopeClientFactoryBean().
-                setAddress(ADDRESS).
-                create(new BasicAuthenticationHandler(ADMIN_UNAME, ADMIN_PWD));
-    }
-
     @BeforeClass
     public static void createOIDCProviderWithoutDiscovery() throws Exception {
         if (!OIDCClientDetector.isOIDCClientAvailable()) {
@@ -69,17 +51,17 @@ public class OIDCClientITCase extends AbstractITCase {
 
         assertTrue(oidcProviderService.list().isEmpty());
 
-        OIDCProviderTO oidcProviderTO = new OIDCProviderTO();
-        oidcProviderTO.setAuthorizationEndpoint("AuthorizationEndpoint");
-        oidcProviderTO.setClientID("ClientID");
-        oidcProviderTO.setClientSecret("ClientSecret");
-        oidcProviderTO.setIssuer("https://accounts.google.com");
-        oidcProviderTO.setJwksUri("JwksUri");
-        oidcProviderTO.setName("Google");
-        oidcProviderTO.setTokenEndpoint("TokenEndpoint");
-        oidcProviderTO.setUserinfoEndpoint("UserinfoEndpoint");
+        OIDCProviderTO google = new OIDCProviderTO();
+        google.setAuthorizationEndpoint("AuthorizationEndpoint");
+        google.setClientID("ClientID");
+        google.setClientSecret("ClientSecret");
+        google.setIssuer("https://accounts.google.com");
+        google.setJwksUri("JwksUri");
+        google.setName("Google");
+        google.setTokenEndpoint("TokenEndpoint");
+        google.setUserinfoEndpoint("UserinfoEndpoint");
 
-        admin.getService(OIDCProviderService.class).create(oidcProviderTO);
+        oidcProviderService.create(google);
     }
 
     @AfterClass
@@ -97,6 +79,8 @@ public class OIDCClientITCase extends AbstractITCase {
     public void createLoginRequest() {
         Assume.assumeTrue(OIDCClientDetector.isOIDCClientAvailable());
 
+        SyncopeClient anonymous = clientFactory.create(
+                new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
         OIDCLoginRequestTO loginRequest = anonymous.getService(OIDCClientService.class).
                 createLoginRequest("http://localhost:9080/syncope-console/oidcclient/code-consumer", "Google");
 
@@ -113,40 +97,38 @@ public class OIDCClientITCase extends AbstractITCase {
     public void setProviderMapping() {
         Assume.assumeTrue(OIDCClientDetector.isOIDCClientAvailable());
 
-        OIDCProviderTO ssoCircle = IterableUtils.find(oidcProviderService.list(), new Predicate<OIDCProviderTO>() {
+        OIDCProviderTO google = IterableUtils.find(oidcProviderService.list(), new Predicate<OIDCProviderTO>() {
 
             @Override
             public boolean evaluate(final OIDCProviderTO object) {
                 return "Google".equals(object.getName());
             }
         });
-        assertNotNull(ssoCircle);
-        assertFalse(ssoCircle.isCreateUnmatching());
-        assertNull(ssoCircle.getUserTemplate());
-        assertFalse(ssoCircle.getItems().isEmpty());
-        assertNotNull(ssoCircle.getConnObjectKeyItem());
-        assertNotEquals("fullname", ssoCircle.getConnObjectKeyItem().getIntAttrName());
-        assertNotEquals("given_name", ssoCircle.getConnObjectKeyItem().getExtAttrName());
+        assertNotNull(google);
+        assertFalse(google.isCreateUnmatching());
+        assertNull(google.getUserTemplate());
+        assertFalse(google.getItems().isEmpty());
+        assertNotEquals("fullname", google.getConnObjectKeyItem().getIntAttrName());
+        assertNotEquals("given_name", google.getConnObjectKeyItem().getExtAttrName());
 
-        ssoCircle.setCreateUnmatching(true);
+        google.setCreateUnmatching(true);
 
         UserTO userTemplate = new UserTO();
         userTemplate.setRealm("'/'");
-        ssoCircle.setUserTemplate(userTemplate);
+        google.setUserTemplate(userTemplate);
 
-        ssoCircle.getItems().clear();
+        google.getItems().clear();
         ItemTO keyMapping = new ItemTO();
         keyMapping.setIntAttrName("fullname");
         keyMapping.setExtAttrName("given_name");
-        ssoCircle.setConnObjectKeyItem(keyMapping);
+        google.setConnObjectKeyItem(keyMapping);
 
-        oidcProviderService.update(ssoCircle);
+        oidcProviderService.update(google);
 
-        ssoCircle = oidcProviderService.read(ssoCircle.getKey());
-        assertTrue(ssoCircle.isCreateUnmatching());
-        assertEquals(userTemplate, ssoCircle.getUserTemplate());
-        assertEquals("fullname", ssoCircle.getConnObjectKeyItem().getIntAttrName());
-        assertEquals("given_name", ssoCircle.getConnObjectKeyItem().getExtAttrName());
+        google = oidcProviderService.read(google.getKey());
+        assertTrue(google.isCreateUnmatching());
+        assertEquals(userTemplate, google.getUserTemplate());
+        assertNotEquals("fullname", google.getConnObjectKeyItem().getIntAttrName());
+        assertNotEquals("given_name", google.getConnObjectKeyItem().getExtAttrName());
     }
-
 }
