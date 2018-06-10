@@ -49,7 +49,7 @@ public class MappingTO extends AbstractBaseBean implements ItemContainerTO {
 
     @Override
     public ItemTO getConnObjectKeyItem() {
-        return getItems().stream().filter(ItemTO::isConnObjectKey).findFirst().get();
+        return getItems().stream().filter(item -> item.isConnObjectKey()).findFirst().orElse(null);
     }
 
     protected boolean addConnObjectKeyItem(final ItemTO connObjectItem) {

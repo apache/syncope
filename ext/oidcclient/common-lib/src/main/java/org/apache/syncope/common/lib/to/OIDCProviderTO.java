@@ -195,7 +195,7 @@ public class OIDCProviderTO extends AbstractBaseBean implements EntityTO, ItemCo
 
     @Override
     public ItemTO getConnObjectKeyItem() {
-        return getItems().stream().filter(ItemTO::isConnObjectKey).findFirst().get();
+        return getItems().stream().filter(item -> item.isConnObjectKey()).findFirst().orElse(null);
     }
 
     protected boolean addConnObjectKeyItem(final ItemTO connObjectItem) {
