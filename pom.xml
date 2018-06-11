@@ -375,7 +375,7 @@ under the License.
     <spring.version>4.3.17.RELEASE</spring.version>
     <spring-security.version>4.2.6.RELEASE</spring-security.version>
 
-    <openjpa.version>2.4.2</openjpa.version>
+    <openjpa.version>2.4.3</openjpa.version>
     <hikaricp.version>2.4.13</hikaricp.version>
     <bval.version>1.1.2</bval.version>
 
