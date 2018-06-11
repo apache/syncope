@@ -99,8 +99,7 @@ public class SyncopeConsoleRequestCycleListener extends AbstractRequestCycleList
 
         if (errorPage instanceof Login) {
             try {
-                SyncopeConsoleSession.get().cleanup();
-                SyncopeConsoleSession.get().invalidateNow();
+                SyncopeConsoleSession.get().invalidate();
             } catch (Throwable t) {
                 // ignore
                 LOG.debug("Unexpected error while forcing logout after error", t);
