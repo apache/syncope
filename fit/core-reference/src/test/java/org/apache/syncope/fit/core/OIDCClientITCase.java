@@ -128,7 +128,7 @@ public class OIDCClientITCase extends AbstractITCase {
         google = oidcProviderService.read(google.getKey());
         assertTrue(google.isCreateUnmatching());
         assertEquals(userTemplate, google.getUserTemplate());
-        assertNotEquals("fullname", google.getConnObjectKeyItem().getIntAttrName());
-        assertNotEquals("given_name", google.getConnObjectKeyItem().getExtAttrName());
+        assertEquals("fullname", google.getConnObjectKeyItem().getIntAttrName());
+        assertEquals("given_name", google.getConnObjectKeyItem().getExtAttrName());
     }
 }
