@@ -199,18 +199,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         super.invalidate();
     }
 
-    @Override
-    public void invalidateNow() {
-        if (getJWT() != null) {
-            if (client != null) {
-                client.logout();
-            }
-            cleanup();
-        }
-        executor.shutdown();
-        super.invalidateNow();
-    }
-
     public UserTO getSelfTO() {
         return selfTO;
     }
