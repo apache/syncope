@@ -21,6 +21,7 @@ package org.apache.syncope.core.workflow.api;
 import java.util.List;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
+import org.apache.syncope.common.lib.to.WorkflowTaskTO;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 
 public interface WorkflowAdapter {
@@ -65,4 +66,12 @@ public interface WorkflowAdapter {
      * @return object updated by this form submit
      */
     WorkflowResult<? extends AnyPatch> submitForm(WorkflowFormTO form);
+
+    /**
+     * Get tasks available for execution, for given workflow id.
+     * 
+     * @param workflowId workflow id
+     * @return available tasks
+     */
+    List<WorkflowTaskTO> getAvailableTasks(String workflowId);
 }

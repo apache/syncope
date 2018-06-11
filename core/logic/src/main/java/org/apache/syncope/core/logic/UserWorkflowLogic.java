@@ -26,6 +26,7 @@ import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
+import org.apache.syncope.common.lib.to.WorkflowTaskTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -80,8 +81,8 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
         return binder.getUserTO(updated.getResult());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_FORM_READ + "') and hasRole('"
-            + StandardEntitlement.USER_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_FORM_READ + "') "
+            + "and hasRole('" + StandardEntitlement.USER_READ + "')")
     @Transactional(readOnly = true)
     public WorkflowFormTO getFormForUser(final String key) {
         User user = userDAO.authFind(key);
@@ -92,6 +93,13 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
     @Transactional(readOnly = true)
     public List<WorkflowFormTO> getForms() {
         return uwfAdapter.getForms();
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_TASK_LIST + "') "
+            + "and hasRole('" + StandardEntitlement.USER_READ + "')")
+    public List<WorkflowTaskTO> getAvailableTasks(final String key) {
+        User user = userDAO.authFind(key);
+        return uwfAdapter.getAvailableTasks(user.getWorkflowId());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_FORM_SUBMIT + "')")
@@ -121,4 +129,5 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
 
         throw new UnresolvedReferenceException();
     }
+
 }

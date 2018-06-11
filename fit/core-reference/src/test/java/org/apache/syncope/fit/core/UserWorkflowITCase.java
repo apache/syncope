@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.UUID;
 import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
@@ -43,6 +45,7 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
+import org.apache.syncope.common.lib.to.WorkflowTaskTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
@@ -280,6 +283,38 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertEquals("/even/two", approved.getRealm());
         assertEquals(1, approved.getMemberships().size());
         assertNotNull(approved.getMembership("b1f7c12d-ec83-441f-a50e-1691daaedf3b"));
+    }
+
+    @Test
+    public void availableTasks() {
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+
+        UserTO user = createUser(UserITCase.getUniqueSampleTO("availableTasks@apache.org")).getEntity();
+        assertEquals("active", user.getStatus());
+
+        List<WorkflowTaskTO> tasks = userWorkflowService.getAvailableTasks(user.getKey());
+        assertNotNull(tasks);
+        assertTrue(IterableUtils.matchesAny(tasks, new Predicate<WorkflowTaskTO>() {
+
+            @Override
+            public boolean evaluate(final WorkflowTaskTO task) {
+                return "update".equals(task.getName());
+            }
+        }));
+        assertTrue(IterableUtils.matchesAny(tasks, new Predicate<WorkflowTaskTO>() {
+
+            @Override
+            public boolean evaluate(final WorkflowTaskTO task) {
+                return "suspend".equals(task.getName());
+            }
+        }));
+        assertTrue(IterableUtils.matchesAny(tasks, new Predicate<WorkflowTaskTO>() {
+
+            @Override
+            public boolean evaluate(final WorkflowTaskTO task) {
+                return "delete".equals(task.getName());
+            }
+        }));
     }
 
     @Test

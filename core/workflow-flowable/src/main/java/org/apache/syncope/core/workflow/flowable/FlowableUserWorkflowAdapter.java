@@ -34,6 +34,9 @@ import java.util.Set;
 import javax.annotation.Resource;
 import org.activiti.bpmn.converter.BpmnXMLConverter;
 import org.activiti.bpmn.model.BpmnModel;
+import org.activiti.bpmn.model.FlowElement;
+import org.activiti.bpmn.model.Gateway;
+import org.activiti.bpmn.model.SequenceFlow;
 import org.activiti.editor.constants.ModelDataJsonConstants;
 import org.activiti.editor.language.json.converter.BpmnJsonConverter;
 import org.activiti.engine.ActivitiException;
@@ -62,6 +65,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
+import org.apache.syncope.common.lib.to.WorkflowTaskTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.WorkflowFormPropertyType;
@@ -363,7 +367,6 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         String authUser = AuthContextUtils.getUsername();
         engine.getRuntimeService().setVariable(user.getWorkflowId(), FORM_SUBMITTER, authUser);
 
-        LOG.debug("Executing request-certify");
         Set<String> performedTasks = doExecuteTask(user, "request-certify", null);
 
         PropagationByResource propByRes = engine.getRuntimeService().getVariable(
@@ -801,6 +804,50 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
 
         return new WorkflowResult<>(userPatch, propByRes, postTasks);
+    }
+
+    protected void navigateAvailableTasks(final FlowElement flow, final List<String> availableTasks) {
+        if (flow instanceof Gateway) {
+            for (SequenceFlow subflow : ((Gateway) flow).getOutgoingFlows()) {
+                navigateAvailableTasks(subflow, availableTasks);
+            }
+        } else if (flow instanceof SequenceFlow) {
+            availableTasks.add(((SequenceFlow) flow).getTargetRef());
+        } else {
+            LOG.debug("Unexpected flow found: {}", flow);
+        }
+    }
+
+    @Override
+    public List<WorkflowTaskTO> getAvailableTasks(final String workflowId) {
+        List<String> availableTasks = new ArrayList<>();
+        try {
+            Task currentTask = engine.getTaskService().createTaskQuery().processInstanceId(workflowId).singleResult();
+
+            org.activiti.bpmn.model.Process process = engine.getRepositoryService().
+                    getBpmnModel(getProcessDefinitionByKey(WF_PROCESS_ID).getId()).getProcesses().get(0);
+            for (FlowElement flowElement : process.getFlowElements()) {
+                if (flowElement instanceof SequenceFlow) {
+                    SequenceFlow sequenceFlow = (SequenceFlow) flowElement;
+                    if (sequenceFlow.getSourceRef().equals(currentTask.getTaskDefinitionKey())) {
+                        FlowElement target = process.getFlowElementRecursive(sequenceFlow.getTargetRef());
+                        navigateAvailableTasks(target, availableTasks);
+                    }
+                }
+            }
+        } catch (ActivitiException e) {
+            throw new WorkflowException("While reading available tasks for workflow instance " + workflowId, e);
+        }
+
+        return CollectionUtils.collect(availableTasks, new Transformer<String, WorkflowTaskTO>() {
+
+            @Override
+            public WorkflowTaskTO transform(final String input) {
+                WorkflowTaskTO workflowTaskTO = new WorkflowTaskTO();
+                workflowTaskTO.setName(input);
+                return workflowTaskTO;
+            }
+        }, new ArrayList<WorkflowTaskTO>());
     }
 
     protected Model getModel(final ProcessDefinition procDef) {
