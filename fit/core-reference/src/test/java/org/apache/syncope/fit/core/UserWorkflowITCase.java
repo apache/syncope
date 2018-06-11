@@ -44,6 +44,7 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
+import org.apache.syncope.common.lib.to.WorkflowTaskTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
@@ -277,6 +278,20 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertEquals("/even/two", approved.getRealm());
         assertEquals(1, approved.getMemberships().size());
         assertNotNull(approved.getMembership("b1f7c12d-ec83-441f-a50e-1691daaedf3b").get());
+    }
+
+    @Test
+    public void availableTasks() {
+        assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
+
+        UserTO user = createUser(UserITCase.getUniqueSampleTO("availableTasks@apache.org")).getEntity();
+        assertEquals("active", user.getStatus());
+
+        List<WorkflowTaskTO> tasks = userWorkflowService.getAvailableTasks(user.getKey());
+        assertNotNull(tasks);
+        assertTrue(tasks.stream().anyMatch(task -> "update".equals(task.getName())));
+        assertTrue(tasks.stream().anyMatch(task -> "suspend".equals(task.getName())));
+        assertTrue(tasks.stream().anyMatch(task -> "delete".equals(task.getName())));
     }
 
     @Test

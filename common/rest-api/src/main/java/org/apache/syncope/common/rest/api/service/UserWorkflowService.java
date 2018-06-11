@@ -33,6 +33,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
+import org.apache.syncope.common.lib.to.WorkflowTaskTO;
 
 /**
  * REST operations related to user workflow.
@@ -87,6 +88,16 @@ public interface UserWorkflowService extends JAXRSService {
     @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     UserTO submitForm(@NotNull WorkflowFormTO form);
+
+    /**
+     * Returns a list of available tasks for the given user key.
+     *
+     * @param userKey user key
+     * @return list of available tasks for the given user key
+     */
+    @GET
+    @Path("tasks/{userKey}")
+    List<WorkflowTaskTO> getAvailableTasks(@NotNull @PathParam("userKey") String userKey);
 
     /**
      * Executes workflow task for matching id.

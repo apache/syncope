@@ -21,6 +21,7 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.util.List;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
+import org.apache.syncope.common.lib.to.WorkflowTaskTO;
 import org.apache.syncope.common.rest.api.service.UserWorkflowService;
 import org.apache.syncope.core.logic.UserWorkflowLogic;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,11 @@ public class UserWorkflowServiceImpl implements UserWorkflowService {
     @Override
     public List<WorkflowFormTO> getForms() {
         return logic.getForms();
+    }
+
+    @Override
+    public List<WorkflowTaskTO> getAvailableTasks(final String userKey) {
+        return logic.getAvailableTasks(userKey);
     }
 
     @Override

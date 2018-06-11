@@ -43,6 +43,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
+import org.apache.syncope.common.lib.to.WorkflowTaskTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.WorkflowFormPropertyType;
@@ -59,6 +60,10 @@ import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.apache.syncope.core.workflow.java.AbstractUserWorkflowAdapter;
 import org.flowable.bpmn.converter.BpmnXMLConverter;
 import org.flowable.bpmn.model.BpmnModel;
+import org.flowable.bpmn.model.FlowElement;
+import org.flowable.bpmn.model.Gateway;
+import org.flowable.bpmn.model.Process;
+import org.flowable.bpmn.model.SequenceFlow;
 import org.flowable.editor.constants.ModelDataJsonConstants;
 import org.flowable.editor.language.json.converter.BpmnJsonConverter;
 import org.flowable.common.engine.api.FlowableException;
@@ -355,7 +360,6 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         String authUser = AuthContextUtils.getUsername();
         engine.getRuntimeService().setVariable(user.getWorkflowId(), FORM_SUBMITTER, authUser);
 
-        LOG.debug("Executing request-certify");
         Set<String> performedTasks = doExecuteTask(user, "request-certify", null);
 
         PropagationByResource propByRes = engine.getRuntimeService().getVariable(
@@ -793,6 +797,43 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
 
         return new WorkflowResult<>(userPatch, propByRes, postTasks);
+    }
+
+    protected void navigateAvailableTasks(final FlowElement flow, final List<String> availableTasks) {
+        if (flow instanceof Gateway) {
+            ((Gateway) flow).getOutgoingFlows().forEach(subflow -> navigateAvailableTasks(subflow, availableTasks));
+        } else if (flow instanceof SequenceFlow) {
+            availableTasks.add(((SequenceFlow) flow).getTargetRef());
+        } else {
+            LOG.debug("Unexpected flow found: {}", flow);
+        }
+    }
+
+    @Override
+    public List<WorkflowTaskTO> getAvailableTasks(final String workflowId) {
+        List<String> availableTasks = new ArrayList<>();
+        try {
+            Task currentTask = engine.getTaskService().createTaskQuery().processInstanceId(workflowId).singleResult();
+
+            Process process = engine.getRepositoryService().
+                    getBpmnModel(getProcessDefinitionByKey(WF_PROCESS_ID).getId()).getProcesses().get(0);
+            process.getFlowElements().stream().
+                    filter(SequenceFlow.class::isInstance).
+                    map(SequenceFlow.class::cast).
+                    filter(sequenceFlow -> sequenceFlow.getSourceRef().equals(currentTask.getTaskDefinitionKey())).
+                    forEach(sequenceFlow -> {
+                        FlowElement target = process.getFlowElement(sequenceFlow.getTargetRef(), true);
+                        navigateAvailableTasks(target, availableTasks);
+                    });
+        } catch (FlowableException e) {
+            throw new WorkflowException("While reading available tasks for workflow instance " + workflowId, e);
+        }
+
+        return availableTasks.stream().map(input -> {
+            WorkflowTaskTO workflowTaskTO = new WorkflowTaskTO();
+            workflowTaskTO.setName(input);
+            return workflowTaskTO;
+        }).collect(Collectors.toList());
     }
 
     protected Model getModel(final ProcessDefinition procDef) {
