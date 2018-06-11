@@ -28,6 +28,8 @@ import static org.junit.Assert.fail;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.UserWorkflowService;
 import org.apache.syncope.common.to.MembershipTO;
@@ -36,6 +38,7 @@ import org.apache.syncope.common.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.to.WorkflowTaskTO;
 import org.apache.syncope.core.workflow.ActivitiDetector;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
@@ -195,6 +198,38 @@ public class UserWorkflowTestITCase extends AbstractTest {
 
         userTO = updateUser(userMod);
         assertNotNull(userTO);
+    }
+
+    @Test
+    public void availableTasks() {
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+
+        UserTO user = createUser(UserTestITCase.getUniqueSampleTO("availableTasks@apache.org"));
+        assertEquals("active", user.getStatus());
+
+        List<WorkflowTaskTO> tasks = userWorkflowService.getAvailableTasks(user.getId());
+        assertNotNull(tasks);
+        assertTrue(CollectionUtils.exists(tasks, new Predicate() {
+
+            @Override
+            public boolean evaluate(final Object task) {
+                return "update".equals(((WorkflowTaskTO) task).getName());
+            }
+        }));
+        assertTrue(CollectionUtils.exists(tasks, new Predicate() {
+
+            @Override
+            public boolean evaluate(final Object task) {
+                return "suspend".equals(((WorkflowTaskTO) task).getName());
+            }
+        }));
+        assertTrue(CollectionUtils.exists(tasks, new Predicate() {
+
+            @Override
+            public boolean evaluate(final Object task) {
+                return "delete".equals(((WorkflowTaskTO) task).getName());
+            }
+        }));
     }
 
     @Test

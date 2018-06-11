@@ -28,6 +28,7 @@ import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
+import org.apache.syncope.common.to.WorkflowTaskTO;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.ConfDAO;
@@ -226,5 +227,10 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             throws NotFoundException, WorkflowException {
 
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
+    }
+
+    @Override
+    public List<WorkflowTaskTO> getAvailableTasks(final String workflowId) {
+        return Collections.emptyList();
     }
 }

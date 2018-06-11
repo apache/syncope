@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.util.List;
 import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.to.WorkflowFormTO;
+import org.apache.syncope.common.to.WorkflowTaskTO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 
 public interface WorkflowAdapter {
@@ -98,4 +99,12 @@ public interface WorkflowAdapter {
      */
     WorkflowResult<? extends AbstractAttributableMod> submitForm(WorkflowFormTO form)
             throws NotFoundException, WorkflowException;
+
+    /**
+     * Get tasks available for execution, for given workflow id.
+     *
+     * @param workflowId workflow id
+     * @return available tasks
+     */
+    List<WorkflowTaskTO> getAvailableTasks(String workflowId);
 }

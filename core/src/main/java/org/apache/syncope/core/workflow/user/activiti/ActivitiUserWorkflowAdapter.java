@@ -36,6 +36,10 @@ import javax.annotation.Resource;
 import javax.sql.DataSource;
 import org.activiti.bpmn.converter.BpmnXMLConverter;
 import org.activiti.bpmn.model.BpmnModel;
+import org.activiti.bpmn.model.FlowElement;
+import org.activiti.bpmn.model.Gateway;
+import org.activiti.bpmn.model.Process;
+import org.activiti.bpmn.model.SequenceFlow;
 import org.activiti.editor.constants.ModelDataJsonConstants;
 import org.activiti.editor.language.json.converter.BpmnJsonConverter;
 import org.activiti.engine.ActivitiException;
@@ -67,6 +71,7 @@ import org.apache.syncope.common.types.WorkflowFormPropertyType;
 import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.mod.StatusMod;
+import org.apache.syncope.common.to.WorkflowTaskTO;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
@@ -898,5 +903,47 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
 
         return new WorkflowResult<UserMod>(userMod, propByRes, postTasks);
+    }
+
+    protected void navigateAvailableTasks(final FlowElement flow, final List<String> availableTasks) {
+        if (flow instanceof Gateway) {
+            for (SequenceFlow subflow : ((Gateway) flow).getOutgoingFlows()) {
+                navigateAvailableTasks(subflow, availableTasks);
+            }
+        } else if (flow instanceof SequenceFlow) {
+            availableTasks.add(((SequenceFlow) flow).getTargetRef());
+        } else {
+            LOG.debug("Unexpected flow found: {}", flow);
+        }
+    }
+
+    @Override
+    public List<WorkflowTaskTO> getAvailableTasks(final String workflowId) {
+        List<String> availableTasks = new ArrayList<String>();
+        try {
+            Task currentTask = taskService.createTaskQuery().processInstanceId(workflowId).singleResult();
+
+            Process process = repositoryService.
+                    getBpmnModel(getProcessDefinition().getId()).getProcesses().get(0);
+            for (FlowElement flowElement : process.getFlowElements()) {
+                if (flowElement instanceof SequenceFlow) {
+                    SequenceFlow sequenceFlow = (SequenceFlow) flowElement;
+                    if (sequenceFlow.getSourceRef().equals(currentTask.getTaskDefinitionKey())) {
+                        FlowElement target = process.getFlowElementRecursive(sequenceFlow.getTargetRef());
+                        navigateAvailableTasks(target, availableTasks);
+                    }
+                }
+            }
+        } catch (ActivitiException e) {
+            throw new WorkflowException("While reading available tasks for workflow instance " + workflowId, e);
+        }
+
+        List<WorkflowTaskTO> result = new ArrayList<WorkflowTaskTO>(availableTasks.size());
+        for (String task : availableTasks) {
+            WorkflowTaskTO workflowTaskTO = new WorkflowTaskTO();
+            workflowTaskTO.setName(task);
+            result.add(workflowTaskTO);
+        }
+        return result;
     }
 }

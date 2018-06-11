@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
+import org.apache.syncope.common.to.WorkflowTaskTO;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
@@ -125,4 +126,8 @@ public class NoOpRoleWorkflowAdapter extends AbstractRoleWorkflowAdapter {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 
+    @Override
+    public List<WorkflowTaskTO> getAvailableTasks(final String workflowId) {
+        return Collections.emptyList();
+    }
 }

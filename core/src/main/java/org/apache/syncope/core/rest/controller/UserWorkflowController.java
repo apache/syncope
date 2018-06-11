@@ -26,6 +26,7 @@ import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
+import org.apache.syncope.common.to.WorkflowTaskTO;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
@@ -109,6 +110,12 @@ public class UserWorkflowController extends AbstractTransactionalController<Work
         }
 
         return binder.getUserTO(updated.getResult().getId());
+    }
+
+    @PreAuthorize("hasRole('WORKFLOW_TASK_LIST') and hasRole('USER_READ')")
+    public List<WorkflowTaskTO> getAvailableTasks(final Long userId) {
+        SyncopeUser user = binder.getUserFromId(userId);
+        return uwfAdapter.getAvailableTasks(user.getWorkflowId());
     }
 
     @Override
