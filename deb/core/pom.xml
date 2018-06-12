@@ -75,6 +75,7 @@ under the License.
       <artifactId>syncope-ext-camel-provisioning</artifactId>
       <version>${project.version}</version>
     </dependency>
+    
     <dependency>
       <groupId>org.apache.syncope.ext.saml2sp</groupId>
       <artifactId>syncope-ext-saml2sp-rest-cxf</artifactId>
@@ -85,6 +86,7 @@ under the License.
       <artifactId>syncope-ext-saml2sp-persistence-jpa</artifactId>
       <version>${project.version}</version>
     </dependency>
+    
     <dependency>
       <groupId>org.apache.syncope.ext.scimv2</groupId>
       <artifactId>syncope-ext-scimv2-rest-cxf</artifactId>
@@ -93,6 +95,17 @@ under the License.
     <dependency>
       <groupId>org.apache.syncope.ext.scimv2</groupId>
       <artifactId>syncope-ext-scimv2-scim-rest-cxf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.ext.oidcclient</groupId>
+      <artifactId>syncope-ext-oidcclient-rest-cxf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.oidcclient</groupId>
+      <artifactId>syncope-ext-oidcclient-persistence-jpa</artifactId>
       <version>${project.version}</version>
     </dependency>
 
