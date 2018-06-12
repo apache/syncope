@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-Master.driverClassName=net.sourceforge.jtds.jdbc.Driver
+Master.driverClassName=com.microsoft.sqlserver.jdbc.SQLServerDriver
 Master.url=${DB_URL}
 Master.schema=${DB_SCHEMA}
 Master.username=${DB_USER}
