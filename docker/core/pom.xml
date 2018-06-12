@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.apache.syncope</groupId>
+    <artifactId>syncope-docker</artifactId>
+    <version>2.1.0-SNAPSHOT</version>
+  </parent>
+
+  <name>Apache Syncope Docker Core</name>
+  <description>Apache Syncope Docker Core</description>
+  <groupId>org.apache.syncope</groupId>
+  <artifactId>syncope-docker-core</artifactId>
+
+  <properties>
+    <rootpom.basedir>${basedir}/../..</rootpom.basedir>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${jdbc.postgresql.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>${jdbc.mysql.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mariadb.jdbc</groupId>
+      <artifactId>mariadb-java-client</artifactId>
+      <version>${jdbc.mariadb.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.microsoft.sqlserver</groupId>
+      <artifactId>mssql-jdbc</artifactId>
+      <version>${jdbc.mssql.version}8</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope</groupId>
+      <artifactId>syncope-deb-core</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>setup</id>
+            <phase>process-resources</phase>
+            <configuration>
+              <target>
+                <copy file="${settings.localRepository}/org/postgresql/postgresql/${jdbc.postgresql.version}/postgresql-${jdbc.postgresql.version}.jar"
+                      todir="${project.build.directory}/classes" overwrite="true"/>
+                <copy file="${settings.localRepository}/mysql/mysql-connector-java/${jdbc.mysql.version}/mysql-connector-java-${jdbc.mysql.version}.jar"
+                      todir="${project.build.directory}/classes" overwrite="true"/>
+                <copy file="${settings.localRepository}/org/mariadb/jdbc/mariadb-java-client/${jdbc.mariadb.version}/mariadb-java-client-${jdbc.mariadb.version}.jar"
+                      todir="${project.build.directory}/classes" overwrite="true"/>
+                <copy file="${settings.localRepository}/com/microsoft/sqlserver/mssql-jdbc/${jdbc.mssql.version}8/mssql-jdbc-${jdbc.mssql.version}8.jar"
+                      todir="${project.build.directory}/classes" overwrite="true"/>
+
+                <copy file="${basedir}/../../deb/core/target/apache-syncope-${project.version}.deb"
+                      todir="${project.build.directory}/classes" overwrite="true"/>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <configuration>
+          <verbose>true</verbose>
+          <images>
+            <image>
+              <name>apache/syncope:%v</name>
+              <build>
+                <dockerFileDir>${project.build.directory}/classes</dockerFileDir>
+              </build>
+            </image>
+          </images>
+        </configuration>
+        <executions>
+          <execution>
+            <id>remove-syncope-core</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>remove</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>build-syncope-core</id>
+            <phase>package</phase>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>apache-release</id>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <inherited>false</inherited>
+            <configuration>
+              <skipSource>true</skipSource>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>

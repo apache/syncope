@@ -523,7 +523,7 @@ under the License.
         <dependency>
           <groupId>org.postgresql</groupId>
           <artifactId>postgresql</artifactId>
-          <version>42.2.2</version>
+          <version>${jdbc.postgresql.version}</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -570,7 +570,7 @@ under the License.
         <dependency>
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.43</version>
+          <version>${jdbc.mysql.version}</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -606,7 +606,7 @@ under the License.
         <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>1.6.1</version>
+          <version>${jdbc.mariadb.version}</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -678,7 +678,7 @@ under the License.
         <dependency>
           <groupId>com.microsoft.sqlserver</groupId>
           <artifactId>mssql-jdbc</artifactId>
-          <version>6.4.0.jre8</version>
+          <version>${jdbc.mssql.version}8</version>
           <scope>test</scope>
         </dependency>
       </dependencies>

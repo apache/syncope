@@ -495,6 +495,11 @@ under the License.
     <nodejs.version>v6.9.4</nodejs.version>    
     <protractor.version>4.0.14</protractor.version>    
 
+    <jdbc.postgresql.version>42.2.2</jdbc.postgresql.version>
+    <jdbc.mysql.version>5.1.46</jdbc.mysql.version>
+    <jdbc.mariadb.version>2.2.5</jdbc.mariadb.version>
+    <jdbc.mssql.version>6.4.0.jre</jdbc.mssql.version>
+
     <adminUser>admin</adminUser>
     <anonymousUser>anonymous</anonymousUser>
     <adminPassword>DE088591C00CC98B36F5ADAAF7DA2B004CF7F2FE7BBB45B766B6409876E2F3DB13C7905C6AA59464</adminPassword>
@@ -1917,6 +1922,12 @@ under the License.
         </plugin>
 
         <plugin>
+          <groupId>io.fabric8</groupId>
+          <artifactId>docker-maven-plugin</artifactId>
+          <version>0.26.0</version>
+        </plugin>
+
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
           <version>3.1.0</version>
@@ -2553,6 +2564,14 @@ under the License.
       </build>
     </profile>
 
+    <profile>
+      <id>docker</id>
+
+      <modules>
+        <module>docker</module>
+      </modules>
+    </profile>
+    
   </profiles>
   
   <modules>
