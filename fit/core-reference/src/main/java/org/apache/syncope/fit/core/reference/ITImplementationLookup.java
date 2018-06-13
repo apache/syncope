@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
+import org.apache.syncope.common.lib.policy.HaveIBeenPwnedPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.AuditReportletConf;
@@ -65,6 +66,7 @@ import org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddress
 import org.apache.syncope.core.persistence.jpa.dao.DefaultAccountRule;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPasswordRule;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPullCorrelationRule;
+import org.apache.syncope.core.persistence.jpa.dao.HaveIBeenPwnedPasswordRule;
 import org.apache.syncope.core.provisioning.java.propagation.AzurePropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.GoogleAppsPropagationActions;
@@ -121,6 +123,7 @@ public class ITImplementationLookup implements ImplementationLookup {
         {
             put(TestPasswordRuleConf.class, TestPasswordRule.class);
             put(DefaultPasswordRuleConf.class, DefaultPasswordRule.class);
+            put(HaveIBeenPwnedPasswordRuleConf.class, HaveIBeenPwnedPasswordRule.class);
         }
     };
 
