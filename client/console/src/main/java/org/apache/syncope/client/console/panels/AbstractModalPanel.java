@@ -27,7 +27,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.head.HeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.PriorityHeaderItem;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,12 +65,12 @@ public class AbstractModalPanel<T extends Serializable> extends Panel
     }
 
     @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+    public void onSubmit(final AjaxRequestTarget target) {
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 
     @Override
-    public void onError(final AjaxRequestTarget target, final Form<?> form) {
+    public void onError(final AjaxRequestTarget target) {
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 

@@ -31,7 +31,8 @@ import org.apache.wicket.feedback.IFeedback;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 
-public class NotificationPanel extends Panel implements IFeedback, IGenericComponent<List<FeedbackMessage>> {
+public class NotificationPanel extends Panel
+        implements IFeedback, IGenericComponent<List<FeedbackMessage>, NotificationPanel> {
 
     private static final long serialVersionUID = 5895940553202128621L;
 
@@ -63,7 +64,7 @@ public class NotificationPanel extends Panel implements IFeedback, IGenericCompo
     }
 
     public final void refresh(final IPartialPageRequestHandler handler) {
-        for (FeedbackMessage message : this.getModelObject()) {
+        this.getModelObject().forEach(message -> {
             if (message.isError()) {
                 this.notification.error(handler, message.getMessage());
             } else if (message.isWarning()) {
@@ -76,7 +77,7 @@ public class NotificationPanel extends Panel implements IFeedback, IGenericCompo
                 this.notification.warn(handler, message.getMessage());
             }
             message.markRendered();
-        }
+        });
     }
 
     @Override
@@ -91,13 +92,15 @@ public class NotificationPanel extends Panel implements IFeedback, IGenericCompo
     }
 
     @Override
-    public void setModel(final IModel<List<FeedbackMessage>> model) {
+    public NotificationPanel setModel(final IModel<List<FeedbackMessage>> model) {
         this.setDefaultModel(model);
+        return this;
     }
 
     @Override
-    public void setModelObject(final List<FeedbackMessage> object) {
+    public NotificationPanel setModelObject(final List<FeedbackMessage> object) {
         this.setDefaultModelObject(object);
+        return this;
     }
 
     @Override

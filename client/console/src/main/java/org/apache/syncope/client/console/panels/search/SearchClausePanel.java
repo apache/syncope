@@ -57,7 +57,6 @@ import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.CheckBox;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -134,7 +133,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             private static final long serialVersionUID = 5538299138211283825L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target) {
                 if (resultContainer == null) {
                     send(this, Broadcast.BUBBLE, new SearchEvent(target));
                 } else {
@@ -252,7 +251,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 "onkeydown",
                 Model.of("if(event.keyCode == 13) {event.preventDefault();}")));
 
-        field.add(new AjaxEventBehavior("onkeydown") {
+        field.add(new AjaxEventBehavior("keydown") {
 
             private static final long serialVersionUID = -7133385027739964990L;
 
@@ -462,7 +461,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 "onkeydown",
                 Model.of("if(event.keyCode == 13) {event.preventDefault();}")));
 
-        value.getField().add(new IndicatorAjaxEventBehavior("onkeydown") {
+        value.getField().add(new IndicatorAjaxEventBehavior("keydown") {
 
             private static final long serialVersionUID = -7133385027739964990L;
 

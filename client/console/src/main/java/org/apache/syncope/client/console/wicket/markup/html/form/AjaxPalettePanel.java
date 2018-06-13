@@ -175,8 +175,8 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
             private static final long serialVersionUID = -1765773642975892072L;
 
             @Override
-            protected void onAfterSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                super.onAfterSubmit(target, form);
+            protected void onAfterSubmit(final AjaxRequestTarget target) {
+                super.onAfterSubmit(target);
                 target.add(palette);
             }
         });

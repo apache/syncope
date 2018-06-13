@@ -19,11 +19,10 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.Form;
 
 public interface SubmitableModalPanel extends ModalPanel {
 
-    void onSubmit(AjaxRequestTarget target, Form<?> form);
+    void onSubmit(AjaxRequestTarget target);
 
-    void onError(AjaxRequestTarget target, Form<?> form);
+    void onError(AjaxRequestTarget target);
 }

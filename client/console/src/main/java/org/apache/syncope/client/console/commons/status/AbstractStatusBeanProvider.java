@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 
 public abstract class AbstractStatusBeanProvider extends DirectoryDataProvider<StatusBean> {
@@ -51,7 +50,7 @@ public abstract class AbstractStatusBeanProvider extends DirectoryDataProvider<S
 
     @Override
     public IModel<StatusBean> model(final StatusBean statusBean) {
-        return new AbstractReadOnlyModel<StatusBean>() {
+        return new IModel<StatusBean>() {
 
             private static final long serialVersionUID = -7802635613997243712L;
 

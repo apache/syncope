@@ -86,7 +86,7 @@ public class HistoryConfDetails<T extends AbstractHistoryConf> extends Multileve
             private static final long serialVersionUID = -8927036362466990179L;
 
             @Override
-            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            public void onSubmit(final AjaxRequestTarget target) {
                 modal.close(target);
             }
         };
@@ -107,7 +107,7 @@ public class HistoryConfDetails<T extends AbstractHistoryConf> extends Multileve
             private static final long serialVersionUID = -8927036362466990179L;
 
             @Override
-            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            public void onSubmit(final AjaxRequestTarget target) {
                 modal.close(target);
             }
         };

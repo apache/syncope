@@ -38,7 +38,6 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
@@ -160,10 +159,10 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
     }
 
     @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+    public void onSubmit(final AjaxRequestTarget target) {
         if (selectedDetails.size() + selectedPlainSchemas.size() + selectedDerSchemas.size() > MAX_SELECTIONS) {
             SyncopeConsoleSession.get().error(getString("tooManySelections"));
-            onError(target, form);
+            onError(target);
         } else {
             final Map<String, List<String>> prefs = new HashMap<>();
 

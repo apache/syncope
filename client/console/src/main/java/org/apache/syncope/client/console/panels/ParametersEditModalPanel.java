@@ -27,7 +27,6 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.Form;
 
 public class ParametersEditModalPanel extends AbstractModalPanel<AttrTO> {
 
@@ -53,7 +52,7 @@ public class ParametersEditModalPanel extends AbstractModalPanel<AttrTO> {
     }
 
     @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+    public void onSubmit(final AjaxRequestTarget target) {
         try {
             restClient.set(attrTO);
             modal.close(target);

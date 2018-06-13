@@ -55,7 +55,6 @@ import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
@@ -106,7 +105,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
                         private static final long serialVersionUID = -6227956682141146095L;
 
                         @Override
-                        public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                        public void onSubmit(final AjaxRequestTarget target) {
                             try {
                                 if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
                                     restClient.create(schemaType, modelObject);

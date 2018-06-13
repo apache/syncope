@@ -28,7 +28,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +55,7 @@ public class TaskAttributesDetailsView extends MultilevelPanel.SecondLevel {
             private static final long serialVersionUID = -8927036362466990179L;
 
             @Override
-            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            public void onSubmit(final AjaxRequestTarget target) {
                 modal.close(target);
             }
         };

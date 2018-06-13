@@ -92,7 +92,7 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target) {
                 //Add current component
                 model.getObject().add(newModelObject());
 
@@ -104,9 +104,9 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onError(final AjaxRequestTarget target) {
                 SyncopeConsoleSession.get().error(getString(Constants.OPERATION_ERROR));
-                super.onError(target, form);
+                super.onError(target);
                 ((BasePage) getPage()).getNotificationPanel().refresh(target);
             }
 
@@ -157,7 +157,7 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
                 private static final long serialVersionUID = -7978723352517770644L;
 
                 @Override
-                protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                protected void onSubmit(final AjaxRequestTarget target) {
                     //Drop current component
                     model.getObject().remove(item.getModelObject());
                     clearInput(panel);
@@ -170,8 +170,8 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
                 }
 
                 @Override
-                protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                    onSubmit(target, form);
+                protected void onError(final AjaxRequestTarget target) {
+                    onSubmit(target);
                 }
             };
 

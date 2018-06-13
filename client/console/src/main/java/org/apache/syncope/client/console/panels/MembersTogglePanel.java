@@ -77,7 +77,7 @@ public abstract class MembersTogglePanel extends TogglePanel<Serializable> {
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target) {
                 try {
                     onApplyInternal(groupTO, typeModel.getObject(), target);
                     toggle(target, false);
@@ -91,7 +91,7 @@ public abstract class MembersTogglePanel extends TogglePanel<Serializable> {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onError(final AjaxRequestTarget target) {
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         });

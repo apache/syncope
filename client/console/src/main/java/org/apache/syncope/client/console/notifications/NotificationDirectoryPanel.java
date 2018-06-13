@@ -51,7 +51,6 @@ import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
@@ -193,7 +192,7 @@ public class NotificationDirectoryPanel
 
         @Override
         public IModel<NotificationTO> model(final NotificationTO notification) {
-            return new AbstractReadOnlyModel<NotificationTO>() {
+            return new IModel<NotificationTO>() {
 
                 private static final long serialVersionUID = 774694801558497248L;
 

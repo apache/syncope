@@ -46,7 +46,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
@@ -200,7 +199,7 @@ public abstract class ExecutionsDirectoryPanel
         @Override
         public IModel<ExecTO> model(final ExecTO taskExecution) {
 
-            return new AbstractReadOnlyModel<ExecTO>() {
+            return new IModel<ExecTO>() {
 
                 private static final long serialVersionUID = 7485475149862342421L;
 

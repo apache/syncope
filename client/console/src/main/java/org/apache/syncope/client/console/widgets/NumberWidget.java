@@ -106,7 +106,7 @@ public class NumberWidget extends BaseWidget {
                 responsePage = Realms.class;
         }
 
-        AjaxEventBehavior clickToRealms = new AjaxEventBehavior("onmousedown") {
+        AjaxEventBehavior clickToRealms = new AjaxEventBehavior("mousedown") {
 
             private static final long serialVersionUID = -7133385027739964990L;
 

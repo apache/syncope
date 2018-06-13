@@ -139,7 +139,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
             private static final long serialVersionUID = -817438685948164787L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target) {
                 try {
                     if (taskTO instanceof PushTaskTO) {
                         restClient.push(anyTypeKind, anyKey, resource, (PushTaskTO) form.getModelObject());

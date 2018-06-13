@@ -50,7 +50,6 @@ import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -159,7 +158,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
         }
 
         @Override
-        public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+        public void onSubmit(final AjaxRequestTarget target) {
             try {
                 if (policyTO.getKey() == null) {
                     restClient.createPolicy(type, policyTO);

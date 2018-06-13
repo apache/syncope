@@ -27,7 +27,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPasswordFie
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
@@ -88,7 +87,7 @@ public class MustChangePassword extends WebPage {
             private static final long serialVersionUID = 429178684321093953L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target) {
                 try {
                     restClient.changePassword(passwordField.getModelObject());
 
@@ -105,7 +104,7 @@ public class MustChangePassword extends WebPage {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onError(final AjaxRequestTarget target) {
                 notificationPanel.refresh(target);
             }
 

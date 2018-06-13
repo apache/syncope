@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
@@ -128,10 +129,10 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
         addInnerObject(checkGroup);
 
         groupSelector = new CheckGroupSelector("groupselector", checkGroup);
-        addInnerObject(groupSelector.setOutputMarkupId(true)
-                .setOutputMarkupPlaceholderTag(true)
-                .setVisible(this.check.getObject() == CheckAvailability.AVAILABLE)
-                .setEnabled(this.check.getObject() == CheckAvailability.AVAILABLE));
+        addInnerObject(groupSelector.setOutputMarkupId(true).
+                setOutputMarkupPlaceholderTag(true).
+                setVisible(this.check.getObject() == CheckAvailability.AVAILABLE).
+                setEnabled(this.check.getObject() == CheckAvailability.AVAILABLE));
 
         final List<String> toBeIncluded;
         if (includes == null || includes.isEmpty()) {
@@ -235,12 +236,14 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
         // used to perform selectable enabling check condition
         this.check.setObject(check);
 
-        final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
-
-        // reload group selector
-        target.add(groupSelector.setVisible(check == CheckAvailability.AVAILABLE));
-        // reload the list view panel
-        target.add(ListViewPanel.this);
+        Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
+        if (target.isPresent()) {
+            // reload group selector
+            target.get().add(
+                    groupSelector.setVisible(check == CheckAvailability.AVAILABLE), groupSelector.getMarkupId());
+            // reload the list view panel
+            target.get().add(ListViewPanel.this, getMarkupId());
+        }
     }
 
     protected abstract Component getValueComponent(final String key, final T bean);

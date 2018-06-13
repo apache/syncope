@@ -62,7 +62,7 @@ public class JEXLTransformersTogglePanel extends TogglePanel<Serializable> {
             private static final long serialVersionUID = 4617041491286858973L;
 
             @Override
-            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            public void onSubmit(final AjaxRequestTarget target) {
                 toggle(target, false);
                 target.add(container);
             }

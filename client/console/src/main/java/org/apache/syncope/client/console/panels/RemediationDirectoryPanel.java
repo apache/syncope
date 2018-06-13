@@ -74,7 +74,6 @@ import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
@@ -336,7 +335,7 @@ public class RemediationDirectoryPanel
 
         @Override
         public IModel<RemediationTO> model(final RemediationTO remediation) {
-            return new AbstractReadOnlyModel<RemediationTO>() {
+            return new IModel<RemediationTO>() {
 
                 private static final long serialVersionUID = -2566070996511906708L;
 

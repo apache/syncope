@@ -38,7 +38,6 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
@@ -109,7 +108,7 @@ public class Login extends WebPage {
             private static final long serialVersionUID = 429178684321093953L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target) {
                 if (SyncopeConsoleApplication.get().getAnonymousUser().equals(usernameField.getRawInput())) {
                     throw new AccessControlException("Illegal username");
                 }
@@ -201,11 +200,6 @@ public class Login extends WebPage {
             // set default value to English
             getModel().setObject(Locale.ENGLISH);
         }
-
-        @Override
-        protected boolean wantOnSelectionChangedNotifications() {
-            return true;
-        }
     }
 
     /**
@@ -240,11 +234,6 @@ public class Login extends WebPage {
 
             // set default value to Master Domain
             getModel().setObject(SyncopeConstants.MASTER_DOMAIN);
-        }
-
-        @Override
-        protected boolean wantOnSelectionChangedNotifications() {
-            return true;
         }
     }
 }

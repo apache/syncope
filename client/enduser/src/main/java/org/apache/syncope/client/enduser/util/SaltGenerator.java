@@ -21,8 +21,8 @@ package org.apache.syncope.client.enduser.util;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Base64;
 import javax.xml.bind.DatatypeConverter;
-import org.apache.wicket.util.crypt.Base64;
 
 public final class SaltGenerator {
 
@@ -36,7 +36,7 @@ public final class SaltGenerator {
         try {
             md = MessageDigest.getInstance("MD2");
             return DatatypeConverter.printHexBinary(
-                    md.digest((input + Base64.encodeBase64String(salt)).getBytes()));
+                    md.digest((input + Base64.getMimeEncoder().encodeToString(salt)).getBytes()));
         } catch (final NoSuchAlgorithmException e) {
             throw new IllegalArgumentException(e);
         }

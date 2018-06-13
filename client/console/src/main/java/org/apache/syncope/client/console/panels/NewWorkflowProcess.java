@@ -58,7 +58,7 @@ public class NewWorkflowProcess extends TogglePanel<Serializable> {
             private static final long serialVersionUID = 4947613489823025052L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target) {
                 try {
                     restClient.setDefinition(MediaType.APPLICATION_XML_TYPE, key.getModelObject(),
                             IOUtils.toString(
@@ -79,7 +79,7 @@ public class NewWorkflowProcess extends TogglePanel<Serializable> {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onError(final AjaxRequestTarget target) {
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         });

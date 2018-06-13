@@ -61,8 +61,6 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -163,9 +161,9 @@ public class ApprovalDirectoryPanel
                     private static final long serialVersionUID = 5546519445061007248L;
 
                     @Override
-                    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                    public void onSubmit(final AjaxRequestTarget target) {
                         try {
-                            super.onSubmit(target, form);
+                            super.onSubmit(target);
 
                             ApprovalDirectoryPanel.this.getTogglePanel().close(target);
                         } catch (SyncopeClientException e) {
@@ -278,7 +276,7 @@ public class ApprovalDirectoryPanel
 
         @Override
         public IModel<WorkflowFormTO> model(final WorkflowFormTO form) {
-            return new AbstractReadOnlyModel<WorkflowFormTO>() {
+            return new IModel<WorkflowFormTO>() {
 
                 private static final long serialVersionUID = -2566070996511906708L;
 
