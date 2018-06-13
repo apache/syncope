@@ -26,6 +26,7 @@ import javax.sql.DataSource;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
+import org.apache.syncope.common.lib.policy.HaveIBeenPwnedPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.report.AuditReportletConf;
 import org.apache.syncope.common.lib.report.GroupReportletConf;
@@ -54,6 +55,7 @@ import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValida
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultAccountRule;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPasswordRule;
+import org.apache.syncope.core.persistence.jpa.dao.HaveIBeenPwnedPasswordRule;
 import org.apache.syncope.core.provisioning.java.DefaultLogicActions;
 import org.apache.syncope.core.provisioning.java.data.DefaultItemTransformer;
 import org.apache.syncope.core.provisioning.java.propagation.AzurePropagationActions;
@@ -101,6 +103,7 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames = new HashSet<>();
             classNames.add(TestPasswordRuleConf.class.getName());
             classNames.add(DefaultPasswordRuleConf.class.getName());
+            classNames.add(HaveIBeenPwnedPasswordRuleConf.class.getName());
             put(Type.PASSWORD_RULE_CONF, classNames);
 
             classNames = new HashSet<>();
@@ -196,6 +199,7 @@ public class ITImplementationLookup implements ImplementationLookup {
         {
             put(TestPasswordRuleConf.class, TestPasswordRule.class);
             put(DefaultPasswordRuleConf.class, DefaultPasswordRule.class);
+            put(HaveIBeenPwnedPasswordRuleConf.class, HaveIBeenPwnedPasswordRule.class);
         }
     };
 
