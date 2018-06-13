@@ -370,7 +370,7 @@ under the License.
 
     <cxf.version>3.2.5-SNAPSHOT</cxf.version>
 
-    <jackson.version>2.9.5</jackson.version>
+    <jackson.version>2.9.6</jackson.version>
 
     <spring.version>5.0.6.RELEASE</spring.version>
     <spring-security.version>5.0.5.RELEASE</spring-security.version>
