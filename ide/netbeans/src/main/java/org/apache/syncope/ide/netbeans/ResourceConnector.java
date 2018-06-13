@@ -32,9 +32,13 @@ public final class ResourceConnector {
 
     private static ReportTemplateManagerService REPORT_TEMPLATE_MANAGER_SERVICE;
 
+     private static ImplementationManagerService IMPLEMENTATION_MANAGER_SERVICE;
+
     private static final Object MAIL_TEMPLATE_MONITOR = new Object();
 
     private static final Object REPORT_TEMPLATE_MONITOR = new Object();
+
+    private static final Object IMPLEMENTATION_MONITOR = new Object();
 
     private ResourceConnector() {
     }
@@ -61,6 +65,17 @@ public final class ResourceConnector {
         return REPORT_TEMPLATE_MANAGER_SERVICE;
     }
 
+    public static ImplementationManagerService getImplementationManagerService() throws IOException {
+        synchronized (IMPLEMENTATION_MONITOR) {
+            ConnectionParams connParams = getConnectionParams();
+            IMPLEMENTATION_MANAGER_SERVICE = new ImplementationManagerService(
+                    connParams.getUrl(),
+                    connParams.getUsername(),
+                    connParams.getPassword());
+        }
+        return IMPLEMENTATION_MANAGER_SERVICE;
+    }
+    
     public static ConnectionParams getConnectionParams() {
         Preferences prefs = NbPreferences.forModule(ResourceExplorerTopComponent.class);
         return ConnectionParams.builder()
