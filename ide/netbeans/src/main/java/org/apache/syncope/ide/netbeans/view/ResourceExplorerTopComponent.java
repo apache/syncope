@@ -47,13 +47,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.ide.netbeans.PluginConstants;
 import org.apache.syncope.ide.netbeans.ResourceConnector;
 import org.apache.syncope.ide.netbeans.service.MailTemplateManagerService;
 import org.apache.syncope.ide.netbeans.service.ReportTemplateManagerService;
+import org.apache.syncope.ide.netbeans.service.ImplementationManagerService;
 import org.netbeans.api.editor.EditorRegistry;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -106,9 +109,13 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
     private final DefaultMutableTreeNode reportXslts;
 
+    private final DefaultMutableTreeNode groovyScripts;
+
     private MailTemplateManagerService mailTemplateManagerService;
 
     private ReportTemplateManagerService reportTemplateManagerService;
+
+    private ImplementationManagerService implementationManagerService;
 
     private Charset encodingPattern;
 
@@ -123,6 +130,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         visibleRoot = new DefaultMutableTreeNode(PluginConstants.ROOT_NAME);
         mailTemplates = new DefaultMutableTreeNode(PluginConstants.MAIL_TEMPLATES);
         reportXslts = new DefaultMutableTreeNode(PluginConstants.REPORT_XSLTS);
+        groovyScripts = new DefaultMutableTreeNode(PluginConstants.GROOVY_SCRIPTS);
         root.add(visibleRoot);
         initTemplatesTree();
     }
@@ -223,6 +231,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         try {
             mailTemplateManagerService = ResourceConnector.getMailTemplateManagerService();
             reportTemplateManagerService = ResourceConnector.getReportTemplateManagerService();
+            implementationManagerService = ResourceConnector.getImplementationManagerService();
             // init tree, because on close it is reset
             initTemplatesTree();
             // Load templates
@@ -244,16 +253,17 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     progr.progress("Loading Templates.");
                     addMailTemplates();
                     addReportXslts();
+                    addGroovyScripts();
                     progr.finish();
                 }
 
-            };
+           }; 
             REQUEST_PROCESSOR.post(tsk);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Generic Error", JOptionPane.ERROR_MESSAGE);
             ServerDetailsView serverDetails = getRefreshServerDetails();
-        }
-
+        } 
+        
         Runnable tsk = new Runnable() {
 
             @Override
@@ -270,13 +280,14 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                 progr.progress("Loading Templates.");
                 addMailTemplates();
                 addReportXslts();
+                addGroovyScripts();
                 progr.finish();
             }
 
         };
         RequestProcessor.getDefault().post(tsk);
     }
-
+    
     @Override
     public void componentClosed() {
         // TODO add custom code on component closing
@@ -312,6 +323,21 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         treeModel.reload();
     }
 
+    private void addGroovyScripts() {
+        for(ImplementationType type : ImplementationType.values())
+        {
+            DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(type.toString());
+            List<ImplementationTO> scripts = implementationManagerService.list(type);
+            for(ImplementationTO script : scripts) {
+                tempNode.add(new DefaultMutableTreeNode(
+                    script.getKey()));
+            }
+            groovyScripts.add(tempNode);
+        }
+        
+        treeModel.reload();
+    }
+    
     private void rootRightClickAction(final MouseEvent evt) {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem refreshItem = new JMenuItem("Refresh Templates");
@@ -642,6 +668,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     private void initTemplatesTree() {
         visibleRoot.add(mailTemplates);
         visibleRoot.add(reportXslts);
+        visibleRoot.add(groovyScripts);
         treeModel.reload();
     }
 
