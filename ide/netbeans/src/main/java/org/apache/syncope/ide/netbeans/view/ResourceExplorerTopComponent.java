@@ -52,6 +52,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.ide.netbeans.PluginConstants;
 import org.apache.syncope.ide.netbeans.ResourceConnector;
 import org.apache.syncope.ide.netbeans.service.MailTemplateManagerService;
@@ -196,16 +197,21 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         } else if (evt.getButton() == MouseEvent.BUTTON3 && evt.getClickCount() == 1) {
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) resourceExplorerTree.
                     getLastSelectedPathComponent();
+            DefaultMutableTreeNode parent = (DefaultMutableTreeNode) selectedNode.getParent();
+            String parentNodeName = (String) parent.getUserObject();
             String selectedNodeName = (String) selectedNode.getUserObject();
             if (selectedNode.isLeaf()
                     && !PluginConstants.ROOT_NAME.equals(selectedNodeName)
                     && !PluginConstants.MAIL_TEMPLATES.equals(selectedNodeName)
-                    && !PluginConstants.REPORT_XSLTS.equals(selectedNodeName)) {
+                    && !PluginConstants.REPORT_XSLTS.equals(selectedNodeName)
+                    && !PluginConstants.GROOVY_SCRIPTS.equals(parentNodeName)) {
                 leafRightClickAction(evt, selectedNode);
             } else if (PluginConstants.MAIL_TEMPLATES.equals(selectedNodeName)) {
                 folderRightClickAction(evt, mailTemplates);
             } else if (PluginConstants.REPORT_XSLTS.equals(selectedNodeName)) {
                 folderRightClickAction(evt, reportXslts);
+            } else if(PluginConstants.GROOVY_SCRIPTS.equals(parentNodeName)){
+                folderRightClickAction(evt,selectedNode);
             } else if (PluginConstants.ROOT_NAME.equals(selectedNodeName)) {
                 rootRightClickAction(evt);
             }
@@ -290,7 +296,8 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     
     @Override
     public void componentClosed() {
-        // TODO add custom code on component closing
+        // TODO add custom code on component 
+            resetTree();
     }
 
     void writeProperties(final java.util.Properties p) {
@@ -334,7 +341,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             }
             groovyScripts.add(tempNode);
         }
-        
+
         treeModel.reload();
     }
     
@@ -390,6 +397,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 String name = JOptionPane.showInputDialog("Enter Name");
+                DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
                 boolean added = false;
                 if (!"exit".equals(e.getActionCommand())) {
 
@@ -408,6 +416,13 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                         } catch (IOException ex) {
                             Exceptions.printStackTrace(ex);
                         }
+                    } else if((parent.getUserObject().equals(PluginConstants.GROOVY_SCRIPTS))) {
+                            ImplementationTO newNode = new ImplementationTO();
+                            newNode.setKey(name);
+                            newNode.setEngine(ImplementationEngine.GROOVY);
+                            newNode.setType(getType((String)node.getUserObject()));
+                            newNode.setBody("hello");
+                            added = implementationManagerService.create(newNode);
                     } else {
                         ReportTemplateTO reportTemplate = new ReportTemplateTO();
                         reportTemplate.setKey(name);
@@ -455,13 +470,16 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                 int result = JOptionPane.showConfirmDialog(null, "Are you sure to delete the item?");
                 if (result == JOptionPane.OK_OPTION) {
                     DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
-                    boolean deleted;
+                    boolean deleted = false;
                     if (parent.getUserObject().equals(PluginConstants.MAIL_TEMPLATES)) {
                         deleted = mailTemplateManagerService.delete((String) node.getUserObject());
-                    } else {
+                    } else if(parent.getUserObject().equals(PluginConstants.REPORT_XSLTS)) {
                         deleted = reportTemplateManagerService.delete((String) node.getUserObject());
+                    } else {
+                        ImplementationType type = getType((String)parent.getUserObject());
+                        deleted = implementationManagerService.delete(type, (String) node.getUserObject());
                     }
-                    if (deleted) {
+                    if(deleted) {
                         node.removeFromParent();
                         treeModel.reload(parent);
                     } else {
@@ -657,6 +675,17 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             Exceptions.printStackTrace(e);
         }
     }
+    
+    private ImplementationType getType(String typeName){
+        ImplementationType type = null ;
+        for(ImplementationType implType : ImplementationType.values()){
+            if(implType.toString().equals(typeName)) {
+                type = implType ;
+            }
+                
+        }
+        return(type);
+    }
 
     private void closeComponent() {
         boolean isClosed = this.close();
@@ -676,6 +705,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         visibleRoot.removeAllChildren();
         mailTemplates.removeAllChildren();
         reportXslts.removeAllChildren();
+        groovyScripts.removeAllChildren();
         treeModel.reload();
     }
 
