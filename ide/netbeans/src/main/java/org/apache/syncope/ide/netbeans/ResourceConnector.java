@@ -23,6 +23,7 @@ import java.util.prefs.Preferences;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.ide.netbeans.service.MailTemplateManagerService;
 import org.apache.syncope.ide.netbeans.service.ReportTemplateManagerService;
+import org.apache.syncope.ide.netbeans.service.ImplementationManagerService;
 import org.apache.syncope.ide.netbeans.view.ResourceExplorerTopComponent;
 import org.openide.util.NbPreferences;
 
