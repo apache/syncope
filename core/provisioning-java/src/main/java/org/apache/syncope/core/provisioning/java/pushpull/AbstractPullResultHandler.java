@@ -461,7 +461,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
                         AnyPatch anyPatch = null;
                         if (unlink) {
-                            anyPatch = newPatch(key);
+                            anyPatch = getAnyUtils().newAnyPatch(key);
                             anyPatch.getResources().add(new StringPatchItem.Builder().
                                     operation(PatchOperation.DELETE).
                                     value(profile.getTask().getResource().getKey()).build());
@@ -564,7 +564,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                             }
                         }
 
-                        AnyPatch anyPatch = newPatch(before.getKey());
+                        AnyPatch anyPatch = getAnyUtils().newAnyPatch(before.getKey());
                         anyPatch.getResources().add(new StringPatchItem.Builder().
                                 operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
                                 value(profile.getTask().getResource().getKey()).build());

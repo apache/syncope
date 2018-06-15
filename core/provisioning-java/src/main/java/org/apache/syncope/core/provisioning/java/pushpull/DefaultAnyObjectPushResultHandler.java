@@ -41,25 +41,8 @@ public class DefaultAnyObjectPushResultHandler extends AbstractPushResultHandler
     }
 
     @Override
-    protected Any<?> getAny(final String key) {
-        try {
-            return anyObjectDAO.authFind(key);
-        } catch (Exception e) {
-            LOG.warn("Error retrieving anyObject {}", key, e);
-            return null;
-        }
-    }
-
-    @Override
     protected AnyTO getAnyTO(final String key) {
         return anyObjectDataBinder.getAnyObjectTO(key);
-    }
-
-    @Override
-    protected AnyPatch newPatch(final String key) {
-        AnyObjectPatch patch = new AnyObjectPatch();
-        patch.setKey(key);
-        return patch;
     }
 
     @Override

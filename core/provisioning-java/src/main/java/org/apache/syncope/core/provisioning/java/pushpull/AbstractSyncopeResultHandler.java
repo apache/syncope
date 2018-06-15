@@ -20,8 +20,6 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
@@ -29,8 +27,6 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeResultHandler;
-import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
@@ -47,15 +43,6 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
         implements SyncopeResultHandler<T, A> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeResultHandler.class);
-
-    @Autowired
-    protected AnyObjectDAO anyObjectDAO;
-
-    @Autowired
-    protected UserDAO userDAO;
-
-    @Autowired
-    protected GroupDAO groupDAO;
 
     /**
      * Propagation manager.
@@ -104,10 +91,6 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
     protected abstract AnyUtils getAnyUtils();
 
     protected abstract AnyTO getAnyTO(String key);
-
-    protected abstract Any<?> getAny(String key);
-
-    protected abstract AnyPatch newPatch(String key);
 
     protected abstract WorkflowResult<? extends AnyPatch> update(AnyPatch patch);
 

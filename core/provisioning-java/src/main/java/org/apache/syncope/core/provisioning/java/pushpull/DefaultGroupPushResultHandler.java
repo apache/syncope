@@ -41,25 +41,8 @@ public class DefaultGroupPushResultHandler extends AbstractPushResultHandler imp
     }
 
     @Override
-    protected Any<?> getAny(final String key) {
-        try {
-            return groupDAO.authFind(key);
-        } catch (Exception e) {
-            LOG.warn("Error retrieving group {}", key, e);
-            return null;
-        }
-    }
-
-    @Override
     protected AnyTO getAnyTO(final String key) {
         return groupDataBinder.getGroupTO(key);
-    }
-
-    @Override
-    protected AnyPatch newPatch(final String key) {
-        GroupPatch patch = new GroupPatch();
-        patch.setKey(key);
-        return patch;
     }
 
     @Override

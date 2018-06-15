@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.Set;
+import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
@@ -47,6 +48,8 @@ public interface AnyUtils {
     <T extends PlainAttrValue> T clonePlainAttrValue(T src);
 
     <T extends AnyTO> T newAnyTO();
+
+    <P extends AnyPatch> P newAnyPatch(String key);
 
     <A extends Any<?>> AnyDAO<A> dao();
 

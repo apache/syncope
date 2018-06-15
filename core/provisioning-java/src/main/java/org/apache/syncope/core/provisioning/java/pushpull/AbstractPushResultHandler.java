@@ -19,11 +19,11 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -44,7 +44,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -56,6 +55,7 @@ import org.apache.syncope.core.provisioning.api.notification.NotificationManager
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -98,24 +98,15 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     protected void update(final Any<?> any, final ProvisioningReport result) {
-        boolean changepwd;
-        Collection<String> resourceKeys;
-        if (any instanceof User) {
-            changepwd = true;
-            resourceKeys = userDAO.findAllResourceKeys(any.getKey());
-        } else if (any instanceof AnyObject) {
-            changepwd = false;
-            resourceKeys = anyObjectDAO.findAllResourceKeys(any.getKey());
-        } else {
-            changepwd = false;
-            resourceKeys = groupDAO.findAllResourceKeys(any.getKey());
-        }
+        boolean changepwd = any instanceof User;
+        List<String> ownedResources = CollectionUtils.collect(
+                getAnyUtils().getAllResources(any), EntityUtils.keyTransformer(), new ArrayList<String>());
 
-        List<String> noPropResources = new ArrayList<>(resourceKeys);
+        List<String> noPropResources = new ArrayList<>(ownedResources);
         noPropResources.remove(profile.getTask().getResource().getKey());
 
         PropagationByResource propByRes = new PropagationByResource();
-        propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
+        propByRes.add(ResourceOperation.UPDATE, profile.getTask().getResource().getKey());
 
         PropagationReporter reporter = taskExecutor.execute(propagationManager.getUpdateTasks(
                 any.getType().getKind(),
@@ -164,7 +155,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     protected void link(final Any<?> any, final boolean unlink, final ProvisioningReport result) {
-        AnyPatch patch = newPatch(any.getKey());
+        AnyPatch patch = getAnyUtils().newAnyPatch(any.getKey());
         patch.getResources().add(new StringPatchItem.Builder().
                 operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
                 value(profile.getTask().getResource().getKey()).build());
@@ -175,7 +166,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     protected void unassign(final Any<?> any, final ProvisioningReport result) {
-        AnyPatch patch = newPatch(any.getKey());
+        AnyPatch patch = getAnyUtils().newAnyPatch(any.getKey());
         patch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.DELETE).
                 value(profile.getTask().getResource().getKey()).build());
@@ -186,7 +177,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     protected void assign(final Any<?> any, final Boolean enabled, final ProvisioningReport result) {
-        AnyPatch patch = newPatch(any.getKey());
+        AnyPatch patch = getAnyUtils().newAnyPatch(any.getKey());
         patch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).
                 value(profile.getTask().getResource().getKey()).build());
@@ -223,7 +214,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     public boolean handle(final String anyKey) {
         Any<?> any = null;
         try {
-            any = getAny(anyKey);
+            any = getAnyUtils().dao().authFind(anyKey);
             doHandle(any);
             return true;
         } catch (IgnoreProvisionException e) {

@@ -69,25 +69,8 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
     }
 
     @Override
-    protected Any<?> getAny(final String key) {
-        try {
-            return userDAO.authFind(key);
-        } catch (Exception e) {
-            LOG.warn("Error retrieving user {}", key, e);
-            return null;
-        }
-    }
-
-    @Override
     protected AnyTO getAnyTO(final String key) {
         return userDataBinder.getUserTO(key);
-    }
-
-    @Override
-    protected AnyPatch newPatch(final String key) {
-        UserPatch patch = new UserPatch();
-        patch.setKey(key);
-        return patch;
     }
 
     @Override
