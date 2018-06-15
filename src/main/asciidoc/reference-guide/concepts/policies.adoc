@@ -267,12 +267,13 @@ different rule is required
 Pull correlation rules define how to match objects received from <<connector-instance-details,connector instances>>
 with existing Users, Groups or Any Objects.
 
-The 
+The
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/PlainAttrsPullCorrelationRule.java[default^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPullCorrelationRule.java[default^]
+]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/PlainAttrsPullCorrelationRule.java[default^]
+https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPullCorrelationRule.java[default^]
 endif::[]
 implementation attempts to match entities on the basis of the values of the provided plain attributes,
 according to the available <<mapping,mapping>>.
@@ -281,10 +282,10 @@ according to the available <<mapping,mapping>>.
 ====
 Custom pull correlation rules can be provided by <<implementations,implementing>> the
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/PullCorrelationRule.java[PullCorrelationRule^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PullCorrelationRule.java[PullCorrelationRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/PullCorrelationRule.java[PullCorrelationRule^]
+https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PullCorrelationRule.java[PullCorrelationRule^]
 endif::[]
 interface.
 ====
@@ -297,4 +298,32 @@ Push policies are evaluated during the execution of <<tasks-push,push tasks>>.
 [NOTE]
 ====
 When set for resource R, a push policy is enforced on all Users, Groups and Any Objects pushed to R.
+====
+
+===== Push Correlation Rules
+
+Push correlation rules define how to match existing Users, Groups or Any Objects with objects received from
+<<connector-instance-details,connector instances>>.
+
+The
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPushCorrelationRule.java[default^]
+]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPushCorrelationRule.java[default^]
+endif::[]
+implementation attempts to match entities on the basis of the values of the provided plain attributes,
+according to the available <<mapping,mapping>>.
+
+[TIP]
+====
+Custom push correlation rules can be provided by <<implementations,implementing>> the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PushCorrelationRule.java[PushCorrelationRule^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PushCorrelationRule.java[PushCorrelationRule^]
+endif::[]
+interface.
 ====

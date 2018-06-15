@@ -64,9 +64,11 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
 /**
@@ -140,6 +142,9 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAPullPolicy pullPolicy;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private JPAPushPolicy pushPolicy;
 
     /**
      * Configuration properties that are overridden from the connector instance.
@@ -335,6 +340,17 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     public void setPullPolicy(final PullPolicy pullPolicy) {
         checkType(pullPolicy, JPAPullPolicy.class);
         this.pullPolicy = (JPAPullPolicy) pullPolicy;
+    }
+
+    @Override
+    public PushPolicy getPushPolicy() {
+        return pushPolicy;
+    }
+
+    @Override
+    public void setPushPolicy(final PushPolicy pushPolicy) {
+        checkType(pushPolicy, JPAPushPolicy.class);
+        this.pushPolicy = (JPAPushPolicy) pushPolicy;
     }
 
     @Override

@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
@@ -69,25 +68,8 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
     }
 
     @Override
-    protected Any<?> getAny(final String key) {
-        try {
-            return groupDAO.authFind(key);
-        } catch (Exception e) {
-            LOG.warn("Error retrieving group {}", key, e);
-            return null;
-        }
-    }
-
-    @Override
     protected AnyTO getAnyTO(final String key) {
         return groupDataBinder.getGroupTO(key);
-    }
-
-    @Override
-    protected AnyPatch newPatch(final String key) {
-        GroupPatch patch = new GroupPatch();
-        patch.setKey(key);
-        return patch;
     }
 
     @Override

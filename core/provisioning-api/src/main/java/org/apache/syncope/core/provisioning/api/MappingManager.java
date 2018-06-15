@@ -65,6 +65,17 @@ public interface MappingManager {
     List<PlainAttrValue> getIntValues(Provision provision, Item mapItem, IntAttrName intAttrName, Any<?> any);
 
     /**
+     * Prepare attribute for sending to a connector instance.
+     *
+     * @param provision provision information
+     * @param item mapping item
+     * @param any given any object
+     * @param password clear-text password
+     * @return connObjectLink (if it is the case) + prepared attribute
+     */
+    Pair<String, Attribute> prepareAttr(Provision provision, Item item, Any<?> any, String password);
+
+    /**
      * Prepare attributes for sending to a connector instance.
      *
      * @param any given any object

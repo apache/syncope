@@ -25,7 +25,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 /**
- * Test pull rule relying on <tt>email</tt> attribute value.
+ * Test pull rule relying on {@code email} attribute value.
  */
 @CompileStatic
 class TestPullRule implements PullCorrelationRule {

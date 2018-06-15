@@ -18,35 +18,24 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import javax.xml.bind.annotation.XmlSeeAlso;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
+@XmlRootElement(name = "pushPolicy")
 @XmlType
-@XmlSeeAlso({ DefaultPullCorrelationRuleConf.class })
-public abstract class AbstractPullCorrelationRuleConf extends AbstractBaseBean implements PullCorrelationRuleConf {
+@Schema(allOf = { ProvisioningPolicyTO.class, PolicyTO.class })
+public class PushPolicyTO extends ProvisioningPolicyTO {
 
-    private static final long serialVersionUID = -4080475005967851092L;
+    private static final long serialVersionUID = 993024634238024242L;
 
-    private String name;
-
-    public AbstractPullCorrelationRuleConf() {
-        this(StringUtils.EMPTY);
-        setName(getClass().getName());
-    }
-
-    public AbstractPullCorrelationRuleConf(final String name) {
-        super();
-        this.name = name;
-    }
-
+    @XmlTransient
+    @JsonProperty("@class")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.policy.PushPolicyTO")
     @Override
-    public final String getName() {
-        return name;
-    }
-
-    public final void setName(final String name) {
-        this.name = name;
+    public String getDiscriminator() {
+        return getClass().getName();
     }
 }

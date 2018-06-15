@@ -77,6 +77,8 @@ public class ResourceTO extends AbstractBaseBean implements EntityTO {
 
     private String pullPolicy;
 
+    private String pushPolicy;
+
     private final List<ConnConfProperty> confOverride = new ArrayList<>();
 
     private boolean overrideCapabilities = false;
@@ -182,6 +184,14 @@ public class ResourceTO extends AbstractBaseBean implements EntityTO {
 
     public void setPullPolicy(final String pullPolicy) {
         this.pullPolicy = pullPolicy;
+    }
+
+    public String getPushPolicy() {
+        return pushPolicy;
+    }
+
+    public void setPushPolicy(final String pushPolicy) {
+        this.pushPolicy = pushPolicy;
     }
 
     @JsonIgnore

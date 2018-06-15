@@ -16,23 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.policy;
+package org.apache.syncope.core.persistence.api.dao;
 
-import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.Entity;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.identityconnectors.framework.common.objects.filter.Filter;
 
-public interface CorrelationRule extends Entity {
+/**
+ * Interface for correlation rule to be evaluated during PushJob execution.
+ */
+public interface PushCorrelationRule {
 
-    PullPolicy getPullPolicy();
+    default void setConf(PushCorrelationRuleConf conf) {
+    }
 
-    void setPullPolicy(PullPolicy pullPolicy);
-
-    AnyType getAnyType();
-
-    void setAnyType(AnyType anyType);
-
-    Implementation getImplementation();
-
-    void setImplementation(Implementation implementation);
+    /**
+     * Return a search condition.
+     *
+     * @param any user, group or any object
+     * @param provision resource provision
+     * @return search condition.
+     */
+    Filter getFilter(Any<?> any, Provision provision);
 }

@@ -23,31 +23,25 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import org.apache.syncope.common.lib.types.ImplementationType;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.policy.CorrelationRule;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
-import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
+import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 
 @Entity
-@Table(name = JPACorrelationRule.TABLE, uniqueConstraints =
+@Table(name = JPAPullCorrelationRuleEntity.TABLE, uniqueConstraints =
         @UniqueConstraint(columnNames = { "pullPolicy_id", "anyType_id" }))
-public class JPACorrelationRule extends AbstractGeneratedKeyEntity implements CorrelationRule {
+public class JPAPullCorrelationRuleEntity extends AbstractCorrelationRuleEntity implements PullCorrelationRuleEntity {
 
     private static final long serialVersionUID = 4276417265524083919L;
 
-    public static final String TABLE = "CorrelationRule";
+    public static final String TABLE = "PullCorrelationRuleEntity";
 
     @ManyToOne(optional = false)
     private JPAPullPolicy pullPolicy;
 
-    @ManyToOne(optional = false)
-    private JPAAnyType anyType;
-
-    @ManyToOne(optional = false)
-    private JPAImplementation implementation;
+    @Override
+    protected ImplementationType getImplementationType() {
+        return ImplementationType.PULL_CORRELATION_RULE;
+    }
 
     @Override
     public PullPolicy getPullPolicy() {
@@ -59,28 +53,4 @@ public class JPACorrelationRule extends AbstractGeneratedKeyEntity implements Co
         checkType(pullPolicy, JPAPullPolicy.class);
         this.pullPolicy = (JPAPullPolicy) pullPolicy;
     }
-
-    @Override
-    public AnyType getAnyType() {
-        return anyType;
-    }
-
-    @Override
-    public void setAnyType(final AnyType anyType) {
-        checkType(anyType, JPAAnyType.class);
-        this.anyType = (JPAAnyType) anyType;
-    }
-
-    @Override
-    public Implementation getImplementation() {
-        return implementation;
-    }
-
-    @Override
-    public void setImplementation(final Implementation implementation) {
-        checkType(implementation, JPAImplementation.class);
-        checkImplementationType(implementation, ImplementationType.PULL_CORRELATION_RULE);
-        this.implementation = (JPAImplementation) implementation;
-    }
-
 }

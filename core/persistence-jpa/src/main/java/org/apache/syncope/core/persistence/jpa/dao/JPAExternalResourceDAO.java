@@ -45,6 +45,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
@@ -227,6 +228,8 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
             query.append("passwordPolicy");
         } else if (PullPolicy.class.isAssignableFrom(policyClass)) {
             query.append("pullPolicy");
+        } else if (PushPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("pushPolicy");
         }
 
         return query;

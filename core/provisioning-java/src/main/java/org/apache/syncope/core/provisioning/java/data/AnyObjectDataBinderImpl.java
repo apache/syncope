@@ -423,10 +423,10 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         }
 
         // check if some connObjectKey was changed by the update above
-        Map<String, String> newcCnnObjectKeys = getConnObjectKeys(anyObject, anyUtils);
+        Map<String, String> newConnObjectKeys = getConnObjectKeys(anyObject, anyUtils);
         oldConnObjectKeys.entrySet().stream().
-                filter(entry -> newcCnnObjectKeys.containsKey(entry.getKey())
-                && !entry.getValue().equals(newcCnnObjectKeys.get(entry.getKey()))).
+                filter(entry -> newConnObjectKeys.containsKey(entry.getKey())
+                && !entry.getValue().equals(newConnObjectKeys.get(entry.getKey()))).
                 forEach(entry -> {
                     propByRes.addOldConnObjectKey(entry.getKey(), entry.getValue());
                     propByRes.add(ResourceOperation.UPDATE, entry.getKey());

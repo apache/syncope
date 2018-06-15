@@ -212,7 +212,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         profile = new ProvisioningProfile<>(connector, pullTask);
         profile.getActions().addAll(actions);
         profile.setDryRun(dryRun);
-        profile.setResAct(pullTask.getResource().getPullPolicy() == null
+        profile.setConflictResolutionAction(pullTask.getResource().getPullPolicy() == null
                 ? ConflictResolutionAction.IGNORE
                 : pullTask.getResource().getPullPolicy().getConflictResolutionAction());
 

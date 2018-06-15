@@ -36,7 +36,7 @@ import org.apache.syncope.common.lib.to.EntityTO;
 
 @XmlRootElement(name = "policy")
 @XmlType
-@XmlSeeAlso({ AccountPolicyTO.class, PasswordPolicyTO.class, PullPolicyTO.class })
+@XmlSeeAlso({ AccountPolicyTO.class, PasswordPolicyTO.class, ProvisioningPolicyTO.class })
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "@class")
 @JsonPropertyOrder(value = { "@class", "key", "description" })
 @Schema(

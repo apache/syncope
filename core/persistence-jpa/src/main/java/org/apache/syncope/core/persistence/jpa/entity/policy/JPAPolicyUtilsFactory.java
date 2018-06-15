@@ -22,6 +22,7 @@ import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
+import org.apache.syncope.common.lib.policy.PushPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
@@ -67,6 +68,8 @@ public class JPAPolicyUtilsFactory implements PolicyUtilsFactory {
             type = PolicyType.PASSWORD;
         } else if (policyClass == PullPolicyTO.class) {
             type = PolicyType.PULL;
+        } else if (policyClass == PushPolicyTO.class) {
+            type = PolicyType.PUSH;
         } else {
             throw new IllegalArgumentException("Invalid PolicyTO class: " + policyClass.getName());
         }
@@ -78,5 +81,4 @@ public class JPAPolicyUtilsFactory implements PolicyUtilsFactory {
     public PolicyUtils getInstance(final PolicyTO policyTO) {
         return getInstance(policyTO.getClass());
     }
-
 }

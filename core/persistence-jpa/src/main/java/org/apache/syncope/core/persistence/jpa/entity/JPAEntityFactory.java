@@ -131,12 +131,14 @@ import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
-import org.apache.syncope.core.persistence.api.entity.policy.CorrelationRule;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
-import org.apache.syncope.core.persistence.jpa.entity.policy.JPACorrelationRule;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResourceHistoryConf;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnitItem;
+import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
 
 @Component
 public class JPAEntityFactory implements EntityFactory {
@@ -164,8 +166,10 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAPushPolicy();
         } else if (reference.equals(PullPolicy.class)) {
             result = (E) new JPAPullPolicy();
-        } else if (reference.equals(CorrelationRule.class)) {
-            result = (E) new JPACorrelationRule();
+        } else if (reference.equals(PullCorrelationRuleEntity.class)) {
+            result = (E) new JPAPullCorrelationRuleEntity();
+        } else if (reference.equals(PushCorrelationRuleEntity.class)) {
+            result = (E) new JPAPushCorrelationRuleEntity();
         } else if (reference.equals(AnyTypeClass.class)) {
             result = (E) new JPAAnyTypeClass();
         } else if (reference.equals(AnyType.class)) {

@@ -65,6 +65,7 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
@@ -381,6 +382,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resource.setPullPolicy(resourceTO.getPullPolicy() == null
                 ? null : (PullPolicy) policyDAO.find(resourceTO.getPullPolicy()));
 
+        resource.setPushPolicy(resourceTO.getPushPolicy() == null
+                ? null : (PushPolicy) policyDAO.find(resourceTO.getPushPolicy()));
+
         resource.setConfOverride(new HashSet<>(resourceTO.getConfOverride()));
 
         resource.setOverrideCapabilities(resourceTO.isOverrideCapabilities());
@@ -674,6 +678,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         resourceTO.setPullPolicy(resource.getPullPolicy() == null
                 ? null : resource.getPullPolicy().getKey());
+
+        resourceTO.setPushPolicy(resource.getPushPolicy() == null
+                ? null : resource.getPushPolicy().getKey());
 
         resourceTO.getConfOverride().addAll(resource.getConfOverride());
         Collections.sort(resourceTO.getConfOverride());

@@ -684,7 +684,7 @@ public class DefaultRealmPullResultHandler
                 processed.getUid().getUidValue(), processed.getObject().getObjectClass(), keys);
 
         if (keys.size() > 1) {
-            switch (profile.getResAct()) {
+            switch (profile.getConflictResolutionAction()) {
                 case IGNORE:
                     throw new IllegalStateException("More than one match " + keys);
 

@@ -23,12 +23,14 @@ import java.util.Set;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
+import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
+import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
 
 public class DummyImplementationLookup implements ImplementationLookup {
@@ -82,8 +84,14 @@ public class DummyImplementationLookup implements ImplementationLookup {
     }
 
     @Override
+    public Class<? extends PushCorrelationRule> getPushCorrelationRuleClass(
+            final Class<? extends PushCorrelationRuleConf> pushCorrelationRuleConfClass) {
+
+        return null;
+    }
+
+    @Override
     public Set<Class<?>> getAuditAppenderClasses() {
         return Collections.emptySet();
     }
-
 }

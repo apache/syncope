@@ -18,11 +18,15 @@
  */
 package org.apache.syncope.core.persistence.api.entity.policy;
 
-import org.apache.syncope.common.lib.policy.PushPolicySpec;
+import java.util.List;
+import java.util.Optional;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 
-public interface PushPolicy extends Policy {
+public interface PushPolicy extends ProvisioningPolicy {
 
-    PushPolicySpec getSpecification();
+    boolean add(PushCorrelationRuleEntity rule);
 
-    void setSpecification(PushPolicySpec spec);
+    Optional<? extends PushCorrelationRuleEntity> getCorrelationRule(AnyType anyType);
+
+    List<? extends PushCorrelationRuleEntity> getCorrelationRules();
 }

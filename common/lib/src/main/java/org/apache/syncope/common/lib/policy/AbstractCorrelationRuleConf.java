@@ -18,12 +18,35 @@
  */
 package org.apache.syncope.common.lib.policy;
 
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlType
-public class PushPolicySpec extends AbstractBaseBean {
+@XmlSeeAlso({ DefaultPullCorrelationRuleConf.class, DefaultPushCorrelationRuleConf.class })
+public abstract class AbstractCorrelationRuleConf extends AbstractBaseBean implements RuleConf {
 
-    private static final long serialVersionUID = 3641030189482617497L;
+    private static final long serialVersionUID = -4080475005967851092L;
 
+    private String name;
+
+    public AbstractCorrelationRuleConf() {
+        this(StringUtils.EMPTY);
+        setName(getClass().getName());
+    }
+
+    public AbstractCorrelationRuleConf(final String name) {
+        super();
+        this.name = name;
+    }
+
+    @Override
+    public final String getName() {
+        return name;
+    }
+
+    public final void setName(final String name) {
+        this.name = name;
+    }
 }

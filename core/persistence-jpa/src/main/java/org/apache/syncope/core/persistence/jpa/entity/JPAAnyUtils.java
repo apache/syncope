@@ -26,6 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -338,6 +342,33 @@ public class JPAAnyUtils implements AnyUtils {
                 break;
 
             default:
+        }
+
+        return result;
+    }
+
+    @Override
+    public <P extends AnyPatch> P newAnyPatch(final String key) {
+        P result = null;
+
+        switch (anyTypeKind) {
+            case USER:
+                result = (P) new UserPatch();
+                break;
+
+            case GROUP:
+                result = (P) new GroupPatch();
+                break;
+
+            case ANY_OBJECT:
+                result = (P) new AnyObjectPatch();
+                break;
+
+            default:
+        }
+
+        if (result != null) {
+            result.setKey(key);
         }
 
         return result;

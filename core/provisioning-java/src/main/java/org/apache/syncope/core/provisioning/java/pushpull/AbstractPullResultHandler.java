@@ -501,7 +501,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
                         AnyPatch anyPatch = null;
                         if (unlink) {
-                            anyPatch = newPatch(key);
+                            anyPatch = getAnyUtils().newAnyPatch(key);
                             anyPatch.getResources().add(new StringPatchItem.Builder().
                                     operation(PatchOperation.DELETE).
                                     value(profile.getTask().getResource().getKey()).build());
@@ -604,7 +604,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                             }
                         }
 
-                        AnyPatch anyPatch = newPatch(before.getKey());
+                        AnyPatch anyPatch = getAnyUtils().newAnyPatch(before.getKey());
                         anyPatch.getResources().add(new StringPatchItem.Builder().
                                 operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
                                 value(profile.getTask().getResource().getKey()).build());
@@ -804,9 +804,9 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     processed.getUid().getUidValue(), processed.getObject().getObjectClass(), anyKeys);
 
             if (anyKeys.size() > 1) {
-                switch (profile.getResAct()) {
+                switch (profile.getConflictResolutionAction()) {
                     case IGNORE:
-                        throw new IllegalStateException("More than one match " + anyKeys);
+                        throw new IllegalStateException("More than one match: " + anyKeys);
 
                     case FIRSTMATCH:
                         anyKeys = anyKeys.subList(0, 1);
@@ -915,8 +915,10 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             this.latestResult = result;
         }
 
+        AnyUtils anyUtils = getAnyUtils();
+
         notificationManager.createTasks(AuditElements.EventCategoryType.PULL,
-                getAnyUtils().anyTypeKind().name().toLowerCase(),
+                anyUtils.anyTypeKind().name().toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,
                 result,
@@ -926,7 +928,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 furtherInput);
 
         auditManager.audit(AuditElements.EventCategoryType.PULL,
-                getAnyUtils().anyTypeKind().name().toLowerCase(),
+                anyUtils.anyTypeKind().name().toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,
                 result,

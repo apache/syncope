@@ -67,7 +67,7 @@ public class PullPolicyDirectoryPanel extends PolicyDirectoryPanel<PullPolicyTO>
             @Override
             public void onClick(final AjaxRequestTarget target, final PullPolicyTO ignore) {
                 target.add(policySpecModal.setContent(
-                        new PullPolicyModalPanel(model.getObject(), policySpecModal, pageRef)));
+                        new ProvisioningPolicyModalPanel(model.getObject(), policySpecModal, pageRef)));
 
                 policySpecModal.header(new StringResourceModel(
                         "policy.rules", PullPolicyDirectoryPanel.this, Model.of(model.getObject())));

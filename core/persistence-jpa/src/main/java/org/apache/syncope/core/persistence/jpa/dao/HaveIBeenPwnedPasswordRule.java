@@ -77,7 +77,7 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
 
         if (password != null && clearPassword != null) {
             try {
-                final String sha1 = ENCRYPTOR.encode(clearPassword, CipherAlgorithm.SHA1);
+                String sha1 = ENCRYPTOR.encode(clearPassword, CipherAlgorithm.SHA1);
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set(HttpHeaders.USER_AGENT, "Apache Syncope");

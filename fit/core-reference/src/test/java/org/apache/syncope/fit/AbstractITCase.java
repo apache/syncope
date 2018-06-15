@@ -24,13 +24,15 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
@@ -254,7 +256,7 @@ public abstract class AbstractITCase {
     protected static SAML2SPService saml2SpService;
 
     protected static SAML2IdPService saml2IdPService;
-    
+
     protected static OIDCClientService oidcClientService;
 
     protected static OIDCProviderService oidcProviderService;
@@ -555,6 +557,7 @@ public abstract class AbstractITCase {
             ctx = getLdapResourceDirContext(bindDn, bindPwd);
             return ctx.lookup(objectDn);
         } catch (Exception e) {
+            LOG.error("Could not fetch {}", objectDn, e);
             return null;
         } finally {
             if (ctx != null) {
@@ -568,18 +571,23 @@ public abstract class AbstractITCase {
     }
 
     protected void updateLdapRemoteObject(
-            final String bindDn, final String bindPwd, final String objectDn, final Pair<String, String> attribute) {
+            final String bindDn,
+            final String bindPwd,
+            final String objectDn,
+            final Map<String, String> attributes) {
 
         InitialDirContext ctx = null;
         try {
             ctx = getLdapResourceDirContext(bindDn, bindPwd);
 
-            Attribute ldapAttribute = new BasicAttribute(attribute.getKey(), attribute.getValue());
-            ModificationItem[] item = new ModificationItem[1];
-            item[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, ldapAttribute);
-            ctx.modifyAttributes(objectDn, item);
+            List<ModificationItem> items = new ArrayList<>();
+            attributes.forEach((key, value) -> {
+                items.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(key, value)));
+            });
+
+            ctx.modifyAttributes(objectDn, items.toArray(new ModificationItem[] {}));
         } catch (Exception e) {
-            // ignore
+            LOG.error("While updating {} with {}", objectDn, attributes, e);
         } finally {
             if (ctx != null) {
                 try {

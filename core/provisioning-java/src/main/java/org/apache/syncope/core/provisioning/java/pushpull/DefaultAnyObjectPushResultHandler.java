@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPushResultHandler;
 
@@ -37,17 +37,7 @@ public class DefaultAnyObjectPushResultHandler extends AbstractPushResultHandler
 
     @Override
     protected String getName(final Any<?> any) {
-        return StringUtils.EMPTY;
-    }
-
-    @Override
-    protected Any<?> getAny(final String key) {
-        try {
-            return anyObjectDAO.authFind(key);
-        } catch (Exception e) {
-            LOG.warn("Error retrieving anyObject {}", key, e);
-            return null;
-        }
+        return AnyObject.class.cast(any).getName();
     }
 
     @Override
@@ -56,15 +46,7 @@ public class DefaultAnyObjectPushResultHandler extends AbstractPushResultHandler
     }
 
     @Override
-    protected AnyPatch newPatch(final String key) {
-        AnyObjectPatch patch = new AnyObjectPatch();
-        patch.setKey(key);
-        return patch;
-    }
-
-    @Override
     protected WorkflowResult<? extends AnyObjectPatch> update(final AnyPatch patch) {
         return awfAdapter.update((AnyObjectPatch) patch);
     }
-
 }

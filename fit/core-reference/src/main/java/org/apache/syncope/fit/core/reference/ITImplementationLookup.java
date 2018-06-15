@@ -29,9 +29,11 @@ import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
+import org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.HaveIBeenPwnedPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
+import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.AuditReportletConf;
 import org.apache.syncope.common.lib.report.GroupReportletConf;
 import org.apache.syncope.common.lib.report.ReconciliationReportletConf;
@@ -56,6 +58,7 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
+import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -66,6 +69,7 @@ import org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddress
 import org.apache.syncope.core.persistence.jpa.dao.DefaultAccountRule;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPasswordRule;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPullCorrelationRule;
+import org.apache.syncope.core.persistence.jpa.dao.DefaultPushCorrelationRule;
 import org.apache.syncope.core.persistence.jpa.dao.HaveIBeenPwnedPasswordRule;
 import org.apache.syncope.core.provisioning.java.propagation.AzurePropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
@@ -128,7 +132,7 @@ public class ITImplementationLookup implements ImplementationLookup {
     };
 
     private static final Map<
-            Class<? extends PullCorrelationRuleConf>, Class<? extends PullCorrelationRule>> CORRELATION_RULE_CLASSES =
+            Class<? extends PullCorrelationRuleConf>, Class<? extends PullCorrelationRule>> PULL_CR_CLASSES =
             new HashMap<Class<? extends PullCorrelationRuleConf>, Class<? extends PullCorrelationRule>>() {
 
         private static final long serialVersionUID = 3109256773218160485L;
@@ -136,6 +140,18 @@ public class ITImplementationLookup implements ImplementationLookup {
         {
             put(DummyPullCorrelationRuleConf.class, DummyPullCorrelationRule.class);
             put(DefaultPullCorrelationRuleConf.class, DefaultPullCorrelationRule.class);
+        }
+    };
+
+    private static final Map<
+            Class<? extends PushCorrelationRuleConf>, Class<? extends PushCorrelationRule>> PUSH_CR_CLASSES =
+            new HashMap<Class<? extends PushCorrelationRuleConf>, Class<? extends PushCorrelationRule>>() {
+
+        private static final long serialVersionUID = 3109256773218160485L;
+
+        {
+            put(DummyPushCorrelationRuleConf.class, DummyPushCorrelationRule.class);
+            put(DefaultPushCorrelationRuleConf.class, DefaultPushCorrelationRule.class);
         }
     };
 
@@ -203,6 +219,10 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames = new HashSet<>();
             classNames.add(DummyPullCorrelationRule.class.getName());
             put(ImplementationType.PULL_CORRELATION_RULE, classNames);
+
+            classNames = new HashSet<>();
+            classNames.add(DummyPushCorrelationRule.class.getName());
+            put(ImplementationType.PUSH_CORRELATION_RULE, classNames);
 
             classNames = new HashSet<>();
             classNames.add(BasicValidator.class.getName());
@@ -308,7 +328,14 @@ public class ITImplementationLookup implements ImplementationLookup {
     public Class<? extends PullCorrelationRule> getPullCorrelationRuleClass(
             final Class<? extends PullCorrelationRuleConf> pullCorrelationRuleConfClass) {
 
-        return CORRELATION_RULE_CLASSES.get(pullCorrelationRuleConfClass);
+        return PULL_CR_CLASSES.get(pullCorrelationRuleConfClass);
+    }
+
+    @Override
+    public Class<? extends PushCorrelationRule> getPushCorrelationRuleClass(
+            final Class<? extends PushCorrelationRuleConf> pushCorrelationRuleConfClass) {
+
+        return PUSH_CR_CLASSES.get(pushCorrelationRuleConfClass);
     }
 
     @Override

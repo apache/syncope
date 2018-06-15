@@ -39,7 +39,7 @@ public interface JWTSSOProvider extends JwsSignatureVerifier {
 
     /**
      * Attempts to resolve the given JWT claims into internal {@link User} and authorities.
-     * <strong>IMPORTANT</strong>: this is not invoked for the {@code}admin{@code} super-user.
+     * <strong>IMPORTANT</strong>: this is not invoked for the {@code admin} super-user.
      *
      * @param jwtClaims JWT claims
      * @return internal User, with authorities, matching the provided JWT claims, if found; otherwise null

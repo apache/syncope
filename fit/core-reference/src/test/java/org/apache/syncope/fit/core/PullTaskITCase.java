@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
@@ -1213,7 +1214,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 4. update the user on the external resource
             updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
-                    userDn.getValues().get(0), Pair.of("mail", "pullFromLDAP2@syncope.apache.org"));
+                    userDn.getValues().get(0), Collections.singletonMap("mail", "pullFromLDAP2@syncope.apache.org"));
 
             connObject = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
             assertNotNull(connObject);

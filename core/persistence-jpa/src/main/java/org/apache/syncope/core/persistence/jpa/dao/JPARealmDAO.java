@@ -34,7 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.ProvisioningPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,7 +134,7 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
 
     @Override
     public <T extends Policy> List<Realm> findByPolicy(final T policy) {
-        if (PullPolicy.class.isAssignableFrom(policy.getClass())) {
+        if (ProvisioningPolicy.class.isAssignableFrom(policy.getClass())) {
             return Collections.<Realm>emptyList();
         }
 
@@ -234,5 +234,4 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
 
         delete(realm);
     }
-
 }

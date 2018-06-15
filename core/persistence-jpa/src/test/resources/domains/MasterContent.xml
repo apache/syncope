@@ -640,11 +640,18 @@ under the License.
   <PullPolicy id="880f8553-069b-4aed-9930-2cd53873f544" description="another pull policy" conflictResolutionAction="ALL"/>
   <Implementation id="TestPullCorrelationRule" type="PULL_CORRELATION_RULE" engine="JAVA"
                   body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf","name":"org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf","schemas":["username","firstname"]}'/>
-  <CorrelationRule id="10e3d196-7486-4c88-aefd-59e40d93a0c1" pullPolicy_id="880f8553-069b-4aed-9930-2cd53873f544" 
-                   anyType_id="USER" implementation_id="TestPullCorrelationRule"/>
+  <PullCorrelationRuleEntity id="10e3d196-7486-4c88-aefd-59e40d93a0c1" pullPolicy_id="880f8553-069b-4aed-9930-2cd53873f544" 
+                             anyType_id="USER" implementation_id="TestPullCorrelationRule"/>
   <PullPolicy id="4ad10d94-e002-4b3f-b771-16089cc71da9" description="pull policy 1" conflictResolutionAction="IGNORE"/>
   <PullPolicy id="9454b0d7-2610-400a-be82-fc23cf553dd6" description="pull policy for java rule" conflictResolutionAction="IGNORE"/>
 
+  <!-- push policies -->
+  <PushPolicy id="fb6530e5-892d-4f47-a46b-180c5b6c5c83" description="a push policy" conflictResolutionAction="IGNORE"/>
+  <Implementation id="TestPushCorrelationRule" type="PUSH_CORRELATION_RULE" engine="JAVA"
+                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf","name":"org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf","schemas":["email"]}'/>
+  <PushCorrelationRuleEntity id="24463935-32a0-4272-bc78-04d6d0adc69e" pushPolicy_id="fb6530e5-892d-4f47-a46b-180c5b6c5c83" 
+                             anyType_id="USER" implementation_id="TestPushCorrelationRule"/>
+  
   <ConnInstance id="88a7a819-dab5-46b4-9b90-0b9769eabdb8" displayName="ConnInstance100"
                 adminRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 location="${connid.location}"

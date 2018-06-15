@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -54,13 +56,13 @@ public class DefaultPullCorrelationRule implements PullCorrelationRule {
                 collect(Collectors.toMap(Item::getIntAttrName, Function.identity()));
 
         // search for anys by attribute(s) specified in the policy
-        SearchCond searchCond = null;
+        List<SearchCond> searchConds = new ArrayList<>();
 
-        for (String schema : conf.getSchemas()) {
-            Item mappingItem = mappingItems.get(schema);
-            Attribute attr = mappingItem == null
+        conf.getSchemas().forEach(schema -> {
+            Item item = mappingItems.get(schema);
+            Attribute attr = item == null
                     ? null
-                    : connObj.getAttributeByName(mappingItem.getExtAttrName());
+                    : connObj.getAttributeByName(item.getExtAttrName());
             if (attr == null) {
                 throw new IllegalArgumentException(
                         "Connector object does not contains the attributes to perform the search: " + schema);
@@ -80,34 +82,19 @@ public class DefaultPullCorrelationRule implements PullCorrelationRule {
                         : attr.getValue().get(0).toString();
             }
 
-            SearchCond nodeCond;
-            // users: just key or username can be selected
-            // groups: just key or name can be selected
-            // any objects: just key or name can be selected
-            if ("key".equalsIgnoreCase(schema)
-                    || "username".equalsIgnoreCase(schema) || "name".equalsIgnoreCase(schema)) {
+            AttributeCond cond = "key".equalsIgnoreCase(schema)
+                    || "username".equalsIgnoreCase(schema) || "name".equalsIgnoreCase(schema)
+                    ? new AnyCond()
+                    : new AttributeCond();
+            cond.setSchema(schema);
+            cond.setType(type);
+            cond.setExpression(expression);
 
-                AnyCond cond = new AnyCond();
-                cond.setSchema(schema);
-                cond.setType(type);
-                cond.setExpression(expression);
+            searchConds.add(SearchCond.getLeafCond(cond));
+        });
 
-                nodeCond = SearchCond.getLeafCond(cond);
-            } else {
-                AttributeCond cond = new AttributeCond();
-                cond.setSchema(schema);
-                cond.setType(type);
-                cond.setExpression(expression);
-
-                nodeCond = SearchCond.getLeafCond(cond);
-            }
-
-            searchCond = searchCond == null
-                    ? nodeCond
-                    : SearchCond.getAndCond(searchCond, nodeCond);
-        }
-
-        return searchCond;
+        return conf.isOrSchemas()
+                ? SearchCond.getOrCond(searchConds)
+                : SearchCond.getAndCond(searchConds);
     }
-
 }

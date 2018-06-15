@@ -28,7 +28,6 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
@@ -59,25 +58,8 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     }
 
     @Override
-    protected Any<?> getAny(final String key) {
-        try {
-            return userDAO.authFind(key);
-        } catch (Exception e) {
-            LOG.warn("Error retrieving user {}", key, e);
-            return null;
-        }
-    }
-
-    @Override
     protected AnyTO getAnyTO(final String key) {
         return userDataBinder.getUserTO(key);
-    }
-
-    @Override
-    protected AnyPatch newPatch(final String key) {
-        UserPatch patch = new UserPatch();
-        patch.setKey(key);
-        return patch;
     }
 
     @Override

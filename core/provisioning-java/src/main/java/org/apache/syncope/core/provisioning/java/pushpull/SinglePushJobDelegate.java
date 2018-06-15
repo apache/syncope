@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.common.lib.to.PushTaskTO;
+import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
@@ -84,7 +85,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
 
             profile = new ProvisioningProfile<>(connector, pushTask);
             profile.getActions().addAll(actions);
-            profile.setResAct(null);
+            profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
 
             for (PushActions action : actions) {
                 action.beforeAll(profile);

@@ -304,23 +304,18 @@ public class MappingManagerImpl implements MappingManager {
         return Pair.of(connObjectKey, attributes);
     }
 
-    /**
-     * Prepare an attribute to be sent to a connector instance.
-     *
-     * @param provision external resource
-     * @param mapItem mapping item for the given attribute
-     * @param any given any object
-     * @param password clear-text password
-     * @return connObjectKey + prepared attribute
-     */
-    private Pair<String, Attribute> prepareAttr(
-            final Provision provision, final Item mapItem, final Any<?> any, final String password) {
+    @Override
+    public Pair<String, Attribute> prepareAttr(
+            final Provision provision,
+            final Item item,
+            final Any<?> any,
+            final String password) {
 
         IntAttrName intAttrName;
         try {
-            intAttrName = intAttrNameParser.parse(mapItem.getIntAttrName(), provision.getAnyType().getKind());
+            intAttrName = intAttrNameParser.parse(item.getIntAttrName(), provision.getAnyType().getKind());
         } catch (ParseException e) {
-            LOG.error("Invalid intAttrName '{}' specified, ignoring", mapItem.getIntAttrName(), e);
+            LOG.error("Invalid intAttrName '{}' specified, ignoring", item.getIntAttrName(), e);
             return null;
         }
 
@@ -345,13 +340,13 @@ public class MappingManagerImpl implements MappingManager {
             }
         }
 
-        List<PlainAttrValue> values = getIntValues(provision, mapItem, intAttrName, any);
+        List<PlainAttrValue> values = getIntValues(provision, item, intAttrName, any);
 
         LOG.debug("Define mapping for: "
-                + "\n* ExtAttrName " + mapItem.getExtAttrName()
-                + "\n* is connObjectKey " + mapItem.isConnObjectKey()
-                + "\n* is password " + mapItem.isPassword()
-                + "\n* mandatory condition " + mapItem.getMandatoryCondition()
+                + "\n* ExtAttrName " + item.getExtAttrName()
+                + "\n* is connObjectKey " + item.isConnObjectKey()
+                + "\n* is password " + item.isPassword()
+                + "\n* mandatory condition " + item.getMandatoryCondition()
                 + "\n* Schema " + intAttrName.getSchemaName()
                 + "\n* ClassType " + schemaType.getType().getName()
                 + "\n* Values " + values);
@@ -370,9 +365,9 @@ public class MappingManagerImpl implements MappingManager {
                 }
             }
 
-            if (mapItem.isConnObjectKey()) {
+            if (item.isConnObjectKey()) {
                 result = Pair.of(objValues.isEmpty() ? null : objValues.iterator().next().toString(), null);
-            } else if (mapItem.isPassword() && any instanceof User) {
+            } else if (item.isPassword() && any instanceof User) {
                 String passwordAttrValue = password;
                 if (StringUtils.isBlank(passwordAttrValue)) {
                     User user = (User) any;
@@ -398,8 +393,8 @@ public class MappingManagerImpl implements MappingManager {
                 }
             } else {
                 result = Pair.of(null, objValues.isEmpty()
-                        ? AttributeBuilder.build(mapItem.getExtAttrName())
-                        : AttributeBuilder.build(mapItem.getExtAttrName(), objValues));
+                        ? AttributeBuilder.build(item.getExtAttrName())
+                        : AttributeBuilder.build(item.getExtAttrName(), objValues));
             }
         }
 

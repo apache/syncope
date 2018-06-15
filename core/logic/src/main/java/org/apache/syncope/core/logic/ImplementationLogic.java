@@ -189,7 +189,11 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
                 break;
 
             case PULL_CORRELATION_RULE:
-                inUse = !policyDAO.findByCorrelationRule(implementation).isEmpty();
+                inUse = !policyDAO.findByPullCorrelationRule(implementation).isEmpty();
+                break;
+
+            case PUSH_CORRELATION_RULE:
+                inUse = !policyDAO.findByPushCorrelationRule(implementation).isEmpty();
                 break;
 
             case VALIDATOR:

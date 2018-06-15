@@ -20,21 +20,22 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.AbstractPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.policy.JPACorrelationRule;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -44,6 +45,9 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
 
     @Autowired
     private RealmDAO realmDAO;
+
+    @Autowired
+    private ExternalResourceDAO resourceDAO;
 
     private <T extends Policy> Class<? extends AbstractPolicy> getEntityReference(final Class<T> reference) {
         return AccountPolicy.class.isAssignableFrom(reference)
@@ -92,10 +96,20 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
     }
 
     @Override
-    public List<PullPolicy> findByCorrelationRule(final Implementation correlationRule) {
+    public List<PullPolicy> findByPullCorrelationRule(final Implementation correlationRule) {
         TypedQuery<PullPolicy> query = entityManager().createQuery(
-                "SELECT DISTINCT e.pullPolicy FROM " + JPACorrelationRule.class.getSimpleName() + " e "
+                "SELECT DISTINCT e.pullPolicy FROM " + JPAPullCorrelationRuleEntity.class.getSimpleName() + " e "
                 + "WHERE e.implementation=:correlationRule", PullPolicy.class);
+        query.setParameter("correlationRule", correlationRule);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<PushPolicy> findByPushCorrelationRule(final Implementation correlationRule) {
+        TypedQuery<PushPolicy> query = entityManager().createQuery(
+                "SELECT DISTINCT e.pushPolicy FROM " + JPAPushCorrelationRuleEntity.class.getSimpleName() + " e "
+                + "WHERE e.implementation=:correlationRule", PushPolicy.class);
         query.setParameter("correlationRule", correlationRule);
 
         return query.getResultList();
@@ -125,13 +139,25 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
 
     @Override
     public <T extends Policy> void delete(final T policy) {
-        for (Realm realm : realmDAO.findByPolicy(policy)) {
+        realmDAO.findByPolicy(policy).forEach(realm -> {
             if (policy instanceof AccountPolicy) {
                 realm.setAccountPolicy(null);
             } else if (policy instanceof PasswordPolicy) {
                 realm.setPasswordPolicy(null);
             }
-        }
+        });
+
+        resourceDAO.findByPolicy(policy).forEach(resource -> {
+            if (policy instanceof AccountPolicy) {
+                resource.setAccountPolicy(null);
+            } else if (policy instanceof PasswordPolicy) {
+                resource.setPasswordPolicy(null);
+            } else if (policy instanceof PullPolicy) {
+                resource.setPullPolicy(null);
+            } else if (policy instanceof PushPolicy) {
+                resource.setPushPolicy(null);
+            }
+        });
 
         entityManager().remove(policy);
     }

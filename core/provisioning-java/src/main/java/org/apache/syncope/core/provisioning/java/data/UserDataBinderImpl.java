@@ -525,10 +525,10 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
 
         // check if some connObjectKey was changed by the update above
-        Map<String, String> newcCnnObjectKeys = getConnObjectKeys(user, anyUtils);
+        Map<String, String> newConnObjectKeys = getConnObjectKeys(user, anyUtils);
         oldConnObjectKeys.entrySet().stream().
-                filter(entry -> newcCnnObjectKeys.containsKey(entry.getKey())
-                && !entry.getValue().equals(newcCnnObjectKeys.get(entry.getKey()))).
+                filter(entry -> newConnObjectKeys.containsKey(entry.getKey())
+                && !entry.getValue().equals(newConnObjectKeys.get(entry.getKey()))).
                 forEach(entry -> {
                     propByRes.addOldConnObjectKey(entry.getKey(), entry.getValue());
                     propByRes.add(ResourceOperation.UPDATE, entry.getKey());

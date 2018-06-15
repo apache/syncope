@@ -135,7 +135,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
 
             profile = new ProvisioningProfile<>(connector, pullTask);
             profile.setDryRun(false);
-            profile.setResAct(ConflictResolutionAction.FIRSTMATCH);
+            profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
             profile.getActions().addAll(actions);
 
             for (PullActions action : actions) {

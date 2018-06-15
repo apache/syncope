@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import org.apache.syncope.common.lib.policy.AbstractPullCorrelationRuleConf;
+import org.apache.syncope.common.lib.policy.AbstractCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 
 public class DummyPullCorrelationRuleConf
-        extends AbstractPullCorrelationRuleConf implements PullCorrelationRuleConf {
+        extends AbstractCorrelationRuleConf implements PullCorrelationRuleConf {
 
     private static final long serialVersionUID = -2984203196323732531L;
 
