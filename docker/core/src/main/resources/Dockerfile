@@ -29,7 +29,7 @@ COPY *.properties /etc/apache-syncope/
 COPY Master.properties.* /etc/apache-syncope/domains/
 
 COPY build.sh /tmp
-RUN chmod 755 /tmp/build.sh && /tmp/build.sh && rm /tmp/build.sh
+RUN chmod 755 /tmp/build.sh && sync && /tmp/build.sh && rm /tmp/build.sh
 
 COPY startup.sh /sbin
 RUN chmod 755 /sbin/startup.sh

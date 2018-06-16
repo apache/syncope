@@ -26,7 +26,7 @@ COPY *.properties.template /etc/apache-syncope/
 COPY activiti-modeler/ /etc/apache-syncope/activiti-modeler/
 
 COPY build.sh /tmp
-RUN chmod 755 /tmp/build.sh && /tmp/build.sh && rm /tmp/build.sh
+RUN chmod 755 /tmp/build.sh && sync && /tmp/build.sh && rm /tmp/build.sh
 
 COPY startup.sh /sbin
 RUN chmod 755 /sbin/startup.sh
