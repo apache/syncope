@@ -1888,6 +1888,13 @@ under the License.
             <runOrder>alphabetical</runOrder>
             <argLine>-Xms512m -Xmx1024m -Xss256k</argLine>
           </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.junit.platform</groupId>
+              <artifactId>junit-platform-surefire-provider</artifactId>
+              <version>1.2.0</version>
+            </dependency>
+          </dependencies>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -1899,6 +1906,13 @@ under the License.
             <runOrder>alphabetical</runOrder>
             <argLine>-Xms512m -Xmx1024m -Xss256k</argLine>
           </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.junit.platform</groupId>
+              <artifactId>junit-platform-surefire-provider</artifactId>
+              <version>1.2.0</version>
+            </dependency>
+          </dependencies>
           <executions>
             <execution>
               <goals>
