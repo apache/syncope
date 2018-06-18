@@ -81,6 +81,17 @@ public class ResourceSecurityPanel extends WizardStep {
         }
     };
 
+    private final IModel<Map<String, String>> pushPolicies = new LoadableDetachableModel<Map<String, String>>() {
+
+        private static final long serialVersionUID = 9089911876466472133L;
+
+        @Override
+        protected Map<String, String> load() {
+            return policyRestClient.getPolicies(PolicyType.PUSH).stream().
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
+        }
+    };
+
     public ResourceSecurityPanel(final ResourceTO resourceTO) {
         super();
         setOutputMarkupId(true);
@@ -130,6 +141,20 @@ public class ResourceSecurityPanel extends WizardStep {
         pullPolicy.setChoices(new ArrayList<>(pullPolicies.getObject().keySet()));
         ((DropDownChoice<?>) pullPolicy.getField()).setNullValid(true);
         container.add(pullPolicy);
+        // -------------------------------
+
+        // -------------------------------
+        // Pull policy selection
+        // -------------------------------
+        AjaxDropDownChoicePanel<String> pushPolicy = new AjaxDropDownChoicePanel<>(
+                "pushPolicy",
+                new ResourceModel("pushPolicy", "pushPolicy").getObject(),
+                new PropertyModel<>(resourceTO, "pushPolicy"),
+                false);
+        pushPolicy.setChoiceRenderer(new PolicyRenderer(pushPolicies));
+        pushPolicy.setChoices(new ArrayList<>(pushPolicies.getObject().keySet()));
+        ((DropDownChoice<?>) pushPolicy.getField()).setNullValid(true);
+        container.add(pushPolicy);
         // -------------------------------
     }
 }
