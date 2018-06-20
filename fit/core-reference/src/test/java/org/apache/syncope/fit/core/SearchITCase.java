@@ -275,6 +275,15 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(users);
         assertEquals(1, users.getTotalCount());
         assertEquals(1, users.getResult().size());
+
+        // SYNCOPE-1321
+        PagedResult<UserTO> issueSYNCOPE1321 = userService.search(new AnyQuery.Builder().
+                realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("lastLoginDate").lexicalNotBefore("2016-03-02T15:21:22+0300").
+                        and("username").equalTo("bellini").query()).
+                build());
+        assertEquals(users, issueSYNCOPE1321);
     }
 
     @Test
