@@ -23,6 +23,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.apache.cxf.jaxrs.ext.search.ConditionType;
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
@@ -49,6 +50,8 @@ import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
  * Visits CXF's {@link SearchBean} and produces {@link SearchCond}.
  */
 public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean, SearchCond> {
+
+    private static final Pattern TIMEZONE = Pattern.compile(".* [0-9]{4}$");
 
     private String realm;
 
@@ -79,6 +82,13 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
             value = SearchUtils.toSqlWildcardString(
                     URLDecoder.decode(sc.getStatement().getValue().toString(), StandardCharsets.UTF_8.name()), false).
                     replaceAll("\\\\_", "_");
+
+            // see SYNCOPE-1321
+            if (TIMEZONE.matcher(value).matches()) {
+                char[] valueAsArray = value.toCharArray();
+                valueAsArray[valueAsArray.length - 5] = '+';
+                value = new String(valueAsArray);
+            }
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException("While decoding " + sc.getStatement().getValue(), e);
         }
