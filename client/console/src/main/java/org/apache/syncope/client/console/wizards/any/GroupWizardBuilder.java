@@ -91,6 +91,8 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
         if (inner.getKey() == null) {
             result = groupRestClient.create(inner);
         } else {
+            inner.getPlainAttrs().clear();
+            inner.getPlainAttrs().addAll(cleanEmptyPlainAttrs(inner.getPlainAttrs()));
             GroupPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
             GroupTO originaObj = getOriginalItem().getInnerObject();
 
