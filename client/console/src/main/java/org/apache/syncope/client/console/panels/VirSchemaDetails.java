@@ -128,7 +128,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 if (selectedResource != null) {
-                    String adminRealm = getAdminRealm(selectedResource.getKey());
+                    String adminRealm = getAdminRealm(selectedResource.getConnector());
 
                     if (SyncopeConsoleSession.get().owns(StandardEntitlement.CONNECTOR_READ, adminRealm)) {
                         extAttrName.setChoices(getExtAttrNames());
