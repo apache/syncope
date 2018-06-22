@@ -23,10 +23,10 @@ under the License.
          class="breadcrumb-header">
 
       <div id="attribute" class="form-group" ng-repeat="plainSchema in getByGroup(groupSchema) track by $index">
-        <label for="plainSchema.key">{{plainSchema.simpleKey| translate}} <span ng-if="plainSchema.mandatoryCondition === 'true'">*</span></label>
+        <label for="plainSchema.key">{{plainSchema.labels[language] || plainSchema.simpleKey}} <span ng-if="plainSchema.mandatoryCondition === 'true'">*</span></label>
         <div ng-if="!plainSchema.multivalue">
           <dynamic-plain-attribute schema="plainSchema" user="user" index="0"></dynamic-plain-attribute>
-          <validation-message name="{{plainSchema.key| translate}}"/>
+          <validation-message name="{{plainSchema.key}}"/>
         </div>
         
         <div ng-if="plainSchema.multivalue">

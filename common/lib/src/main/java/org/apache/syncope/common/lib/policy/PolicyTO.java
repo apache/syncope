@@ -58,7 +58,7 @@ public abstract class PolicyTO extends AbstractBaseBean implements EntityTO {
 
     private final List<String> usedByRealms = new ArrayList<>();
 
-    @Schema(name = "@class", required = true, readOnly = false)
+    @Schema(name = "@class", required = true)
     public abstract String getDiscriminator();
 
     public void setDiscriminator(final String discriminator) {

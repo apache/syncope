@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -115,17 +114,8 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
     }
 
     protected Iterator<String> getChoices(final String input) {
-        final Pattern pattern = Pattern.compile(".*" + Pattern.quote(input) + ".*", Pattern.CASE_INSENSITIVE);
-
-        final List<String> result = new ArrayList<>();
-
-        for (String choice : choices) {
-            if (pattern.matcher(choice).matches()) {
-                result.add(choice);
-            }
-        }
-
-        return result.iterator();
+        Pattern pattern = Pattern.compile(".*" + Pattern.quote(input) + ".*", Pattern.CASE_INSENSITIVE);
+        return choices.stream().filter(choice -> pattern.matcher(choice).matches()).iterator();
     }
 
     @Override

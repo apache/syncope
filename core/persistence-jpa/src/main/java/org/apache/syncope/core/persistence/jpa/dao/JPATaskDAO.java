@@ -191,7 +191,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         StringBuilder queryString = buildFindAllQueryJPA(type).append("AND ");
 
         if (type == TaskType.NOTIFICATION) {
-            queryString.append("t.executed = 0 ");
+            queryString.append("t.executed = false ");
         } else {
             queryString.append("t.executions IS EMPTY ");
         }

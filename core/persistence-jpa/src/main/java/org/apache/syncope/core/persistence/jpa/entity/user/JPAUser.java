@@ -23,7 +23,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -44,8 +43,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
@@ -154,15 +151,9 @@ public class JPAUser
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastRecertification;
 
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer suspended = getBooleanAsInteger(Boolean.FALSE);
+    private Boolean suspended = false;
 
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer mustChangePassword = getBooleanAsInteger(Boolean.FALSE);
+    private Boolean mustChangePassword = false;
 
     /**
      * Provisioning external resources.
@@ -419,11 +410,9 @@ public class JPAUser
 
     @Override
     public void setLastRecertification(final Date lastRecertification) {
-        if (lastRecertification != null) {
-            this.lastRecertification = new Date(lastRecertification.getTime());
-        } else {
-            this.lastRecertification = null;
-        }
+        this.lastRecertification = lastRecertification == null
+                ? null
+                : new Date(lastRecertification.getTime());
     }
 
     @Override
@@ -438,22 +427,22 @@ public class JPAUser
 
     @Override
     public void setSuspended(final Boolean suspended) {
-        this.suspended = getBooleanAsInteger(suspended);
+        this.suspended = suspended;
     }
 
     @Override
     public Boolean isSuspended() {
-        return suspended == null ? null : isBooleanAsInteger(suspended);
+        return suspended;
     }
 
     @Override
     public void setMustChangePassword(final boolean mustChangePassword) {
-        this.mustChangePassword = getBooleanAsInteger(mustChangePassword);
+        this.mustChangePassword = mustChangePassword;
     }
 
     @Override
     public boolean isMustChangePassword() {
-        return isBooleanAsInteger(mustChangePassword);
+        return mustChangePassword;
     }
 
     @Override

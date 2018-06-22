@@ -39,7 +39,6 @@ import org.apache.syncope.common.lib.to.TemplatableTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.WindowClosedCallback;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -187,26 +186,20 @@ public class Realms extends BasePage {
 
             @Override
             protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
-                modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+                modal.setWindowClosedCallback(target -> {
+                    if (modal.getContent() instanceof ResultPage) {
+                        Serializable result = ResultPage.class.cast(modal.getContent()).getResult();
 
-                    private static final long serialVersionUID = 8804221891699487139L;
-
-                    @Override
-                    public void onClose(final AjaxRequestTarget target) {
-                        if (modal.getContent() instanceof ResultPage) {
-                            Serializable result = ResultPage.class.cast(modal.getContent()).getResult();
-
-                            RealmTO newRealmTO = RealmTO.class.cast(ProvisioningResult.class.cast(result).getEntity());
-                            // reload realmChoicePanel label too - SYNCOPE-1151
-                            target.add(realmChoicePanel.reloadRealmTree(target, Model.of(newRealmTO)));
-                            realmChoicePanel.setCurrentRealm(newRealmTO);
-                            send(Realms.this, Broadcast.DEPTH, new ChosenRealm<>(newRealmTO, target));
-                        } else {
-                            target.add(realmChoicePanel.reloadRealmTree(target));
-                        }
-                        target.add(content);
-                        modal.show(false);
+                        RealmTO newRealmTO = RealmTO.class.cast(ProvisioningResult.class.cast(result).getEntity());
+                        // reload realmChoicePanel label too - SYNCOPE-1151
+                        target.add(realmChoicePanel.reloadRealmTree(target, Model.of(newRealmTO)));
+                        realmChoicePanel.setCurrentRealm(newRealmTO);
+                        send(Realms.this, Broadcast.DEPTH, new ChosenRealm<>(newRealmTO, target));
+                    } else {
+                        target.add(realmChoicePanel.reloadRealmTree(target));
                     }
+                    target.add(content);
+                    modal.show(false);
                 });
             }
 

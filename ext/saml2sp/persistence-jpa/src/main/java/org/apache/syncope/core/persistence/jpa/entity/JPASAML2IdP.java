@@ -34,8 +34,7 @@ import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
@@ -66,30 +65,20 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "idp")
     private List<JPASAML2IdPItem> items = new ArrayList<>();
 
-    @Min(0)
-    @Max(1)
-    @Column(nullable = false)
-    private Integer createUnmatching;
+    @NotNull
+    private Boolean createUnmatching = false;
 
-    @Min(0)
-    @Max(1)
-    @Column(nullable = false)
-    private Integer selfRegUnmatching;
+    @NotNull
+    private Boolean selfRegUnmatching = false;
 
-    @Min(0)
-    @Max(1)
-    @Column(nullable = false)
-    private Integer updateMatching;
+    @NotNull
+    private Boolean updateMatching = false;
 
-    @Min(0)
-    @Max(1)
-    @Column(nullable = false)
-    private Integer useDeflateEncoding;
+    @NotNull
+    private Boolean useDeflateEncoding = false;
 
-    @Min(0)
-    @Max(1)
-    @Column(nullable = false)
-    private Integer supportUnsolicited;
+    @NotNull
+    private Boolean supportUnsolicited = false;
 
     @Column(nullable = false)
     private SAML2BindingType bindingType;
@@ -136,52 +125,52 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
 
     @Override
     public boolean isCreateUnmatching() {
-        return isBooleanAsInteger(createUnmatching);
+        return createUnmatching;
     }
 
     @Override
     public void setCreateUnmatching(final boolean createUnmatching) {
-        this.createUnmatching = getBooleanAsInteger(createUnmatching);
+        this.createUnmatching = createUnmatching;
     }
 
     @Override
     public boolean isSelfRegUnmatching() {
-        return isBooleanAsInteger(selfRegUnmatching);
+        return selfRegUnmatching;
     }
 
     @Override
     public void setSelfRegUnmatching(final boolean selfRegUnmatching) {
-        this.selfRegUnmatching = getBooleanAsInteger(selfRegUnmatching);
+        this.selfRegUnmatching = selfRegUnmatching;
     }
 
     @Override
     public boolean isUpdateMatching() {
-        return isBooleanAsInteger(updateMatching);
+        return updateMatching;
     }
 
     @Override
     public void setUpdateMatching(final boolean updateMatching) {
-        this.updateMatching = getBooleanAsInteger(updateMatching);
+        this.updateMatching = updateMatching;
     }
 
     @Override
     public boolean isUseDeflateEncoding() {
-        return isBooleanAsInteger(useDeflateEncoding);
+        return useDeflateEncoding;
     }
 
     @Override
     public void setUseDeflateEncoding(final boolean useDeflateEncoding) {
-        this.useDeflateEncoding = getBooleanAsInteger(useDeflateEncoding);
+        this.useDeflateEncoding = useDeflateEncoding;
     }
 
     @Override
     public boolean isSupportUnsolicited() {
-        return isBooleanAsInteger(supportUnsolicited);
+        return supportUnsolicited;
     }
 
     @Override
     public void setSupportUnsolicited(final boolean supportUnsolicited) {
-        this.supportUnsolicited = getBooleanAsInteger(supportUnsolicited);
+        this.supportUnsolicited = supportUnsolicited;
     }
 
     @Override

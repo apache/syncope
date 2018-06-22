@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.EntityTOUtils;
@@ -64,13 +65,13 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
 
             @Override
             public WebMarkupContainer getPanel(final String panelId) {
-                return new DerAttrs.DerSchemas(panelId, attrTOs);
+                return new DerAttrs.DerSchemas(panelId, schemas, attrTOs);
             }
         }), Model.of(0)).setOutputMarkupId(true));
 
         add(new ListView<MembershipTO>("membershipsDerSchemas", membershipTOs) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 6741044372185745296L;
 
             @Override
             protected void populateItem(final ListItem<MembershipTO> item) {
@@ -85,7 +86,10 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
 
                     @Override
                     public WebMarkupContainer getPanel(final String panelId) {
-                        return new DerAttrs.DerSchemas(panelId, new ListModel<>(getAttrsFromTO(membershipTO)));
+                        return new DerAttrs.DerSchemas(
+                                panelId,
+                                membershipSchemas.get(membershipTO.getGroupKey()),
+                                new ListModel<>(getAttrsFromTO(membershipTO)));
                     }
                 }), Model.of(-1)).setOutputMarkupId(true));
             }
@@ -133,7 +137,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
 
         Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(anyTO.getDerAttrs());
 
-        for (DerSchemaTO schema : membershipSchemas.get(membershipTO.getGroupKey()).values()) {
+        membershipSchemas.get(membershipTO.getGroupKey()).values().forEach(schema -> {
             AttrTO attrTO = new AttrTO();
             attrTO.setSchema(schema.getKey());
             if (attrMap.containsKey(schema.getKey())) {
@@ -141,7 +145,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
             }
 
             attrs.add(attrTO);
-        }
+        });
 
         membershipTO.getDerAttrs().clear();
         membershipTO.getDerAttrs().addAll(attrs);
@@ -151,7 +155,10 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
 
         private static final long serialVersionUID = -4730563859116024676L;
 
-        public DerSchemas(final String id, final IModel<List<AttrTO>> attrTOs) {
+        public DerSchemas(
+                final String id,
+                final Map<String, DerSchemaTO> schemas,
+                final IModel<List<AttrTO>> attrTOs) {
             super(id);
 
             add(new ListView<AttrTO>("schemas", attrTOs) {
@@ -176,7 +183,11 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
                         model = new Model<>(values.get(0));
                     }
 
-                    AjaxTextFieldPanel panel = new AjaxTextFieldPanel("panel", attrTO.getSchema(), model, false);
+                    AjaxTextFieldPanel panel = new AjaxTextFieldPanel(
+                            "panel",
+                            schemas.get(attrTO.getSchema()).getLabel(SyncopeConsoleSession.get().getLocale()),
+                            model,
+                            false);
                     panel.setEnabled(false);
                     panel.setRequired(true);
                     panel.setOutputMarkupId(true);

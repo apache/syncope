@@ -131,6 +131,7 @@ import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
+import org.apache.syncope.core.persistence.api.entity.SchemaLabel;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullCorrelationRuleEntity;
@@ -218,6 +219,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAConnInstance();
         } else if (reference.equals(ConnInstanceHistoryConf.class)) {
             result = (E) new JPAConnInstanceHistoryConf();
+        } else if (reference.equals(SchemaLabel.class)) {
+            result = (E) new JPASchemaLabel();
         } else if (reference.equals(PlainSchema.class)) {
             result = (E) new JPAPlainSchema();
         } else if (reference.equals(APlainAttr.class)) {

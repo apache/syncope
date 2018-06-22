@@ -57,7 +57,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
     private static final long serialVersionUID = -3731778000138547357L;
 
     public RelationshipTypesPanel(final String id, final PageReference pageRef) {
-        super(id, pageRef);
+        super(id, false, pageRef);
         this.restClient = new RelationshipTypeRestClient();
         disableCheckBoxes();
 

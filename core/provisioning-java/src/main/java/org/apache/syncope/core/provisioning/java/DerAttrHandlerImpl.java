@@ -49,13 +49,13 @@ public class DerAttrHandlerImpl implements DerAttrHandler {
     private Map<DerSchema, String> getValues(final Any<?> any, final Set<DerSchema> schemas) {
         Map<DerSchema, String> result = new HashMap<>(schemas.size());
 
-        for (DerSchema schema : schemas) {
+        schemas.forEach(schema -> {
             JexlContext jexlContext = new MapContext();
             JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
             JexlUtils.addFieldsToContext(any, jexlContext);
 
             result.put(schema, JexlUtils.evaluate(schema.getExpression(), jexlContext));
-        }
+        });
 
         return result;
     }
@@ -96,13 +96,13 @@ public class DerAttrHandlerImpl implements DerAttrHandler {
 
         Map<DerSchema, String> result = new HashMap<>(schemas.size());
 
-        for (DerSchema schema : schemas) {
+        schemas.forEach(schema -> {
             JexlContext jexlContext = new MapContext();
             JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(membership), jexlContext);
             JexlUtils.addFieldsToContext(any, jexlContext);
 
             result.put(schema, JexlUtils.evaluate(schema.getExpression(), jexlContext));
-        }
+        });
 
         return result;
     }

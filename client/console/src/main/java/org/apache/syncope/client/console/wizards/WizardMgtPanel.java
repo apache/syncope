@@ -37,7 +37,6 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.event.IEventSource;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -360,14 +359,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
      * @param modal target modal.
      */
     protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
-        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                modal.show(false);
-            }
+        modal.setWindowClosedCallback(target -> {
+            modal.show(false);
         });
     }
 

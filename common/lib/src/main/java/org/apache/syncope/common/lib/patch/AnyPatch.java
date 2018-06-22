@@ -59,7 +59,7 @@ public abstract class AnyPatch extends AbstractBaseBean implements AttributableP
 
     private final Set<StringPatchItem> resources = new HashSet<>();
 
-    @Schema(name = "@class", required = true, readOnly = false)
+    @Schema(name = "@class", required = true)
     public abstract String getDiscriminator();
 
     public void setDiscriminator(final String discriminator) {

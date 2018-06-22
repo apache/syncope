@@ -31,8 +31,6 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wizards.any.ResultPage;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.types.SCIMEntitlement;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -76,34 +74,26 @@ public class SCIMConfPage extends BaseExtPage {
 
             @Override
             protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
-                modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+                modal.setWindowClosedCallback(target -> {
+                    if (modal.getContent() instanceof ResultPage) {
+                        Serializable result = ResultPage.class.cast(modal.getContent()).getResult();
+                        try {
+                            restClient.set(MAPPER.readValue(result.toString(), SCIMConf.class));
 
-                    private static final long serialVersionUID = 8804221891699487139L;
-
-                    @Override
-                    public void onClose(final AjaxRequestTarget target) {
-                        if (modal.getContent() instanceof ResultPage) {
-                            Serializable result = ResultPage.class.cast(modal.getContent()).getResult();
-                            try {
-                                restClient.set(MAPPER.readValue(result.toString(), SCIMConf.class));
-
-                                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                modal.show(false);
-                                target.add(content);
-                            } catch (Exception e) {
-                                LOG.error("While setting SCIM configuration", e);
-                                SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                        ? e.getClass().getName() : e.getMessage());
-                            }
-                            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            modal.show(false);
+                            target.add(content);
+                        } catch (Exception e) {
+                            LOG.error("While setting SCIM configuration", e);
+                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                                    ? e.getClass().getName() : e.getMessage());
                         }
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 });
             }
-
         });
 
         return content;
     }
-
 }

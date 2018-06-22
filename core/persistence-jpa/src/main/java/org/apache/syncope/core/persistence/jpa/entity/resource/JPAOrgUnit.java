@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.entity.resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -30,8 +29,6 @@ import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
@@ -59,10 +56,8 @@ public class JPAOrgUnit extends AbstractGeneratedKeyEntity implements OrgUnit {
     @Lob
     private String serializedSyncToken;
 
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer ignoreCaseMatch;
+    @NotNull
+    private Boolean ignoreCaseMatch = false;
 
     @NotNull
     private String connObjectLink;
@@ -112,12 +107,12 @@ public class JPAOrgUnit extends AbstractGeneratedKeyEntity implements OrgUnit {
 
     @Override
     public boolean isIgnoreCaseMatch() {
-        return isBooleanAsInteger(ignoreCaseMatch);
+        return ignoreCaseMatch;
     }
 
     @Override
     public void setIgnoreCaseMatch(final boolean ignoreCaseMatch) {
-        this.ignoreCaseMatch = getBooleanAsInteger(ignoreCaseMatch);
+        this.ignoreCaseMatch = ignoreCaseMatch;
     }
 
     @Override

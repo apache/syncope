@@ -107,18 +107,18 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
         switch (schemaType) {
             case VIRTUAL:
                 VirSchema virSchema = virSchemaDAO.save(binder.create((VirSchemaTO) schemaTO));
-                created = (T) binder.getVirSchemaTO(virSchema);
+                created = (T) binder.getVirSchemaTO(virSchema.getKey());
                 break;
 
             case DERIVED:
                 DerSchema derSchema = derSchemaDAO.save(binder.create((DerSchemaTO) schemaTO));
-                created = (T) binder.getDerSchemaTO(derSchema);
+                created = (T) binder.getDerSchemaTO(derSchema.getKey());
                 break;
 
             case PLAIN:
             default:
                 PlainSchema plainSchema = plainSchemaDAO.save(binder.create((PlainSchemaTO) schemaTO));
-                created = (T) binder.getPlainSchemaTO(plainSchema);
+                created = (T) binder.getPlainSchemaTO(plainSchema.getKey());
         }
         return created;
     }
@@ -172,7 +172,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
                                 ? virSchemaDAO.findAll()
                                 : virSchemaDAO.findByKeyword(keyword)
                         : virSchemaDAO.findByAnyTypeClasses(classes)).stream().
-                        map(schema -> (T) binder.getVirSchemaTO(schema)).collect(Collectors.toList());
+                        map(schema -> (T) binder.getVirSchemaTO(schema.getKey())).collect(Collectors.toList());
                 break;
 
             case DERIVED:
@@ -181,7 +181,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
                                 ? derSchemaDAO.findAll()
                                 : derSchemaDAO.findByKeyword(keyword)
                         : derSchemaDAO.findByAnyTypeClasses(classes)).stream().
-                        map(schema -> (T) binder.getDerSchemaTO(schema)).collect(Collectors.toList());
+                        map(schema -> (T) binder.getDerSchemaTO(schema.getKey())).collect(Collectors.toList());
                 break;
 
             case PLAIN:
@@ -191,7 +191,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
                                 ? plainSchemaDAO.findAll()
                                 : plainSchemaDAO.findByKeyword(keyword)
                         : plainSchemaDAO.findByAnyTypeClasses(classes)).stream().
-                        map(schema -> (T) binder.getPlainSchemaTO(schema)).collect(Collectors.toList());
+                        map(schema -> (T) binder.getPlainSchemaTO(schema.getKey())).collect(Collectors.toList());
         }
 
         return result;
@@ -203,31 +203,16 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
         T read;
         switch (schemaType) {
             case VIRTUAL:
-                VirSchema virSchema = virSchemaDAO.find(schemaKey);
-                if (virSchema == null) {
-                    throw new NotFoundException("Virtual Schema '" + schemaKey + "'");
-                }
-
-                read = (T) binder.getVirSchemaTO(virSchema);
+                read = (T) binder.getVirSchemaTO(schemaKey);
                 break;
 
             case DERIVED:
-                DerSchema derSchema = derSchemaDAO.find(schemaKey);
-                if (derSchema == null) {
-                    throw new NotFoundException("Derived schema '" + schemaKey + "'");
-                }
-
-                read = (T) binder.getDerSchemaTO(derSchema);
+                read = (T) binder.getDerSchemaTO(schemaKey);
                 break;
 
             case PLAIN:
             default:
-                PlainSchema schema = plainSchemaDAO.find(schemaKey);
-                if (schema == null) {
-                    throw new NotFoundException("Schema '" + schemaKey + "'");
-                }
-
-                read = (T) binder.getPlainSchemaTO(schema);
+                read = (T) binder.getPlainSchemaTO(schemaKey);
         }
 
         return read;
@@ -294,13 +279,13 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
                     if (derSchema == null) {
                         VirSchema virSchema = virSchemaDAO.find(key);
                         if (virSchema != null) {
-                            result = binder.getVirSchemaTO(virSchema);
+                            result = binder.getVirSchemaTO(key);
                         }
                     } else {
-                        result = binder.getDerSchemaTO(derSchema);
+                        result = binder.getDerSchemaTO(key);
                     }
                 } else {
-                    result = binder.getPlainSchemaTO(plainSchema);
+                    result = binder.getPlainSchemaTO(key);
                 }
 
                 return result;

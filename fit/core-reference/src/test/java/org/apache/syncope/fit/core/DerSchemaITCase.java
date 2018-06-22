@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
+import java.util.Locale;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
@@ -63,9 +64,14 @@ public class DerSchemaITCase extends AbstractITCase {
         DerSchemaTO schema = new DerSchemaTO();
         schema.setKey("derived");
         schema.setExpression("derived_sx + '_' + derived_dx");
+        schema.getLabels().put(Locale.ENGLISH, "Derived");
+        schema.getLabels().put(Locale.ITALIAN, "Derivato");
 
         DerSchemaTO actual = createSchema(SchemaType.DERIVED, schema);
         assertNotNull(actual);
+        assertEquals(2, actual.getLabels().size());
+        assertEquals("Derivato", actual.getLabel(Locale.ITALIAN));
+        assertEquals(schema.getKey(), actual.getLabel(Locale.JAPANESE));
 
         actual = schemaService.read(SchemaType.DERIVED, actual.getKey());
         assertNotNull(actual);

@@ -39,13 +39,14 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.PropertyModel;
 
 public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
 
     private static final long serialVersionUID = 5979623248182851337L;
+
+    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
 
     private final ResourceRestClient resourceRestClient = new ResourceRestClient();
 
@@ -57,15 +58,12 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
 
     private ResourceTO selectedResource;
 
-    public VirSchemaDetails(final String id,
-            final PageReference pageReference,
-            final VirSchemaTO schemaTO) {
-
-        super(id, pageReference, schemaTO);
+    public VirSchemaDetails(final String id, final VirSchemaTO schemaTO) {
+        super(id, schemaTO);
 
         AjaxCheckBoxPanel readonly = new AjaxCheckBoxPanel("readonly", getString("readonly"),
                 new PropertyModel<>(schemaTO, "readonly"));
-        schemaForm.add(readonly);
+        add(readonly);
 
         final AjaxDropDownChoicePanel<String> resource = new AjaxDropDownChoicePanel<>(
                 "resource", getString("resource"), new PropertyModel<String>(schemaTO, "resource"), false).
@@ -76,7 +74,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         if (resource.getModelObject() != null) {
             populateAnyTypes(resource.getModelObject());
         }
-        schemaForm.add(resource);
+        add(resource);
 
         anyType = new AjaxDropDownChoicePanel<>(
                 "anyType", getString("anyType"), new PropertyModel<String>(schemaTO, "anyType"), false).
@@ -88,7 +86,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         if (resource.getModelObject() == null) {
             anyType.setEnabled(false);
         }
-        schemaForm.add(anyType);
+        add(anyType);
 
         final AjaxTextFieldPanel extAttrName = new AjaxTextFieldPanel(
                 "extAttrName", getString("extAttrName"), new PropertyModel<>(schemaTO, "extAttrName"));
@@ -97,9 +95,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         if (selectedResource != null) {
             extAttrName.setChoices(getExtAttrNames());
         }
-        schemaForm.add(extAttrName);
-
-        add(schemaForm);
+        add(extAttrName);
 
         resource.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -125,7 +121,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 if (selectedResource != null) {
-                    String adminRealm = getAdminRealm(selectedResource.getKey());
+                    String adminRealm = getAdminRealm(selectedResource.getConnector());
 
                     if (SyncopeConsoleSession.get().owns(StandardEntitlement.CONNECTOR_READ, adminRealm)) {
                         extAttrName.setChoices(getExtAttrNames());
@@ -139,7 +135,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
     private String getAdminRealm(final String connectorKey) {
         String adminRealm = null;
         try {
-            adminRealm = new ConnectorRestClient().read(connectorKey).getAdminRealm();
+            adminRealm = connectorRestClient.read(connectorKey).getAdminRealm();
         } catch (Exception e) {
             LOG.error("Could not read Admin Realm for External Resource {}", selectedResource.getKey());
         }

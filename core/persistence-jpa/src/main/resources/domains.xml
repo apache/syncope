@@ -46,7 +46,10 @@ under the License.
         <!-- Removed: see https://s.apache.org/openjpaSchemaFactory for more information
         <entry key="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/>-->
         <entry key="openjpa.jdbc.MappingDefaults" 
-               value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
+               value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict,
+                      FieldStrategies='
+                        java.util.Locale=org.apache.syncope.core.persistence.jpa.openjpa.LocaleValueHandler,
+                        java.lang.Boolean=org.apache.syncope.core.persistence.jpa.openjpa.BooleanValueHandler'"/>
                 
         <entry key="openjpa.DataCache" value="true"/>
         <entry key="openjpa.QueryCache" value="true"/>

@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.security.AccessControlException;
 import java.util.List;
+import java.util.Locale;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -68,10 +69,14 @@ public class VirSchemaITCase extends AbstractITCase {
         schema.setExtAttrName("name");
         schema.setResource(RESOURCE_NAME_CSV);
         schema.setAnyType(csv.getProvisions().get(0).getAnyType());
+        schema.getLabels().put(Locale.ENGLISH, "Virtual");
 
         schema = createSchema(SchemaType.VIRTUAL, schema);
         assertNotNull(schema);
         assertEquals(csv.getProvisions().get(0).getAnyType(), schema.getAnyType());
+        assertEquals(1, schema.getLabels().size());
+        assertEquals("Virtual", schema.getLabel(Locale.ENGLISH));
+        assertEquals(schema.getKey(), schema.getLabel(Locale.CHINESE));
 
         csv = resourceService.read(RESOURCE_NAME_CSV);
         assertNotNull(csv);

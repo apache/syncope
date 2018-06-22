@@ -18,22 +18,36 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <div class="form-group">
-      <div class="form-group">
-        <span wicket:id="key">[name]</span>
-      </div>
-      <div class="form-group">
-        <span wicket:id="readonly">[readonly]</span>
-      </div>
-      <div class="form-group">
-        <span wicket:id="resource">[resource]</span>
-      </div>
-      <div class="form-group">
-        <span wicket:id="anyType">[anyType]</span>
-      </div>
-      <div class="form-group">
-        <span wicket:id="extAttrName">[extAttrName]</span>
-      </div>
-    </div>
+    <table class="table table-hover">
+      <tbody>
+        <tr>
+          <th>Locale</th>
+          <th>Display</th>
+        </tr>
+        <tr wicket:id="labels">
+          <td>
+            <span wicket:id="locale"/>
+          </td>
+          <td>
+            <span wicket:id="display"/>
+          </td>
+          <td>
+            <div id="inline-actions">
+              <span wicket:id="toRemove"/>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+
+      <tfoot>
+        <tr>
+          <td colspan="3" style="padding: 5px; text-align: right">
+            <button type="submit" class="btn btn-primary btn-circle btn-lg" wicket:id="addLabel">
+              <i class="glyphicon glyphicon-plus"></i>
+            </button>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
   </wicket:panel>
 </html>

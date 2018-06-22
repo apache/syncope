@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,8 +30,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -67,10 +64,7 @@ public class JPAReport extends AbstractGeneratedKeyEntity implements Report {
     private List<JPAReportExec> executions = new ArrayList<>();
 
     @NotNull
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer active;
+    private Boolean active = true;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "template_id")
@@ -121,12 +115,12 @@ public class JPAReport extends AbstractGeneratedKeyEntity implements Report {
 
     @Override
     public boolean isActive() {
-        return isBooleanAsInteger(active);
+        return active;
     }
 
     @Override
     public void setActive(final boolean active) {
-        this.active = getBooleanAsInteger(active);
+        this.active = active;
     }
 
     @Override

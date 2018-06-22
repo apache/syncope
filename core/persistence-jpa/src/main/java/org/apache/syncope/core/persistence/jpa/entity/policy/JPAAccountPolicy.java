@@ -22,15 +22,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
@@ -46,10 +44,8 @@ public class JPAAccountPolicy extends AbstractPolicy implements AccountPolicy {
 
     public static final String TABLE = "AccountPolicy";
 
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer propagateSuspension;
+    @NotNull
+    private Boolean propagateSuspension = false;
 
     private int maxAuthenticationAttempts;
 
@@ -73,12 +69,12 @@ public class JPAAccountPolicy extends AbstractPolicy implements AccountPolicy {
 
     @Override
     public boolean isPropagateSuspension() {
-        return isBooleanAsInteger(propagateSuspension);
+        return propagateSuspension;
     }
 
     @Override
     public void setPropagateSuspension(final boolean propagateSuspension) {
-        this.propagateSuspension = getBooleanAsInteger(propagateSuspension);
+        this.propagateSuspension = propagateSuspension;
     }
 
     @Override

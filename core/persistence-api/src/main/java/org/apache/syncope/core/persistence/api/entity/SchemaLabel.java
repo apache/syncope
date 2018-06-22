@@ -18,30 +18,19 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
-import org.apache.syncope.common.lib.types.AttrSchemaType;
 
-public interface Schema extends ProvidedKeyEntity {
+public interface SchemaLabel extends Entity {
 
-    AnyTypeClass getAnyTypeClass();
+    Schema getSchema();
 
-    void setAnyTypeClass(AnyTypeClass anyTypeClass);
+    void setSchema(Schema schema);
 
-    AttrSchemaType getType();
+    Locale getLocale();
 
-    String getMandatoryCondition();
+    void setLocale(Locale locale);
 
-    boolean isMultivalue();
+    String getDisplay();
 
-    boolean isReadonly();
-
-    boolean isUniqueConstraint();
-
-    boolean add(SchemaLabel label);
-
-    Optional<? extends SchemaLabel> getLabel(Locale locale);
-
-    List<? extends SchemaLabel> getLabels();
+    void setDisplay(String display);
 }

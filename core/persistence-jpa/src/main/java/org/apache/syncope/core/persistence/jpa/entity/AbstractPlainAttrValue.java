@@ -20,13 +20,10 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.Base64;
 import java.util.Date;
-import javax.persistence.Basic;
 import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
@@ -50,10 +47,7 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateValue;
 
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer booleanValue;
+    private Boolean booleanValue;
 
     private Long longValue;
 
@@ -64,16 +58,12 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
 
     @Override
     public Boolean getBooleanValue() {
-        return booleanValue == null
-                ? null
-                : isBooleanAsInteger(booleanValue);
+        return booleanValue;
     }
 
     @Override
     public void setBooleanValue(final Boolean booleanValue) {
-        this.booleanValue = booleanValue == null
-                ? null
-                : getBooleanAsInteger(booleanValue);
+        this.booleanValue = booleanValue;
     }
 
     @Override

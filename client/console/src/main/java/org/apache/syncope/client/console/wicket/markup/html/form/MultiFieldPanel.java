@@ -41,7 +41,7 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractMu
 
     public static class Builder<E extends Serializable> implements Serializable {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -5304396077613727937L;
 
         private final IModel<List<E>> model;
 

@@ -64,9 +64,9 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").
                 append(JPAPlainSchema.class.getSimpleName()).
                 append(" e WHERE ");
-        for (AnyTypeClass anyTypeClass : anyTypeClasses) {
+        anyTypeClasses.forEach(anyTypeClass -> {
             queryString.append("e.anyTypeClass.id='").append(anyTypeClass.getKey()).append("' OR ");
-        }
+        });
 
         TypedQuery<PlainSchema> query = entityManager().createQuery(
                 queryString.substring(0, queryString.length() - 4), PlainSchema.class);
@@ -122,13 +122,15 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
             return;
         }
 
+        schema.getLabels().forEach(label -> label.setSchema(null));
+
         AnyUtilsFactory anyUtilsFactory = new JPAAnyUtilsFactory();
         for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
             AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeKind);
 
-            for (PlainAttr<?> attr : findAttrs(schema, anyUtils.plainAttrClass())) {
+            findAttrs(schema, anyUtils.plainAttrClass()).forEach(attr -> {
                 plainAttrDAO.delete(attr.getKey(), anyUtils.plainAttrClass());
-            }
+            });
 
             resourceDAO().deleteMapping(key);
         }

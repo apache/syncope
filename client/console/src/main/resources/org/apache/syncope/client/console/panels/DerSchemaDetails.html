@@ -18,19 +18,13 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <div style="margin: 5px;">
-      <form wicket:id="form">
-        <div id="formtable">
-          <div class="form-group">
-            <span wicket:id="key">[name]</span>
-          </div>
-          <div class="form-group">
-            <label for="expression"><wicket:message key="expression"/> *</label>
-            <input type="text" id="expression" class="form-control col-xs-4" wicket:id="expression"/>
-            <span id="popover" wicket:id="jexlInfo" class="glyphicon glyphicon-info-sign"></span>
-          </div>
-        </div>
-      </form>
+    <div class="form-group">
+      <span wicket:id="key">[name]</span>
+    </div>
+    <div class="form-group">
+      <label for="expression"><wicket:message key="expression"/> *</label>
+      <input type="text" id="expression" class="form-control col-xs-4" wicket:id="expression"/>
+      <span id="popover" wicket:id="jexlInfo" class="glyphicon glyphicon-info-sign"></span>
     </div>
   </wicket:panel>
 </html>

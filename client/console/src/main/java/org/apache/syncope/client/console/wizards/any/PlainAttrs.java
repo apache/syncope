@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.SchemaUtils;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
@@ -166,7 +167,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
         Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(anyTO.getPlainAttrs());
 
-        schemas.values().stream().map(schema -> {
+        attrs.addAll(schemas.values().stream().map(schema -> {
             AttrTO attrTO = new AttrTO();
             attrTO.setSchema(schema.getKey());
             if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
@@ -178,9 +179,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 attrTO = attrMap.get(schema.getKey());
             }
             return attrTO;
-        }).forEachOrdered(attrTO -> {
-            attrs.add(attrTO);
-        });
+        }).collect(Collectors.toList()));
 
         anyTO.getPlainAttrs().clear();
         anyTO.getPlainAttrs().addAll(attrs);
@@ -192,7 +191,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
         Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(membershipTO.getPlainAttrs());
 
-        membershipSchemas.get(membershipTO.getGroupKey()).values().stream().
+        attrs.addAll(membershipSchemas.get(membershipTO.getGroupKey()).values().stream().
                 map(schema -> {
                     AttrTO attrTO = new AttrTO();
                     attrTO.setSchema(schema.getKey());
@@ -205,9 +204,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                         attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
                     }
                     return attrTO;
-                }).forEachOrdered(attrTO -> {
-            attrs.add(attrTO);
-        });
+                }).collect(Collectors.toList()));
 
         membershipTO.getPlainAttrs().clear();
         membershipTO.getPlainAttrs().addAll(attrs);
@@ -236,19 +233,31 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
         FieldPanel panel;
         switch (type) {
             case Boolean:
-                panel = new AjaxCheckBoxPanel("panel", schemaTO.getKey(), new Model<>(), true);
+                panel = new AjaxCheckBoxPanel(
+                        "panel",
+                        schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()),
+                        new Model<>(),
+                        true);
                 panel.setRequired(required);
                 break;
 
             case Date:
-                String dataPattern = schemaTO.getConversionPattern() == null
+                String datePattern = schemaTO.getConversionPattern() == null
                         ? SyncopeConstants.DEFAULT_DATE_PATTERN
                         : schemaTO.getConversionPattern();
 
-                if (dataPattern.contains("H")) {
-                    panel = new AjaxDateTimeFieldPanel("panel", schemaTO.getKey(), new Model<>(), dataPattern);
+                if (datePattern.contains("H")) {
+                    panel = new AjaxDateTimeFieldPanel(
+                            "panel",
+                            schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()),
+                            new Model<>(),
+                            datePattern);
                 } else {
-                    panel = new AjaxDateFieldPanel("panel", schemaTO.getKey(), new Model<>(), dataPattern);
+                    panel = new AjaxDateFieldPanel(
+                            "panel",
+                            schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()),
+                            new Model<>(),
+                            datePattern);
                 }
 
                 if (required) {
@@ -258,7 +267,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 break;
 
             case Enum:
-                panel = new AjaxDropDownChoicePanel<>("panel", schemaTO.getKey(), new Model<>(), true);
+                panel = new AjaxDropDownChoicePanel<>("panel",
+                        schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()), new Model<>(), true);
                 ((AjaxDropDownChoicePanel<String>) panel).setChoices(SchemaUtils.getEnumeratedValues(schemaTO));
 
                 if (StringUtils.isNotBlank(schemaTO.getEnumerationKeys())) {
@@ -292,8 +302,11 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 break;
 
             case Long:
-                panel = new AjaxSpinnerFieldPanel.Builder<Long>().enableOnChange().
-                        build("panel", schemaTO.getKey(), Long.class, new Model<Long>());
+                panel = new AjaxSpinnerFieldPanel.Builder<Long>().enableOnChange().build(
+                        "panel",
+                        schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()),
+                        Long.class,
+                        new Model<>());
 
                 if (required) {
                     panel.addRequiredLabel();
@@ -301,8 +314,11 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 break;
 
             case Double:
-                panel = new AjaxSpinnerFieldPanel.Builder<Double>().enableOnChange().step(0.1).
-                        build("panel", schemaTO.getKey(), Double.class, new Model<Double>());
+                panel = new AjaxSpinnerFieldPanel.Builder<Double>().enableOnChange().step(0.1).build(
+                        "panel",
+                        schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()),
+                        Double.class,
+                        new Model<>());
 
                 if (required) {
                     panel.addRequiredLabel();
@@ -310,15 +326,19 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 break;
 
             case Binary:
-                final PageReference pageReference = getPageReference();
-                panel = new BinaryFieldPanel("panel", schemaTO.getKey(), new Model<>(), schemaTO.getMimeType(),
+                final PageReference pageRef = getPageReference();
+                panel = new BinaryFieldPanel(
+                        "panel",
+                        schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()),
+                        new Model<>(),
+                        schemaTO.getMimeType(),
                         fileKey) {
 
                     private static final long serialVersionUID = -3268213909514986831L;
 
                     @Override
                     protected PageReference getPageReference() {
-                        return pageReference;
+                        return pageRef;
                     }
 
                 };
@@ -328,7 +348,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 break;
 
             case Encrypted:
-                panel = new EncryptedFieldPanel("panel", schemaTO.getKey(), new Model<>(), true);
+                panel = new EncryptedFieldPanel("panel",
+                        schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()), new Model<>(), true);
 
                 if (required) {
                     panel.addRequiredLabel();
@@ -336,7 +357,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 break;
 
             default:
-                panel = new AjaxTextFieldPanel("panel", schemaTO.getKey(), new Model<>(), true);
+                panel = new AjaxTextFieldPanel("panel",
+                        schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()), new Model<>(), true);
 
                 if (jexlHelp) {
                     AjaxTextFieldPanel.class.cast(panel).enableJexlHelp();
@@ -358,7 +380,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
         public PlainSchemas(
                 final String id,
-                final Map<String, PlainSchemaTO> availableSchemas,
+                final Map<String, PlainSchemaTO> schemas,
                 final IModel<List<AttrTO>> attrTOs) {
             super(id);
 
@@ -371,9 +393,9 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 protected void populateItem(final ListItem<AttrTO> item) {
                     AttrTO attrTO = item.getModelObject();
 
-                    AbstractFieldPanel<?> panel = getFieldPanel(availableSchemas.get(attrTO.getSchema()));
+                    AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
                     if (mode == AjaxWizard.Mode.TEMPLATE
-                            || !availableSchemas.get(attrTO.getSchema()).isMultivalue()) {
+                            || !schemas.get(attrTO.getSchema()).isMultivalue()) {
                         FieldPanel.class.cast(panel).setNewModel(attrTO.getValues());
                     } else {
                         panel = new MultiFieldPanel.Builder<>(
@@ -382,7 +404,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                                 attrTO.getSchema(),
                                 FieldPanel.class.cast(panel));
                         // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
-                        ((MultiFieldPanel) panel).setReadOnly(availableSchemas.get(attrTO.getSchema()).isReadonly());
+                        ((MultiFieldPanel) panel).setReadOnly(schemas.get(attrTO.getSchema()).isReadonly());
                     }
                     item.add(panel);
 

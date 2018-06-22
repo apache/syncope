@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
@@ -57,9 +55,7 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
 
     private final SCIMUserConf scimUserConf;
 
-    public SCIMConfUserPanel(
-            final String id,
-            final SCIMConf scimConf) {
+    public SCIMConfUserPanel(final String id, final SCIMConf scimConf) {
         super(id, scimConf);
 
         if (scimConf.getUserConf() == null) {
@@ -75,156 +71,148 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         settings.setShowListOnEmptyInput(true);
         settings.setCssClassName("custom-autocomplete-box");
 
-        AjaxTextFieldPanel displayNamePanel =
-                new AjaxTextFieldPanel("displayName", "displayName",
-                        new PropertyModel<String>("displayName", "displayName") {
+        AjaxTextFieldPanel displayNamePanel = new AjaxTextFieldPanel("displayName", "displayName",
+                new PropertyModel<String>("displayName", "displayName") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimUserConf.getDisplayName();
-                    }
+            @Override
+            public String getObject() {
+                return scimUserConf.getDisplayName();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimUserConf.setDisplayName(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                scimUserConf.setDisplayName(object);
+            }
 
-                });
+        });
         displayNamePanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel localePanel =
-                new AjaxTextFieldPanel("locale", "locale",
-                        new PropertyModel<String>("locale", "locale") {
+        AjaxTextFieldPanel localePanel = new AjaxTextFieldPanel("locale", "locale",
+                new PropertyModel<String>("locale", "locale") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimUserConf.getLocale();
-                    }
+            @Override
+            public String getObject() {
+                return scimUserConf.getLocale();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimUserConf.setLocale(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                scimUserConf.setLocale(object);
+            }
 
-                });
+        });
         localePanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel nickNamePanel =
-                new AjaxTextFieldPanel("nickName", "nickName",
-                        new PropertyModel<String>("nickName", "nickName") {
+        AjaxTextFieldPanel nickNamePanel = new AjaxTextFieldPanel("nickName", "nickName",
+                new PropertyModel<String>("nickName", "nickName") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimUserConf.getNickName();
-                    }
+            @Override
+            public String getObject() {
+                return scimUserConf.getNickName();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimUserConf.setNickName(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                scimUserConf.setNickName(object);
+            }
 
-                });
+        });
         nickNamePanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel preferredLanguagePanel =
-                new AjaxTextFieldPanel("preferredLanguage", "preferredLanguage",
-                        new PropertyModel<String>("preferredLanguage", "preferredLanguage") {
+        AjaxTextFieldPanel preferredLanguagePanel = new AjaxTextFieldPanel("preferredLanguage", "preferredLanguage",
+                new PropertyModel<String>("preferredLanguage", "preferredLanguage") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimUserConf.getPreferredLanguage();
-                    }
+            @Override
+            public String getObject() {
+                return scimUserConf.getPreferredLanguage();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimUserConf.setPreferredLanguage(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                scimUserConf.setPreferredLanguage(object);
+            }
 
-                });
+        });
         preferredLanguagePanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel profileUrlPanel =
-                new AjaxTextFieldPanel("profileUrl", "profileUrl",
-                        new PropertyModel<String>("profileUrl", "profileUrl") {
+        AjaxTextFieldPanel profileUrlPanel = new AjaxTextFieldPanel("profileUrl", "profileUrl",
+                new PropertyModel<String>("profileUrl", "profileUrl") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimUserConf.getProfileUrl();
-                    }
+            @Override
+            public String getObject() {
+                return scimUserConf.getProfileUrl();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimUserConf.setProfileUrl(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                scimUserConf.setProfileUrl(object);
+            }
 
-                });
+        });
         profileUrlPanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel timezonePanel =
-                new AjaxTextFieldPanel("timezone", "timezone",
-                        new PropertyModel<String>("timezone", "timezone") {
+        AjaxTextFieldPanel timezonePanel = new AjaxTextFieldPanel("timezone", "timezone",
+                new PropertyModel<String>("timezone", "timezone") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimUserConf.getTimezone();
-                    }
+            @Override
+            public String getObject() {
+                return scimUserConf.getTimezone();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimUserConf.setTimezone(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                scimUserConf.setTimezone(object);
+            }
 
-                });
+        });
         timezonePanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel titlePanel =
-                new AjaxTextFieldPanel("title", "title",
-                        new PropertyModel<String>("title", "title") {
+        AjaxTextFieldPanel titlePanel = new AjaxTextFieldPanel("title", "title",
+                new PropertyModel<String>("title", "title") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimUserConf.getTitle();
-                    }
+            @Override
+            public String getObject() {
+                return scimUserConf.getTitle();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimUserConf.setTitle(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                scimUserConf.setTitle(object);
+            }
 
-                });
+        });
         titlePanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel userTypePanel =
-                new AjaxTextFieldPanel("userType", "userType",
-                        new PropertyModel<String>("userType", "userType") {
+        AjaxTextFieldPanel userTypePanel = new AjaxTextFieldPanel("userType", "userType",
+                new PropertyModel<String>("userType", "userType") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimUserConf.getUserType();
-                    }
+            @Override
+            public String getObject() {
+                return scimUserConf.getUserType();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimUserConf.setUserType(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                scimUserConf.setUserType(object);
+            }
 
-                });
+        });
         userTypePanel.setChoices(plainSchemaNames);
 
         // name
@@ -232,7 +220,7 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
 
         // x509certificates
         final AjaxTextFieldPanel x509CertificatesPanel = new AjaxTextFieldPanel("panel", "x509CertificatesPanel",
-                new Model<String>(null));
+                new Model<>(null));
         x509CertificatesPanel.setChoices(plainSchemaNames);
         MultiFieldPanel<String> x509CertificatesMultiPanel = new MultiFieldPanel.Builder<>(
                 new ListModel<>(scimUserConf.getX509Certificates())).build(
@@ -242,20 +230,14 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
 
         // addresses
         List<SCIMUserAddressConf> addresses = new ArrayList<>();
-        for (final AddressCanonicalType canonicalType : AddressCanonicalType.values()) {
-            SCIMUserAddressConf address = IterableUtils.find(scimUserConf.getAddresses(),
-                    new Predicate<SCIMUserAddressConf>() {
-
-                @Override
-                public boolean evaluate(final SCIMUserAddressConf object) {
-                    return object.getType().equals(canonicalType);
-                }
-            });
-
-            if (address == null) {
-                address = new SCIMUserAddressConf();
-                address.setType(canonicalType);
-            }
+        for (AddressCanonicalType canonicalType : AddressCanonicalType.values()) {
+            SCIMUserAddressConf address = scimUserConf.getAddresses().stream().
+                    filter(addressConf -> addressConf.getType().equals(canonicalType)).
+                    findFirst().orElseGet(() -> {
+                        SCIMUserAddressConf empty = new SCIMUserAddressConf();
+                        empty.setType(canonicalType);
+                        return empty;
+                    });
             buildAddressAccordion(address, canonicalType);
             addresses.add(address);
         }
@@ -289,24 +271,21 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
 
     }
 
-    private <T extends Enum<?>> void buildComplexPanels(final List<SCIMComplexConf<T>> complexes,
+    private <T extends Enum<?>> void buildComplexPanels(
+            final List<SCIMComplexConf<T>> complexes,
             final String basePanelId,
             final String baseTabId,
             final T[] canonicalTypes) {
-        List<SCIMComplexConf<T>> newElems = new ArrayList<>();
-        for (final T canonicalType : canonicalTypes) {
-            SCIMComplexConf<T> complex = IterableUtils.find(complexes,
-                    new Predicate<SCIMComplexConf<T>>() {
 
-                @Override
-                public boolean evaluate(final SCIMComplexConf<T> object) {
-                    return object.getType().equals(canonicalType);
-                }
-            });
-            if (complex == null) {
-                complex = new SCIMComplexConf<>();
-                complex.setType(canonicalType);
-            }
+        List<SCIMComplexConf<T>> newElems = new ArrayList<>();
+        for (T canonicalType : canonicalTypes) {
+            SCIMComplexConf<T> complex = complexes.stream().
+                    filter(complexConf -> complexConf.getType().equals(canonicalType)).
+                    findFirst().orElseGet(() -> {
+                        SCIMComplexConf<T> empty = new SCIMComplexConf<>();
+                        empty.setType(canonicalType);
+                        return empty;
+                    });
             buildComplexAccordion(complex, basePanelId, baseTabId, canonicalType);
             newElems.add(complex);
         }
@@ -329,9 +308,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         add(accordion.setOutputMarkupId(true));
     }
 
-    private void buildAddressAccordion(final SCIMUserAddressConf address,
-            final AddressCanonicalType canonicalType) {
-        final Accordion accordion = new Accordion("addressesAccordion_" + address.getType().name(),
+    private void buildAddressAccordion(final SCIMUserAddressConf address, final AddressCanonicalType canonicalType) {
+        Accordion accordion = new Accordion("addressesAccordion_" + address.getType().name(),
                 Collections.<ITab>singletonList(new AbstractTab(Model.of("address." + address.getType().name())) {
 
                     private static final long serialVersionUID = -5861786415855103549L;
@@ -345,13 +323,14 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         add(accordion.setOutputMarkupId(true));
     }
 
-    private <T extends Enum<?>> void buildComplexAccordion(final SCIMComplexConf<T> complex,
+    private <T extends Enum<?>> void buildComplexAccordion(
+            final SCIMComplexConf<T> complex,
             final String basePanelId,
             final String baseTabId,
             final T canonicalType) {
-        final Accordion accordion = new Accordion(basePanelId + "_" + complex.getType().name(),
-                Collections.<ITab>singletonList(
-                        new AbstractTab(Model.of(baseTabId + "." + complex.getType().name())) {
+
+        Accordion accordion = new Accordion(basePanelId + "_" + complex.getType().name(),
+                Collections.<ITab>singletonList(new AbstractTab(Model.of(baseTabId + "." + complex.getType().name())) {
 
                     private static final long serialVersionUID = -5861786415855103549L;
 
@@ -367,118 +346,112 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
     private SCIMConfAccordionContainer buildNameAccordionContent(final String panelId) {
         final List<AjaxTextFieldPanel> panelList = new ArrayList<>();
 
-        AjaxTextFieldPanel nameFamilyNamePanel =
-                new AjaxTextFieldPanel("accordionContent", "name.familyName",
-                        new PropertyModel<String>(scimUserConf.getName(), "accordionContent") {
+        AjaxTextFieldPanel nameFamilyNamePanel = new AjaxTextFieldPanel("accordionContent", "name.familyName",
+                new PropertyModel<String>(scimUserConf.getName(), "accordionContent") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimUserConf.getName().getFamilyName();
-                    }
+            @Override
+            public String getObject() {
+                return scimUserConf.getName().getFamilyName();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimUserConf.getName().setFamilyName(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                scimUserConf.getName().setFamilyName(object);
+            }
 
-                });
+        });
         nameFamilyNamePanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel nameFormattedPanel =
-                new AjaxTextFieldPanel("accordionContent", "name.formatted",
-                        new PropertyModel<String>(scimUserConf.getName(), "accordionContent") {
+        AjaxTextFieldPanel nameFormattedPanel = new AjaxTextFieldPanel("accordionContent", "name.formatted",
+                new PropertyModel<String>(scimUserConf.getName(), "accordionContent") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimUserConf.getName().getFormatted();
-                    }
+            @Override
+            public String getObject() {
+                return scimUserConf.getName().getFormatted();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimUserConf.getName().setFormatted(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                scimUserConf.getName().setFormatted(object);
+            }
 
-                });
+        });
         nameFormattedPanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel nameGivenNamePanel =
-                new AjaxTextFieldPanel("accordionContent", "name.givenName",
-                        new PropertyModel<String>(scimUserConf.getName(), "accordionContent") {
+        AjaxTextFieldPanel nameGivenNamePanel = new AjaxTextFieldPanel("accordionContent", "name.givenName",
+                new PropertyModel<String>(scimUserConf.getName(), "accordionContent") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimUserConf.getName().getGivenName();
-                    }
+            @Override
+            public String getObject() {
+                return scimUserConf.getName().getGivenName();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimUserConf.getName().setGivenName(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                scimUserConf.getName().setGivenName(object);
+            }
 
-                });
+        });
         nameGivenNamePanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel nameHonorificPrefixPanel =
-                new AjaxTextFieldPanel("accordionContent", "name.honorificPrefix",
-                        new PropertyModel<String>(scimUserConf.getName(), "accordionContent") {
+        AjaxTextFieldPanel nameHonorificPrefixPanel = new AjaxTextFieldPanel("accordionContent", "name.honorificPrefix",
+                new PropertyModel<String>(scimUserConf.getName(), "accordionContent") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimUserConf.getName().getHonorificPrefix();
-                    }
+            @Override
+            public String getObject() {
+                return scimUserConf.getName().getHonorificPrefix();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimUserConf.getName().setHonorificPrefix(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                scimUserConf.getName().setHonorificPrefix(object);
+            }
 
-                });
+        });
         nameHonorificPrefixPanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel nameHonorificSuffixPanel =
-                new AjaxTextFieldPanel("accordionContent", "name.honorificSuffix",
-                        new PropertyModel<String>(scimUserConf.getName(), "accordionContent") {
+        AjaxTextFieldPanel nameHonorificSuffixPanel = new AjaxTextFieldPanel("accordionContent", "name.honorificSuffix",
+                new PropertyModel<String>(scimUserConf.getName(), "accordionContent") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimUserConf.getName().getHonorificSuffix();
-                    }
+            @Override
+            public String getObject() {
+                return scimUserConf.getName().getHonorificSuffix();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimUserConf.getName().setHonorificSuffix(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                scimUserConf.getName().setHonorificSuffix(object);
+            }
 
-                });
+        });
         nameHonorificSuffixPanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel nameMiddleNamePanel =
-                new AjaxTextFieldPanel("accordionContent", "name.middleName",
-                        new PropertyModel<String>(scimUserConf.getName(), "accordionContent") {
+        AjaxTextFieldPanel nameMiddleNamePanel = new AjaxTextFieldPanel("accordionContent", "name.middleName",
+                new PropertyModel<String>(scimUserConf.getName(), "accordionContent") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimUserConf.getName().getMiddleName();
-                    }
+            @Override
+            public String getObject() {
+                return scimUserConf.getName().getMiddleName();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimUserConf.getName().setMiddleName(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                scimUserConf.getName().setMiddleName(object);
+            }
 
-                });
+        });
         nameMiddleNamePanel.setChoices(plainSchemaNames);
 
         panelList.add(nameFamilyNamePanel);
@@ -495,64 +468,62 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
             final SCIMComplexConf<T> complex,
             final T canonicalType,
             final String panelId) {
+
         final List<AjaxTextFieldPanel> panelList = new ArrayList<>();
         final String fieldName = panelId + "." + canonicalType.name();
 
-        AjaxTextFieldPanel displayPanel =
-                new AjaxTextFieldPanel("accordionContent", fieldName + ".display",
-                        new PropertyModel<String>(complex, "accordionContent") {
+        AjaxTextFieldPanel displayPanel = new AjaxTextFieldPanel("accordionContent", fieldName + ".display",
+                new PropertyModel<String>(complex, "accordionContent") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return complex.getDisplay();
-                    }
+            @Override
+            public String getObject() {
+                return complex.getDisplay();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        complex.setDisplay(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                complex.setDisplay(object);
+            }
 
-                });
+        });
         displayPanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel valuePanel =
-                new AjaxTextFieldPanel("accordionContent", fieldName + ".value",
-                        new PropertyModel<String>(complex, "accordionContent") {
+        AjaxTextFieldPanel valuePanel = new AjaxTextFieldPanel("accordionContent", fieldName + ".value",
+                new PropertyModel<String>(complex, "accordionContent") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return complex.getValue();
-                    }
+            @Override
+            public String getObject() {
+                return complex.getValue();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        complex.setValue(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                complex.setValue(object);
+            }
 
-                });
+        });
         valuePanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel primaryPanel =
-                new AjaxTextFieldPanel("accordionContent", fieldName + ".primary",
-                        new PropertyModel<String>(complex, "accordionContent") {
+        AjaxTextFieldPanel primaryPanel = new AjaxTextFieldPanel("accordionContent", fieldName + ".primary",
+                new PropertyModel<String>(complex, "accordionContent") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return String.valueOf(complex.isPrimary());
-                    }
+            @Override
+            public String getObject() {
+                return String.valueOf(complex.isPrimary());
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        complex.setPrimary(Boolean.valueOf(object));
-                    }
+            @Override
+            public void setObject(final String object) {
+                complex.setPrimary(Boolean.valueOf(object));
+            }
 
-                });
+        });
         primaryPanel.setChoices(Arrays.asList("true", "false"));
 
         panelList.add(displayPanel);
@@ -562,86 +533,84 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         return new SCIMConfAccordionContainer(panelId, panelList);
     }
 
-    private SCIMConfAccordionContainer buildAddressAccordionContent(final SCIMUserAddressConf address,
+    private SCIMConfAccordionContainer buildAddressAccordionContent(
+            final SCIMUserAddressConf address,
             final AddressCanonicalType canonicalType,
             final String panelId) {
+
         final List<AjaxTextFieldPanel> panelList = new ArrayList<>();
         final String fieldName = "addresses." + canonicalType.name();
 
-        AjaxTextFieldPanel addressCountryPanel =
-                new AjaxTextFieldPanel("accordionContent", fieldName + ".country",
-                        new PropertyModel<String>(address, "accordionContent") {
+        AjaxTextFieldPanel addressCountryPanel = new AjaxTextFieldPanel("accordionContent", fieldName + ".country",
+                new PropertyModel<String>(address, "accordionContent") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return address.getCountry();
-                    }
+            @Override
+            public String getObject() {
+                return address.getCountry();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        address.setCountry(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                address.setCountry(object);
+            }
 
-                });
+        });
         addressCountryPanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel addressFormattedPanel =
-                new AjaxTextFieldPanel("accordionContent", fieldName + ".formatted",
-                        new PropertyModel<String>(address, "accordionContent") {
+        AjaxTextFieldPanel addressFormattedPanel = new AjaxTextFieldPanel("accordionContent", fieldName + ".formatted",
+                new PropertyModel<String>(address, "accordionContent") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return address.getFormatted();
-                    }
+            @Override
+            public String getObject() {
+                return address.getFormatted();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        address.setFormatted(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                address.setFormatted(object);
+            }
 
-                });
+        });
         addressFormattedPanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel addressLocalityPanel =
-                new AjaxTextFieldPanel("accordionContent", fieldName + ".locality",
-                        new PropertyModel<String>(address, "accordionContent") {
+        AjaxTextFieldPanel addressLocalityPanel = new AjaxTextFieldPanel("accordionContent", fieldName + ".locality",
+                new PropertyModel<String>(address, "accordionContent") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return address.getLocality();
-                    }
+            @Override
+            public String getObject() {
+                return address.getLocality();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        address.setLocality(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                address.setLocality(object);
+            }
 
-                });
+        });
         addressLocalityPanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel addressRegionPanel =
-                new AjaxTextFieldPanel("accordionContent", fieldName + ".region",
-                        new PropertyModel<String>(address, "accordionContent") {
+        AjaxTextFieldPanel addressRegionPanel = new AjaxTextFieldPanel("accordionContent", fieldName + ".region",
+                new PropertyModel<String>(address, "accordionContent") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return address.getRegion();
-                    }
+            @Override
+            public String getObject() {
+                return address.getRegion();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        address.setRegion(object);
-                    }
+            @Override
+            public void setObject(final String object) {
+                address.setRegion(object);
+            }
 
-                });
+        });
         addressRegionPanel.setChoices(plainSchemaNames);
 
         AjaxTextFieldPanel addressPostalCodePanel =
@@ -663,23 +632,22 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
                 });
         addressPostalCodePanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel addressPrimaryPanel =
-                new AjaxTextFieldPanel("accordionContent", fieldName + ".primary",
-                        new PropertyModel<String>(address, "accordionContent") {
+        AjaxTextFieldPanel addressPrimaryPanel = new AjaxTextFieldPanel("accordionContent", fieldName + ".primary",
+                new PropertyModel<String>(address, "accordionContent") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return String.valueOf(address.isPrimary());
-                    }
+            @Override
+            public String getObject() {
+                return String.valueOf(address.isPrimary());
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        address.setPrimary(Boolean.valueOf(object));
-                    }
+            @Override
+            public void setObject(final String object) {
+                address.setPrimary(Boolean.valueOf(object));
+            }
 
-                });
+        });
         addressPrimaryPanel.setChoices(Arrays.asList("true", "false"));
 
         panelList.add(addressCountryPanel);
@@ -696,5 +664,4 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
     public void onEvent(final IEvent<?> event) {
         super.onEvent(event);
     }
-
 }

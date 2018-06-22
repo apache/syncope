@@ -18,13 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.resource;
 
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
@@ -48,25 +45,19 @@ public abstract class AbstractItem extends AbstractGeneratedKeyEntity implements
      * Specify if the mapped target resource's field is nullable.
      */
     @NotNull
-    private String mandatoryCondition;
+    private String mandatoryCondition = Boolean.FALSE.toString();
 
     /**
      * Specify if the mapped target resource's field is the id.
      */
     @NotNull
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer connObjectKey;
+    private Boolean connObjectKey = false;
 
     /**
      * Specify if the mapped target resource's field is the password.
      */
     @NotNull
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer password;
+    private Boolean password = false;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -83,15 +74,6 @@ public abstract class AbstractItem extends AbstractGeneratedKeyEntity implements
      */
     @Column(name = "pullJEXL")
     private String pullJEXLTransformer;
-
-    public AbstractItem() {
-        super();
-
-        mandatoryCondition = Boolean.FALSE.toString();
-
-        connObjectKey = getBooleanAsInteger(false);
-        password = getBooleanAsInteger(false);
-    }
 
     @Override
     public String getExtAttrName() {
@@ -125,22 +107,22 @@ public abstract class AbstractItem extends AbstractGeneratedKeyEntity implements
 
     @Override
     public boolean isConnObjectKey() {
-        return isBooleanAsInteger(connObjectKey);
+        return connObjectKey;
     }
 
     @Override
     public void setConnObjectKey(final boolean connObjectKey) {
-        this.connObjectKey = getBooleanAsInteger(connObjectKey);
+        this.connObjectKey = connObjectKey;
     }
 
     @Override
     public boolean isPassword() {
-        return isBooleanAsInteger(password);
+        return password;
     }
 
     @Override
     public void setPassword(final boolean password) {
-        this.password = getBooleanAsInteger(password);
+        this.password = password;
     }
 
     @Override

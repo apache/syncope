@@ -56,7 +56,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
     private static final long serialVersionUID = -2356760296223908382L;
 
     public AnyTypeClassesPanel(final String id, final PageReference pageRef) {
-        super(id, pageRef);
+        super(id, false, pageRef);
         this.restClient = new AnyTypeClassRestClient();
         disableCheckBoxes();
 

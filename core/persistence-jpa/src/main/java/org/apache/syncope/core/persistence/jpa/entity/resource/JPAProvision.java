@@ -32,8 +32,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -78,9 +76,7 @@ public class JPAProvision extends AbstractGeneratedKeyEntity implements Provisio
     private String serializedSyncToken;
 
     @Basic
-    @Min(0)
-    @Max(1)
-    private Integer ignoreCaseMatch;
+    private Boolean ignoreCaseMatch = false;
 
     @ManyToOne
     private JPAPlainSchema uidOnCreate;
@@ -152,12 +148,12 @@ public class JPAProvision extends AbstractGeneratedKeyEntity implements Provisio
 
     @Override
     public boolean isIgnoreCaseMatch() {
-        return isBooleanAsInteger(ignoreCaseMatch);
+        return ignoreCaseMatch;
     }
 
     @Override
     public void setIgnoreCaseMatch(final boolean ignoreCaseMatch) {
-        this.ignoreCaseMatch = getBooleanAsInteger(ignoreCaseMatch);
+        this.ignoreCaseMatch = ignoreCaseMatch;
     }
 
     @Override
