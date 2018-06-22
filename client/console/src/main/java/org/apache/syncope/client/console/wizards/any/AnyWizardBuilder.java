@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.layout.AbstractAnyFormLayout;
 import org.apache.syncope.client.console.layout.AnyForm;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
@@ -27,6 +31,7 @@ import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
@@ -170,5 +175,18 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
                     true,
                     pageRef);
         }
+    }
+
+    protected Set<AttrTO> cleanEmptyPlainAttrs(final Set<AttrTO> plainAttrs) {
+        Set<AttrTO> newPlainAttrs = new HashSet<>(plainAttrs);
+        plainAttrs.clear();
+        CollectionUtils.filterInverse(newPlainAttrs, new Predicate<AttrTO>() {
+
+            @Override
+            public boolean evaluate(final AttrTO attr) {
+                return attr.getValues().isEmpty();
+            }
+        });
+        return newPlainAttrs;
     }
 }
