@@ -370,7 +370,7 @@ public abstract class AbstractMappingPanel extends Panel {
         mappings.setReuseItems(true);
         mappingContainer.add(mappings);
 
-        addMappingBtn = new IndicatingAjaxButton("addMappingBtn", new ResourceModel("add")) {
+        addMappingBtn = new IndicatingAjaxButton("addMappingBtn") {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
