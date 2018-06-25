@@ -96,7 +96,7 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        final FormTester formTester = TESTER.newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue(
                 "content:anyTypeClassDetailsPanel:form:container:plainSchemas:paletteField:recorder", plainSchema);

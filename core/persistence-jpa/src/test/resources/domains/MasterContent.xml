@@ -1438,7 +1438,7 @@ $$ }&#10;
   <AnyAbout id="a328f2e6-25e9-4cc1-badf-7425d7be4b39" anyType_id="USER" notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" filter="token!=$null"/>
   <Notification_events notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
   <Task DTYPE="NotificationTask" id="e1e520f0-2cbd-4e11-9a89-ea58a0f957e7" notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4"
-        sender="admin@prova.org" subject="Notification for SYNCOPE-81" 
+        sender="admin@prova.org" subject="Notification for SYNCOPE-81" executed="0"
         textBody="NOTIFICATION-81" htmlBody="NOTIFICATION-81" traceLevel="ALL"/>
   <NotificationTask_recipients notificationTask_id="e1e520f0-2cbd-4e11-9a89-ea58a0f957e7" address="recipient@prova.org"/>  
   
