@@ -235,5 +235,5 @@ The delegated administrator for approving recertifications can be configured by 
 Starting with Apache Syncope 2.0.3, another advanced adapter is provided for Users, based on
 http://www.flowable.org/[Flowable^], one of reference open source http://www.bpmn.org/[BPMN 2.0^] implementations.
 
-Since Flowable was http://www.flowable.org/blog/2016/10/12/flowable-and-activiti.html[forked from Activiti BPM^],
+Since Flowable was https://blog.flowable.org/2016/10/12/flowable-and-activiti-what-the-fork/[forked from Activiti BPM^],
 everything stated <<activiti-user-workflow-adapter,above>> about Activiti BPM can be applied.
