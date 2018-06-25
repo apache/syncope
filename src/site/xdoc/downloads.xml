@@ -37,13 +37,14 @@ under the License.
       </p>
 
       <div class="alert alert-info">
-        <h4>Don't know which downloads best suit your needs?</h4>
+        <h4>Don't know what do download? Click the buttons below to get more information.</h4>
         <br/>
         <div class="btn-group">
           <a href="docs/getting-started.html#maven-project" class="btn">Maven Project</a>
           <a href="docs/getting-started.html#standalone" class="btn">Standalone</a>
           <a href="docs/getting-started.html#debian-packages" class="btn">Debian Packages</a>
           <a href="docs/getting-started.html#gui-installer" class="btn">GUI Installer</a>
+          <a href="docs/getting-started.html#docker" class="btn">Docker images</a>
           <a href="docs/getting-started.html#eclipse-ide-plugin" class="btn">Eclipse IDE Plugin</a>
           <a href="docs/getting-started.html#netbeans-ide-plugin" class="btn">Netbeans IDE Plugin</a>
         </div>
