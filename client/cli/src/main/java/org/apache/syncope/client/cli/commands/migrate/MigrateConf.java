@@ -344,6 +344,15 @@ public class MigrateConf {
                                 writer.writeAttribute("id", lastUUID);
                                 writer.writeAttribute(
                                         "description", getAttributeValue(reader, "description"));
+                                String specificationAttr = getAttributeValue(reader, "specification");
+                                if (StringUtils.isNotBlank(specificationAttr)) {
+                                    ObjectNode templateRead = (ObjectNode) OBJECT_MAPPER.readTree(specificationAttr);
+                                    JsonNode conflictResolutionAction = templateRead.get("conflictResolutionAction");
+                                    ObjectNode templateWrite = OBJECT_MAPPER.createObjectNode();
+                                    templateWrite.set("conflictResolutionAction", conflictResolutionAction);
+                                    writer.writeAttribute(
+                                            "specification", OBJECT_MAPPER.writeValueAsString(templateWrite));
+                                }
                                 writer.writeEndElement();
                                 break;
 
@@ -668,8 +677,16 @@ public class MigrateConf {
                                 String userTemplate = getAttributeValue(reader, "userTemplate");
                                 if (StringUtils.isNotBlank(userTemplate)) {
                                     ObjectNode template = (ObjectNode) OBJECT_MAPPER.readTree(userTemplate);
-                                    JsonNode plainAttrs = template.remove("attrs");
+                                    JsonNode plainAttrs = template.remove("attributes");
                                     template.set("plainAttrs", plainAttrs);
+                                    template.remove("id");
+                                    template.set("key", null);
+                                    template.remove("readonly");
+                                    JsonNode derAttrs = template.remove("derivedAttributes");
+                                    template.set("derAttrs", derAttrs);
+                                    JsonNode virAttrs = template.remove("virtualAttributes");
+                                    template.set("virAttrs", virAttrs);
+                                    template.remove("propagationStatuses");
 
                                     writer.writeStartElement("AnyTemplatePullTask");
                                     writer.writeAttribute("id", UUID.randomUUID().toString());
@@ -681,8 +698,16 @@ public class MigrateConf {
                                 String roleTemplate = getAttributeValue(reader, "roleTemplate");
                                 if (StringUtils.isNotBlank(roleTemplate)) {
                                     ObjectNode template = (ObjectNode) OBJECT_MAPPER.readTree(roleTemplate);
-                                    JsonNode plainAttrs = template.remove("attrs");
+                                    JsonNode plainAttrs = template.remove("attributes");
                                     template.set("plainAttrs", plainAttrs);
+                                    template.remove("id");
+                                    template.set("key", null);
+                                    template.remove("readonly");
+                                    JsonNode derAttrs = template.remove("derivedAttributes");
+                                    template.set("derAttrs", derAttrs);
+                                    JsonNode virAttrs = template.remove("virtualAttributes");
+                                    template.set("virAttrs", virAttrs);
+                                    template.remove("propagationStatuses");
 
                                     writer.writeStartElement("AnyTemplatePullTask");
                                     writer.writeAttribute("id", UUID.randomUUID().toString());
