@@ -148,7 +148,7 @@ under the License.
           fundamental importance to go through these at least once for every major release.
         </p>
         <p>
-          For more information please take a look at <a href="building.html#fitcore-reference">build instructions</a>.
+          For more information please take a look at <a href="building#fitcore-reference">build instructions</a>.
         </p>
       </subsection>
       
@@ -572,6 +572,10 @@ svn rm *.html apidocs rest css images img js fonts docs
 svn mv $VERSION/* .
 svn rm $VERSION
 svn commit -m "Promoting the staging site"]]></source>
+          </li>
+          <li>
+            If releasing from 2_0_X, deploy the updated Docker images to <a href="https://hub.docker.com/">DockerHub</a> by adjusting the GIT tag
+             name then running the <a href="https://builds.apache.org/job/Syncope-2_0_X-Docker"/>dedicated Jenkins job</a>.
           </li>
         </ol>
       </subsection>

@@ -286,6 +286,148 @@ Credentials: `admin` / `password`
 
 |===
 
+=== Docker
+
+https://www.docker.com/[Docker^] images ready to use, published to https://hub.docker.com[Docker Hub^].
+
+[CAUTION]
+.Target Audience
+Getting up and running quickly on Docker. +
+*All configurations available to set, difficult customizations.*
+
+[WARNING]
+Working with these images requires to have Docker correctly installed and configured.
+
+[TIP]
+The Docker images can be used with orchestration tools as
+https://docs.docker.com/compose/[Docker Compose^] or https://kubernetes.io/[Kubernetes^].
+
+==== Docker images
+
+===== Core
+
+Apache Syncope Core, see <<a-bird-s-eye-view-on-the-architecture,above>> for information.
+
+Port exposed: `8080`.
+
+Environment variables:
+
+* `DBMS`: which type of relational DBMS is to be used as internal storage for Syncope Core; valid values are
+`postgresql`, `mariadb`, `mssql`, `mysql`
+* `DB_URL`: JDBC URL of internal storage
+* `DB_USER`: username for internal storage authentication
+* `DB_PASSWORD`: password for internal storage authentication
+* `DB_POOL_MAX`: internal storage connection pool: ceiling
+* `DB_POOL_MIN`: internal storage connection pool: floor
+* `OPENJPA_REMOTE_COMMIT`: configure multiple instances, with high availability; valid values are the ones accepted by
+OpenJPA for
+http://openjpa.apache.org/builds/3.0.0/apache-openjpa/docs/ref_guide_event.html[remote event notification^] including
+`sjvm` (single instance)
+
+===== Console
+
+Apache Syncope Admin UI, see <<a-bird-s-eye-view-on-the-architecture,above>> for information.
+
+Port exposed: `8080`.
+
+Environment variables:
+
+* `CORE_SCHEME`: URL scheme to connect to Syncope Core; valid values are `http` or `https`
+* `CORE_HOST`: host name or IP address to connect to Syncope Core
+* `CORE_PORT`: port number to connect to Syncope Core
+
+===== Enduser
+
+Apache Syncope Enduser UI, see <<a-bird-s-eye-view-on-the-architecture,above>> for information.
+
+Port exposed: `8080`.
+
+Environment variables:
+
+* `CORE_SCHEME`: URL scheme to connect to Syncope Core; valid values are `http` or `https`
+* `CORE_HOST`: host name or IP address to connect to Syncope Core
+* `CORE_PORT`: port number to connect to Syncope Core
+
+==== Docker Compose samples
+
+Besides the one reported below, more samples are
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/tree/syncope-{docVersion}/docker/src/main/resources[available^].
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/master/docker/src/main/resources[available^].
+endif::[]
+
+.Syncope Core, Admin UI and Enduser UI with PostgreSQL
+====
+The `docker-compose.yml` below will create and connect 4 Docker containers to provide a full-fledged, single
+instance, Apache Syncope deployment. All referenced images are available on Docker Hub.
+
+[source,yaml,subs="verbatim,attributes"]
+----
+version: '3.3'
+
+services:
+   db: // <1>
+     image: crunchydata/crunchy-postgres:centos7-10.3-1.8.2
+     restart: always
+     environment:
+       PG_ROOT_PASSWORD: postgres
+       PG_MODE: primary
+       PG_PRIMARY_USER: postgres
+       PG_PRIMARY_PASSWORD: postgres
+       PG_PRIMARY_HOST: localhost
+       PG_PRIMARY_PORT: 5432
+       PG_DATABASE: syncope
+       PG_USER: syncope
+       PG_PASSWORD: syncope
+
+   syncope: // <2>
+     depends_on:
+       - db
+     image: apache/syncope:{docVersion}
+     ports:
+       - "18080:8080"
+     restart: always
+     environment:
+       DBMS: postgresql
+       DB_URL: jdbc:postgresql://db:5432/syncope
+       DB_USER: syncope
+       DB_PASSWORD: syncope
+       DB_POOL_MAX: 10
+       DB_POOL_MIN: 2
+       OPENJPA_REMOTE_COMMIT: sjvm
+
+   syncope-console: // <3>
+     depends_on:
+       - syncope
+     image: apache/syncope-console:{docVersion}
+     ports:
+       - "28080:8080"
+     restart: always
+     environment:
+       CORE_SCHEME: http
+       CORE_HOST: syncope
+       CORE_PORT: 8080
+
+   syncope-enduser: // <4>
+     depends_on:
+       - syncope
+     image: apache/syncope-enduser:{docVersion}
+     ports:
+       - "38080:8080"
+     restart: always
+     environment:
+       CORE_SCHEME: http
+       CORE_HOST: syncope
+       CORE_PORT: 8080
+----
+<1> Database container for usage as internal storage, based on PostgreSQL 10.3
+<2> Apache Syncope Core, single instance, port `18080` exposed
+<3> Apache Syncope Admin UI, port `28080` exposed
+<4> Apache Syncope Enduser UI, port `38080` exposed
+====
+
 === Maven Project
 
 This is the *preferred method* for working with Apache Syncope, giving access to the whole set of customization

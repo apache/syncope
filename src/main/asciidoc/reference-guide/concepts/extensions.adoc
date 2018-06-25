@@ -138,7 +138,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/oidcclient[source tree^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/2_0_X/ext/oidcclient[source tree^]
+https://github.com/apache/syncope/tree/master/ext/oidcclient[source tree^]
 endif::[]
 .
 ====

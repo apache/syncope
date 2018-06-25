@@ -36,10 +36,10 @@ under the License.
       </p>
       <p>
         If you find errors or omissions in the documentation, please don’t hesitate to 
-        <a href="../issue-tracking.html">submit an issue</a> or 
-        <a href="../contributing.html#Documentation">contribute</a>.
+        <a href="../issue-tracking">submit an issue</a> or 
+        <a href="../contributing#Documentation">contribute</a>.
         We also encourage you to ask questions and discuss any aspects of the project on the 
-        <a href="../mailing-lists.html">mailing lists or IRC</a>. New contributors are always welcome!
+        <a href="../mailing-lists">mailing lists or IRC</a>. New contributors are always welcome!
       </p>
       
       <subsection name="Guides">
