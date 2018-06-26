@@ -58,13 +58,13 @@ under the License.
   <bean id="syncopeJWTSSOProviderDelegate" class="org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureVerifier">
     <constructor-arg value="#{jwsKey.getBytes()}" index="0"/>
     <constructor-arg index="1">
-      <value type="org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm">HS512</value>
+      <value type="org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm">${jwtSignAlgo}</value>
     </constructor-arg>
   </bean>
   <bean id="jwsSignatureProvider" class="org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureProvider">
     <constructor-arg value="#{jwsKey.getBytes()}" index="0"/>
     <constructor-arg index="1">
-      <value type="org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm">HS512</value>
+      <value type="org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm">${jwtSignAlgo}</value>
     </constructor-arg>
   </bean>
   
@@ -140,3 +140,4 @@ under the License.
     <security:authentication-provider ref="jwtAuthenticationProvider"/>
   </security:authentication-manager>
 </beans>
+
