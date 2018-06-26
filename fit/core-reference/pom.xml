@@ -486,6 +486,68 @@ under the License.
               <webXml>${basedir}/src/main/resources/elasticsearch/web.xml</webXml>
             </configuration>
           </plugin>
+          
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>docker.elastic.co/elasticsearch/elasticsearch:${elasticsearch.version}</name>
+                  <run>
+                    <env>
+                      <discovery.type>single-node</discovery.type>
+                      <cluster.name>elasticsearch</cluster.name>
+                      <xpack.security.enabled>false</xpack.security.enabled>
+                    </env>
+                    <ports>
+                      <port>9200:9200</port>
+                      <port>9300:9300</port>
+                    </ports>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-elasticsearch</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-elasticsearch</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
         
         <testResources>
@@ -537,6 +599,75 @@ under the License.
       <build>
         <defaultGoal>clean verify</defaultGoal>
 
+        <plugins>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>crunchydata/crunchy-postgres:centos7-10.3-1.8.2</name>
+                  <run>
+                    <env>
+                      <PG_ROOT_PASSWORD>postgres</PG_ROOT_PASSWORD>
+                      <PG_MODE>primary</PG_MODE>
+                      <PG_PRIMARY_USER>postgres</PG_PRIMARY_USER>
+                      <PG_PRIMARY_PASSWORD>postgres</PG_PRIMARY_PASSWORD>
+                      <PG_PRIMARY_HOST>localhost</PG_PRIMARY_HOST>
+                      <PG_PRIMARY_PORT>5432</PG_PRIMARY_PORT>
+                      <PG_DATABASE>syncope</PG_DATABASE>
+                      <PG_USER>syncope</PG_USER>
+                      <PG_PASSWORD>syncope</PG_PASSWORD>
+                    </env>
+                    <ports>
+                      <port>5432:5432</port>
+                    </ports>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-postgres</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-postgres</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+
         <resources>
           <resource>
             <directory>src/main/resources</directory>
@@ -584,6 +715,69 @@ under the License.
       <build>
         <defaultGoal>clean verify</defaultGoal>
 
+        <plugins>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>mysql/mysql-server:5.7</name>
+                  <run>
+                    <env>
+                      <MYSQL_DATABASE>syncope</MYSQL_DATABASE>
+                      <MYSQL_USER>syncope</MYSQL_USER>
+                      <MYSQL_PASSWORD>syncope</MYSQL_PASSWORD>
+                    </env>
+                    <ports>
+                      <port>3306:3306</port>
+                    </ports>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-mysql</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-mysql</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+
         <resources>
           <resource>
             <directory>src/main/resources</directory>
@@ -619,6 +813,70 @@ under the License.
       
       <build>
         <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>mariadb:10.3.7</name>
+                  <run>
+                    <env>
+                      <MYSQL_ROOT_PASSWORD>password</MYSQL_ROOT_PASSWORD>
+                      <MYSQL_DATABASE>syncope</MYSQL_DATABASE>
+                      <MYSQL_USER>syncope</MYSQL_USER>
+                      <MYSQL_PASSWORD>syncope</MYSQL_PASSWORD>
+                    </env>
+                    <ports>
+                      <port>3306:3306</port>
+                    </ports>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-mariadb</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-mariadb</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
 
         <resources>
           <resource>
@@ -656,6 +914,81 @@ under the License.
       <build>
         <defaultGoal>clean verify</defaultGoal>
 
+        <plugins>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>oracle-xe-11g</name>
+                  <build>
+                    <dockerFileDir>${project.basedir}/src/main/resources/oracle</dockerFileDir>
+                  </build>
+                  <run>
+                    <env>
+                      <ORACLE_DISABLE_ASYNCH_IO>true</ORACLE_DISABLE_ASYNCH_IO>
+                    </env>
+                    <ports>
+                      <port>1521:1521</port>
+                    </ports>
+                    <wait>
+                      <log>Disconnected from Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production</log>
+                      <time>30000</time>
+                    </wait>                
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>buid-oracle</id>
+                <phase>initialize</phase>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>start-oracle</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-oracle</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+
         <resources>
           <resource>
             <directory>src/main/resources</directory>
@@ -691,6 +1024,71 @@ under the License.
       
       <build>
         <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>mcmoe/mssqldocker:latest</name>
+                  <run>
+                    <env>
+                      <ACCEPT_EULA>Y</ACCEPT_EULA>
+                      <SA_PASSWORD>2astazeY</SA_PASSWORD>
+                      <MSSQL_DB>syncope</MSSQL_DB>
+                      <MSSQL_USER>syncope</MSSQL_USER>
+                      <MSSQL_PASSWORD>Syncope123</MSSQL_PASSWORD>
+                    </env>
+                    <ports>
+                      <port>1433:1433</port>
+                    </ports>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-sqlserver</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-sqlserver</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
 
         <resources>
           <resource>

@@ -14,15 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-Master.driverClassName=com.microsoft.sqlserver.jdbc.SQLServerDriver
-Master.url=jdbc:sqlserver://localhost:1433;databaseName=syncope
-Master.schema=dbo
-Master.username=syncope
-Master.password=Syncope123
-Master.databasePlatform=org.apache.openjpa.jdbc.sql.SQLServerDictionary
-Master.orm=META-INF/spring-orm-sqlserver.xml
 
-Master.pool.maxActive=10
-Master.pool.minIdle=2
+FROM wnameless/oracle-xe-11g
 
-Master.audit.sql=audit_sqlserver.sql
+ADD init.sql /docker-entrypoint-initdb.d/

@@ -39,13 +39,17 @@ import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.TaskTO;
+import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
+import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
+import org.apache.syncope.fit.ActivitiDetector;
 import org.apache.syncope.fit.core.reference.TestSampleJobDelegate;
+import org.junit.Assume;
 import org.junit.Test;
 
 public class SchedTaskITCase extends AbstractTaskITCase {
@@ -126,6 +130,25 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         assertTrue(execs.getResult().get(0).getStart().after(initial));
         // round 1 sec for safety
         assertTrue(DateUtils.addSeconds(execs.getResult().get(0).getStart(), 1).after(later));
+    }
+
+    @Test
+    public void recertification() {
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+
+        execTask(taskService, TaskType.SCHEDULED, "e95555d2-1b09-42c8-b25b-f4c4ec598989", "JOB_FIRED", 50, false);
+
+        List<WorkflowFormTO> forms = userWorkflowService.getForms();
+        assertFalse(forms.isEmpty());
+        for (WorkflowFormTO form : forms) {
+            userWorkflowService.claimForm(form.getTaskId());
+            WorkflowFormPropertyTO approve = form.getProperty("approve");
+            approve.setValue("true");
+            userWorkflowService.submitForm(form);
+        }
+
+        forms = userWorkflowService.getForms();
+        assertTrue(forms.isEmpty());
     }
 
     @Test
