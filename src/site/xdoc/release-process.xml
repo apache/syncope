@@ -317,6 +317,18 @@ mvn javadoc:aggregate
 cd common
 mvn -P offline-doc
 
+# else if releasing from 2_0_X
+cd fit/core-reference && mvn -Pdebug,all
+curl -o /tmp/index.html http://localhost:9080/syncope/index.html
+sed -i 's/\/syncope\/webjars\/jquery\/2.2.4\/jquery.min.js/https:\/\/code.jquery.com\/jquery-2.2.4.min.js/' index.html 
+sed -i 's/\/syncope\/webjars\/jquery-ui\/1.11.4\/jquery-ui.min.js/http:\/\/code.jquery.com\/ui\/1.11.4\/jquery-ui.min.js/' index.html               
+sed -i 's/\/syncope\/webjars\/jquery-ui-themes\/1.11.4\/smoothness\/jquery-ui.min.css/https:\/\/code.jquery.com\/ui\/1.11.4\/themes\/smoothness\/jquery-ui.css/' index.html 
+curl -o /tmp/schema_1_syncope2.html http://localhost:9080/syncope/schema_1_syncope2.html
+sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/styles\/default.min.css/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.8.0\/styles\/default.min.css/' schema_1_syncope2.html 
+sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/highlight.min.js/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.8.0\/highlight.min.js/' schema_1_syncope2.html 
+curl -o /tmp/syncope.wadl http://localhost:9080/syncope/syncope.wadl
+# now CTRL+C to stop cargo
+
 svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
 
 cd $SYNCOPE_SITE_DIR
@@ -324,7 +336,7 @@ mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to/site>/$VERSION
 
 cd <absolute path to/site>/$VERSION
 
-# if releasing from 1_2_X              
+# if releasing from 1_2_X         
 cp -r <absolute path to syncope-$VERSION above>/target/site/apidocs apidocs/1.2              
 cp -r <absolute path to syncope-$VERSION above>/common/target/generated/wadl/ rest/1.2
 rm -rf apidocs/2.0
@@ -438,13 +450,13 @@ GIT source tag (XXXXXXXXXXXXXXXX):
 https://git-wip-us.apache.org/repos/asf?p=syncope.git;a=tag;h=XXXXXXXXXXXXXXXX
 
 List of changes:
-https://git-wip-us.apache.org/repos/asf?p=syncope.git;a=blob_plain;f=CHANGES;h=0a7fb550234f89f4ad315272cf934f2e050250f7;hb=acbc816bdd6a75b27d8fb12b46905fe07e2cd977              
+https://git-wip-us.apache.org/repos/asf?p=syncope.git;a=blob_plain;f=CHANGES;h=XXXXXXXXXXXXXXXX;hb=YYYYYYYYYYYYYYYYYYYYY              
 
 Staging artifacts:
 https://dist.apache.org/repos/dist/dev/syncope/$VERSION
 
 Maven staging repo:
-https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
+https://repository.apache.org/content/repositories/orgapachesyncope-ZZZZ/
 
 Staging site:
 http://syncope.apache.org/$VERSION/
@@ -457,24 +469,6 @@ Vote will be open for 72 hours.
 [ ] +1  approve
 [ ] +0  no opinion
 [ ] -1  disapprove (and reason why)]]></pre>
-          </li>
-          <li>
-            Create a <code>DISCUSS</code> email thread on <a href="mailto:dev@syncope.apache.org">syncope-dev</a> for any vote questions, e.g.:
-            <pre><![CDATA[
-To: dev@syncope.apache.org
-Subject: [DISCUSS] Apache Syncope $VERSION
-
-Discussion thread for vote on $VERSION release, with GIT source tag (XXXXXXXXXXXXXXXX).
-
-For more information on the release process, check out http://www.apache.org/dev/release.html
-
-Some of the things to check before voting are:
-- does "mvn apache-rat:check" pass on the source
-- can you build the contents of source release zip and GIT tag
-- do all of the staged jars/wars/zips contain the required LICENSE and NOTICE files
-- are all of the staged jars/wars/zips signed and the signature verifiable
-- is the signing key in the project's KEYS file and on a public server (i.e. http://www.apache.org/dist/syncope/)]]>
-            </pre>
           </li>
           <li>
             Perform a review of the release and cast your vote; more details on
@@ -575,7 +569,7 @@ svn commit -m "Promoting the staging site"]]></source>
           </li>
           <li>
             If releasing from 2_0_X, deploy the updated Docker images to <a href="https://hub.docker.com/">DockerHub</a> by adjusting the GIT tag
-             name then running the <a href="https://builds.apache.org/job/Syncope-2_0_X-Docker"/>dedicated Jenkins job</a>.
+             name then running the <a href="https://builds.apache.org/job/Syncope-2_0_X-Docker">dedicated Jenkins job</a>.
           </li>
         </ol>
       </subsection>
