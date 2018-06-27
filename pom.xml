@@ -1815,12 +1815,6 @@ under the License.
         </plugin>
         
         <plugin>
-          <groupId>org.apache.cxf</groupId>
-          <artifactId>cxf-java2wadl-plugin</artifactId>
-          <version>${cxf.version}</version>
-        </plugin>
-        
-        <plugin>
           <groupId>org.apache.openjpa</groupId>
           <artifactId>openjpa-maven-plugin</artifactId>
           <version>${openjpa.version}</version>
