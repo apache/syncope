@@ -2,6 +2,54 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.0.9
+================================================================================
+
+** Bug
+    * [SYNCOPE-1282] - Search schema error
+    * [SYNCOPE-1285] - Quartz db init on HA environments occurs on all nodes
+    * [SYNCOPE-1288] - Propagation tasks list not keeping order while browsing pages
+    * [SYNCOPE-1290] - Deletion of only schema entry breaks schema UI
+    * [SYNCOPE-1291] - Cannot login again into Admin Console after Session Expired
+    * [SYNCOPE-1293] - Default password reset notifications not working
+    * [SYNCOPE-1294] - Plainschema panel doesn't display the assigned validator class
+    * [SYNCOPE-1297] - Select all + bulk button redirecting to top of the page on click
+    * [SYNCOPE-1298] - Quartz jobs with no matching Task or Report not visible from Admin Console
+    * [SYNCOPE-1301] - Token creation is not threadsafe
+    * [SYNCOPE-1303] - Content migration from 1.2 problems
+    * [SYNCOPE-1304] - Order Groups by userOwner throws DataIntegrityViolation exception
+    * [SYNCOPE-1306] -  Date value without a conversion pattern not shown by Admin Console
+    * [SYNCOPE-1307] - Wrong export order for Realms
+    * [SYNCOPE-1308] - Exception getting users with orderBy on SyncopeClient API with Postgres 10.3
+    * [SYNCOPE-1309] - Enduser UI does not remove Access Token on Finish
+    * [SYNCOPE-1312] - Console CSS is depending from Google fonts
+    * [SYNCOPE-1314] - Bulk action from reconciliation section ever shows NOT ATTEMPTED after provision
+    * [SYNCOPE-1315] - Propagation task sorting by Object Type not working as expected
+    * [SYNCOPE-1317] - RuntimeException when remove all schemas
+    * [SYNCOPE-1318] - Future task rejected from ScheduledThreadPoolExecutor
+    * [SYNCOPE-1319] - Pull Task template not assigning roles
+    * [SYNCOPE-1320] - Push task report generation fails in case of IgnoreProvisionException
+    * [SYNCOPE-1321] - Search doesn't work for date attributes with conversion pattern with time zone
+    * [SYNCOPE-1326] - Wizard generates unnecessary attrPatch when the field is empty
+
+** New Feature
+    * [SYNCOPE-1018] - Social registration for Enduser UI
+    * [SYNCOPE-1256] - Docker images
+    * [SYNCOPE-1270] - OpenID Connect client feature
+    * [SYNCOPE-1283] - Support Azure AD
+    * [SYNCOPE-1289] - REST: support YAML payloads
+    * [SYNCOPE-1310] - Support SCIM v1.1
+    * [SYNCOPE-1316] - Support ServiceNow
+
+** Improvement
+    * [SYNCOPE-1148] - SAML-initiated self-registration
+    * [SYNCOPE-1292] - Use Remote Key during Pull to match internal entities
+    * [SYNCOPE-1295] - Create a structured wizard to edit SCIM 2.0 configuration 
+    * [SYNCOPE-1299] - Manual reconciliation
+    * [SYNCOPE-1302] - New expression model in mapping for internal attributes to access user relationships
+    * [SYNCOPE-1322] - Get available tasks from workflow definition
+    * [SYNCOPE-1324] - Have I Been Pwned password rule
+
 Release Notes - Syncope - Version 2.0.8
 ================================================================================
 
