@@ -260,6 +260,8 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             }
         }
 
+        group = groupDAO.saveAndRefreshDynMemberships(group);
+
         // type extensions
         for (TypeExtensionTO typeExtTO : groupPatch.getTypeExtensions()) {
             AnyType anyType = anyTypeDAO.find(typeExtTO.getAnyType());

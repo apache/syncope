@@ -281,8 +281,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     }
 
     @Override
-    public Group save(final Group group) {
-        Group merged = super.save(group);
+    public Group saveAndRefreshDynMemberships(final Group group) {
+        Group merged = save(group);
         publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged, AuthContextUtils.getDomain()));
 
         // refresh dynamic memberships
@@ -417,7 +417,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public int countAMembers(final Group group) {
         Query query = entityManager().createNativeQuery(
-            "SELECT COUNT(anyObject_id) FROM " + JPAAMembership.TABLE + " WHERE group_id=?");
+                "SELECT COUNT(anyObject_id) FROM " + JPAAMembership.TABLE + " WHERE group_id=?");
         query.setParameter(1, group.getKey());
 
         return ((Number) query.getSingleResult()).intValue();
@@ -426,7 +426,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public int countUMembers(final Group group) {
         Query query = entityManager().createNativeQuery(
-            "SELECT COUNT(user_id) FROM " + JPAUMembership.TABLE + " WHERE group_id=?");
+                "SELECT COUNT(user_id) FROM " + JPAUMembership.TABLE + " WHERE group_id=?");
         query.setParameter(1, group.getKey());
 
         return ((Number) query.getSingleResult()).intValue();
@@ -435,7 +435,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public int countADynMembers(final Group group) {
         Query query = entityManager().createNativeQuery(
-            "SELECT COUNT(any_id) FROM " + ADYNMEMB_TABLE + " WHERE group_id=?");
+                "SELECT COUNT(any_id) FROM " + ADYNMEMB_TABLE + " WHERE group_id=?");
         query.setParameter(1, group.getKey());
 
         return ((Number) query.getSingleResult()).intValue();

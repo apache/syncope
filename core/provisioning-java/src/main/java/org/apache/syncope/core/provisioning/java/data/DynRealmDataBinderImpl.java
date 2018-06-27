@@ -96,7 +96,7 @@ public class DynRealmDataBinderImpl implements DynRealmDataBinder {
             }
         });
 
-        return dynRealmDAO.save(dynRealm);
+        return dynRealmDAO.saveAndRefreshDynMemberships(dynRealm);
     }
 
     @Override

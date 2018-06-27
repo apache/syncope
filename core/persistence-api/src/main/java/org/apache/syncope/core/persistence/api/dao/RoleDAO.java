@@ -38,6 +38,8 @@ public interface RoleDAO extends DAO<Role> {
 
     Role save(Role role);
 
+    Role saveAndRefreshDynMemberships(Role role);
+
     void delete(Role role);
 
     void delete(String key);

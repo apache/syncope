@@ -93,7 +93,7 @@ public class AnySearchTest extends AbstractTest {
 
         role.setDynMembership(dynMembership);
 
-        role = roleDAO.save(role);
+        role = roleDAO.saveAndRefreshDynMemberships(role);
         assertNotNull(role);
 
         roleDAO.flush();

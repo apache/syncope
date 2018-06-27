@@ -98,7 +98,12 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
 
     @Override
     public Role save(final Role role) {
-        Role merged = entityManager().merge(role);
+        return entityManager().merge(role);
+    }
+
+    @Override
+    public Role saveAndRefreshDynMemberships(final Role role) {
+        Role merged = save(role);
 
         // refresh dynamic memberships
         clearDynMembers(merged);
@@ -197,5 +202,4 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
         delete.setParameter(1, key);
         delete.executeUpdate();
     }
-
 }

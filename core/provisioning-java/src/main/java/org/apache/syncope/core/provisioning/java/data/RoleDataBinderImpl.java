@@ -139,7 +139,7 @@ public class RoleDataBinderImpl implements RoleDataBinder {
             }
         }
 
-        return role;
+        return roleDAO.saveAndRefreshDynMemberships(role);
     }
 
     @Override
@@ -164,5 +164,4 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
         return roleTO;
     }
-
 }
