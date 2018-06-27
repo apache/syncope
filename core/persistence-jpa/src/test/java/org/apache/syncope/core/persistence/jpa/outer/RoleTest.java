@@ -121,7 +121,7 @@ public class RoleTest extends AbstractTest {
 
         role.setDynMembership(dynMembership);
 
-        Role actual = roleDAO.save(role);
+        Role actual = roleDAO.saveAndRefreshDynMemberships(role);
         assertNotNull(actual);
 
         roleDAO.flush();

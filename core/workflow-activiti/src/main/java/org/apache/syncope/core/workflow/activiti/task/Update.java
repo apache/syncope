@@ -18,12 +18,7 @@
  */
 package org.apache.syncope.core.workflow.activiti.task;
 
-import java.util.Set;
-import org.apache.syncope.common.lib.AnyOperations;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -49,22 +44,11 @@ public class Update extends AbstractActivitiServiceTask {
                 getVariable(executionId, ActivitiUserWorkflowAdapter.USER_PATCH, UserPatch.class);
 
         user = userDAO.save(user);
-        UserTO original = dataBinder.getUserTO(user, true);
 
         PropagationByResource propByRes = dataBinder.update(user, userPatch);
-        PasswordPatch password = userPatch.getPassword();
-        Set<AttrTO> virAttrs = userPatch.getVirAttrs();
-
-        UserTO updated = dataBinder.getUserTO(user.getKey());
-        userPatch = AnyOperations.diff(updated, original, false);
-        userPatch.setPassword(password);
-        userPatch.getVirAttrs().clear();
-        userPatch.getVirAttrs().addAll(virAttrs);
 
         // report updated user and propagation by resource as result
         engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.USER, user);
-        engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.USER_TO, updated);
-        engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.USER_PATCH, userPatch);
         engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.PROP_BY_RESOURCE, propByRes);
     }
 }

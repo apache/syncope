@@ -125,7 +125,7 @@ public class RoleDataBinderImpl implements RoleDataBinder {
             setDynMembership(role, roleTO.getDynMembershipCond());
         }
 
-        return role;
+        return roleDAO.saveAndRefreshDynMemberships(role);
     }
 
     @Override

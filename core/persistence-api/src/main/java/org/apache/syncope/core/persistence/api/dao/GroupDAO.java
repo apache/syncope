@@ -94,4 +94,11 @@ public interface GroupDAO extends AnyDAO<Group> {
      */
     Set<String> removeDynMemberships(User user);
 
+    /**
+     * Saves the provided group and refreshes all User and AnyObject members.
+     *
+     * @param group group to save
+     * @return merged group
+     */
+    Group saveAndRefreshDynMemberships(Group group);
 }

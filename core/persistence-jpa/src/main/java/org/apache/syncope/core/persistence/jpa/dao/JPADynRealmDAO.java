@@ -87,7 +87,12 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
 
     @Override
     public DynRealm save(final DynRealm dynRealm) {
-        DynRealm merged = entityManager().merge(dynRealm);
+        return entityManager().merge(dynRealm);
+    }
+
+    @Override
+    public DynRealm saveAndRefreshDynMemberships(final DynRealm dynRealm) {
+        DynRealm merged = save(dynRealm);
 
         // refresh dynamic memberships
         clearDynMembers(merged);
@@ -155,5 +160,4 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
         delete.setParameter(1, key);
         delete.executeUpdate();
     }
-
 }

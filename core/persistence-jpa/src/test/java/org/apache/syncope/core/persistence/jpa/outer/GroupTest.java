@@ -227,7 +227,7 @@ public class GroupTest extends AbstractTest {
 
         group.setUDynMembership(dynMembership);
 
-        Group actual = groupDAO.save(group);
+        Group actual = groupDAO.saveAndRefreshDynMemberships(group);
         assertNotNull(actual);
 
         groupDAO.flush();
@@ -328,7 +328,7 @@ public class GroupTest extends AbstractTest {
 
         group.add(dynMembership);
 
-        Group actual = groupDAO.save(group);
+        Group actual = groupDAO.saveAndRefreshDynMemberships(group);
         assertNotNull(actual);
 
         groupDAO.flush();

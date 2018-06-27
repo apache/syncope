@@ -72,7 +72,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_CREATE + "')")
     public RoleTO create(final RoleTO roleTO) {
-        return binder.getRoleTO(roleDAO.save(binder.create(roleTO)));
+        return binder.getRoleTO(binder.create(roleTO));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_UPDATE + "')")
@@ -83,7 +83,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
             throw new NotFoundException(roleTO.getKey());
         }
 
-        return binder.getRoleTO(roleDAO.save(binder.update(role, roleTO)));
+        return binder.getRoleTO(binder.update(role, roleTO));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_DELETE + "')")
@@ -159,5 +159,4 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
 
         throw new UnresolvedReferenceException();
     }
-
 }

@@ -30,6 +30,8 @@ public interface DynRealmDAO extends DAO<DynRealm> {
 
     DynRealm save(DynRealm dynRealm);
 
+    DynRealm saveAndRefreshDynMemberships(DynRealm dynRealm);
+
     void delete(String key);
 
     void clearDynMembers(DynRealm dynRealm);
