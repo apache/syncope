@@ -18,7 +18,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 <site>
-   <bundle id="org.apache.syncope.ide.eclipse.plugin" version="2.0.10.qualifier">
+   <bundle id="org.apache.syncope.ide.eclipse.plugin" version="2.0.9.qualifier">
       <category name="apachesyncope"/>
    </bundle>
    <category-def name="apachesyncope" label="Apache Syncope">
