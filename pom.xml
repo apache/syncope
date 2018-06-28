@@ -2351,6 +2351,10 @@ under the License.
           </plugin>
         </plugins>
       </build>
+
+      <modules>
+        <module>docker</module>
+      </modules>
     </profile>
 
     <profile>
