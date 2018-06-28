@@ -195,7 +195,7 @@ git push]]></source>
         <ol>
           <li>
             Do a dry run of the <code>release:prepare</code> step.
-            <source>mvn -P apache-release release:prepare -Darguments="-DbuildNumber=syncope-$VERSION" -DdryRun=true</source>
+            <source>mvn -P apache-release release:prepare -Darguments="-P all,docker -DbuildNumber=syncope-$VERSION" -DdryRun=true</source>
 
             The dry run will not commit any changes and gives you the opportunity to verify that the 
             release process will complete as expected.
@@ -248,7 +248,7 @@ gpg: Signature made ...]]></source>
           <li>
             Run the <code>release:prepare</code> step for real this time. You'll be prompted for the same version 
             information and optionally your GPG passphrase again.
-            <source>mvn -P apache-release release:prepare -Darguments="-DbuildNumber=syncope-$VERSION"</source>
+            <source>mvn -P apache-release release:prepare -Darguments="-P all,docker -DbuildNumber=syncope-$VERSION"</source>
           </li>
           <li>
             Backup (zip or tar) your local release candidate directory in case you need to rollback the release after 
@@ -288,8 +288,8 @@ cp $SYNCOPE_RELEASE_DIR/client/cli/target/syncope-client-cli-*.zip .
 cp $SYNCOPE_RELEASE_DIR/client/cli/target/syncope-client-cli-*.zip.asc .
 cp $SYNCOPE_RELEASE_DIR/ide/eclipse/releng/org.apache.syncope.ide.eclipse.site/target/org.apache.syncope.ide.eclipse.site-*.zip .
 cp $SYNCOPE_RELEASE_DIR/ide/eclipse/releng/org.apache.syncope.ide.eclipse.site/target/org.apache.syncope.ide.eclipse.site-*.zip.asc .
-cp $SYNCOPE_RELEASE_DIR/ide/netbeans/target/nbm/syncope-ide-netbeans-*.nbm .
-cp $SYNCOPE_RELEASE_DIR/ide/netbeans/target/nbm/syncope-ide-netbeans-*.nbm.asc .
+cp $SYNCOPE_RELEASE_DIR/ide/netbeans/target/syncope-ide-netbeans-*.nbm .
+cp $SYNCOPE_RELEASE_DIR/ide/netbeans/target/syncope-ide-netbeans-*.nbm.asc .
               
 for file in `find . -type f -iname '*.asc'`
 do
@@ -356,7 +356,7 @@ svn commit -m "Staging site for release"]]></source>
           </li>
           <li>
             From <code>$SYNCOPE_RELEASE_DIR</code> execute (this step will create a maven staging repository):
-            <source>mvn -P apache-release release:perform -Darguments="-DbuildNumber=syncope-$VERSION" [-Duser.name=&lt;your_apache_uid&gt;]</source>
+            <source>mvn -P apache-release release:perform -Darguments="-P all,docker -DbuildNumber=syncope-$VERSION" [-Duser.name=&lt;your_apache_uid&gt;]</source>
         
             <p>
               <em>If your local OS userid doesn't match your Apache userid, then you'll have to also override the value 
@@ -426,21 +426,9 @@ svn commit -m "Staging site for release"]]></source>
               <li>
                 <tt>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests/pom.xml</tt>
               </li>
-              <li>
-                <tt>docker/pom.xml</tt>
-              </li>
-              <li>
-                <tt>docker/core/pom.xml</tt>
-              </li>
-              <li>
-                <tt>docker/console/pom.xml</tt>
-              </li>
-              <li>
-                <tt>docker/enduser/pom.xml</tt>
-              </li>
             </ol>
             then commit and push:
-            <source><![CDATA[git commit -a -m "Updating Eclipse and Docker files for next development iteration"
+            <source><![CDATA[git commit -a -m "Updating Eclipse files for next development iteration"
 git push]]></source>            
           </li>
         </ol>
