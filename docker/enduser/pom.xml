@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-docker</artifactId>
-    <version>2.0.9-SNAPSHOT</version>
+    <version>2.0.9</version>
   </parent>
 
   <name>Apache Syncope Docker Enduser</name>
@@ -58,8 +58,7 @@ under the License.
             <phase>process-resources</phase>
             <configuration>
               <target>
-                <copy file="${basedir}/../../deb/enduser/target/apache-syncope-enduser-${project.version}.deb"
-                      todir="${project.build.directory}/classes" overwrite="true"/>
+                <copy file="${basedir}/../../deb/enduser/target/apache-syncope-enduser-${project.version}.deb" todir="${project.build.directory}/classes" overwrite="true" />
               </target>
             </configuration>
             <goals>
