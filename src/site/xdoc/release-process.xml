@@ -428,7 +428,7 @@ svn commit -m "Staging site for release"]]></source>
               </li>
             </ol>
             then commit and push:
-            <source><![CDATA[git commit -a -m "Updating Eclipse and Docker files for next development iteration"
+            <source><![CDATA[git commit -a -m "Updating Eclipse files for next development iteration"
 git push]]></source>            
           </li>
         </ol>
