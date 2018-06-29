@@ -78,5 +78,4 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         WorkflowResult<Pair<UserPatch, Boolean>> update = uwfAdapter.update((UserPatch) patch);
         return new WorkflowResult<>(update.getResult().getLeft(), update.getPropByRes(), update.getPerformedTasks());
     }
-
 }

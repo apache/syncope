@@ -99,18 +99,4 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
         return updated.getLeft();
     }
-
-    @Override
-    protected void doDelete(final AnyTypeKind kind, final String key) {
-        try {
-            userProvisioningManager.delete(
-                    key, Collections.<String>singleton(profile.getTask().getResource().getKey()), true);
-        } catch (Exception e) {
-            // A propagation failure doesn't imply a pull failure.
-            // The propagation exception status will be reported into the propagation task execution.
-            LOG.error("Could not propagate user " + key, e);
-        }
-
-        uwfAdapter.delete(key);
-    }
 }

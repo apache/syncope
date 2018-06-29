@@ -26,7 +26,6 @@ import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.MatchingRule;
@@ -94,25 +93,6 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
     protected abstract AnyTO doCreate(AnyTO anyTO, SyncDelta delta);
 
     protected abstract AnyPatch doUpdate(AnyTO before, AnyPatch anyPatch, SyncDelta delta, ProvisioningReport result);
-
-    protected void doDelete(final AnyTypeKind kind, final String key) {
-        PropagationByResource propByRes = new PropagationByResource();
-        propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
-        try {
-            taskExecutor.execute(propagationManager.getDeleteTasks(
-                    kind,
-                    key,
-                    propByRes,
-                    null),
-                    false);
-        } catch (Exception e) {
-            // A propagation failure doesn't imply a pull failure.
-            // The propagation exception status will be reported into the propagation task execution.
-            LOG.error("Could not propagate anyObject " + key, e);
-        }
-
-        getProvisioningManager().delete(key, Collections.singleton(profile.getTask().getResource().getKey()), true);
-    }
 
     @Override
     public void setPullExecutor(final SyncopePullExecutor executor) {
@@ -645,7 +625,8 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     }
 
                     try {
-                        doDelete(provision.getAnyType().getKind(), key);
+                        getProvisioningManager().
+                                delete(key, Collections.singleton(profile.getTask().getResource().getKey()), true);
                         output = null;
                         resultStatus = Result.SUCCESS;
 
