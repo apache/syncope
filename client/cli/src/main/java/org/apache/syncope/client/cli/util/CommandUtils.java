@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.cli.util;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.cli.Command;
@@ -27,7 +28,8 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 public final class CommandUtils {
 
     public static AbstractCommand fromArgs(final String arg)
-            throws InstantiationException, IllegalAccessException, IllegalArgumentException {
+            throws NoSuchMethodException, InstantiationException, IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException {
 
         final CommandClassScanner ccs = new CommandClassScanner();
         final List<Class<? extends AbstractCommand>> commands = ccs.getComponentClasses();
@@ -43,11 +45,12 @@ public final class CommandUtils {
             throw new IllegalArgumentException(arg + " is not a valid command");
         }
 
-        return commandClass.newInstance();
+        return commandClass.getDeclaredConstructor().newInstance();
     }
 
     public static List<AbstractCommand> commands()
-            throws InstantiationException, IllegalAccessException, IllegalArgumentException {
+            throws InstantiationException, IllegalAccessException, IllegalArgumentException,
+            NoSuchMethodException, InvocationTargetException {
 
         final List<AbstractCommand> listCommands = new ArrayList<>();
 
@@ -58,7 +61,7 @@ public final class CommandUtils {
             if (cmd == null) {
                 throw new IllegalArgumentException();
             }
-            listCommands.add(cmd.newInstance());
+            listCommands.add(cmd.getDeclaredConstructor().newInstance());
         }
 
         return listCommands;

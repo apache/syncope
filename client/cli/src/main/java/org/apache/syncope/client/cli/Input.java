@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.cli;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +45,8 @@ public class Input {
     private String option;
 
     public Input(final String[] args)
-            throws InstantiationException, IllegalAccessException, IllegalArgumentException {
+            throws InstantiationException, IllegalAccessException, IllegalArgumentException,
+            NoSuchMethodException, InvocationTargetException {
 
         command = CommandUtils.fromArgs(args[0]);
         commandFields.add(args[0]);

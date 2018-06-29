@@ -89,8 +89,9 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
         disableCheckBoxes();
 
         try {
-            addNewItemPanelBuilder(new SchemaTypeWizardBuilder(schemaType.getToClass().newInstance(), pageRef), true);
-        } catch (IllegalAccessException | InstantiationException e) {
+            addNewItemPanelBuilder(new SchemaTypeWizardBuilder(
+                    schemaType.getToClass().getDeclaredConstructor().newInstance(), pageRef), true);
+        } catch (Exception e) {
             LOG.error("Error creating instance of {}", schemaType, e);
         }
 

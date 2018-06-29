@@ -93,8 +93,8 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         this.reference = reference;
 
         try {
-            schedTaskTO = reference.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            schedTaskTO = reference.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
             LOG.error("Falure instantiating task", e);
         }
 

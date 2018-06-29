@@ -452,15 +452,15 @@ public class ConnectorITCase extends AbstractITCase {
 
     @Test
     public void buildObjectClassInfo() {
-        ConnInstanceTO ws = connectorService.read(
-                "5ffbb4ac-a8c3-4b44-b699-11b398a1ba08", Locale.ENGLISH.getLanguage());
-        assertNotNull(ws);
+        ConnInstanceTO db = connectorService.read(
+                "5aa5b8be-7521-481a-9651-c557aea078c1", Locale.ENGLISH.getLanguage());
+        assertNotNull(db);
 
-        List<ConnIdObjectClassTO> objectClassInfo = connectorService.buildObjectClassInfo(ws, true);
+        List<ConnIdObjectClassTO> objectClassInfo = connectorService.buildObjectClassInfo(db, true);
         assertNotNull(objectClassInfo);
         assertEquals(1, objectClassInfo.size());
         assertEquals(ObjectClass.ACCOUNT_NAME, objectClassInfo.get(0).getType());
-        assertTrue(objectClassInfo.get(0).getAttributes().contains("promoThirdPartyDisclaimer"));
+        assertTrue(objectClassInfo.get(0).getAttributes().contains("ID"));
 
         ConnInstanceTO ldap = connectorService.read(
                 "74141a3b-0762-4720-a4aa-fc3e374ef3ef", Locale.ENGLISH.getLanguage());

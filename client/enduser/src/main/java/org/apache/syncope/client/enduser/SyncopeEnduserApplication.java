@@ -203,7 +203,7 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                 LOG.debug("No @Resource annotation found on {}, ignoring", resource.getName());
             } else {
                 try {
-                    final AbstractResource instance = resource.newInstance();
+                    final AbstractResource instance = resource.getDeclaredConstructor().newInstance();
 
                     mountResource(annotation.path(), new ResourceReference(annotation.key()) {
 

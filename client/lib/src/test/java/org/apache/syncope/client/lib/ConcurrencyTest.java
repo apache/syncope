@@ -32,12 +32,10 @@ public class ConcurrencyTest {
 
     private static final int THREAD_NUMBER = 1000;
 
-    private static final SyncopeClient client = new SyncopeClientFactoryBean().setAddress("http://url").create();
+    private static final SyncopeClient CLIENT = new SyncopeClientFactoryBean().setAddress("http://url").create();
 
     @Test
-    public void multiThreadTest()
-            throws InterruptedException {
-
+    public void multiThreadTest() throws InterruptedException {
         for (int i = 0; i < THREAD_NUMBER; i++) {
             Thread execution = new Thread("Th-" + StringUtils.leftPad(String.valueOf(i), 5, '0')) {
 
@@ -45,7 +43,7 @@ public class ConcurrencyTest {
                 public void run() {
 
                     try {
-                        client.getService(ResourceService.class);
+                        CLIENT.getService(ResourceService.class);
 
                         LOG.info(getName() + " completed successfully!");
                     } catch (Exception e) {
@@ -67,7 +65,7 @@ public class ConcurrencyTest {
     public void multiCallTest() {
         try {
             for (int i = 0; i < THREAD_NUMBER; i++) {
-                client.getService(ResourceService.class);
+                CLIENT.getService(ResourceService.class);
             }
         } catch (Exception e) {
             fail(e.getMessage());

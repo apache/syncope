@@ -55,12 +55,11 @@ public class XMLContentExporterTest extends AbstractTest {
 
         List<String> realms = IOUtils.readLines(
                 IOUtils.toInputStream(exported, Charset.defaultCharset()), Charset.defaultCharset()).stream().
-                filter(row -> row.startsWith("<REALM")).collect(Collectors.toList());
+                filter(row -> row.trim().startsWith("<REALM")).collect(Collectors.toList());
         assertEquals(4, realms.size());
         assertTrue(realms.get(0).contains("NAME=\"/\""));
         assertTrue(realms.get(1).contains("NAME=\"odd\""));
         assertTrue(realms.get(2).contains("NAME=\"even\""));
         assertTrue(realms.get(3).contains("NAME=\"two\""));
     }
-
 }

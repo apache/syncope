@@ -295,7 +295,7 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
                 if (clazz != null) {
                     try {
                         target.appendJavaScript("editor.getDoc().setValue('"
-                                + MAPPER.writeValueAsString(clazz.newInstance())
+                                + MAPPER.writeValueAsString(clazz.getDeclaredConstructor().newInstance())
                                 + "');");
                     } catch (Exception e) {
                         LOG.error("Could not generate a value for {}", jsonClass.getModelObject(), e);

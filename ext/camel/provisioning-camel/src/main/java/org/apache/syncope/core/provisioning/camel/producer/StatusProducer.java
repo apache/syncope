@@ -86,7 +86,7 @@ public class StatusProducer extends AbstractProducer {
                 }
             }
         } else if (getAnyTypeKind() == AnyTypeKind.USER) {
-            WorkflowResult<Long> updated = (WorkflowResult<Long>) exchange.getIn().getBody();
+            WorkflowResult<String> updated = (WorkflowResult<String>) exchange.getIn().getBody();
             StatusPatch statusPatch = exchange.getProperty("statusPatch", StatusPatch.class);
             Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 
@@ -105,5 +105,4 @@ public class StatusProducer extends AbstractProducer {
             exchange.getOut().setBody(Pair.of(updated.getResult(), propagationReporter.getStatuses()));
         }
     }
-
 }
