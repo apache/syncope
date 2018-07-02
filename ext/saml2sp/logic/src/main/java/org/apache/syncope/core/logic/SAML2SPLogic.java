@@ -152,7 +152,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
     @Autowired
     private SAML2ReaderWriter saml2rw;
 
-    @Resource(name = "syncopeJWTSSOProviderDelegate")
+    @Resource(name = "accessTokenJwsSignatureVerifier")
     private JwsSignatureVerifier jwsSignatureVerifier;
 
     private void validateUrl(final String url) {

@@ -67,5 +67,4 @@ public class DefaultCredentialChecker {
                     + "This must be changed to avoid a security breach!");
         }
     }
-
 }

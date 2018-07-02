@@ -97,5 +97,4 @@ public class CustomJWTSSOProvider implements JWTSSOProvider {
 
         return null;
     }
-
 }
