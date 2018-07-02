@@ -487,7 +487,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.8</tomcat.version>
+    <tomcat.version>9.0.10</tomcat.version>
 
     <phantomjs.driver.version>1.2.0</phantomjs.driver.version>
     <phantomjs.version>2.1.1</phantomjs.version>
