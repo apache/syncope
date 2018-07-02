@@ -41,6 +41,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
 import org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduit;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -182,6 +183,8 @@ public abstract class AbstractITCase {
 
     protected static String JWT_ISSUER;
 
+    protected static SignatureAlgorithm JWS_ALGORITHM;
+
     protected static SyncopeClientFactoryBean clientFactory;
 
     protected static SyncopeClient adminClient;
@@ -249,7 +252,7 @@ public abstract class AbstractITCase {
     protected static SAML2SPService saml2SpService;
 
     protected static SAML2IdPService saml2IdPService;
-    
+
     protected static OIDCClientService oidcClientService;
 
     protected static OIDCProviderService oidcProviderService;
@@ -264,8 +267,9 @@ public abstract class AbstractITCase {
 
             ANONYMOUS_UNAME = props.getProperty("anonymousUser");
             ANONYMOUS_KEY = props.getProperty("anonymousKey");
-            JWS_KEY = props.getProperty("jwsKey");
             JWT_ISSUER = props.getProperty("jwtIssuer");
+            JWS_ALGORITHM = SignatureAlgorithm.valueOf(props.getProperty("jwsAlgorithm"));
+            JWS_KEY = props.getProperty("jwsKey");
         } catch (Exception e) {
             LOG.error("Could not read secretKey", e);
         }

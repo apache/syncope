@@ -38,7 +38,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.rs.security.jose.common.JoseType;
 import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
 import org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureProvider;
-import org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureVerifier;
 import org.apache.cxf.rs.security.jose.jws.JwsHeaders;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactProducer;
@@ -52,14 +51,37 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
+import org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureProvider;
+import org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureVerifier;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.CustomJWTSSOProvider;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
  * Some tests for JWT Tokens.
  */
 public class JWTITCase extends AbstractITCase {
+
+    private JwsSignatureProvider jwsSignatureProvider;
+
+    private JwsSignatureVerifier jwsSignatureVerifier;
+
+    @Before
+    public void setupVerifier() throws Exception {
+        AccessTokenJwsSignatureProvider atjsp = new AccessTokenJwsSignatureProvider();
+        atjsp.setJwsAlgorithm(JWS_ALGORITHM);
+        atjsp.setJwsKey(JWS_KEY);
+        atjsp.afterPropertiesSet();
+        this.jwsSignatureProvider = atjsp;
+
+        AccessTokenJwsSignatureVerifier atjsv = new AccessTokenJwsSignatureVerifier();
+        atjsv.setJwsAlgorithm(JWS_ALGORITHM);
+        atjsv.setJwsKey(JWS_KEY);
+        atjsv.afterPropertiesSet();
+        this.jwsSignatureVerifier = atjsv;
+    }
 
     @Test
     public void getJWTToken() throws ParseException {
@@ -75,8 +97,6 @@ public class JWTITCase extends AbstractITCase {
 
         // Validate the signature
         JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(token);
-        JwsSignatureVerifier jwsSignatureVerifier =
-                new HmacJwsSignatureVerifier(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
         assertTrue(consumer.verifySignatureWith(jwsSignatureVerifier));
 
         Date now = new Date();
@@ -161,12 +181,10 @@ public class JWTITCase extends AbstractITCase {
         jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
         jwtClaims.setNotBefore(currentTime);
 
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
+        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, JWS_ALGORITHM);
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
 
-        JwsSignatureProvider jwsSignatureProvider =
-                new HmacJwsSignatureProvider(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
         String signed = producer.signWith(jwsSignatureProvider);
 
         SyncopeClient jwtClient = clientFactory.create(signed);
@@ -202,12 +220,10 @@ public class JWTITCase extends AbstractITCase {
         jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
         jwtClaims.setNotBefore(currentTime);
 
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
+        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, JWS_ALGORITHM);
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
 
-        JwsSignatureProvider jwsSignatureProvider =
-                new HmacJwsSignatureProvider(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
         String signed = producer.signWith(jwsSignatureProvider);
 
         SyncopeClient jwtClient = clientFactory.create(signed);
@@ -248,12 +264,10 @@ public class JWTITCase extends AbstractITCase {
         jwtClaims.setExpiryTime((now.getTime() - 5000L) / 1000L);
         jwtClaims.setNotBefore(currentTime);
 
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
+        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, JWS_ALGORITHM);
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
 
-        JwsSignatureProvider jwsSignatureProvider =
-                new HmacJwsSignatureProvider(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
         String signed = producer.signWith(jwsSignatureProvider);
 
         SyncopeClient jwtClient = clientFactory.create(signed);
@@ -294,12 +308,10 @@ public class JWTITCase extends AbstractITCase {
         jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
         jwtClaims.setNotBefore(currentTime + 60L);
 
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
+        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, JWS_ALGORITHM);
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
 
-        JwsSignatureProvider jwsSignatureProvider =
-                new HmacJwsSignatureProvider(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
         String signed = producer.signWith(jwsSignatureProvider);
 
         SyncopeClient jwtClient = clientFactory.create(signed);
@@ -337,8 +349,8 @@ public class JWTITCase extends AbstractITCase {
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
 
-        JwsSignatureProvider jwsSignatureProvider = new NoneJwsSignatureProvider();
-        String signed = producer.signWith(jwsSignatureProvider);
+        JwsSignatureProvider noneJwsSignatureProvider = new NoneJwsSignatureProvider();
+        String signed = producer.signWith(noneJwsSignatureProvider);
 
         SyncopeClient jwtClient = clientFactory.create(signed);
         UserSelfService jwtUserSelfService = jwtClient.getService(UserSelfService.class);
@@ -376,12 +388,10 @@ public class JWTITCase extends AbstractITCase {
         jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
         jwtClaims.setNotBefore(currentTime);
 
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
+        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, JWS_ALGORITHM);
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
 
-        JwsSignatureProvider jwsSignatureProvider =
-                new HmacJwsSignatureProvider(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
         String signed = producer.signWith(jwsSignatureProvider);
 
         SyncopeClient jwtClient = clientFactory.create(signed);
@@ -396,6 +406,8 @@ public class JWTITCase extends AbstractITCase {
 
     @Test
     public void thirdPartyToken() throws ParseException {
+        Assume.assumeFalse(SignatureAlgorithm.isPublicKeyAlgorithm(JWS_ALGORITHM));
+
         // Create a new token
         Date now = new Date();
         long currentTime = now.getTime() / 1000L;
@@ -412,13 +424,13 @@ public class JWTITCase extends AbstractITCase {
         jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
         jwtClaims.setNotBefore(currentTime);
 
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
+        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, JWS_ALGORITHM);
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
 
-        JwsSignatureProvider jwsSignatureProvider =
-                new HmacJwsSignatureProvider(CustomJWTSSOProvider.CUSTOM_KEY.getBytes(), SignatureAlgorithm.HS512);
-        String signed = producer.signWith(jwsSignatureProvider);
+        JwsSignatureProvider customSignatureProvider =
+                new HmacJwsSignatureProvider(CustomJWTSSOProvider.CUSTOM_KEY.getBytes(), JWS_ALGORITHM);
+        String signed = producer.signWith(customSignatureProvider);
 
         SyncopeClient jwtClient = clientFactory.create(signed);
 
@@ -429,6 +441,8 @@ public class JWTITCase extends AbstractITCase {
 
     @Test
     public void thirdPartyTokenUnknownUser() throws ParseException {
+        Assume.assumeFalse(SignatureAlgorithm.isPublicKeyAlgorithm(JWS_ALGORITHM));
+
         // Create a new token
         Date now = new Date();
         long currentTime = now.getTime() / 1000L;
@@ -445,13 +459,13 @@ public class JWTITCase extends AbstractITCase {
         jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
         jwtClaims.setNotBefore(currentTime);
 
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
+        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, JWS_ALGORITHM);
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
 
-        JwsSignatureProvider jwsSignatureProvider =
-                new HmacJwsSignatureProvider(CustomJWTSSOProvider.CUSTOM_KEY.getBytes(), SignatureAlgorithm.HS512);
-        String signed = producer.signWith(jwsSignatureProvider);
+        JwsSignatureProvider customSignatureProvider =
+                new HmacJwsSignatureProvider(CustomJWTSSOProvider.CUSTOM_KEY.getBytes(), JWS_ALGORITHM);
+        String signed = producer.signWith(customSignatureProvider);
 
         SyncopeClient jwtClient = clientFactory.create(signed);
 
@@ -465,6 +479,8 @@ public class JWTITCase extends AbstractITCase {
 
     @Test
     public void thirdPartyTokenUnknownIssuer() throws ParseException {
+        Assume.assumeFalse(SignatureAlgorithm.isPublicKeyAlgorithm(JWS_ALGORITHM));
+
         // Create a new token
         Date now = new Date();
         long currentTime = now.getTime() / 1000L;
@@ -481,13 +497,13 @@ public class JWTITCase extends AbstractITCase {
         jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
         jwtClaims.setNotBefore(currentTime);
 
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
+        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, JWS_ALGORITHM);
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
 
-        JwsSignatureProvider jwsSignatureProvider =
-                new HmacJwsSignatureProvider(CustomJWTSSOProvider.CUSTOM_KEY.getBytes(), SignatureAlgorithm.HS512);
-        String signed = producer.signWith(jwsSignatureProvider);
+        JwsSignatureProvider customSignatureProvider =
+                new HmacJwsSignatureProvider(CustomJWTSSOProvider.CUSTOM_KEY.getBytes(), JWS_ALGORITHM);
+        String signed = producer.signWith(customSignatureProvider);
 
         SyncopeClient jwtClient = clientFactory.create(signed);
 
@@ -501,6 +517,8 @@ public class JWTITCase extends AbstractITCase {
 
     @Test
     public void thirdPartyTokenBadSignature() throws ParseException {
+        Assume.assumeFalse(SignatureAlgorithm.isPublicKeyAlgorithm(JWS_ALGORITHM));
+
         // Create a new token
         Date now = new Date();
 
@@ -516,13 +534,13 @@ public class JWTITCase extends AbstractITCase {
         jwtClaims.setExpiryTime(expiry.getTime().getTime());
         jwtClaims.setNotBefore(now.getTime());
 
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
+        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, JWS_ALGORITHM);
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
 
-        JwsSignatureProvider jwsSignatureProvider = new HmacJwsSignatureProvider(
-                (CustomJWTSSOProvider.CUSTOM_KEY + "_").getBytes(), SignatureAlgorithm.HS512);
-        String signed = producer.signWith(jwsSignatureProvider);
+        JwsSignatureProvider customSignatureProvider =
+                new HmacJwsSignatureProvider((CustomJWTSSOProvider.CUSTOM_KEY + "_").getBytes(), JWS_ALGORITHM);
+        String signed = producer.signWith(customSignatureProvider);
 
         SyncopeClient jwtClient = clientFactory.create(signed);
 
@@ -533,5 +551,4 @@ public class JWTITCase extends AbstractITCase {
             // expected
         }
     }
-
 }
