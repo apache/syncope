@@ -297,7 +297,6 @@ do
 done
           
 for file in `find . -name '*.deb' -or -name '*.jar' -or -name '*.zip' -or -name '*.nbm'`; do
- openssl md5 $file | sed 's/.*= //' > $file.md5
  openssl sha1 $file | sed 's/.*= //' > $file.sha1
 done
 
@@ -382,8 +381,7 @@ svn commit -m "Staging site for release"]]></source>
                     <code>sources</code>, and 
                     <code>tests</code> jars, as well as 
                     <code>poms</code>s, ... have 
-                    <code>.asc</code> (GPG signature) and 
-                    <code>.md5</code>
+                    <code>.asc</code> (GPG signature)
                     files
                     <br/>
                     The <code>syncope-$VERSION-source-release.zip</code> 
