@@ -184,11 +184,15 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             String parentNodeName = parentNode == null ? null : String.valueOf(parentNode.getUserObject());
             if (selectedNode.isLeaf() && StringUtils.isNotBlank(parentNodeName)) {
                 String leafNodeName = (String) selectedNode.getUserObject();
+                DefaultMutableTreeNode grandParentNode = (DefaultMutableTreeNode) parentNode.getParent();
+                String grandParentNodeName = (String) grandParentNode.getUserObject();
                 try {
                     if (PluginConstants.MAIL_TEMPLATES.equals(parentNodeName)) {
                         openMailEditor(leafNodeName);
                     } else if (PluginConstants.REPORT_XSLTS.equals(parentNodeName)) {
                         openReportEditor(leafNodeName);
+                    } else if (PluginConstants.GROOVY_SCRIPTS.equals(grandParentNodeName)) {
+                        openScriptEditor(leafNodeName,parentNodeName);
                     }
                 } catch (IOException e) {
                     Exceptions.printStackTrace(e);
@@ -336,8 +340,10 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(type.toString());
             List<ImplementationTO> scripts = implementationManagerService.list(type);
             for(ImplementationTO script : scripts) {
-                tempNode.add(new DefaultMutableTreeNode(
-                    script.getKey()));
+                if(script.getEngine() == ImplementationEngine.GROOVY) {
+                    tempNode.add(new DefaultMutableTreeNode(
+                        script.getKey()));
+                }
             }
             groovyScripts.add(tempNode);
         }
@@ -418,11 +424,24 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                         }
                     } else if((parent.getUserObject().equals(PluginConstants.GROOVY_SCRIPTS))) {
                             ImplementationTO newNode = new ImplementationTO();
+                            ImplementationType type = getType((String)node.getUserObject());
                             newNode.setKey(name);
                             newNode.setEngine(ImplementationEngine.GROOVY);
-                            newNode.setType(getType((String)node.getUserObject()));
-                            newNode.setBody("hello");
-                            added = implementationManagerService.create(newNode);
+                            newNode.setType(type);
+                            String temp [] = type.toString().split("_");
+                            temp[0] = temp[0].substring(0,1).toUpperCase() + temp[0].substring(1).toLowerCase();
+                            temp[1] = temp[1].substring(0,1).toUpperCase() + temp[1].substring(1).toLowerCase();
+                            temp[0] = temp[0] + temp[1];
+                            try {
+                                    newNode.setBody(IOUtils.toString(
+                                    getClass().getResourceAsStream("/org/apache/syncope/ide/netbeans/implementations/My"
+                                    + temp[0] + ".groovy")));
+                                    added = implementationManagerService.create(newNode);
+                                    openScriptEditor(name,(String)node.getUserObject());
+                            } catch(Exception ex)
+                            {
+                                Exceptions.printStackTrace(ex);
+                            }
                     } else {
                         ReportTemplateTO reportTemplate = new ReportTemplateTO();
                         reportTemplate.setKey(name);
@@ -565,6 +584,34 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         }
     }
 
+    private void openScriptEditor(final String name , final String type) throws IOException {
+            ImplementationTO node = implementationManagerService.read(getType(type),name);    
+            String groovyScriptsDirName = System.getProperty("java.io.tmpdir") + "/Groovy/" + node.getType().toString() + "/";
+            File groovyScriptsDir = new File(groovyScriptsDirName);
+            if (!groovyScriptsDir.exists()) {
+                groovyScriptsDir.mkdirs();
+            }
+            File file = new File(groovyScriptsDirName + name + ".groovy" );
+            FileWriter fw = new FileWriter(file);
+            fw.write(node.getBody());
+            fw.flush();
+            FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
+            DataObject data = DataObject.find(fob);
+            data.getLookup().lookup(OpenCookie.class).open();
+            data.addPropertyChangeListener(new PropertyChangeListener() {
+
+                @Override
+                public void propertyChange(final PropertyChangeEvent evt) {
+                    if (DataObject.PROP_MODIFIED.equals(evt.getPropertyName())) {
+                        //save item remotely
+                        LOG.info(String.format("Saving Report template [%s]", name));
+                       saveContent();
+                    }
+                }
+            });
+        
+    }
+
     private void openReportEditor(final String name) throws IOException {
         String formatStr = (String) JOptionPane.showInputDialog(null, "Select File Format",
                 "File format", JOptionPane.QUESTION_MESSAGE, null,
@@ -641,8 +688,9 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             Document document = ed.getDocument();
             String content = document.getText(0, document.getLength());
             String path = (String) document.getProperty(Document.TitleProperty);
-            String[] temp = path.split(File.separator);
+            String[] temp = path.split(File.separator.replace("\\","\\\\"));
             String name = temp[temp.length - 1];
+            String fileName = temp[temp.length - 3];
             String templateType = temp[temp.length - 2];
             temp = name.split("\\.");
             String format = temp[1];
@@ -666,10 +714,16 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                 reportTemplateManagerService.setFormat(key,
                         ReportTemplateFormat.FO,
                         IOUtils.toInputStream(content, encodingPattern));
-            } else {
+            } else if(format.equals("csv")) {
                 reportTemplateManagerService.setFormat(key,
                         ReportTemplateFormat.CSV,
                         IOUtils.toInputStream(content, encodingPattern));
+            }
+            else if(fileName.equals("Groovy")) {
+                    LOG.info("Setting groovy");
+                    ImplementationTO node = implementationManagerService.read(getType(templateType),key);
+                    node.setBody(content);
+                    implementationManagerService.update(node);
             }
         } catch (BadLocationException e) {
             Exceptions.printStackTrace(e);
