@@ -126,7 +126,6 @@ under the License.
           <dd>
             <p>
               the working directory containing the GIT clone repository for the branch under release
-              (<tt>1_2_X</tt> or <tt>2_0_X</tt>)
             </p>
           </dd>
           <dt>
@@ -135,7 +134,6 @@ under the License.
           <dd>
             <p>
               the working directory containing the GIT clone repository for the branch for site management
-              (<tt>2_0_X</tt>)
             </p>
           </dd>
         </dl>
@@ -281,7 +279,6 @@ cp $SYNCOPE_RELEASE_DIR/deb/core/target/apache-syncope-*.deb .
 cp $SYNCOPE_RELEASE_DIR/deb/core/target/apache-syncope-*.deb.asc .
 cp $SYNCOPE_RELEASE_DIR/deb/console/target/apache-syncope-console-*.deb .
 cp $SYNCOPE_RELEASE_DIR/deb/console/target/apache-syncope-console-*.deb.asc .
-# only for 2_0_X
 cp $SYNCOPE_RELEASE_DIR/deb/enduser/target/apache-syncope-enduser-*.deb .
 cp $SYNCOPE_RELEASE_DIR/deb/enduser/target/apache-syncope-enduser-*.deb.asc .
 cp $SYNCOPE_RELEASE_DIR/client/cli/target/syncope-client-cli-*.zip .
@@ -290,6 +287,9 @@ cp $SYNCOPE_RELEASE_DIR/ide/eclipse/releng/org.apache.syncope.ide.eclipse.site/t
 cp $SYNCOPE_RELEASE_DIR/ide/eclipse/releng/org.apache.syncope.ide.eclipse.site/target/org.apache.syncope.ide.eclipse.site-*.zip.asc .
 cp $SYNCOPE_RELEASE_DIR/ide/netbeans/target/syncope-ide-netbeans-*.nbm .
 cp $SYNCOPE_RELEASE_DIR/ide/netbeans/target/syncope-ide-netbeans-*.nbm.asc .
+# only for 2_1_X
+cp $SYNCOPE_RELEASE_DIR/core/upgrade/target/syncope-core-upgrade-*.zip .
+cp $SYNCOPE_RELEASE_DIR/core/upgrade/target/syncope-core-upgrade-*.zip.asc .
               
 for file in `find . -type f -iname '*.asc'`
 do
@@ -311,12 +311,6 @@ unzip $SYNCOPE_RELEASE_DIR/target/syncope-$VERSION-source-release.zip
 cd syncope-$VERSION        
 mvn -PskipTests,all
 
-# if releasing from 1_2_X              
-mvn javadoc:aggregate
-cd common
-mvn -P offline-doc
-
-# else if releasing from 2_0_X
 cd fit/core-reference && mvn -Pdebug,all
 curl -o /tmp/index.html http://localhost:9080/syncope/index.html
 sed -i 's/\/syncope\/webjars\/jquery\/2.2.4\/jquery.min.js/https:\/\/code.jquery.com\/jquery-2.2.4.min.js/' index.html 
@@ -335,22 +329,32 @@ mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to/site>/$VERSION
 
 cd <absolute path to/site>/$VERSION
 
-# if releasing from 1_2_X         
-cp -r <absolute path to syncope-$VERSION above>/target/site/apidocs apidocs/1.2              
-cp -r <absolute path to syncope-$VERSION above>/common/target/generated/wadl/ rest/1.2
-rm -rf apidocs/2.0
-rm -rf rest/2.0
+# if releasing from 2_0_X
+mkdir -p $VERSION/rest/2.0
+mv /tmp/index.html $VERSION/rest/2.0
+mv /tmp/schema_1_syncope2.html $VERSION/rest/2.0
+mv /tmp/syncope.wadl $VERSION/rest/2.0
+cp $SYNCOPE_SITE_DIR/target/generated-docs/getting-started.* docs/2.0/
+cp $SYNCOPE_SITE_DIR/target/generated-docs/reference-guide.* docs/2.0/
+cp -r $SYNCOPE_SITE_DIR/target/generated-docs/images docs/2.0/
+cd ..
+svn add $VERSION
+svn copy apidocs/2.1 $VERSION/apidocs/
+svn copy rest/2.1 $VERSION/rest/
+
+# else if releasing from 2_1_X
+mkdir -p $VERSION/rest/2.1
+mv /tmp/index.html $VERSION/rest/2.1
+mv /tmp/schema_1_syncope2.html $VERSION/rest/2.1
+mv /tmp/syncope.wadl $VERSION/rest/2.1
+cp $SYNCOPE_SITE_DIR/target/generated-docs/getting-started.* docs/2.1/
+cp $SYNCOPE_SITE_DIR/target/generated-docs/reference-guide.* docs/2.1/
+cp -r $SYNCOPE_SITE_DIR/target/generated-docs/images docs/2.1/
 cd ..
 svn add $VERSION
 svn copy apidocs/2.0 $VERSION/apidocs/
 svn copy rest/2.0 $VERSION/rest/
 
-# else if releasing from 2_0_X
-cd ..
-svn add $VERSION
-svn copy apidocs/1.2 $VERSION/apidocs/
-svn copy rest/1.2 $VERSION/rest/
-              
 svn commit -m "Staging site for release"]]></source>
           </li>
           <li>
@@ -546,11 +550,6 @@ svn commit -m "Cleaning up older releases"]]></source>
             wiki page based on the HTML release reports from JIRA
           </li>
           <li>
-            (if releasing from <tt>1_2_X</tt>) Update the
-            <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Create+a+new+Syncope+project">Create
-              new project</a> wiki page to point to the new release artifacts
-          </li>
-          <li>
             Update the <a href="https://issues.apache.org/jira/plugins/servlet/project-config/SYNCOPE/versions">JIRA 
               versions</a> page to mark the version as <strong>Released</strong>, and set the date to the date that
             the release was approved. You may also need to make a new release entry for the next release.
@@ -566,8 +565,8 @@ svn rm $VERSION
 svn commit -m "Promoting the staging site"]]></source>
           </li>
           <li>
-            If releasing from 2_0_X, deploy the updated Docker images to <a href="https://hub.docker.com/">DockerHub</a> by adjusting the GIT tag
-             name then running the <a href="https://builds.apache.org/job/Syncope-2_0_X-Docker">dedicated Jenkins job</a>.
+            Deploy the updated Docker images to <a href="https://hub.docker.com/">DockerHub</a> by adjusting the GIT tag
+            name then running the <a href="https://builds.apache.org/job/Syncope-Docker">dedicated Jenkins job</a>.
           </li>
         </ol>
       </subsection>
