@@ -226,7 +226,35 @@ under the License.
           </plugin>          
         </plugins>
       </build>
+    </profile>
+    
+    <profile>
+      <id>schemagen</id>
+      
+      <properties>
+        <skipTests>true</skipTests>
+      </properties>
+      
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
         
+        <plugins>
+          <plugin>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa-maven-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>schemagen</id>
+                <phase>process-classes</phase>
+                <goals>
+                  <goal>schema</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>          
+        </plugins>
+      </build>
     </profile>
   </profiles>
 

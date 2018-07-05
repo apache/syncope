@@ -33,7 +33,7 @@ First approach, especially with administration console and end-user; does not re
 
 Getting ready in a few easy steps:
 
-. http://syncope.apache.org/downloads.html[download^] the standalone distribution
+. https://syncope.apache.org/downloads[download^] the standalone distribution
 . unzip the distribution archive
 . go into the created Apache Tomcat directory
 . start Apache Tomcat
@@ -96,31 +96,23 @@ Getting up and running quickly on Debian / Ubuntu. +
 *Difficult to extend beyond pre-sets.*
 
 Download::
-http://syncope.apache.org/downloads.html[Download^] the latest .deb packages
+https://syncope.apache.org/downloads[Download^] the latest .deb packages
 
 Prepare::
 . Install Apache Tomcat 8
 +
 [source,bash]
-sudo apt-get install tomcat8
-+
-[WARNING]
-*Ubuntu LTS 14.04 LTS* does not provide the tomcat8 package by default: you will need instead to download and manually
-install the following packages (from Ubuntu 15.04):
-http://packages.ubuntu.com/wily/all/libecj-java/download[libecj-java]
-http://packages.ubuntu.com/wily/all/libtomcat8-java/download[libtomcat8-java]
-http://packages.ubuntu.com/wily/all/tomcat8-common/download[tomcat8-common]
-http://packages.ubuntu.com/wily/all/tomcat8/download[tomcat8]
+$ sudo apt-get install tomcat8
 +
 . Install PostgreSQL
 +
 [source,bash]
-sudo apt-get install libpostgresql-jdbc-java postgresql postgresql-client
+$ sudo apt-get install libpostgresql-jdbc-java postgresql postgresql-client
 +
 . Use the PostgreSQL JDBC driver with Tomcat
 +
 [source,bash]
-sudo ln -s /usr/share/java/postgresql-jdbc4.jar /usr/share/tomcat8/lib/
+$ sudo ln -s /usr/share/java/postgresql-jdbc4.jar /usr/share/tomcat8/lib/
 +
 . Replace `JAVA_OPTS` in `/etc/default/tomcat8` with the following:
 +
@@ -135,22 +127,22 @@ Install::
 . Stop Tomcat
 +
 [source,bash]
-sudo service tomcat8 stop
+$ sudo service tomcat8 stop
 +
 . Install Apache Syncope core, console and enduser via the downloaded packages
 +
 [source,bash]
-sudo dpkg -i apache-syncope-*.deb
+$ sudo dpkg -i apache-syncope-*.deb
 +
 . Create a database for use with Apache Syncope
 +
 [source,bash]
-sudo SYNCOPE_USER="syncope" SYNCOPE_PASS="syncope" sh /usr/share/apache-syncope/dbinit-postgresql.sh
+$ sudo SYNCOPE_USER="syncope" SYNCOPE_PASS="syncope" sh /usr/share/apache-syncope/dbinit-postgresql.sh
 +
 . Start Tomcat
 +
 [source,bash]
-sudo service tomcat8 start
+$ sudo service tomcat8 start
 
 [[deb-components]]
 ==== Components
@@ -232,7 +224,7 @@ of `$CATALINA_HOME/conf/tomcat-users.xml` looks like:
 
 ==== Usage
 
-Once http://syncope.apache.org/downloads.html[downloaded^], double-click the JAR file or execute via the command-line:
+Once https://syncope.apache.org/downloads[downloaded^], double-click the JAR file or execute via the command-line:
 
 [source,bash]
 java -jar syncope-installer-*-uber.jar
@@ -455,7 +447,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 
 [subs="verbatim,attributes"]
 ----
-mvn archetype:generate \
+$ mvn archetype:generate \
     -DarchetypeGroupId=org.apache.syncope \
     -DarchetypeArtifactId=syncope-archetype \
     -DarchetypeRepository=http://repo1.maven.org/maven2 \
@@ -468,7 +460,7 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 
 [subs="verbatim,attributes"]
 ----
-mvn org.apache.maven.plugins:maven-archetype-plugin:2.4:generate \
+$ mvn org.apache.maven.plugins:maven-archetype-plugin:2.4:generate \
     -DarchetypeGroupId=org.apache.syncope \
     -DarchetypeArtifactId=syncope-archetype \
     -DarchetypeRepository=http://repository.apache.org/content/repositories/snapshots \
@@ -522,7 +514,7 @@ specified above) containing four modules: `common`, `core`, `console` and `endus
 You are now able to perform the first build via
 
 [source,bash]
-mvn clean install
+$ mvn clean install
 
 After downloading all of the needed dependencies, three WAR files will be produced:
 
@@ -558,7 +550,7 @@ made are lost.
 From the top-level directory of your project, execute:
 
 [source,bash]
-mvn -P all clean install
+$ mvn -P all clean install
 
 [WARNING]
 ====
@@ -578,7 +570,7 @@ endif::[]
 then, from the `enduser` subdirectory, execute:
 
 [source,bash]
-mvn -P embedded,all
+$ mvn -P embedded,all
 
 ===== Paths and Components
 
@@ -817,7 +809,7 @@ The Eclipse IDE plugin allows remote management of notification e-mail and repor
 [[eclipseplugin-installation]]
 ==== Installation
 
-After http://syncope.apache.org/downloads.html[download^], start the most recent Eclipse IDE distribution then go to 
+After https://syncope.apache.org/downloads[download^], start the most recent Eclipse IDE distribution then go to 
 `Help > Install New Software`:
 
 image::eclipse01.png[eclipse01]
@@ -881,7 +873,7 @@ The Netbeans IDE plugin allows remote management of notification e-mail and repo
 [[netbeansplugin-installation]]
 ==== Installation
 
-After http://syncope.apache.org/downloads.html[download^], start the most recent Netbeans IDE then go to 
+After https://syncope.apache.org/downloads[download^], start the most recent Netbeans IDE then go to 
 `Tools > Plugins`:
 
 image::netbeans01.png[netbeans01]

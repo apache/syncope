@@ -87,7 +87,7 @@ under the License.
     <module>workflow-flowable</module>
     <module>logic</module>
     <module>rest-cxf</module>
-    <module>migration</module>
+    <module>upgrade</module>
   </modules>
 
 </project>
