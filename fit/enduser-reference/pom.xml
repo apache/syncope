@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-fit</artifactId>
-    <version>2.1.0-SNAPSHOT</version>
+    <version>2.1.0</version>
   </parent>
 
   <name>Apache Syncope FIT Enduser Reference</name>
@@ -172,13 +172,13 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <mkdir dir="${enduser-test.dir}"/>
+                <mkdir dir="${enduser-test.dir}" />
                 <copy todir="${enduser-test.dir}" overwrite="true">
-                  <file name="${project.build.directory}/test-classes/protractor-conf.js"/>
-                  <fileset dir="${project.build.directory}/test-classes" includes="tests/**"/>
+                  <file name="${project.build.directory}/test-classes/protractor-conf.js" />
+                  <fileset dir="${project.build.directory}/test-classes" includes="tests/**" />
                 </copy>
 
-                <delete file="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/userWorkflow.bpmn20.xml"/>
+                <delete file="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/userWorkflow.bpmn20.xml" />
               </target>
               <skip>${skipTests}</skip>
             </configuration>
