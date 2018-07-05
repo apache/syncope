@@ -45,7 +45,6 @@ import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.logic.TaskLogic;
-import org.apache.syncope.core.migration.MigrationPullActions;
 import org.apache.syncope.core.provisioning.java.job.report.AuditReportlet;
 import org.apache.syncope.core.provisioning.java.job.report.GroupReportlet;
 import org.apache.syncope.core.provisioning.java.job.report.ReconciliationReportlet;
@@ -208,7 +207,6 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames = new HashSet<>();
             classNames.add(LDAPPasswordPullActions.class.getName());
             classNames.add(TestPullActions.class.getName());
-            classNames.add(MigrationPullActions.class.getName());
             classNames.add(LDAPMembershipPullActions.class.getName());
             classNames.add(DBPasswordPullActions.class.getName());
             put(ImplementationType.PULL_ACTIONS, classNames);

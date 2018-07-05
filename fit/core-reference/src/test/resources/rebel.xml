@@ -56,8 +56,6 @@ under the License.
     <dir name="${basedir}/../../core/workflow-flowable/target/classes">
       <exclude name="workflowFlowableContext.xml"/>
     </dir>
-    <dir name="${basedir}/../../core/migration/target/classes">
-    </dir>
     <dir name="${basedir}/../../ext/camel/common-lib/target/classes">
     </dir>
     <dir name="${basedir}/../../ext/camel/logic/target/classes">

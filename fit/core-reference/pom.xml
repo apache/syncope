@@ -57,11 +57,6 @@ under the License.
     
     <dependency>
       <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-migration</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
       <artifactId>syncope-core-rest-cxf</artifactId>
       <version>${project.version}</version>
     </dependency>
