@@ -2369,11 +2369,6 @@ under the License.
                 <artifactId>asciidoctorj-pdf</artifactId>
                 <version>1.5.0-alpha.16</version>
               </dependency>
-              <dependency>
-                <groupId>org.asciidoctor</groupId>
-                <artifactId>asciidoctorj</artifactId>
-                <version>1.5.6</version>
-              </dependency>
             </dependencies>
             <configuration>
               <doctype>book</doctype>
@@ -2461,18 +2456,6 @@ under the License.
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
             <version>3.7.1</version>
-            <dependencies>
-              <dependency>
-                <groupId>org.apache.velocity</groupId>
-                <artifactId>velocity</artifactId>
-                <version>1.5</version>
-              </dependency>
-              <dependency>
-                <groupId>org.apache.maven.doxia</groupId>
-                <artifactId>doxia-core</artifactId>
-                <version>1.7</version>
-              </dependency>
-            </dependencies>
             <configuration>
               <locales>en</locales>
               <generateProjectInfo>false</generateProjectInfo>
@@ -2501,7 +2484,7 @@ under the License.
                 </configuration>
               </execution>
               <execution>
-                <id>copy-docs-to-site</id>
+                <id>place-htaccess</id>
                 <goals>
                   <goal>run</goal>
                 </goals>
@@ -2509,11 +2492,7 @@ under the License.
                 <configuration>
                   <target>
                     <copy todir="${site.deploymentBaseDir}/docs">
-                      <fileset dir="${project.build.directory}/generated-docs/" includes="getting-started.*" />
-                      <fileset dir="${project.build.directory}/generated-docs/" includes="reference-guide.*" />
-                    </copy>
-                    <copy todir="${site.deploymentBaseDir}/docs/images">
-                      <fileset dir="${project.build.directory}/generated-docs/images" />
+                      <fileset dir="${rootpom.basedir}/src/site/" includes=".htaccess"/>
                     </copy>
                   </target>
                 </configuration>
