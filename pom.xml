@@ -356,8 +356,8 @@ under the License.
   <properties>
     <syncope.version>${project.version}</syncope.version>
 
-    <connid.version>1.4.3.0</connid.version>
-    <connid.soap.version>1.4.1</connid.soap.version>
+    <connid.version>1.4.4.0</connid.version>
+    <connid.soap.version>1.4.2</connid.soap.version>
     <connid.rest.version>1.0.3</connid.rest.version>
     <connid.database.version>2.2.5</connid.database.version>
     <connid.csvdir.version>0.8.7</connid.csvdir.version>
