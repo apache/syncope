@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -156,13 +157,18 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
         ldap.setKey("ldapWithPrivileges");
 
+        ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
+        provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getIntAttrName()));
+        provision.getVirSchemas().clear();
+
+        ldap.getProvisions().clear();
+        ldap.getProvisions().add(provision);
+
         ItemTO item = new ItemTO();
         item.setIntAttrName("privileges[mightyApp]");
         item.setExtAttrName("businessCategory");
         item.setPurpose(MappingPurpose.PROPAGATION);
 
-        ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
-        provision.getVirSchemas().clear();
         provision.getMapping().add(item);
 
         ldap = createResource(ldap);

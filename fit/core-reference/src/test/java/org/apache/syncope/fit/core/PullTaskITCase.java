@@ -672,8 +672,12 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ldap.setKey("ldapForRemediation");
 
         ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
-        provision.getVirSchemas().clear();
         provision.getMapping().getItems().removeIf(item -> "userId".equals(item.getIntAttrName()));
+        provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getIntAttrName()));
+        provision.getVirSchemas().clear();
+
+        ldap.getProvisions().clear();
+        ldap.getProvisions().add(provision);
 
         ldap = createResource(ldap);
 
