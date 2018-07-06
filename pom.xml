@@ -2258,7 +2258,7 @@ under the License.
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>2.10.4</version>
         <configuration>
-          <destDir>apidocs/2.0</destDir>
+          <destDir>apidocs/2.1</destDir>
           <isOffline>false</isOffline>
           <detectLinks>true</detectLinks>
           <detectJavaApiLink>true</detectJavaApiLink>
@@ -2484,20 +2484,6 @@ under the License.
                     <replace dir="${rootpom.basedir}/target/site" token="dropdown-toggle&quot;" value="dropdown-toggle&quot; data-toggle=&quot;dropdown&quot;">
                       <include name="**/*.html" />
                     </replace>
-                  </target>
-                </configuration>
-              </execution>
-              <execution>
-                <id>place-htaccess</id>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-                <phase>site-deploy</phase>
-                <configuration>
-                  <target>
-                    <copy todir="${site.deploymentBaseDir}/docs">
-                      <fileset dir="${rootpom.basedir}/src/site/" includes=".htaccess" />
-                    </copy>
                   </target>
                 </configuration>
               </execution>
