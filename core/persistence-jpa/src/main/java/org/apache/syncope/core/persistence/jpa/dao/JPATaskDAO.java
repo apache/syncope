@@ -269,14 +269,14 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         if (resource != null) {
             queryParameters.add(resource.getKey());
 
-            queryString.append("AND ").
+            queryString.append(" AND ").
                     append(AbstractTask.TABLE).
                     append(".resource_id=?").append(queryParameters.size());
         }
         if (notification != null) {
             queryParameters.add(notification.getKey());
 
-            queryString.append("AND ").
+            queryString.append(" AND ").
                     append(AbstractTask.TABLE).
                     append(".notification_id=?").append(queryParameters.size());
         }
@@ -284,7 +284,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
             queryParameters.add(anyTypeKind.name());
             queryParameters.add(entityKey);
 
-            queryString.append("AND ").
+            queryString.append(" AND ").
                     append(AbstractTask.TABLE).
                     append(".anyTypeKind=?").append(queryParameters.size() - 1).
                     append(" AND ").
