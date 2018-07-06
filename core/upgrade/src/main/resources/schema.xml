@@ -418,7 +418,7 @@ under the License.
       <fk to-table="ExternalResource" column="ENTITY_ID"/>
       <index name="I_XTRNCNF_ENTITY" column="ENTITY_ID"/>
     </table>
-    <table name="ExternalResourcePropagationAction">
+    <table name="ExternalResourcePropAction">
       <column name="resource_id" type="varchar" size="255"/>
       <column name="implementation_id" type="varchar" size="255"/>
       <fk to-table="ExternalResource" column="resource_id"/>

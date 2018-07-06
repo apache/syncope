@@ -163,7 +163,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     private Set<ConnectorCapability> capabilitiesOverride = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = TABLE + "PropagationAction",
+    @JoinTable(name = TABLE + "PropAction",
             joinColumns =
             @JoinColumn(name = "resource_id"),
             inverseJoinColumns =

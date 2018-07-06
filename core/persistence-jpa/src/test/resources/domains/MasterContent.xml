@@ -819,7 +819,7 @@ under the License.
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"/>
   <Implementation id="LDAPMembershipPropagationActions" type="PROPAGATION_ACTIONS" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions"/>
-  <ExternalResourcePropagationAction resource_id="resource-ldap" implementation_id="LDAPMembershipPropagationActions"/>
+  <ExternalResourcePropAction resource_id="resource-ldap" implementation_id="LDAPMembershipPropagationActions"/>
   <ExternalResource id="resource-ldap-orgunit" connector_id="74141a3b-0762-4720-a4aa-fc3e374ef3ef"
                     randomPwdIfNotProvided="1" enforceMandatoryCondition="1" overrideCapabilities="0"
                     propagationPriority="1"

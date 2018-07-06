@@ -89,7 +89,7 @@ public class GeneratedUpgradeSQLTest {
         assertEquals(0, pushTaskActions.intValue());
 
         Integer propagationTaskActions = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM ExternalResourcePropagationAction", Integer.class);
+                "SELECT COUNT(*) FROM ExternalResourcePropAction", Integer.class);
         assertNotNull(propagationTaskActions);
         assertEquals(1, propagationTaskActions.intValue());
 

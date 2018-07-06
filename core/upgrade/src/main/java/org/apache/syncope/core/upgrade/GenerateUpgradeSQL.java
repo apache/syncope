@@ -318,7 +318,7 @@ public final class GenerateUpgradeSQL {
                 while (rs.next()) {
                     String resourceId = rs.getString(1);
                     String actionClassName = rs.getString(2);
-                    OUT.write("INSERT INTO ExternalResourcePropagationAction(resource_id,implementation_id) VALUES("
+                    OUT.write("INSERT INTO ExternalResourcePropAction(resource_id,implementation_id) VALUES("
                             + "'" + resourceId + "',"
                             + "'" + actionClassName + "');\n");
                 }
