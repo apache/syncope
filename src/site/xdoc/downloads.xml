@@ -43,8 +43,7 @@ under the License.
         </p>
 
         <div class="alert alert-info">
-          <h4>Don't know what to download? Click the buttons below to get more information.</h4>
-          <br/>
+          <p><strong>Don't know what to download? Click the buttons below to get more information.</strong></p>
           <div class="btn-group">
             <a href="docs/2.1/getting-started.html#maven-project" class="btn">Maven Project</a>
             <a href="docs/2.1/getting-started.html#standalone" class="btn">Standalone</a>
@@ -165,8 +164,7 @@ under the License.
         </p>
         
         <div class="alert alert-info">
-          <h4>Don't know what to download? Click the buttons below to get more information.</h4>
-          <br/>
+          <p><strong>Don't know what to download? Click the buttons below to get more information.</strong></p>
           <div class="btn-group">
             <a href="docs/2.0/getting-started.html#maven-project" class="btn">Maven Project</a>
             <a href="docs/2.0/getting-started.html#standalone" class="btn">Standalone</a>
