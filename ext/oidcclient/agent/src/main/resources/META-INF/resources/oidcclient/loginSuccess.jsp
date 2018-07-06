@@ -25,7 +25,7 @@ under the License.
     <title>Apache Syncope ${syncope.version} - OIDC CLIENT - Successful Login</title>
   </head>
   <body>
-    <h1>Welcome ${responseTO.userName}</h1>
+    <h1>Welcome ${responseTO.username}</h1>
 
     <p>You have been successfully authenticated by the requested OIDC Provider</p>
 
