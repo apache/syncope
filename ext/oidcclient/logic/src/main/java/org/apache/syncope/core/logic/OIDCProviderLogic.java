@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
@@ -63,10 +64,22 @@ public class OIDCProviderLogic extends AbstractTransactionalLogic<OIDCProviderTO
     }
 
     private OIDCProviderDiscoveryDocument getDiscoveryDocument(final String issuer) {
-        WebClient client = WebClient.create(
-                issuer + "/.well-known/openid-configuration", Arrays.asList(new JacksonJsonProvider())).
+        String discoveryDocumentURL = issuer + "/.well-known/openid-configuration";
+        WebClient client = WebClient.create(discoveryDocumentURL, Arrays.asList(new JacksonJsonProvider())).
                 accept(MediaType.APPLICATION_JSON);
-        return client.get(OIDCProviderDiscoveryDocument.class);
+        try {
+            return client.get(OIDCProviderDiscoveryDocument.class);
+        } catch (ClientErrorException e) {
+            LOG.error("While getting the Discovery Document at {}", discoveryDocumentURL, e);
+
+            if (e instanceof javax.ws.rs.NotFoundException) {
+                throw new NotFoundException("Discovery Document cannot be found at " + discoveryDocumentURL);
+            } else {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
+                sce.getElements().add(e.getMessage());
+                throw sce;
+            }
+        }
     }
 
     @PreAuthorize("hasRole('" + OIDCClientEntitlement.OP_CREATE + "')")
