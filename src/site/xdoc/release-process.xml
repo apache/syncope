@@ -311,17 +311,27 @@ unzip $SYNCOPE_RELEASE_DIR/target/syncope-$VERSION-source-release.zip
 cd syncope-$VERSION        
 mvn -PskipTests,all
 
-cd fit/core-reference && mvn -Pdebug,all
-curl -o /tmp/index.html http://localhost:9080/syncope/index.html
-sed -i 's/\/syncope\/webjars\/jquery\/2.2.4\/jquery.min.js/https:\/\/code.jquery.com\/jquery-2.2.4.min.js/' index.html 
-sed -i 's/\/syncope\/webjars\/jquery-ui\/1.11.4\/jquery-ui.min.js/http:\/\/code.jquery.com\/ui\/1.11.4\/jquery-ui.min.js/' index.html               
-sed -i 's/\/syncope\/webjars\/jquery-ui-themes\/1.11.4\/smoothness\/jquery-ui.min.css/https:\/\/code.jquery.com\/ui\/1.11.4\/themes\/smoothness\/jquery-ui.css/' index.html 
-curl -o /tmp/schema_1_syncope2.html http://localhost:9080/syncope/schema_1_syncope2.html
-sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/styles\/default.min.css/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.8.0\/styles\/default.min.css/' schema_1_syncope2.html 
-sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/highlight.min.js/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.8.0\/highlight.min.js/' schema_1_syncope2.html 
-curl -o /tmp/syncope.wadl http://localhost:9080/syncope/syncope.wadl
-# now CTRL+C to stop cargo
+cd standalone/target/standalone/apache-tomcat-* && ./bin/startup.sh
 
+curl -o /tmp/syncope.wadl http://localhost:9080/syncope/syncope.wadl
+
+curl -o /tmp/index.html http://localhost:9080/syncope/index.html
+sed -i 's/\/syncope\/webjars\/jquery\/2.2.4\/jquery.min.js/https:\/\/code.jquery.com\/jquery-2.2.4.min.js/' /tmp/index.html 
+sed -i 's/\/syncope\/webjars\/jquery-ui\/1.11.4\/jquery-ui.min.js/http:\/\/code.jquery.com\/ui\/1.11.4\/jquery-ui.min.js/' /tmp/index.html               
+sed -i 's/\/syncope\/webjars\/jquery-ui-themes\/1.11.4\/smoothness\/jquery-ui.min.css/https:\/\/code.jquery.com\/ui\/1.11.4\/themes\/smoothness\/jquery-ui.css/' /tmp/index.html 
+
+# if releasing from 2_0_X
+curl -o /tmp/schema_1_syncope2.html http://localhost:9080/syncope/schema_1_syncope2.html
+sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/styles\/default.min.css/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.8.0\/styles\/default.min.css/' /tmp/schema_1_syncope2.html 
+sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/highlight.min.js/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.8.0\/highlight.min.js/' /tmp/schema_1_syncope2.html 
+
+# else if releasing from 2_1_X
+curl -o /tmp/schema_1_syncope2.html http://localhost:9080/syncope/schema_1_syncope21.html
+sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/styles\/default.min.css/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.8.0\/styles\/default.min.css/' /tmp/schema_1_syncope21.html 
+sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/highlight.min.js/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.8.0\/highlight.min.js/' /tmp/schema_1_syncope21.html 
+
+./bin/shutdown.sh && cd - 
+              
 svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
 
 cd $SYNCOPE_SITE_DIR
@@ -337,7 +347,11 @@ mv /tmp/syncope.wadl $VERSION/rest/2.0
 cp $SYNCOPE_SITE_DIR/target/generated-docs/getting-started.* docs/2.0/
 cp $SYNCOPE_SITE_DIR/target/generated-docs/reference-guide.* docs/2.0/
 cp -r $SYNCOPE_SITE_DIR/target/generated-docs/images docs/2.0/
-cd ..
+cd docs
+ln -s 2.1/reference-guide.html .
+ln -s 2.1/getting-started.html .
+ln -s 2.1/images/ .
+cd ../..
 svn add $VERSION
 svn copy apidocs/2.1 $VERSION/apidocs/
 svn copy rest/2.1 $VERSION/rest/
@@ -345,12 +359,16 @@ svn copy rest/2.1 $VERSION/rest/
 # else if releasing from 2_1_X
 mkdir -p $VERSION/rest/2.1
 mv /tmp/index.html $VERSION/rest/2.1
-mv /tmp/schema_1_syncope2.html $VERSION/rest/2.1
+mv /tmp/schema_1_syncope21.html $VERSION/rest/2.1
 mv /tmp/syncope.wadl $VERSION/rest/2.1
 cp $SYNCOPE_SITE_DIR/target/generated-docs/getting-started.* docs/2.1/
 cp $SYNCOPE_SITE_DIR/target/generated-docs/reference-guide.* docs/2.1/
 cp -r $SYNCOPE_SITE_DIR/target/generated-docs/images docs/2.1/
-cd ..
+cd docs
+ln -s 2.1/reference-guide.html .
+ln -s 2.1/getting-started.html .
+ln -s 2.1/images/ .
+cd ../..
 svn add $VERSION
 svn copy apidocs/2.0 $VERSION/apidocs/
 svn copy rest/2.0 $VERSION/rest/

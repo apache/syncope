@@ -2558,20 +2558,6 @@ under the License.
                   </target>
                 </configuration>
               </execution>
-              <execution>
-                <id>place-htaccess</id>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-                <phase>site-deploy</phase>
-                <configuration>
-                  <target>
-                    <copy todir="${site.deploymentBaseDir}/docs">
-                      <fileset dir="${rootpom.basedir}/src/site/" includes=".htaccess"/>
-                    </copy>
-                  </target>
-                </configuration>
-              </execution>
             </executions>
           </plugin>
         </plugins>
