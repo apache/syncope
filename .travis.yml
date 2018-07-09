@@ -14,10 +14,6 @@
 # limitations under the License.
 
 sudo: false
-addons:
-  apt:
-    packages:
-      - oracle-java10-installer
 language: java
 jdk:
   - oraclejdk10
