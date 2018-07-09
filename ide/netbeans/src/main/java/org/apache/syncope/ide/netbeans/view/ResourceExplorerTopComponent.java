@@ -272,32 +272,9 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Generic Error", JOptionPane.ERROR_MESSAGE);
             ServerDetailsView serverDetails = getRefreshServerDetails();
-        } 
-        
-        Runnable tsk = new Runnable() {
-
-            @Override
-            public void run() {
-                final ProgressHandle progr = ProgressHandle.createHandle("Loading Templates", new Cancellable() {
-
-                    @Override
-                    public boolean cancel() {
-                        return true;
-                    }
-                });
-
-                progr.start();
-                progr.progress("Loading Templates.");
-                addMailTemplates();
-                addReportXslts();
-                addGroovyScripts();
-                progr.finish();
-            }
-
-        };
-        RequestProcessor.getDefault().post(tsk);
+        }
+     
     }
-    
     @Override
     public void componentClosed() {
         // TODO add custom code on component 
@@ -307,7 +284,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     void writeProperties(final java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
-        p.setProperty("version", "1.0");
+        p.setProperty("version", "1.0");  
         // TODO store your settings
     }
 
@@ -338,6 +315,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         for(ImplementationType type : ImplementationType.values())
         {
             DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(type.toString());
+            if(type.toString().equals("PUSH_CORRELATION_RULE")) continue ; // Temporary Solution
             List<ImplementationTO> scripts = implementationManagerService.list(type);
             for(ImplementationTO script : scripts) {
                 if(script.getEngine() == ImplementationEngine.GROOVY) {
@@ -724,7 +702,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     ImplementationTO node = implementationManagerService.read(getType(templateType),key);
                     node.setBody(content);
                     implementationManagerService.update(node);
-            }
+            } 
         } catch (BadLocationException e) {
             Exceptions.printStackTrace(e);
         }
