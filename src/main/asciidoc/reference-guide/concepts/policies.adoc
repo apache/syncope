@@ -63,14 +63,14 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultAccountRule.java[DefaultAccountRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultAccountRule.java[DefaultAccountRule^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultAccountRule.java[DefaultAccountRule^]
 endif::[]
 and configurable via
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultAccountRuleConf.java[DefaultAccountRuleConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultAccountRuleConf.java[DefaultAccountRuleConf^]
+https://github.com/apache/syncope/blob/2_1_X/common/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultAccountRuleConf.java[DefaultAccountRuleConf^]
 endif::[]
 ) contains the following controls:
 
@@ -94,21 +94,21 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/policy/AccountRuleConf.java[AccountRuleConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/policy/AccountRuleConf.java[AccountRuleConf^]
+https://github.com/apache/syncope/blob/2_1_X/common/lib/src/main/java/org/apache/syncope/common/lib/policy/AccountRuleConf.java[AccountRuleConf^]
 endif::[]
 . implementing enforcement in an implementation of
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRule.java[AccountRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRule.java[AccountRule^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRule.java[AccountRule^]
 endif::[]
 annotated via
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRuleConfClass.java[@AccountRuleConfClass^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRuleConfClass.java[@AccountRuleConfClass^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRuleConfClass.java[@AccountRuleConfClass^]
 endif::[]
 referring to the configuration class
 ====
@@ -156,21 +156,21 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/policy/AccountRuleConf.java[AccountRuleConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/policy/AccountRuleConf.java[AccountRuleConf^]
+https://github.com/apache/syncope/blob/2_1_X/common/lib/src/main/java/org/apache/syncope/common/lib/policy/AccountRuleConf.java[AccountRuleConf^]
 endif::[]
 . implementing enforcement in an implementation of
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRule.java[AccountRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRule.java[AccountRule^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRule.java[AccountRule^]
 endif::[]
 annotated via
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRuleConfClass.java[@AccountRuleConfClass^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRuleConfClass.java[@AccountRuleConfClass^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRuleConfClass.java[@AccountRuleConfClass^]
 endif::[]
 referring to the configuration class
 ====
@@ -182,14 +182,14 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPasswordRule.java[DefaultPasswordRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPasswordRule.java[DefaultPasswordRule^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPasswordRule.java[DefaultPasswordRule^]
 endif::[]
 and configurable via
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultPasswordRuleConf.java[DefaultPasswordRuleConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultPasswordRuleConf.java[DefaultPasswordRuleConf^]
+https://github.com/apache/syncope/blob/2_1_X/common/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultPasswordRuleConf.java[DefaultPasswordRuleConf^]
 endif::[]
 ) contains the following controls:
 
@@ -225,14 +225,14 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/HaveIBeenPwnedPasswordRule.java[HaveIBeenPwnedPasswordRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/HaveIBeenPwnedPasswordRule.java[HaveIBeenPwnedPasswordRule^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/HaveIBeenPwnedPasswordRule.java[HaveIBeenPwnedPasswordRule^]
 endif::[]
 and configurable via
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/policy/HaveIBeenPwnedPasswordRuleConf.java[HaveIBeenPwnedPasswordRuleConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/policy/HaveIBeenPwnedPasswordRuleConf.java[HaveIBeenPwnedPasswordRuleConf^]
+https://github.com/apache/syncope/blob/2_1_X/common/lib/src/main/java/org/apache/syncope/common/lib/policy/HaveIBeenPwnedPasswordRuleConf.java[HaveIBeenPwnedPasswordRuleConf^]
 endif::[]
 ) checks the provided password values against the popular
 https://haveibeenpwned.com["Have I Been Pwned?"^] service.
@@ -273,7 +273,7 @@ https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa
 ]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPullCorrelationRule.java[default^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPullCorrelationRule.java[default^]
 endif::[]
 implementation attempts to match entities on the basis of the values of the provided plain attributes,
 according to the available <<mapping,mapping>>.
@@ -285,7 +285,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PullCorrelationRule.java[PullCorrelationRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PullCorrelationRule.java[PullCorrelationRule^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PullCorrelationRule.java[PullCorrelationRule^]
 endif::[]
 interface.
 ====
@@ -311,7 +311,7 @@ https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa
 ]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPushCorrelationRule.java[default^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPushCorrelationRule.java[default^]
 endif::[]
 implementation attempts to match entities on the basis of the values of the provided plain attributes,
 according to the available <<mapping,mapping>>.
@@ -323,7 +323,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PushCorrelationRule.java[PushCorrelationRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PushCorrelationRule.java[PushCorrelationRule^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PushCorrelationRule.java[PushCorrelationRule^]
 endif::[]
 interface.
 ====

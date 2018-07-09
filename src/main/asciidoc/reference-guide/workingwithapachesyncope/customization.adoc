@@ -45,7 +45,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/java/org/apache/syncope/core/spring/security/SyncopeAuthenticationProvider.java[SyncopeAuthenticationProvider^].
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/spring/src/main/java/org/apache/syncope/core/spring/security/SyncopeAuthenticationProvider.java[SyncopeAuthenticationProvider^].
+https://github.com/apache/syncope/blob/2_1_X/core/spring/src/main/java/org/apache/syncope/core/spring/security/SyncopeAuthenticationProvider.java[SyncopeAuthenticationProvider^].
 endif::[]
 
 The same happens with resources as images or HTML files; if you place
@@ -57,7 +57,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/client/console/src/main/resources/org/apache/syncope/client/console/pages/BasePage.html[BasePage.html^].
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/client/console/src/main/resources/org/apache/syncope/client/console/pages/BasePage.html[BasePage.html^].
+https://github.com/apache/syncope/blob/2_1_X/client/console/src/main/resources/org/apache/syncope/client/console/pages/BasePage.html[BasePage.html^].
 endif::[]
 
 This general behavior might have exceptions, as highlighted below.
@@ -206,7 +206,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/camel/rest-api/src/main/java/org/apache/syncope/common/rest/api/service/CamelRouteService.java[CamelRouteService^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/ext/camel/rest-api/src/main/java/org/apache/syncope/common/rest/api/service/CamelRouteService.java[CamelRouteService^]
+https://github.com/apache/syncope/blob/2_1_X/ext/camel/rest-api/src/main/java/org/apache/syncope/common/rest/api/service/CamelRouteService.java[CamelRouteService^]
 endif::[]
 for reference;
 . if needed, define supporting payload objects - in an extension's `common-lib` module or under `common` otherwise;
@@ -215,7 +215,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/camel/common-lib/src/main/java/org/apache/syncope/common/lib/to/CamelRouteTO.java[CamelRouteTO^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/ext/camel/common-lib/src/main/java/org/apache/syncope/common/lib/to/CamelRouteTO.java[CamelRouteTO^]
+https://github.com/apache/syncope/blob/2_1_X/ext/camel/common-lib/src/main/java/org/apache/syncope/common/lib/to/CamelRouteTO.java[CamelRouteTO^]
 endif::[]
 for reference;
 . implement - in an extension's `rest-cxf` module or under `core` otherwise -  the interface defined above in a Java
@@ -224,7 +224,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/camel/rest-cxf/src/main/java/org/apache/syncope/core/rest/cxf/service/CamelRouteServiceImpl.java[CamelRouteServiceImpl^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/ext/camel/rest-cxf/src/main/java/org/apache/syncope/core/rest/cxf/service/CamelRouteServiceImpl.java[CamelRouteServiceImpl^]
+https://github.com/apache/syncope/blob/2_1_X/ext/camel/rest-cxf/src/main/java/org/apache/syncope/core/rest/cxf/service/CamelRouteServiceImpl.java[CamelRouteServiceImpl^]
 endif::[]
 for reference.
 
@@ -239,7 +239,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/resources/securityContext.xml[securityContext.xml^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/spring/src/main/resources/securityContext.xml[securityContext.xml^]
+https://github.com/apache/syncope/blob/2_1_X/core/spring/src/main/resources/securityContext.xml[securityContext.xml^]
 endif::[]
 , you will also need to replace the following text in `core/src/main/webapp/WEB-INF/web.xml`,
 
@@ -393,7 +393,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/elasticsearch/persistence-jpa/src/main/resources/persistence.properties[persistence.properties^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/ext/elasticsearch/persistence-jpa/src/main/resources/persistence.properties[persistence.properties^]
+https://github.com/apache/syncope/blob/2_1_X/ext/elasticsearch/persistence-jpa/src/main/resources/persistence.properties[persistence.properties^]
 endif::[]
 
 and
@@ -402,7 +402,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/elasticsearch/client-elasticsearch/src/main/resources/elasticsearchClientContext.xml[elasticsearchClientContext.xml^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/ext/elasticsearch/client-elasticsearch/src/main/resources/elasticsearchClientContext.xml[elasticsearchClientContext.xml^]
+https://github.com/apache/syncope/blob/2_1_X/ext/elasticsearch/client-elasticsearch/src/main/resources/elasticsearchClientContext.xml[elasticsearchClientContext.xml^]
 endif::[]
 
 then save both under `core/src/main/resources`.
@@ -774,5 +774,5 @@ Moreover, `defaultValues` do not overwrite any existing value.
 <<extensions>> can be part of a local project, to encapsulate special features which are specific to a given deployment.
 
 For example, the http://www.chorevolution.eu/[CHOReVOLUTION^] IdM - based on Apache Syncope - provides
-https://gitlab.ow2.org/chorevolution/syncope/tree/master/ext/choreography[an extension^]
+https://gitlab.ow2.org/chorevolution/syncope/tree/2_1_X/ext/choreography[an extension^]
 for managing via the <<core>> and visualizing via the <<admin-console-component>> the running choreography instances.

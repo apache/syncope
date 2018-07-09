@@ -154,7 +154,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/fit/core-reference/src/main/resources/jboss/restCXFContext.xml[restCXFContext.xml^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/fit/core-reference/src/main/resources/jboss/restCXFContext.xml[restCXFContext.xml^]
+https://github.com/apache/syncope/blob/2_1_X/fit/core-reference/src/main/resources/jboss/restCXFContext.xml[restCXFContext.xml^]
 endif::[]
 and save it under `core/src/main/resources/`.
 
@@ -163,7 +163,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/fit/core-reference/src/main/resources/jboss/domains.xml[domains.xml^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/fit/core-reference/src/main/resources/jboss/domains.xml[domains.xml^]
+https://github.com/apache/syncope/blob/2_1_X/fit/core-reference/src/main/resources/jboss/domains.xml[domains.xml^]
 endif::[]
 and save it under `core/src/main/resources/`.
 
@@ -172,7 +172,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/resources/persistenceContext.xml[persistenceContext.xml^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/resources/persistenceContext.xml[persistenceContext.xml^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa/src/main/resources/persistenceContext.xml[persistenceContext.xml^]
 endif::[]
 and save it under `core/src/main/resources/`.
 
