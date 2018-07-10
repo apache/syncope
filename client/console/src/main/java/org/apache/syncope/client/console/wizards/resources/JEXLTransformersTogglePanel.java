@@ -49,13 +49,13 @@ public class JEXLTransformersTogglePanel extends TogglePanel<Serializable> {
                 "propagationJEXLTransformer",
                 "Propagation",
                 Model.of(""));
-        form.add(propagationJEXLTransformer.enableJexlHelp());
+        form.add(propagationJEXLTransformer.enableJexlHelp("value.toLowecase()", "'PREFIX' + value"));
 
         pullJEXLTransformer = new AjaxTextFieldPanel(
                 "pullJEXLTransformer",
                 "Pull",
                 Model.of(""));
-        form.add(pullJEXLTransformer.enableJexlHelp());
+        form.add(pullJEXLTransformer.enableJexlHelp("value.toLowecase()", "'PREFIX' + value"));
 
         form.add(new AjaxSubmitLink("submit", form) {
 
