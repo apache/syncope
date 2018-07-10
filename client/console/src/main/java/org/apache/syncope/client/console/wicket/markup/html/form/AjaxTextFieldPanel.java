@@ -40,7 +40,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
 
     private static final long serialVersionUID = 238940918106696068L;
 
-    private final Component questionMarkJexlHelp;
+    private Component questionMarkJexlHelp;
 
     private List<String> choices = Collections.emptyList();
 
@@ -110,6 +110,12 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
 
     public FieldPanel<String> enableJexlHelp() {
         questionMarkJexlHelp.setVisible(true);
+        return this;
+    }
+
+    public FieldPanel<String> enableJexlHelp(final String... jexlExamples) {
+        questionMarkJexlHelp = Constants.getJEXLPopover(this, TooltipConfig.Placement.bottom, jexlExamples);
+        addOrReplace(questionMarkJexlHelp.setVisible(true));
         return this;
     }
 

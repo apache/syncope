@@ -200,15 +200,27 @@ public final class Constants {
     public static final String GUARDED_BYTE_ARRAY = "org.identityconnectors.common.security.GuardedByteArray";
 
     public static Component getJEXLPopover(final Component caller, final TooltipConfig.Placement placement) {
+        return getJEXLPopover(caller, placement, caller.getString("jexl_ex1"), caller.getString("jexl_ex2"));
+    }
+
+    public static Component getJEXLPopover(
+            final Component caller,
+            final TooltipConfig.Placement placement,
+            final String... jexlExamples) {
+
+        StringBuilder body = new StringBuilder(caller.getString("jexl_info")).
+                append("<ul>");
+        for (String jexlExample : jexlExamples) {
+            body.append("<li>").append(jexlExample).append("</li>");
+        }
+        body.append("</ul>").
+                append("<a href='https://commons.apache.org/proper/commons-jexl/reference/' target='_blank'>").
+                append(caller.getString("jexl_syntax_url")).
+                append("</a>");
+
         return new Label("jexlInfo", Model.of()).add(new PopoverBehavior(
                 Model.<String>of(),
-                Model.of(caller.getString("jexl_info")
-                        + "<ul>"
-                        + "<li>" + caller.getString("jexl_ex1") + "</li>"
-                        + "<li>" + caller.getString("jexl_ex2") + "</li>"
-                        + "</ul>"
-                        + "<a href='https://commons.apache.org/proper/commons-jexl/reference/index.html' "
-                        + "target='_blank'>" + caller.getString("jexl_syntax_url") + "</a>"),
+                Model.of(body.toString()),
                 new PopoverConfig().withHtml(true).withPlacement(placement)) {
 
             private static final long serialVersionUID = -7867802555691605021L;
