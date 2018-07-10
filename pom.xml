@@ -313,6 +313,17 @@ under the License.
       <url>http://people.apache.org/~skylark17/</url>
       <email>skylark17@apache.org</email>
     </developer>
+    <developer>
+      <id>loredicola</id>
+      <name>Lorenzo Di Cola</name>
+      <organization>Tirasa</organization>
+      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <url>http://people.apache.org/~loredicola/</url>
+      <email>loredicola@apache.org</email>
+    </developer>
   </developers>
   <contributors>
     <contributor>
