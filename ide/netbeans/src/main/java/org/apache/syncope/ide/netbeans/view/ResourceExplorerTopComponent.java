@@ -273,7 +273,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Generic Error", JOptionPane.ERROR_MESSAGE);
             ServerDetailsView serverDetails = getRefreshServerDetails();
         }
-     
+      
     }
     @Override
     public void componentClosed() {
@@ -406,14 +406,67 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                             newNode.setKey(name);
                             newNode.setEngine(ImplementationEngine.GROOVY);
                             newNode.setType(type);
-                            String temp [] = type.toString().split("_");
-                            temp[0] = temp[0].substring(0,1).toUpperCase() + temp[0].substring(1).toLowerCase();
-                            temp[1] = temp[1].substring(0,1).toUpperCase() + temp[1].substring(1).toLowerCase();
-                            temp[0] = temp[0] + temp[1];
+                            String templateClassName = null;
+                            switch (type) {
+                                case REPORTLET:
+                                    templateClassName = "MyReportlet";
+                                    break;
+
+                                case ACCOUNT_RULE:
+                                    templateClassName = "MyAccountRule";
+                                    break;
+
+                                case PASSWORD_RULE:
+                                    templateClassName = "MyPasswordRule";
+                                    break;
+
+                                case ITEM_TRANSFORMER:
+                                    templateClassName = "MyItemTransformer";
+                                    break;
+
+                                case TASKJOB_DELEGATE:
+                                    templateClassName = "MySchedTaskJobDelegate";
+                                    break;
+
+                                case RECON_FILTER_BUILDER:
+                                    templateClassName = "MyReconFilterBuilder";
+                                    break;
+
+                                case LOGIC_ACTIONS:
+                                    templateClassName = "MyLogicActions";
+                                    break;
+
+                                case PROPAGATION_ACTIONS:
+                                    templateClassName = "MyPropagationActions";
+                                    break;
+
+                                case PULL_ACTIONS:
+                                    templateClassName = "MyPullActions";
+                                    break;
+
+                                case PUSH_ACTIONS:
+                                    templateClassName = "MyPushActions";
+                                    break;
+
+                                case PULL_CORRELATION_RULE:
+                                    templateClassName = "MyPullCorrelationRule";
+                                    break;
+
+                                case VALIDATOR:
+                                    templateClassName = "MyValidator";
+                                    break;
+
+                                case RECIPIENTS_PROVIDER:
+                                    templateClassName = "MyRecipientsProvider";
+                                    break;
+
+                                default:
+            }
+                            LOG.info(templateClassName);
                             try {
                                     newNode.setBody(IOUtils.toString(
-                                    getClass().getResourceAsStream("/org/apache/syncope/ide/netbeans/implementations/My"
-                                    + temp[0] + ".groovy")));
+                                    getClass().getResourceAsStream("/org/apache/syncope/ide/netbeans/implementations/"
+                                    + templateClassName + ".groovy")));
                                     added = implementationManagerService.create(newNode);
                                     openScriptEditor(name,(String)node.getUserObject());
                             } catch(Exception ex)
