@@ -96,13 +96,6 @@ under the License.
       <groupId>org.webjars</groupId>
       <artifactId>codemirror</artifactId>
     </dependency>    
-
-    <!-- TEST -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
