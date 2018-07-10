@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +30,7 @@ import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
+import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -134,7 +136,13 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
     protected void setAttrs(final MembershipTO membershipTO) {
         List<AttrTO> attrs = new ArrayList<>();
 
-        Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(anyTO.getDerAttrs());
+        final Map<String, AttrTO> attrMap;
+        if (GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()) == null) {
+            attrMap = new HashMap<>();
+        } else {
+            attrMap = EntityTOUtils.buildAttrMap(
+                    GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).getDerAttrs());
+        }
 
         for (DerSchemaTO schema : membershipSchemas.get(membershipTO.getGroupKey()).values()) {
             AttrTO attrTO = new AttrTO();

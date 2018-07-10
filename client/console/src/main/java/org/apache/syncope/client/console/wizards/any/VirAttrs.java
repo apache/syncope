@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
@@ -147,8 +148,13 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
     protected void setAttrs(final MembershipTO membershipTO) {
         List<AttrTO> attrs = new ArrayList<>();
 
-        Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(
-                GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).getVirAttrs());
+        final Map<String, AttrTO> attrMap;
+        if (GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()) == null) {
+            attrMap = new HashMap<>();
+        } else {
+            attrMap = EntityTOUtils.buildAttrMap(
+                    GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).getVirAttrs());
+        }
 
         for (VirSchemaTO schema : membershipSchemas.get(membershipTO.getGroupKey()).values()) {
             AttrTO attrTO = new AttrTO();

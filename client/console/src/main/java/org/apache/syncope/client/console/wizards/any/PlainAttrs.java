@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.wizards.any;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.ListUtils;
@@ -47,6 +48,7 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -194,14 +196,20 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
     protected void setAttrs(final MembershipTO membershipTO) {
         List<AttrTO> attrs = new ArrayList<>();
 
-        Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(membershipTO.getPlainAttrs());
+        final Map<String, AttrTO> attrMap;
+        if (GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()) == null) {
+            attrMap = new HashMap<>();
+        } else {
+            attrMap = EntityTOUtils.buildAttrMap(
+                    GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).getPlainAttrs());
+        }
 
         for (PlainSchemaTO schema : membershipSchemas.get(membershipTO.getGroupKey()).values()) {
             AttrTO attrTO = new AttrTO();
             attrTO.setSchema(schema.getKey());
 
             if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
-                attrTO.getValues().add("");
+                attrTO.getValues().add(StringUtils.EMPTY);
 
                 // is important to set the schema info only after values setting
                 attrTO.setSchemaInfo(schema);
