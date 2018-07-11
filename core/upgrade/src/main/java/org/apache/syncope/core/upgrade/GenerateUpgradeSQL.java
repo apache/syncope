@@ -91,10 +91,41 @@ public final class GenerateUpgradeSQL {
             schemaTool.run();
 
             // now proceed with manual update statements...
+            Connection conn = jdbcConf.getDataSource2(null).getConnection();
+
+            // User
+            OUT.write("UPDATE SyncopeUser SET mustChangePassword=0 WHERE mustChangePassword IS NULL;\n");
+
+            // VirSchema
+            OUT.write("UPDATE VirSchema SET readonly=0 WHERE readonly IS NULL;\n");
+
+            // ExternalResource
+            OUT.write("UPDATE ExternalResource SET overrideCapabilities=0 WHERE overrideCapabilities IS NULL;\n");
+
             // OrgUnit
             OUT.write("UPDATE OrgUnit SET ignoreCaseMatch=0;\n");
 
-            Connection conn = jdbcConf.getDataSource2(null).getConnection();
+            // OrgUnitItemTransformer
+            try (Statement stmt = conn.createStatement();
+                    ResultSet rs = stmt.executeQuery(
+                            "SELECT orgUnitItem_id,transformerClassName FROM OrgUnitItem_Transformer")) {
+
+                while (rs.next()) {
+                    String itemId = rs.getString(1);
+                    String transformerClassName = rs.getString(2);
+
+                    String implementationId = "OrgUnitItemTransformer_" + itemId;
+                    OUT.write("INSERT INTO Implementation(id,type,engine,body) VALUES("
+                            + "'" + implementationId + "',"
+                            + "'ITEM_TRANSFORMER',"
+                            + "'JAVA',"
+                            + "'" + transformerClassName + "');\n");
+                    OUT.write("INSERT INTO OrgUnitItemTransformer(item_id,implementation_id) VALUES("
+                            + "'" + itemId + "',"
+                            + "'" + implementationId + "');\n");
+                }
+            }
+            OUT.write("DROP TABLE OrgUnitItem_Transformer;\n");
 
             // PlainSchema
             try (Statement stmt = conn.createStatement();
@@ -210,6 +241,7 @@ public final class GenerateUpgradeSQL {
 
             // Task
             OUT.write("UPDATE Task SET remediation=0;\n");
+            OUT.write("UPDATE Task SET active=0 WHERE active IS NULL;\n");
 
             OUT.write("INSERT INTO Implementation(id,type,engine,body) VALUES("
                     + "'PullJobDelegate',"
@@ -375,12 +407,52 @@ public final class GenerateUpgradeSQL {
                 }
             }
             OUT.write("DROP TABLE ReportletConfInstance;\n");
+
+            // MappingItemTransformer
+            try (Statement stmt = conn.createStatement();
+                    ResultSet rs = stmt.executeQuery(
+                            "SELECT mappingItem_id,transformerClassName FROM MappingItem_Transformer")) {
+
+                while (rs.next()) {
+                    String itemId = rs.getString(1);
+                    String transformerClassName = rs.getString(2);
+
+                    String implementationId = "MappingItemTransformer_" + itemId;
+                    OUT.write("INSERT INTO Implementation(id,type,engine,body) VALUES("
+                            + "'" + implementationId + "',"
+                            + "'ITEM_TRANSFORMER',"
+                            + "'JAVA',"
+                            + "'" + transformerClassName + "');\n");
+                    OUT.write("INSERT INTO MappingItemTransformer(item_id,implementation_id) VALUES("
+                            + "'" + itemId + "',"
+                            + "'" + implementationId + "');\n");
+                }
+            }
+            OUT.write("DROP TABLE MappingItem_Transformer;\n");
+
+            // Notification
+            try (Statement stmt = conn.createStatement();
+                    ResultSet rs = stmt.executeQuery(
+                            "SELECT DISTINCT recipientsProviderClassName "
+                            + "FROM Notification WHERE recipientsProviderClassName IS NOT NULL")) {
+
+                while (rs.next()) {
+                    String recipientsProviderClassName = rs.getString(1);
+                    OUT.write("INSERT INTO Implementation(id,type,engine,body) VALUES("
+                            + "'" + recipientsProviderClassName + "',"
+                            + "'RECIPIENTS_PROVIDER',"
+                            + "'JAVA',"
+                            + "'" + recipientsProviderClassName + "');\n");
+                }
+            }
+            OUT.write("UPDATE Notification SET recipientsProvider_id=recipientsProviderClassName;\n");
+            OUT.write("ALTER TABLE Notification DROP COLUMN recipientsProviderClassName;\n");
         } finally {
             OUT.flush();
             OUT.close();
         }
     }
-    
+
     private GenerateUpgradeSQL() {
         // private constructor
     }
