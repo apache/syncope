@@ -213,12 +213,8 @@ public abstract class ConnInstanceHistoryConfDirectoryPanel extends DirectoryPan
         public Iterator<ConnInstanceHistoryConfTO> iterator(final long first, final long count) {
             final List<ConnInstanceHistoryConfTO> configurations = restClient.list(entityKey);
 
-            Collections.sort(configurations, getComparator());
+            Collections.sort(configurations, comparator);
             return configurations.iterator();
-        }
-
-        public SortableDataProviderComparator<ConnInstanceHistoryConfTO> getComparator() {
-            return comparator;
         }
 
         @Override
@@ -230,6 +226,5 @@ public abstract class ConnInstanceHistoryConfDirectoryPanel extends DirectoryPan
         public IModel<ConnInstanceHistoryConfTO> model(final ConnInstanceHistoryConfTO object) {
             return new CompoundPropertyModel<>(object);
         }
-
     }
 }

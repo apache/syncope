@@ -16,30 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.common.rest.api.beans;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.Remediation;
-import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+public class RemediationQuery extends AbstractQuery {
 
-public interface RemediationDAO extends DAO<Remediation> {
+    private static final long serialVersionUID = 4000880445378096031L;
 
-    Remediation find(String key);
+    public static class Builder extends AbstractQuery.Builder<RemediationQuery, Builder> {
 
-    List<Remediation> findByAnyType(AnyType anyType);
-
-    List<Remediation> findByPullTask(PullTask pullTask);
-
-    int count();
-
-    List<Remediation> findAll(int page, int itemsPerPage, List<OrderByClause> orderByClauses);
-
-    Remediation save(Remediation remediation);
-
-    void delete(Remediation remediation);
-
-    void delete(String key);
-
+        @Override
+        protected RemediationQuery newInstance() {
+            return new RemediationQuery();
+        }
+    }
 }

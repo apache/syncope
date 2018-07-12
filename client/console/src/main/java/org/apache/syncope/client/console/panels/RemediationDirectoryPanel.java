@@ -30,7 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
-import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
@@ -311,26 +310,23 @@ public class RemediationDirectoryPanel
 
         private static final long serialVersionUID = -2311716167583335852L;
 
-        private final SortableDataProviderComparator<RemediationTO> comparator;
-
         private final RemediationRestClient restClient = new RemediationRestClient();
 
         public RemediationProvider(final int paginatorRows) {
             super(paginatorRows);
+
             setSort("instant", SortOrder.ASCENDING);
-            this.comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<RemediationTO> iterator(final long first, final long count) {
-            final List<RemediationTO> list = restClient.getRemediations();
-            Collections.sort(list, comparator);
-            return list.subList((int) first, (int) first + (int) count).iterator();
+            int page = ((int) first / paginatorRows);
+            return restClient.getRemediations((page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.getRemediations().size();
+            return restClient.countRemediations();
         }
 
         @Override

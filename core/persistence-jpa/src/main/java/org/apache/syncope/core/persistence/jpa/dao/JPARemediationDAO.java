@@ -18,14 +18,18 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.lang.reflect.Field;
 import java.util.List;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.jpa.entity.JPARemediation;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.ReflectionUtils;
 
 @Repository
 public class JPARemediationDAO extends AbstractDAO<Remediation> implements RemediationDAO {
@@ -54,9 +58,57 @@ public class JPARemediationDAO extends AbstractDAO<Remediation> implements Remed
     }
 
     @Override
-    public List<Remediation> findAll() {
-        TypedQuery<Remediation> query = entityManager().createQuery(
-                "SELECT e FROM " + JPARemediation.class.getSimpleName() + " e ", Remediation.class);
+    public int count() {
+        Query query = entityManager().createNativeQuery("SELECT COUNT(id) FROM " + JPARemediation.TABLE);
+        return ((Number) query.getSingleResult()).intValue();
+    }
+
+    @Override
+    public List<Remediation> findAll(
+            final int page,
+            final int itemsPerPage,
+            final List<OrderByClause> orderByClauses) {
+
+        StringBuilder queryString = new StringBuilder(
+                "SELECT e FROM " + JPARemediation.class.getSimpleName() + " e");
+
+        if (!orderByClauses.isEmpty()) {
+            queryString.append(" ORDER BY ");
+            orderByClauses.forEach(clause -> {
+                String field = clause.getField().trim();
+                boolean ack = true;
+                if ("resource".equals(field)) {
+                    queryString.append("e.pullTask.resource.id");
+                } else {
+                    Field beanField = ReflectionUtils.findField(JPARemediation.class, field);
+                    if (beanField == null) {
+                        ack = false;
+                        LOG.warn("Remediation sort request by {}: unsupported, ignoring", field);
+                    } else {
+                        queryString.append("e.").append(field);
+                    }
+                }
+                if (ack) {
+                    if (clause.getDirection() == OrderByClause.Direction.ASC) {
+                        queryString.append(" ASC");
+                    } else {
+                        queryString.append(" DESC");
+                    }
+                    queryString.append(',');
+                }
+            });
+
+            queryString.deleteCharAt(queryString.length() - 1);
+        }
+
+        TypedQuery<Remediation> query = entityManager().createQuery(queryString.toString(), Remediation.class);
+
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+
+        if (itemsPerPage > 0) {
+            query.setMaxResults(itemsPerPage);
+        }
+
         return query.getResultList();
     }
 

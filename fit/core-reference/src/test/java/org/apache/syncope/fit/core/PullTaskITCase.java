@@ -84,6 +84,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.beans.RemediationQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.TaskService;
@@ -710,7 +711,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
             }
 
             // 3b. remediation was created
-            Optional<RemediationTO> remediation = remediationService.list().stream().
+            Optional<RemediationTO> remediation = remediationService.list(
+                    new RemediationQuery.Builder().page(1).size(1000).build()).getResult().stream().
                     filter(r -> "uid=pullFromLDAP,ou=People,o=isp".equalsIgnoreCase(r.getRemoteName())).
                     findFirst();
             assertTrue(remediation.isPresent());

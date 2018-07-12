@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.GroupPatch;
@@ -36,6 +37,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.provisioning.api.data.RemediationDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,8 +65,17 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REMEDIATION_LIST + "')")
     @Transactional(readOnly = true)
-    public List<RemediationTO> list() {
-        return remediationDAO.findAll().stream().map(binder::getRemediationTO).collect(Collectors.toList());
+    public Pair<Integer, List<RemediationTO>> list(
+            final int page,
+            final int size,
+            final List<OrderByClause> orderByClauses) {
+
+        int count = remediationDAO.count();
+
+        List<RemediationTO> result = remediationDAO.findAll(page, size, orderByClauses).stream().
+                map(binder::getRemediationTO).collect(Collectors.toList());
+
+        return Pair.of(count, result);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REMEDIATION_READ + "')")

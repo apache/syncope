@@ -28,8 +28,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -44,9 +44,11 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RemediationTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.RemediationQuery;
 
 /**
  * REST operations for remediations.
@@ -61,11 +63,12 @@ public interface RemediationService extends JAXRSService {
     /**
      * Returns a list of all remediations.
      *
+     * @param query query conditions
      * @return list of all remediations.
      */
     @GET
     @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    List<RemediationTO> list();
+    PagedResult<RemediationTO> list(@BeanParam RemediationQuery query);
 
     /**
      * Returns remediation with matching key.

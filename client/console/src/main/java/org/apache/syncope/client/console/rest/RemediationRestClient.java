@@ -25,14 +25,24 @@ import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RemediationTO;
+import org.apache.syncope.common.rest.api.beans.RemediationQuery;
 import org.apache.syncope.common.rest.api.service.RemediationService;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
 public class RemediationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -7033745375669316378L;
 
-    public List<RemediationTO> getRemediations() {
-        return getService(RemediationService.class).list();
+    public int countRemediations() {
+        return getService(RemediationService.class).
+                list(new RemediationQuery.Builder().page(1).size(1).build()).
+                getTotalCount();
+    }
+
+    public List<RemediationTO> getRemediations(final int page, final int size, final SortParam<String> sort) {
+        return getService(RemediationService.class).
+                list(new RemediationQuery.Builder().page(page).size(size).orderBy(toOrderBy(sort)).build()).
+                getResult();
     }
 
     public RemediationTO getRemediation(final String key) {
