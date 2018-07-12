@@ -75,7 +75,7 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
 
     @Override
     public Pair<Integer, List<WorkflowFormTO>> getForms(
-            final int page, final int size, List<OrderByClause> orderByClauses) {
+            final int page, final int size, final List<OrderByClause> orderByClauses) {
 
         return Pair.of(0, Collections.<WorkflowFormTO>emptyList());
     }
