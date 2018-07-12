@@ -19,16 +19,19 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.to.WorkflowTaskTO;
+import org.apache.syncope.common.rest.api.beans.WorkflowFormQuery;
 import org.apache.syncope.common.rest.api.service.UserWorkflowService;
 import org.apache.syncope.core.logic.UserWorkflowLogic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserWorkflowServiceImpl implements UserWorkflowService {
+public class UserWorkflowServiceImpl extends AbstractServiceImpl implements UserWorkflowService {
 
     @Autowired
     private UserWorkflowLogic logic;
@@ -49,8 +52,10 @@ public class UserWorkflowServiceImpl implements UserWorkflowService {
     }
 
     @Override
-    public List<WorkflowFormTO> getForms() {
-        return logic.getForms();
+    public PagedResult<WorkflowFormTO> getForms(final WorkflowFormQuery query) {
+        Pair<Integer, List<WorkflowFormTO>> result = logic.getForms(
+                query.getPage(), query.getSize(), getOrderByClauses(query.getOrderBy()));
+        return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
     }
 
     @Override

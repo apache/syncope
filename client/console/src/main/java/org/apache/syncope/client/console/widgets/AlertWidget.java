@@ -25,8 +25,6 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.AbstractLink;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -39,13 +37,13 @@ public abstract class AlertWidget<T extends Serializable> extends Panel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AlertWidget.class);
 
+    protected static final int MAX_SIZE = 5;
+
     protected final Label linkAlertsNumber;
 
     protected final Label headerAlertsNumber;
 
     protected final WebMarkupContainer latestAlertsList;
-
-    protected final ListView<T> latestFive;
 
     protected IModel<List<T>> latestAlerts;
 
@@ -61,7 +59,7 @@ public abstract class AlertWidget<T extends Serializable> extends Panel {
 
             @Override
             protected Integer load() {
-                return AlertWidget.this.latestAlerts.getObject().size();
+                return getLatestAlertsSize();
             }
         };
 
@@ -72,7 +70,7 @@ public abstract class AlertWidget<T extends Serializable> extends Panel {
             @Override
             protected List<T> load() {
                 final List<T> latest = AlertWidget.this.latestAlerts.getObject();
-                return latest.subList(0, latest.size() < 6 ? latest.size() : 5);
+                return latest.subList(0, latest.size() <= MAX_SIZE ? latest.size() : MAX_SIZE);
             }
         };
 
@@ -98,31 +96,20 @@ public abstract class AlertWidget<T extends Serializable> extends Panel {
         headerAlertsNumber.setOutputMarkupId(true);
         add(headerAlertsNumber);
 
+        add(getEventsLink("alertsLink"));
+
         latestAlertsList = new WebMarkupContainer("latestAlertsList");
         latestAlertsList.setOutputMarkupId(true);
         add(latestAlertsList);
+    }
 
-        latestFive = new ListView<T>("latestAlerts", items) {
-
-            private static final long serialVersionUID = 4949588177564901031L;
-
-            @Override
-            protected void populateItem(final ListItem<T> item) {
-                item.add(getAlertLink("alert", item.getModelObject()).setRenderBodyOnly(true));
-            }
-        };
-        latestAlertsList.add(latestFive.setReuseItems(false).setOutputMarkupId(true));
-
-        add(getEventsLink("alertsLink"));
+    protected int getLatestAlertsSize() {
+        return latestAlerts.getObject().size();
     }
 
     protected abstract IModel<List<T>> getLatestAlerts();
 
-    protected Panel getAlertLink(final String panelid, final T alert) {
-        return new AlertLink<>(panelid, alert);
-    }
-
-    protected abstract AbstractLink getEventsLink(final String linkid);
+    protected abstract AbstractLink getEventsLink(String linkid);
 
     protected abstract Icon getIcon(String iconid);
 
@@ -135,5 +122,4 @@ public abstract class AlertWidget<T extends Serializable> extends Panel {
             add(new Label("alert", alert.toString()));
         }
     }
-
 }

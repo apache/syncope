@@ -40,10 +40,6 @@ public abstract class TaskDataProvider<T extends TaskTO> extends DirectoryDataPr
         this.taskType = taskType;
     }
 
-    public SortableDataProviderComparator<T> getComparator() {
-        return comparator;
-    }
-
     @Override
     public IModel<T> model(final T object) {
         return new CompoundPropertyModel<>(object);
