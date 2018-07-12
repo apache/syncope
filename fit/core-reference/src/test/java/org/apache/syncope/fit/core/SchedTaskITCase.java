@@ -46,6 +46,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
+import org.apache.syncope.common.rest.api.beans.WorkflowFormQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.fit.ActivitiDetector;
 import org.apache.syncope.fit.core.reference.TestSampleJobDelegate;
@@ -138,7 +139,8 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
         execTask(taskService, TaskType.SCHEDULED, "e95555d2-1b09-42c8-b25b-f4c4ec598989", "JOB_FIRED", 50, false);
 
-        List<WorkflowFormTO> forms = userWorkflowService.getForms();
+        List<WorkflowFormTO> forms = userWorkflowService.getForms(
+                new WorkflowFormQuery.Builder().page(1).size(1000).build()).getResult();
         assertFalse(forms.isEmpty());
         for (WorkflowFormTO form : forms) {
             userWorkflowService.claimForm(form.getTaskId());
@@ -147,7 +149,8 @@ public class SchedTaskITCase extends AbstractTaskITCase {
             userWorkflowService.submitForm(form);
         }
 
-        forms = userWorkflowService.getForms();
+        forms = userWorkflowService.getForms(
+                new WorkflowFormQuery.Builder().page(1).size(1000).build()).getResult();
         assertTrue(forms.isEmpty());
     }
 

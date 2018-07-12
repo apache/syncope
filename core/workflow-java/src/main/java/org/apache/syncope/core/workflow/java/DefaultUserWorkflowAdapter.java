@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.to.WorkflowTaskTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
@@ -161,8 +162,10 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public List<WorkflowFormTO> getForms() {
-        return Collections.emptyList();
+    public Pair<Integer, List<WorkflowFormTO>> getForms(
+            final int page, final int size, List<OrderByClause> orderByClauses) {
+
+        return Pair.of(0, Collections.<WorkflowFormTO>emptyList());
     }
 
     @Override

@@ -48,12 +48,12 @@ import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.history.HistoricDetail;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.impl.persistence.entity.HistoricFormPropertyEntity;
-import org.activiti.engine.query.Query;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.Model;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
+import org.activiti.engine.task.TaskQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
@@ -75,6 +75,7 @@ import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.workflow.activiti.spring.DomainProcessEngine;
@@ -605,56 +606,88 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Transactional(readOnly = true)
     @Override
-    public List<WorkflowFormTO> getForms() {
-        List<WorkflowFormTO> forms = new ArrayList<>();
+    public Pair<Integer, List<WorkflowFormTO>> getForms(
+            final int page, final int size, final List<OrderByClause> orderByClauses) {
+
+        Pair<Integer, List<WorkflowFormTO>> forms = null;
 
         String authUser = AuthContextUtils.getUsername();
         if (adminUser.equals(authUser)) {
-            forms.addAll(getForms(engine.getTaskService().createTaskQuery().
-                    taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE)));
+            forms = getForms(engine.getTaskService().createTaskQuery().
+                    taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE), page, size, orderByClauses);
         } else {
             User user = userDAO.findByUsername(authUser);
             if (user == null) {
                 throw new NotFoundException("Syncope User " + authUser);
             }
 
-            forms.addAll(getForms(engine.getTaskService().createTaskQuery().
+            forms = getForms(engine.getTaskService().createTaskQuery().
                     taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE).
-                    taskCandidateOrAssigned(user.getKey())));
+                    taskCandidateOrAssigned(user.getKey()), page, size, orderByClauses);
 
             List<String> candidateGroups = new ArrayList<>();
             for (String groupName : userDAO.findAllGroupNames(user)) {
                 candidateGroups.add(groupName);
             }
             if (!candidateGroups.isEmpty()) {
-                forms.addAll(getForms(engine.getTaskService().createTaskQuery().
+                forms = getForms(engine.getTaskService().createTaskQuery().
                         taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE).
-                        taskCandidateGroupIn(candidateGroups)));
+                        taskCandidateGroupIn(candidateGroups), page, size, orderByClauses);
             }
         }
 
-        return forms;
+        return forms == null
+                ? Pair.of(0, Collections.<WorkflowFormTO>emptyList())
+                : forms;
     }
 
-    protected <T extends Query<?, ?>, U extends Object> List<WorkflowFormTO> getForms(final Query<T, U> query) {
-        List<WorkflowFormTO> forms = new ArrayList<>();
+    protected Pair<Integer, List<WorkflowFormTO>> getForms(
+            final TaskQuery query, final int page, final int size, final List<OrderByClause> orderByClauses) {
 
-        for (U obj : query.list()) {
-            try {
-                if (obj instanceof HistoricTaskInstance) {
-                    forms.add(getFormTO((HistoricTaskInstance) obj));
-                } else if (obj instanceof Task) {
-                    forms.add(getFormTO((Task) obj));
+        TaskQuery sortedQuery = query;
+        for (OrderByClause clause : orderByClauses) {
+            boolean ack = true;
+            switch (clause.getField().trim()) {
+                case "taskId":
+                    sortedQuery = sortedQuery.orderByTaskId();
+                    break;
+
+                case "createTime":
+                    sortedQuery = sortedQuery.orderByTaskCreateTime();
+                    break;
+
+                case "dueDate":
+                    sortedQuery = sortedQuery.orderByTaskDueDate();
+                    break;
+
+                case "owner":
+                    sortedQuery = sortedQuery.orderByTaskOwner();
+                    break;
+
+                default:
+                    LOG.warn("Form sort request by {}: unsupported, ignoring", clause.getField().trim());
+                    ack = false;
+            }
+            if (ack) {
+                if (clause.getDirection() == OrderByClause.Direction.ASC) {
+                    sortedQuery = sortedQuery.asc();
                 } else {
-                    throw new ActivitiException(
-                            "Failure retrieving form", new IllegalArgumentException("Invalid task type"));
+                    sortedQuery = sortedQuery.desc();
                 }
-            } catch (ActivitiException e) {
-                LOG.debug("No form found for task {}", obj, e);
             }
         }
 
-        return forms;
+        List<WorkflowFormTO> result = new ArrayList<>();
+
+        for (Task task : sortedQuery.listPage(size * (page <= 0 ? 0 : page - 1), size)) {
+            if (task instanceof HistoricTaskInstance) {
+                result.add(getFormTO((HistoricTaskInstance) task));
+            } else {
+                result.add(getFormTO(task));
+            }
+        }
+
+        return Pair.of((int) query.count(), result);
     }
 
     @Override

@@ -137,5 +137,4 @@ public class TaskQuery extends AbstractQuery {
     public void setDetails(final Boolean details) {
         this.details = details;
     }
-
 }

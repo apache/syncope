@@ -29,10 +29,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
-import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
 import org.apache.syncope.client.console.approvals.ApprovalDirectoryPanel.ApprovalProvider;
+import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -119,14 +119,15 @@ public class ApprovalDirectoryPanel
         columns.add(new PropertyColumn<WorkflowFormTO, String>(
                 new ResourceModel("taskId"), "taskId", "taskId"));
         columns.add(new PropertyColumn<WorkflowFormTO, String>(
-                new ResourceModel("key"), "key", "key"));
+                new ResourceModel("key"), "key"));
         columns.add(new PropertyColumn<WorkflowFormTO, String>(
-                new ResourceModel("username"), "username", "username"));
+                new ResourceModel("username"), "username"));
         columns.add(new DatePropertyColumn<WorkflowFormTO>(
                 new ResourceModel("createTime"), "createTime", "createTime"));
         columns.add(new DatePropertyColumn<WorkflowFormTO>(
                 new ResourceModel("dueDate"), "dueDate", "dueDate"));
-        columns.add(new PropertyColumn<WorkflowFormTO, String>(new ResourceModel("owner"), "owner", "owner"));
+        columns.add(new PropertyColumn<WorkflowFormTO, String>(
+                new ResourceModel("owner"), "owner", "owner"));
 
         return columns;
     }
@@ -262,20 +263,20 @@ public class ApprovalDirectoryPanel
 
         public ApprovalProvider(final int paginatorRows) {
             super(paginatorRows);
+
             setSort("createTime", SortOrder.ASCENDING);
-            this.comparator = new SortableDataProviderComparator<>(this);
+            comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<WorkflowFormTO> iterator(final long first, final long count) {
-            final List<WorkflowFormTO> list = restClient.getForms();
-            Collections.sort(list, comparator);
-            return list.subList((int) first, (int) first + (int) count).iterator();
+            int page = ((int) first / paginatorRows);
+            return restClient.getForms((page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.getForms().size();
+            return restClient.countForms();
         }
 
         @Override

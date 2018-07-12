@@ -19,9 +19,11 @@
 package org.apache.syncope.core.workflow.api;
 
 import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.to.WorkflowTaskTO;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 
 public interface WorkflowAdapter {
@@ -37,11 +39,14 @@ public interface WorkflowAdapter {
     String getPrefix();
 
     /**
-     * Get all defined forms for current workflow process instances.
+     * Get the forms for current workflow process instances matching the provided parameters.
      *
-     * @return list of defined forms
+     * @param page result page
+     * @param size items per page
+     * @param orderByClauses sort conditions
+     * @return total number of forms, list of forms matching the provided parameters
      */
-    List<WorkflowFormTO> getForms();
+    Pair<Integer, List<WorkflowFormTO>> getForms(int page, int size, List<OrderByClause> orderByClauses);
 
     /**
      * Get form for given workflowId (if present).
@@ -69,7 +74,7 @@ public interface WorkflowAdapter {
 
     /**
      * Get tasks available for execution, for given workflow id.
-     * 
+     *
      * @param workflowId workflow id
      * @return available tasks
      */
