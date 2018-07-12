@@ -22,7 +22,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -378,17 +377,14 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
 
         List<Object> queryParameters = new ArrayList<>();
 
-        boolean orderByTaskExecInfo = orderByClauses.stream().anyMatch(new Predicate<OrderByClause>() {
+        boolean orderByTaskExecInfo = orderByClauses.stream().
+                anyMatch(clause -> clause.getField().equals("start")
+                || clause.getField().equals("end")
+                || clause.getField().equals("latestExecStatus")
+                || clause.getField().equals("status"));
 
-            @Override
-            public boolean test(final OrderByClause t) {
-                return t.getField().equals("start")
-                        || t.getField().equals("end")
-                        || t.getField().equals("latestExecStatus")
-                        || t.getField().equals("status");
-            }
-        });
-        StringBuilder queryString = buildFindAllQuery(type,
+        StringBuilder queryString = buildFindAllQuery(
+                type,
                 resource,
                 notification,
                 anyTypeKind,

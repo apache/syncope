@@ -21,6 +21,7 @@ package org.apache.syncope.core.workflow.java;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
@@ -28,6 +29,7 @@ import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.to.WorkflowTaskTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
@@ -67,8 +69,10 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
     }
 
     @Override
-    public List<WorkflowFormTO> getForms() {
-        return Collections.emptyList();
+    public Pair<Integer, List<WorkflowFormTO>> getForms(
+            final int page, final int size, final List<OrderByClause> orderByClauses) {
+
+        return Pair.of(0, Collections.<WorkflowFormTO>emptyList());
     }
 
     @Override

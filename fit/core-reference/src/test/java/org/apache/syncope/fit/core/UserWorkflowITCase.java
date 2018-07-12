@@ -41,12 +41,14 @@ import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.to.WorkflowTaskTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.common.rest.api.beans.WorkflowFormQuery;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserWorkflowService;
 import org.apache.syncope.fit.AbstractITCase;
@@ -141,9 +143,9 @@ public class UserWorkflowITCase extends AbstractITCase {
         assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
 
         // read forms *before* any operation
-        List<WorkflowFormTO> forms = userWorkflowService.getForms();
-        assertNotNull(forms);
-        int preForms = forms.size();
+        PagedResult<WorkflowFormTO> forms =
+                userWorkflowService.getForms(new WorkflowFormQuery.Builder().page(1).size(1000).build());
+        int preForms = forms.getTotalCount();
 
         UserTO userTO = UserITCase.getUniqueSampleTO("createWithApproval@syncope.apache.org");
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
@@ -175,9 +177,8 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(exception);
 
         // 2. request if there is any pending form for user just created
-        forms = userWorkflowService.getForms();
-        assertNotNull(forms);
-        assertEquals(preForms + 1, forms.size());
+        forms = userWorkflowService.getForms(new WorkflowFormQuery.Builder().page(1).size(1000).build());
+        assertEquals(preForms + 1, forms.getTotalCount());
 
         // 3. as admin, request for changes: still pending approval
         String updatedUsername = "changed-" + UUID.randomUUID().toString();
@@ -227,9 +228,9 @@ public class UserWorkflowITCase extends AbstractITCase {
         assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
 
         // read forms *before* any operation
-        List<WorkflowFormTO> forms = userWorkflowService.getForms();
-        assertNotNull(forms);
-        int preForms = forms.size();
+        PagedResult<WorkflowFormTO> forms = userWorkflowService.getForms(
+                new WorkflowFormQuery.Builder().page(1).size(1000).build());
+        int preForms = forms.getTotalCount();
 
         UserTO created = createUser(UserITCase.getUniqueSampleTO("updateApproval@syncope.apache.org")).getEntity();
         assertNotNull(created);
@@ -245,9 +246,8 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals("updateApproval", userService.read(created.getKey()).getStatus());
 
-        forms = userWorkflowService.getForms();
-        assertNotNull(forms);
-        assertEquals(preForms + 1, forms.size());
+        forms = userWorkflowService.getForms(new WorkflowFormQuery.Builder().page(1).size(1000).build());
+        assertEquals(preForms + 1, forms.getTotalCount());
 
         WorkflowFormTO form = userWorkflowService.getFormForUser(created.getKey());
         assertNotNull(form);
@@ -299,9 +299,9 @@ public class UserWorkflowITCase extends AbstractITCase {
         assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
 
         // read forms *before* any operation
-        List<WorkflowFormTO> forms = userWorkflowService.getForms();
-        assertNotNull(forms);
-        int preForms = forms.size();
+        PagedResult<WorkflowFormTO> forms = userWorkflowService.getForms(
+                new WorkflowFormQuery.Builder().page(1).size(1000).build());
+        int preForms = forms.getTotalCount();
 
         UserTO userTO = UserITCase.getUniqueSampleTO("issueSYNCOPE15@syncope.apache.org");
         userTO.getResources().clear();
@@ -324,8 +324,8 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertEquals(userTO.getCreationDate(), userTO.getLastChangeDate());
 
         // 2. request if there is any pending form for user just created
-        forms = userWorkflowService.getForms();
-        assertEquals(preForms + 1, forms.size());
+        forms = userWorkflowService.getForms(new WorkflowFormQuery.Builder().page(1).size(1000).build());
+        assertEquals(preForms + 1, forms.getTotalCount());
 
         WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getKey());
         assertNotNull(form);
@@ -348,12 +348,14 @@ public class UserWorkflowITCase extends AbstractITCase {
         // 6. submit approve
         userTO = userWorkflowService.submitForm(form);
         assertNotNull(userTO);
-        assertEquals(preForms, userWorkflowService.getForms().size());
+        assertEquals(
+                preForms,
+                userWorkflowService.getForms(
+                        new WorkflowFormQuery.Builder().page(1).size(1000).build()).getTotalCount());
         assertNull(userWorkflowService.getFormForUser(userTO.getKey()));
 
         // 7.check that no more forms are still to be processed
-        forms = userWorkflowService.getForms();
-        assertEquals(preForms, forms.size());
+        forms = userWorkflowService.getForms(new WorkflowFormQuery.Builder().page(1).size(1000).build());
+        assertEquals(preForms, forms.getTotalCount());
     }
-
 }

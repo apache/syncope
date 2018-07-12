@@ -34,14 +34,10 @@ import org.apache.syncope.common.lib.to.RemediationTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.time.Duration;
@@ -75,13 +71,13 @@ public class RemediationsWidget extends AlertWidget<RemediationTO> {
         latestAlerts.getObject().clear();
         latestAlerts.getObject().addAll(lastRemediations);
 
-        linkAlertsNumber.setDefaultModelObject(latestAlerts.getObject().size());
+        int latestAlertSize = getLatestAlertsSize();
+        linkAlertsNumber.setDefaultModelObject(latestAlertSize);
         target.add(linkAlertsNumber);
 
-        headerAlertsNumber.setDefaultModelObject(latestAlerts.getObject().size());
+        headerAlertsNumber.setDefaultModelObject(latestAlertSize);
         target.add(headerAlertsNumber);
 
-        latestFive.removeAll();
         target.add(latestAlertsList);
 
         lastRemediations.clear();
@@ -113,11 +109,6 @@ public class RemediationsWidget extends AlertWidget<RemediationTO> {
     }
 
     @Override
-    protected Panel getAlertLink(final String panelid, final RemediationTO event) {
-        return new RemediationsWidget.InnerPanel(panelid, event);
-    }
-
-    @Override
     protected AbstractLink getEventsLink(final String linkid) {
         BookmarkablePageLink<Remediations> remediations = BookmarkablePageLinkBuilder.build(linkid, Remediations.class);
         MetaDataRoleAuthorizationStrategy.authorize(remediations, WebPage.ENABLE, StandardEntitlement.REMEDIATION_LIST);
@@ -128,40 +119,5 @@ public class RemediationsWidget extends AlertWidget<RemediationTO> {
     protected Icon getIcon(final String iconid) {
         return new Icon(iconid,
                 FontAwesomeIconTypeBuilder.on(FontAwesomeIconTypeBuilder.FontAwesomeGraphic.medkit).build());
-    }
-
-    public static final class InnerPanel extends Panel {
-
-        private static final long serialVersionUID = 8074027899915634928L;
-
-        public InnerPanel(final String id, final RemediationTO alert) {
-            super(id);
-
-            AjaxLink<String> approval = new AjaxLink<String>("remediation") {
-
-                private static final long serialVersionUID = 7021195294339489084L;
-
-                @Override
-                public void onClick(final AjaxRequestTarget target) {
-                    // do nothing
-                }
-
-                @Override
-                protected void onComponentTag(final ComponentTag tag) {
-                    super.onComponentTag(tag);
-                    tag.put("title", alert.getRemoteName().trim());
-                }
-            };
-
-            add(approval);
-
-            approval.add(new Label("label", alert.getOperation().name() + " " + alert.getAnyType()));
-
-            approval.add(new Label("resource", alert.getResource()));
-
-            approval.add(new Label("instant",
-                    SyncopeConsoleSession.get().getDateFormat().format(alert.getInstant())).
-                    setRenderBodyOnly(true));
-        }
     }
 }

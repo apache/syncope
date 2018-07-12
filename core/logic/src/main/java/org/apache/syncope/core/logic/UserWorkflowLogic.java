@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.to.WorkflowTaskTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
@@ -90,8 +91,12 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
 
     @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_FORM_LIST + "')")
     @Transactional(readOnly = true)
-    public List<WorkflowFormTO> getForms() {
-        return uwfAdapter.getForms();
+    public Pair<Integer, List<WorkflowFormTO>> getForms(
+            final int page,
+            final int size,
+            final List<OrderByClause> orderByClauses) {
+
+        return uwfAdapter.getForms(page, size, orderByClauses);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_TASK_LIST + "') "
