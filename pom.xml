@@ -442,7 +442,7 @@ under the License.
     <flowable-modeler.directory>${project.build.directory}/flowable-modeler</flowable-modeler.directory>    
 
     <swagger-core.version>2.0.2</swagger-core.version>    
-    <swagger-ui.version>3.17.1</swagger-ui.version>
+    <swagger-ui.version>3.17.2</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
     <jquery.version>2.2.4</jquery.version>
