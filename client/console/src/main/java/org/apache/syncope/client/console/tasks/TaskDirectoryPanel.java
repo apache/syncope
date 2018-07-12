@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.tasks;
 
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
-import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
@@ -70,20 +69,13 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
 
         private static final long serialVersionUID = -20112718133295756L;
 
-        private final SortableDataProviderComparator<T> comparator;
-
         private final TaskType id;
 
         public TasksProvider(final int paginatorRows, final TaskType id) {
             super(paginatorRows);
 
             setSort("key", SortOrder.ASCENDING);
-            this.comparator = new SortableDataProviderComparator<>(this);
             this.id = id;
-        }
-
-        public SortableDataProviderComparator<T> getComparator() {
-            return comparator;
         }
 
         @Override

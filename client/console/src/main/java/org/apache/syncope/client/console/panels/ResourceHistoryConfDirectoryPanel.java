@@ -214,12 +214,8 @@ public abstract class ResourceHistoryConfDirectoryPanel extends DirectoryPanel<
         public Iterator<ResourceHistoryConfTO> iterator(final long first, final long count) {
             final List<ResourceHistoryConfTO> configurations = restClient.list(entityKey);
 
-            Collections.sort(configurations, getComparator());
+            Collections.sort(configurations, comparator);
             return configurations.iterator();
-        }
-
-        public SortableDataProviderComparator<ResourceHistoryConfTO> getComparator() {
-            return comparator;
         }
 
         @Override
@@ -231,6 +227,5 @@ public abstract class ResourceHistoryConfDirectoryPanel extends DirectoryPanel<
         public IModel<ResourceHistoryConfTO> model(final ResourceHistoryConfTO object) {
             return new CompoundPropertyModel<>(object);
         }
-
     }
 }

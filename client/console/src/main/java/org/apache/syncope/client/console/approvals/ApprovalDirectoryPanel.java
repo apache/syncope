@@ -32,7 +32,6 @@ import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
 import org.apache.syncope.client.console.approvals.ApprovalDirectoryPanel.ApprovalProvider;
-import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -257,15 +256,12 @@ public class ApprovalDirectoryPanel
 
         private static final long serialVersionUID = -2311716167583335852L;
 
-        private final SortableDataProviderComparator<WorkflowFormTO> comparator;
-
         private final UserWorkflowRestClient restClient = new UserWorkflowRestClient();
 
         public ApprovalProvider(final int paginatorRows) {
             super(paginatorRows);
 
             setSort("createTime", SortOrder.ASCENDING);
-            comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
