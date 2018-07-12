@@ -21,10 +21,13 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.util.Date;
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RemediationTO;
+import org.apache.syncope.common.rest.api.beans.RemediationQuery;
 import org.apache.syncope.common.rest.api.service.RemediationService;
 import org.apache.syncope.core.logic.RemediationLogic;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
@@ -51,8 +54,10 @@ public class RemediationServiceImpl extends AbstractServiceImpl implements Remed
     private AnyObjectDAO anyObjectDAO;
 
     @Override
-    public List<RemediationTO> list() {
-        return logic.list();
+    public PagedResult<RemediationTO> list(final RemediationQuery query) {
+        Pair<Integer, List<RemediationTO>> result = logic.list(
+                query.getPage(), query.getSize(), getOrderByClauses(query.getOrderBy()));
+        return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
     }
 
     @Override

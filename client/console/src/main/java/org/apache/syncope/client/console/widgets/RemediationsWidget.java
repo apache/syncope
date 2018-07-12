@@ -22,9 +22,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.image.Icon;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesomeIconTypeBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.Remediations;
@@ -35,6 +33,7 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -85,6 +84,14 @@ public class RemediationsWidget extends AlertWidget<RemediationTO> {
     }
 
     @Override
+    protected int getLatestAlertsSize() {
+        return SyncopeConsoleSession.get().owns(StandardEntitlement.REMEDIATION_LIST)
+                && SyncopeConsoleSession.get().owns(StandardEntitlement.REMEDIATION_READ)
+                ? restClient.countRemediations()
+                : 0;
+    }
+
+    @Override
     protected IModel<List<RemediationTO>> getLatestAlerts() {
         return new ListModel<RemediationTO>() {
 
@@ -96,9 +103,7 @@ public class RemediationsWidget extends AlertWidget<RemediationTO> {
                 if (SyncopeConsoleSession.get().owns(StandardEntitlement.REMEDIATION_LIST)
                         && SyncopeConsoleSession.get().owns(StandardEntitlement.REMEDIATION_READ)) {
 
-                    updatedRemediations = restClient.getRemediations().stream().
-                            sorted(Comparator.comparing(RemediationTO::getInstant)).
-                            collect(Collectors.toList());
+                    updatedRemediations = restClient.getRemediations(1, MAX_SIZE, new SortParam<>("instant", true));
                 } else {
                     updatedRemediations = Collections.<RemediationTO>emptyList();
                 }
