@@ -1402,11 +1402,19 @@ under the License.
     </profile>
     
     <profile>
-      <id>jrebel</id>
+      <id>hotswap</id>
       
       <properties>
         <skipTests>true</skipTests>
       </properties>
+      
+      <dependencies>
+        <dependency>
+          <groupId>org.hotswapagent</groupId>
+          <artifactId>hotswap-agent</artifactId>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
       
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
@@ -1419,9 +1427,10 @@ under the License.
             <configuration>
               <configuration>
                 <properties>
-                  <cargo.jvmargs>-Xdebug -Djaxb.debug=true -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -noverify -agentpath:${env.REBEL_HOME}/lib/libjrebel64.so -Drebel.spring_plugin=true
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xmx1024m -Xms512m</cargo.jvmargs>
+                  <cargo.jvmargs>
+                    -XXaltjvm=dcevm -javaagent:${settings.localRepository}/org/hotswapagent/hotswap-agent/${hotswap.version}/hotswap-agent-${hotswap.version}.jar=autoHotswap=true,disablePlugin=Spring
+                    -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
+                    -XX:MaxPermSize=512m -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -1437,19 +1446,19 @@ under the License.
             </executions>
           </plugin>
         </plugins>
-        
+
         <resources>
           <resource>
             <directory>src/test/resources</directory>
             <filtering>true</filtering>
             <includes>
-              <include>rebel.xml</include>
+              <include>hotswap-agent.properties</include>
             </includes>
           </resource>
         </resources>
       </build>
     </profile>
-    
+
     <profile>
       <id>all</id>
       <activation>
