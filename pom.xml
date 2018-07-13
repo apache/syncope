@@ -415,7 +415,7 @@ under the License.
     <slf4j.version>1.7.25</slf4j.version>
     <opensaml.version>3.3.0</opensaml.version>
 
-    <elasticsearch.version>6.3.0</elasticsearch.version>
+    <elasticsearch.version>6.3.1</elasticsearch.version>
 
     <log4j.version>2.11.0</log4j.version>
     <disruptor.version>3.4.2</disruptor.version>
@@ -2300,11 +2300,12 @@ under the License.
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-io/javadocs/api-2.6/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/1.17/api/</link>
-            <link>http://docs.spring.io/spring-security/site/docs/4.2.x/apidocs/</link>
+            <link>https://tika.apache.org/1.18/api/</link>
+            <link>https://docs.spring.io/spring/docs/5.0.x/javadoc-api/</link>
+            <link>https://docs.spring.io/spring-security/site/docs/5.0.x/api/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.0/apidocs/</link>
-            <link>https://www.javadoc.io/doc/org.elasticsearch/elasticsearch/6.3.0/</link>
+            <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/client/transport/6.3.1/index.html</link>
           </links>
         </configuration>
         <reportSets>
