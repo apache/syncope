@@ -343,11 +343,6 @@ public class JPAUser
     }
 
     @Override
-    public void setCipherAlgorithm(final CipherAlgorithm cipherAlgorithm) {
-        this.cipherAlgorithm = cipherAlgorithm;
-    }
-
-    @Override
     public List<String> getPasswordHistory() {
         return passwordHistory;
     }
@@ -446,25 +441,6 @@ public class JPAUser
     }
 
     @Override
-    public boolean verifyPasswordHistory(final String password, final int size) {
-        boolean res = false;
-
-        if (size > 0) {
-            try {
-                res = passwordHistory.subList(size >= passwordHistory.size()
-                        ? 0
-                        : passwordHistory.size() - size, passwordHistory.size()).contains(cipherAlgorithm == null
-                        ? password
-                        : ENCRYPTOR.encode(password, cipherAlgorithm));
-            } catch (Exception e) {
-                LOG.error("Error evaluating password history", e);
-            }
-        }
-
-        return res;
-    }
-
-    @Override
     public SecurityQuestion getSecurityQuestion() {
         return securityQuestion;
     }
@@ -526,5 +502,4 @@ public class JPAUser
     public List<? extends UMembership> getMemberships() {
         return memberships;
     }
-
 }
