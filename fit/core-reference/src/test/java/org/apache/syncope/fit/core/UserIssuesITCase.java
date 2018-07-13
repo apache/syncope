@@ -37,6 +37,7 @@ import javax.sql.DataSource;
 import javax.ws.rs.core.GenericType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.IOUtils;
@@ -1438,5 +1439,49 @@ public class UserIssuesITCase extends AbstractITCase {
         result = updateUser(userPatch);
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
+    }
+
+    @Test
+    public void issueSYNCOPE1337() {
+        // 1. save current cipher algorithm and set it to something salted
+        AttrTO original = configurationService.get("password.cipher.algorithm");
+
+        AttrTO salted = SerializationUtils.clone(original);
+        salted.getValues().set(0, CipherAlgorithm.SSHA512.name());
+        configurationService.set(salted);
+
+        try {
+            // 2. create user under /even/two to get password policy with history length 1
+            UserTO userTO = UserITCase.getUniqueSampleTO("syncope1337@apache.org");
+            userTO.setPassword("Password123");
+            userTO.setRealm("/even/two");
+            userTO = createUser(userTO).getEntity();
+            assertNotNull(userTO);
+
+            // 3. attempt to set the same password value: fails
+            UserPatch patch = new UserPatch();
+            patch.setKey(userTO.getKey());
+            patch.setPassword(new PasswordPatch.Builder().onSyncope(true).value("Password123").build());
+            try {
+                updateUser(patch);
+                fail("Password update should not work");
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.InvalidUser, e.getType());
+                assertTrue(e.getMessage().contains("InvalidPassword"));
+            }
+
+            // 4. set another password value: works
+            patch.setPassword(new PasswordPatch.Builder().onSyncope(true).value("Password124").build());
+            userTO = updateUser(patch).getEntity();
+            assertNotNull(userTO);
+
+            // 5. set the original password value: works (history length is 1)
+            patch.setPassword(new PasswordPatch.Builder().onSyncope(true).value("Password123").build());
+            userTO = updateUser(patch).getEntity();
+            assertNotNull(userTO);
+        } finally {
+            // finally revert the cipher algorithm
+            configurationService.set(original);
+        }
     }
 }

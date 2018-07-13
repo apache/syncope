@@ -75,6 +75,7 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
+import org.apache.syncope.core.spring.security.Encryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.stereotype.Repository;
@@ -86,6 +87,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     private static final Pattern USERNAME_PATTERN =
             Pattern.compile("^" + SyncopeConstants.NAME_PATTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+
+    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     @Autowired
     private RoleDAO roleDAO;
@@ -339,7 +342,17 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                     }
                 }
 
-                if (user.verifyPasswordHistory(user.getClearPassword(), policy.getHistoryLength())) {
+                boolean matching = false;
+                if (policy.getHistoryLength() > 0) {
+                    List<String> pwdHistory = user.getPasswordHistory();
+                    for (String oldPwdValue
+                            : pwdHistory.subList(policy.getHistoryLength() >= pwdHistory.size()
+                                    ? 0
+                                    : pwdHistory.size() - policy.getHistoryLength(), pwdHistory.size())) {
+                        matching |= ENCRYPTOR.verify(user.getClearPassword(), user.getCipherAlgorithm(), oldPwdValue);
+                    }
+                }
+                if (matching) {
                     throw new PasswordPolicyException("Password value was used in the past: not allowed");
                 }
 
@@ -349,8 +362,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             }
 
             // update user's password history with encrypted password
-            if (maxPPSpecHistory > 0 && user.getPassword() != null
-                    && !user.getPasswordHistory().contains(user.getPassword())) {
+            if (maxPPSpecHistory > 0 && user.getPassword() != null) {
                 user.getPasswordHistory().add(user.getPassword());
             }
             // keep only the last maxPPSpecHistory items in user's password history

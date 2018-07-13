@@ -61,7 +61,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -92,8 +91,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         "type", "realm", "auxClasses", "roles", "dynRoles", "relationships", "memberships", "dynMemberships",
         "plainAttrs", "derAttrs", "virAttrs", "resources", "securityQuestion", "securityAnswer"
     };
-
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     @Autowired
     private RoleDAO roleDAO;
@@ -147,17 +144,10 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         return authUserTO;
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public boolean verifyPassword(final User user, final String password) {
-        return ENCRYPTOR.verify(password, user.getCipherAlgorithm(), user.getPassword());
-    }
-
     private void setPassword(final User user, final String password, final SyncopeClientCompositeException scce) {
         try {
             String algorithm = confDAO.find("password.cipher.algorithm", CipherAlgorithm.AES.name());
-            CipherAlgorithm predefined = CipherAlgorithm.valueOf(algorithm);
-            user.setPassword(password, predefined);
+            user.setPassword(password, CipherAlgorithm.valueOf(algorithm));
         } catch (IllegalArgumentException e) {
             SyncopeClientException invalidCiperAlgorithm = SyncopeClientException.build(ClientExceptionType.NotFound);
             invalidCiperAlgorithm.getElements().add(e.getMessage());
