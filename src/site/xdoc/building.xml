@@ -105,7 +105,7 @@ under the License.
         in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>
         but console) and enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
         <source>$ mvn -Pdebug,all</source>
-        or, without Flowable and Camel support
+        or, without extensions
         <source>$ mvn -Pdebug</source>
 
         <p>
@@ -187,7 +187,7 @@ under the License.
         <p>
           Once started in debug mode, the test cases can be executed as follows:
           <source>$ cd target/enduser-test
-            $ nodejs/node/node nodejs/bin/protractor protractor-conf.js</source>
+$ nodejs/node/node nodejs/bin/protractor protractor-conf.js</source>
           where the actual tests to be run can be selected by modifying the <code>protractor-conf.js</code> content.
         </p>
 
