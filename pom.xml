@@ -493,6 +493,8 @@ under the License.
 
     <antlr4.version>4.7.1</antlr4.version>
 
+    <hotswap.version>1.3.0</hotswap.version>
+
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
 
@@ -1739,6 +1741,12 @@ under the License.
         <version>${antlr4.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.hotswapagent</groupId>
+        <artifactId>hotswap-agent</artifactId>
+        <version>${hotswap.version}</version>
+      </dependency>
+
       <!-- TEST -->
       <dependency>
         <groupId>com.github.detro</groupId>
@@ -2375,7 +2383,7 @@ under the License.
             <link>http://activiti.org/javadocs/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.0/apidocs/</link>
-            <link>https://www.javadoc.io/doc/org.elasticsearch/elasticsearch/5.6.10</link>
+            <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/client/transport/5.6.10/index.html</link>
           </links>
         </configuration>
         <reportSets>

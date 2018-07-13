@@ -13,4 +13,4 @@ ide/eclipse/bundles/org.apache.syncope.ide.eclipse.plugin/bin/
 ide/eclipse/bundles/org.apache.syncope.ide.eclipse.plugin/lib/
 ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests/bin/
 ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests/screenshots/
-fit/core-reference/nb-configuration.xml
+*nb-configuration.xml
