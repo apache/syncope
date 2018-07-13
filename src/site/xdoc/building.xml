@@ -105,7 +105,7 @@ under the License.
         in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>
         but console) and enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
         <source>$ mvn -Pdebug,all</source>
-        or, without Activiti and Camel support
+        or, without extensions
         <source>$ mvn -Pdebug</source>
 
         <p>
