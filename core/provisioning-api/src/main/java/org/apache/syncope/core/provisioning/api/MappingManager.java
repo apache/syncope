@@ -24,7 +24,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
@@ -93,9 +92,8 @@ public interface MappingManager {
      * @param mapItem mapping item
      * @param attr attribute received from connector
      * @param anyTO any object
-     * @param anyUtils any utils
      */
-    <T extends AnyTO> void setIntValues(Item mapItem, Attribute attr, T anyTO, AnyUtils anyUtils);
+    <T extends AnyTO> void setIntValues(Item mapItem, Attribute attr, T anyTO);
 
     /**
      * Set attribute values, according to the given {@link Item}, to realm from attribute received from
@@ -106,5 +104,4 @@ public interface MappingManager {
      * @param realmTO realm
      */
     void setIntValues(Item orgUnitItem, Attribute attr, RealmTO realmTO);
-
 }

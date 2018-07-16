@@ -43,7 +43,6 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -98,6 +97,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
+import org.identityconnectors.common.Base64;
 import org.identityconnectors.framework.common.objects.Name;
 
 @Component
@@ -686,7 +686,7 @@ public class MappingManagerImpl implements MappingManager {
 
     @Transactional(readOnly = true)
     @Override
-    public void setIntValues(final Item mapItem, final Attribute attr, final AnyTO anyTO, final AnyUtils anyUtils) {
+    public void setIntValues(final Item mapItem, final Attribute attr, final AnyTO anyTO) {
         List<Object> values = null;
         if (attr != null) {
             values = attr.getValue();
@@ -698,7 +698,7 @@ public class MappingManagerImpl implements MappingManager {
 
         IntAttrName intAttrName;
         try {
-            intAttrName = intAttrNameParser.parse(mapItem.getIntAttrName(), anyUtils.anyTypeKind());
+            intAttrName = intAttrNameParser.parse(mapItem.getIntAttrName(), AnyTypeKind.fromTOClass(anyTO.getClass()));
         } catch (ParseException e) {
             LOG.error("Invalid intAttrName '{}' specified, ignoring", mapItem.getIntAttrName(), e);
             return;
@@ -775,27 +775,11 @@ public class MappingManagerImpl implements MappingManager {
                     for (Object value : values) {
                         AttrSchemaType schemaType = schema == null ? AttrSchemaType.String : schema.getType();
                         if (value != null) {
-                            PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                            switch (schemaType) {
-                                case String:
-                                    attrValue.setStringValue(value.toString());
-                                    break;
-
-                                case Binary:
-                                    attrValue.setBinaryValue((byte[]) value);
-                                    break;
-
-                                default:
-                                    try {
-                                        attrValue.parseValue(schema, value.toString());
-                                    } catch (ParsingValidationException e) {
-                                        LOG.error("While parsing provided value {}", value, e);
-                                        attrValue.setStringValue(value.toString());
-                                        schemaType = AttrSchemaType.String;
-                                    }
-                                    break;
+                            if (schemaType == AttrSchemaType.Binary) {
+                                attrTO.getValues().add(Base64.encode((byte[]) value));
+                            } else {
+                                attrTO.getValues().add(value.toString());
                             }
-                            attrTO.getValues().add(attrValue.getValueAsString(schemaType));
                         }
                     }
 
@@ -886,5 +870,4 @@ public class MappingManagerImpl implements MappingManager {
             }
         }
     }
-
 }

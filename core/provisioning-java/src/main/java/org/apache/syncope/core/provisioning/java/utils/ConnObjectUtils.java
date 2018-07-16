@@ -317,7 +317,7 @@ public class ConnObjectUtils {
         // 1. fill with data from connector object
         anyTO.setRealm(pullTask.getDestinatioRealm().getFullPath());
         for (Item item : MappingUtils.getPullItems(provision.getMapping().getItems())) {
-            mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO, anyUtils);
+            mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO);
         }
 
         // 2. add data from defined template (if any)
