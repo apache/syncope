@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -98,7 +99,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
-import org.identityconnectors.common.Base64;
 import org.identityconnectors.framework.common.objects.Name;
 
 @Component
@@ -784,7 +784,7 @@ public class MappingManagerImpl implements MappingManager {
                         AttrSchemaType schemaType = schema == null ? AttrSchemaType.String : schema.getType();
                         if (value != null) {
                             if (schemaType == AttrSchemaType.Binary) {
-                                attrTO.getValues().add(Base64.encode((byte[]) value));
+                                attrTO.getValues().add(Base64.getEncoder().encodeToString((byte[]) value));
                             } else {
                                 attrTO.getValues().add(value.toString());
                             }

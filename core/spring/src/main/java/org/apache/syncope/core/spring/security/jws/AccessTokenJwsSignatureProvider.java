@@ -20,6 +20,7 @@ package org.apache.syncope.core.spring.security.jws;
 
 import java.security.KeyFactory;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
 import org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureProvider;
@@ -28,7 +29,6 @@ import org.apache.cxf.rs.security.jose.jws.JwsSignature;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureProvider;
 import org.apache.cxf.rs.security.jose.jws.PrivateKeyJwsSignatureProvider;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.crypto.codec.Base64;
 
 public class AccessTokenJwsSignatureProvider implements JwsSignatureProvider, InitializingBean {
 
@@ -63,7 +63,7 @@ public class AccessTokenJwsSignatureProvider implements JwsSignatureProvider, In
 
             KeyFactory kf = KeyFactory.getInstance("RSA");
             PKCS8EncodedKeySpec keySpecPKCS8 = new PKCS8EncodedKeySpec(
-                    Base64.decode(StringUtils.substringBefore(jwsKey, ":").getBytes()));
+                    Base64.getDecoder().decode(StringUtils.substringBefore(jwsKey, ":").getBytes()));
             delegate = new PrivateKeyJwsSignatureProvider(kf.generatePrivate(keySpecPKCS8), jwsAlgorithm);
         } else {
             if (jwsKey == null) {
