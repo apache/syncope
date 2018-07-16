@@ -52,13 +52,14 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>org.apache.syncope.ext.camel</groupId>
-      <artifactId>syncope-ext-camel-client-console</artifactId>
-      <version>${project.version}</version>
-    </dependency>    
-    <dependency>
       <groupId>org.apache.syncope.client</groupId>
       <artifactId>syncope-client-console</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.ext.camel</groupId>
+      <artifactId>syncope-ext-camel-client-console</artifactId>
       <version>${project.version}</version>
     </dependency>
     
@@ -404,6 +405,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>
+                    -Dwicket.configuration=development
                     -XXaltjvm=dcevm -javaagent:${settings.localRepository}/org/hotswapagent/hotswap-agent/${hotswap.version}/hotswap-agent-${hotswap.version}.jar=autoHotswap=true,disablePlugin=Spring
                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
                     -XX:MaxPermSize=512m -Xmx1024m -Xms512m</cargo.jvmargs>
