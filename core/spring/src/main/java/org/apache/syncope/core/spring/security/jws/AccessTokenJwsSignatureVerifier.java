@@ -20,6 +20,7 @@ package org.apache.syncope.core.spring.security.jws;
 
 import java.security.KeyFactory;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
 import org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureVerifier;
@@ -28,7 +29,6 @@ import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
 import org.apache.cxf.rs.security.jose.jws.JwsVerificationSignature;
 import org.apache.cxf.rs.security.jose.jws.PublicKeyJwsSignatureVerifier;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.crypto.codec.Base64;
 
 public class AccessTokenJwsSignatureVerifier implements JwsSignatureVerifier, InitializingBean {
 
@@ -63,7 +63,7 @@ public class AccessTokenJwsSignatureVerifier implements JwsSignatureVerifier, In
 
             KeyFactory kf = KeyFactory.getInstance("RSA");
             X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(
-                    Base64.decode(StringUtils.substringAfter(jwsKey, ":").getBytes()));
+                    Base64.getDecoder().decode(StringUtils.substringAfter(jwsKey, ":").getBytes()));
             delegate = new PublicKeyJwsSignatureVerifier(kf.generatePublic(keySpecX509), jwsAlgorithm);
         } else {
             if (jwsKey == null) {
