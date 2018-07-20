@@ -237,7 +237,7 @@ public final class AnyOperations {
 
         // 1. plain attributes
         result.getPlainAttrs().addAll(updated.getPlainAttrs().stream().
-                filter(attrTO -> !attrTO.getValues().isEmpty() && NULL_SINGLETON.equals(attrTO.getValues())).
+                filter(attrTO -> !attrTO.getValues().isEmpty() && !NULL_SINGLETON.equals(attrTO.getValues())).
                 collect(Collectors.toSet()));
 
         // 2. virtual attributes
