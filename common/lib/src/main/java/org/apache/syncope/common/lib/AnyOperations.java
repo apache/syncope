@@ -239,7 +239,7 @@ public final class AnyOperations {
         // 1. plain attributes
         result.getPlainAttrs().clear();
         for (AttrTO attrTO : updated.getPlainAttrs()) {
-            if (!attrTO.getValues().isEmpty() && NULL_SINGLETON.equals(attrTO.getValues())) {
+            if (!attrTO.getValues().isEmpty() && !NULL_SINGLETON.equals(attrTO.getValues())) {
                 result.getPlainAttrs().add(attrTO);
             }
         }
