@@ -18,23 +18,26 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import java.security.SecureRandom;
 import org.apache.commons.text.RandomStringGenerator;
-import org.apache.syncope.common.lib.SecureTextRandomProvider;
 
 public final class SecureRandomUtils {
 
+    private static final SecureRandom RANDOM = new SecureRandom();
+
     private static final RandomStringGenerator FOR_PASSWORD = new RandomStringGenerator.Builder().
-            usingRandom(new SecureTextRandomProvider()).
-            filteredBy(codePoint -> (codePoint >= 'a' && codePoint <= 'z') || (codePoint >= '0' && codePoint <= '9')).
+            usingRandom(RANDOM::nextInt).
+            withinRange('0', 'z').
+            filteredBy(Character::isLetterOrDigit).
             build();
 
     private static final RandomStringGenerator FOR_LETTERS = new RandomStringGenerator.Builder().
-            usingRandom(new SecureTextRandomProvider()).
+            usingRandom(RANDOM::nextInt).
             withinRange('a', 'z').
             build();
 
     private static final RandomStringGenerator FOR_NUMBERS = new RandomStringGenerator.Builder().
-            usingRandom(new SecureTextRandomProvider()).
+            usingRandom(RANDOM::nextInt).
             withinRange('0', '9').
             build();
 
@@ -52,7 +55,7 @@ public final class SecureRandomUtils {
 
     public static String generateRandomSpecialCharacter(final char[] characters) {
         return new RandomStringGenerator.Builder().
-                usingRandom(new SecureTextRandomProvider()).
+                usingRandom(RANDOM::nextInt).
                 filteredBy(codePoint -> {
                     boolean found = false;
                     for (int i = 0; i < characters.length && !found; i++) {

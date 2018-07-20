@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
+import java.security.SecureRandom;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.text.RandomStringGenerator;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
-import org.apache.syncope.common.lib.SecureTextRandomProvider;
 import org.apache.wicket.extensions.markup.html.captcha.CaptchaImageResource;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.slf4j.Logger;
@@ -31,10 +31,12 @@ public class CaptchaResource extends CaptchaImageResource {
 
     private static final long serialVersionUID = 8293404296348102926L;
 
+    private static final SecureRandom RANDOM = new SecureRandom();
+
     private static final Logger LOG = LoggerFactory.getLogger(CaptchaResource.class);
 
     private static final RandomStringGenerator RANDOM_LETTERS = new RandomStringGenerator.Builder().
-            usingRandom(new SecureTextRandomProvider()).
+            usingRandom(RANDOM::nextInt).
             withinRange('a', 'z').
             build();
 
