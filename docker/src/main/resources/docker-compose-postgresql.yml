@@ -73,3 +73,4 @@ services:
        CORE_SCHEME: http
        CORE_HOST: syncope
        CORE_PORT: 8080
+       DOMAIN: Master

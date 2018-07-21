@@ -348,6 +348,7 @@ Environment variables:
 * `CORE_SCHEME`: URL scheme to connect to Syncope Core; valid values are `http` or `https`
 * `CORE_HOST`: host name or IP address to connect to Syncope Core
 * `CORE_PORT`: port number to connect to Syncope Core
+* `DOMAIN`: Syncope Core's domain to work with
 
 ==== Docker Compose samples
 
@@ -422,11 +423,12 @@ services:
        CORE_SCHEME: http
        CORE_HOST: syncope
        CORE_PORT: 8080
+       DOMAIN: Master
 ----
 <1> Database container for usage as internal storage, based on PostgreSQL 10.3
 <2> Apache Syncope Core, single instance, port `18080` exposed
 <3> Apache Syncope Admin UI, port `28080` exposed
-<4> Apache Syncope Enduser UI, port `38080` exposed
+<4> Apache Syncope Enduser UI, port `38080` exposed, working with `Master` domain
 ====
 
 === Maven Project
