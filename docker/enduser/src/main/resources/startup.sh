@@ -20,6 +20,7 @@
 cd /etc/apache-syncope
 
 sed "s/\${CORE_SCHEME}/$CORE_SCHEME/" enduser.properties.template | 
+sed "s/\${DOMAIN}/$DOMAIN/" enduser.properties.template | 
 sed "s/\${CORE_HOST}/$CORE_HOST/" | sed "s/\${CORE_PORT}/$CORE_PORT/" > enduser.properties
 
 sed "s/\${CORE_SCHEME}/$CORE_SCHEME/" oidcclient-agent.properties.template | 
