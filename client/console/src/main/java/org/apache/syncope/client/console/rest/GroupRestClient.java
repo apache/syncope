@@ -18,13 +18,11 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.BulkMembersActionType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
@@ -77,33 +75,9 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
             final SortParam<String> sort,
             final String type) {
 
-        List<GroupTO> result = new ArrayList<>();
-        PagedResult<GroupTO> res;
-        do {
-            res = getService(GroupService.class).
-                    search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
-                            orderBy(toOrderBy(sort)).details(false).build());
-            result.addAll(res.getResult());
-        } while (page == -1 && size == -1 && res.getNext() != null);
-
-        return result;
-    }
-
-    public PagedResult<GroupTO> search(
-            final String realm,
-            final String fiql,
-            final int page,
-            final int size,
-            final SortParam<String> sort) {
-
-        PagedResult<GroupTO> res;
-        do {
-            res = getService(GroupService.class).
-                    search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
-                            orderBy(toOrderBy(sort)).details(false).build());
-        } while (page == -1 && size == -1 && res.getNext() != null);
-
-        return res;
+        return getService(GroupService.class).
+                search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
+                        orderBy(toOrderBy(sort)).details(false).build()).getResult();
     }
 
     public void bulkMembersAction(final String key, final BulkMembersActionType actionType) {

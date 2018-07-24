@@ -19,9 +19,10 @@
 package org.apache.syncope.client.console.panels.search;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -79,19 +80,12 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
 
             @Override
             protected Map<String, String> load() {
-                List<GroupTO> res = groupRestClient.search("/",
+                return groupRestClient.search(SyncopeConstants.ROOT_REALM,
                         null,
                         1,
                         MAX_GROUP_LIST_CARDINALITY,
                         new SortParam<>("name", true),
-                        null);
-
-                final Map<String, String> result = new HashMap<>(res.size());
-                for (GroupTO group : res) {
-                    result.put(group.getKey(), group.getName());
-                }
-
-                return result;
+                        null).stream().collect(Collectors.toMap(GroupTO::getKey, GroupTO::getName));
             }
         };
     }

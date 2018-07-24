@@ -95,10 +95,10 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             protected Serializable onApplyInternal(
                     final GroupTO groupTO, final String type, final AjaxRequestTarget target) {
 
-                final AnyTypeRestClient typeRestClient = new AnyTypeRestClient();
-                final AnyTypeClassRestClient classRestClient = new AnyTypeClassRestClient();
+                AnyTypeRestClient typeRestClient = new AnyTypeRestClient();
+                AnyTypeClassRestClient classRestClient = new AnyTypeClassRestClient();
 
-                final AnyTypeTO anyTypeTO = typeRestClient.read(type);
+                AnyTypeTO anyTypeTO = typeRestClient.read(type);
 
                 ModalPanel panel = new AnyPanel(BaseModal.CONTENT_ID, anyTypeTO, null, null, false, pageRef) {
 
@@ -116,7 +116,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
 
                             panel = new UserDirectoryPanel.Builder(
                                     classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
-                                    setRealm("/").
+                                    setRealm(SyncopeConstants.ROOT_REALM).
                                     setFiltered(true).
                                     setFiql(query).
                                     disableCheckBoxes().
@@ -136,7 +136,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
 
                             panel = new AnyObjectDirectoryPanel.Builder(
                                     classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
-                                    setRealm("/").
+                                    setRealm(SyncopeConstants.ROOT_REALM).
                                     setFiltered(true).
                                     setFiql(query).
                                     disableCheckBoxes().
