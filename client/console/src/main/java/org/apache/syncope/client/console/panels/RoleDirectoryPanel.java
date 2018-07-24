@@ -47,6 +47,7 @@ import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.role.RoleWrapper;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -144,7 +145,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
             @Override
             public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
-                final RoleTO clone = SerializationUtils.clone(model.getObject());
+                RoleTO clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
                 send(RoleDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.NewItemActionEvent<>(new RoleWrapper(clone), target));
@@ -172,9 +173,9 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
                     @Override
                     protected Panel getDirectoryPanel(final String id) {
-                        final Panel panel = new UserDirectoryPanel.Builder(
+                        Panel panel = new UserDirectoryPanel.Builder(
                                 classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
-                                setRealm("/").
+                                setRealm(SyncopeConstants.ROOT_REALM).
                                 setFiltered(true).
                                 setFiql(query).
                                 disableCheckBoxes().

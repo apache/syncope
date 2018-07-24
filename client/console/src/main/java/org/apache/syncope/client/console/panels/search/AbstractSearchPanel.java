@@ -25,19 +25,21 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.SearchableFields;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.event.IEventSink;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -128,11 +130,9 @@ public abstract class AbstractSearchPanel extends Panel {
         super(id);
         populate();
         Pair<IModel<Map<String, String>>, Integer> groupInfo =
-                Pair.of(groupNames, groupRestClient.search("/",
-                        null,
-                        1,
-                        1,
-                        new SortParam<>("name", true)).getTotalCount());
+                SyncopeConsoleSession.get().owns(StandardEntitlement.GROUP_SEARCH)
+                ? Pair.of(groupNames, groupRestClient.count(SyncopeConstants.ROOT_REALM, null, null))
+                : Pair.of(groupNames, 0);
 
         this.model = builder.model;
         this.typeKind = kind;

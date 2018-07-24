@@ -36,6 +36,7 @@ import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.DynRealmTO;
@@ -312,7 +313,7 @@ public class Groups extends WizardStep implements ICondition {
         private void reloadDynMemberships() {
             GroupFiqlSearchConditionBuilder searchConditionBuilder = SyncopeClient.getGroupSearchConditionBuilder();
 
-            ArrayList<CompleteCondition> conditions = new ArrayList<>();
+            List<CompleteCondition> conditions = new ArrayList<>();
             for (MembershipTO membership : GroupableRelatableTO.class.cast(anyTO).getDynMemberships()) {
                 conditions.add(searchConditionBuilder.is("key").equalTo(membership.getGroupKey()).wrap());
             }
@@ -320,7 +321,7 @@ public class Groups extends WizardStep implements ICondition {
             Map<String, GroupTO> assignedGroups = new HashMap<>();
             if (!conditions.isEmpty()) {
                 for (GroupTO group : groupRestClient.search(
-                        "/",
+                        SyncopeConstants.ROOT_REALM,
                         searchConditionBuilder.or(conditions).query(),
                         -1,
                         -1,
@@ -347,7 +348,7 @@ public class Groups extends WizardStep implements ICondition {
 
             if (Groups.this.templateMode) {
                 reload = realm == null;
-                realm = "/";
+                realm = SyncopeConstants.ROOT_REALM;
             } else {
                 reload = !Groups.this.anyTO.getRealm().equalsIgnoreCase(realm);
                 realm = Groups.this.anyTO.getRealm();

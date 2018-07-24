@@ -45,6 +45,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPa
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.wicket.AttributeModifier;
@@ -393,8 +394,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 if (field.getModel().getObject().getType() == Type.GROUP_MEMBERSHIP) {
                     String[] inputAsArray = property.getField().getInputAsArray();
 
-                    if (StringUtils.isBlank(property.getField().getInput())
-                            || inputAsArray.length == 0) {
+                    if (StringUtils.isBlank(property.getField().getInput()) || inputAsArray.length == 0) {
                         property.setChoices(properties.getObject());
                     } else {
                         String inputValue = (inputAsArray.length > 1 && inputAsArray[1] != null)
@@ -408,7 +408,8 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                                 ? inputValue : "*" + inputValue + "*");
 
                         if (groupInfo.getRight() > AnyObjectSearchPanel.MAX_GROUP_LIST_CARDINALITY) {
-                            List<GroupTO> filteredGroups = groupRestClient.search("/",
+                            List<GroupTO> filteredGroups = groupRestClient.search(
+                                    SyncopeConstants.ROOT_REALM,
                                     SyncopeClient.getGroupSearchConditionBuilder().
                                             is("name").equalToIgnoreCase(inputValue).
                                             query(),

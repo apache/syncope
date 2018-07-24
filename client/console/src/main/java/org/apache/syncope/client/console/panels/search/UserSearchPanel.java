@@ -83,5 +83,4 @@ public final class UserSearchPanel extends AnyObjectSearchPanel {
         result.add(SearchClause.Type.RELATIONSHIP);
         return result;
     }
-
 }
