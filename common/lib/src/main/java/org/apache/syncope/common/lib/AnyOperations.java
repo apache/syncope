@@ -122,7 +122,7 @@ public final class AnyOperations {
         }
 
         updatedAttrs.values().forEach(attrTO -> {
-            if (attrTO.getValues().isEmpty()) {
+            if (isEmpty(attrTO)) {
                 if (!incremental) {
                     result.getPlainAttrs().add(new AttrPatch.Builder().
                             operation(PatchOperation.DELETE).
@@ -237,7 +237,7 @@ public final class AnyOperations {
 
         // 1. plain attributes
         result.getPlainAttrs().addAll(updated.getPlainAttrs().stream().
-                filter(attrTO -> !attrTO.getValues().isEmpty() && !NULL_SINGLETON.equals(attrTO.getValues())).
+                filter(attrTO -> !isEmpty(attrTO)).
                 collect(Collectors.toSet()));
 
         // 2. virtual attributes
@@ -617,5 +617,26 @@ public final class AnyOperations {
         }
 
         return result;
+    }
+
+    /**
+     * Add PLAIN attribute DELETE patch for those attributes of the input AnyTO without values or containing null value
+     *
+     * @param anyTO
+     * @param result
+     */
+    public static void cleanEmptyAttrs(final AnyTO anyTO, final AnyPatch result) {
+        anyTO.getPlainAttrs().stream()
+                .filter(plainAttrTO -> isEmpty(plainAttrTO))
+                .forEach(plainAttrTO -> {
+                    result.getPlainAttrs().add(new AttrPatch.Builder().
+                            operation(PatchOperation.DELETE).
+                            attrTO(new AttrTO.Builder().schema(plainAttrTO.getSchema()).build()).
+                            build());
+                });
+    }
+
+    private static boolean isEmpty(final AttrTO attrTO) {
+        return attrTO.getValues().isEmpty() || NULL_SINGLETON.equals(attrTO.getValues());
     }
 }
