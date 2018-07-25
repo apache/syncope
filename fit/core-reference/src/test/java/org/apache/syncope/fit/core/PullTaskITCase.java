@@ -383,6 +383,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertNotNull(matchingUsers.getResult().get(0).getPlainAttr("obscure"));
         // Check for SYNCOPE-123
         assertNotNull(matchingUsers.getResult().get(0).getPlainAttr("photo"));
+        // Check for SYNCOPE-1343
+        assertEquals("odd", matchingUsers.getResult().get(0).getPlainAttr("title").getValues().get(0));
 
         GroupTO groupTO = matchingGroups.getResult().iterator().next();
         assertNotNull(groupTO);
@@ -390,6 +392,15 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals("true", groupTO.getPlainAttr("show").getValues().get(0));
         assertEquals(matchingUsers.getResult().iterator().next().getKey(), groupTO.getUserOwner());
         assertNull(groupTO.getGroupOwner());
+        // SYNCOPE-1343, set value title to null on LDAP
+        ConnObjectTO connObject =
+                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(),
+                        matchingUsers.getResult().get(0).getKey());
+        assertNotNull(connObject);
+        assertEquals("odd", connObject.getAttr("title").getValues().get(0));
+        AttrTO userDn = connObject.getAttr(Name.NAME);
+        updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
+                userDn.getValues().get(0), Pair.of("title", (String) null));
 
         // SYNCOPE-317
         execProvisioningTask(taskService, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", 50, false);
@@ -415,6 +426,14 @@ public class PullTaskITCase extends AbstractTaskITCase {
             fail("Timeout while checking for memberships of " + groupTO.getName());
         }
         assertEquals(1, members.getResult().size());
+
+        // SYNCOPE-1343, verify that the title attribte has been reset
+        matchingUsers = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").
+                                query()).
+                        build());
+        assertNull(matchingUsers.getResult().get(0).getPlainAttr("title"));
     }
 
     @Test

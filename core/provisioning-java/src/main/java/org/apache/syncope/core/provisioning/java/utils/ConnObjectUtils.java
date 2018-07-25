@@ -301,7 +301,10 @@ public class ConnObjectUtils {
                 default:
             }
         }
-
+        // SYNCOPE-1343, remove null or empty values from the patch plain attributes
+        if (anyPatch != null) {
+            AnyOperations.cleanEmptyAttrs(updated, anyPatch);
+        }
         return anyPatch;
     }
 

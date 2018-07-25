@@ -127,7 +127,7 @@ public final class AnyOperations {
         }
 
         for (AttrTO attrTO : updatedAttrs.values()) {
-            if (attrTO.getValues().isEmpty() || NULL_SINGLETON.equals(attrTO.getValues())) {
+            if (isEmpty(attrTO)) {
                 if (!incremental) {
                     result.getPlainAttrs().add(new AttrPatch.Builder().
                             operation(PatchOperation.DELETE).
@@ -239,7 +239,7 @@ public final class AnyOperations {
         // 1. plain attributes
         result.getPlainAttrs().clear();
         for (AttrTO attrTO : updated.getPlainAttrs()) {
-            if (!attrTO.getValues().isEmpty() && !NULL_SINGLETON.equals(attrTO.getValues())) {
+            if (!isEmpty(attrTO)) {
                 result.getPlainAttrs().add(attrTO);
             }
         }
@@ -625,5 +625,30 @@ public final class AnyOperations {
         }
 
         return result;
+    }
+
+    /**
+     * Add PLAIN attribute DELETE patch for those attributes of the input AnyTO without values or containing null value
+     *
+     * @param anyTO
+     * @param result
+     */
+    public static void cleanEmptyAttrs(final AnyTO anyTO, final AnyPatch result) {
+        IterableUtils.forEach(anyTO.getPlainAttrs(), new Closure<AttrTO>() {
+
+            @Override
+            public void execute(final AttrTO plainAttrTO) {
+                if (isEmpty(plainAttrTO)) {
+                    result.getPlainAttrs().add(new AttrPatch.Builder().
+                            operation(PatchOperation.DELETE).
+                            attrTO(new AttrTO.Builder().schema(plainAttrTO.getSchema()).build()).
+                            build());
+                }
+            }
+        });
+    }
+
+    private static boolean isEmpty(final AttrTO attrTO) {
+        return attrTO.getValues().isEmpty() || NULL_SINGLETON.equals(attrTO.getValues());
     }
 }
