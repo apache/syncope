@@ -622,18 +622,16 @@ public final class AnyOperations {
     /**
      * Add PLAIN attribute DELETE patch for those attributes of the input AnyTO without values or containing null value
      *
-     * @param anyTO
-     * @param result
+     * @param anyTO User, Group or Any Object to look for attributes with no value
+     * @param patch patch to enrich with DELETE statements
      */
-    public static void cleanEmptyAttrs(final AnyTO anyTO, final AnyPatch result) {
-        anyTO.getPlainAttrs().stream()
-                .filter(plainAttrTO -> isEmpty(plainAttrTO))
-                .forEach(plainAttrTO -> {
-                    result.getPlainAttrs().add(new AttrPatch.Builder().
-                            operation(PatchOperation.DELETE).
-                            attrTO(new AttrTO.Builder().schema(plainAttrTO.getSchema()).build()).
-                            build());
-                });
+    public static void cleanEmptyAttrs(final AnyTO anyTO, final AnyPatch patch) {
+        patch.getPlainAttrs().addAll(anyTO.getPlainAttrs().stream().
+                filter(plainAttrTO -> isEmpty(plainAttrTO)).
+                map(plainAttrTO -> new AttrPatch.Builder().
+                operation(PatchOperation.DELETE).
+                attrTO(new AttrTO.Builder().schema(plainAttrTO.getSchema()).build()).
+                build()).collect(Collectors.toSet()));
     }
 
     private static boolean isEmpty(final AttrTO attrTO) {
