@@ -26,6 +26,7 @@ under the License.
     </exclude-subsystems>
     <dependencies>
       <module name="org.apache.xalan"/>
+      <module name="org.reactivestreams"/>
     </dependencies>
     <exclusions>
       <module name="javax.validation.api"/>

@@ -295,7 +295,7 @@ under the License.
               <cargo.tomcat.ajp.port>${cargo.tomcat.ajp.port}</cargo.tomcat.ajp.port>
               <cargo.rmi.port>${cargo.rmi.port}</cargo.rmi.port>
 
-              <cargo.jvmargs>-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xmx1024m -Xms512m</cargo.jvmargs>
+              <cargo.jvmargs>-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
             </properties>
             <configfiles>
               <configfile>
@@ -1231,12 +1231,6 @@ under the License.
         </dependency>
 
         <dependency>
-          <groupId>org.reactivestreams</groupId>
-          <artifactId>reactive-streams</artifactId>
-          <version>1.0.1</version>
-        </dependency>
-
-        <dependency>
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>
         </dependency>
@@ -1268,9 +1262,9 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>wildfly11x</containerId>
+                <containerId>wildfly12x</containerId>
                 <zipUrlInstaller>
-                  <url>http://download.jboss.org/wildfly/11.0.0.Final/wildfly-11.0.0.Final.zip</url>
+                  <url>http://download.jboss.org/wildfly/13.0.0.Final/wildfly-13.0.0.Final.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
@@ -1279,7 +1273,7 @@ under the License.
               </container>
               <configuration>
                 <properties>
-                  <cargo.jvmargs>-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:PermSize=512m -XX:MaxPermSize=1024m -Xmx2048m -Xms1024m</cargo.jvmargs>
+                  <cargo.jvmargs>-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx2048m -Xms1024m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -1382,7 +1376,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>-Xdebug -Djaxb.debug=true -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -1430,7 +1424,7 @@ under the License.
                   <cargo.jvmargs>
                     -XXaltjvm=dcevm -javaagent:${settings.localRepository}/org/hotswapagent/hotswap-agent/${hotswap.version}/hotswap-agent-${hotswap.version}.jar=autoHotswap=true,disablePlugin=Spring
                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
-                    -XX:MaxPermSize=512m -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
