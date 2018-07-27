@@ -350,15 +350,20 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     protected TaskExec execute(final PropagationTaskTO taskTO, final PropagationReporter reporter) {
-        PropagationTask task = entityFactory.newEntity(PropagationTask.class);
-        task.setResource(resourceDAO.find(taskTO.getResource()));
-        task.setObjectClassName(taskTO.getObjectClassName());
-        task.setAnyTypeKind(taskTO.getAnyTypeKind());
-        task.setAnyType(taskTO.getAnyType());
-        task.setEntityKey(taskTO.getEntityKey());
-        task.setOperation(taskTO.getOperation());
-        task.setConnObjectKey(taskTO.getConnObjectKey());
-        task.setOldConnObjectKey(taskTO.getOldConnObjectKey());
+        PropagationTask task;
+        if (taskTO.getKey() == null) {
+            task = entityFactory.newEntity(PropagationTask.class);
+            task.setResource(resourceDAO.find(taskTO.getResource()));
+            task.setObjectClassName(taskTO.getObjectClassName());
+            task.setAnyTypeKind(taskTO.getAnyTypeKind());
+            task.setAnyType(taskTO.getAnyType());
+            task.setEntityKey(taskTO.getEntityKey());
+            task.setOperation(taskTO.getOperation());
+            task.setConnObjectKey(taskTO.getConnObjectKey());
+            task.setOldConnObjectKey(taskTO.getOldConnObjectKey());
+        } else {
+            task = taskDAO.find(taskTO.getKey());
+        }
         Set<Attribute> attributes = new HashSet<>();
         if (StringUtils.isNotBlank(taskTO.getAttributes())) {
             attributes.addAll(Arrays.asList(POJOHelper.deserialize(taskTO.getAttributes(), Attribute[].class)));
