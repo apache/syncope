@@ -201,8 +201,8 @@ The actual configuration steps vary significantly depending on the selected Java
 examples:
 
 . https://tomcat.apache.org/tomcat-9.0-doc/jdbc-pool.html[Apache Tomcat 9^]
-. https://javaeesquad.github.io/tutorials/glassfishDatasource/glassFishDatasource.html[Glassfish 4.1^]
-. https://payara.gitbooks.io/payara-server/content/documentation/user-guides/connection-pools/connection-pools.html[Payara Server^]
+. https://javaeesquad.github.io/tutorials/glassfishDatasource/glassFishDatasource.html[Glassfish 5^]
+. https://payara.gitbooks.io/payara-server/content/documentation/user-guides/connection-pools/connection-pools.html[Payara Server 5^]
 . https://docs.jboss.org/author/display/WFLY10/DataSource+configuration[Wildfly 13^]
 ====
 

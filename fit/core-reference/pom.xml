@@ -1121,7 +1121,12 @@ under the License.
             </exclusion>
           </exclusions>
         </dependency>
-    
+        <dependency>
+          <groupId>org.hibernate.validator</groupId>
+          <artifactId>hibernate-validator</artifactId>
+          <version>6.0.11.Final</version>
+        </dependency>
+
         <dependency>
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>
@@ -1138,9 +1143,9 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>glassfish4x</containerId>
+                <containerId>glassfish5x</containerId>
                 <zipUrlInstaller>
-                  <url>http://download.java.net/glassfish/4.1.2/release/glassfish-4.1.2.zip</url>
+                  <url>http://download.oracle.com/glassfish/5.0/release/glassfish-5.0.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
@@ -1185,9 +1190,9 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>glassfish4x</containerId>
+                <containerId>glassfish5x</containerId>
                 <zipUrlInstaller>
-                  <url>https://s3-eu-west-1.amazonaws.com/payara.fish/Payara+Downloads/Payara+4.1.2.172/payara-4.1.2.172.zip</url>
+                  <url>https://s3-eu-west-1.amazonaws.com/payara.fish/Payara+Downloads/5.182/payara-5.182.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
