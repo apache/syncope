@@ -82,7 +82,7 @@ For better performance under GNU / Linux, do not forget to include
 among JVM options.
 ====
 
-===== Wildfly 11
+===== Wildfly 13
 
 Add
 
@@ -112,12 +112,6 @@ Add
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-wsdl</artifactId>
       <version>${cxf.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.reactivestreams</groupId>
-      <artifactId>reactive-streams</artifactId>
-      <version>1.0.1</version>
     </dependency>
 ....
 

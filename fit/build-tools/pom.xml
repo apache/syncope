@@ -79,7 +79,7 @@ under the License.
       <artifactId>cxf-rt-wsdl</artifactId>
       <version>${cxf.version}</version>
     </dependency>
-
+        
     <dependency>
       <groupId>net.tirasa.connid.bundles.soap</groupId>
       <artifactId>soap-utilities</artifactId>
