@@ -137,7 +137,6 @@ under the License.
             </goals>
             <configuration>
               <outputDirectory>${project.build.directory}/staging/lib</outputDirectory>
-              <excludeGroupIds>junit</excludeGroupIds>
             </configuration>
           </execution>
         </executions>
