@@ -114,7 +114,7 @@ public final class GenerateUpgradeSQL {
                     String itemId = rs.getString(1);
                     String transformerClassName = rs.getString(2);
 
-                    String implementationId = "OrgUnitItemTransformer_" + itemId;
+                    String implementationId = "OrgUnitItemTransformer_" + transformerClassName + "_" + itemId;
                     OUT.write("INSERT INTO Implementation(id,type,engine,body) VALUES("
                             + "'" + implementationId + "',"
                             + "'ITEM_TRANSFORMER',"
@@ -417,7 +417,7 @@ public final class GenerateUpgradeSQL {
                     String itemId = rs.getString(1);
                     String transformerClassName = rs.getString(2);
 
-                    String implementationId = "MappingItemTransformer_" + itemId;
+                    String implementationId = "MappingItemTransformer_" + transformerClassName + "_" + itemId;
                     OUT.write("INSERT INTO Implementation(id,type,engine,body) VALUES("
                             + "'" + implementationId + "',"
                             + "'ITEM_TRANSFORMER',"
