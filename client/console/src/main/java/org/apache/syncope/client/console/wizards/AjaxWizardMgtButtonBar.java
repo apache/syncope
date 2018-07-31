@@ -109,7 +109,7 @@ public class AjaxWizardMgtButtonBar<T extends Serializable> extends WizardButton
             private static final long serialVersionUID = 864248301720764819L;
 
             @Override
-            public final boolean isEnabled() {
+            public boolean isEnabled() {
                 switch (mode) {
                     case EDIT:
                     case TEMPLATE:

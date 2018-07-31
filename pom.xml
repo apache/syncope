@@ -483,8 +483,8 @@ under the License.
     <select2.version>3.4.8</select2.version>
     <fileSaver.version>0.0.2</fileSaver.version>
     
-    <izpack.version>5.1.2</izpack.version>
-    <httpclient.version>4.5.5</httpclient.version>
+    <izpack.version>5.1.3</izpack.version>
+    <httpclient.version>4.5.6</httpclient.version>
     <maven-invoker.version>3.0.1</maven-invoker.version>
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
 
@@ -1763,7 +1763,7 @@ under the License.
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpkix-jdk15on</artifactId>
-        <version>1.59</version>
+        <version>1.60</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -1814,7 +1814,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.7.0</version> 
+          <version>3.8.0</version> 
           <configuration>
             <source>${targetJdk}</source>
             <target>${targetJdk}</target>
@@ -2012,7 +2012,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>2.17</version>
+          <version>3.0.0</version>
           <configuration>
             <configLocation>${rootpom.basedir}/src/main/resources/org/apache/syncope/checkstyle.xml</configLocation>
             <targetJdk>${targetJdk}</targetJdk>
@@ -2028,7 +2028,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.26.0</version>
+          <version>0.26.1</version>
         </plugin>
 
         <plugin>
@@ -2335,7 +2335,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>2.9</version>
+        <version>3.0.0</version>
         <configuration>
           <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
           <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
