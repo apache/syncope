@@ -143,6 +143,8 @@ under the License.
   
   <jar src="lib/maven-invoker-@{maven-invoker.version}.jar"/>
   <jar src="lib/plexus-utils-1.5.6.jar"/>
+  <jar src="lib/plexus-component-annotations-1.7.1.jar"/>
+  <jar src="lib/maven-shared-utils-3.2.1.jar"/>
   
   <panels>
     <panel classname="HTMLHelloPanel" id="welcome"/>
