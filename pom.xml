@@ -393,8 +393,8 @@ under the License.
 
     <jackson.version>2.9.6</jackson.version>
 
-    <spring.version>5.0.7.RELEASE</spring.version>
-    <spring-security.version>5.0.6.RELEASE</spring-security.version>
+    <spring.version>5.0.8.RELEASE</spring.version>
+    <spring-security.version>5.0.7.RELEASE</spring-security.version>
 
     <openjpa.version>3.0.0</openjpa.version>
     <hikaricp.version>3.2.0</hikaricp.version>
@@ -417,7 +417,7 @@ under the License.
 
     <elasticsearch.version>6.3.1</elasticsearch.version>
 
-    <log4j.version>2.11.0</log4j.version>
+    <log4j.version>2.11.1</log4j.version>
     <disruptor.version>3.4.2</disruptor.version>
 
     <commons-io.version>2.6</commons-io.version>
@@ -442,7 +442,7 @@ under the License.
     <flowable-modeler.directory>${project.build.directory}/flowable-modeler</flowable-modeler.directory>    
 
     <swagger-core.version>2.0.2</swagger-core.version>    
-    <swagger-ui.version>3.17.4</swagger-ui.version>
+    <swagger-ui.version>3.17.6</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
     <jquery.version>2.2.4</jquery.version>
