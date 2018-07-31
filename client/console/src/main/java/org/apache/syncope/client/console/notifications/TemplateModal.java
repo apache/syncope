@@ -30,7 +30,6 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.PropertyModel;
 
 public class TemplateModal<T extends EntityTO, F> extends AbstractModalPanel<T> {
@@ -62,7 +61,7 @@ public class TemplateModal<T extends EntityTO, F> extends AbstractModalPanel<T> 
     }
 
     @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+    public void onSubmit(final AjaxRequestTarget target) {
         try {
             restClient.createTemplate(templateTO);
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));

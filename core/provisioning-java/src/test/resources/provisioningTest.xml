@@ -44,22 +44,20 @@ under the License.
   <bean id="jwsKey" class="java.lang.String">
     <constructor-arg value="${jwsKey}"/>
   </bean>
-  <bean id="jwsSignatureVerifier" class="org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureVerifier">
-    <constructor-arg value="#{jwsKey.getBytes()}" index="0"/>
-    <constructor-arg index="1">
-      <value type="org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm">HS512</value>
-    </constructor-arg>
+  <bean id="accessTokenJwsSignatureVerifier"
+        class="org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureVerifier">
+    <property name="jwsAlgorithm" value="${jwsAlgorithm}"/>
+    <property name="jwsKey" value="${jwsKey}"/>
   </bean>
-  <bean id="jwsSignatureProvider" class="org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureProvider">
-    <constructor-arg value="#{jwsKey.getBytes()}" index="0"/>
-    <constructor-arg index="1">
-      <value type="org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm">HS512</value>
-    </constructor-arg>
+  <bean id="accessTokenJwsSignatureProvider"
+        class="org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureProvider">
+    <property name="jwsAlgorithm" value="${jwsAlgorithm}"/>
+    <property name="jwsKey" value="${jwsKey}"/>
   </bean>
   <bean id="credentialChecker" class="org.apache.syncope.core.spring.security.DefaultCredentialChecker">
-      <constructor-arg value="${jwsKey}" index="0"/>
-      <constructor-arg value="${adminPassword}" index="1"/>
-      <constructor-arg value="${anonymousKey}" index="2"/>
+    <constructor-arg value="${jwsKey}" index="0"/>
+    <constructor-arg value="${adminPassword}" index="1"/>
+    <constructor-arg value="${anonymousKey}" index="2"/>
   </bean>
   
 </beans>

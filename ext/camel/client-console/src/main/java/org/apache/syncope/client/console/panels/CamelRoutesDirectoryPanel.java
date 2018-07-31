@@ -42,7 +42,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -124,7 +123,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
                     private static final long serialVersionUID = 5488080606102212554L;
 
                     @Override
-                    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                    public void onSubmit(final AjaxRequestTarget target) {
                         try {
                             restClient.update(anyTypeKind, route);
                             info(getString(Constants.OPERATION_SUCCEEDED));

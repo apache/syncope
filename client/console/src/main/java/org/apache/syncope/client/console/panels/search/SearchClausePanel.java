@@ -41,6 +41,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
@@ -57,7 +58,6 @@ import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.CheckBox;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -134,7 +134,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             private static final long serialVersionUID = 5538299138211283825L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target) {
                 if (resultContainer == null) {
                     send(this, Broadcast.BUBBLE, new SearchEvent(target));
                 } else {
@@ -252,7 +252,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 "onkeydown",
                 Model.of("if(event.keyCode == 13) {event.preventDefault();}")));
 
-        field.add(new AjaxEventBehavior("onkeydown") {
+        field.add(new AjaxEventBehavior("keydown") {
 
             private static final long serialVersionUID = -7133385027739964990L;
 
@@ -398,8 +398,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 if (field.getModel().getObject().getType() == Type.GROUP_MEMBERSHIP) {
                     String[] inputAsArray = property.getField().getInputAsArray();
 
-                    if (StringUtils.isBlank(property.getField().getInput())
-                            || inputAsArray.length == 0) {
+                    if (StringUtils.isBlank(property.getField().getInput()) || inputAsArray.length == 0) {
                         property.setChoices(properties.getObject());
                     } else {
                         String inputValue = (inputAsArray.length > 1 && inputAsArray[1] != null)
@@ -413,18 +412,15 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                                 ? inputValue : "*" + inputValue + "*");
 
                         if (groupInfo.getRight() > AnyObjectSearchPanel.MAX_GROUP_LIST_CARDINALITY) {
-                            List<GroupTO> filteredGroups = groupRestClient.search("/",
+                            property.setChoices(groupRestClient.search(
+                                    SyncopeConstants.ROOT_REALM,
                                     SyncopeClient.getGroupSearchConditionBuilder().
                                             is("name").equalToIgnoreCase(inputValue).
                                             query(),
                                     1,
                                     AnyObjectSearchPanel.MAX_GROUP_LIST_CARDINALITY,
                                     new SortParam<>("name", true),
-                                    null);
-                            List<String> names = filteredGroups.stream().
-                                    map(GroupTO::getName).collect(Collectors.toList());
-                            Collections.sort(names);
-                            property.setChoices(names);
+                                    null).stream().map(GroupTO::getName).collect(Collectors.toList()));
                         }
                     }
                 }
@@ -462,7 +458,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 "onkeydown",
                 Model.of("if(event.keyCode == 13) {event.preventDefault();}")));
 
-        value.getField().add(new IndicatorAjaxEventBehavior("onkeydown") {
+        value.getField().add(new IndicatorAjaxEventBehavior("keydown") {
 
             private static final long serialVersionUID = -7133385027739964990L;
 

@@ -25,7 +25,6 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
 import org.apache.cxf.rs.security.jose.jws.JwsHeaders;
-import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
 import org.apache.cxf.rs.security.jose.jws.JwsVerificationSignature;
 import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -34,6 +33,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +51,8 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
     @Resource(name = "jwtIssuer")
     private String jwtIssuer;
 
-    @Resource(name = "syncopeJWTSSOProviderDelegate")
-    private JwsSignatureVerifier delegate;
+    @Autowired
+    private AccessTokenJwsSignatureVerifier delegate;
 
     @Autowired
     private UserDAO userDAO;
@@ -101,5 +101,4 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
 
         return Pair.of(user, authorities);
     }
-
 }

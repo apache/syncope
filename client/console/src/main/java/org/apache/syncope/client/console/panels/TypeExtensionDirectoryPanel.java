@@ -46,7 +46,6 @@ import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -85,7 +84,7 @@ public class TypeExtensionDirectoryPanel
     }
 
     @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+    public void onSubmit(final AjaxRequestTarget target) {
         GroupPatch patch = new GroupPatch();
         patch.setKey(groupTO.getKey());
         patch.getTypeExtensions().addAll(groupTO.getTypeExtensions());
@@ -106,7 +105,7 @@ public class TypeExtensionDirectoryPanel
     }
 
     @Override
-    public void onError(final AjaxRequestTarget target, final Form<?> form) {
+    public void onError(final AjaxRequestTarget target) {
         SyncopeConsoleSession.get().error(getString(Constants.OPERATION_ERROR));
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }

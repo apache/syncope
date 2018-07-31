@@ -16,7 +16,7 @@
 # under the License.
 enduser.directory=/etc/apache-syncope
 
-domain=Master
+domain=${DOMAIN}
 
 anonymousUser=${anonymousUser}
 anonymousKey=${anonymousKey}

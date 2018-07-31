@@ -52,7 +52,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/fit/core-reference/src/main/resources/postgres/views.xml[views.xml^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/fit/core-reference/src/main/resources/postgres/views.xml[views.xml^]
+https://github.com/apache/syncope/tree/2_1_X/fit/core-reference/src/main/resources/postgres/views.xml[views.xml^]
 endif::[]
 and save it under `core/src/main/resources/`.
 
@@ -182,6 +182,6 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/fit/core-reference/src/main/resources/sqlserver/views.xml[views.xml^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/fit/core-reference/src/main/resources/sqlserver/views.xml[views.xml^]
+https://github.com/apache/syncope/tree/2_1_X/fit/core-reference/src/main/resources/sqlserver/views.xml[views.xml^]
 endif::[]
 and save it under `core/src/main/resources/`.

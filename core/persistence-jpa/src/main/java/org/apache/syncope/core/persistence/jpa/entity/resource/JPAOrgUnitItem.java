@@ -66,6 +66,11 @@ public class JPAOrgUnitItem extends AbstractItem implements OrgUnitItem {
     }
 
     @Override
+    public boolean isPassword() {
+        return false;
+    }
+
+    @Override
     public boolean add(final Implementation transformer) {
         checkType(transformer, JPAImplementation.class);
         checkImplementationType(transformer, ImplementationType.ITEM_TRANSFORMER);

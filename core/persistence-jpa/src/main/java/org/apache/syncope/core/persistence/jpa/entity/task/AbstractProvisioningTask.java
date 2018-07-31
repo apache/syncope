@@ -18,13 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
-import javax.persistence.Basic;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
@@ -45,25 +42,17 @@ public abstract class AbstractProvisioningTask extends JPASchedTask implements P
     @ManyToOne
     private JPAExternalResource resource;
 
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer performCreate;
+    @NotNull
+    private Boolean performCreate = false;
 
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer performUpdate;
+    @NotNull
+    private Boolean performUpdate = false;
 
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer performDelete;
+    @NotNull
+    private Boolean performDelete = false;
 
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer syncStatus;
+    @NotNull
+    private Boolean syncStatus = false;
 
     /**
      * @see UnmatchingRule
@@ -92,45 +81,45 @@ public abstract class AbstractProvisioningTask extends JPASchedTask implements P
 
     @Override
     public boolean isPerformCreate() {
-        return isBooleanAsInteger(performCreate);
+        return performCreate;
     }
 
     @Override
 
     public void setPerformCreate(final boolean performCreate) {
-        this.performCreate = getBooleanAsInteger(performCreate);
+        this.performCreate = performCreate;
     }
 
     @Override
 
     public boolean isPerformUpdate() {
-        return isBooleanAsInteger(performUpdate);
+        return performUpdate;
     }
 
     @Override
 
     public void setPerformUpdate(final boolean performUpdate) {
-        this.performUpdate = getBooleanAsInteger(performUpdate);
+        this.performUpdate = performUpdate;
     }
 
     @Override
     public boolean isPerformDelete() {
-        return isBooleanAsInteger(performDelete);
+        return performDelete;
     }
 
     @Override
     public void setPerformDelete(final boolean performDelete) {
-        this.performDelete = getBooleanAsInteger(performDelete);
+        this.performDelete = performDelete;
     }
 
     @Override
     public boolean isSyncStatus() {
-        return isBooleanAsInteger(syncStatus);
+        return syncStatus;
     }
 
     @Override
     public void setSyncStatus(final boolean syncStatus) {
-        this.syncStatus = getBooleanAsInteger(syncStatus);
+        this.syncStatus = syncStatus;
     }
 
     @Override

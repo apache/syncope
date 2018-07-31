@@ -43,7 +43,7 @@ public class ImplementationTest extends AbstractTest {
         List<Implementation> implementations = implementationDAO.findAll();
         assertFalse(implementations.isEmpty());
 
-        assertEquals(17, implementations.size());
+        assertEquals(18, implementations.size());
 
         implementations = implementationDAO.find(ImplementationType.PULL_ACTIONS);
         assertEquals(1, implementations.size());
@@ -67,6 +67,9 @@ public class ImplementationTest extends AbstractTest {
         assertEquals(2, implementations.size());
 
         implementations = implementationDAO.find(ImplementationType.PULL_CORRELATION_RULE);
+        assertEquals(1, implementations.size());
+
+        implementations = implementationDAO.find(ImplementationType.PUSH_CORRELATION_RULE);
         assertEquals(1, implementations.size());
     }
 

@@ -94,7 +94,6 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
                     JexlUtils.addAttrTOsToContext(((AnyTO) entityTO).getVirAttrs(), jexlContext);
                 } else if (entityTO instanceof RealmTO) {
                     JexlUtils.addFieldsToContext((RealmTO) entityTO, jexlContext);
-                    newValues.add(JexlUtils.evaluate(pullJEXL, jexlContext));
                 }
 
                 newValues.add(JexlUtils.evaluate(pullJEXL, jexlContext));
@@ -105,5 +104,4 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
 
         return JEXLItemTransformer.super.beforePull(item, entityTO, values);
     }
-
 }

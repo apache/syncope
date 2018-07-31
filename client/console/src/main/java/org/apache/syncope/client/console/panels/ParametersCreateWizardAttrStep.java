@@ -169,12 +169,12 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
 
             case Long:
                 panel = new AjaxSpinnerFieldPanel.Builder<Long>()
-                        .build(id, valueHeaderName, Long.class, new Model<Long>());
+                        .build(id, valueHeaderName, Long.class, new Model<>());
                 break;
 
             case Double:
                 panel = new AjaxSpinnerFieldPanel.Builder<Double>()
-                        .build(id, valueHeaderName, Double.class, new Model<Double>());
+                        .build(id, valueHeaderName, Double.class, new Model<>());
                 break;
 
             case Binary:

@@ -28,7 +28,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPa
 import org.apache.syncope.common.lib.to.ApplicationTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.PropertyModel;
 
 public class ApplicationModalPanel extends AbstractModalPanel<ApplicationTO> {
@@ -71,7 +70,7 @@ public class ApplicationModalPanel extends AbstractModalPanel<ApplicationTO> {
     }
 
     @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+    public void onSubmit(final AjaxRequestTarget target) {
         try {
             if (create) {
                 restClient.create(application);

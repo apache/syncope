@@ -36,7 +36,7 @@ import org.apache.syncope.common.lib.to.EntityTO;
 
 @XmlRootElement(name = "policy")
 @XmlType
-@XmlSeeAlso({ AccountPolicyTO.class, PasswordPolicyTO.class, PullPolicyTO.class })
+@XmlSeeAlso({ AccountPolicyTO.class, PasswordPolicyTO.class, ProvisioningPolicyTO.class })
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "@class")
 @JsonPropertyOrder(value = { "@class", "key", "description" })
 @Schema(
@@ -58,7 +58,7 @@ public abstract class PolicyTO extends AbstractBaseBean implements EntityTO {
 
     private final List<String> usedByRealms = new ArrayList<>();
 
-    @Schema(name = "@class", required = true, readOnly = false)
+    @Schema(name = "@class", required = true)
     public abstract String getDiscriminator();
 
     public void setDiscriminator(final String discriminator) {

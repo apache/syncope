@@ -31,13 +31,13 @@ import org.apache.wicket.markup.html.pages.ExceptionErrorPage;
 import org.apache.wicket.protocol.http.PageExpiredException;
 import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.component.IRequestablePage;
-import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
+import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SyncopeConsoleRequestCycleListener extends AbstractRequestCycleListener {
+public class SyncopeConsoleRequestCycleListener implements IRequestCycleListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleRequestCycleListener.class);
 
@@ -66,7 +66,7 @@ public class SyncopeConsoleRequestCycleListener extends AbstractRequestCycleList
 
         PageParameters errorParameters = new PageParameters();
 
-        IRequestablePage errorPage = null;
+        IRequestablePage errorPage;
         if (instanceOf(e, UnauthorizedInstantiationException.class) != null) {
             errorParameters.add("errorMessage", MISSING_AUTHORIZATION);
             errorPage = new Login(errorParameters);

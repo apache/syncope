@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-fit</artifactId>
-    <version>2.1.0-SNAPSHOT</version>
+    <version>2.1.1-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope FIT Enduser Reference</name>
@@ -41,13 +41,6 @@ under the License.
   </properties>
 
   <dependencies>
-
-    <dependency>
-      <groupId>org.apache.syncope.client</groupId>
-      <artifactId>syncope-client-enduser</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
     <dependency> 
       <groupId>javax.servlet</groupId> 
       <artifactId>javax.servlet-api</artifactId> 
@@ -59,6 +52,12 @@ under the License.
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.client</groupId>
+      <artifactId>syncope-client-enduser</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
@@ -172,13 +171,13 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <mkdir dir="${enduser-test.dir}"/>
+                <mkdir dir="${enduser-test.dir}" />
                 <copy todir="${enduser-test.dir}" overwrite="true">
-                  <file name="${project.build.directory}/test-classes/protractor-conf.js"/>
-                  <fileset dir="${project.build.directory}/test-classes" includes="tests/**"/>
+                  <file name="${project.build.directory}/test-classes/protractor-conf.js" />
+                  <fileset dir="${project.build.directory}/test-classes" includes="tests/**" />
                 </copy>
 
-                <delete file="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/userWorkflow.bpmn20.xml"/>
+                <delete file="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/userWorkflow.bpmn20.xml" />
               </target>
               <skip>${skipTests}</skip>
             </configuration>
@@ -301,7 +300,7 @@ under the License.
               <cargo.tomcat.ajp.port>${cargo.tomcat.ajp.port}</cargo.tomcat.ajp.port>
               <cargo.rmi.port>${cargo.rmi.port}</cargo.rmi.port>
 
-              <cargo.jvmargs>-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m</cargo.jvmargs>
+              <cargo.jvmargs>-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC</cargo.jvmargs>
             </properties>
             <configfiles>
               <configfile>
@@ -486,7 +485,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m</cargo.jvmargs>
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -506,8 +505,16 @@ under the License.
     </profile>
     
     <profile>
-      <id>jrebel</id>
+      <id>hotswap</id>
       
+      <dependencies>
+        <dependency>
+          <groupId>org.hotswapagent</groupId>
+          <artifactId>hotswap-agent</artifactId>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
@@ -530,12 +537,16 @@ under the License.
             <inherited>true</inherited>
             <executions>
               <execution>
-                <id>enableJRebelForCoreAndConsole</id>
+                <id>enableHotSwapForCoreAndConsole</id>
                 <phase>package</phase>
                 <configuration>
                   <target>                                               
-                    <copy file="${basedir}/../core-reference/target/test-classes/rebel.xml" tofile="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/rebel.xml" overwrite="true" />
-                    <copy file="${basedir}/../console-reference/target/test-classes/rebel.xml" tofile="${basedir}/../console-reference/target/syncope-fit-console-reference-${project.version}/WEB-INF/classes/rebel.xml" overwrite="true" />
+                    <copy file="${basedir}/../core-reference/target/test-classes/hotswap-agent.properties"
+                          tofile="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/hotswap-agent.properties"
+                          overwrite="true"/>
+                    <copy file="${basedir}/../console-reference/target/test-classes/hotswap-agent.properties"
+                          tofile="${basedir}/../console-reference/target/syncope-fit-console-reference-${project.version}/WEB-INF/classes/hotswap-agent.properties"
+                          overwrite="true"/>
                   </target>
                 </configuration>
                 <goals>
@@ -552,9 +563,11 @@ under the License.
             <configuration>
               <configuration>
                 <properties>
-                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -noverify -agentpath:${env.REBEL_HOME}/lib/libjrebel64.so -Drebel.spring_plugin=true
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xmx1024m -Xms512m</cargo.jvmargs>
+                  <cargo.jvmargs>
+                    -Dwicket.configuration=development
+                    -XXaltjvm=dcevm -javaagent:${settings.localRepository}/org/hotswapagent/hotswap-agent/${hotswap.version}/hotswap-agent-${hotswap.version}.jar=autoHotswap=true,disablePlugin=Spring
+                    -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
+                    -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -576,7 +589,7 @@ under the License.
             <directory>src/test/resources</directory>
             <filtering>true</filtering>
             <includes>
-              <include>rebel.xml</include>
+              <include>hotswap-agent.properties</include>
             </includes>
           </resource>
         </resources>

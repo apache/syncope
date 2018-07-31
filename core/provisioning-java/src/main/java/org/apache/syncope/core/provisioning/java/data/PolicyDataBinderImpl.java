@@ -24,6 +24,7 @@ import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
+import org.apache.syncope.common.lib.policy.PushPolicyTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -37,9 +38,11 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.policy.CorrelationRule;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
+import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,9 +141,9 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                 if (anyType == null) {
                     LOG.debug("Invalid AnyType {} specified, ignoring...", type);
                 } else {
-                    CorrelationRule correlationRule = pullPolicy.getCorrelationRule(anyType).orElse(null);
+                    PullCorrelationRuleEntity correlationRule = pullPolicy.getCorrelationRule(anyType).orElse(null);
                     if (correlationRule == null) {
-                        correlationRule = entityFactory.newEntity(CorrelationRule.class);
+                        correlationRule = entityFactory.newEntity(PullCorrelationRuleEntity.class);
                         correlationRule.setAnyType(anyType);
                         correlationRule.setPullPolicy(pullPolicy);
                         pullPolicy.add(correlationRule);
@@ -148,7 +151,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
 
                     Implementation rule = implementationDAO.find(impl);
                     if (rule == null) {
-                        throw new NotFoundException("Implementation " + type);
+                        throw new NotFoundException("Implementation " + type + " " + impl);
                     }
                     correlationRule.setImplementation(rule);
                 }
@@ -156,6 +159,39 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             // remove all rules not contained in the TO
             pullPolicy.getCorrelationRules().removeIf(anyFilter
                     -> !pullPolicyTO.getCorrelationRules().containsKey(anyFilter.getAnyType().getKey()));
+        } else if (policyTO instanceof PushPolicyTO) {
+            if (result == null) {
+                result = (T) entityFactory.newEntity(PushPolicy.class);
+            }
+
+            PushPolicy pushPolicy = PushPolicy.class.cast(result);
+            PushPolicyTO pushPolicyTO = PushPolicyTO.class.cast(policyTO);
+
+            pushPolicy.setConflictResolutionAction(pushPolicyTO.getConflictResolutionAction());
+
+            pushPolicyTO.getCorrelationRules().forEach((type, impl) -> {
+                AnyType anyType = anyTypeDAO.find(type);
+                if (anyType == null) {
+                    LOG.debug("Invalid AnyType {} specified, ignoring...", type);
+                } else {
+                    PushCorrelationRuleEntity correlationRule = pushPolicy.getCorrelationRule(anyType).orElse(null);
+                    if (correlationRule == null) {
+                        correlationRule = entityFactory.newEntity(PushCorrelationRuleEntity.class);
+                        correlationRule.setAnyType(anyType);
+                        correlationRule.setPushPolicy(pushPolicy);
+                        pushPolicy.add(correlationRule);
+                    }
+
+                    Implementation rule = implementationDAO.find(impl);
+                    if (rule == null) {
+                        throw new NotFoundException("Implementation " + type + " " + impl);
+                    }
+                    correlationRule.setImplementation(rule);
+                }
+            });
+            // remove all rules not contained in the TO
+            pushPolicy.getCorrelationRules().removeIf(anyFilter
+                    -> !pushPolicyTO.getCorrelationRules().containsKey(anyFilter.getAnyType().getKey()));
         }
 
         if (result != null) {
@@ -211,6 +247,15 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             pullPolicyTO.setConflictResolutionAction(((PullPolicy) policy).getConflictResolutionAction());
             pullPolicy.getCorrelationRules().forEach(rule -> {
                 pullPolicyTO.getCorrelationRules().put(rule.getAnyType().getKey(), rule.getImplementation().getKey());
+            });
+        } else if (policy instanceof PushPolicy) {
+            PushPolicy pushPolicy = PushPolicy.class.cast(policy);
+            PushPolicyTO pushPolicyTO = new PushPolicyTO();
+            policyTO = (T) pushPolicyTO;
+
+            pushPolicyTO.setConflictResolutionAction(((PushPolicy) policy).getConflictResolutionAction());
+            pushPolicy.getCorrelationRules().forEach(rule -> {
+                pushPolicyTO.getCorrelationRules().put(rule.getAnyType().getKey(), rule.getImplementation().getKey());
             });
         }
 

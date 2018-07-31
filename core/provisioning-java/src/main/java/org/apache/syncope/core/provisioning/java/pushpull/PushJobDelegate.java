@@ -27,6 +27,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
@@ -165,7 +166,9 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         profile = new ProvisioningProfile<>(connector, pushTask);
         profile.getActions().addAll(actions);
         profile.setDryRun(dryRun);
-        profile.setResAct(null);
+        profile.setConflictResolutionAction(pushTask.getResource().getPushPolicy() == null
+                ? ConflictResolutionAction.IGNORE
+                : pushTask.getResource().getPushPolicy().getConflictResolutionAction());
 
         if (!profile.isDryRun()) {
             for (PushActions action : actions) {

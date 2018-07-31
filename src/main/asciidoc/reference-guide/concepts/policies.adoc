@@ -58,25 +58,65 @@ suspended on associated resources or not?
 
 Account rules define constraints to apply to username values.
 
+Some implementations are provided out-of-the-box, custom ones can be provided on given deployment.
+
+[TIP]
+====
+As `JAVA` <<implementations,implementation>>, writing custom account rules means:
+
+. providing configuration parameters in an implementation of
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/policy/AccountRuleConf.java[AccountRuleConf^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/common/lib/src/main/java/org/apache/syncope/common/lib/policy/AccountRuleConf.java[AccountRuleConf^]
+endif::[]
+. enforcing in an implementation of
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRule.java[AccountRule^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRule.java[AccountRule^]
+endif::[]
+annotated via
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRuleConfClass.java[@AccountRuleConfClass^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRuleConfClass.java[@AccountRuleConfClass^]
+endif::[]
+referring to the configuration class.
+
+As `GROOVY` <<implementations,implementation>>, writing custom account rules means implementing
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRule.java[AccountRule^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRule.java[AccountRule^]
+endif::[]
+====
+
+====== Default Account Rule
+
 The default account rule (enforced by
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultAccountRule.java[DefaultAccountRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultAccountRule.java[DefaultAccountRule^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultAccountRule.java[DefaultAccountRule^]
 endif::[]
 and configurable via
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultAccountRuleConf.java[DefaultAccountRuleConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultAccountRuleConf.java[DefaultAccountRuleConf^]
+https://github.com/apache/syncope/blob/2_1_X/common/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultAccountRuleConf.java[DefaultAccountRuleConf^]
 endif::[]
 ) contains the following controls:
 
 * maximum length - the maximum length to allow; `0` means no limit set;
 * minimum length - the minimum length to allow; `0` means no limit set;
-* pattern - http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html[Java regular expression pattern^] to
+* pattern - http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java regular expression pattern^] to
 match; `NULL` means no match is attempted;
 * all uppercase - are lowercase characters allowed?
 * all lowercase - are uppercase characters allowed?
@@ -85,33 +125,10 @@ match; `NULL` means no match is attempted;
 * prefixes not permitted - list of strings that cannot be present as a prefix;
 * suffixes not permitted - list of strings that cannot be present as a suffix.
 
-[TIP]
-====
-Writing custom account rules means:
-
-. providing configuration parameters in an implementation of
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/policy/AccountRuleConf.java[AccountRuleConf^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/policy/AccountRuleConf.java[AccountRuleConf^]
-endif::[]
-. implementing enforcement in an implementation of
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRule.java[AccountRule^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRule.java[AccountRule^]
-endif::[]
-annotated via
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRuleConfClass.java[@AccountRuleConfClass^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRuleConfClass.java[@AccountRuleConfClass^]
-endif::[]
-referring to the configuration class
-====
+[NOTE]
+Before being able to configure the default account rule as mentioned above, you will need to first create a `JAVA`
+`ACCOUNT_RULE` <<implementations,implementation>> for the `org.apache.syncope.common.lib.policy.DefaultAccountRuleConf`
+class.
 
 ===== Pass-through Authentication
 
@@ -145,19 +162,59 @@ When defining a password policy, the following information must be provided:
 
 Password rules define constraints to apply to password values.
 
+Some implementations are provided out-of-the-box, custom ones can be provided on given deployment.
+
+[TIP]
+====
+As `JAVA` <<implementations,implementation>>, writing custom password rules means:
+
+. providing configuration parameters in an implementation of
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/policy/PasswordRuleConf.java[PasswordRuleConf^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/common/lib/src/main/java/org/apache/syncope/common/lib/policy/PasswordRuleConf.java[PasswordRuleConf^]
+endif::[]
+. enforcing in an implementation of
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PasswordRule.java[PasswordRule^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PasswordRule.java[PasswordRule^]
+endif::[]
+annotated via
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PasswordRuleConfClass.java[@PasswordRuleConfClass^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PasswordRuleConfClass.java[@PasswordRuleConfClass^]
+endif::[]
+referring to the configuration class.
+
+As `GROOVY` <<implementations,implementation>>, writing custom account rules means implementing
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PasswordRule.java[PasswordRule^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PasswordRule.java[PasswordRule^]
+endif::[]
+====
+
+====== Default Password Rule
+
 The default password rule (enforced by
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPasswordRule.java[DefaultPasswordRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPasswordRule.java[DefaultPasswordRule^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPasswordRule.java[DefaultPasswordRule^]
 endif::[]
 and configurable via
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultPasswordRuleConf.java[DefaultPasswordRuleConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultPasswordRuleConf.java[DefaultPasswordRuleConf^]
+https://github.com/apache/syncope/blob/2_1_X/common/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultPasswordRuleConf.java[DefaultPasswordRuleConf^]
 endif::[]
 ) contains the following controls:
 
@@ -186,33 +243,34 @@ endif::[]
 * prefixes not permitted - list of strings that cannot be present as a prefix;
 * suffixes not permitted - list of strings that cannot be present as a suffix.
 
-[TIP]
-====
-Writing custom password rules means:
+[NOTE]
+Before being able to configure the default password rule as mentioned above, you will need to first create a `JAVA`
+`PASSWORD_RULE` <<implementations,implementation>> for the `org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf`
+class.
 
-. providing configuration parameters in an implementation of
+====== "Have I Been Pwned?" Password Rule
+
+This password rule (enforced by
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/policy/PasswordRuleConf.java[PasswordRuleConf^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/HaveIBeenPwnedPasswordRule.java[HaveIBeenPwnedPasswordRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/policy/PasswordRuleConf.java[PasswordRuleConf^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/HaveIBeenPwnedPasswordRule.java[HaveIBeenPwnedPasswordRule^]
 endif::[]
-. implementing enforcement in an implementation of
+and configurable via
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PasswordRule.java[PasswordRule^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/policy/HaveIBeenPwnedPasswordRuleConf.java[HaveIBeenPwnedPasswordRuleConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PasswordRule.java[PasswordRule^]
+https://github.com/apache/syncope/blob/2_1_X/common/lib/src/main/java/org/apache/syncope/common/lib/policy/HaveIBeenPwnedPasswordRuleConf.java[HaveIBeenPwnedPasswordRuleConf^]
 endif::[]
-annotated via
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PasswordRuleConfClass.java[@PasswordRuleConfClass^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PasswordRuleConfClass.java[@PasswordRuleConfClass^]
-endif::[]
-referring to the configuration class
-====
+) checks the provided password values against the popular
+https://haveibeenpwned.com["Have I Been Pwned?"^] service.
+
+[NOTE]
+Before being able to configure the "Have I Been Pwned?" password rule as mentioned above, you will need to first create
+a `JAVA` `PASSWORD_RULE` <<implementations,implementation>> for the
+`org.apache.syncope.common.lib.policy.HaveIBeenPwnedPasswordRuleConf` class.
 
 [[policies-pull]]
 ==== Pull
@@ -244,12 +302,13 @@ different rule is required
 Pull correlation rules define how to match objects received from <<connector-instance-details,connector instances>>
 with existing Users, Groups or Any Objects.
 
-The 
+The
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/PlainAttrsPullCorrelationRule.java[default^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPullCorrelationRule.java[default^]
+]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/PlainAttrsPullCorrelationRule.java[default^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPullCorrelationRule.java[default^]
 endif::[]
 implementation attempts to match entities on the basis of the values of the provided plain attributes,
 according to the available <<mapping,mapping>>.
@@ -258,10 +317,10 @@ according to the available <<mapping,mapping>>.
 ====
 Custom pull correlation rules can be provided by <<implementations,implementing>> the
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/PullCorrelationRule.java[PullCorrelationRule^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PullCorrelationRule.java[PullCorrelationRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/PullCorrelationRule.java[PullCorrelationRule^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PullCorrelationRule.java[PullCorrelationRule^]
 endif::[]
 interface.
 ====
@@ -274,4 +333,32 @@ Push policies are evaluated during the execution of <<tasks-push,push tasks>>.
 [NOTE]
 ====
 When set for resource R, a push policy is enforced on all Users, Groups and Any Objects pushed to R.
+====
+
+===== Push Correlation Rules
+
+Push correlation rules define how to match existing Users, Groups or Any Objects with objects received from
+<<connector-instance-details,connector instances>>.
+
+The
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPushCorrelationRule.java[default^]
+]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPushCorrelationRule.java[default^]
+endif::[]
+implementation attempts to match entities on the basis of the values of the provided plain attributes,
+according to the available <<mapping,mapping>>.
+
+[TIP]
+====
+Custom push correlation rules can be provided by <<implementations,implementing>> the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PushCorrelationRule.java[PushCorrelationRule^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PushCorrelationRule.java[PushCorrelationRule^]
+endif::[]
+interface.
 ====

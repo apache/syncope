@@ -82,6 +82,7 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
                     ? UserWrapper.class.cast(modelObject).isStorePasswordInSyncope()
                     : StringUtils.isNotBlank(inner.getPassword()));
         } else {
+            inner.getPlainAttrs().addAll(cleanEmptyPlainAttrs(inner.getPlainAttrs()));
             UserPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
 
             if (StringUtils.isNotBlank(inner.getPassword())) {

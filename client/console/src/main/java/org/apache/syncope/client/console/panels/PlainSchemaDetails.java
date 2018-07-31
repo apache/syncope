@@ -42,7 +42,6 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ImplementationType;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -67,33 +66,28 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
     private final MultiFieldPanel<String> enumerationKeys;
 
     private final AjaxDropDownChoicePanel<String> validator;
-    
+
     private final AjaxDropDownChoicePanel<AttrSchemaType> type;
 
-    public PlainSchemaDetails(
-            final String id,
-            final PageReference pageReference,
-            final PlainSchemaTO schemaTO) {
+    public PlainSchemaDetails(final String id, final PlainSchemaTO schemaTO) {
+        super(id, schemaTO);
 
-        super(id, pageReference, schemaTO);
-        
-        type = new AjaxDropDownChoicePanel<>(
-                "type", getString("type"), new PropertyModel<AttrSchemaType>(schemaTO, "type"));
+        type = new AjaxDropDownChoicePanel<>("type", getString("type"), new PropertyModel<>(schemaTO, "type"));
 
         type.setChoices(Arrays.asList(AttrSchemaType.values()));
         type.setEnabled(schemaTO == null || schemaTO.getKey() == null || schemaTO.getKey().isEmpty());
         type.addRequiredLabel();
-        schemaForm.add(type);
+        add(type);
 
         // long, double, date
         final AjaxTextFieldPanel conversionPattern = new AjaxTextFieldPanel("conversionPattern",
                 getString("conversionPattern"), new PropertyModel<>(schemaTO, "conversionPattern"));
-        schemaForm.add(conversionPattern);
+        add(conversionPattern);
 
         final WebMarkupContainer conversionParams = new WebMarkupContainer("conversionParams");
         conversionParams.setOutputMarkupPlaceholderTag(true);
         conversionParams.add(conversionPattern);
-        schemaForm.add(conversionParams);
+        add(conversionParams);
 
         final WebMarkupContainer typeParams = new WebMarkupContainer("typeParams");
         typeParams.setOutputMarkupPlaceholderTag(true);
@@ -211,7 +205,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         binaryParams.setOutputMarkupPlaceholderTag(true);
         binaryParams.add(mimeType);
         typeParams.add(binaryParams);
-        schemaForm.add(typeParams);
+        add(typeParams);
 
         // show or hide
         showHide(schemaTO, type,
@@ -252,9 +246,10 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         validator.setOutputMarkupId(true);
         ((DropDownChoice) validator.getField()).setNullValid(true);
         validator.setChoices(validators.getObject());
-        schemaForm.add(validator);
+        add(validator);
 
-        AutoCompleteTextField<String> mandatoryCondition = new AutoCompleteTextField<String>("mandatoryCondition") {
+        AutoCompleteTextField<String> mandatoryCondition = new AutoCompleteTextField<String>(
+                "mandatoryCondition", new PropertyModel<>(schemaTO, "mandatoryCondition")) {
 
             private static final long serialVersionUID = -2428903969518079100L;
 
@@ -281,19 +276,18 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             protected void onUpdate(final AjaxRequestTarget target) {
             }
         });
-        schemaForm.add(mandatoryCondition);
+        add(mandatoryCondition);
 
-        schemaForm.add(Constants.getJEXLPopover(this, TooltipConfig.Placement.right));
+        add(Constants.getJEXLPopover(this, TooltipConfig.Placement.right));
 
-        schemaForm.add(new AjaxCheckBoxPanel(
+        add(new AjaxCheckBoxPanel(
                 "multivalue", getString("multivalue"), new PropertyModel<>(schemaTO, "multivalue")));
 
-        schemaForm.add(new AjaxCheckBoxPanel(
+        add(new AjaxCheckBoxPanel(
                 "readonly", getString("readonly"), new PropertyModel<>(schemaTO, "readonly")));
 
-        schemaForm.add(new AjaxCheckBoxPanel("uniqueConstraint",
+        add(new AjaxCheckBoxPanel("uniqueConstraint",
                 getString("uniqueConstraint"), new PropertyModel<>(schemaTO, "uniqueConstraint")));
-
     }
 
     private void showHide(final PlainSchemaTO schema, final AjaxDropDownChoicePanel<AttrSchemaType> type,

@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-fit</artifactId>
-    <version>2.1.0-SNAPSHOT</version>
+    <version>2.1.1-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope FIT Core Reference</name>
@@ -55,11 +55,6 @@ under the License.
       <artifactId>jstl</artifactId>
     </dependency>
     
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-migration</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <dependency>
       <groupId>org.apache.syncope.core</groupId>
       <artifactId>syncope-core-rest-cxf</artifactId>
@@ -300,7 +295,7 @@ under the License.
               <cargo.tomcat.ajp.port>${cargo.tomcat.ajp.port}</cargo.tomcat.ajp.port>
               <cargo.rmi.port>${cargo.rmi.port}</cargo.rmi.port>
 
-              <cargo.jvmargs>-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xmx1024m -Xms512m</cargo.jvmargs>
+              <cargo.jvmargs>-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
             </properties>
             <configfiles>
               <configfile>
@@ -480,6 +475,68 @@ under the License.
               <webXml>${basedir}/src/main/resources/elasticsearch/web.xml</webXml>
             </configuration>
           </plugin>
+          
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>docker.elastic.co/elasticsearch/elasticsearch:${elasticsearch.version}</name>
+                  <run>
+                    <env>
+                      <discovery.type>single-node</discovery.type>
+                      <cluster.name>elasticsearch</cluster.name>
+                      <xpack.security.enabled>false</xpack.security.enabled>
+                    </env>
+                    <ports>
+                      <port>9200:9200</port>
+                      <port>9300:9300</port>
+                    </ports>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-elasticsearch</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-elasticsearch</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
         
         <testResources>
@@ -531,6 +588,75 @@ under the License.
       <build>
         <defaultGoal>clean verify</defaultGoal>
 
+        <plugins>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>crunchydata/crunchy-postgres:centos7-10.3-1.8.2</name>
+                  <run>
+                    <env>
+                      <PG_ROOT_PASSWORD>postgres</PG_ROOT_PASSWORD>
+                      <PG_MODE>primary</PG_MODE>
+                      <PG_PRIMARY_USER>postgres</PG_PRIMARY_USER>
+                      <PG_PRIMARY_PASSWORD>postgres</PG_PRIMARY_PASSWORD>
+                      <PG_PRIMARY_HOST>localhost</PG_PRIMARY_HOST>
+                      <PG_PRIMARY_PORT>5432</PG_PRIMARY_PORT>
+                      <PG_DATABASE>syncope</PG_DATABASE>
+                      <PG_USER>syncope</PG_USER>
+                      <PG_PASSWORD>syncope</PG_PASSWORD>
+                    </env>
+                    <ports>
+                      <port>5432:5432</port>
+                    </ports>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-postgres</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-postgres</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+
         <resources>
           <resource>
             <directory>src/main/resources</directory>
@@ -578,6 +704,69 @@ under the License.
       <build>
         <defaultGoal>clean verify</defaultGoal>
 
+        <plugins>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>mysql/mysql-server:5.7</name>
+                  <run>
+                    <env>
+                      <MYSQL_DATABASE>syncope</MYSQL_DATABASE>
+                      <MYSQL_USER>syncope</MYSQL_USER>
+                      <MYSQL_PASSWORD>syncope</MYSQL_PASSWORD>
+                    </env>
+                    <ports>
+                      <port>3306:3306</port>
+                    </ports>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-mysql</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-mysql</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+
         <resources>
           <resource>
             <directory>src/main/resources</directory>
@@ -613,6 +802,70 @@ under the License.
       
       <build>
         <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>mariadb:10.3.7</name>
+                  <run>
+                    <env>
+                      <MYSQL_ROOT_PASSWORD>password</MYSQL_ROOT_PASSWORD>
+                      <MYSQL_DATABASE>syncope</MYSQL_DATABASE>
+                      <MYSQL_USER>syncope</MYSQL_USER>
+                      <MYSQL_PASSWORD>syncope</MYSQL_PASSWORD>
+                    </env>
+                    <ports>
+                      <port>3306:3306</port>
+                    </ports>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-mariadb</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-mariadb</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
 
         <resources>
           <resource>
@@ -650,6 +903,81 @@ under the License.
       <build>
         <defaultGoal>clean verify</defaultGoal>
 
+        <plugins>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>oracle-xe-11g</name>
+                  <build>
+                    <dockerFileDir>${project.basedir}/src/main/resources/oracle</dockerFileDir>
+                  </build>
+                  <run>
+                    <env>
+                      <ORACLE_DISABLE_ASYNCH_IO>true</ORACLE_DISABLE_ASYNCH_IO>
+                    </env>
+                    <ports>
+                      <port>1521:1521</port>
+                    </ports>
+                    <wait>
+                      <log>Disconnected from Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production</log>
+                      <time>30000</time>
+                    </wait>                
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>buid-oracle</id>
+                <phase>initialize</phase>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>start-oracle</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-oracle</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+
         <resources>
           <resource>
             <directory>src/main/resources</directory>
@@ -685,6 +1013,71 @@ under the License.
       
       <build>
         <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>mcmoe/mssqldocker:latest</name>
+                  <run>
+                    <env>
+                      <ACCEPT_EULA>Y</ACCEPT_EULA>
+                      <SA_PASSWORD>2astazeY</SA_PASSWORD>
+                      <MSSQL_DB>syncope</MSSQL_DB>
+                      <MSSQL_USER>syncope</MSSQL_USER>
+                      <MSSQL_PASSWORD>Syncope123</MSSQL_PASSWORD>
+                    </env>
+                    <ports>
+                      <port>1433:1433</port>
+                    </ports>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-sqlserver</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-sqlserver</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
 
         <resources>
           <resource>
@@ -728,7 +1121,12 @@ under the License.
             </exclusion>
           </exclusions>
         </dependency>
-    
+        <dependency>
+          <groupId>org.hibernate.validator</groupId>
+          <artifactId>hibernate-validator</artifactId>
+          <version>6.0.11.Final</version>
+        </dependency>
+
         <dependency>
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>
@@ -745,9 +1143,9 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>glassfish4x</containerId>
+                <containerId>glassfish5x</containerId>
                 <zipUrlInstaller>
-                  <url>http://download.java.net/glassfish/4.1.2/release/glassfish-4.1.2.zip</url>
+                  <url>http://download.oracle.com/glassfish/5.0/release/glassfish-5.0.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
@@ -792,9 +1190,9 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>glassfish4x</containerId>
+                <containerId>glassfish5x</containerId>
                 <zipUrlInstaller>
-                  <url>https://s3-eu-west-1.amazonaws.com/payara.fish/Payara+Downloads/Payara+4.1.2.172/payara-4.1.2.172.zip</url>
+                  <url>https://s3-eu-west-1.amazonaws.com/payara.fish/Payara+Downloads/5.182/payara-5.182.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
@@ -838,12 +1236,6 @@ under the License.
         </dependency>
 
         <dependency>
-          <groupId>org.reactivestreams</groupId>
-          <artifactId>reactive-streams</artifactId>
-          <version>1.0.1</version>
-        </dependency>
-
-        <dependency>
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>
         </dependency>
@@ -875,9 +1267,9 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>wildfly11x</containerId>
+                <containerId>wildfly12x</containerId>
                 <zipUrlInstaller>
-                  <url>http://download.jboss.org/wildfly/11.0.0.Final/wildfly-11.0.0.Final.zip</url>
+                  <url>http://download.jboss.org/wildfly/13.0.0.Final/wildfly-13.0.0.Final.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
@@ -886,7 +1278,7 @@ under the License.
               </container>
               <configuration>
                 <properties>
-                  <cargo.jvmargs>-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:PermSize=512m -XX:MaxPermSize=1024m -Xmx2048m -Xms1024m</cargo.jvmargs>
+                  <cargo.jvmargs>-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx2048m -Xms1024m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -989,7 +1381,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>-Xdebug -Djaxb.debug=true -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -1009,11 +1401,19 @@ under the License.
     </profile>
     
     <profile>
-      <id>jrebel</id>
+      <id>hotswap</id>
       
       <properties>
         <skipTests>true</skipTests>
       </properties>
+      
+      <dependencies>
+        <dependency>
+          <groupId>org.hotswapagent</groupId>
+          <artifactId>hotswap-agent</artifactId>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
       
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
@@ -1026,9 +1426,10 @@ under the License.
             <configuration>
               <configuration>
                 <properties>
-                  <cargo.jvmargs>-Xdebug -Djaxb.debug=true -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -noverify -agentpath:${env.REBEL_HOME}/lib/libjrebel64.so -Drebel.spring_plugin=true
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xmx1024m -Xms512m</cargo.jvmargs>
+                  <cargo.jvmargs>
+                    -XXaltjvm=dcevm -javaagent:${settings.localRepository}/org/hotswapagent/hotswap-agent/${hotswap.version}/hotswap-agent-${hotswap.version}.jar=autoHotswap=true,disablePlugin=Spring
+                    -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
+                    -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -1044,19 +1445,19 @@ under the License.
             </executions>
           </plugin>
         </plugins>
-        
+
         <resources>
           <resource>
             <directory>src/test/resources</directory>
             <filtering>true</filtering>
             <includes>
-              <include>rebel.xml</include>
+              <include>hotswap-agent.properties</include>
             </includes>
           </resource>
         </resources>
       </build>
     </profile>
-    
+
     <profile>
       <id>all</id>
       <activation>

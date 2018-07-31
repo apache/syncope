@@ -36,10 +36,10 @@ under the License.
       </p>
       <p>
         If you find errors or omissions in the documentation, please don’t hesitate to 
-        <a href="../issue-tracking.html">submit an issue</a> or 
-        <a href="../contributing.html#Documentation">contribute</a>.
+        <a href="../issue-tracking">submit an issue</a> or 
+        <a href="../contributing#Documentation">contribute</a>.
         We also encourage you to ask questions and discuss any aspects of the project on the 
-        <a href="../mailing-lists.html">mailing lists or IRC</a>. New contributors are always welcome!
+        <a href="../mailing-lists">mailing lists or IRC</a>. New contributors are always welcome!
       </p>
       
       <subsection name="Guides">
@@ -51,28 +51,38 @@ under the License.
           <thead>
             <tr>
               <th>Name</th>
-              <th width="100">Stable</th>
-              <th width="100">Snapshot</th>
+              <th width="100">2.1</th>
+              <th width="100">2.0</th>
+              <th width="100">dev</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td>Getting Started</td>
               <td>
-                <a href="getting-started.html">
+                <a href="2.1/getting-started.html">
                   <img src="../images/text-html.png"/>
                 </a>
                 &nbsp;
-                <a href="getting-started.pdf">
+                <a href="2.1/getting-started.pdf">
                   <img src="../images/application-pdf.png"/>
                 </a> 
               </td>
               <td>
-                <a href="https://ci.apache.org/projects/syncope/2_0_X/getting-started.html">
+                <a href="2.0/getting-started.html">
                   <img src="../images/text-html.png"/>
                 </a>
                 &nbsp;
-                <a href="https://ci.apache.org/projects/syncope/2_0_X/getting-started.pdf">
+                <a href="2.0/getting-started.pdf">
+                  <img src="../images/application-pdf.png"/>
+                </a> 
+              </td>
+              <td>
+                <a href="https://ci.apache.org/projects/syncope/2_1_X/getting-started.html">
+                  <img src="../images/text-html.png"/>
+                </a>
+                &nbsp;
+                <a href="https://ci.apache.org/projects/syncope/2_1_X/getting-started.pdf">
                   <img src="../images/application-pdf.png"/>
                 </a> 
               </td>
@@ -80,20 +90,29 @@ under the License.
             <tr>
               <td>Reference Guide</td>
               <td>
-                <a href="reference-guide.html">
+                <a href="2.1/reference-guide.html">
                   <img src="../images/text-html.png"/>
                 </a>
                 &nbsp;
-                <a href="reference-guide.pdf">
+                <a href="2.1/reference-guide.pdf">
                   <img src="../images/application-pdf.png"/>
                 </a> 
               </td>
               <td>
-                <a href="https://ci.apache.org/projects/syncope/2_0_X/reference-guide.html">
+                <a href="2.0/reference-guide.html">
                   <img src="../images/text-html.png"/>
                 </a>
                 &nbsp;
-                <a href="https://ci.apache.org/projects/syncope/2_0_X/reference-guide.pdf">
+                <a href="2.0/reference-guide.pdf">
+                  <img src="../images/application-pdf.png"/>
+                </a> 
+              </td>
+              <td>
+                <a href="https://ci.apache.org/projects/syncope/2_1_X/reference-guide.html">
+                  <img src="../images/text-html.png"/>
+                </a>
+                &nbsp;
+                <a href="https://ci.apache.org/projects/syncope/2_1_X/reference-guide.pdf">
                   <img src="../images/application-pdf.png"/>
                 </a> 
               </td>
@@ -123,17 +142,17 @@ under the License.
             <tr>
               <td>REST</td>
               <td>
-                <a href="../rest/2.0/index.html">2.0</a>
+                <a href="../rest/2.1/index.html">2.1</a>
                 &nbsp;&nbsp;
-                <a href="../rest/1.2/index.html">1.2</a> 
+                <a href="../rest/2.0/index.html">2.0</a> 
               </td>
             </tr>
             <tr>
               <td>Javadocs</td>
               <td>
-                <a href="../apidocs/2.0/index.html">2.0</a>
+                <a href="../apidocs/2.1/index.html">2.1</a>
                 &nbsp;&nbsp;
-                <a href="../apidocs/1.2/index.html">1.2</a> 
+                <a href="../apidocs/2.0/index.html">2.0</a> 
               </td>
             </tr>
           </tbody>

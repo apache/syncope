@@ -65,6 +65,7 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
@@ -233,11 +234,11 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
                         AnyTypeClass anyTypeClass = itor.next();
                         allowedSchemas.getPlainSchemas().addAll(anyTypeClass.getPlainSchemas().stream().
-                                map(s -> s.getKey()).collect(Collectors.toList()));
+                                map(Entity::getKey).collect(Collectors.toList()));
                         allowedSchemas.getDerSchemas().addAll(anyTypeClass.getDerSchemas().stream().
-                                map(s -> s.getKey()).collect(Collectors.toList()));
+                                map(Entity::getKey).collect(Collectors.toList()));
                         allowedSchemas.getVirSchemas().addAll(anyTypeClass.getVirSchemas().stream().
-                                map(s -> s.getKey()).collect(Collectors.toList()));
+                                map(Entity::getKey).collect(Collectors.toList()));
                     }
 
                     populateMapping(
@@ -380,6 +381,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         resource.setPullPolicy(resourceTO.getPullPolicy() == null
                 ? null : (PullPolicy) policyDAO.find(resourceTO.getPullPolicy()));
+
+        resource.setPushPolicy(resourceTO.getPushPolicy() == null
+                ? null : (PushPolicy) policyDAO.find(resourceTO.getPushPolicy()));
 
         resource.setConfOverride(new HashSet<>(resourceTO.getConfOverride()));
 
@@ -585,9 +589,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 containerTO.add(itemTO);
             }
 
-            item.getTransformers().forEach(transformer -> {
-                itemTO.getTransformers().add(transformer.getKey());
-            });
+            itemTO.getTransformers().addAll(item.getTransformers().stream().
+                    map(Entity::getKey).collect(Collectors.toSet()));
         });
     }
 
@@ -605,13 +608,13 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.setConnectorDisplayName(connector == null ? null : connector.getDisplayName());
 
         // set the provision information
-        resource.getProvisions().stream().map(provision -> {
+        resource.getProvisions().forEach(provision -> {
             ProvisionTO provisionTO = new ProvisionTO();
             provisionTO.setKey(provision.getKey());
             provisionTO.setAnyType(provision.getAnyType().getKey());
             provisionTO.setObjectClass(provision.getObjectClass().getObjectClassValue());
             provisionTO.getAuxClasses().addAll(provision.getAuxClasses().stream().
-                    map(cls -> cls.getKey()).collect(Collectors.toList()));
+                    map(Entity::getKey).collect(Collectors.toList()));
             provisionTO.setSyncToken(provision.getSerializedSyncToken());
             provisionTO.setIgnoreCaseMatch(provision.isIgnoreCaseMatch());
             if (provision.getUidOnCreate() != null) {
@@ -636,8 +639,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
                 provisionTO.getMapping().getLinkingItems().add(itemTO);
             });
-            return provisionTO;
-        }).forEachOrdered(provisionTO -> {
+
             resourceTO.getProvisions().add(provisionTO);
         });
 
@@ -674,6 +676,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         resourceTO.setPullPolicy(resource.getPullPolicy() == null
                 ? null : resource.getPullPolicy().getKey());
+
+        resourceTO.setPushPolicy(resource.getPushPolicy() == null
+                ? null : resource.getPushPolicy().getKey());
 
         resourceTO.getConfOverride().addAll(resource.getConfOverride());
         Collections.sort(resourceTO.getConfOverride());

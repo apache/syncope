@@ -123,8 +123,10 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
                 new StringResourceModel("description", this), "description", "description"));
         columns.add(new CollectionPropertyColumn<>(
                 new StringResourceModel("usedByResources", this), "usedByResources"));
-        columns.add(new CollectionPropertyColumn<>(
-                new StringResourceModel("usedByRealms", this), "usedByRealms"));
+        if (type != PolicyType.PULL && type != PolicyType.PUSH) {
+            columns.add(new CollectionPropertyColumn<>(
+                    new StringResourceModel("usedByRealms", this), "usedByRealms"));
+        }
 
         addCustomColumnFields(columns);
 

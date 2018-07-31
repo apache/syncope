@@ -19,12 +19,10 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
@@ -42,24 +40,17 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
-import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
-import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -68,6 +59,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions>
         implements SyncopePushResultHandler {
+
+    @Autowired
+    protected PushUtils pushUtils;
 
     /**
      * Notification Manager.
@@ -96,25 +90,17 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected void update(final Any<?> any, final ProvisioningReport result) {
-        boolean changepwd;
-        Collection<String> resourceKeys;
-        if (any instanceof User) {
-            changepwd = true;
-            resourceKeys = userDAO.findAllResourceKeys(any.getKey());
-        } else if (any instanceof AnyObject) {
-            changepwd = false;
-            resourceKeys = anyObjectDAO.findAllResourceKeys(any.getKey());
-        } else {
-            changepwd = false;
-            resourceKeys = groupDAO.findAllResourceKeys(any.getKey());
-        }
+    protected void update(final Any<?> any, final ConnectorObject beforeObj, final ProvisioningReport result) {
+        boolean changepwd = any instanceof User;
+        List<String> ownedResources = getAnyUtils().getAllResources(any).stream().
+                map(Entity::getKey).collect(Collectors.toList());
 
-        List<String> noPropResources = new ArrayList<>(resourceKeys);
+        List<String> noPropResources = new ArrayList<>(ownedResources);
         noPropResources.remove(profile.getTask().getResource().getKey());
 
         PropagationByResource propByRes = new PropagationByResource();
-        propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
+        propByRes.add(ResourceOperation.UPDATE, profile.getTask().getResource().getKey());
+        propByRes.addOldConnObjectKey(profile.getTask().getResource().getKey(), beforeObj.getUid().getUidValue());
 
         PropagationReporter reporter = taskExecutor.execute(propagationManager.getUpdateTasks(
                 any.getType().getKind(),
@@ -128,16 +114,20 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         reportPropagation(result, reporter);
     }
 
-    protected void deprovision(final Any<?> any, final ProvisioningReport result) {
+    protected void deprovision(final Any<?> any, final ConnectorObject beforeObj, final ProvisioningReport result) {
         AnyTO before = getAnyTO(any.getKey());
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
+        PropagationByResource propByRes = new PropagationByResource();
+        propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
+        propByRes.addOldConnObjectKey(profile.getTask().getResource().getKey(), beforeObj.getUid().getUidValue());
+
         PropagationReporter reporter = taskExecutor.execute(propagationManager.getDeleteTasks(
                 any.getType().getKind(),
                 any.getKey(),
-                null,
+                propByRes,
                 noPropResources),
                 false);
         reportPropagation(result, reporter);
@@ -163,7 +153,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     protected void link(final Any<?> any, final boolean unlink, final ProvisioningReport result) {
-        AnyPatch patch = newPatch(any.getKey());
+        AnyPatch patch = getAnyUtils().newAnyPatch(any.getKey());
         patch.getResources().add(new StringPatchItem.Builder().
                 operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
                 value(profile.getTask().getResource().getKey()).build());
@@ -173,19 +163,19 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         result.setStatus(ProvisioningReport.Status.SUCCESS);
     }
 
-    protected void unassign(final Any<?> any, final ProvisioningReport result) {
-        AnyPatch patch = newPatch(any.getKey());
+    protected void unassign(final Any<?> any, final ConnectorObject beforeObj, final ProvisioningReport result) {
+        AnyPatch patch = getAnyUtils().newAnyPatch(any.getKey());
         patch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.DELETE).
                 value(profile.getTask().getResource().getKey()).build());
 
         update(patch);
 
-        deprovision(any, result);
+        deprovision(any, beforeObj, result);
     }
 
     protected void assign(final Any<?> any, final Boolean enabled, final ProvisioningReport result) {
-        AnyPatch patch = newPatch(any.getKey());
+        AnyPatch patch = getAnyUtils().newAnyPatch(any.getKey());
         patch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).
                 value(profile.getTask().getResource().getKey()).build());
@@ -195,37 +185,20 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         provision(any, enabled, result);
     }
 
-    protected ConnectorObject getRemoteObject(
-            final ObjectClass objectClass,
-            final String connObjectKey,
-            final String connObjectKeyValue,
-            final boolean ignoreCaseMatch,
-            final Iterator<? extends Item> iterator) {
-
-        ConnectorObject obj = null;
-        try {
-            obj = profile.getConnector().getObject(
-                    objectClass,
-                    AttributeBuilder.build(connObjectKey, connObjectKeyValue),
-                    ignoreCaseMatch,
-                    MappingUtils.buildOperationOptions(iterator));
-        } catch (TimeoutException toe) {
-            LOG.debug("Request timeout", toe);
-            throw toe;
-        } catch (RuntimeException ignore) {
-            LOG.debug("While resolving {}", connObjectKeyValue, ignore);
-        }
-
-        return obj;
-    }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public boolean handle(final String anyKey) {
         Any<?> any = null;
         try {
-            any = getAny(anyKey);
-            doHandle(any);
+            any = getAnyUtils().dao().authFind(anyKey);
+
+            Provision provision = profile.getTask().getResource().getProvision(any.getType()).orElse(null);
+            if (provision == null) {
+                throw new JobExecutionException("No provision found on " + profile.getTask().getResource() + " for "
+                        + any.getType().getKey());
+            }
+
+            doHandle(any, provision);
             return true;
         } catch (IgnoreProvisionException e) {
             ProvisioningReport result = profile.getResults().stream().
@@ -251,9 +224,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected void doHandle(final Any<?> any) throws JobExecutionException {
-        AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
-
+    protected void doHandle(final Any<?> any, final Provision provision) throws JobExecutionException {
         ProvisioningReport result = new ProvisioningReport();
         profile.getResults().add(result);
 
@@ -261,32 +232,39 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         result.setAnyType(any.getType().getKey());
         result.setName(getName(any));
 
-        Boolean enabled = any instanceof User && profile.getTask().isSyncStatus()
-                ? ((User) any).isSuspended() ? Boolean.FALSE : Boolean.TRUE
-                : null;
-
         LOG.debug("Propagating {} with key {} towards {}",
-                anyUtils.anyTypeKind(), any.getKey(), profile.getTask().getResource());
+                any.getType().getKind(), any.getKey(), profile.getTask().getResource());
+
+        // Try to read remote object BEFORE any actual operation
+        List<ConnectorObject> connObjs = pushUtils.match(profile.getConnector(), any, provision);
+        LOG.debug("Match(es) found for {} as {}: {}", any, provision.getObjectClass(), connObjs);
+
+        if (connObjs.size() > 1) {
+            switch (profile.getConflictResolutionAction()) {
+                case IGNORE:
+                    throw new IllegalStateException("More than one match: " + connObjs);
+
+                case FIRSTMATCH:
+                    connObjs = connObjs.subList(0, 1);
+                    break;
+
+                case LASTMATCH:
+                    connObjs = connObjs.subList(connObjs.size() - 1, connObjs.size());
+                    break;
+
+                default:
+            }
+        }
+        ConnectorObject beforeObj = connObjs.isEmpty() ? null : connObjs.get(0);
 
         Object output = null;
         Result resultStatus = null;
 
-        // Try to read remote object BEFORE any actual operation
-        Optional<? extends Provision> provision = profile.getTask().getResource().getProvision(any.getType());
-        Optional<MappingItem> connObjectKey = MappingUtils.getConnObjectKeyItem(provision.get());
-        Optional<String> connObjecKeyValue = mappingManager.getConnObjectKeyValue(any, provision.get());
-
-        ConnectorObject beforeObj = null;
-        if (connObjectKey.isPresent() && connObjecKeyValue.isPresent()) {
-            beforeObj = getRemoteObject(
-                    provision.get().getObjectClass(),
-                    connObjectKey.get().getExtAttrName(),
-                    connObjecKeyValue.get(),
-                    provision.get().isIgnoreCaseMatch(),
-                    provision.get().getMapping().getItems().iterator());
-        } else {
-            LOG.debug("ConnObjectKeyItem {} or its value {} are null", connObjectKey, connObjecKeyValue);
-        }
+        Boolean enabled = any instanceof User && profile.getTask().isSyncStatus()
+                ? ((User) any).isSuspended()
+                ? Boolean.FALSE
+                : Boolean.TRUE
+                : null;
 
         Boolean status = profile.getTask().isSyncStatus() ? enabled : null;
 
@@ -376,7 +354,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                                 LOG.debug("PushTask not configured for update");
                                 result.setStatus(ProvisioningReport.Status.IGNORE);
                             } else {
-                                update(any, result);
+                                update(any, beforeObj, result);
                             }
                             break;
 
@@ -389,7 +367,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                                 LOG.debug("PushTask not configured for delete");
                                 result.setStatus(ProvisioningReport.Status.IGNORE);
                             } else {
-                                deprovision(any, result);
+                                deprovision(any, beforeObj, result);
                             }
                             break;
 
@@ -402,7 +380,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                                 LOG.debug("PushTask not configured for delete");
                                 result.setStatus(ProvisioningReport.Status.IGNORE);
                             } else {
-                                unassign(any, result);
+                                unassign(any, beforeObj, result);
                             }
                             break;
 
@@ -451,14 +429,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     result.setStatus(ProvisioningReport.Status.SUCCESS);
                 }
                 resultStatus = AuditElements.Result.SUCCESS;
-                if (connObjectKey.isPresent() && connObjecKeyValue.isPresent()) {
-                    output = getRemoteObject(
-                            provision.get().getObjectClass(),
-                            connObjectKey.get().getExtAttrName(),
-                            connObjecKeyValue.get(),
-                            provision.get().isIgnoreCaseMatch(),
-                            provision.get().getMapping().getItems().iterator());
-                }
+                output = pushUtils.findByConnObjectKey(profile.getConnector(), any, provision);
             } catch (IgnoreProvisionException e) {
                 throw e;
             } catch (Exception e) {

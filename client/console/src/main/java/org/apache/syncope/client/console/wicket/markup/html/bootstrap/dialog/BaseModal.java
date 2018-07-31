@@ -200,13 +200,13 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
             private static final long serialVersionUID = -5783994974426198290L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                SubmitableModalPanel.class.cast(BaseModal.this.getContent()).onSubmit(target, form);
+            protected void onSubmit(final AjaxRequestTarget target) {
+                SubmitableModalPanel.class.cast(BaseModal.this.getContent()).onSubmit(target);
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                SubmitableModalPanel.class.cast(BaseModal.this.getContent()).onError(target, form);
+            protected void onError(final AjaxRequestTarget target) {
+                SubmitableModalPanel.class.cast(BaseModal.this.getContent()).onError(target);
             }
         };
 

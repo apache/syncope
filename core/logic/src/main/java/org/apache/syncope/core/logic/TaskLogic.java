@@ -228,7 +228,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         ExecTO result = null;
         switch (taskUtil.getType()) {
             case PROPAGATION:
-                TaskExec propExec = taskExecutor.execute((PropagationTaskTO) binder.getTaskTO(task, taskUtil, false));
+                TaskExec propExec = taskExecutor.execute(binder.<PropagationTaskTO>getTaskTO(task, taskUtil, false));
                 result = binder.getExecTO(propExec);
                 break;
 

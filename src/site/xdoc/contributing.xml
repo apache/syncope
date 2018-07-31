@@ -42,7 +42,7 @@ under the License.
       <subsection name="Code">
         <ul>
           <li>If you have found an issue or you want to propose a new feature, post a message to the 
-            <a href="mailing-lists.html">Syncope Dev list or jump on IRC</a> to discuss it.
+            <a href="mailing-lists">Syncope Dev list or jump on IRC</a> to discuss it.
           </li>
           <li>Search existing 
             <a href="https://issues.apache.org/jira/secure/IssueNavigator.jspa" rel="nofollow">issues</a> to see 
@@ -51,7 +51,7 @@ under the License.
           <li>If this issue was never encountered before, create a new 
             <a href="https://issues.apache.org/jira/browse/SYNCOPE">JIRA</a> issue.
           </li>
-          <li>Get the <a href="source-repository.html">source code</a></li>
+          <li>Get the <a href="source-repository">source code</a></li>
           <li>Develop / describe a test case to demonstrate the issue.</li>
           <li>Review and apply our <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Git+workflow">Git workflow</a>.</li>
         </ul>

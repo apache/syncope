@@ -60,7 +60,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/AbstractReportlet.java[AbstractReportlet^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/logic/src/main/java/org/apache/syncope/core/logic/report/AbstractReportlet.java[AbstractReportlet^]
+https://github.com/apache/syncope/blob/2_1_X/core/logic/src/main/java/org/apache/syncope/core/logic/report/AbstractReportlet.java[AbstractReportlet^]
 endif::[]
 and implementing the information extraction logic and generating an XML stream as result
 * a Java class extending
@@ -68,7 +68,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/report/AbstractReportletConf.java[AbstractReportletConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/report/AbstractReportletConf.java[AbstractReportletConf^]
+https://github.com/apache/syncope/blob/2_1_X/common/lib/src/main/java/org/apache/syncope/common/lib/report/AbstractReportletConf.java[AbstractReportletConf^]
 endif::[]
 and embedding the configuration options that can be tuned when incorporating a given reportlet into a report; when
 properly annotated, such options are manageable via the <<console-reports,admin console>>
@@ -83,14 +83,14 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/StaticReportlet.java[StaticReportlet^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/logic/src/main/java/org/apache/syncope/core/logic/report/StaticReportlet.java[StaticReportlet^]
+https://github.com/apache/syncope/blob/2_1_X/core/logic/src/main/java/org/apache/syncope/core/logic/report/StaticReportlet.java[StaticReportlet^]
 endif::[]
 and
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/report/StaticReportletConf.java[StaticReportletConf^],
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/report/StaticReportletConf.java[StaticReportletConf^],
+https://github.com/apache/syncope/blob/2_1_X/common/lib/src/main/java/org/apache/syncope/common/lib/report/StaticReportletConf.java[StaticReportletConf^],
 endif::[]
 it is essentially a handy way to inject static values (of various types) into a report.
 
@@ -100,14 +100,14 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/UserReportlet.java[UserReportlet^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/logic/src/main/java/org/apache/syncope/core/logic/report/UserReportlet.java[UserReportlet^]
+https://github.com/apache/syncope/blob/2_1_X/core/logic/src/main/java/org/apache/syncope/core/logic/report/UserReportlet.java[UserReportlet^]
 endif::[]
 and
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/report/UserReportletConf.java[UserReportletConf^],
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/report/UserReportletConf.java[UserReportletConf^],
+https://github.com/apache/syncope/blob/2_1_X/common/lib/src/main/java/org/apache/syncope/common/lib/report/UserReportletConf.java[UserReportletConf^],
 endif::[]
 it can be used to report various information about Users available in the internal storage, their attributes,
 memberships and relationships, external resources and so on.
@@ -117,14 +117,14 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/GroupReportlet.java[GroupReportlet^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/logic/src/main/java/org/apache/syncope/core/logic/report/GroupReportlet.java[GroupReportlet^]
+https://github.com/apache/syncope/blob/2_1_X/core/logic/src/main/java/org/apache/syncope/core/logic/report/GroupReportlet.java[GroupReportlet^]
 endif::[]
 and
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/report/GroupReportletConf.java[GroupReportletConf^].
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/report/GroupReportletConf.java[GroupReportletConf^].
+https://github.com/apache/syncope/blob/2_1_X/common/lib/src/main/java/org/apache/syncope/common/lib/report/GroupReportletConf.java[GroupReportletConf^].
 endif::[]
 
 ===== Reconciliation Reportlet
@@ -134,14 +134,14 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/ReconciliationReportlet.java[ReconciliationReportlet^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/logic/src/main/java/org/apache/syncope/core/logic/report/ReconciliationReportlet.java[ReconciliationReportlet^]
+https://github.com/apache/syncope/blob/2_1_X/core/logic/src/main/java/org/apache/syncope/core/logic/report/ReconciliationReportlet.java[ReconciliationReportlet^]
 endif::[]
 and
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/report/ReconciliationReportletConf.java[ReconciliationReportletConf^],
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/report/ReconciliationReportletConf.java[ReconciliationReportletConf^],
+https://github.com/apache/syncope/blob/2_1_X/common/lib/src/main/java/org/apache/syncope/common/lib/report/ReconciliationReportletConf.java[ReconciliationReportletConf^],
 endif::[]
 it provides the global reconciliation status for all Users, Groups and Any Objects available in the internal storage,
 e.g. whether such entities are available on all Identity Stores matching the assigned
@@ -158,13 +158,13 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/AuditReportlet.java[AuditReportlet^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/logic/src/main/java/org/apache/syncope/core/logic/report/AuditReportlet.java[AuditReportlet^]
+https://github.com/apache/syncope/blob/2_1_X/core/logic/src/main/java/org/apache/syncope/core/logic/report/AuditReportlet.java[AuditReportlet^]
 endif::[]
 and
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/report/AuditReportletConf.java[AuditReportletConf^],
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/report/AuditReportletConf.java[AuditReportletConf^],
+https://github.com/apache/syncope/blob/2_1_X/common/lib/src/main/java/org/apache/syncope/common/lib/report/AuditReportletConf.java[AuditReportletConf^],
 endif::[]
 it is mostly a sample reportlet showing how to extract data produced by <<audit>>.

@@ -18,16 +18,22 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
 @XmlRootElement(name = "schema")
 @XmlType
@@ -47,7 +53,10 @@ public abstract class SchemaTO extends AbstractBaseBean implements EntityTO {
 
     private String anyTypeClass;
 
-    @Schema(name = "@class", required = true, readOnly = false)
+    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
+    private final Map<Locale, String> labels = new HashMap<>();
+
+    @Schema(name = "@class", required = true)
     public abstract String getDiscriminator();
 
     public void setDiscriminator(final String discriminator) {
@@ -73,4 +82,13 @@ public abstract class SchemaTO extends AbstractBaseBean implements EntityTO {
         this.anyTypeClass = anyTypeClass;
     }
 
+    @JsonIgnore
+    public String getLabel(final Locale locale) {
+        return labels.getOrDefault(locale, key);
+    }
+
+    @JsonProperty
+    public Map<Locale, String> getLabels() {
+        return labels;
+    }
 }

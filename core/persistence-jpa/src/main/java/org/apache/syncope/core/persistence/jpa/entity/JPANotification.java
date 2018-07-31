@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -34,8 +33,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -58,10 +55,10 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
     @CollectionTable(name = "Notification_events",
             joinColumns =
             @JoinColumn(name = "notification_id", referencedColumnName = "id"))
-    private List<String> events;
+    private List<String> events = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "notification")
-    private List<JPAAnyAbout> abouts;
+    private List<JPAAnyAbout> abouts = new ArrayList<>();
 
     private String recipientsFIQL;
 
@@ -70,7 +67,7 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
             joinColumns =
             @JoinColumn(name = "notification_id", referencedColumnName = "id"))
     @Column(name = "staticRecipients")
-    private List<String> staticRecipients;
+    private List<String> staticRecipients = new ArrayList<>();
 
     @NotNull
     private String recipientAttrName;
@@ -79,10 +76,7 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
     private JPAImplementation recipientsProvider;
 
     @NotNull
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer selfAsRecipient;
+    private Boolean selfAsRecipient = false;
 
     @NotNull
     private String sender;
@@ -96,22 +90,10 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    private TraceLevel traceLevel;
+    private TraceLevel traceLevel = TraceLevel.ALL;
 
     @NotNull
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer active;
-
-    public JPANotification() {
-        events = new ArrayList<>();
-        abouts = new ArrayList<>();
-        staticRecipients = new ArrayList<>();
-        selfAsRecipient = getBooleanAsInteger(false);
-        active = getBooleanAsInteger(true);
-        traceLevel = TraceLevel.ALL;
-    }
+    private Boolean active = true;
 
     @Override
     public String getRecipientsFIQL() {
@@ -173,12 +155,12 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
 
     @Override
     public boolean isSelfAsRecipient() {
-        return isBooleanAsInteger(selfAsRecipient);
+        return selfAsRecipient;
     }
 
     @Override
     public void setSelfAsRecipient(final boolean selfAsRecipient) {
-        this.selfAsRecipient = getBooleanAsInteger(selfAsRecipient);
+        this.selfAsRecipient = selfAsRecipient;
     }
 
     @Override
@@ -225,11 +207,11 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
 
     @Override
     public boolean isActive() {
-        return isBooleanAsInteger(active);
+        return active;
     }
 
     @Override
     public void setActive(final boolean active) {
-        this.active = getBooleanAsInteger(active);
+        this.active = active;
     }
 }

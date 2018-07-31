@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
+import java.util.Locale;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
@@ -63,6 +64,8 @@ public class PlainSchemaITCase extends AbstractITCase {
     public void create() {
         PlainSchemaTO schemaTO = buildPlainSchemaTO("testAttribute", AttrSchemaType.String);
         schemaTO.setMandatoryCondition("false");
+        schemaTO.getLabels().put(Locale.ENGLISH, "Test");
+        schemaTO.getLabels().put(Locale.ITALIAN, "Prova");
 
         PlainSchemaTO newPlainSchemaTO = createSchema(SchemaType.PLAIN, schemaTO);
         assertEquals(schemaTO, newPlainSchemaTO);

@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -42,8 +41,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -64,9 +61,11 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
 /**
@@ -85,10 +84,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
      * Should this resource enforce the mandatory constraints?
      */
     @NotNull
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer enforceMandatoryCondition;
+    private Boolean enforceMandatoryCondition = false;
 
     /**
      * The resource type is identified by the associated connector.
@@ -111,26 +107,31 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
      * Generate random password, if not provided.
      */
     @NotNull
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer randomPwdIfNotProvided;
+    private Boolean randomPwdIfNotProvided = false;
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    private TraceLevel createTraceLevel;
+    private TraceLevel createTraceLevel = TraceLevel.FAILURES;
+
+    ;
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    private TraceLevel updateTraceLevel;
+    private TraceLevel updateTraceLevel = TraceLevel.FAILURES;
+
+    ;
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    private TraceLevel deleteTraceLevel;
+    private TraceLevel deleteTraceLevel = TraceLevel.FAILURES;
+
+    ;
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    private TraceLevel provisioningTraceLevel;
+    private TraceLevel provisioningTraceLevel = TraceLevel.FAILURES;
+
+    ;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAPasswordPolicy passwordPolicy;
@@ -141,6 +142,9 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAPullPolicy pullPolicy;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    private JPAPushPolicy pushPolicy;
+
     /**
      * Configuration properties that are overridden from the connector instance.
      */
@@ -148,10 +152,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     private String jsonConf;
 
     @NotNull
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer overrideCapabilities;
+    private Boolean overrideCapabilities = false;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
@@ -162,34 +163,21 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     private Set<ConnectorCapability> capabilitiesOverride = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = TABLE + "PropagationAction",
+    @JoinTable(name = TABLE + "PropAction",
             joinColumns =
             @JoinColumn(name = "resource_id"),
             inverseJoinColumns =
             @JoinColumn(name = "implementation_id"))
     private List<JPAImplementation> propagationActions = new ArrayList<>();
 
-    public JPAExternalResource() {
-        super();
-
-        enforceMandatoryCondition = getBooleanAsInteger(false);
-        randomPwdIfNotProvided = getBooleanAsInteger(false);
-        overrideCapabilities = getBooleanAsInteger(false);
-
-        createTraceLevel = TraceLevel.FAILURES;
-        updateTraceLevel = TraceLevel.FAILURES;
-        deleteTraceLevel = TraceLevel.FAILURES;
-        provisioningTraceLevel = TraceLevel.FAILURES;
-    }
-
     @Override
     public boolean isEnforceMandatoryCondition() {
-        return isBooleanAsInteger(enforceMandatoryCondition);
+        return enforceMandatoryCondition;
     }
 
     @Override
     public void setEnforceMandatoryCondition(final boolean enforceMandatoryCondition) {
-        this.enforceMandatoryCondition = getBooleanAsInteger(enforceMandatoryCondition);
+        this.enforceMandatoryCondition = enforceMandatoryCondition;
     }
 
     @Override
@@ -255,12 +243,12 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     @Override
     public boolean isRandomPwdIfNotProvided() {
-        return isBooleanAsInteger(randomPwdIfNotProvided);
+        return randomPwdIfNotProvided;
     }
 
     @Override
     public void setRandomPwdIfNotProvided(final boolean randomPwdIfNotProvided) {
-        this.randomPwdIfNotProvided = getBooleanAsInteger(randomPwdIfNotProvided);
+        this.randomPwdIfNotProvided = randomPwdIfNotProvided;
     }
 
     @Override
@@ -338,6 +326,17 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     }
 
     @Override
+    public PushPolicy getPushPolicy() {
+        return pushPolicy;
+    }
+
+    @Override
+    public void setPushPolicy(final PushPolicy pushPolicy) {
+        checkType(pushPolicy, JPAPushPolicy.class);
+        this.pushPolicy = (JPAPushPolicy) pushPolicy;
+    }
+
+    @Override
     public Set<ConnConfProperty> getConfOverride() {
         Set<ConnConfProperty> confOverride = new HashSet<>();
         if (!StringUtils.isBlank(jsonConf)) {
@@ -354,12 +353,12 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     @Override
     public boolean isOverrideCapabilities() {
-        return isBooleanAsInteger(overrideCapabilities);
+        return overrideCapabilities;
     }
 
     @Override
     public void setOverrideCapabilities(final boolean overrideCapabilities) {
-        this.overrideCapabilities = getBooleanAsInteger(overrideCapabilities);
+        this.overrideCapabilities = overrideCapabilities;
     }
 
     @Override
@@ -379,5 +378,4 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     public List<? extends Implementation> getPropagationActions() {
         return propagationActions;
     }
-
 }

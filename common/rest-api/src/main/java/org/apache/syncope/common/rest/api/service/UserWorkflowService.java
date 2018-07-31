@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -31,9 +32,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.to.WorkflowTaskTO;
+import org.apache.syncope.common.rest.api.beans.WorkflowFormQuery;
 
 /**
  * REST operations related to user workflow.
@@ -48,12 +51,13 @@ public interface UserWorkflowService extends JAXRSService {
     /**
      * Returns a list of all available workflow forms.
      *
+     * @param query query conditions
      * @return list of all available workflow forms
      */
     @GET
     @Path("forms")
     @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    List<WorkflowFormTO> getForms();
+    PagedResult<WorkflowFormTO> getForms(@BeanParam WorkflowFormQuery query);
 
     /**
      * Returns a list of available forms for the given user key.

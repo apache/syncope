@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 public class CommandUtilsTest {
 
     @Test
-    public void fromArgs() throws InstantiationException, IllegalAccessException {
+    public void fromArgs() throws Exception {
         String commandName = "logger";
         AbstractCommand command = CommandUtils.fromArgs(commandName);
         assertEquals(commandName, command.getClass().getAnnotation(Command.class).name());
@@ -46,9 +46,9 @@ public class CommandUtilsTest {
     }
 
     @Test
-    public void commands() throws InstantiationException, IllegalAccessException {
+    public void commands() throws Exception {
         List<AbstractCommand> commands = CommandUtils.commands();
         assertFalse(commands.isEmpty());
-        assertEquals(22, commands.size());
+        assertEquals(21, commands.size());
     }
 }

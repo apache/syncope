@@ -50,7 +50,6 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
@@ -217,7 +216,7 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
 
         @Override
         public IModel<ImplementationTO> model(final ImplementationTO implementation) {
-            return new AbstractReadOnlyModel<ImplementationTO>() {
+            return new IModel<ImplementationTO>() {
 
                 private static final long serialVersionUID = 999513782683391483L;
 

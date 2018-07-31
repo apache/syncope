@@ -22,16 +22,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.DynRealmTO;
@@ -44,6 +47,7 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
@@ -246,23 +250,20 @@ public class Groups extends WizardStep implements ICondition {
             // this is to be sure to have group names (required to see membership details in approval page)
             GroupFiqlSearchConditionBuilder searchConditionBuilder = SyncopeClient.getGroupSearchConditionBuilder();
 
-            List<CompleteCondition> conditions = new ArrayList<>();
-            GroupableRelatableTO.class.cast(anyTO).getMemberships().forEach(membershipTO -> {
-                conditions.add(searchConditionBuilder.is("key").equalTo(membershipTO.getGroupKey()).wrap());
-            });
+            List<CompleteCondition> conditions = GroupableRelatableTO.class.cast(anyTO).getMemberships().
+                    stream().map(membership
+                            -> searchConditionBuilder.is("key").equalTo(membership.getGroupKey()).wrap()).
+                    collect(Collectors.toList());
 
             Map<String, GroupTO> assignedGroups = new HashMap<>();
             if (!conditions.isEmpty()) {
-                groupRestClient.search(
+                assignedGroups.putAll(groupRestClient.search(
                         realm,
                         searchConditionBuilder.isAssignable().and().or(conditions).query(),
                         -1,
                         -1,
                         new SortParam<>("name", true),
-                        null).
-                        forEach(group -> {
-                            assignedGroups.put(group.getKey(), group);
-                        });
+                        null).stream().collect(Collectors.toMap(GroupTO::getKey, Function.identity())));
             }
 
             // set group names in membership TOs and remove membership not assignable
@@ -290,26 +291,21 @@ public class Groups extends WizardStep implements ICondition {
         private void reloadDynMemberships() {
             GroupFiqlSearchConditionBuilder searchConditionBuilder = SyncopeClient.getGroupSearchConditionBuilder();
 
-            ArrayList<CompleteCondition> conditions = new ArrayList<>();
-            GroupableRelatableTO.class.cast(anyTO).getDynMemberships().forEach(membership -> {
-                conditions.add(searchConditionBuilder.is("key").equalTo(membership.getGroupKey()).wrap());
-            });
+            List<CompleteCondition> conditions = GroupableRelatableTO.class.cast(anyTO).getDynMemberships().
+                    stream().map(membership
+                            -> searchConditionBuilder.is("key").equalTo(membership.getGroupKey()).wrap()).
+                    collect(Collectors.toList());
 
-            Map<String, GroupTO> assignedGroups = new HashMap<>();
-            if (!conditions.isEmpty()) {
-                groupRestClient.search(
-                        "/",
+            dynMemberships = new ArrayList<>();
+            if (SyncopeConsoleSession.get().owns(StandardEntitlement.GROUP_SEARCH) && !conditions.isEmpty()) {
+                dynMemberships.addAll(groupRestClient.search(
+                        SyncopeConstants.ROOT_REALM,
                         searchConditionBuilder.or(conditions).query(),
                         -1,
                         -1,
                         new SortParam<>("name", true),
-                        null).
-                        forEach(group -> {
-                            assignedGroups.put(group.getKey(), group);
-                        });
+                        null).stream().map(GroupTO::getName).collect(Collectors.toList()));
             }
-
-            dynMemberships = assignedGroups.values().stream().map(GroupTO::getName).collect(Collectors.toList());
         }
 
         /**
@@ -320,7 +316,7 @@ public class Groups extends WizardStep implements ICondition {
 
             if (Groups.this.templateMode) {
                 reload = realm == null;
-                realm = "/";
+                realm = SyncopeConstants.ROOT_REALM;
             } else {
                 reload = !Groups.this.anyTO.getRealm().equalsIgnoreCase(realm);
                 realm = Groups.this.anyTO.getRealm();

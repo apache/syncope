@@ -23,56 +23,38 @@ import java.util.List;
 import java.util.Optional;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.policy.CorrelationRule;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 
 @Entity
 @Table(name = JPAPullPolicy.TABLE)
-public class JPAPullPolicy extends AbstractPolicy implements PullPolicy {
+public class JPAPullPolicy extends AbstractProvisioningPolicy implements PullPolicy {
 
     private static final long serialVersionUID = -6090413855809521279L;
 
     public static final String TABLE = "PullPolicy";
 
-    @Enumerated(EnumType.STRING)
-    @NotNull
-    private ConflictResolutionAction conflictResolutionAction;
-
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "pullPolicy")
-    private List<JPACorrelationRule> correlationRules = new ArrayList<>();
+    private List<JPAPullCorrelationRuleEntity> correlationRules = new ArrayList<>();
 
     @Override
-    public ConflictResolutionAction getConflictResolutionAction() {
-        return conflictResolutionAction;
+    public boolean add(final PullCorrelationRuleEntity filter) {
+        checkType(filter, JPAPullCorrelationRuleEntity.class);
+        return this.correlationRules.add((JPAPullCorrelationRuleEntity) filter);
     }
 
     @Override
-    public void setConflictResolutionAction(final ConflictResolutionAction conflictResolutionAction) {
-        this.conflictResolutionAction = conflictResolutionAction;
-    }
-
-    @Override
-    public boolean add(final CorrelationRule filter) {
-        checkType(filter, JPACorrelationRule.class);
-        return this.correlationRules.add((JPACorrelationRule) filter);
-    }
-
-    @Override
-    public Optional<? extends CorrelationRule> getCorrelationRule(final AnyType anyType) {
+    public Optional<? extends PullCorrelationRuleEntity> getCorrelationRule(final AnyType anyType) {
         return correlationRules.stream().
                 filter(rule -> anyType != null && anyType.equals(rule.getAnyType())).findFirst();
     }
 
     @Override
-    public List<? extends CorrelationRule> getCorrelationRules() {
+    public List<? extends PullCorrelationRuleEntity> getCorrelationRules() {
         return correlationRules;
     }
 }

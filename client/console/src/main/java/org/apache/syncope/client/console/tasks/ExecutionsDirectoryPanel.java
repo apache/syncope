@@ -25,7 +25,6 @@ import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
-import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
@@ -46,7 +45,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
@@ -169,19 +167,13 @@ public abstract class ExecutionsDirectoryPanel
 
         private static final long serialVersionUID = 8943636537120648961L;
 
-        private final SortableDataProviderComparator<ExecTO> comparator;
-
         private final String taskKey;
 
         public ExecProvider(final String taskKey, final int paginatorRows) {
             super(paginatorRows);
-            this.taskKey = taskKey;
-            comparator = new SortableDataProviderComparator<>(this);
-            setSort("end", SortOrder.DESCENDING);
-        }
 
-        public SortableDataProviderComparator<ExecTO> getComparator() {
-            return comparator;
+            this.taskKey = taskKey;
+            setSort("end", SortOrder.DESCENDING);
         }
 
         @Override
@@ -200,7 +192,7 @@ public abstract class ExecutionsDirectoryPanel
         @Override
         public IModel<ExecTO> model(final ExecTO taskExecution) {
 
-            return new AbstractReadOnlyModel<ExecTO>() {
+            return new IModel<ExecTO>() {
 
                 private static final long serialVersionUID = 7485475149862342421L;
 

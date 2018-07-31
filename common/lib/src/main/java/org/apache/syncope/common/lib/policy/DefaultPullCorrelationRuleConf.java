@@ -28,11 +28,21 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "defaultPullCorrelationRuleConf")
 @XmlType
-public class DefaultPullCorrelationRuleConf extends AbstractPullCorrelationRuleConf implements PullCorrelationRuleConf {
+public class DefaultPullCorrelationRuleConf extends AbstractCorrelationRuleConf implements PullCorrelationRuleConf {
 
     private static final long serialVersionUID = 429126085793346273L;
 
+    private boolean orSchemas;
+
     private final List<String> schemas = new ArrayList<>();
+
+    public boolean isOrSchemas() {
+        return orSchemas;
+    }
+
+    public void setOrSchemas(final boolean orSchemas) {
+        this.orSchemas = orSchemas;
+    }
 
     @XmlElementWrapper(name = "schemas")
     @XmlElement(name = "schema")
@@ -40,5 +50,4 @@ public class DefaultPullCorrelationRuleConf extends AbstractPullCorrelationRuleC
     public List<String> getSchemas() {
         return schemas;
     }
-
 }

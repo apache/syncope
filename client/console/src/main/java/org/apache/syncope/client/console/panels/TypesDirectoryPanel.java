@@ -30,10 +30,13 @@ public abstract class TypesDirectoryPanel<
 
     private static final long serialVersionUID = 7890071604330629259L;
 
-    public TypesDirectoryPanel(final String id, final PageReference pageRef) {
+    public TypesDirectoryPanel(final String id, final boolean withWizard, final PageReference pageRef) {
         super(id, pageRef);
-        setFooterVisibility(true);
-        modal.addSubmitButton();
+
+        if (!withWizard) {
+            setFooterVisibility(true);
+            modal.addSubmitButton();
+        }
         modal.size(Modal.Size.Large);
     }
 }

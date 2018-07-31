@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.cli;
 
+import java.lang.reflect.InvocationTargetException;
 import javax.ws.rs.ProcessingException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
@@ -49,7 +50,9 @@ public final class SyncopeAdm {
             System.out.println("");
             System.out.println("You are running: " + input.printCommandFields());
             command.execute(input);
-        } catch (final IllegalAccessException | InstantiationException e) {
+        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException
+                | InvocationTargetException e) {
+
             System.out.println(helpMessage());
         } catch (final IllegalArgumentException ex) {
             LOG.error("Error in main", ex);
@@ -79,9 +82,9 @@ public final class SyncopeAdm {
                 }
                 helpMessageBuilder.append("\n");
             }
-        } catch (final IllegalAccessException | IllegalArgumentException | InstantiationException ex) {
-            LOG.error("Error in main", ex);
-            RESULT_MANAGER.genericError(ex.getMessage());
+        } catch (Exception e) {
+            LOG.error("Error in main", e);
+            RESULT_MANAGER.genericError(e.getMessage());
         }
 
         return helpMessageBuilder.toString();

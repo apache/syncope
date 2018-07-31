@@ -26,8 +26,8 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.Fil
 import de.agilecoders.wicket.jquery.JQuery;
 import de.agilecoders.wicket.jquery.function.IFunction;
 import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
@@ -55,7 +55,6 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.ListModel;
-import org.apache.wicket.util.crypt.Base64;
 import org.apache.wicket.util.lang.Bytes;
 
 public class BinaryFieldPanel extends FieldPanel<String> {
@@ -198,7 +197,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
                         ((BasePage) getPageReference().getPage()).getNotificationPanel().refresh(target);
                     } else {
                         final byte[] uploadedBytes = uploadedFile.getBytes();
-                        final String uploaded = new String(Base64.encodeBase64(uploadedBytes), StandardCharsets.UTF_8);
+                        final String uploaded = Base64.getEncoder().encodeToString(uploadedBytes);
                         field.setModelObject(uploaded);
                         target.add(field);
 
@@ -245,7 +244,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
     }
 
     private Response buildResponse() {
-        return Response.ok(new ByteArrayInputStream(Base64.decodeBase64(getModelObject()))).
+        return Response.ok(new ByteArrayInputStream(Base64.getMimeDecoder().decode(getModelObject()))).
                 type(StringUtils.isBlank(mimeType) ? MediaType.APPLICATION_OCTET_STREAM : mimeType).build();
     }
 

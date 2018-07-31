@@ -39,9 +39,9 @@ import org.apache.syncope.client.console.panels.SchemaTypePanel.SchemaProvider;
 import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
-import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -55,7 +55,6 @@ import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
@@ -84,55 +83,30 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
     private String keyword;
 
     public SchemaTypePanel(final String id, final SchemaType schemaType, final PageReference pageRef) {
-        super(id, pageRef);
-        this.restClient = new SchemaRestClient();
-        disableCheckBoxes();
-
+        super(id, true, pageRef);
         this.schemaType = schemaType;
 
+        disableCheckBoxes();
+
         try {
-            this.addNewItemPanelBuilder(
-                    new AbstractModalPanelBuilder<SchemaTO>(schemaType.getToClass().newInstance(), pageRef) {
-
-                private static final long serialVersionUID = -6388405037134399367L;
-
-                @Override
-                public WizardModalPanel<SchemaTO> build(
-                        final String id, final int index, final AjaxWizard.Mode mode) {
-
-                    final SchemaTO modelObject = newModelObject();
-                    return new SchemaModalPanel(modal, modelObject, pageRef) {
-
-                        private static final long serialVersionUID = -6227956682141146095L;
-
-                        @Override
-                        public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                            try {
-                                if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
-                                    restClient.create(schemaType, modelObject);
-                                } else {
-                                    restClient.update(schemaType, modelObject);
-                                }
-
-                                SchemaTypePanel.this.updateResultTable(target);
-                                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                modal.close(target);
-                            } catch (Exception e) {
-                                LOG.error("While creating or updating {}", modelObject, e);
-                                SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                                        getName() : e.getMessage());
-                            }
-                            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                        }
-                    };
-                }
-            }, true);
-
-            initResultTable();
-            MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.SCHEMA_CREATE);
-        } catch (InstantiationException | IllegalAccessException e) {
-            LOG.error("Error create new schema", e);
+            addNewItemPanelBuilder(new SchemaTypeWizardBuilder(
+                    schemaType.getToClass().getDeclaredConstructor().newInstance(), pageRef), true);
+        } catch (Exception e) {
+            LOG.error("Error creating instance of {}", schemaType, e);
         }
+
+        this.restClient = new SchemaRestClient();
+
+        initResultTable();
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.SCHEMA_CREATE);
+    }
+
+    @Override
+    protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
+        modal.setWindowClosedCallback(target -> {
+            target.add(SchemaTypePanel.this);
+            modal.show(false);
+        });
     }
 
     @Override
@@ -154,14 +128,14 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
     protected List<IColumn<SchemaTO, String>> getColumns() {
         final List<IColumn<SchemaTO, String>> columns = new ArrayList<>();
 
-        for (final String field : COL_NAMES.get(schemaType)) {
-            final Field clazzField = ReflectionUtils.findField(schemaType.getToClass(), field);
+        for (String field : COL_NAMES.get(schemaType)) {
+            Field clazzField = ReflectionUtils.findField(schemaType.getToClass(), field);
 
             if (clazzField != null) {
                 if (clazzField.getType().equals(Boolean.class) || clazzField.getType().equals(boolean.class)) {
                     columns.add(new BooleanPropertyColumn<>(new ResourceModel(field), field, field));
                 } else {
-                    final IColumn<SchemaTO, String> column = new PropertyColumn<SchemaTO, String>(
+                    IColumn<SchemaTO, String> column = new PropertyColumn<SchemaTO, String>(
                             new ResourceModel(field), field, field) {
 
                         private static final long serialVersionUID = 3282547854226892169L;

@@ -29,7 +29,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
-import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
 import org.apache.syncope.client.console.approvals.ApprovalDirectoryPanel.ApprovalProvider;
@@ -61,8 +60,6 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -120,14 +117,15 @@ public class ApprovalDirectoryPanel
         columns.add(new PropertyColumn<>(
                 new ResourceModel("taskId"), "taskId", "taskId"));
         columns.add(new PropertyColumn<>(
-                new ResourceModel("key"), "key", "key"));
+                new ResourceModel("key"), "key"));
         columns.add(new PropertyColumn<>(
-                new ResourceModel("username"), "username", "username"));
+                new ResourceModel("username"), "username"));
         columns.add(new DatePropertyColumn<>(
                 new ResourceModel("createTime"), "createTime", "createTime"));
         columns.add(new DatePropertyColumn<>(
                 new ResourceModel("dueDate"), "dueDate", "dueDate"));
-        columns.add(new PropertyColumn<>(new ResourceModel("owner"), "owner", "owner"));
+        columns.add(new PropertyColumn<>(
+                new ResourceModel("owner"), "owner", "owner"));
 
         return columns;
     }
@@ -163,9 +161,9 @@ public class ApprovalDirectoryPanel
                     private static final long serialVersionUID = 5546519445061007248L;
 
                     @Override
-                    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                    public void onSubmit(final AjaxRequestTarget target) {
                         try {
-                            super.onSubmit(target, form);
+                            super.onSubmit(target);
 
                             ApprovalDirectoryPanel.this.getTogglePanel().close(target);
                         } catch (SyncopeClientException e) {
@@ -254,31 +252,28 @@ public class ApprovalDirectoryPanel
 
         private static final long serialVersionUID = -2311716167583335852L;
 
-        private final SortableDataProviderComparator<WorkflowFormTO> comparator;
-
         private final UserWorkflowRestClient restClient = new UserWorkflowRestClient();
 
         public ApprovalProvider(final int paginatorRows) {
             super(paginatorRows);
+
             setSort("createTime", SortOrder.ASCENDING);
-            this.comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<WorkflowFormTO> iterator(final long first, final long count) {
-            final List<WorkflowFormTO> list = restClient.getForms();
-            Collections.sort(list, comparator);
-            return list.subList((int) first, (int) first + (int) count).iterator();
+            int page = ((int) first / paginatorRows);
+            return restClient.getForms((page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.getForms().size();
+            return restClient.countForms();
         }
 
         @Override
         public IModel<WorkflowFormTO> model(final WorkflowFormTO form) {
-            return new AbstractReadOnlyModel<WorkflowFormTO>() {
+            return new IModel<WorkflowFormTO>() {
 
                 private static final long serialVersionUID = -2566070996511906708L;
 

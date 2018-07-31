@@ -99,7 +99,7 @@ public class ActionDataTablePanel<T extends Serializable, S> extends DataTablePa
             private static final long serialVersionUID = -2341391430136818025L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target) {
                 // ignore
             }
         }.setVisible(false).setEnabled(false));
@@ -117,7 +117,7 @@ public class ActionDataTablePanel<T extends Serializable, S> extends DataTablePa
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target) {
                 modal.close(target);
             }
         };

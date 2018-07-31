@@ -59,6 +59,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.GroupablePlainAttr;
 import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
@@ -555,47 +556,35 @@ abstract class AbstractAnyDataBinder {
 
         anyTO.setRealm(realmFullPath);
 
-        anyTO.getAuxClasses().addAll(auxClasses.stream().map(cls -> cls.getKey()).collect(Collectors.toList()));
+        anyTO.getAuxClasses().addAll(auxClasses.stream().map(Entity::getKey).collect(Collectors.toList()));
 
-        plainAttrs.stream().map(plainAttr -> {
+        plainAttrs.forEach(plainAttr -> {
             AttrTO.Builder attrTOBuilder = new AttrTO.Builder().
                     schema(plainAttr.getSchema().getKey()).
                     values(plainAttr.getValuesAsStrings());
             if (details) {
-                attrTOBuilder.schemaInfo(schemaDataBinder.getPlainSchemaTO(plainAttr.getSchema()));
+                attrTOBuilder.schemaInfo(schemaDataBinder.getPlainSchemaTO(plainAttr.getSchema().getKey()));
             }
-            return attrTOBuilder;
-        }).forEachOrdered(attrTOBuilder -> {
             anyTO.getPlainAttrs().add(attrTOBuilder.build());
         });
 
-        derAttrs.entrySet().stream().map(entry -> {
-            AttrTO.Builder attrTOBuilder = new AttrTO.Builder().
-                    schema(entry.getKey().getKey()).
-                    value(entry.getValue());
+        derAttrs.forEach((schema, value) -> {
+            AttrTO.Builder attrTOBuilder = new AttrTO.Builder().schema(schema.getKey()).value(value);
             if (details) {
-                attrTOBuilder.schemaInfo(schemaDataBinder.getDerSchemaTO(entry.getKey()));
+                attrTOBuilder.schemaInfo(schemaDataBinder.getDerSchemaTO(schema.getKey()));
             }
-            return attrTOBuilder;
-        }).forEachOrdered(attrTOBuilder -> {
             anyTO.getDerAttrs().add(attrTOBuilder.build());
         });
 
-        virAttrs.entrySet().stream().map(entry -> {
-            AttrTO.Builder attrTOBuilder = new AttrTO.Builder().
-                    schema(entry.getKey().getKey()).
-                    values(entry.getValue());
+        virAttrs.forEach((schema, values) -> {
+            AttrTO.Builder attrTOBuilder = new AttrTO.Builder().schema(schema.getKey()).values(values);
             if (details) {
-                attrTOBuilder.schemaInfo(schemaDataBinder.getVirSchemaTO(entry.getKey()));
+                attrTOBuilder.schemaInfo(schemaDataBinder.getVirSchemaTO(schema.getKey()));
             }
-            return attrTOBuilder;
-        }).forEachOrdered(attrTOBuilder -> {
             anyTO.getVirAttrs().add(attrTOBuilder.build());
         });
 
-        resources.forEach(resource -> {
-            anyTO.getResources().add(resource.getKey());
-        });
+        anyTO.getResources().addAll(resources.stream().map(Entity::getKey).collect(Collectors.toSet()));
     }
 
     protected RelationshipTO getRelationshipTO(final String relationshipType, final Any<?> otherEnd) {
@@ -618,7 +607,7 @@ abstract class AbstractAnyDataBinder {
             membershipTO.getPlainAttrs().add(new AttrTO.Builder().
                     schema(plainAttr.getSchema().getKey()).
                     values(plainAttr.getValuesAsStrings()).
-                    schemaInfo(schemaDataBinder.getPlainSchemaTO(plainAttr.getSchema())).
+                    schemaInfo(schemaDataBinder.getPlainSchemaTO(plainAttr.getSchema().getKey())).
                     build());
         });
 
@@ -626,7 +615,7 @@ abstract class AbstractAnyDataBinder {
             membershipTO.getDerAttrs().add(new AttrTO.Builder().
                     schema(schema.getKey()).
                     value(value).
-                    schemaInfo(schemaDataBinder.getDerSchemaTO(schema)).
+                    schemaInfo(schemaDataBinder.getDerSchemaTO(schema.getKey())).
                     build());
         });
 
@@ -634,7 +623,7 @@ abstract class AbstractAnyDataBinder {
             membershipTO.getVirAttrs().add(new AttrTO.Builder().
                     schema(schema.getKey()).
                     values(values).
-                    schemaInfo(schemaDataBinder.getVirSchemaTO(schema)).
+                    schemaInfo(schemaDataBinder.getVirSchemaTO(schema.getKey())).
                     build());
         });
 

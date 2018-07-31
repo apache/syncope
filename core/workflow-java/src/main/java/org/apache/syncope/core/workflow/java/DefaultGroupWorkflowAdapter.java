@@ -21,16 +21,15 @@ package org.apache.syncope.core.workflow.java;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.GroupPatch;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.to.WorkflowTaskTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
@@ -45,7 +44,7 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
     protected WorkflowResult<String> doCreate(final GroupTO groupTO) {
         Group group = entityFactory.newEntity(Group.class);
         dataBinder.create(group, groupTO);
-        group = groupDAO.save(group);
+        group = groupDAO.saveAndRefreshDynMemberships(group);
 
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(ResourceOperation.CREATE, groupDAO.findAllResourceKeys(group.getKey()));
@@ -55,17 +54,8 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
 
     @Override
     protected WorkflowResult<GroupPatch> doUpdate(final Group group, final GroupPatch groupPatch) {
-        GroupTO original = dataBinder.getGroupTO(group, true);
-
         PropagationByResource propByRes = dataBinder.update(group, groupPatch);
-        Set<AttrTO> virAttrs = groupPatch.getVirAttrs();
-
-        GroupTO updated = dataBinder.getGroupTO(groupDAO.save(group), true);
-        GroupPatch effectivePatch = AnyOperations.diff(updated, original, false);
-        effectivePatch.getVirAttrs().clear();
-        effectivePatch.getVirAttrs().addAll(virAttrs);
-
-        return new WorkflowResult<>(effectivePatch, propByRes, "update");
+        return new WorkflowResult<>(groupPatch, propByRes, "update");
     }
 
     @Override
@@ -79,8 +69,10 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
     }
 
     @Override
-    public List<WorkflowFormTO> getForms() {
-        return Collections.emptyList();
+    public Pair<Integer, List<WorkflowFormTO>> getForms(
+            final int page, final int size, final List<OrderByClause> orderByClauses) {
+
+        return Pair.of(0, Collections.<WorkflowFormTO>emptyList());
     }
 
     @Override

@@ -46,7 +46,6 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
@@ -57,7 +56,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
     private static final long serialVersionUID = -2356760296223908382L;
 
     public AnyTypeClassesPanel(final String id, final PageReference pageRef) {
-        super(id, pageRef);
+        super(id, false, pageRef);
         this.restClient = new AnyTypeClassRestClient();
         disableCheckBoxes();
 
@@ -74,7 +73,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
                     private static final long serialVersionUID = -6227956682141146095L;
 
                     @Override
-                    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                    public void onSubmit(final AjaxRequestTarget target) {
                         try {
                             if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
                                 restClient.create(modelObject);

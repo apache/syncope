@@ -57,7 +57,6 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
      * i18n provider
      */
     $translatePartialLoaderProvider.addPart('static');
-    $translatePartialLoaderProvider.addPart('dynamic');
     $translateProvider.useLoader('$translatePartialLoader', {
       urlTemplate: 'languages/{lang}/{part}.json'
     }).preferredLanguage('en');
@@ -86,7 +85,7 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
               }
             })
             /* </Extensions> */
-            
+
             /* <Extensions> */
             .state('self-oidcclient', {
               url: '/self-oidcclient',

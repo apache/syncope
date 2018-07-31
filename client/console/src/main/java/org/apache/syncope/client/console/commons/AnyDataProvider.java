@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.commons;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
@@ -107,8 +108,10 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
             LOG.error("While searching with FIQL {}", fiql, e);
             SyncopeConsoleSession.get().error(e.getMessage());
 
-            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(
-                    RequestCycle.get().find(AjaxRequestTarget.class));
+            Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
+            if (target.isPresent()) {
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target.get());
+            }
         }
 
         Collections.sort(result, comparator);
@@ -129,8 +132,10 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
             LOG.error("While requesting for size() with FIQL {}", fiql, e);
             SyncopeConsoleSession.get().error(e.getMessage());
 
-            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(
-                    RequestCycle.get().find(AjaxRequestTarget.class));
+            Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
+            if (target.isPresent()) {
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target.get());
+            }
         }
 
         return result;

@@ -19,8 +19,10 @@
 package org.apache.syncope.core.provisioning.java.utils;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.AnyPatch;
@@ -46,7 +48,6 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.utils.policy.InvalidPasswordRuleConf;
-import org.identityconnectors.common.Base64;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.common.security.SecurityUtil;
@@ -125,7 +126,7 @@ public class ConnObjectUtils {
         final ConnObjectTO connObjectTO = new ConnObjectTO();
 
         if (attrs != null) {
-            attrs.stream().map(attr -> {
+            connObjectTO.getAttrs().addAll(attrs.stream().map(attr -> {
                 AttrTO attrTO = new AttrTO();
                 attrTO.setSchema(attr.getName());
                 if (attr.getValue() != null) {
@@ -133,16 +134,14 @@ public class ConnObjectUtils {
                         if (value instanceof GuardedString || value instanceof GuardedByteArray) {
                             attrTO.getValues().add(getPassword(value));
                         } else if (value instanceof byte[]) {
-                            attrTO.getValues().add(Base64.encode((byte[]) value));
-                        } else {
+                            attrTO.getValues().add(Base64.getEncoder().encodeToString((byte[]) value));
+                        } else if (value != null) {
                             attrTO.getValues().add(value.toString());
                         }
                     });
                 }
                 return attrTO;
-            }).forEach(attrTO -> {
-                connObjectTO.getAttrs().add(attrTO);
-            });
+            }).collect(Collectors.toList()));
         }
 
         return connObjectTO;
@@ -297,7 +296,10 @@ public class ConnObjectUtils {
                 default:
             }
         }
-
+        // SYNCOPE-1343, remove null or empty values from the patch plain attributes
+        if (anyPatch != null) {
+            AnyOperations.cleanEmptyAttrs(updated, anyPatch);
+        }
         return anyPatch;
     }
 
@@ -313,7 +315,7 @@ public class ConnObjectUtils {
         // 1. fill with data from connector object
         anyTO.setRealm(pullTask.getDestinatioRealm().getFullPath());
         MappingUtils.getPullItems(provision.getMapping().getItems()).forEach(item -> {
-            mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO, anyUtils);
+            mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO);
         });
 
         // 2. add data from defined template (if any)

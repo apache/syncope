@@ -21,14 +21,24 @@ package org.apache.syncope.client.console.rest;
 import java.util.List;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
+import org.apache.syncope.common.rest.api.beans.WorkflowFormQuery;
 import org.apache.syncope.common.rest.api.service.UserWorkflowService;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
 public class UserWorkflowRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -4785231164900813921L;
 
-    public List<WorkflowFormTO> getForms() {
-        return getService(UserWorkflowService.class).getForms();
+    public int countForms() {
+        return getService(UserWorkflowService.class).
+                getForms(new WorkflowFormQuery.Builder().page(1).size(1).build()).
+                getTotalCount();
+    }
+
+    public List<WorkflowFormTO> getForms(final int page, final int size, final SortParam<String> sort) {
+        return getService(UserWorkflowService.class).
+                getForms(new WorkflowFormQuery.Builder().page(page).size(size).orderBy(toOrderBy(sort)).build()).
+                getResult();
     }
 
     public WorkflowFormTO getFormForUser(final String userKey) {

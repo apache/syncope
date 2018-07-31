@@ -74,4 +74,6 @@ include::emailconfiguration.adoc[]
 
 include::keystore.adoc[]
 
+include::jws.adoc[]
+
 include::configurationparameters.adoc[]

@@ -242,7 +242,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
             private static final long serialVersionUID = 382302811235019988L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target) {
                 // send event to close eventually opened actions toggle panel
                 if (builder.getTogglePanel() != null) {
                     builder.getTogglePanel().close(target);

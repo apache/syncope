@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.stream.Collectors;
 import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -38,6 +40,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -45,6 +48,8 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.Schema;
+import org.apache.syncope.core.persistence.api.entity.SchemaLabel;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.slf4j.Logger;
@@ -86,6 +91,26 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
 
+    private <S extends Schema, T extends SchemaTO> void labels(final T src, final S dst) {
+        src.getLabels().forEach((locale, display) -> {
+            SchemaLabel label = dst.getLabel(locale).orElse(null);
+            if (label == null) {
+                label = entityFactory.newEntity(SchemaLabel.class);
+                label.setLocale(locale);
+                label.setSchema(dst);
+                dst.add(label);
+            }
+            label.setDisplay(display);
+        });
+
+        dst.getLabels().removeIf(label -> !src.getLabels().containsKey(label.getLocale()));
+    }
+
+    private <S extends Schema, T extends SchemaTO> void labels(final S src, final T dst) {
+        dst.getLabels().putAll(src.getLabels().stream().
+                collect(Collectors.toMap(SchemaLabel::getLocale, SchemaLabel::getDisplay)));
+    }
+
     // --------------- PLAIN -----------------
     private PlainSchema fill(final PlainSchema schema, final PlainSchemaTO schemaTO) {
         if (!JexlUtils.isExpressionValid(schemaTO.getMandatoryCondition())) {
@@ -95,6 +120,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         }
 
         BeanUtils.copyProperties(schemaTO, schema, IGNORE_PROPERTIES);
+        labels(schemaTO, schema);
 
         if (schemaTO.getValidator() == null) {
             schema.setValidator(null);
@@ -168,9 +194,17 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
     }
 
     @Override
-    public PlainSchemaTO getPlainSchemaTO(final PlainSchema schema) {
+    public PlainSchemaTO getPlainSchemaTO(final String key) {
+        PlainSchema schema = plainSchemaDAO.find(key);
+        if (schema == null) {
+            throw new NotFoundException("Schema '" + key + "'");
+        }
+
         PlainSchemaTO schemaTO = new PlainSchemaTO();
+
         BeanUtils.copyProperties(schema, schemaTO, IGNORE_PROPERTIES);
+        labels(schema, schemaTO);
+
         schemaTO.setAnyTypeClass(schema.getAnyTypeClass() == null ? null : schema.getAnyTypeClass().getKey());
         if (schema.getValidator() != null) {
             schemaTO.setValidator(schema.getValidator().getKey());
@@ -201,6 +235,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         }
 
         BeanUtils.copyProperties(schemaTO, schema, IGNORE_PROPERTIES);
+        labels(schemaTO, schema);
 
         DerSchema merged = derSchemaDAO.save(schema);
 
@@ -235,9 +270,17 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
     }
 
     @Override
-    public DerSchemaTO getDerSchemaTO(final DerSchema schema) {
+    public DerSchemaTO getDerSchemaTO(final String key) {
+        DerSchema schema = derSchemaDAO.find(key);
+        if (schema == null) {
+            throw new NotFoundException("Derived schema '" + key + "'");
+        }
+
         DerSchemaTO schemaTO = new DerSchemaTO();
+
         BeanUtils.copyProperties(schema, schemaTO, IGNORE_PROPERTIES);
+        labels(schema, schemaTO);
+
         schemaTO.setAnyTypeClass(schema.getAnyTypeClass() == null ? null : schema.getAnyTypeClass().getKey());
 
         return schemaTO;
@@ -246,6 +289,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
     // --------------- VIRTUAL -----------------
     private VirSchema fill(final VirSchema schema, final VirSchemaTO schemaTO) {
         BeanUtils.copyProperties(schemaTO, schema, IGNORE_PROPERTIES);
+        labels(schemaTO, schema);
 
         if (schemaTO.getAnyTypeClass() != null
                 && (schema.getAnyTypeClass() == null
@@ -299,9 +343,17 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
     }
 
     @Override
-    public VirSchemaTO getVirSchemaTO(final VirSchema schema) {
+    public VirSchemaTO getVirSchemaTO(final String key) {
+        VirSchema schema = virSchemaDAO.find(key);
+        if (schema == null) {
+            throw new NotFoundException("Virtual Schema '" + key + "'");
+        }
+
         VirSchemaTO schemaTO = new VirSchemaTO();
+
         BeanUtils.copyProperties(schema, schemaTO, IGNORE_PROPERTIES);
+        labels(schema, schemaTO);
+
         schemaTO.setAnyTypeClass(schema.getAnyTypeClass() == null ? null : schema.getAnyTypeClass().getKey());
         schemaTO.setResource(schema.getProvision().getResource().getKey());
         schemaTO.setAnyType(schema.getProvision().getAnyType().getKey());

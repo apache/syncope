@@ -48,7 +48,6 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -56,7 +55,6 @@ import org.apache.syncope.client.console.panels.WizardModalPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.PropertyModel;
 
 public class MailTemplateDirectoryPanel
@@ -218,7 +216,7 @@ public class MailTemplateDirectoryPanel
 
         @Override
         public IModel<MailTemplateTO> model(final MailTemplateTO mailTemplateTO) {
-            return new AbstractReadOnlyModel<MailTemplateTO>() {
+            return new IModel<MailTemplateTO>() {
 
                 private static final long serialVersionUID = 774694801558497248L;
 
@@ -245,7 +243,7 @@ public class MailTemplateDirectoryPanel
         }
 
         @Override
-        public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+        public void onSubmit(final AjaxRequestTarget target) {
             if (StringUtils.isBlank(content.getContent())) {
                 SyncopeConsoleSession.get().error("No content to save");
             } else {

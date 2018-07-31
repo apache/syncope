@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
@@ -48,11 +47,8 @@ public class ResourceSecurityPanel extends WizardStep {
 
         @Override
         protected Map<String, String> load() {
-            Map<String, String> res = new HashMap<>();
-            policyRestClient.getPolicies(PolicyType.PASSWORD).forEach(policyTO -> {
-                res.put(policyTO.getKey(), policyTO.getDescription());
-            });
-            return res;
+            return policyRestClient.getPolicies(PolicyType.PASSWORD).stream().
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };
 
@@ -62,11 +58,8 @@ public class ResourceSecurityPanel extends WizardStep {
 
         @Override
         protected Map<String, String> load() {
-            Map<String, String> res = new HashMap<>();
-            policyRestClient.getPolicies(PolicyType.ACCOUNT).forEach(policyTO -> {
-                res.put(policyTO.getKey(), policyTO.getDescription());
-            });
-            return res;
+            return policyRestClient.getPolicies(PolicyType.ACCOUNT).stream().
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };
 
@@ -77,6 +70,17 @@ public class ResourceSecurityPanel extends WizardStep {
         @Override
         protected Map<String, String> load() {
             return policyRestClient.getPolicies(PolicyType.PULL).stream().
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
+        }
+    };
+
+    private final IModel<Map<String, String>> pushPolicies = new LoadableDetachableModel<Map<String, String>>() {
+
+        private static final long serialVersionUID = 9089911876466472133L;
+
+        @Override
+        protected Map<String, String> load() {
+            return policyRestClient.getPolicies(PolicyType.PUSH).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };
@@ -130,6 +134,20 @@ public class ResourceSecurityPanel extends WizardStep {
         pullPolicy.setChoices(new ArrayList<>(pullPolicies.getObject().keySet()));
         ((DropDownChoice<?>) pullPolicy.getField()).setNullValid(true);
         container.add(pullPolicy);
+        // -------------------------------
+
+        // -------------------------------
+        // Push policy selection
+        // -------------------------------
+        AjaxDropDownChoicePanel<String> pushPolicy = new AjaxDropDownChoicePanel<>(
+                "pushPolicy",
+                new ResourceModel("pushPolicy", "pushPolicy").getObject(),
+                new PropertyModel<>(resourceTO, "pushPolicy"),
+                false);
+        pushPolicy.setChoiceRenderer(new PolicyRenderer(pushPolicies));
+        pushPolicy.setChoices(new ArrayList<>(pushPolicies.getObject().keySet()));
+        ((DropDownChoice<?>) pushPolicy.getField()).setNullValid(true);
+        container.add(pushPolicy);
         // -------------------------------
     }
 }

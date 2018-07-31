@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -67,7 +68,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.util.crypt.Base64;
 
 public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
         SAML2IdPTO, SAML2IdPTO, SAML2IdPsProvider, SAML2IdPsRestClient> {
@@ -214,7 +214,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
                 metadataModal.header(Model.of(object.getName() + " - Metadata"));
                 metadataModal.setContent(new XMLEditorPanel(
                         metadataModal,
-                        Model.of(new String(Base64.decodeBase64(object.getMetadata()))),
+                        Model.of(new String(Base64.getMimeDecoder().decode(object.getMetadata()))),
                         true,
                         pageRef));
                 metadataModal.show(true);

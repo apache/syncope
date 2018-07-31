@@ -58,7 +58,41 @@ domain and MySQL): please also check that the connection parameters are the same
 [CAUTION]
 Be sure to put the corresponding JDBC driver JAR file under `$CATALINA_HOME/lib` for each datasource defined.
 
-===== Glassfish 4.1 and Payara Server
+===== Glassfish 5 and Payara Server 5
+
+Replace
+
+[source,xml]
+....
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-persistence-jpa</artifactId>
+    </dependency>
+....
+
+with
+
+[source,xml]
+....
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-persistence-jpa</artifactId>
+      <version>${syncope.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.bval</groupId>
+          <artifactId>bval-jsr</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate.validator</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <version>6.0.11.Final</version>
+    </dependency>
+....
+
+in `core/pom.xml`.
 
 When using a datasource for internal storage, be sure to add
 
@@ -82,7 +116,7 @@ For better performance under GNU / Linux, do not forget to include
 among JVM options.
 ====
 
-===== Wildfly 11
+===== Wildfly 13
 
 Add
 
@@ -112,12 +146,6 @@ Add
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-wsdl</artifactId>
       <version>${cxf.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.reactivestreams</groupId>
-      <artifactId>reactive-streams</artifactId>
-      <version>1.0.1</version>
     </dependency>
 ....
 
@@ -154,7 +182,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/fit/core-reference/src/main/resources/jboss/restCXFContext.xml[restCXFContext.xml^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/fit/core-reference/src/main/resources/jboss/restCXFContext.xml[restCXFContext.xml^]
+https://github.com/apache/syncope/blob/2_1_X/fit/core-reference/src/main/resources/jboss/restCXFContext.xml[restCXFContext.xml^]
 endif::[]
 and save it under `core/src/main/resources/`.
 
@@ -163,7 +191,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/fit/core-reference/src/main/resources/jboss/domains.xml[domains.xml^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/fit/core-reference/src/main/resources/jboss/domains.xml[domains.xml^]
+https://github.com/apache/syncope/blob/2_1_X/fit/core-reference/src/main/resources/jboss/domains.xml[domains.xml^]
 endif::[]
 and save it under `core/src/main/resources/`.
 
@@ -172,7 +200,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/resources/persistenceContext.xml[persistenceContext.xml^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/resources/persistenceContext.xml[persistenceContext.xml^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa/src/main/resources/persistenceContext.xml[persistenceContext.xml^]
 endif::[]
 and save it under `core/src/main/resources/`.
 

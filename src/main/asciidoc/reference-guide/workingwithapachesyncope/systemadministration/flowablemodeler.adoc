@@ -38,7 +38,7 @@ endif::[]
 then build via
 
 ....
-mvn -P all clean install
+$ mvn -P all clean install
 ....
 
 At this point, copy the `console/target/flowable-modeler/` directory in the desired location of the host where the

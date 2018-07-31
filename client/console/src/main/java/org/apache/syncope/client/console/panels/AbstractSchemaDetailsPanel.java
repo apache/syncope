@@ -20,10 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.SchemaTO;
-import org.apache.wicket.PageReference;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,30 +31,12 @@ public abstract class AbstractSchemaDetailsPanel extends Panel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSchemaDetailsPanel.class);
 
-    protected static final String FORM = "form";
-
-    protected final Form<SchemaTO> schemaForm;
-
-    protected final SchemaTO schemaTO;
-
-    public AbstractSchemaDetailsPanel(
-            final String id,
-            final PageReference pageReference,
-            final SchemaTO schemaTO) {
+    public AbstractSchemaDetailsPanel(final String id, final SchemaTO schemaTO) {
         super(id);
 
-        this.schemaTO = schemaTO;
-
-        schemaForm = new Form<>(FORM);
-        schemaForm.setModel(new CompoundPropertyModel<>(schemaTO));
-        schemaForm.setOutputMarkupId(true);
-
-        final AjaxTextFieldPanel name =
-                new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<>(schemaTO, "key"));
-        name.addRequiredLabel();
-        name.setEnabled(schemaTO == null || schemaTO.getKey() == null || schemaTO.getKey().isEmpty());
-
-        schemaForm.add(name);
-        add(schemaForm);
+        AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<>(schemaTO, "key"));
+        key.addRequiredLabel();
+        key.setEnabled(schemaTO == null || schemaTO.getKey() == null || schemaTO.getKey().isEmpty());
+        add(key);
     }
 }

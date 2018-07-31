@@ -40,6 +40,7 @@ import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
+import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -128,6 +129,10 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
                     base = PullCorrelationRule.class;
                     break;
 
+                case PUSH_CORRELATION_RULE:
+                    base = PushCorrelationRule.class;
+                    break;
+
                 case VALIDATOR:
                     base = Validator.class;
                     break;
@@ -152,12 +157,13 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
                 }
             } else if (implementation.getType() == ImplementationType.ACCOUNT_RULE
                     || implementation.getType() == ImplementationType.PASSWORD_RULE
-                    || implementation.getType() == ImplementationType.PULL_CORRELATION_RULE) {
+                    || implementation.getType() == ImplementationType.PULL_CORRELATION_RULE
+                    || implementation.getType() == ImplementationType.PUSH_CORRELATION_RULE) {
 
                 RuleConf rule = POJOHelper.deserialize(implementation.getBody(), RuleConf.class);
                 if (rule == null) {
-                    sce.getElements().
-                            add("Could not deserialize as neither Account, Password nor PullCorrelation RuleConf");
+                    sce.getElements().add("Could not deserialize as neither "
+                            + "Account, Password, Pull nor Push Correlation RuleConf");
                     throw sce;
                 }
             } else {
@@ -188,5 +194,4 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
         BeanUtils.copyProperties(implementation, implementationTO);
         return implementationTO;
     }
-
 }

@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 
 public interface Schema extends ProvidedKeyEntity {
@@ -36,4 +39,9 @@ public interface Schema extends ProvidedKeyEntity {
 
     boolean isUniqueConstraint();
 
+    boolean add(SchemaLabel label);
+
+    Optional<? extends SchemaLabel> getLabel(Locale locale);
+
+    List<? extends SchemaLabel> getLabels();
 }

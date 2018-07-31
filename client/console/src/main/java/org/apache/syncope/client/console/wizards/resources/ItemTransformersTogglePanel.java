@@ -104,7 +104,7 @@ public class ItemTransformersTogglePanel extends TogglePanel<Serializable> {
             private static final long serialVersionUID = 5538299138211283825L;
 
             @Override
-            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            public void onSubmit(final AjaxRequestTarget target) {
                 toggle(target, false);
                 target.add(container);
             }

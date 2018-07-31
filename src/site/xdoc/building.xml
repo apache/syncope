@@ -37,7 +37,7 @@ under the License.
         <ul>
           <li>JDK 7 or higher for &le; 2.0; JDK 8 or higher for later versions</li>
           <li>
-            <a href="http://maven.apache.org/download.html">Apache Maven</a> 3.0.3 or higher</li>
+            Latest <a href="http://maven.apache.org/download.html">Apache Maven</a></li>
           <li>
             <a href="source-repository.html">Latest source code</a>
           </li>
@@ -64,6 +64,10 @@ under the License.
       <p>
         To build Syncope without running any test nor check do:
         <source>$ mvn -PskipTests,all</source>
+      </p>
+      <p>
+        To build Syncope without running any test nor check, but generating Docker images, do:
+        <source>$ mvn -PskipTests,all,docker</source>
       </p>
     </section>
     
@@ -101,7 +105,7 @@ under the License.
         in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>
         but console) and enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
         <source>$ mvn -Pdebug,all</source>
-        or, without Flowable and Camel support
+        or, without extensions
         <source>$ mvn -Pdebug</source>
 
         <p>
@@ -111,43 +115,34 @@ under the License.
           <source>$ mvn test -Dtest=UserITCase#list</source>
         </p>
 
-        <h4>JRebel</h4>
-        As with Debug, but with <a href="http://zeroturnaround.com/software/jrebel/">JRebel</a> features enabled.
-        <source>$ export REBEL_HOME=/opt/jrebel
-$ mvn -Pjrebel,all</source>
-        or, without Flowable and Camel support
-        <source>$ export REBEL_HOME=/opt/jrebel
-$ mvn -Pjrebel</source>
+        <h4>HotSwapAgent</h4>
+        Similar to Debug, but with <a href="http://hotswapagent.org/">HotSwapAgent</a> features enabled (requires
+        <a href="https://github.com/dcevm/dcevm">DCEVM Java</a> installed as "alternative JVM" and IDE of choice
+        <a href="http://hotswapagent.org/mydoc_setup_netbeans.html">set up properly</a>).
+        <source>$ mvn -Photswap,all</source>
 
         <h4>DBMSes</h4>
 
         <h5>PostgreSQL</h5>
-        After providing connection information in <code>src/main/resources/postgres/domains/Master.properties</code>,
-        perform the full test suite against a real <a href="http://www.postgresql.org/">PostgreSQL</a> database via
+        Perform the full test suite against a real <a href="http://www.postgresql.org/">PostgreSQL</a> database via
         <source>$ mvn -Ppostgres-it</source>
 
         <h5>MySQL</h5>
-        After providing connection information in <code>src/main/resources/mysql/domains/Master.properties</code>,
-        perform the full test suite against a real <a href="http://www.mysql.com/">MySQL</a> database via
+        Perform the full test suite against a real <a href="http://www.mysql.com/">MySQL</a> database via
         <source>$ mvn -Pmysql-it</source>
 
         <h5>MariaDB</h5>
-        After providing connection information in <code>src/main/resources/mariadb/domains/Master.properties</code>,
-        perform the full test suite against a <a href="https://mariadb.org/">MariaDB</a> database via
+        Perform the full test suite against a <a href="https://mariadb.org/">MariaDB</a> database via
         <source>$ mvn -Pmariadb-it</source>
 
         <h5>Oracle database</h5>
-        After providing connection information in <code>src/main/resources/oracle/domains/Master.properties</code>
-        and having <a href="http://www.mkyong.com/maven/how-to-add-oracle-jdbc-driver-in-your-maven-local-repository/">
+        After having <a href="http://www.mkyong.com/maven/how-to-add-oracle-jdbc-driver-in-your-maven-local-repository/">
           set up the appropriate JDBC driver in your local Maven repository</a>, perform the full test suite
         against a real <a href="http://www.oracle.com/products/database/">Oracle</a> database via
         <source>$ mvn -Poracle-it</source>
 
         <h5>MS SQL Server</h5>
-        After providing connection information in <code>src/main/resources/sqlserver/domains/Master.properties</code>
-        and having <a href="http://claude.betancourt.us/add-microsoft-sql-jdbc-driver-to-maven/">
-          set up the appropriate JDBC driver in your local Maven repository</a>, perform the full test suite
-        against a real <a href="http://www.microsoft.com/sqlserver/en/us/default.aspx">MS SQL Server</a> database via
+        Prform the full test suite against a real <a href="http://www.microsoft.com/sqlserver/en/us/default.aspx">MS SQL Server</a> database via
         <source>$ mvn -Psqlserver-it</source>
 
         <h4>Java EE containers</h4>
@@ -175,10 +170,11 @@ $ mvn -Pjrebel</source>
         enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
         <source>$ mvn -Pdebug</source>
 
-        <h4>JRebel</h4>
-        As with Debug, but with <a href="http://zeroturnaround.com/software/jrebel/">JRebel</a> features enabled.
-        <source>$ export REBEL_HOME=/opt/jrebel
-$ mvn -Pjrebel</source>
+        <h4>HotSwapAgent</h4>
+        Similar to Debug, but with <a href="http://hotswapagent.org/">HotSwapAgent</a> features enabled (requires
+        <a href="https://github.com/dcevm/dcevm">DCEVM Java</a> installed as "alternative JVM" and IDE of choice
+        <a href="http://hotswapagent.org/mydoc_setup_netbeans.html">set up properly</a>).
+        <source>$ mvn -Photswap</source>
       </subsection>
       
       <subsection name="fit/enduser-reference">
@@ -195,10 +191,11 @@ $ nodejs/node/node nodejs/bin/protractor protractor-conf.js</source>
           where the actual tests to be run can be selected by modifying the <code>protractor-conf.js</code> content.
         </p>
 
-        <h4>JRebel</h4>
-        As with Debug, but with <a href="http://zeroturnaround.com/software/jrebel/">JRebel</a> features enabled.
-        <source>$ export REBEL_HOME=/opt/jrebel
-$ mvn -Pjrebel</source>
+        <h4>HotSwapAgent</h4>
+        Similar to Debug, but with <a href="http://hotswapagent.org/">HotSwapAgent</a> features enabled (requires
+        <a href="https://github.com/dcevm/dcevm">DCEVM Java</a> installed as "alternative JVM" and IDE of choice
+        <a href="http://hotswapagent.org/mydoc_setup_netbeans.html">set up properly</a>).
+        <source>$ mvn -Photswap</source>
       </subsection>
 
       <subsection name="ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests">

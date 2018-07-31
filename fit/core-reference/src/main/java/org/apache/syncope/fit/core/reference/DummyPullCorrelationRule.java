@@ -31,5 +31,4 @@ public class DummyPullCorrelationRule implements PullCorrelationRule {
     public SearchCond getSearchCond(final ConnectorObject connObj, final Provision provision) {
         return new SearchCond();
     }
-
 }

@@ -31,6 +31,7 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
 public interface ExternalResource extends ProvidedKeyEntity {
@@ -60,6 +61,10 @@ public interface ExternalResource extends ProvidedKeyEntity {
     PullPolicy getPullPolicy();
 
     void setPullPolicy(PullPolicy pullPolicy);
+
+    PushPolicy getPushPolicy();
+
+    void setPushPolicy(PushPolicy pushPolicy);
 
     TraceLevel getCreateTraceLevel();
 

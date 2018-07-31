@@ -22,10 +22,10 @@ under the License.
          ng-init="status = {isOpen: (groupSchema == 'own')}" is-open="status.isOpen"
          class="breadcrumb-header">
       <div id="attribute" class="form-group" ng-repeat="derSchema in getByGroup(groupSchema) track by $index">
-        <label for="derSchema.key">{{derSchema.simpleKey| translate}} <span ng-if="derSchema.mandatoryCondition === 'true'">*</span></label>
+        <label for="derSchema.key">{{derSchema.labels[language] || derSchema.simpleKey}} <span ng-if="derSchema.mandatoryCondition === 'true'">*</span></label>
         <div ng-if="!derSchema.multivalue">
           <dynamic-derived-attribute schema="derSchema" user="user" index="0"></dynamic-derived-attribute>
-          <validation-message name="{{derSchema.key| translate}}"/>
+          <validation-message name="{{derSchema.simpleKey}}"/>
         </div>
         <div ng-if="derSchema.multivalue">
           <div ng-repeat="field in dynamicForm.attributeTable[derSchema.key].fields track by $index" 

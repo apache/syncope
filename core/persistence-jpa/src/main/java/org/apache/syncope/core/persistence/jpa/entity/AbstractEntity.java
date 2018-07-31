@@ -50,24 +50,6 @@ public abstract class AbstractEntity implements Entity {
     }
 
     /**
-     * @param property the integer representing a boolean value
-     * @return the boolean value corresponding to the property param
-     */
-    public final boolean isBooleanAsInteger(final Integer property) {
-        return property != null && property == 1;
-    }
-
-    /**
-     * @param value the boolean value to be represented as integer
-     * @return the integer corresponding to the property param
-     */
-    public final Integer getBooleanAsInteger(final Boolean value) {
-        return Boolean.TRUE.equals(value)
-                ? 1
-                : 0;
-    }
-
-    /**
      * @return fields to be excluded when computing equals() or hashcode()
      */
     private String[] getExcludeFields() {

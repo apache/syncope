@@ -34,7 +34,7 @@ public class ProvisioningProfile<T extends ProvisioningTask, A extends Provision
 
     private boolean dryRun;
 
-    private ConflictResolutionAction resAct;
+    private ConflictResolutionAction conflictResolutionAction;
 
     private final List<A> actions = new ArrayList<>();
 
@@ -63,12 +63,12 @@ public class ProvisioningProfile<T extends ProvisioningTask, A extends Provision
         this.dryRun = dryRun;
     }
 
-    public ConflictResolutionAction getResAct() {
-        return resAct;
+    public ConflictResolutionAction getConflictResolutionAction() {
+        return conflictResolutionAction;
     }
 
-    public void setResAct(final ConflictResolutionAction resAct) {
-        this.resAct = resAct;
+    public void setConflictResolutionAction(final ConflictResolutionAction conflictResolutionAction) {
+        this.conflictResolutionAction = conflictResolutionAction;
     }
 
     public List<A> getActions() {

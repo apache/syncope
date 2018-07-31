@@ -40,4 +40,4 @@ include::customization.adoc[]
 
 include::systemadministration/systemadministration.adoc[]
 
-include::migration.adoc[]
+include::upgrade.adoc[]

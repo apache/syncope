@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
+import java.util.Locale;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
@@ -59,12 +60,17 @@ public class PlainSchemaTest extends AbstractTest {
     public void search() {
         List<PlainSchema> schemas = plainSchemaDAO.findByKeyword("fullna%");
         assertEquals(1, schemas.size());
+        assertEquals(0, schemas.get(0).getLabels().size());
     }
 
     @Test
     public void findByName() {
-        PlainSchema schema = plainSchemaDAO.find("fullname");
+        PlainSchema schema = plainSchemaDAO.find("firstname");
         assertNotNull(schema);
+
+        assertEquals(3, schema.getLabels().size());
+        assertTrue(schema.getLabel(Locale.ITALIAN).isPresent());
+        assertFalse(schema.getLabel(Locale.KOREAN).isPresent());
     }
 
     @Test

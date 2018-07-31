@@ -144,7 +144,7 @@ public final class JPATaskUtils implements TaskUtils {
     public <T extends TaskTO> T newTaskTO() {
         final Class<T> taskClass = taskTOClass();
         try {
-            return taskClass == null ? null : taskClass.newInstance();
+            return taskClass == null ? null : taskClass.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             return null;
         }

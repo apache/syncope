@@ -287,8 +287,7 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
             aboutContainer.setOutputMarkupId(true);
             add(aboutContainer);
 
-            final IModel<List<Pair<String, List<SearchClause>>>> model =
-                    new PropertyModel<>(modelObject, "aboutClauses");
+            IModel<List<Pair<String, List<SearchClause>>>> model = new PropertyModel<>(modelObject, "aboutClauses");
 
             aboutContainer.add(new MultiPanel<Pair<String, List<SearchClause>>>("abouts", "abouts", model) {
 

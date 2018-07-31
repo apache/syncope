@@ -47,7 +47,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -87,6 +86,7 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
                 || implementation.getType() == ImplementationType.ACCOUNT_RULE
                 || implementation.getType() == ImplementationType.PASSWORD_RULE
                 || implementation.getType() == ImplementationType.PULL_CORRELATION_RULE
+                || implementation.getType() == ImplementationType.PUSH_CORRELATION_RULE
                 ? ViewMode.JSON_BODY
                 : ViewMode.JAVA_CLASS;
         this.create = implementation.getKey() == null;
@@ -125,6 +125,11 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
 
                 case PULL_CORRELATION_RULE:
                     classes = implementationLookup.getPullCorrelationRuleConfs().keySet().stream().
+                            collect(Collectors.toList());
+                    break;
+
+                case PUSH_CORRELATION_RULE:
+                    classes = implementationLookup.getPushCorrelationRuleConfs().keySet().stream().
                             collect(Collectors.toList());
                     break;
 
@@ -217,6 +222,10 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
                     templateClassName = "MyPullCorrelationRule";
                     break;
 
+                case PUSH_CORRELATION_RULE:
+                    templateClassName = "MyPushCorrelationRule";
+                    break;
+
                 case VALIDATOR:
                     templateClassName = "MyValidator";
                     break;
@@ -276,13 +285,17 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
                         clazz = implementationLookup.getPullCorrelationRuleConfs().get(jsonClass.getModelObject());
                         break;
 
+                    case PUSH_CORRELATION_RULE:
+                        clazz = implementationLookup.getPushCorrelationRuleConfs().get(jsonClass.getModelObject());
+                        break;
+
                     default:
                 }
 
                 if (clazz != null) {
                     try {
                         target.appendJavaScript("editor.getDoc().setValue('"
-                                + MAPPER.writeValueAsString(clazz.newInstance())
+                                + MAPPER.writeValueAsString(clazz.getDeclaredConstructor().newInstance())
                                 + "');");
                     } catch (Exception e) {
                         LOG.error("Could not generate a value for {}", jsonClass.getModelObject(), e);
@@ -317,7 +330,7 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
     }
 
     @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+    public void onSubmit(final AjaxRequestTarget target) {
         try {
             if (create) {
                 restClient.create(implementation);

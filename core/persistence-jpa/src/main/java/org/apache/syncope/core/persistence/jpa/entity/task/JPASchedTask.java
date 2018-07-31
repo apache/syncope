@@ -19,14 +19,11 @@
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
 import java.util.Date;
-import javax.persistence.Basic;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -55,10 +52,7 @@ public class JPASchedTask extends AbstractTask implements SchedTask {
     private String description;
 
     @NotNull
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer active;
+    private Boolean active = true;
 
     @Override
     public Date getStartAt() {
@@ -121,11 +115,11 @@ public class JPASchedTask extends AbstractTask implements SchedTask {
 
     @Override
     public boolean isActive() {
-        return isBooleanAsInteger(active);
+        return active;
     }
 
     @Override
     public void setActive(final boolean active) {
-        this.active = getBooleanAsInteger(active);
+        this.active = active;
     }
 }

@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
-import static org.apache.syncope.core.persistence.jpa.validation.entity.AbstractValidator.LOG;
-
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;

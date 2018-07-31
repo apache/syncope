@@ -25,6 +25,7 @@ import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.policies.AccountPolicyDirectoryPanel;
 import org.apache.syncope.client.console.policies.PasswordPolicyDirectoryPanel;
 import org.apache.syncope.client.console.policies.PullPolicyDirectoryPanel;
+import org.apache.syncope.client.console.policies.PushPolicyDirectoryPanel;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -78,6 +79,16 @@ public class Policies extends BasePage {
             @Override
             public Panel getPanel(final String panelId) {
                 return new PullPolicyDirectoryPanel(panelId, getPageReference());
+            }
+        });
+
+        tabs.add(new AbstractTab(new ResourceModel("policy.push")) {
+
+            private static final long serialVersionUID = -6815067322125799251L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                return new PushPolicyDirectoryPanel(panelId, getPageReference());
             }
         });
 

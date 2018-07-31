@@ -29,7 +29,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.Form;
 
 public class TaskStartAtTogglePanel extends StartAtTogglePanel {
 
@@ -43,7 +42,7 @@ public class TaskStartAtTogglePanel extends StartAtTogglePanel {
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target) {
                 try {
                     getRestClient().startExecution(key, startAtDateModel.getObject(), true);
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
@@ -59,7 +58,7 @@ public class TaskStartAtTogglePanel extends StartAtTogglePanel {
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onError(final AjaxRequestTarget target) {
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
 

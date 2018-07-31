@@ -58,7 +58,6 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -228,9 +227,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         Query query = findByPlainAttrValueQuery(entityName, ignoreCaseMatch);
         query.setParameter("schemaKey", schemaKey);
         query.setParameter("stringValue", attrValue.getStringValue());
-        query.setParameter("booleanValue", attrValue.getBooleanValue() == null
-                ? null
-                : ((AbstractPlainAttrValue) attrValue).getBooleanAsInteger(attrValue.getBooleanValue()));
+        query.setParameter("booleanValue", attrValue.getBooleanValue());
         if (attrValue.getDateValue() == null) {
             query.setParameter("dateValue", null);
         } else {

@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-common</artifactId>
-    <version>2.1.0-SNAPSHOT</version>
+    <version>2.1.1-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Common REST API</name>
@@ -41,11 +41,6 @@ under the License.
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.ws.rs</groupId>
-      <artifactId>javax.ws.rs-api</artifactId>
     </dependency>
 
     <dependency>
@@ -78,69 +73,4 @@ under the License.
       </plugin>
     </plugins>
   </build>
-  
-  <profiles>
-    <profile>
-      <id>site</id>
-
-      <build>
-        <defaultGoal>clean generate-resources compile site-deploy</defaultGoal>
-
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>javadocs-for-wadl</id>
-                <phase>pre-site</phase>                
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          
-          <plugin>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-java2wadl-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>parse-javadoc-for-wadl</id>
-                <phase>pre-site</phase>
-                <goals>
-                  <goal>parsejavadoc</goal>
-                </goals>
-                <configuration>
-                  <encoding>UTF-8</encoding>
-                </configuration>
-              </execution>
-              <execution>
-                <id>generate-wadl</id>
-                <phase>pre-site</phase>
-                <goals>
-                  <goal>java2wadl</goal>
-                </goals>
-                <configuration>
-                  <applicationTitle>Apache Syncope ${project.version}</applicationTitle>
-                  <namespacePrefix>syncope21</namespacePrefix>
-                  <incrementNamespacePrefix>false</incrementNamespacePrefix>
-                  <linkAnyMediaTypeToXmlSchema>true</linkAnyMediaTypeToXmlSchema>
-                  <useJaxbContextForQnames>true</useJaxbContextForQnames>
-                  <addResourceAndMethodIds>true</addResourceAndMethodIds>
-                  <usePathParamsToCompareOperations>false</usePathParamsToCompareOperations>
-                  <classResourceNames />
-                  <basePackages>org.apache.syncope.common.rest.api.service</basePackages>
-                  <docProvider>org.apache.cxf.maven_plugin.javatowadl.ResourceMapJavaDocProvider</docProvider>
-                  <attachWadl>true</attachWadl>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

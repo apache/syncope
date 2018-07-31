@@ -22,10 +22,10 @@ under the License.
          ng-init="status = {isOpen: (groupSchema == 'own')}" is-open="status.isOpen"
          class="breadcrumb-header">
       <div id="attribute" class="form-group" ng-repeat="virSchema in getByGroup(groupSchema) track by $index">
-        <label for="virSchema.key">{{virSchema.simpleKey| translate}} <span ng-if="virSchema.mandatoryCondition === 'true'">*</span></label>
+        <label for="virSchema.key">{{virSchema.labels[language] || virSchema.simpleKey}} <span ng-if="virSchema.mandatoryCondition === 'true'">*</span></label>
         <div ng-if="!virSchema.multivalue">
           <dynamic-virtual-attribute schema="virSchema" user="user" index="0"></dynamic-virtual-attribute>
-          <validation-message name="{{virSchema.key| translate}}"/>
+          <validation-message name="{{virSchema.simpleKey}}"/>
         </div>
         <div ng-if="virSchema.multivalue">
           <div ng-repeat="field in dynamicForm.attributeTable[virSchema.key].fields track by $index" 

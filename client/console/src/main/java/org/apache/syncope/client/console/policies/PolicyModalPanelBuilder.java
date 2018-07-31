@@ -43,14 +43,13 @@ import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
-import org.apache.syncope.common.lib.policy.PullPolicyTO;
+import org.apache.syncope.common.lib.policy.ProvisioningPolicyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -114,7 +113,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                         "field",
                         "maxAuthenticationAttempts",
                         Integer.class,
-                        new PropertyModel<Integer>(policyTO, "maxAuthenticationAttempts")));
+                        new PropertyModel<>(policyTO, "maxAuthenticationAttempts")));
 
                 fields.add(new AjaxCheckBoxPanel(
                         "field",
@@ -124,21 +123,21 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
 
                 fields.add(new AjaxPalettePanel.Builder<String>().setName("passthroughResources").build(
                         "field",
-                        new PropertyModel<List<String>>(policyTO, "passthroughResources"),
-                        new ListModel<String>(resources.getObject())));
+                        new PropertyModel<>(policyTO, "passthroughResources"),
+                        new ListModel<>(resources.getObject())));
             } else if (policyTO instanceof PasswordPolicyTO) {
                 fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
                         "field",
                         "historyLength",
                         Integer.class,
-                        new PropertyModel<Integer>(policyTO, "historyLength")));
+                        new PropertyModel<>(policyTO, "historyLength")));
 
                 fields.add(new AjaxCheckBoxPanel(
                         "field",
                         "allowNullPassword",
                         new PropertyModel<>(policyTO, "allowNullPassword"),
                         false));
-            } else if (policyTO instanceof PullPolicyTO) {
+            } else if (policyTO instanceof ProvisioningPolicyTO) {
                 fields.add(new AjaxDropDownChoicePanel<>(
                         "field",
                         "conflictResolutionAction",
@@ -159,7 +158,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
         }
 
         @Override
-        public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+        public void onSubmit(final AjaxRequestTarget target) {
             try {
                 if (policyTO.getKey() == null) {
                     restClient.createPolicy(type, policyTO);

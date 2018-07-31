@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-core</artifactId>
-    <version>2.1.0-SNAPSHOT</version>
+    <version>2.1.1-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Core REST CXF</name>
@@ -155,7 +155,7 @@ under the License.
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
     </plugins>
-    
+
     <resources>
       <resource>
         <directory>src/main/resources</directory>
@@ -163,144 +163,4 @@ under the License.
       </resource>
     </resources>
   </build>
-  
-  <profiles>
-    <profile>
-      <id>site</id>
-      
-      <build>        
-        <plugins>
-          <!-- 1. Transform WADL into 2 HTML pages -->
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>xml-maven-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>wadl2html</id>
-                <phase>pre-site</phase>
-                <goals>
-                  <goal>transform</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <transformationSets>
-                <transformationSet>
-                  <dir>${basedir}/../../common/rest-api/target/generated/wadl</dir>
-                  <includes>
-                    <include>application.wadl</include>
-                  </includes>
-                  <outputDir>${project.build.directory}/generated/wadl</outputDir>
-                  <stylesheet>${basedir}/src/main/resources/wadl2html/identity.xsl</stylesheet>
-                  <outputProperties>
-                    <outputProperty>
-                      <name>indent</name>
-                      <value>yes</value>
-                    </outputProperty>
-                  </outputProperties>
-                  <fileMappers>
-                    <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
-                      <pattern>^.*$</pattern>
-                      <replacement>syncope.wadl</replacement>
-                    </fileMapper>
-                  </fileMappers>
-                </transformationSet>
-                <transformationSet>
-                  <dir>${project.build.directory}/generated/wadl</dir>
-                  <includes>
-                    <include>syncope.wadl</include>
-                  </includes>
-                  <outputDir>${project.build.directory}/generated/wadl</outputDir>
-                  <stylesheet>${basedir}/src/main/resources/wadl2html/index.xsl</stylesheet>
-                  <parameters>
-                    <parameter>
-                      <name>contextPath</name>
-                      <value>..</value>
-                    </parameter>
-                  </parameters>
-                  <outputProperties>
-                    <outputProperty>
-                      <name>indent</name>
-                      <value>yes</value>
-                    </outputProperty>
-                  </outputProperties>
-                  <fileMappers>
-                    <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
-                      <pattern>^.*$</pattern>
-                      <replacement>index.html</replacement>
-                    </fileMapper>
-                  </fileMappers>
-                </transformationSet>
-                <transformationSet>
-                  <dir>${project.build.directory}/generated/wadl</dir>
-                  <includes>
-                    <include>syncope.wadl</include>
-                  </includes>
-                  <outputDir>${project.build.directory}/generated/wadl</outputDir>
-                  <stylesheet>${basedir}/src/main/resources/wadl2html/schema.xsl</stylesheet>
-                  <parameters>
-                    <parameter>
-                      <name>contextPath</name>
-                      <value>..</value>
-                    </parameter>
-                    <parameter>
-                      <name>schema-position</name>
-                      <value>1</value>
-                    </parameter>
-                    <parameter>
-                      <name>schema-prefix</name>
-                      <value>syncope21</value>
-                    </parameter>
-                  </parameters>
-                  <outputProperties>
-                    <outputProperty>
-                      <name>indent</name>
-                      <value>yes</value>
-                    </outputProperty>
-                  </outputProperties>
-                  <fileMappers>
-                    <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
-                      <pattern>^.*$</pattern>
-                      <replacement>schema_1_syncope21.html</replacement>
-                    </fileMapper>
-                  </fileMappers>
-                </transformationSet>
-              </transformationSets>
-            </configuration>
-          </plugin>
-          
-          <!-- 2. Fix external references -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>copy-rest-reference-to-site</id>
-                <phase>pre-site</phase>
-                <configuration>
-                  <target>
-                    <replace file="${project.build.directory}/generated/wadl/index.html" token="../webjars/jquery/$/jquery.min.js" value="https://code.jquery.com/jquery-${jquery.version}.min.js" />
-                    <replace file="${project.build.directory}/generated/wadl/index.html" token="../webjars/jquery-ui/$/jquery-ui.min.js" value="http://code.jquery.com/ui/${jquery-ui.version}/jquery-ui.min.js" />
-                    <replace file="${project.build.directory}/generated/wadl/index.html" token="../webjars/jquery-ui-themes/$/smoothness/jquery-ui.min.css" value="https://code.jquery.com/ui/${jquery-ui.version}/themes/smoothness/jquery-ui.css" />      
-
-                    <replace file="${project.build.directory}/generated/wadl/schema_1_syncope21.html" token="../webjars/highlightjs/$/highlight.min.js" value="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/${highlightjs.version}/highlight.min.js" />
-                    <replace file="${project.build.directory}/generated/wadl/schema_1_syncope21.html" token="../webjars/highlightjs/$/styles/default.min.css" value="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/${highlightjs.version}/styles/default.min.css" />      
-
-                    <copy todir="${site.deploymentBaseDir}/rest/2.0">
-                      <fileset dir="${project.build.directory}/generated/wadl" />
-                    </copy>
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

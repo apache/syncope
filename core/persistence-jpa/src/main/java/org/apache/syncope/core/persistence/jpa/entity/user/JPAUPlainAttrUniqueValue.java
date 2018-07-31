@@ -66,5 +66,4 @@ public class JPAUPlainAttrUniqueValue extends AbstractPlainAttrValue implements 
         checkType(schema, JPAPlainSchema.class);
         this.schema = (JPAPlainSchema) schema;
     }
-
 }

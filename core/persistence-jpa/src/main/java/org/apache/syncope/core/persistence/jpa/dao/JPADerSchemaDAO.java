@@ -45,9 +45,9 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema> implements DerSchema
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").
                 append(JPADerSchema.class.getSimpleName()).
                 append(" e WHERE ");
-        for (AnyTypeClass anyTypeClass : anyTypeClasses) {
+        anyTypeClasses.forEach(anyTypeClass -> {
             queryString.append("e.anyTypeClass.id='").append(anyTypeClass.getKey()).append("' OR ");
-        }
+        });
 
         TypedQuery<DerSchema> query = entityManager().createQuery(
                 queryString.substring(0, queryString.length() - 4), DerSchema.class);
@@ -82,6 +82,8 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema> implements DerSchema
         if (schema == null) {
             return;
         }
+
+        schema.getLabels().forEach(label -> label.setSchema(null));
 
         resourceDAO.deleteMapping(key);
 

@@ -61,7 +61,6 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -185,7 +184,7 @@ public class WorkflowDirectoryPanel extends DirectoryPanel<
                     private static final long serialVersionUID = -7688359318035249200L;
 
                     @Override
-                    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                    public void onSubmit(final AjaxRequestTarget target) {
                         if (StringUtils.isNotBlank(wfDefinition.getObject())) {
                             try {
                                 restClient.setDefinition(MediaType.APPLICATION_XML_TYPE,

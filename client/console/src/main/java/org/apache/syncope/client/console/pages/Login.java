@@ -31,14 +31,13 @@ import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authentication.IAuthenticationStrategy;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
-import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
@@ -64,10 +63,6 @@ public class Login extends WebPage {
     private final TextField<String> usernameField;
 
     private final TextField<String> passwordField;
-
-    private final DropDownChoice<Locale> languageSelect;
-
-    private final DropDownChoice<String> domainSelect;
 
     public Login(final PageParameters parameters) {
         super(parameters);
@@ -95,13 +90,47 @@ public class Login extends WebPage {
         passwordField.setMarkupId("password");
         form.add(passwordField);
 
-        languageSelect = new LocaleDropDown("language");
+        LocaleDropDown languageSelect = new LocaleDropDown("language");
+        languageSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                // nothing to do
+            }
+        }).add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                // nothing to do
+            }
+        });
         form.add(languageSelect);
 
-        domainSelect = new DomainDropDown("domain");
+        DomainDropDown domainSelect = new DomainDropDown("domain");
         if (SyncopeConsoleApplication.get().getDomains().size() == 1) {
             domainSelect.setOutputMarkupPlaceholderTag(true);
         }
+        domainSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                // nothing to do
+            }
+        }).add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                // nothing to do
+            }
+        });
         form.add(domainSelect);
 
         AjaxButton submitButton = new AjaxButton("submit", new Model<>(getString("submit"))) {
@@ -109,7 +138,7 @@ public class Login extends WebPage {
             private static final long serialVersionUID = 429178684321093953L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target) {
                 if (SyncopeConsoleApplication.get().getAnonymousUser().equals(usernameField.getRawInput())) {
                     throw new AccessControlException("Illegal username");
                 }
@@ -201,11 +230,6 @@ public class Login extends WebPage {
             // set default value to English
             getModel().setObject(Locale.ENGLISH);
         }
-
-        @Override
-        protected boolean wantOnSelectionChangedNotifications() {
-            return true;
-        }
     }
 
     /**
@@ -240,11 +264,6 @@ public class Login extends WebPage {
 
             // set default value to Master Domain
             getModel().setObject(SyncopeConstants.MASTER_DOMAIN);
-        }
-
-        @Override
-        protected boolean wantOnSelectionChangedNotifications() {
-            return true;
         }
     }
 }

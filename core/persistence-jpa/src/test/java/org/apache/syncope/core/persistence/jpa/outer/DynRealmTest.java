@@ -76,7 +76,7 @@ public class DynRealmTest extends AbstractTest {
         }
 
         dynRealm.setKey("name");
-        DynRealm actual = dynRealmDAO.save(dynRealm);
+        DynRealm actual = dynRealmDAO.saveAndRefreshDynMemberships(dynRealm);
         assertNotNull(actual);
 
         dynRealmDAO.flush();
@@ -92,5 +92,4 @@ public class DynRealmTest extends AbstractTest {
 
         assertTrue(userDAO.findDynRealms(user.getKey()).contains(actual.getKey()));
     }
-
 }

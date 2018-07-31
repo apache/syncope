@@ -50,8 +50,6 @@ public interface User extends
 
     CipherAlgorithm getCipherAlgorithm();
 
-    void setCipherAlgorithm(CipherAlgorithm cipherAlgorithm);
-
     boolean canDecodePassword();
 
     String getClearPassword();
@@ -65,8 +63,6 @@ public interface User extends
     void setPassword(String password, CipherAlgorithm cipherAlgoritm);
 
     List<String> getPasswordHistory();
-
-    boolean verifyPasswordHistory(String password, int size);
 
     SecurityQuestion getSecurityQuestion();
 

@@ -192,7 +192,9 @@ public class OIDCUserManager {
                 }
                 values.clear();
                 for (Object value : transformed) {
-                    values.add(value.toString());
+                    if (value != null) {
+                        values.add(value.toString());
+                    }
                 }
             }
 

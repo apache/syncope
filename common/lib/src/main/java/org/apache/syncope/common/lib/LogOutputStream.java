@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 
 /**
  * Delegates output stream writing onto an SLF4J logger.
- * Inspired by {@code}org.apache.commons.exec.LogOutputStream{@code}
+ * Inspired by {@code org.apache.commons.exec.LogOutputStream}
  */
 public class LogOutputStream extends OutputStream {
 

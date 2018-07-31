@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.ArrayList;
 import org.apache.syncope.core.provisioning.api.data.ConfigurationDataBinder;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -48,17 +48,13 @@ public class ConfigurationDataBinderImpl extends AbstractAnyDataBinder implement
 
     @Override
     public List<AttrTO> getConfTO() {
-        List<AttrTO> attrTOs = new ArrayList<>();
-        for (CPlainAttr attr : confDAO.get().getPlainAttrs()) {
-            attrTOs.add(getAttrTO(attr));
-        }
-        return attrTOs;
+        return confDAO.get().getPlainAttrs().stream().map(attr -> getAttrTO(attr)).collect(Collectors.toList());
     }
 
     @Override
     public AttrTO getAttrTO(final CPlainAttr attr) {
         return new AttrTO.Builder().
-                schemaInfo(schemaDataBinder.getPlainSchemaTO(attr.getSchema())).
+                schemaInfo(schemaDataBinder.getPlainSchemaTO(attr.getSchema().getKey())).
                 schema(attr.getSchema().getKey()).
                 values(attr.getValuesAsStrings()).
                 build();

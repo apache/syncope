@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
@@ -31,7 +32,9 @@ public interface RemediationDAO extends DAO<Remediation> {
 
     List<Remediation> findByPullTask(PullTask pullTask);
 
-    List<Remediation> findAll();
+    int count();
+
+    List<Remediation> findAll(int page, int itemsPerPage, List<OrderByClause> orderByClauses);
 
     Remediation save(Remediation remediation);
 

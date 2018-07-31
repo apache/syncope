@@ -21,16 +21,15 @@ package org.apache.syncope.core.workflow.java;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.to.WorkflowTaskTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
@@ -55,17 +54,8 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
 
     @Override
     protected WorkflowResult<AnyObjectPatch> doUpdate(final AnyObject anyObject, final AnyObjectPatch anyObjectPatch) {
-        AnyObjectTO original = dataBinder.getAnyObjectTO(anyObject, true);
-
         PropagationByResource propByRes = dataBinder.update(anyObject, anyObjectPatch);
-        Set<AttrTO> virAttrs = anyObjectPatch.getVirAttrs();
-
-        AnyObjectTO updated = dataBinder.getAnyObjectTO(anyObjectDAO.save(anyObject), true);
-        AnyObjectPatch effectivePatch = AnyOperations.diff(updated, original, false);
-        effectivePatch.getVirAttrs().clear();
-        effectivePatch.getVirAttrs().addAll(virAttrs);
-
-        return new WorkflowResult<>(effectivePatch, propByRes, "update");
+        return new WorkflowResult<>(anyObjectPatch, propByRes, "update");
     }
 
     @Override
@@ -79,8 +69,10 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
     }
 
     @Override
-    public List<WorkflowFormTO> getForms() {
-        return Collections.emptyList();
+    public Pair<Integer, List<WorkflowFormTO>> getForms(
+            final int page, final int size, final List<OrderByClause> orderByClauses) {
+
+        return Pair.of(0, Collections.<WorkflowFormTO>emptyList());
     }
 
     @Override

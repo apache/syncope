@@ -139,7 +139,7 @@ public class SyncopeFiqlParser<T> extends FiqlParser<T> {
                     beanspector.instantiate().setValue(setter, tvalue.getObject());
                     return beanspector.getBean();
                 } else {
-                    SearchBean bean = (SearchBean) conditionClass.newInstance();
+                    SearchBean bean = (SearchBean) conditionClass.getDeclaredConstructor().newInstance();
                     bean.set(setter, tvalue.getObject().toString());
                     return (T) bean;
                 }

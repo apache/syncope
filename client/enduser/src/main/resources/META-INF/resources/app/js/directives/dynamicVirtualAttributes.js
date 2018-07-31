@@ -29,7 +29,8 @@ angular.module('self')
             templateUrl: getTemplateUrl(),
             scope: {
               dynamicForm: "=form",
-              user: "="
+              user: "=",
+              language: "="
             },
             controller: function ($scope) {
 

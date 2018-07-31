@@ -37,9 +37,9 @@ Apache Syncope {docVersion} requires the latest JDK 8 that is available.
 Apache Syncope {docVersion} is verified with the following Java EE containers:
 
  . http://tomcat.apache.org/download-90.cgi[Apache Tomcat 9^]
- . https://glassfish.java.net/[Glassfish 4.1^]
- . http://www.payara.fish/[Payara Server^]
- . http://www.wildfly.org/[Wildfly 11^]
+ . https://javaee.github.io/glassfish/[Glassfish 5^]
+ . http://www.payara.fish/[Payara Server 5^]
+ . http://www.wildfly.org/[Wildfly 13^]
 
 === Internal Storage
 

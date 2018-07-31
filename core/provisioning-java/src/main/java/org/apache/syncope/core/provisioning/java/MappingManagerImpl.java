@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -42,7 +43,6 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
@@ -304,23 +304,18 @@ public class MappingManagerImpl implements MappingManager {
         return Pair.of(connObjectKey, attributes);
     }
 
-    /**
-     * Prepare an attribute to be sent to a connector instance.
-     *
-     * @param provision external resource
-     * @param mapItem mapping item for the given attribute
-     * @param any given any object
-     * @param password clear-text password
-     * @return connObjectKey + prepared attribute
-     */
-    private Pair<String, Attribute> prepareAttr(
-            final Provision provision, final Item mapItem, final Any<?> any, final String password) {
+    @Override
+    public Pair<String, Attribute> prepareAttr(
+            final Provision provision,
+            final Item item,
+            final Any<?> any,
+            final String password) {
 
         IntAttrName intAttrName;
         try {
-            intAttrName = intAttrNameParser.parse(mapItem.getIntAttrName(), provision.getAnyType().getKind());
+            intAttrName = intAttrNameParser.parse(item.getIntAttrName(), provision.getAnyType().getKind());
         } catch (ParseException e) {
-            LOG.error("Invalid intAttrName '{}' specified, ignoring", mapItem.getIntAttrName(), e);
+            LOG.error("Invalid intAttrName '{}' specified, ignoring", item.getIntAttrName(), e);
             return null;
         }
 
@@ -345,13 +340,13 @@ public class MappingManagerImpl implements MappingManager {
             }
         }
 
-        List<PlainAttrValue> values = getIntValues(provision, mapItem, intAttrName, any);
+        List<PlainAttrValue> values = getIntValues(provision, item, intAttrName, any);
 
         LOG.debug("Define mapping for: "
-                + "\n* ExtAttrName " + mapItem.getExtAttrName()
-                + "\n* is connObjectKey " + mapItem.isConnObjectKey()
-                + "\n* is password " + mapItem.isPassword()
-                + "\n* mandatory condition " + mapItem.getMandatoryCondition()
+                + "\n* ExtAttrName " + item.getExtAttrName()
+                + "\n* is connObjectKey " + item.isConnObjectKey()
+                + "\n* is password " + item.isPassword()
+                + "\n* mandatory condition " + item.getMandatoryCondition()
                 + "\n* Schema " + intAttrName.getSchemaName()
                 + "\n* ClassType " + schemaType.getType().getName()
                 + "\n* Values " + values);
@@ -370,9 +365,9 @@ public class MappingManagerImpl implements MappingManager {
                 }
             }
 
-            if (mapItem.isConnObjectKey()) {
+            if (item.isConnObjectKey()) {
                 result = Pair.of(objValues.isEmpty() ? null : objValues.iterator().next().toString(), null);
-            } else if (mapItem.isPassword() && any instanceof User) {
+            } else if (item.isPassword() && any instanceof User) {
                 String passwordAttrValue = password;
                 if (StringUtils.isBlank(passwordAttrValue)) {
                     User user = (User) any;
@@ -398,8 +393,8 @@ public class MappingManagerImpl implements MappingManager {
                 }
             } else {
                 result = Pair.of(null, objValues.isEmpty()
-                        ? AttributeBuilder.build(mapItem.getExtAttrName())
-                        : AttributeBuilder.build(mapItem.getExtAttrName(), objValues));
+                        ? AttributeBuilder.build(item.getExtAttrName())
+                        : AttributeBuilder.build(item.getExtAttrName(), objValues));
             }
         }
 
@@ -699,7 +694,7 @@ public class MappingManagerImpl implements MappingManager {
 
     @Transactional(readOnly = true)
     @Override
-    public void setIntValues(final Item mapItem, final Attribute attr, final AnyTO anyTO, final AnyUtils anyUtils) {
+    public void setIntValues(final Item mapItem, final Attribute attr, final AnyTO anyTO) {
         List<Object> values = null;
         if (attr != null) {
             values = attr.getValue();
@@ -711,7 +706,7 @@ public class MappingManagerImpl implements MappingManager {
 
         IntAttrName intAttrName;
         try {
-            intAttrName = intAttrNameParser.parse(mapItem.getIntAttrName(), anyUtils.anyTypeKind());
+            intAttrName = intAttrNameParser.parse(mapItem.getIntAttrName(), AnyTypeKind.fromTOClass(anyTO.getClass()));
         } catch (ParseException e) {
             LOG.error("Invalid intAttrName '{}' specified, ignoring", mapItem.getIntAttrName(), e);
             return;
@@ -788,27 +783,11 @@ public class MappingManagerImpl implements MappingManager {
                     for (Object value : values) {
                         AttrSchemaType schemaType = schema == null ? AttrSchemaType.String : schema.getType();
                         if (value != null) {
-                            PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                            switch (schemaType) {
-                                case String:
-                                    attrValue.setStringValue(value.toString());
-                                    break;
-
-                                case Binary:
-                                    attrValue.setBinaryValue((byte[]) value);
-                                    break;
-
-                                default:
-                                    try {
-                                        attrValue.parseValue(schema, value.toString());
-                                    } catch (ParsingValidationException e) {
-                                        LOG.error("While parsing provided value {}", value, e);
-                                        attrValue.setStringValue(value.toString());
-                                        schemaType = AttrSchemaType.String;
-                                    }
-                                    break;
+                            if (schemaType == AttrSchemaType.Binary) {
+                                attrTO.getValues().add(Base64.getEncoder().encodeToString((byte[]) value));
+                            } else {
+                                attrTO.getValues().add(value.toString());
                             }
-                            attrTO.getValues().add(attrValue.getValueAsString(schemaType));
                         }
                     }
 
@@ -900,5 +879,4 @@ public class MappingManagerImpl implements MappingManager {
             }
         }
     }
-
 }

@@ -25,7 +25,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
@@ -42,6 +44,7 @@ import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -266,6 +269,54 @@ public class PushTaskITCase extends AbstractTaskITCase {
                 getResources().contains(RESOURCE_NAME_TESTDB2));
         assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='verdi'").size());
         // ------------------------------------------
+    }
+
+    @Test
+    public void pushPolicy() {
+        // 1. set push policy on ldap
+        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        assertNull(ldap.getPushPolicy());
+
+        ldap.setPushPolicy("fb6530e5-892d-4f47-a46b-180c5b6c5c83");
+        resourceService.update(ldap);
+
+        // 2. create push task with sole scope as the user 'vivaldi'
+        PushTaskTO sendVivaldi = new PushTaskTO();
+        sendVivaldi.setName("Send Vivaldi");
+        sendVivaldi.setResource(RESOURCE_NAME_LDAP);
+        sendVivaldi.setUnmatchingRule(UnmatchingRule.PROVISION);
+        sendVivaldi.setMatchingRule(MatchingRule.UPDATE);
+        sendVivaldi.setSourceRealm(SyncopeConstants.ROOT_REALM);
+        sendVivaldi.getFilters().put(AnyTypeKind.GROUP.name(), "name==$null");
+        sendVivaldi.getFilters().put(AnyTypeKind.USER.name(), "username==vivaldi");
+        sendVivaldi.setPerformCreate(true);
+        sendVivaldi.setPerformUpdate(true);
+
+        Response response = taskService.create(TaskType.PUSH, sendVivaldi);
+        sendVivaldi = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
+        assertNotNull(sendVivaldi);
+
+        // 3. execute push: vivaldi is found on ldap
+        execProvisioningTask(taskService, TaskType.PUSH, sendVivaldi.getKey(), 50, false);
+
+        ReconStatus status = reconciliationService.status(AnyTypeKind.USER, "vivaldi", RESOURCE_NAME_LDAP);
+        assertNotNull(status.getOnResource());
+
+        // 4. update vivaldi on ldap: reconciliation status does not find it anymore, as remote key was changed
+        Map<String, String> attrs = new HashMap<>();
+        attrs.put("cn", "vivaldiZZ");
+        attrs.put("mail", "vivaldi@syncope.org");
+        updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "uid=vivaldi,ou=People,o=isp", attrs);
+
+        status = reconciliationService.status(AnyTypeKind.USER, "vivaldi", RESOURCE_NAME_LDAP);
+        assertNull(status.getOnResource());
+
+        // 5. execute push again: the push policy will find anyway vivaldi because of the email attribute
+        execProvisioningTask(taskService, TaskType.PUSH, sendVivaldi.getKey(), 50, false);
+
+        // 6. now the reconciliation status is fine again, as the push above did overwrite the entry on ldap
+        status = reconciliationService.status(AnyTypeKind.USER, "vivaldi", RESOURCE_NAME_LDAP);
+        assertNotNull(status.getOnResource());
     }
 
     @Test

@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
@@ -36,10 +35,8 @@ public class ImplementationRestClient extends BaseRestClient {
         return getService(ImplementationService.class).read(type, key);
     }
 
-    public ImplementationTO create(final ImplementationTO implementation) {
-        ImplementationService service = getService(ImplementationService.class);
-        Response response = service.create(implementation);
-        return getObject(service, response.getLocation(), ImplementationTO.class);
+    public void create(final ImplementationTO implementation) {
+        getService(ImplementationService.class).create(implementation);
     }
 
     public void update(final ImplementationTO implementation) {
@@ -49,5 +46,4 @@ public class ImplementationRestClient extends BaseRestClient {
     public void delete(final ImplementationType type, final String key) {
         getService(ImplementationService.class).delete(type, key);
     }
-
 }

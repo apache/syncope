@@ -41,6 +41,7 @@ import org.apache.syncope.client.console.widgets.BaseExtWidget;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
+import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -102,6 +103,8 @@ public class ClassPathScanImplementationLookup {
 
     private Map<String, Class<? extends PullCorrelationRuleConf>> pullCorrelationRuleConfs;
 
+    private Map<String, Class<? extends PushCorrelationRuleConf>> pushCorrelationRuleConfs;
+
     /**
      * This method can be overridden by subclasses to customize classpath scan.
      *
@@ -122,6 +125,7 @@ public class ClassPathScanImplementationLookup {
         accountRuleConfs = new HashMap<>();
         passwordRuleConfs = new HashMap<>();
         pullCorrelationRuleConfs = new HashMap<>();
+        pushCorrelationRuleConfs = new HashMap<>();
 
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AssignableTypeFilter(BasePage.class));
@@ -133,6 +137,7 @@ public class ClassPathScanImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(AccountRuleConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PasswordRuleConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PullCorrelationRuleConf.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(PushCorrelationRuleConf.class));
 
         scanner.findCandidateComponents(getBasePackage()).forEach(bd -> {
             try {
@@ -169,6 +174,8 @@ public class ClassPathScanImplementationLookup {
                         passwordRuleConfs.put(clazz.getName(), (Class<? extends PasswordRuleConf>) clazz);
                     } else if (PullCorrelationRuleConf.class.isAssignableFrom(clazz)) {
                         pullCorrelationRuleConfs.put(clazz.getName(), (Class<? extends PullCorrelationRuleConf>) clazz);
+                    } else if (PushCorrelationRuleConf.class.isAssignableFrom(clazz)) {
+                        pushCorrelationRuleConfs.put(clazz.getName(), (Class<? extends PushCorrelationRuleConf>) clazz);
                     }
                 }
             } catch (Throwable t) {
@@ -196,6 +203,7 @@ public class ClassPathScanImplementationLookup {
         accountRuleConfs = Collections.unmodifiableMap(accountRuleConfs);
         passwordRuleConfs = Collections.unmodifiableMap(passwordRuleConfs);
         pullCorrelationRuleConfs = Collections.unmodifiableMap(pullCorrelationRuleConfs);
+        pushCorrelationRuleConfs = Collections.unmodifiableMap(pushCorrelationRuleConfs);
 
         LOG.debug("Binary previewers found: {}", previewers);
         LOG.debug("Extension pages found: {}", extPages);
@@ -205,6 +213,7 @@ public class ClassPathScanImplementationLookup {
         LOG.debug("Account Rule configurations found: {}", accountRuleConfs);
         LOG.debug("Password Rule configurations found: {}", passwordRuleConfs);
         LOG.debug("Pull Correlation Rule configurations found: {}", pullCorrelationRuleConfs);
+        LOG.debug("Push Correlation Rule configurations found: {}", pushCorrelationRuleConfs);
     }
 
     public Class<? extends AbstractBinaryPreviewer> getPreviewerClass(final String mimeType) {
@@ -253,4 +262,7 @@ public class ClassPathScanImplementationLookup {
         return pullCorrelationRuleConfs;
     }
 
+    public Map<String, Class<? extends PushCorrelationRuleConf>> getPushCorrelationRuleConfs() {
+        return pushCorrelationRuleConfs;
+    }
 }

@@ -21,6 +21,7 @@ package org.apache.syncope.fit.console;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.lang.reflect.InvocationTargetException;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.Logs;
 import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.wicket.Component;
@@ -64,7 +65,8 @@ public class LogsITCase extends AbstractConsoleITCase {
                 result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "6");
         TESTER.assertComponent(
                 result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", DropDownChoice.class);
-        TESTER.executeAjaxEvent(result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "onchange");
+        TESTER.executeAjaxEvent(
+                result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", Constants.ON_CHANGE);
 
         TESTER.assertInfoMessages("Operation executed successfully");
     }
@@ -75,7 +77,7 @@ public class LogsITCase extends AbstractConsoleITCase {
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
         TESTER.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
-        assertNotNull(searchLog(KEY, CONTAINER_PATH, "org.apache.syncope.fit"));
+        assertNotNull(searchLog(KEY, CONTAINER_PATH, "org.apache.wicket"));
     }
 
     @Test
@@ -83,12 +85,13 @@ public class LogsITCase extends AbstractConsoleITCase {
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
         TESTER.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
-        Component result = searchLog(KEY, CONTAINER_PATH, "org.apache.syncope.fit");
+        Component result = searchLog(KEY, CONTAINER_PATH, "org.apache.wicket");
         assertNotNull(result);
 
         TESTER.getRequest().addParameter(
                 result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "6");
-        TESTER.executeAjaxEvent(result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "onchange");
+        TESTER.executeAjaxEvent(
+                result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", Constants.ON_CHANGE);
 
         TESTER.assertInfoMessages("Operation executed successfully");
     }

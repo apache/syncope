@@ -33,7 +33,7 @@ First approach, especially with administration console and end-user; does not re
 
 Getting ready in a few easy steps:
 
-. http://syncope.apache.org/downloads.html[download^] the standalone distribution
+. https://syncope.apache.org/downloads[download^] the standalone distribution
 . unzip the distribution archive
 . go into the created Apache Tomcat directory
 . start Apache Tomcat
@@ -96,31 +96,23 @@ Getting up and running quickly on Debian / Ubuntu. +
 *Difficult to extend beyond pre-sets.*
 
 Download::
-http://syncope.apache.org/downloads.html[Download^] the latest .deb packages
+https://syncope.apache.org/downloads[Download^] the latest .deb packages
 
 Prepare::
 . Install Apache Tomcat 8
 +
 [source,bash]
-sudo apt-get install tomcat8
-+
-[WARNING]
-*Ubuntu LTS 14.04 LTS* does not provide the tomcat8 package by default: you will need instead to download and manually
-install the following packages (from Ubuntu 15.04):
-http://packages.ubuntu.com/wily/all/libecj-java/download[libecj-java]
-http://packages.ubuntu.com/wily/all/libtomcat8-java/download[libtomcat8-java]
-http://packages.ubuntu.com/wily/all/tomcat8-common/download[tomcat8-common]
-http://packages.ubuntu.com/wily/all/tomcat8/download[tomcat8]
+$ sudo apt-get install tomcat8
 +
 . Install PostgreSQL
 +
 [source,bash]
-sudo apt-get install libpostgresql-jdbc-java postgresql postgresql-client
+$ sudo apt-get install libpostgresql-jdbc-java postgresql postgresql-client
 +
 . Use the PostgreSQL JDBC driver with Tomcat
 +
 [source,bash]
-sudo ln -s /usr/share/java/postgresql-jdbc4.jar /usr/share/tomcat8/lib/
+$ sudo ln -s /usr/share/java/postgresql-jdbc4.jar /usr/share/tomcat8/lib/
 +
 . Replace `JAVA_OPTS` in `/etc/default/tomcat8` with the following:
 +
@@ -135,22 +127,22 @@ Install::
 . Stop Tomcat
 +
 [source,bash]
-sudo service tomcat8 stop
+$ sudo service tomcat8 stop
 +
 . Install Apache Syncope core, console and enduser via the downloaded packages
 +
 [source,bash]
-sudo dpkg -i apache-syncope-*.deb
+$ sudo dpkg -i apache-syncope-*.deb
 +
 . Create a database for use with Apache Syncope
 +
 [source,bash]
-sudo SYNCOPE_USER="syncope" SYNCOPE_PASS="syncope" sh /usr/share/apache-syncope/dbinit-postgresql.sh
+$ sudo SYNCOPE_USER="syncope" SYNCOPE_PASS="syncope" sh /usr/share/apache-syncope/dbinit-postgresql.sh
 +
 . Start Tomcat
 +
 [source,bash]
-sudo service tomcat8 start
+$ sudo service tomcat8 start
 
 [[deb-components]]
 ==== Components
@@ -209,9 +201,9 @@ The actual configuration steps vary significantly depending on the selected Java
 examples:
 
 . https://tomcat.apache.org/tomcat-9.0-doc/jdbc-pool.html[Apache Tomcat 9^]
-. https://javaeesquad.github.io/tutorials/glassfishDatasource/glassFishDatasource.html[Glassfish 4.1^]
-. https://payara.gitbooks.io/payara-server/content/documentation/user-guides/connection-pools/connection-pools.html[Payara Server^]
-  * https://docs.jboss.org/author/display/WFLY11/DataSource+configuration[Wildfly 11^]
+. https://javaeesquad.github.io/tutorials/glassfishDatasource/glassFishDatasource.html[Glassfish 5^]
+. https://payara.gitbooks.io/payara-server/content/documentation/user-guides/connection-pools/connection-pools.html[Payara Server 5^]
+. https://docs.jboss.org/author/display/WFLY10/DataSource+configuration[Wildfly 13^]
 ====
 
 [WARNING]
@@ -232,7 +224,7 @@ of `$CATALINA_HOME/conf/tomcat-users.xml` looks like:
 
 ==== Usage
 
-Once http://syncope.apache.org/downloads.html[downloaded^], double-click the JAR file or execute via the command-line:
+Once https://syncope.apache.org/downloads[downloaded^], double-click the JAR file or execute via the command-line:
 
 [source,bash]
 java -jar syncope-installer-*-uber.jar
@@ -286,6 +278,150 @@ Credentials: `admin` / `password`
 
 |===
 
+=== Docker
+
+https://www.docker.com/[Docker^] images ready to use, published to https://hub.docker.com[Docker Hub^].
+
+[CAUTION]
+.Target Audience
+Getting up and running quickly on Docker. +
+*All configurations available to set, difficult customizations.*
+
+[WARNING]
+Working with these images requires to have Docker correctly installed and configured.
+
+[TIP]
+The Docker images can be used with orchestration tools as
+https://docs.docker.com/compose/[Docker Compose^] or https://kubernetes.io/[Kubernetes^].
+
+==== Docker images
+
+===== Core
+
+Apache Syncope Core, see <<a-bird-s-eye-view-on-the-architecture,above>> for information.
+
+Port exposed: `8080`.
+
+Environment variables:
+
+* `DBMS`: which type of relational DBMS is to be used as internal storage for Syncope Core; valid values are
+`postgresql`, `mariadb`, `mssql`, `mysql`
+* `DB_URL`: JDBC URL of internal storage
+* `DB_USER`: username for internal storage authentication
+* `DB_PASSWORD`: password for internal storage authentication
+* `DB_POOL_MAX`: internal storage connection pool: ceiling
+* `DB_POOL_MIN`: internal storage connection pool: floor
+* `OPENJPA_REMOTE_COMMIT`: configure multiple instances, with high availability; valid values are the ones accepted by
+OpenJPA for
+http://openjpa.apache.org/builds/3.0.0/apache-openjpa/docs/ref_guide_event.html[remote event notification^] including
+`sjvm` (single instance)
+
+===== Console
+
+Apache Syncope Admin UI, see <<a-bird-s-eye-view-on-the-architecture,above>> for information.
+
+Port exposed: `8080`.
+
+Environment variables:
+
+* `CORE_SCHEME`: URL scheme to connect to Syncope Core; valid values are `http` or `https`
+* `CORE_HOST`: host name or IP address to connect to Syncope Core
+* `CORE_PORT`: port number to connect to Syncope Core
+
+===== Enduser
+
+Apache Syncope Enduser UI, see <<a-bird-s-eye-view-on-the-architecture,above>> for information.
+
+Port exposed: `8080`.
+
+Environment variables:
+
+* `CORE_SCHEME`: URL scheme to connect to Syncope Core; valid values are `http` or `https`
+* `CORE_HOST`: host name or IP address to connect to Syncope Core
+* `CORE_PORT`: port number to connect to Syncope Core
+* `DOMAIN`: Syncope Core's domain to work with
+
+==== Docker Compose samples
+
+Besides the one reported below, more samples are
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/tree/syncope-{docVersion}/docker/src/main/resources[available^].
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/2_1_X/docker/src/main/resources[available^].
+endif::[]
+
+.Syncope Core, Admin UI and Enduser UI with PostgreSQL
+====
+The `docker-compose.yml` below will create and connect 4 Docker containers to provide a full-fledged, single
+instance, Apache Syncope deployment. All referenced images are available on Docker Hub.
+
+[source,yaml,subs="verbatim,attributes"]
+----
+version: '3.3'
+
+services:
+   db: // <1>
+     image: crunchydata/crunchy-postgres:centos7-10.3-1.8.2
+     restart: always
+     environment:
+       PG_ROOT_PASSWORD: postgres
+       PG_MODE: primary
+       PG_PRIMARY_USER: postgres
+       PG_PRIMARY_PASSWORD: postgres
+       PG_PRIMARY_HOST: localhost
+       PG_PRIMARY_PORT: 5432
+       PG_DATABASE: syncope
+       PG_USER: syncope
+       PG_PASSWORD: syncope
+
+   syncope: // <2>
+     depends_on:
+       - db
+     image: apache/syncope:{docVersion}
+     ports:
+       - "18080:8080"
+     restart: always
+     environment:
+       DBMS: postgresql
+       DB_URL: jdbc:postgresql://db:5432/syncope
+       DB_USER: syncope
+       DB_PASSWORD: syncope
+       DB_POOL_MAX: 10
+       DB_POOL_MIN: 2
+       OPENJPA_REMOTE_COMMIT: sjvm
+
+   syncope-console: // <3>
+     depends_on:
+       - syncope
+     image: apache/syncope-console:{docVersion}
+     ports:
+       - "28080:8080"
+     restart: always
+     environment:
+       CORE_SCHEME: http
+       CORE_HOST: syncope
+       CORE_PORT: 8080
+
+   syncope-enduser: // <4>
+     depends_on:
+       - syncope
+     image: apache/syncope-enduser:{docVersion}
+     ports:
+       - "38080:8080"
+     restart: always
+     environment:
+       CORE_SCHEME: http
+       CORE_HOST: syncope
+       CORE_PORT: 8080
+       DOMAIN: Master
+----
+<1> Database container for usage as internal storage, based on PostgreSQL 10.3
+<2> Apache Syncope Core, single instance, port `18080` exposed
+<3> Apache Syncope Admin UI, port `28080` exposed
+<4> Apache Syncope Enduser UI, port `38080` exposed, working with `Master` domain
+====
+
 === Maven Project
 
 This is the *preferred method* for working with Apache Syncope, giving access to the whole set of customization
@@ -313,7 +449,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 
 [subs="verbatim,attributes"]
 ----
-mvn archetype:generate \
+$ mvn archetype:generate \
     -DarchetypeGroupId=org.apache.syncope \
     -DarchetypeArtifactId=syncope-archetype \
     -DarchetypeRepository=http://repo1.maven.org/maven2 \
@@ -326,7 +462,7 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 
 [subs="verbatim,attributes"]
 ----
-mvn org.apache.maven.plugins:maven-archetype-plugin:2.4:generate \
+$ mvn org.apache.maven.plugins:maven-archetype-plugin:2.4:generate \
     -DarchetypeGroupId=org.apache.syncope \
     -DarchetypeArtifactId=syncope-archetype \
     -DarchetypeRepository=http://repository.apache.org/content/repositories/snapshots \
@@ -380,7 +516,7 @@ specified above) containing four modules: `common`, `core`, `console` and `endus
 You are now able to perform the first build via
 
 [source,bash]
-mvn clean install
+$ mvn clean install
 
 After downloading all of the needed dependencies, three WAR files will be produced:
 
@@ -416,7 +552,7 @@ made are lost.
 From the top-level directory of your project, execute:
 
 [source,bash]
-mvn -P all clean install
+$ mvn -P all clean install
 
 [WARNING]
 ====
@@ -436,7 +572,7 @@ endif::[]
 then, from the `enduser` subdirectory, execute:
 
 [source,bash]
-mvn -P embedded,all
+$ mvn -P embedded,all
 
 ===== Paths and Components
 
@@ -675,7 +811,7 @@ The Eclipse IDE plugin allows remote management of notification e-mail and repor
 [[eclipseplugin-installation]]
 ==== Installation
 
-After http://syncope.apache.org/downloads.html[download^], start the most recent Eclipse IDE distribution then go to 
+After https://syncope.apache.org/downloads[download^], start the most recent Eclipse IDE distribution then go to 
 `Help > Install New Software`:
 
 image::eclipse01.png[eclipse01]
@@ -739,7 +875,7 @@ The Netbeans IDE plugin allows remote management of notification e-mail and repo
 [[netbeansplugin-installation]]
 ==== Installation
 
-After http://syncope.apache.org/downloads.html[download^], start the most recent Netbeans IDE then go to 
+After https://syncope.apache.org/downloads[download^], start the most recent Netbeans IDE then go to 
 `Tools > Plugins`:
 
 image::netbeans01.png[netbeans01]

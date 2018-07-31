@@ -27,7 +27,6 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.Form;
 
 public class SecurityQuestionsModalPanel extends AbstractModalPanel<SecurityQuestionTO> {
 
@@ -53,7 +52,7 @@ public class SecurityQuestionsModalPanel extends AbstractModalPanel<SecurityQues
     }
 
     @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+    public void onSubmit(final AjaxRequestTarget target) {
         try {
             if (securityQuestionTO.getKey() == null) {
                 restClient.create(securityQuestionTO);

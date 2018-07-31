@@ -37,7 +37,6 @@ import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 
@@ -70,7 +69,7 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
     }
 
     @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+    public void onSubmit(final AjaxRequestTarget target) {
         final UserTO inner = wrapper.getInnerObject();
 
         try {
@@ -105,6 +104,6 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
                     ? e.getClass().getName()
                     : e.getMessage());
         }
-        super.onSubmit(target, form);
+        super.onSubmit(target);
     }
 }

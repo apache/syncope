@@ -34,8 +34,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.OIDCProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCProviderItem;
 import org.apache.syncope.core.persistence.api.entity.OIDCUserTemplate;
@@ -87,20 +86,14 @@ public class JPAOIDCProvider extends AbstractGeneratedKeyEntity implements OIDCP
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "op")
     private List<JPAOIDCProviderItem> items = new ArrayList<>();
 
-    @Min(0)
-    @Max(1)
-    @Column(nullable = false)
-    private Integer createUnmatching;
+    @NotNull
+    private Boolean createUnmatching = false;
 
-    @Min(0)
-    @Max(1)
-    @Column(nullable = false)
-    private Integer selfRegUnmatching;
+    @NotNull
+    private Boolean selfRegUnmatching = false;
 
-    @Min(0)
-    @Max(1)
-    @Column(nullable = false)
-    private Integer updateMatching;
+    @NotNull
+    private Boolean updateMatching = false;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "actionClassName")
@@ -211,32 +204,32 @@ public class JPAOIDCProvider extends AbstractGeneratedKeyEntity implements OIDCP
 
     @Override
     public boolean isCreateUnmatching() {
-        return isBooleanAsInteger(createUnmatching);
+        return createUnmatching;
     }
 
     @Override
     public void setCreateUnmatching(final boolean createUnmatching) {
-        this.createUnmatching = getBooleanAsInteger(createUnmatching);
+        this.createUnmatching = createUnmatching;
     }
 
     @Override
     public boolean isSelfRegUnmatching() {
-        return isBooleanAsInteger(selfRegUnmatching);
+        return selfRegUnmatching;
     }
 
     @Override
     public void setSelfRegUnmatching(final boolean selfRegUnmatching) {
-        this.selfRegUnmatching = getBooleanAsInteger(selfRegUnmatching);
+        this.selfRegUnmatching = selfRegUnmatching;
     }
 
     @Override
     public boolean isUpdateMatching() {
-        return isBooleanAsInteger(updateMatching);
+        return updateMatching;
     }
 
     @Override
     public void setUpdateMatching(final boolean updateMatching) {
-        this.updateMatching = getBooleanAsInteger(updateMatching);
+        this.updateMatching = updateMatching;
     }
 
     @Override

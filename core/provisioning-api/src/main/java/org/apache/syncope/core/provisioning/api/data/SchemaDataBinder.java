@@ -33,16 +33,15 @@ public interface SchemaDataBinder {
 
     VirSchema create(VirSchemaTO schemaTO);
 
-    DerSchemaTO getDerSchemaTO(DerSchema schema);
-
-    PlainSchemaTO getPlainSchemaTO(PlainSchema schema);
-
-    VirSchemaTO getVirSchemaTO(VirSchema schema);
-
     PlainSchema update(PlainSchemaTO schemaTO, PlainSchema schema);
 
     DerSchema update(DerSchemaTO schemaTO, DerSchema derSchema);
 
     VirSchema update(VirSchemaTO schemaTO, VirSchema virSchema);
 
+    PlainSchemaTO getPlainSchemaTO(String key);
+
+    DerSchemaTO getDerSchemaTO(String key);
+
+    VirSchemaTO getVirSchemaTO(String key);
 }

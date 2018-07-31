@@ -53,13 +53,13 @@ public class LoadWidget extends BaseWidget {
         line.getOptions().setShowScale(false);
         line.getOptions().setMultiTooltipTemplate("<%= datasetLabel %>");
 
-        for (SystemInfo.LoadInstant instant : systeminfo.getLoad()) {
+        systeminfo.getLoad().forEach(instant -> {
             line.getData().getLabels().add(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.
                     format(systeminfo.getStartTime() + instant.getUptime()));
 
             cpuValues.add(instant.getSystemLoadAverage() * 1000);
             memValues.add(instant.getTotalMemory());
-        }
+        });
 
         LineDataSet cpuDataSet = new LineDataSet(cpuValues);
         cpuDataSet.setLabel("CPU");

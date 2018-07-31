@@ -26,7 +26,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
-import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.apache.wicket.model.IModel;
 
 public class SortableAnyProviderComparator<T extends AnyTO> extends SortableDataProviderComparator<T> {
 
@@ -49,7 +49,7 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
     }
 
     @SuppressWarnings("rawtypes")
-    private class AttrModel extends AbstractReadOnlyModel<Comparable> {
+    private class AttrModel implements IModel<Comparable> {
 
         private static final long serialVersionUID = -7856686374020091808L;
 

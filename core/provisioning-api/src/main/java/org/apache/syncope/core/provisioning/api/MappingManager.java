@@ -25,7 +25,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
@@ -65,6 +64,17 @@ public interface MappingManager {
     List<PlainAttrValue> getIntValues(Provision provision, Item mapItem, IntAttrName intAttrName, Any<?> any);
 
     /**
+     * Prepare attribute for sending to a connector instance.
+     *
+     * @param provision provision information
+     * @param item mapping item
+     * @param any given any object
+     * @param password clear-text password
+     * @return connObjectLink (if it is the case) + prepared attribute
+     */
+    Pair<String, Attribute> prepareAttr(Provision provision, Item item, Any<?> any, String password);
+
+    /**
      * Prepare attributes for sending to a connector instance.
      *
      * @param any given any object
@@ -94,9 +104,8 @@ public interface MappingManager {
      * @param mapItem mapping item
      * @param attr attribute received from connector
      * @param anyTO any object
-     * @param anyUtils any utils
      */
-    <T extends AnyTO> void setIntValues(Item mapItem, Attribute attr, T anyTO, AnyUtils anyUtils);
+    <T extends AnyTO> void setIntValues(Item mapItem, Attribute attr, T anyTO);
 
     /**
      * Set attribute values, according to the given {@link Item}, to realm from attribute received from
@@ -107,5 +116,4 @@ public interface MappingManager {
      * @param realmTO realm
      */
     void setIntValues(Item orgUnitItem, Attribute attr, RealmTO realmTO);
-
 }

@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.PropertyModel;
 
@@ -29,16 +28,13 @@ public class DerSchemaDetails extends AbstractSchemaDetailsPanel {
 
     private static final long serialVersionUID = 6668789770131753386L;
 
-    public DerSchemaDetails(final String id,
-            final PageReference pageReference,
-            final DerSchemaTO schemaTO) {
-
-        super(id, pageReference, schemaTO);
+    public DerSchemaDetails(final String id, final DerSchemaTO schemaTO) {
+        super(id, schemaTO);
 
         TextField<String> expression = new TextField<>("expression", new PropertyModel<>(schemaTO, "expression"));
         expression.setRequired(true);
-        schemaForm.add(expression);
+        add(expression);
 
-        schemaForm.add(Constants.getJEXLPopover(this, TooltipConfig.Placement.right));
+        add(Constants.getJEXLPopover(this, TooltipConfig.Placement.right));
     }
 }

@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.Basic;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
@@ -32,8 +31,6 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -77,10 +74,8 @@ public class JPANotificationTask extends AbstractTask implements NotificationTas
     @Lob
     private String htmlBody;
 
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer executed = getBooleanAsInteger(false);
+    @NotNull
+    private Boolean executed = false;
 
     @Enumerated(EnumType.STRING)
     @NotNull
@@ -164,12 +159,12 @@ public class JPANotificationTask extends AbstractTask implements NotificationTas
 
     @Override
     public boolean isExecuted() {
-        return isBooleanAsInteger(executed);
+        return executed;
     }
 
     @Override
     public void setExecuted(final boolean executed) {
-        this.executed = getBooleanAsInteger(executed);
+        this.executed = executed;
     }
 
     @Override

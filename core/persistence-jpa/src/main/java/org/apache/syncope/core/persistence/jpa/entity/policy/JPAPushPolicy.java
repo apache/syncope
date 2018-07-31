@@ -18,32 +18,43 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.policy;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.Lob;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import org.apache.syncope.common.lib.policy.PushPolicySpec;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 
 @Entity
 @Table(name = JPAPushPolicy.TABLE)
-public class JPAPushPolicy extends AbstractPolicy implements PushPolicy {
+public class JPAPushPolicy extends AbstractProvisioningPolicy implements PushPolicy {
 
     private static final long serialVersionUID = -5875589156893921113L;
 
     public static final String TABLE = "PushPolicy";
 
-    @Lob
-    private String specification;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "pushPolicy")
+    private List<JPAPushCorrelationRuleEntity> correlationRules = new ArrayList<>();
 
     @Override
-    public PushPolicySpec getSpecification() {
-        return POJOHelper.deserialize(specification, PushPolicySpec.class);
+    public boolean add(final PushCorrelationRuleEntity filter) {
+        checkType(filter, JPAPushCorrelationRuleEntity.class);
+        return this.correlationRules.add((JPAPushCorrelationRuleEntity) filter);
     }
 
     @Override
-    public void setSpecification(final PushPolicySpec policy) {
-        this.specification = POJOHelper.serialize(policy);
+    public Optional<? extends PushCorrelationRuleEntity> getCorrelationRule(final AnyType anyType) {
+        return correlationRules.stream().
+                filter(rule -> anyType != null && anyType.equals(rule.getAnyType())).findFirst();
     }
 
+    @Override
+    public List<? extends PushCorrelationRuleEntity> getCorrelationRules() {
+        return correlationRules;
+    }
 }

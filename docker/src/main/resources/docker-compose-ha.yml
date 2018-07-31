@@ -15,6 +15,9 @@
 # specific language governing permissions and limitations
 # under the License.
 
+# Full deployment (Core, Console, Enduser) on PostgreSQL, with high-availability set for Core
+# http://syncope.apache.org/docs/reference-guide.html#high-availability
+
 version: '3.3'
 
 services:
@@ -87,3 +90,4 @@ services:
        CORE_SCHEME: http
        CORE_HOST: syncope1
        CORE_PORT: 8080
+       DOMAIN: Master

@@ -28,7 +28,6 @@ import org.apache.cxf.rs.security.jose.common.JoseType;
 import org.apache.cxf.rs.security.jose.jws.JwsHeaders;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactProducer;
-import org.apache.cxf.rs.security.jose.jws.JwsSignatureProvider;
 import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
 import org.apache.cxf.rs.security.jose.jwt.JwtToken;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
@@ -39,6 +38,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
+import org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -54,7 +54,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
     private String jwtIssuer;
 
     @Autowired
-    private JwsSignatureProvider jwsSignatureProvider;
+    private AccessTokenJwsSignatureProvider jwsSignatureProvider;
 
     @Autowired
     private AccessTokenDAO accessTokenDAO;

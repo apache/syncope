@@ -33,7 +33,7 @@ public class SyncopeJexlFunctions {
     /**
      * Converts realm's full path into the equivalent DN.
      *
-     * Example: {@code}/a/b/c{@code} becomes {@code}ou=c,ou=b,ou=a{@code}.
+     * Example: {@code /a/b/c} becomes {@code ou=c,ou=b,ou=a}.
      *
      * @param fullPath realm's full path
      * @param attr attribute name for DN
@@ -46,8 +46,8 @@ public class SyncopeJexlFunctions {
     /**
      * Converts realm's full path into the equivalent DN.
      *
-     * Example: {@code}/a/b/c{@code} becomes {@code},ou=c,ou=b,ou=a{@code}, when {@code}prefix{@code} is
-     * {@code}&quot;,&quot;{@code}
+     * Example: {@code /a/b/c} becomes {@code ,ou=c,ou=b,ou=a}, when {@code prefix} is
+     * {@code &quot;,&quot;}
      *
      * @param fullPath realm's full path
      * @param attr attribute name for DN

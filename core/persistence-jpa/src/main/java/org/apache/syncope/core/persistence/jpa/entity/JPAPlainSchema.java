@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -29,8 +28,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -58,25 +55,16 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    private AttrSchemaType type;
+    private AttrSchemaType type = AttrSchemaType.String;
 
     @NotNull
-    private String mandatoryCondition;
+    private String mandatoryCondition = Boolean.FALSE.toString();
 
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer multivalue;
+    private Boolean multivalue = false;
 
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer uniqueConstraint;
+    private Boolean uniqueConstraint = false;
 
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer readonly;
+    private Boolean readonly = false;
 
     @Column(nullable = true)
     private String conversionPattern;
@@ -104,16 +92,6 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
 
     @Transient
     private Validator validatorImpl;
-
-    public JPAPlainSchema() {
-        super();
-
-        type = AttrSchemaType.String;
-        mandatoryCondition = Boolean.FALSE.toString();
-        multivalue = getBooleanAsInteger(false);
-        uniqueConstraint = getBooleanAsInteger(false);
-        readonly = getBooleanAsInteger(false);
-    }
 
     @Override
     public AnyTypeClass getAnyTypeClass() {
@@ -148,32 +126,32 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
 
     @Override
     public boolean isMultivalue() {
-        return isBooleanAsInteger(multivalue);
+        return multivalue;
     }
 
     @Override
     public void setMultivalue(final boolean multivalue) {
-        this.multivalue = getBooleanAsInteger(multivalue);
+        this.multivalue = multivalue;
     }
 
     @Override
     public boolean isUniqueConstraint() {
-        return isBooleanAsInteger(uniqueConstraint);
+        return uniqueConstraint;
     }
 
     @Override
     public void setUniqueConstraint(final boolean uniquevalue) {
-        this.uniqueConstraint = getBooleanAsInteger(uniquevalue);
+        this.uniqueConstraint = uniquevalue;
     }
 
     @Override
     public boolean isReadonly() {
-        return isBooleanAsInteger(readonly);
+        return readonly;
     }
 
     @Override
     public void setReadonly(final boolean readonly) {
-        this.readonly = getBooleanAsInteger(readonly);
+        this.readonly = readonly;
     }
 
     public Validator validator() {

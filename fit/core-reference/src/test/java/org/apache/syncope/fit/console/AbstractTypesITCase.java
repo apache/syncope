@@ -19,6 +19,7 @@
 package org.apache.syncope.fit.console;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.Types;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
 import org.apache.wicket.util.tester.FormTester;
@@ -94,13 +95,16 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        final FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
+        FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
                 + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:details:form:key:textField", key);
-        formTester.setValue("content:details:form:type:dropDownChoiceField", "3");
+        formTester.setValue("content:form:view:details:key:textField", key);
+        formTester.setValue("content:form:view:details:type:dropDownChoiceField", "3");
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:0:"
+                + "body:content:outerObjectsRepeater:0:outer:form:content:form:buttons:next", Constants.ON_CLICK);
 
-        TESTER.clickLink("body:content:tabbedPanel:panel:"
-                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
+                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
+        formTester.submit("content:form:buttons:finish");
 
         TESTER.assertInfoMessages("Operation executed successfully");
 

@@ -18,15 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -48,10 +45,7 @@ public class JPAVirSchema extends AbstractSchema implements VirSchema {
     @OneToOne(fetch = FetchType.EAGER)
     private JPAAnyTypeClass anyTypeClass;
 
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer readonly;
+    private Boolean readonly = false;
 
     @NotNull
     @ManyToOne
@@ -59,12 +53,6 @@ public class JPAVirSchema extends AbstractSchema implements VirSchema {
 
     @NotNull
     private String extAttrName;
-
-    public JPAVirSchema() {
-        super();
-
-        readonly = getBooleanAsInteger(false);
-    }
 
     @Override
     public AnyTypeClass getAnyTypeClass() {
@@ -89,22 +77,22 @@ public class JPAVirSchema extends AbstractSchema implements VirSchema {
 
     @Override
     public boolean isMultivalue() {
-        return Boolean.TRUE;
+        return true;
     }
 
     @Override
     public boolean isUniqueConstraint() {
-        return Boolean.FALSE;
+        return false;
     }
 
     @Override
     public boolean isReadonly() {
-        return isBooleanAsInteger(readonly);
+        return readonly;
     }
 
     @Override
     public void setReadonly(final boolean readonly) {
-        this.readonly = getBooleanAsInteger(readonly);
+        this.readonly = readonly;
     }
 
     @Override

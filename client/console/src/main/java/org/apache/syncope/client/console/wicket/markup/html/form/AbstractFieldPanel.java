@@ -34,7 +34,7 @@ public abstract class AbstractFieldPanel<T> extends Panel {
 
     private static final long serialVersionUID = 5958017546318855690L;
 
-    private static final String LABEL = "field-label";
+    public static final String LABEL = "field-label";
 
     protected boolean isRequiredLabelAdded = false;
 

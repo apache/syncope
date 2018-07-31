@@ -38,6 +38,7 @@ import java.util.UUID;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -53,6 +54,7 @@ import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
+import org.apache.syncope.common.lib.policy.HaveIBeenPwnedPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -1340,5 +1342,41 @@ public class UserITCase extends AbstractITCase {
 
         // verify user was removed by the backend REST service
         assertEquals(404, webClient.get().getStatus());
+    }
+
+    @Test
+    public void haveIBeenPwned() {
+        ImplementationTO rule = new ImplementationTO();
+        rule.setKey("HaveIBeenPwnedPasswordRuleConf" + getUUIDString());
+        rule.setEngine(ImplementationEngine.JAVA);
+        rule.setType(ImplementationType.PASSWORD_RULE);
+        rule.setBody(POJOHelper.serialize(new HaveIBeenPwnedPasswordRuleConf()));
+        Response response = implementationService.create(rule);
+        rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+
+        PasswordPolicyTO pwdPolicy = new PasswordPolicyTO();
+        pwdPolicy.setDescription("Have I Been Pwned?");
+        pwdPolicy.getRules().add(rule.getKey());
+        pwdPolicy = createPolicy(PolicyType.PASSWORD, pwdPolicy);
+        assertNotNull(pwdPolicy.getKey());
+
+        RealmTO realm = new RealmTO();
+        realm.setName("hibp");
+        realm.setPasswordPolicy(pwdPolicy.getKey());
+        realmService.create(SyncopeConstants.ROOT_REALM, realm);
+
+        UserTO user = getUniqueSampleTO("hibp@syncope.apache.org");
+        user.setRealm("/hibp");
+        user.setPassword("password");
+        try {
+            createUser(user);
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidUser, e.getType());
+            assertEquals("InvalidPassword: Password pwned", e.getElements().iterator().next());
+        }
+
+        user.setPassword("1" + RandomStringUtils.randomAlphanumeric(10));
+        user = createUser(user).getEntity();
+        assertNotNull(user.getKey());
     }
 }

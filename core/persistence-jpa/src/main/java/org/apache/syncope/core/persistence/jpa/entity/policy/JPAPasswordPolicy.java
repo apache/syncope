@@ -20,15 +20,13 @@ package org.apache.syncope.core.persistence.jpa.entity.policy;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
@@ -42,10 +40,8 @@ public class JPAPasswordPolicy extends AbstractPolicy implements PasswordPolicy 
 
     public static final String TABLE = "PasswordPolicy";
 
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer allowNullPassword;
+    @NotNull
+    private Boolean allowNullPassword = false;
 
     private int historyLength;
 
@@ -59,12 +55,12 @@ public class JPAPasswordPolicy extends AbstractPolicy implements PasswordPolicy 
 
     @Override
     public boolean isAllowNullPassword() {
-        return isBooleanAsInteger(allowNullPassword);
+        return allowNullPassword;
     }
 
     @Override
     public void setAllowNullPassword(final boolean allowNullPassword) {
-        this.allowNullPassword = getBooleanAsInteger(allowNullPassword);
+        this.allowNullPassword = allowNullPassword;
     }
 
     @Override

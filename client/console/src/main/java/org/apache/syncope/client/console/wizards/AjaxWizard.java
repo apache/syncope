@@ -41,7 +41,6 @@ import org.apache.wicket.extensions.wizard.IWizardStep;
 import org.apache.wicket.extensions.wizard.Wizard;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.slf4j.Logger;
@@ -172,7 +171,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
      */
     @Override
     public final void onCancel() {
-        final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
+        AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class).orElse(null);
         try {
             onCancelInternal();
             if (eventSink == null) {
@@ -193,18 +192,18 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
      */
     @Override
     public final void onFinish() {
-        final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
+        AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class).orElse(null);
         try {
             final Serializable res = onApply(target);
             if (eventSink == null) {
-                send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemFinishEvent<>(item, target).setResult(res));
+                send(this, Broadcast.BUBBLE, new NewItemFinishEvent<>(item, target).setResult(res));
             } else {
                 send(eventSink, Broadcast.EXACT, new NewItemFinishEvent<>(item, target).setResult(res));
             }
         } catch (TimeoutException te) {
             LOG.warn("Operation applying took to long", te);
             if (eventSink == null) {
-                send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemCancelEvent<>(item, target));
+                send(this, Broadcast.BUBBLE, new NewItemCancelEvent<>(item, target));
             } else {
                 send(eventSink, Broadcast.EXACT, new NewItemCancelEvent<>(item, target));
             }
@@ -361,7 +360,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
     }
 
     @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+    public void onSubmit(final AjaxRequestTarget target) {
         try {
             onApply(target);
         } catch (TimeoutException te) {
@@ -373,7 +372,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
     }
 
     @Override
-    public void onError(final AjaxRequestTarget target, final Form<?> form) {
+    public void onError(final AjaxRequestTarget target) {
         ((BasePage) getPage()).getNotificationPanel().refresh(target);
     }
 

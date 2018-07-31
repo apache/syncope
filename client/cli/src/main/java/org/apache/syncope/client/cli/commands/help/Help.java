@@ -42,7 +42,7 @@ public class Help {
                         .append(" \n");
             }
             helpResultManager.toView(generalHelpBuilder.toString());
-        } catch (final IllegalAccessException | IllegalArgumentException | InstantiationException e) {
+        } catch (Exception e) {
             LOG.error("Error helping", e);
             helpResultManager.genericMessage(e.getMessage());
         }

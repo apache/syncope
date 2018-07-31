@@ -51,7 +51,7 @@ public class SchemasITCase extends AbstractTypesITCase {
         TESTER.assertComponent(
                 "body:content:tabbedPanel:"
                 + "panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:"
-                + "form:content:kindForm:kind:dropDownChoiceField", DropDownChoice.class);
+                + "form:content:form:view:kind:dropDownChoiceField", DropDownChoice.class);
     }
 
     @Test
@@ -64,13 +64,16 @@ public class SchemasITCase extends AbstractTypesITCase {
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        final FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
+        FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
                 + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:details:form:key:textField", "zBoolean");
-        formTester.setValue("content:details:form:type:dropDownChoiceField", "3");
+        formTester.setValue("content:form:view:details:key:textField", "zBoolean");
+        formTester.setValue("content:form:view:details:type:dropDownChoiceField", "3");
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:0:"
+                + "body:content:outerObjectsRepeater:0:outer:form:content:form:buttons:next", Constants.ON_CLICK);
 
-        TESTER.clickLink("body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:"
-                + "outer:dialog:footer:inputs:0:submit");
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
+                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
+        formTester.submit("content:form:buttons:finish");
 
         TESTER.assertInfoMessages("Operation executed successfully");
 
@@ -95,15 +98,18 @@ public class SchemasITCase extends AbstractTypesITCase {
         TESTER.assertComponent(
                 "body:content:tabbedPanel:"
                 + "panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:"
-                + "form:content:kindForm:kind:dropDownChoiceField", DropDownChoice.class);
+                + "form:content:form:view:kind:dropDownChoiceField", DropDownChoice.class);
 
         FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:details:form:multivalue:checkboxField", "true");
+        formTester.setValue("content:form:view:details:multivalue:checkboxField", "true");
 
-        TESTER.clickLink("body:content:tabbedPanel:panel:"
-                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit",
-                true);
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:0:"
+                + "body:content:outerObjectsRepeater:0:outer:form:content:form:buttons:next", Constants.ON_CLICK);
+
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
+                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
+        formTester.submit("content:form:buttons:finish");
 
         TESTER.assertInfoMessages("Operation executed successfully");
     }
@@ -120,13 +126,16 @@ public class SchemasITCase extends AbstractTypesITCase {
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        final FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
+        FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
                 + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:details:form:key:textField", schemaName);
-        formTester.setValue("content:details:form:type:dropDownChoiceField", "0");
+        formTester.setValue("content:form:view:details:key:textField", schemaName);
+        formTester.setValue("content:form:view:details:type:dropDownChoiceField", "0");
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:0:"
+                + "body:content:outerObjectsRepeater:0:outer:form:content:form:buttons:next", Constants.ON_CLICK);
 
-        TESTER.clickLink("body:content:tabbedPanel:panel:"
-                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
+                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
+        formTester.submit("content:form:buttons:finish");
 
         TESTER.assertInfoMessages("Operation executed successfully");;
 
@@ -170,21 +179,25 @@ public class SchemasITCase extends AbstractTypesITCase {
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:2:body:content:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        final FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
+        FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
                 + "accordionPanel:tabs:2:body:content:outerObjectsRepeater:0:outer:form");
 
-        formTester.setValue("content:details:form:resource:dropDownChoiceField", "0");
+        formTester.setValue("content:form:view:details:resource:dropDownChoiceField", "0");
         TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:"
                 + "accordionPanel:tabs:2:body:content:outerObjectsRepeater:0:outer:form:"
-                + "content:details:form:resource:dropDownChoiceField", Constants.ON_CHANGE);
+                + "content:form:view:details:resource:dropDownChoiceField", Constants.ON_CHANGE);
 
-        formTester.setValue("content:details:form:key:textField", "mynewvir");
-        formTester.setValue("content:details:form:resource:dropDownChoiceField", "0");
-        formTester.setValue("content:details:form:anyType:dropDownChoiceField", "0");
-        formTester.setValue("content:details:form:extAttrName:textField", "virattr");
+        formTester.setValue("content:form:view:details:key:textField", "mynewvir");
+        formTester.setValue("content:form:view:details:resource:dropDownChoiceField", "0");
+        formTester.setValue("content:form:view:details:anyType:dropDownChoiceField", "0");
+        formTester.setValue("content:form:view:details:extAttrName:textField", "virattr");
 
-        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:2:body:content:"
-                + "outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit", Constants.ON_CLICK);
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:2:"
+                + "body:content:outerObjectsRepeater:0:outer:form:content:form:buttons:next", Constants.ON_CLICK);
+
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
+                + "accordionPanel:tabs:2:body:content:outerObjectsRepeater:0:outer:form");
+        formTester.submit("content:form:buttons:finish");
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();

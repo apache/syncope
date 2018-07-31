@@ -27,7 +27,6 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.syncope.client.console.panels.SubmitableModalPanel;
 import org.apache.syncope.client.console.panels.WizardModalPanel;
@@ -64,7 +63,7 @@ public class ApprovalModal extends Panel implements SubmitableModalPanel, Wizard
     }
 
     @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+    public void onSubmit(final AjaxRequestTarget target) {
         this.restClient.submitForm(formTO);
         this.modal.show(false);
         this.modal.close(target);
@@ -72,7 +71,7 @@ public class ApprovalModal extends Panel implements SubmitableModalPanel, Wizard
     }
 
     @Override
-    public void onError(final AjaxRequestTarget target, final Form<?> form) {
+    public void onError(final AjaxRequestTarget target) {
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 

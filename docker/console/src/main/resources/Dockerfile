@@ -26,7 +26,7 @@ COPY *.properties.template /etc/apache-syncope/
 COPY flowable-modeler/ /etc/apache-syncope/flowable-modeler/
 
 COPY build.sh /tmp
-RUN chmod 755 /tmp/build.sh && /tmp/build.sh && rm /tmp/build.sh
+RUN chmod 755 /tmp/build.sh && sync && /tmp/build.sh && rm /tmp/build.sh
 
 COPY startup.sh /sbin
 RUN chmod 755 /sbin/startup.sh

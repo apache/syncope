@@ -27,7 +27,6 @@ import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.MatchingRule;
@@ -104,25 +103,6 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
     protected abstract AnyTO doCreate(AnyTO anyTO, SyncDelta delta);
 
     protected abstract AnyPatch doUpdate(AnyTO before, AnyPatch anyPatch, SyncDelta delta, ProvisioningReport result);
-
-    protected void doDelete(final AnyTypeKind kind, final String key) {
-        PropagationByResource propByRes = new PropagationByResource();
-        propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
-        try {
-            taskExecutor.execute(propagationManager.getDeleteTasks(
-                    kind,
-                    key,
-                    propByRes,
-                    null),
-                    false);
-        } catch (Exception e) {
-            // A propagation failure doesn't imply a pull failure.
-            // The propagation exception status will be reported into the propagation task execution.
-            LOG.error("Could not propagate anyObject " + key, e);
-        }
-
-        getProvisioningManager().delete(key, Collections.singleton(profile.getTask().getResource().getKey()), true);
-    }
 
     @Override
     public void setPullExecutor(final SyncopePullExecutor executor) {
@@ -501,7 +481,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
                         AnyPatch anyPatch = null;
                         if (unlink) {
-                            anyPatch = newPatch(key);
+                            anyPatch = getAnyUtils().newAnyPatch(key);
                             anyPatch.getResources().add(new StringPatchItem.Builder().
                                     operation(PatchOperation.DELETE).
                                     value(profile.getTask().getResource().getKey()).build());
@@ -604,7 +584,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                             }
                         }
 
-                        AnyPatch anyPatch = newPatch(before.getKey());
+                        AnyPatch anyPatch = getAnyUtils().newAnyPatch(before.getKey());
                         anyPatch.getResources().add(new StringPatchItem.Builder().
                                 operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
                                 value(profile.getTask().getResource().getKey()).build());
@@ -685,7 +665,8 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     }
 
                     try {
-                        doDelete(provision.getAnyType().getKind(), key);
+                        getProvisioningManager().
+                                delete(key, Collections.singleton(profile.getTask().getResource().getKey()), true);
                         output = null;
                         resultStatus = Result.SUCCESS;
 
@@ -804,9 +785,9 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     processed.getUid().getUidValue(), processed.getObject().getObjectClass(), anyKeys);
 
             if (anyKeys.size() > 1) {
-                switch (profile.getResAct()) {
+                switch (profile.getConflictResolutionAction()) {
                     case IGNORE:
-                        throw new IllegalStateException("More than one match " + anyKeys);
+                        throw new IllegalStateException("More than one match: " + anyKeys);
 
                     case FIRSTMATCH:
                         anyKeys = anyKeys.subList(0, 1);
@@ -915,8 +896,10 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             this.latestResult = result;
         }
 
+        AnyUtils anyUtils = getAnyUtils();
+
         notificationManager.createTasks(AuditElements.EventCategoryType.PULL,
-                getAnyUtils().anyTypeKind().name().toLowerCase(),
+                anyUtils.anyTypeKind().name().toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,
                 result,
@@ -926,7 +909,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 furtherInput);
 
         auditManager.audit(AuditElements.EventCategoryType.PULL,
-                getAnyUtils().anyTypeKind().name().toLowerCase(),
+                anyUtils.anyTypeKind().name().toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,
                 result,

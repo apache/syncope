@@ -26,13 +26,13 @@ under the License.
 
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope</artifactId>
-  <version>2.1.0-SNAPSHOT</version>
+  <version>2.1.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>19</version>
+    <version>20</version>
     <relativePath />
   </parent>
 
@@ -313,6 +313,27 @@ under the License.
       <url>http://people.apache.org/~skylark17/</url>
       <email>skylark17@apache.org</email>
     </developer>
+    <developer>
+      <id>loredicola</id>
+      <name>Lorenzo Di Cola</name>
+      <organization>Tirasa</organization>
+      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <url>http://people.apache.org/~loredicola/</url>
+      <email>loredicola@apache.org</email>
+    </developer>
+    <developer>
+      <id>dimaayash</id>
+      <name>Dima Ayash</name>
+      <organization>Tirasa</organization>
+      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <email>dimaayash@apache.org</email>
+    </developer>
   </developers>
   <contributors>
     <contributor>
@@ -356,8 +377,8 @@ under the License.
   <properties>
     <syncope.version>${project.version}</syncope.version>
 
-    <connid.version>1.4.4.0-SNAPSHOT</connid.version>
-    <connid.soap.version>1.4.2-SNAPSHOT</connid.soap.version>
+    <connid.version>1.4.4.0</connid.version>
+    <connid.soap.version>1.4.2</connid.soap.version>
     <connid.rest.version>1.0.3</connid.rest.version>
     <connid.database.version>2.2.5</connid.database.version>
     <connid.csvdir.version>0.8.7</connid.csvdir.version>
@@ -368,12 +389,12 @@ under the License.
     <connid.scimv11.version>1.0.1</connid.scimv11.version>
     <connid.servicenow.version>1.0.0</connid.servicenow.version>
 
-    <cxf.version>3.2.5-SNAPSHOT</cxf.version>
+    <cxf.version>3.2.5</cxf.version>
 
-    <jackson.version>2.9.5</jackson.version>
+    <jackson.version>2.9.6</jackson.version>
 
-    <spring.version>5.0.6.RELEASE</spring.version>
-    <spring-security.version>5.0.5.RELEASE</spring-security.version>
+    <spring.version>5.0.8.RELEASE</spring.version>
+    <spring-security.version>5.0.7.RELEASE</spring-security.version>
 
     <openjpa.version>3.0.0</openjpa.version>
     <hikaricp.version>3.2.0</hikaricp.version>
@@ -385,25 +406,25 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <groovy.version>3.0.0-alpha-2</groovy.version>
+    <groovy.version>3.0.0-alpha-3</groovy.version>
 
     <flowable.version>6.3.1</flowable.version>
 
-    <camel.version>2.21.1</camel.version>	
+    <camel.version>2.22.0</camel.version>	
 
     <slf4j.version>1.7.25</slf4j.version>
     <opensaml.version>3.3.0</opensaml.version>
 
-    <elasticsearch.version>6.2.4</elasticsearch.version>
+    <elasticsearch.version>6.3.2</elasticsearch.version>
 
-    <log4j.version>2.11.0</log4j.version>
+    <log4j.version>2.11.1</log4j.version>
     <disruptor.version>3.4.2</disruptor.version>
 
     <commons-io.version>2.6</commons-io.version>
     <commons-email.version>1.5</commons-email.version>
     <commons-jexl.version>3.1</commons-jexl.version>
     <commons-lang.version>3.7</commons-lang.version>
-    <commons-text.version>1.3</commons-text.version>
+    <commons-text.version>1.4</commons-text.version>
     <commons-logging.version>1.1.3</commons-logging.version>
     
     <tika.version>1.18</tika.version>
@@ -412,7 +433,7 @@ under the License.
 
     <h2.version>1.4.197</h2.version>
 
-    <junit.version>5.2.0</junit.version>
+    <junit.version>5.3.0-M1</junit.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -421,7 +442,7 @@ under the License.
     <flowable-modeler.directory>${project.build.directory}/flowable-modeler</flowable-modeler.directory>    
 
     <swagger-core.version>2.0.2</swagger-core.version>    
-    <swagger-ui.version>3.17.0</swagger-ui.version>
+    <swagger-ui.version>3.17.6</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
     <jquery.version>2.2.4</jquery.version>
@@ -431,7 +452,7 @@ under the License.
     
     <bootstrap.version>3.3.7</bootstrap.version>
     <bootstrap-select.version>1.12.4</bootstrap-select.version>
-    <bootstrap-fileinput.version>4.4.7</bootstrap-fileinput.version>
+    <bootstrap-fileinput.version>4.4.8</bootstrap-fileinput.version>
     <bootbox.version>4.4.0</bootbox.version>
     <font-awesome.version>4.7.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
@@ -441,9 +462,9 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>1.0.2</chartjs.version>
     
-    <wicket.version>7.10.0</wicket.version>
-    <wicket-jqueryui.version>7.10.2</wicket-jqueryui.version>
-    <wicket-bootstrap.version>0.10.17</wicket-bootstrap.version>
+    <wicket.version>8.0.0</wicket.version>
+    <wicket-jqueryui.version>8.0.0</wicket-jqueryui.version>
+    <wicket-bootstrap.version>2.0.2</wicket-bootstrap.version>
 
     <angular.version>1.7.0</angular.version>
     <angular-ui-router.version>0.3.2</angular-ui-router.version>
@@ -458,8 +479,8 @@ under the License.
     <select2.version>3.4.8</select2.version>
     <fileSaver.version>0.0.2</fileSaver.version>
     
-    <izpack.version>5.1.2</izpack.version>
-    <httpclient.version>4.5.5</httpclient.version>
+    <izpack.version>5.1.3</izpack.version>
+    <httpclient.version>4.5.6</httpclient.version>
     <maven-invoker.version>3.0.1</maven-invoker.version>
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
 
@@ -467,6 +488,8 @@ under the License.
     <netbeans.version>RELEASE82</netbeans.version>
 
     <antlr4.version>4.7.1</antlr4.version>
+
+    <hotswap.version>1.3.0</hotswap.version>
 
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
@@ -487,7 +510,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.8</tomcat.version>
+    <tomcat.version>9.0.10</tomcat.version>
 
     <phantomjs.driver.version>1.2.0</phantomjs.driver.version>
     <phantomjs.version>2.1.1</phantomjs.version>
@@ -531,11 +554,6 @@ under the License.
         <artifactId>javax.el-api</artifactId>
         <version>3.0.0</version>
         <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>javax.ws.rs</groupId>
-        <artifactId>javax.ws.rs-api</artifactId>
-        <version>2.1</version>
       </dependency>
       <dependency>
         <groupId>org.apache.geronimo.javamail</groupId>
@@ -1093,7 +1111,7 @@ under the License.
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-constants</artifactId>
-        <version>1.9.1</version>
+        <version>1.10</version>
       </dependency>
 
       <!-- Flowable -->
@@ -1157,7 +1175,7 @@ under the License.
         <version>${wicket.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.wicket</groupId>
+        <groupId>org.wicketstuff</groupId>
         <artifactId>wicket-datetime</artifactId>
         <version>${wicket.version}</version>
       </dependency>
@@ -1195,12 +1213,30 @@ under the License.
         <groupId>de.agilecoders.wicket</groupId>
         <artifactId>wicket-bootstrap-core</artifactId>
         <version>${wicket-bootstrap.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-request</artifactId>            
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-util</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>de.agilecoders.wicket</groupId>
         <artifactId>wicket-bootstrap-extensions</artifactId>
         <version>${wicket-bootstrap.version}</version>
         <exclusions>
+          <exclusion>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-request</artifactId>            
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-util</artifactId>
+          </exclusion>
           <exclusion>
             <groupId>com.google.javascript</groupId>
             <artifactId>closure-compiler</artifactId>
@@ -1218,7 +1254,7 @@ under the License.
             <artifactId>momentjs</artifactId>
           </exclusion>
         </exclusions>
-      </dependency>		
+      </dependency>
       <!-- /Wicket -->
       
       <dependency>
@@ -1261,7 +1297,7 @@ under the License.
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
-        <version>2.0.9</version>
+        <version>2.0.11</version>
       </dependency>
       
       <dependency>
@@ -1603,6 +1639,12 @@ under the License.
         <version>${antlr4.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.hotswapagent</groupId>
+        <artifactId>hotswap-agent</artifactId>
+        <version>${hotswap.version}</version>
+      </dependency>
+
       <!-- TEST -->
       <dependency>
         <groupId>com.github.detro</groupId>
@@ -1625,7 +1667,7 @@ under the License.
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpkix-jdk15on</artifactId>
-        <version>1.59</version>
+        <version>1.60</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -1690,7 +1732,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.7.0</version> 
+          <version>3.8.0</version> 
           <configuration>
             <source>${targetJdk}</source>
             <target>${targetJdk}</target>
@@ -1717,12 +1759,6 @@ under the License.
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>2.10.4</version>          
-        </plugin>
-        
-        <plugin>
-          <groupId>org.apache.cxf</groupId>
-          <artifactId>cxf-java2wadl-plugin</artifactId>
-          <version>${cxf.version}</version>
         </plugin>
         
         <plugin>
@@ -1863,7 +1899,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.21.0</version>
+          <version>2.22.0</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
@@ -1874,14 +1910,14 @@ under the License.
             <dependency>
               <groupId>org.junit.platform</groupId>
               <artifactId>junit-platform-surefire-provider</artifactId>
-              <version>1.2.0</version>
+              <version>1.3.0-M1</version>
             </dependency>
           </dependencies>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>2.21.0</version>
+          <version>2.22.0</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
@@ -1892,7 +1928,7 @@ under the License.
             <dependency>
               <groupId>org.junit.platform</groupId>
               <artifactId>junit-platform-surefire-provider</artifactId>
-              <version>1.2.0-RC1</version>
+              <version>1.3.0-M1</version>
             </dependency>
           </dependencies>
           <executions>
@@ -1908,7 +1944,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>2.17</version>
+          <version>3.0.0</version>
           <configuration>
             <configLocation>${rootpom.basedir}/src/main/resources/org/apache/syncope/checkstyle.xml</configLocation>
             <targetJdk>${targetJdk}</targetJdk>
@@ -1924,7 +1960,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.26.0</version>
+          <version>0.26.1</version>
         </plugin>
 
         <plugin>
@@ -2231,7 +2267,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>2.9</version>
+        <version>3.0.0</version>
         <configuration>
           <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
           <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
@@ -2251,7 +2287,7 @@ under the License.
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>2.10.4</version>
         <configuration>
-          <destDir>apidocs/2.0</destDir>
+          <destDir>apidocs/2.1</destDir>
           <isOffline>false</isOffline>
           <detectLinks>true</detectLinks>
           <detectJavaApiLink>true</detectJavaApiLink>
@@ -2266,17 +2302,18 @@ under the License.
             <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.9/</link>
             <link>http://fasterxml.github.io/jackson-dataformat-yaml/javadoc/2.9.pr1/</link>
             <link>http://fasterxml.github.io/jackson-datatype-joda/javadoc/2.9/</link>
-            <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/2.21.1/</link>
-            <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/2.21.1/</link>
-            <link>https://ci.apache.org/projects/wicket/apidocs/7.x/</link>
+            <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/2.22.0/</link>
+            <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/2.22.0/</link>
+            <link>https://ci.apache.org/projects/wicket/apidocs/8.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-io/javadocs/api-2.6/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/1.17/api/</link>
-            <link>http://docs.spring.io/spring-security/site/docs/4.2.x/apidocs/</link>
+            <link>https://tika.apache.org/1.18/api/</link>
+            <link>https://docs.spring.io/spring/docs/5.0.x/javadoc-api/</link>
+            <link>https://docs.spring.io/spring-security/site/docs/5.0.x/api/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.0/apidocs/</link>
-            <link>https://www.javadoc.io/doc/org.elasticsearch/elasticsearch/6.2.4/</link>
+            <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/client/transport/6.3.2/index.html</link>
           </links>
         </configuration>
         <reportSets>
@@ -2344,6 +2381,10 @@ under the License.
           </plugin>
         </plugins>
       </build>
+
+      <modules>
+        <module>docker</module>
+      </modules>
     </profile>
 
     <profile>
@@ -2361,11 +2402,6 @@ under the License.
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctorj-pdf</artifactId>
                 <version>1.5.0-alpha.16</version>
-              </dependency>
-              <dependency>
-                <groupId>org.asciidoctor</groupId>
-                <artifactId>asciidoctorj</artifactId>
-                <version>1.5.6</version>
               </dependency>
             </dependencies>
             <configuration>
@@ -2454,18 +2490,6 @@ under the License.
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
             <version>3.7.1</version>
-            <dependencies>
-              <dependency>
-                <groupId>org.apache.velocity</groupId>
-                <artifactId>velocity</artifactId>
-                <version>1.5</version>
-              </dependency>
-              <dependency>
-                <groupId>org.apache.maven.doxia</groupId>
-                <artifactId>doxia-core</artifactId>
-                <version>1.7</version>
-              </dependency>
-            </dependencies>
             <configuration>
               <locales>en</locales>
               <generateProjectInfo>false</generateProjectInfo>
@@ -2490,24 +2514,6 @@ under the License.
                     <replace dir="${rootpom.basedir}/target/site" token="dropdown-toggle&quot;" value="dropdown-toggle&quot; data-toggle=&quot;dropdown&quot;">
                       <include name="**/*.html" />
                     </replace>
-                  </target>
-                </configuration>
-              </execution>
-              <execution>
-                <id>copy-docs-to-site</id>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-                <phase>site-deploy</phase>
-                <configuration>
-                  <target>
-                    <copy todir="${site.deploymentBaseDir}/docs">
-                      <fileset dir="${project.build.directory}/generated-docs/" includes="getting-started.*" />
-                      <fileset dir="${project.build.directory}/generated-docs/" includes="reference-guide.*" />
-                    </copy>
-                    <copy todir="${site.deploymentBaseDir}/docs/images">
-                      <fileset dir="${project.build.directory}/generated-docs/images" />
-                    </copy>
                   </target>
                 </configuration>
               </execution>
@@ -2572,6 +2578,46 @@ under the License.
       </modules>
     </profile>
     
+    <profile>
+      <id>java9-plus</id>
+
+      <activation>
+        <jdk>[9,)</jdk>
+      </activation>
+
+      <dependencies>
+        <dependency>
+          <groupId>javax.xml.bind</groupId>
+          <artifactId>jaxb-api</artifactId>
+          <version>2.3.0</version>
+        </dependency>
+        <dependency>
+          <groupId>com.sun.xml.bind</groupId>
+          <artifactId>jaxb-core</artifactId>
+          <version>2.3.0.1</version>
+        </dependency>
+        <dependency>
+          <groupId>com.sun.xml.bind</groupId>
+          <artifactId>jaxb-impl</artifactId>
+          <version>2.3.0.1</version>
+        </dependency>
+        <dependency>
+          <groupId>javax.annotation</groupId>
+          <artifactId>javax.annotation-api</artifactId>
+          <version>1.3.1</version>
+        </dependency>
+        <dependency>
+          <groupId>javax.xml.ws</groupId>
+          <artifactId>jaxws-api</artifactId>
+          <version>2.3.0</version>
+        </dependency>
+        <dependency>
+          <groupId>javax.activation</groupId>
+          <artifactId>activation</artifactId>
+          <version>1.1.1</version>
+        </dependency>
+      </dependencies>
+    </profile>
   </profiles>
   
   <modules>
