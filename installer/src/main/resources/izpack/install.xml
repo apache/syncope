@@ -136,6 +136,7 @@ under the License.
   <jar src="lib/httpclient-@{httpclient.version}.jar"/>
   <jar src="lib/httpmime-@{httpclient.version}.jar"/>
   <jar src="lib/httpcore-4.4.10.jar"/>
+  <jar src="lib/commons-codec-1.10.jar"/>
   <jar src="lib/jackson-databind-@{jackson.version}.jar"/>
   <jar src="lib/jackson-core-@{jackson.version}.jar"/>
   <jar src="lib/jackson-annotations-@{jackson.version}.jar"/>
@@ -143,6 +144,8 @@ under the License.
   
   <jar src="lib/maven-invoker-@{maven-invoker.version}.jar"/>
   <jar src="lib/plexus-utils-1.5.6.jar"/>
+  <jar src="lib/plexus-component-annotations-1.7.1.jar"/>
+  <jar src="lib/maven-shared-utils-3.2.1.jar"/>
   
   <panels>
     <panel classname="HTMLHelloPanel" id="welcome"/>
