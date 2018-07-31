@@ -36,12 +36,12 @@ When defining a plain schema, the following information must be provided:
 * Type
 ** `String`
 ** `Long` - allows to specify a _conversion pattern_ to / from string, according to 
-http://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html[DecimalFormat^]
+http://docs.oracle.com/javase/8/docs/api/java/text/DecimalFormat.html[DecimalFormat^]
 ** `Double` - allows to specify a _conversion pattern_ to / from string, according to 
-http://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html[DecimalFormat^]
+http://docs.oracle.com/javase/8/docs/api/java/text/DecimalFormat.html[DecimalFormat^]
 ** `Boolean`
 ** `Date` - allows to specify a _conversion pattern_ to / from string, according to 
-http://docs.oracle.com/javase/7/docs/api/java/text/DateFormat.html[DateFormat^]
+http://docs.oracle.com/javase/8/docs/api/java/text/DateFormat.html[DateFormat^]
 ** `Enum`
 *** enumeration values (mandatory)
 *** enumeration labels (optional, values will be used alternatively)
