@@ -31,6 +31,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Application;
+import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ConnInstanceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
@@ -295,6 +296,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAImplementation();
         } else if (reference.equals(Remediation.class)) {
             result = (E) new JPARemediation();
+        } else if (reference.equals(Batch.class)) {
+            result = (E) new JPABatch();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }

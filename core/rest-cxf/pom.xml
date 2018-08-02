@@ -154,6 +154,17 @@ under the License.
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
+      
+      <plugin>
+        <groupId>org.gaul</groupId>
+        <artifactId>modernizer-maven-plugin</artifactId>
+        <configuration>
+          <exclusions>
+            <!-- required by HttpServletRequest's override in BatchItemRequest -->
+            java/lang/StringBuffer."&lt;init&gt;":(Ljava/lang/String;)V
+          </exclusions>
+        </configuration>
+      </plugin>
     </plugins>
 
     <resources>

@@ -41,7 +41,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -67,7 +66,7 @@ public interface RemediationService extends JAXRSService {
      * @return list of all remediations.
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     PagedResult<RemediationTO> list(@BeanParam RemediationQuery query);
 
     /**
@@ -78,7 +77,7 @@ public interface RemediationService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     RemediationTO read(@NotNull @PathParam("key") String key);
 
     /**
@@ -89,7 +88,7 @@ public interface RemediationService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response delete(@NotNull @PathParam("key") String key);
 
     /**
@@ -130,8 +129,8 @@ public interface RemediationService extends JAXRSService {
                         + "client about the fact that a specified preference was applied") }))
     @POST
     @Path("{remediationKey}")
-    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response remedy(@NotNull @PathParam("remediationKey") String remediationKey, @NotNull AnyTO anyTO);
 
     /**
@@ -174,8 +173,8 @@ public interface RemediationService extends JAXRSService {
                 + " date of the entity") })
     @PATCH
     @Path("{remediationKey}")
-    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response remedy(@NotNull @PathParam("remediationKey") String remediationKey, @NotNull AnyPatch anyPatch);
 
     /**
@@ -216,7 +215,7 @@ public interface RemediationService extends JAXRSService {
                 + " date of the entity") })
     @DELETE
     @Path("{remediationKey}/{anyKey}")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response remedy(
             @NotNull @PathParam("remediationKey") String remediationKey,
             @NotNull @PathParam("anyKey") String anyKey);

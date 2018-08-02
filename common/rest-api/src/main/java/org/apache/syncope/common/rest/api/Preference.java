@@ -28,7 +28,8 @@ public enum Preference {
 
     NONE(""),
     RETURN_CONTENT("return-content"),
-    RETURN_NO_CONTENT("return-no-content");
+    RETURN_NO_CONTENT("return-no-content"),
+    RESPOND_ASYNC("respond-async");
 
     private final String literal;
 

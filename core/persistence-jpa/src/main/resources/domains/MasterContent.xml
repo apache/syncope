@@ -194,6 +194,10 @@ under the License.
                   body="org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup"/>
   <Task DTYPE="SchedTask" id="89de5014-e3f5-4462-84d8-d97575740baf" name="Access Token Cleanup Task"  active="1"
         jobDelegate_id="ExpiredAccessTokenCleanup" cronExpression="0 0/5 * * * ?"/>
+  <Implementation id="ExpiredBatchCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.job.ExpiredBatchCleanup"/>
+  <Task DTYPE="SchedTask" id="8ea0ea51-ce08-4fe3-a0c8-c281b31b5893" name="Access Token Cleanup Task"  active="1"
+        jobDelegate_id="ExpiredBatchCleanup" cronExpression="0 0/5 * * * ?"/>
 
   <!-- Password reset notifications -->
   <MailTemplate id="requestPasswordReset"

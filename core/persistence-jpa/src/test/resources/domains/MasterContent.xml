@@ -1333,6 +1333,10 @@ under the License.
   <Task DTYPE="PullTask" remediation="0" id="30cfd653-257b-495f-8665-281281dbcb3d" name="Scripted SQL" resource_id="resource-db-scripted"
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="0" syncStatus="0" pullMode="INCREMENTAL"
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1" jobDelegate_id="PullJobDelegate"/>
+  <Implementation id="ExpiredBatchCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.job.ExpiredBatchCleanup"/>
+  <Task DTYPE="SchedTask" id="8ea0ea51-ce08-4fe3-a0c8-c281b31b5893" name="Access Token Cleanup Task"  active="1"
+        jobDelegate_id="ExpiredBatchCleanup" cronExpression="0 0/5 * * * ?"/>
 
   <MailTemplate id="requestPasswordReset"
                 textTemplate="Hi,
