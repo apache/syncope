@@ -71,6 +71,10 @@ public class Groups extends WizardStep implements ICondition {
 
     private boolean templateMode;
 
+    protected WebMarkupContainer dyngroupsContainer;
+
+    protected WebMarkupContainer dynrealmsContainer;
+
     public <T extends AnyTO> Groups(final AnyWrapper<T> modelObject, final boolean templateMode) {
         super();
         this.templateMode = templateMode;
@@ -94,7 +98,7 @@ public class Groups extends WizardStep implements ICondition {
         groupsContainer.setOutputMarkupPlaceholderTag(true);
         add(groupsContainer);
 
-        WebMarkupContainer dyngroupsContainer = new WebMarkupContainer("dyngroupsContainer");
+        dyngroupsContainer = new WebMarkupContainer("dyngroupsContainer");
         dyngroupsContainer.setOutputMarkupId(true);
         dyngroupsContainer.setOutputMarkupPlaceholderTag(true);
         add(dyngroupsContainer);
@@ -195,13 +199,17 @@ public class Groups extends WizardStep implements ICondition {
             // ---------------------------------
         }
 
-        add(new AjaxPalettePanel.Builder<String>().build("dynrealms",
+        dynrealmsContainer = new WebMarkupContainer("dynrealmsContainer");
+        dynrealmsContainer.setOutputMarkupId(true);
+        dynrealmsContainer.setOutputMarkupPlaceholderTag(true);
+        dynrealmsContainer.add(new AjaxPalettePanel.Builder<String>().build("dynrealms",
                 new PropertyModel<List<String>>(anyTO, "dynRealms"),
                 new ListModel<>(
                         CollectionUtils.collect(allDynRealms,
                                 EntityTOUtils.keyTransformer(),
                                 new ArrayList<String>()))).
                 hideLabel().setEnabled(false).setOutputMarkupId(true));
+        add(dynrealmsContainer);
 
         // ------------------
         // insert changed label if needed
