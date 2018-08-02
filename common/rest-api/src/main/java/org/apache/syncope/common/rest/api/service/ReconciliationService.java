@@ -31,11 +31,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * REST operations for tasks.
@@ -58,7 +58,7 @@ public interface ReconciliationService extends JAXRSService {
      * @return reconciliation status
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     ReconStatus status(
             @NotNull @QueryParam("anyTypeKind") AnyTypeKind anyTypeKind,
             @NotNull @QueryParam("anyKey") String anyKey,
@@ -77,8 +77,8 @@ public interface ReconciliationService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Path("push")
-    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void push(
             @NotNull @QueryParam("anyTypeKind") AnyTypeKind anyTypeKind,
             @NotNull @QueryParam("anyKey") String anyKey,
@@ -98,8 +98,8 @@ public interface ReconciliationService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Path("pull")
-    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void pull(
             @NotNull @QueryParam("anyTypeKind") AnyTypeKind anyTypeKind,
             @NotNull @QueryParam("anyKey") String anyKey,

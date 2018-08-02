@@ -36,12 +36,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.log.EventCategoryTO;
 import org.apache.syncope.common.lib.log.LogAppender;
 import org.apache.syncope.common.lib.log.LogStatementTO;
 import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerType;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * REST operations for logging and auditing.
@@ -60,7 +60,7 @@ public interface LoggerService extends JAXRSService {
      */
     @GET
     @Path("memoryAppenders")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<LogAppender> memoryAppenders();
 
     /**
@@ -71,7 +71,7 @@ public interface LoggerService extends JAXRSService {
      */
     @GET
     @Path("memoryAppenders/{memoryAppender}/lastLogStatements")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<LogStatementTO> getLastLogStatements(@NotNull @PathParam("memoryAppender") String memoryAppender);
 
     /**
@@ -81,7 +81,7 @@ public interface LoggerService extends JAXRSService {
      */
     @GET
     @Path("events")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<EventCategoryTO> events();
 
     /**
@@ -93,7 +93,7 @@ public interface LoggerService extends JAXRSService {
      */
     @GET
     @Path("{type}/{name}")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     LoggerTO read(@NotNull @PathParam("type") LoggerType type, @NotNull @PathParam("name") final String name);
 
     /**
@@ -104,7 +104,7 @@ public interface LoggerService extends JAXRSService {
      */
     @GET
     @Path("{type}")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<LoggerTO> list(@NotNull @PathParam("type") LoggerType type);
 
     /**
@@ -119,8 +119,8 @@ public interface LoggerService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("{type}/{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void update(@NotNull @PathParam("type") LoggerType type, @NotNull LoggerTO logger);
 
     /**
@@ -133,7 +133,7 @@ public interface LoggerService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{type}/{name}")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("type") LoggerType type, @NotNull @PathParam("name") String name);
 
 }

@@ -18,9 +18,23 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Date;
 import java.util.List;
+import javax.annotation.Resource;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.cxf.Bus;
+import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.transport.http.DestinationRegistry;
+import org.apache.cxf.transport.http.HTTPTransportFactory;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
@@ -28,16 +42,40 @@ import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.rest.api.Preference;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.batch.BatchPayloadParser;
+import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.core.logic.SyncopeLogic;
+import org.apache.syncope.core.rest.cxf.batch.BatchProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.apache.syncope.core.persistence.api.dao.BatchDAO;
+import org.apache.syncope.core.persistence.api.entity.Batch;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 public class SyncopeServiceImpl extends AbstractServiceImpl implements SyncopeService {
 
+    @Resource(name = "batchExecutor")
+    private ThreadPoolTaskExecutor batchExecutor;
+
     @Autowired
     private SyncopeLogic logic;
+
+    @Autowired
+    private Bus bus;
+
+    @Autowired
+    private BatchDAO batchDAO;
+
+    @Autowired
+    private EntityFactory entityFactory;
 
     @Override
     public PlatformInfo platform() {
@@ -68,4 +106,95 @@ public class SyncopeServiceImpl extends AbstractServiceImpl implements SyncopeSe
         return logic.readTypeExtension(groupName);
     }
 
+    private DestinationRegistry getDestinationRegistryFromBusOrDefault() {
+        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
+        try {
+            HTTPTransportFactory df = (HTTPTransportFactory) dfm.
+                    getDestinationFactory("http://cxf.apache.org/transports/http/configuration");
+            return df.getRegistry();
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Could not find CXF's DestinationRegistry", e);
+        }
+    }
+
+    @Override
+    public Response batch(final InputStream input) {
+        // parse Content-Type, expect appropriate boundary
+        MediaType mediaType = MediaType.valueOf(messageContext.getHttpServletRequest().getContentType());
+        String boundary = mediaType.getParameters().get(RESTHeaders.BOUNDARY_PARAMETER);
+
+        if (batchDAO.find(boundary) != null) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.EntityExists);
+            sce.getElements().add("Batch with boundary " + boundary + " already processing");
+            throw sce;
+        }
+
+        // parse batch request
+        List<BatchRequestItem> batchRequestItems;
+        try {
+            batchRequestItems = BatchPayloadParser.parse(input, mediaType, new BatchRequestItem());
+        } catch (IOException e) {
+            LOG.error("Could not parse batch request with boundary {}", boundary, e);
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidEntity);
+            sce.getElements().add("Batch request with boundary " + boundary);
+            throw sce;
+        }
+
+        // prepare for batch processing
+        Batch batch = entityFactory.newEntity(Batch.class);
+        batch.setKey(boundary);
+        batch.setExpiryTime(new Date(System.currentTimeMillis() + 5 * 60 * 1000));
+        batchDAO.save(batch);
+
+        BatchProcess batchProcess = ApplicationContextProvider.getBeanFactory().createBean(BatchProcess.class);
+        batchProcess.setBoundary(boundary);
+        batchProcess.setBasePath(uriInfo.getBaseUri().toASCIIString());
+        batchProcess.setBatchRequestItems(batchRequestItems);
+        batchProcess.setDestinationRegistry(getDestinationRegistryFromBusOrDefault());
+        batchProcess.setServletConfig(messageContext.getServletConfig());
+        batchProcess.setServletRequest(messageContext.getHttpServletRequest());
+        batchProcess.setAuthentication(SecurityContextHolder.getContext().getAuthentication());
+
+        // manage synchronous Vs asynchronous batch processing
+        if (getPreference() == Preference.RESPOND_ASYNC) {
+            batchExecutor.execute(batchProcess);
+
+            return Response.accepted().
+                    header(RESTHeaders.PREFERENCE_APPLIED, getPreference().toString()).
+                    header(HttpHeaders.LOCATION, uriInfo.getAbsolutePathBuilder().build()).
+                    type(RESTHeaders.multipartMixedWith(boundary)).
+                    build();
+        } else {
+            batchProcess.run();
+            return batch();
+        }
+    }
+
+    @Override
+    public Response batch() {
+        MediaType mediaType = MediaType.valueOf(messageContext.getHttpServletRequest().getContentType());
+        String boundary = mediaType.getParameters().get(RESTHeaders.BOUNDARY_PARAMETER);
+
+        Batch batch = batchDAO.find(boundary);
+        if (batch == null) {
+            throw new NotFoundException("Batch " + boundary);
+        }
+
+        if (batch.getResults() == null) {
+            return Response.accepted().
+                    type(RESTHeaders.multipartMixedWith(boundary)).
+                    header(HttpHeaders.RETRY_AFTER, 5).
+                    header(HttpHeaders.LOCATION, uriInfo.getAbsolutePathBuilder().build()).
+                    build();
+        }
+
+        Response response = Response.ok(batch.getResults()).
+                type(RESTHeaders.multipartMixedWith(boundary)).
+                build();
+
+        batchDAO.delete(boundary);
+
+        return response;
+    }
 }

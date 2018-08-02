@@ -41,7 +41,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -67,7 +66,7 @@ public interface SchemaService extends JAXRSService {
      */
     @GET
     @Path("{type}")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     <T extends SchemaTO> List<T> search(@BeanParam SchemaQuery query);
 
     /**
@@ -80,7 +79,7 @@ public interface SchemaService extends JAXRSService {
      */
     @GET
     @Path("{type}/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     <T extends SchemaTO> T read(
             @NotNull @PathParam("type") SchemaType type, @NotNull @PathParam("key") String key);
 
@@ -102,8 +101,8 @@ public interface SchemaService extends JAXRSService {
                         description = "URL of the entity created") }))
     @POST
     @Path("{type}")
-    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response create(@NotNull @PathParam("type") SchemaType type, @NotNull SchemaTO schemaTO);
 
     /**
@@ -118,8 +117,8 @@ public interface SchemaService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("{type}/{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void update(@NotNull @PathParam("type") SchemaType type, @NotNull SchemaTO schemaTO);
 
     /**
@@ -132,6 +131,6 @@ public interface SchemaService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{type}/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("type") SchemaType type, @NotNull @PathParam("key") String key);
 }

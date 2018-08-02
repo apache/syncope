@@ -37,8 +37,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * REST operations for configuration.
@@ -65,7 +65,7 @@ public interface ConfigurationService extends JAXRSService {
      * @return all configuration parameters
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<AttrTO> list();
 
     /**
@@ -76,7 +76,7 @@ public interface ConfigurationService extends JAXRSService {
      */
     @GET
     @Path("{schema}")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     AttrTO get(@NotNull @PathParam("schema") String schema);
 
     /**
@@ -90,8 +90,8 @@ public interface ConfigurationService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("{schema}")
-    @Consumes({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void set(@NotNull AttrTO value);
 
     /**
@@ -103,6 +103,6 @@ public interface ConfigurationService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{schema}")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("schema") String schema);
 }

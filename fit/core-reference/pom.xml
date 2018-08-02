@@ -1267,7 +1267,7 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>wildfly12x</containerId>
+                <containerId>wildfly13x</containerId>
                 <zipUrlInstaller>
                   <url>http://download.jboss.org/wildfly/13.0.0.Final/wildfly-13.0.0.Final.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>

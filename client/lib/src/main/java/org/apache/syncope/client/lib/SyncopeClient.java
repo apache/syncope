@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.lib;
 
+import org.apache.syncope.client.lib.batch.BatchRequest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -357,5 +358,13 @@ public class SyncopeClient {
      */
     public <T> EntityTag getLatestEntityTag(final T service) {
         return WebClient.client(service).getResponse().getEntityTag();
+    }
+
+    public BatchRequest batch() {
+        return new BatchRequest(
+                mediaType,
+                restClientFactory.getAddress(),
+                restClientFactory.getProviders(),
+                getJWT());
     }
 }

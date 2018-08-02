@@ -80,7 +80,8 @@ abstract class AbstractServiceImpl implements JAXRSService {
     }
 
     protected boolean isNullPriorityAsync() {
-        return BooleanUtils.toBoolean(messageContext.getHttpHeaders().getHeaderString(RESTHeaders.NULL_PRIORITY_ASYNC));
+        return BooleanUtils.toBoolean(
+                messageContext.getHttpServletRequest().getHeader(RESTHeaders.NULL_PRIORITY_ASYNC));
     }
 
     /**
@@ -89,8 +90,8 @@ abstract class AbstractServiceImpl implements JAXRSService {
      * @return a {@code Preference} instance matching the passed {@code Prefer} header,
      * or {@code Preference.NONE} if missing.
      */
-    private Preference getPreference() {
-        return Preference.fromString(messageContext.getHttpHeaders().getHeaderString(RESTHeaders.PREFER));
+    protected Preference getPreference() {
+        return Preference.fromString(messageContext.getHttpServletRequest().getHeader(RESTHeaders.PREFER));
     }
 
     protected Response.ResponseBuilder applyPreference(

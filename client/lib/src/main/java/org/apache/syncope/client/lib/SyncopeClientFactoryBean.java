@@ -34,7 +34,6 @@ import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.cxf.staxutils.DocumentDepthProperties;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.rest.api.DateParamConverterProvider;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -48,7 +47,7 @@ public class SyncopeClientFactoryBean {
     public enum ContentType {
 
         JSON(MediaType.APPLICATION_JSON_TYPE),
-        YAML(SyncopeConstants.APPLICATION_YAML_TYPE),
+        YAML(RESTHeaders.APPLICATION_YAML_TYPE),
         XML(MediaType.APPLICATION_XML_TYPE);
 
         private final MediaType mediaType;
