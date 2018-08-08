@@ -79,11 +79,18 @@ treasure-overlay-spinner {
   height: 100%;
   top: 0;
   bottom: 0;
-  position: absolute;
+  position: fixed;
   right: 0;
   left: 0;
+  overflow-y: auto;
 }
+
+treasure-overlay-spinner .treasure-overlay-spinner {
+  position: fixed;
+}
+
 treasure-overlay-spinner .treasure-overlay-spinner-container {
+  position: fixed;
   background: rgba(0, 0, 0, 0.5490196078431373);
 }
 
