@@ -18,19 +18,32 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
+import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.batch.BatchPayloadParser;
+import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
+import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
@@ -59,112 +72,103 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO> extends BaseRestCl
         return result;
     }
 
-    public BulkActionResult unlink(final String etag, final String key, final List<StatusBean> statuses) {
-        BulkActionResult result;
-        synchronized (this) {
-            AnyService<?> service = getService(etag, getAnyServiceClass());
-
-            DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(key).
-                    action(ResourceDeassociationAction.UNLINK).
-                    resources(StatusUtils.buildStatusPatch(statuses).getResources()).build();
-
-            result = service.deassociate(deassociationPatch).readEntity(BulkActionResult.class);
-
-            resetClient(getAnyServiceClass());
-        }
-        return result;
+    private List<BatchResponseItem> parseBatchResponse(final Response response) throws IOException {
+        return BatchPayloadParser.parse(
+                (InputStream) response.getEntity(), response.getMediaType(), new BatchResponseItem());
     }
 
-    public BulkActionResult link(final String etag, final String key, final List<StatusBean> statuses) {
-        BulkActionResult result;
+    public Map<String, String> associate(
+            final ResourceAssociationAction action,
+            final String etag,
+            final String key,
+            final List<StatusBean> statuses) {
+
+        Map<String, String> result = new LinkedHashMap<>();
         synchronized (this) {
             AnyService<?> service = getService(etag, getAnyServiceClass());
+            Client client = WebClient.client(service);
+            List<String> accept = client.getHeaders().get(HttpHeaders.ACCEPT);
+            if (!accept.contains(RESTHeaders.MULTIPART_MIXED)) {
+                client.accept(RESTHeaders.MULTIPART_MIXED);
+            }
 
-            StatusPatch statusPatch = StatusUtils.buildStatusPatch(statuses);
+            StatusPatch statusPatch = StatusUtils.statusPatch(statuses).build();
 
             AssociationPatch associationPatch = new AssociationPatch.Builder().key(key).
-                    action(ResourceAssociationAction.LINK).
+                    action(action).
                     onSyncope(statusPatch.isOnSyncope()).
                     resources(statusPatch.getResources()).build();
-
-            result = service.associate(associationPatch).readEntity(BulkActionResult.class);
+            try {
+                List<BatchResponseItem> items = parseBatchResponse(service.associate(associationPatch));
+                for (int i = 0; i < items.size(); i++) {
+                    result.put(
+                            associationPatch.getResources().get(i),
+                            getStatus(items.get(i).getStatus()));
+                }
+            } catch (IOException e) {
+                LOG.error("While processing Batch response", e);
+            }
 
             resetClient(getAnyServiceClass());
         }
         return result;
     }
 
-    public BulkActionResult deprovision(final String etag, final String key, final List<StatusBean> statuses) {
-        BulkActionResult result;
+    public Map<String, String> deassociate(
+            final ResourceDeassociationAction action,
+            final String etag,
+            final String key,
+            final List<StatusBean> statuses) {
+
+        Map<String, String> result = new LinkedHashMap<>();
         synchronized (this) {
             AnyService<?> service = getService(etag, getAnyServiceClass());
+            Client client = WebClient.client(service);
+            List<String> accept = client.getHeaders().get(HttpHeaders.ACCEPT);
+            if (!accept.contains(RESTHeaders.MULTIPART_MIXED)) {
+                client.accept(RESTHeaders.MULTIPART_MIXED);
+            }
 
             DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(key).
-                    action(ResourceDeassociationAction.DEPROVISION).
-                    resources(StatusUtils.buildStatusPatch(statuses).getResources()).build();
-
-            result = service.deassociate(deassociationPatch).readEntity(BulkActionResult.class);
-
-            resetClient(getAnyServiceClass());
-        }
-        return result;
-    }
-
-    public BulkActionResult provision(final String etag, final String key, final List<StatusBean> statuses) {
-        BulkActionResult result;
-        synchronized (this) {
-            AnyService<?> service = getService(etag, getAnyServiceClass());
-
-            StatusPatch statusPatch = StatusUtils.buildStatusPatch(statuses);
-
-            AssociationPatch associationPatch = new AssociationPatch.Builder().key(key).
-                    action(ResourceAssociationAction.PROVISION).
-                    onSyncope(statusPatch.isOnSyncope()).
-                    resources(statusPatch.getResources()).build();
-
-            result = service.associate(associationPatch).readEntity(BulkActionResult.class);
+                    action(action).
+                    resources(StatusUtils.statusPatch(statuses).build().getResources()).build();
+            try {
+                List<BatchResponseItem> items = parseBatchResponse(service.deassociate(deassociationPatch));
+                for (int i = 0; i < items.size(); i++) {
+                    result.put(
+                            deassociationPatch.getResources().get(i),
+                            getStatus(items.get(i).getStatus()));
+                }
+            } catch (IOException e) {
+                LOG.error("While processing Batch response", e);
+            }
 
             resetClient(getAnyServiceClass());
         }
         return result;
     }
 
-    public BulkActionResult unassign(final String etag, final String key, final List<StatusBean> statuses) {
-        BulkActionResult result;
-        synchronized (this) {
-            AnyService<?> service = getService(etag, getAnyServiceClass());
+    public Map<String, String> batch(final BatchRequest batchRequest) {
+        List<BatchRequestItem> batchRequestItems = new ArrayList<>(batchRequest.getItems());
 
-            DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(key).
-                    action(ResourceDeassociationAction.UNASSIGN).
-                    resources(StatusUtils.buildStatusPatch(statuses).getResources()).build();
-
-            result = service.deassociate(deassociationPatch).readEntity(BulkActionResult.class);
-
-            resetClient(getAnyServiceClass());
+        Map<String, String> result = new LinkedHashMap<>();
+        try {
+            List<BatchResponseItem> batchResponseItems = batchRequest.commit().getItems();
+            for (int i = 0; i < batchResponseItems.size(); i++) {
+                String status = getStatus(batchResponseItems.get(i).getStatus());
+                if (batchRequestItems.get(i).getRequestURI().endsWith("/status")) {
+                    result.put(StringUtils.substringAfterLast(
+                            StringUtils.substringBefore(batchRequestItems.get(i).getRequestURI(), "/status"), "/"),
+                            status);
+                } else {
+                    result.put(StringUtils.substringAfterLast(
+                            batchRequestItems.get(i).getRequestURI(), "/"), status);
+                }
+            }
+        } catch (IOException e) {
+            LOG.error("While processing Batch response", e);
         }
+
         return result;
-    }
-
-    public BulkActionResult assign(final String etag, final String key, final List<StatusBean> statuses) {
-        BulkActionResult result;
-        synchronized (this) {
-            AnyService<?> service = getService(etag, getAnyServiceClass());
-
-            StatusPatch statusPatch = StatusUtils.buildStatusPatch(statuses);
-
-            AssociationPatch associationPatch = new AssociationPatch.Builder().key(key).
-                    action(ResourceAssociationAction.ASSIGN).
-                    onSyncope(statusPatch.isOnSyncope()).
-                    resources(statusPatch.getResources()).build();
-
-            result = service.associate(associationPatch).readEntity(BulkActionResult.class);
-
-            resetClient(getAnyServiceClass());
-        }
-        return result;
-    }
-
-    public BulkActionResult bulkAction(final BulkAction action) {
-        return getService(getAnyServiceClass()).bulk(action).readEntity(BulkActionResult.class);
     }
 }

@@ -43,6 +43,8 @@ public interface PlainAttrValue extends Entity {
 
     String getValueAsString(AttrSchemaType type);
 
+    String getValueAsString(PlainSchema schema);
+
     void parseValue(PlainSchema schema, String value);
 
     void setAttr(PlainAttr<?> attr);

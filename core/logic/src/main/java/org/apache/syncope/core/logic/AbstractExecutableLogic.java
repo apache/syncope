@@ -22,10 +22,10 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 
 public abstract class AbstractExecutableLogic<T extends AbstractBaseBean> extends AbstractJobLogic<T> {
@@ -39,7 +39,7 @@ public abstract class AbstractExecutableLogic<T extends AbstractBaseBean> extend
 
     public abstract ExecTO deleteExecution(String executionKey);
 
-    public abstract BulkActionResult deleteExecutions(
+    public abstract List<BatchResponseItem> deleteExecutions(
             String key, Date startedBefore, Date startedAfter, Date endedBefore, Date endedAfter);
 
     public abstract JobTO getJob(String key);

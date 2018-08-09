@@ -51,7 +51,7 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.MatchingRule;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -340,7 +340,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         assertNotNull(pushTask);
 
         ExecTO exec = execProvisioningTask(taskService, TaskType.PUSH, pushTask.getKey(), 50, false);
-        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
+        assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
 
         // 2. check
         assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=odd,o=isp"));
@@ -428,7 +428,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
             // execute the new task
             ExecTO exec = execProvisioningTask(taskService, TaskType.PUSH, push.getKey(), 50, false);
-            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
         } finally {
             groupService.delete(groupTO.getKey());
             if (newResourceTO != null) {

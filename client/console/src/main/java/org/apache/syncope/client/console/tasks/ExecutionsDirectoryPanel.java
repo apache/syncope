@@ -157,10 +157,10 @@ public abstract class ExecutionsDirectoryPanel
     }
 
     @Override
-    protected Collection<ActionLink.ActionType> getBulkActions() {
-        final List<ActionLink.ActionType> bulkActions = new ArrayList<>();
-        bulkActions.add(ActionLink.ActionType.DELETE);
-        return bulkActions;
+    protected Collection<ActionLink.ActionType> getBatches() {
+        List<ActionLink.ActionType> batches = new ArrayList<>();
+        batches.add(ActionLink.ActionType.DELETE);
+        return batches;
     }
 
     protected class ExecProvider extends DirectoryDataProvider<ExecTO> {

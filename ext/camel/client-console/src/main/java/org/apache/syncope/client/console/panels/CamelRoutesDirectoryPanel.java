@@ -93,7 +93,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
     }
 
     @Override
-    protected Collection<ActionLink.ActionType> getBulkActions() {
+    protected Collection<ActionLink.ActionType> getBatches() {
         return Collections.<ActionLink.ActionType>emptyList();
     }
 

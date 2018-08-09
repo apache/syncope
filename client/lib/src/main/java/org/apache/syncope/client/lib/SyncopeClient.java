@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.lib;
 
+import org.apache.syncope.client.lib.batch.BatchRequest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -47,6 +48,8 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AccessTokenService;
+import org.apache.syncope.common.rest.api.service.AnyService;
+import org.apache.syncope.common.rest.api.service.ExecutableService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 
 /**
@@ -233,6 +236,9 @@ public class SyncopeClient {
 
             Client client = WebClient.client(serviceInstance);
             client.type(mediaType).accept(mediaType);
+            if (serviceInstance instanceof AnyService || serviceInstance instanceof ExecutableService) {
+                client.accept(RESTHeaders.MULTIPART_MIXED);
+            }
 
             ClientConfiguration config = WebClient.getConfig(client);
             config.getRequestContext().put(HEADER_SPLIT_PROPERTY, true);
@@ -357,5 +363,30 @@ public class SyncopeClient {
      */
     public <T> EntityTag getLatestEntityTag(final T service) {
         return WebClient.client(service).getResponse().getEntityTag();
+    }
+
+    /**
+     * Initiates a new Batch request.
+     *
+     * The typical operation flow is:
+     * <pre>
+     * BatchRequest batchRequest = syncopeClient.batch();
+     * batchRequest.getService(UserService.class).create(...);
+     * batchRequest.getService(UserService.class).update(...);
+     * batchRequest.getService(GroupService.class).update(...);
+     * batchRequest.getService(GroupService.class).delete(...);
+     * ...
+     * BatchResponse batchResponse = batchRequest().commit();
+     * List&lt;BatchResponseItem&gt; items = batchResponse.getItems()
+     * </pre>
+     *
+     * @return empty Batch request
+     */
+    public BatchRequest batch() {
+        return new BatchRequest(
+                mediaType,
+                restClientFactory.getAddress(),
+                restClientFactory.getProviders(),
+                getJWT());
     }
 }

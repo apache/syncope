@@ -24,13 +24,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
-public class BulkExecDeleteQuery extends AbstractBaseBean {
+public class ExecDeleteQuery extends AbstractBaseBean {
 
     private static final long serialVersionUID = 3846547401120638351L;
 
     public static class Builder {
 
-        private final BulkExecDeleteQuery instance = new BulkExecDeleteQuery();
+        private final ExecDeleteQuery instance = new ExecDeleteQuery();
 
         public Builder key(final String key) {
             instance.setKey(key);
@@ -57,7 +57,7 @@ public class BulkExecDeleteQuery extends AbstractBaseBean {
             return this;
         }
 
-        public BulkExecDeleteQuery build() {
+        public ExecDeleteQuery build() {
             return instance;
         }
     }
@@ -145,5 +145,4 @@ public class BulkExecDeleteQuery extends AbstractBaseBean {
             this.endedAfter = null;
         }
     }
-
 }

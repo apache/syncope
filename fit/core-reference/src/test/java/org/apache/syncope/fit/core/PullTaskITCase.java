@@ -77,7 +77,7 @@ import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -238,7 +238,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertNotNull(usersPre);
 
             ExecTO exec = execProvisioningTask(taskService, TaskType.PULL, PULL_TASK_KEY, 50, false);
-            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
 
             LOG.debug("Execution of task {}:\n{}", PULL_TASK_KEY, exec);
 
@@ -328,7 +328,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         try {
             ExecTO execution = execProvisioningTask(
                     taskService, TaskType.PULL, "83f7e85d-9774-43fe-adba-ccd856312994", 50, false);
-            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
             userTO = userService.read("testuser1");
             assertNotNull(userTO);
@@ -341,7 +341,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // re-execute the same PullTask: now user must be active
             execution = execProvisioningTask(
                     taskService, TaskType.PULL, "83f7e85d-9774-43fe-adba-ccd856312994", 50, false);
-            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
             userTO = userService.read("testuser1");
             assertNotNull(userTO);
@@ -364,7 +364,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 taskService, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", 50, false);
 
         // 1. verify execution status
-        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
+        assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
         // 2. verify that pulled group is found
         PagedResult<GroupTO> matchingGroups = groupService.search(new AnyQuery.Builder().realm(
@@ -575,7 +575,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 3. exec task
             ExecTO execution = execProvisioningTask(taskService, TaskType.PULL, task.getKey(), 50, false);
-            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
             // 4. verify that only enabled user was pulled
             userTO = userService.read("user2");
@@ -657,7 +657,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     + "false, 'syncTokenWithErrors1@syncope.apache.org', '2015-05-23 13:53:24.293')");
 
             ExecTO exec = execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), 50, false);
-            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
 
             resForTest = resourceService.read(resForTest.getKey());
             assertTrue(resForTest.getProvision(AnyTypeKind.USER.name()).get().getSyncToken().contains("2014-05-23"));
@@ -667,7 +667,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     + "WHERE ID=1041");
 
             exec = execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), 50, false);
-            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
 
             resForTest = resourceService.read(resForTest.getKey());
             assertTrue(resForTest.getProvision(AnyTypeKind.USER.name()).get().getSyncToken().contains("2016-05-23"));
@@ -719,7 +719,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         try {
             // 3. execute the pull task and verify that:
             ExecTO execution = execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), 50, false);
-            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
             // 3a. user was not pulled
             try {
@@ -824,7 +824,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertFalse(((UserTO) actual.getTemplates().get(AnyTypeKind.USER.name())).getMemberships().isEmpty());
 
             ExecTO execution = execProvisioningTask(taskService, TaskType.PULL, actual.getKey(), 50, false);
-            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
             userTO = userService.read("testuser2");
             assertNotNull(userTO);
@@ -954,13 +954,13 @@ public class PullTaskITCase extends AbstractTaskITCase {
         try {
             assertNotNull(userTO);
             assertEquals(1, result.getPropagationStatuses().size());
-            assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
 
             ExecTO taskExecTO = execProvisioningTask(
                     taskService, TaskType.PULL, "986867e2-993b-430e-8feb-aa9abb4c1dcd", 50, false);
 
             assertNotNull(taskExecTO.getStatus());
-            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(taskExecTO.getStatus()));
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(taskExecTO.getStatus()));
 
             userTO = userService.read(userTO.getKey());
             assertNotNull(userTO);
@@ -1066,7 +1066,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals(actual.getJobDelegate(), pullTask.getJobDelegate());
 
         ExecTO execution = execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), 50, false);
-        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
+        assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
         // 5. Test the pulled user
         Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(user.getUsername(), newCleanPassword).self();
@@ -1151,7 +1151,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertNotNull(pullTask);
 
             ExecTO execution = execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), 50, false);
-            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
             // 7. Test the pulled user
             self = clientFactory.create(user.getUsername(), oldCleanPassword).self();
@@ -1211,7 +1211,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 3. exec the pull task
             ExecTO execution = execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), 50, false);
-            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
             // the user is successfully pulled...
             user = userService.read("pullFromLDAP");
@@ -1247,7 +1247,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 5. exec the pull task again
             execution = execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), 50, false);
-            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
             // the internal is updated...
             user = userService.read("pullFromLDAP");

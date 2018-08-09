@@ -16,19 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.core.persistence.api.entity;
 
-import javax.xml.bind.annotation.XmlEnum;
+import java.util.Date;
 
-/**
- * Status of a propagation task execution.
- */
-@XmlEnum
-public enum PropagationTaskExecStatus {
+public interface Batch extends ProvidedKeyEntity {
 
-    CREATED,
-    SUCCESS,
-    FAILURE,
-    NOT_ATTEMPTED;
+    Date getExpiryTime();
 
+    void setExpiryTime(Date expiryTime);
+
+    String getResults();
+
+    void setResults(String results);
 }

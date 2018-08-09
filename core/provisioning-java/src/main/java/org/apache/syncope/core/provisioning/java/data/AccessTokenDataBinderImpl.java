@@ -87,9 +87,9 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
         jwtClaims.setIssuer(jwtIssuer);
         jwtClaims.setExpiryTime(expiryTime);
         jwtClaims.setNotBefore(currentTime);
-        for (Map.Entry<String, Object> entry : claims.entrySet()) {
-            jwtClaims.setClaim(entry.getKey(), entry.getValue());
-        }
+        claims.forEach((key, value) -> {
+            jwtClaims.setClaim(key, value);
+        });
 
         JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, jwsSignatureProvider.getAlgorithm());
         JwtToken token = new JwtToken(jwsHeaders, jwtClaims);

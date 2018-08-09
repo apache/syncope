@@ -19,13 +19,13 @@
 package org.apache.syncope.client.console.rest;
 
 import java.net.URI;
-
 import javax.ws.rs.core.HttpHeaders;
-
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -81,5 +81,12 @@ public abstract class BaseRestClient implements RestClient {
                 header(RESTHeaders.DOMAIN, SyncopeConsoleSession.get().getDomain()).
                 header(HttpHeaders.AUTHORIZATION, "Bearer " + SyncopeConsoleSession.get().getJWT()).
                 get(resultClass);
+    }
+
+    protected static String getStatus(final int httpStatus) {
+        ExecStatus execStatus = ExecStatus.fromHttpStatus(httpStatus);
+        return execStatus == null
+                ? Constants.UNKNOWN
+                : execStatus.name();
     }
 }

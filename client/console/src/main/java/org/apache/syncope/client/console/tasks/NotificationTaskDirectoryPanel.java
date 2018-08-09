@@ -176,11 +176,11 @@ public abstract class NotificationTaskDirectoryPanel
     }
 
     @Override
-    protected Collection<ActionType> getBulkActions() {
-        final List<ActionType> bulkActions = new ArrayList<>();
-        bulkActions.add(ActionType.DELETE);
-        bulkActions.add(ActionType.EXECUTE);
-        return bulkActions;
+    protected Collection<ActionType> getBatches() {
+        List<ActionType> batches = new ArrayList<>();
+        batches.add(ActionType.DELETE);
+        batches.add(ActionType.EXECUTE);
+        return batches;
     }
 
     @Override

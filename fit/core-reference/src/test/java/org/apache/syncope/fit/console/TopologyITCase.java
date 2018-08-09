@@ -80,7 +80,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
     }
 
     @Test
-    public void resourceBulkAction() {
+    public void resourceBatchAction() {
         Component component = findComponentByProp("key", "body:resources", "ws-target-resource-1");
         assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,8 +27,8 @@ import java.util.List;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
-import org.apache.syncope.client.console.bulk.BulkActionModal;
-import org.apache.syncope.client.console.bulk.BulkContent;
+import org.apache.syncope.client.console.batch.BatchModal;
+import org.apache.syncope.client.console.batch.BatchContent;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel.EventDataWrapper;
 import org.apache.syncope.client.console.rest.RestClient;
@@ -68,9 +69,9 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
 
         private int rowsPerPage = 10;
 
-        private final Collection<ActionLink.ActionType> bulkActions = new ArrayList<>();
+        private final Collection<ActionLink.ActionType> batches = new ArrayList<>();
 
-        private RestClient bulkActionExecutor;
+        private RestClient batchExecutor;
 
         private String itemKeyField;
 
@@ -96,13 +97,13 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
             return this;
         }
 
-        public Builder<T, S> addBulkAction(final ActionLink.ActionType actionType) {
-            bulkActions.add(actionType);
+        public Builder<T, S> addBatch(final ActionLink.ActionType actionType) {
+            batches.add(actionType);
             return this;
         }
 
-        public Builder<T, S> setBulkActionExecutor(final BaseRestClient bulkActionExecutor) {
-            this.bulkActionExecutor = bulkActionExecutor;
+        public Builder<T, S> setBatchExecutor(final BaseRestClient batchExecutor) {
+            this.batchExecutor = batchExecutor;
             return this;
         }
 
@@ -111,15 +112,16 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
             return this;
         }
 
-        public Builder<T, S> setBulkActions(
-                final Collection<ActionLink.ActionType> bulkActions,
-                final RestClient bulkActionExecutor,
+        public Builder<T, S> setBatches(
+                final Collection<ActionLink.ActionType> batches,
+                final RestClient batchExecutor,
                 final String itemKeyField) {
-            this.bulkActions.clear();
-            if (bulkActions != null) {
-                this.bulkActions.addAll(bulkActions);
+
+            this.batches.clear();
+            if (batches != null) {
+                this.batches.addAll(batches);
             }
-            this.bulkActionExecutor = bulkActionExecutor;
+            this.batchExecutor = batchExecutor;
             this.itemKeyField = itemKeyField;
             return this;
         }
@@ -147,8 +149,8 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
             return this;
         }
 
-        private boolean isBulkEnabled() {
-            return checkBoxEnabled && bulkActionExecutor != null && !bulkActions.isEmpty();
+        private boolean isBatchEnabled() {
+            return checkBoxEnabled && batchExecutor != null && !batches.isEmpty();
         }
 
         public void setMultiLevelPanel(final BaseModal<?> baseModal, final MultilevelPanel multiLevelPanel) {
@@ -168,16 +170,17 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
     private AjaxDataTablePanel(final String id, final Builder<T, S> builder) {
         super(id);
 
-        final BaseModal<T> bulkModal = new BaseModal<>("bulkModal");
-        add(bulkModal);
+        BaseModal<T> batchModal = new BaseModal<>("batchModal");
+        batchModal.size(Modal.Size.Large);
+        add(batchModal);
 
-        bulkModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+        batchModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487149L;
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
-                bulkModal.show(false);
+                batchModal.show(false);
 
                 EventDataWrapper data = new EventDataWrapper();
                 data.setTarget(target);
@@ -191,11 +194,11 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
             }
         });
 
-        Fragment fragment = new Fragment("tablePanel", "bulkAvailable", this);
+        Fragment fragment = new Fragment("tablePanel", "batchAvailable", this);
         add(fragment);
 
-        Form<T> bulkActionForm = new Form<>("groupForm");
-        fragment.add(bulkActionForm);
+        Form<T> batchForm = new Form<>("groupForm");
+        fragment.add(batchForm);
 
         group = new CheckGroup<>("checkgroup", model);
         group.add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
@@ -210,7 +213,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
                 });
             }
         });
-        bulkActionForm.add(group);
+        batchForm.add(group);
 
         if (builder.checkBoxEnabled) {
             builder.columns.add(0, new CheckGroupColumn<>(group));
@@ -237,7 +240,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
 
         group.add(dataTable);
 
-        fragment.add(new IndicatingAjaxButton("bulkActionLink", bulkActionForm) {
+        fragment.add(new IndicatingAjaxButton("batchLink", batchForm) {
 
             private static final long serialVersionUID = 382302811235019988L;
 
@@ -249,40 +252,39 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
                 }
 
                 if (builder.multiLevelPanel == null) {
-                    bulkModal.header(new ResourceModel("bulk.action"));
-                    bulkModal.changeCloseButtonLabel(getString("cancel", null, "Cancel"), target);
+                    batchModal.header(new ResourceModel("batch"));
+                    batchModal.changeCloseButtonLabel(getString("cancel", null, "Cancel"), target);
 
-                    target.add(bulkModal.setContent(new BulkActionModal<>(
-                            bulkModal,
+                    target.add(batchModal.setContent(new BatchModal<>(
+                            batchModal,
                             builder.pageRef,
                             new ArrayList<>(group.getModelObject()),
                             builder.columns.size() == 1
                             ? builder.columns
                             // serialization problem with sublist only
                             : new ArrayList<>(builder.columns.subList(1, builder.columns.size())),
-                            builder.bulkActions,
-                            builder.bulkActionExecutor,
+                            builder.batches,
+                            builder.batchExecutor,
                             builder.itemKeyField)));
 
-                    bulkModal.show(true);
+                    batchModal.show(true);
                 } else {
-                    builder.multiLevelPanel.next(
-                            getString("bulk.action"),
-                            new BulkContent<>(
+                    builder.multiLevelPanel.next(getString("batch"),
+                            new BatchContent<>(
                                     builder.baseModal,
                                     new ArrayList<>(group.getModelObject()),
                                     builder.columns.size() == 1
                                     ? builder.columns
                                     // serialization problem with sublist only
                                     : new ArrayList<>(builder.columns.subList(1, builder.columns.size())),
-                                    builder.bulkActions,
-                                    builder.bulkActionExecutor,
+                                    builder.batches,
+                                    builder.batchExecutor,
                                     builder.itemKeyField),
                             target);
                 }
                 group.setModelObject(Collections.<T>emptyList());
                 target.add(group);
             }
-        }.setEnabled(builder.isBulkEnabled()).setVisible(builder.isBulkEnabled()));
+        }.setEnabled(builder.isBatchEnabled()).setVisible(builder.isBatchEnabled()));
     }
 }

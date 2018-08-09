@@ -43,7 +43,7 @@ public class ImplementationTest extends AbstractTest {
         List<Implementation> implementations = implementationDAO.findAll();
         assertFalse(implementations.isEmpty());
 
-        assertEquals(18, implementations.size());
+        assertEquals(19, implementations.size());
 
         implementations = implementationDAO.find(ImplementationType.PULL_ACTIONS);
         assertEquals(1, implementations.size());
@@ -52,7 +52,7 @@ public class ImplementationTest extends AbstractTest {
         assertEquals(1, implementations.size());
 
         implementations = implementationDAO.find(ImplementationType.TASKJOB_DELEGATE);
-        assertEquals(5, implementations.size());
+        assertEquals(6, implementations.size());
 
         implementations = implementationDAO.find(ImplementationType.REPORTLET);
         assertEquals(2, implementations.size());

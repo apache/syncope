@@ -33,7 +33,6 @@ import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ItemTO;
@@ -47,7 +46,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
@@ -263,7 +262,7 @@ public class MembershipITCase extends AbstractITCase {
             patch.setKey(user.getKey());
             patch.setAction(ResourceDeassociationAction.UNLINK);
             patch.getResources().add(newResource.getKey());
-            assertNotNull(userService.deassociate(patch).readEntity(BulkActionResult.class));
+            assertNotNull(parseBatchResponse(userService.deassociate(patch)));
 
             userService.delete(user.getKey());
 
@@ -278,7 +277,7 @@ public class MembershipITCase extends AbstractITCase {
 
             ExecTO execution = AbstractTaskITCase.execProvisioningTask(
                     taskService, TaskType.PULL, newTask.getKey(), 50, false);
-            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
             // 5. verify that pulled user has
             PagedResult<UserTO> users = userService.search(new AnyQuery.Builder().

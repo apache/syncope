@@ -68,7 +68,7 @@ public class Reports extends BasePage {
                     private static final long serialVersionUID = -2195387360323687302L;
 
                     @Override
-                    protected void viewTask(final ReportTO reportTO, final AjaxRequestTarget target) {
+                    protected void viewReport(final ReportTO reportTO, final AjaxRequestTarget target) {
                         mlp.next(
                                 new StringResourceModel("report.view", this, new Model<>(reportTO)).getObject(),
                                 new ReportExecutionDetails(reportTO, getPageReference()),

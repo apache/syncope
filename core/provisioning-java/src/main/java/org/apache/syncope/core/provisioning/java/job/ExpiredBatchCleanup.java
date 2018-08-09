@@ -16,14 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.core.provisioning.java.job;
 
-import javax.xml.bind.annotation.XmlEnum;
+import org.apache.syncope.core.persistence.api.dao.BatchDAO;
+import org.quartz.JobExecutionException;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@XmlEnum
-public enum BulkMembersActionType {
+public class ExpiredBatchCleanup extends AbstractSchedTaskJobDelegate {
 
-    PROVISION,
-    DEPROVISION;
+    @Autowired
+    private BatchDAO batchDAO;
 
+    @Override
+    protected String doExecute(final boolean dryRun) throws JobExecutionException {
+        if (!dryRun) {
+            int deleted = batchDAO.deleteExpired();
+            LOG.debug("Successfully deleted {} expired batch requests", deleted);
+        }
+
+        return "SUCCESS";
+    }
 }

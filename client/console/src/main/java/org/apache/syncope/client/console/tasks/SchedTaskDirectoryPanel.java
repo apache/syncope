@@ -281,12 +281,12 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
     }
 
     @Override
-    protected Collection<ActionType> getBulkActions() {
-        final List<ActionType> bulkActions = new ArrayList<>();
-        bulkActions.add(ActionType.DELETE);
-        bulkActions.add(ActionType.EXECUTE);
-        bulkActions.add(ActionType.DRYRUN);
-        return bulkActions;
+    protected Collection<ActionType> getBatches() {
+        List<ActionType> batches = new ArrayList<>();
+        batches.add(ActionType.DELETE);
+        batches.add(ActionType.EXECUTE);
+        batches.add(ActionType.DRYRUN);
+        return batches;
     }
 
     @Override

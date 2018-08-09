@@ -48,7 +48,6 @@ import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -524,7 +523,7 @@ public class AuthenticationITCase extends AbstractITCase {
         // 2. unlink the resource from the created user
         DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(user.getKey()).
                 action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_TESTDB).build();
-        assertNotNull(userService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
+        assertNotNull(parseBatchResponse(userService.deassociate(deassociationPatch)));
 
         // 3. change password on Syncope
         UserPatch userPatch = new UserPatch();

@@ -40,7 +40,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.BulkMembersActionType;
+import org.apache.syncope.common.lib.types.ProvisionAction;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
@@ -384,7 +384,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_CREATE + "') "
             + "and hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
     @Transactional
-    public ExecTO bulkMembersAction(final String key, final BulkMembersActionType actionType) {
+    public ExecTO provisionMembers(final String key, final ProvisionAction action) {
         Group group = groupDAO.find(key);
         if (group == null) {
             throw new NotFoundException("Group " + key);
@@ -392,18 +392,19 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
 
         Implementation jobDelegate = implementationDAO.find(ImplementationType.TASKJOB_DELEGATE).stream().
                 filter(impl -> GroupMemberProvisionTaskJobDelegate.class.getName().equals(impl.getBody())).
-                findFirst().orElse(null);
-        if (jobDelegate == null) {
-            jobDelegate = entityFactory.newEntity(Implementation.class);
-            jobDelegate.setKey(GroupMemberProvisionTaskJobDelegate.class.getSimpleName());
-            jobDelegate.setEngine(ImplementationEngine.JAVA);
-            jobDelegate.setType(ImplementationType.TASKJOB_DELEGATE);
-            jobDelegate.setBody(GroupMemberProvisionTaskJobDelegate.class.getName());
-            jobDelegate = implementationDAO.save(jobDelegate);
-        }
+                findFirst().orElseGet(() -> {
+                    Implementation caz = entityFactory.newEntity(Implementation.class);
+                    caz.setKey(GroupMemberProvisionTaskJobDelegate.class.getSimpleName());
+                    caz.setEngine(ImplementationEngine.JAVA);
+                    caz.setType(ImplementationType.TASKJOB_DELEGATE);
+                    caz.setBody(GroupMemberProvisionTaskJobDelegate.class.getName());
+                    caz = implementationDAO.save(caz);
+                    return caz;
+                });
 
         SchedTask task = entityFactory.newEntity(SchedTask.class);
-        task.setName("Bulk member provision for group " + group.getName());
+        task.setName((action == ProvisionAction.DEPROVISION ? "de" : "")
+                + "provision members of group " + group.getName());
         task.setActive(true);
         task.setJobDelegate(jobDelegate);
         task = taskDAO.save(task);
@@ -416,7 +417,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
 
             jobDataMap.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, false);
             jobDataMap.put(GroupMemberProvisionTaskJobDelegate.GROUP_KEY_JOBDETAIL_KEY, key);
-            jobDataMap.put(GroupMemberProvisionTaskJobDelegate.ACTION_TYPE_JOBDETAIL_KEY, actionType);
+            jobDataMap.put(GroupMemberProvisionTaskJobDelegate.ACTION_JOBDETAIL_KEY, action);
 
             scheduler.getScheduler().triggerJob(
                     JobNamer.getJobKey(task),

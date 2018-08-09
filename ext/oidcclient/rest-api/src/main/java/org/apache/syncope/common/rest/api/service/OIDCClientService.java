@@ -27,10 +27,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.OIDCConstants;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.OIDCLoginRequestTO;
 import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
 import org.apache.syncope.common.lib.to.OIDCLogoutRequestTO;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * REST operations for OpenID Connect Clients.
@@ -51,7 +51,7 @@ public interface OIDCClientService extends JAXRSService {
      */
     @POST
     @Path("loginRequest")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     OIDCLoginRequestTO createLoginRequest(
             @QueryParam(OIDCConstants.REDIRECT_URI) String redirectURI,
             @QueryParam(OIDCConstants.OP) String op);
@@ -67,7 +67,7 @@ public interface OIDCClientService extends JAXRSService {
      */
     @POST
     @Path("login")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     OIDCLoginResponseTO login(
             @QueryParam(OIDCConstants.REDIRECT_URI) String redirectURI,
             @QueryParam("authorizationCode") String authorizationCode,
@@ -81,7 +81,7 @@ public interface OIDCClientService extends JAXRSService {
      */
     @POST
     @Path("logout")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     OIDCLogoutRequestTO createLogoutRequest(@QueryParam(OIDCConstants.OP) String op);
 
 }

@@ -247,20 +247,20 @@ public class AnyStatusDirectoryPanel
     }
 
     @Override
-    protected Collection<ActionLink.ActionType> getBulkActions() {
-        List<ActionLink.ActionType> bulkActions = new ArrayList<>();
+    protected Collection<ActionLink.ActionType> getBatches() {
+        List<ActionLink.ActionType> batches = new ArrayList<>();
         if (statusOnly) {
-            bulkActions.add(ActionLink.ActionType.SUSPEND);
-            bulkActions.add(ActionLink.ActionType.REACTIVATE);
+            batches.add(ActionLink.ActionType.SUSPEND);
+            batches.add(ActionLink.ActionType.REACTIVATE);
         } else {
-            bulkActions.add(ActionLink.ActionType.UNLINK);
-            bulkActions.add(ActionLink.ActionType.LINK);
-            bulkActions.add(ActionLink.ActionType.DEPROVISION);
-            bulkActions.add(ActionLink.ActionType.PROVISION);
-            bulkActions.add(ActionLink.ActionType.ASSIGN);
-            bulkActions.add(ActionLink.ActionType.UNASSIGN);
+            batches.add(ActionLink.ActionType.UNLINK);
+            batches.add(ActionLink.ActionType.LINK);
+            batches.add(ActionLink.ActionType.DEPROVISION);
+            batches.add(ActionLink.ActionType.PROVISION);
+            batches.add(ActionLink.ActionType.ASSIGN);
+            batches.add(ActionLink.ActionType.UNASSIGN);
         }
-        return bulkActions;
+        return batches;
     }
 
     @Override

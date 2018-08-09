@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.BulkMembersActionType;
+import org.apache.syncope.common.lib.types.ProvisionAction;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
@@ -41,7 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDelegate {
 
-    public static final String ACTION_TYPE_JOBDETAIL_KEY = "actionType";
+    public static final String ACTION_JOBDETAIL_KEY = "action";
 
     public static final String GROUP_KEY_JOBDETAIL_KEY = "groupKey";
 
@@ -59,7 +59,7 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
 
     private String groupKey;
 
-    private BulkMembersActionType actionType;
+    private ProvisionAction action;
 
     @Transactional
     @Override
@@ -67,7 +67,7 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
             throws JobExecutionException {
 
         groupKey = context.getMergedJobDataMap().getString(GROUP_KEY_JOBDETAIL_KEY);
-        actionType = (BulkMembersActionType) context.getMergedJobDataMap().get(ACTION_TYPE_JOBDETAIL_KEY);
+        action = (ProvisionAction) context.getMergedJobDataMap().get(ACTION_JOBDETAIL_KEY);
 
         super.execute(taskKey, dryRun, context);
     }
@@ -77,7 +77,7 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         Group group = groupDAO.authFind(groupKey);
 
         StringBuilder result = new StringBuilder("Group ").append(group.getName()).append(" members ");
-        if (actionType == BulkMembersActionType.DEPROVISION) {
+        if (action == ProvisionAction.DEPROVISION) {
             result.append("de");
         }
         result.append("provision\n\n");
@@ -89,11 +89,11 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         List<User> users = searchDAO.search(SearchCond.getLeafCond(membershipCond), AnyTypeKind.USER);
         Collection<String> groupResourceKeys = groupDAO.findAllResourceKeys(groupKey);
         status.set("About to "
-                + (actionType == BulkMembersActionType.DEPROVISION ? "de" : "") + "provision "
+                + (action == ProvisionAction.DEPROVISION ? "de" : "") + "provision "
                 + users.size() + " users from " + groupResourceKeys);
 
         for (int i = 0; i < users.size() && !interrupt; i++) {
-            List<PropagationStatus> statuses = actionType == BulkMembersActionType.DEPROVISION
+            List<PropagationStatus> statuses = action == ProvisionAction.DEPROVISION
                     ? userProvisioningManager.deprovision(users.get(i).getKey(), groupResourceKeys, false)
                     : userProvisioningManager.provision(users.get(i).getKey(), true, null, groupResourceKeys, false);
             for (PropagationStatus propagationStatus : statuses) {
@@ -117,11 +117,11 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         membershipCond.setGroup(groupKey);
         List<AnyObject> anyObjects = searchDAO.search(SearchCond.getLeafCond(membershipCond), AnyTypeKind.ANY_OBJECT);
         status.set("About to "
-                + (actionType == BulkMembersActionType.DEPROVISION ? "de" : "") + "provision "
+                + (action == ProvisionAction.DEPROVISION ? "de" : "") + "provision "
                 + anyObjects.size() + " any objects from " + groupResourceKeys);
 
         for (int i = 0; i < anyObjects.size() && !interrupt; i++) {
-            List<PropagationStatus> statuses = actionType == BulkMembersActionType.DEPROVISION
+            List<PropagationStatus> statuses = action == ProvisionAction.DEPROVISION
                     ? anyObjectProvisioningManager.deprovision(anyObjects.get(i).getKey(), groupResourceKeys, false)
                     : anyObjectProvisioningManager.provision(anyObjects.get(i).getKey(), groupResourceKeys, false);
 
@@ -151,5 +151,4 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         // always record execution result
         return true;
     }
-
 }

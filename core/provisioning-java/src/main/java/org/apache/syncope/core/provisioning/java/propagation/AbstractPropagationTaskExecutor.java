@@ -36,7 +36,7 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -377,7 +377,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         Date start = new Date();
 
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
-        execution.setStatus(PropagationTaskExecStatus.CREATED.name());
+        execution.setStatus(ExecStatus.CREATED.name());
 
         String taskExecutionMessage = null;
         String failureReason = null;
@@ -423,8 +423,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             }
 
             execution.setStatus(propagationAttempted.get()
-                    ? PropagationTaskExecStatus.SUCCESS.name()
-                    : PropagationTaskExecStatus.NOT_ATTEMPTED.name());
+                    ? ExecStatus.SUCCESS.name()
+                    : ExecStatus.NOT_ATTEMPTED.name());
 
             LOG.debug("Successfully propagated to {}", task.getResource());
             result = Result.SUCCESS;
@@ -449,7 +449,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             }
 
             try {
-                execution.setStatus(PropagationTaskExecStatus.FAILURE.name());
+                execution.setStatus(ExecStatus.FAILURE.name());
             } catch (Exception wft) {
                 LOG.error("While executing KO action on {}", execution, wft);
             }
@@ -503,9 +503,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             }
 
             if (reporter != null) {
-                reporter.onSuccessOrNonPriorityResourceFailures(
-                        taskTO,
-                        PropagationTaskExecStatus.valueOf(execution.getStatus()),
+                reporter.onSuccessOrNonPriorityResourceFailures(taskTO,
+                        ExecStatus.valueOf(execution.getStatus()),
                         failureReason,
                         beforeObj,
                         afterObj);
@@ -568,7 +567,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected boolean hasToBeregistered(final PropagationTask task, final TaskExec execution) {
         boolean result;
 
-        boolean failed = PropagationTaskExecStatus.valueOf(execution.getStatus()) != PropagationTaskExecStatus.SUCCESS;
+        boolean failed = ExecStatus.valueOf(execution.getStatus()) != ExecStatus.SUCCESS;
 
         switch (task.getOperation()) {
 

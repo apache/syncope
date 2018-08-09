@@ -205,10 +205,8 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
     }
 
     @Override
-    protected Collection<ActionType> getBulkActions() {
-        final List<ActionType> bulkActions = new ArrayList<>();
-        bulkActions.add(ActionType.DELETE);
-        return bulkActions;
+    protected Collection<ActionType> getBatches() {
+        return Collections.emptyList();
     }
 
     @Override

@@ -18,18 +18,28 @@
  */
 package org.apache.syncope.client.cli.commands.user;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicReference;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.client.cli.Input;
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UserDeleteAll extends AbstractUserCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserDeleteAll.class);
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private static final String DELETE_ALL_HELP_MESSAGE = "user --delete-all {REALM}";
 
@@ -59,21 +69,31 @@ public class UserDeleteAll extends AbstractUserCommand {
                             userResultManager.notFoundError("Realm", realm);
                             return;
                         }
-                        final Map<String, BulkActionResult.Status> results = userSyncopeOperations.deleteAll(realm);
-                        final Map<String, String> users = new HashMap<>();
-                        int deletedUsers = 0;
-                        for (final Map.Entry<String, BulkActionResult.Status> entrySet : results.entrySet()) {
-                            final String userId = entrySet.getKey();
-                            final BulkActionResult.Status status = entrySet.getValue();
-                            if (!BulkActionResult.Status.SUCCESS.equals(status)) {
-                                users.put(userId, status.name());
+                        List<BatchResponseItem> results = userSyncopeOperations.deleteAll(realm);
+
+                        Map<String, String> failedUsers = new HashMap<>();
+                        AtomicReference<Integer> deletedUsers = new AtomicReference<>(0);
+
+                        results.forEach(item -> {
+                            if (item.getStatus() == Response.Status.OK.getStatusCode()) {
+                                deletedUsers.getAndSet(deletedUsers.get() + 1);
                             } else {
-                                deletedUsers++;
+                                try {
+                                    ProvisioningResult<UserTO> user = MAPPER.readValue(item.getContent(),
+                                            new TypeReference<ProvisioningResult<UserTO>>() {
+                                    });
+                                    failedUsers.put(
+                                            user.getEntity().getUsername(),
+                                            item.getHeaders().get(RESTHeaders.ERROR_CODE).toString());
+                                } catch (IOException ioe) {
+                                    LOG.error("Error reading {}", item.getContent(), ioe);
+                                }
                             }
-                        }
+                        });
+
                         userResultManager.genericMessage("Deleted users: " + deletedUsers);
-                        if (!users.isEmpty()) {
-                            userResultManager.printFailedUsers(users);
+                        if (!failedUsers.isEmpty()) {
+                            userResultManager.printFailedUsers(failedUsers);
                         }
                     } else {
                         userResultManager.genericError("Authentication error");
@@ -83,9 +103,9 @@ public class UserDeleteAll extends AbstractUserCommand {
                 } else {
                     userResultManager.genericError("Invalid parameter, please use [yes/no]");
                 }
-            } catch (final SyncopeClientException ex) {
-                LOG.error("Error deleting user", ex);
-                userResultManager.genericError(ex.getMessage());
+            } catch (Exception e) {
+                LOG.error("Error deleting user", e);
+                userResultManager.genericError(e.getMessage());
             }
         } else {
             userResultManager.commandOptionError(DELETE_ALL_HELP_MESSAGE);

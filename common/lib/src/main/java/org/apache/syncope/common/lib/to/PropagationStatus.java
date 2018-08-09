@@ -21,7 +21,7 @@ package org.apache.syncope.common.lib.to;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ExecStatus;
 
 /**
  * Single propagation status.
@@ -50,7 +50,7 @@ public class PropagationStatus extends AbstractBaseBean {
     /**
      * Propagation task execution status.
      */
-    private PropagationTaskExecStatus status;
+    private ExecStatus status;
 
     /**
      * Propagation task execution failure message.
@@ -81,11 +81,11 @@ public class PropagationStatus extends AbstractBaseBean {
         this.resource = resource;
     }
 
-    public PropagationTaskExecStatus getStatus() {
+    public ExecStatus getStatus() {
         return status;
     }
 
-    public void setStatus(final PropagationTaskExecStatus status) {
+    public void setStatus(final ExecStatus status) {
         this.status = status;
     }
 

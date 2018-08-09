@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
 import java.security.AccessControlException;
 import java.util.Collections;
 import java.util.List;
@@ -56,7 +57,6 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
@@ -76,12 +76,12 @@ import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.BulkMembersActionType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.common.lib.types.ProvisionAction;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -312,7 +312,7 @@ public class GroupITCase extends AbstractITCase {
     }
 
     @Test
-    public void unlink() {
+    public void unlink() throws IOException {
         GroupTO actual = createGroup(getSampleTO("unlink")).getEntity();
         assertNotNull(actual);
 
@@ -321,7 +321,7 @@ public class GroupITCase extends AbstractITCase {
         DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(actual.getKey()).
                 action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_LDAP).build();
 
-        assertNotNull(groupService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
+        assertNotNull(parseBatchResponse(groupService.deassociate(deassociationPatch)));
 
         actual = groupService.read(actual.getKey());
         assertNotNull(actual);
@@ -331,7 +331,7 @@ public class GroupITCase extends AbstractITCase {
     }
 
     @Test
-    public void link() {
+    public void link() throws IOException {
         GroupTO groupTO = getSampleTO("link");
         groupTO.getResources().clear();
 
@@ -348,7 +348,7 @@ public class GroupITCase extends AbstractITCase {
         AssociationPatch associationPatch = new AssociationPatch.Builder().key(actual.getKey()).
                 action(ResourceAssociationAction.LINK).resource(RESOURCE_NAME_LDAP).build();
 
-        assertNotNull(groupService.associate(associationPatch).readEntity(BulkActionResult.class));
+        assertNotNull(parseBatchResponse(groupService.associate(associationPatch)));
 
         actual = groupService.read(actual.getKey());
         assertFalse(actual.getResources().isEmpty());
@@ -362,7 +362,7 @@ public class GroupITCase extends AbstractITCase {
     }
 
     @Test
-    public void unassign() {
+    public void unassign() throws IOException {
         GroupTO groupTO = null;
 
         try {
@@ -377,7 +377,7 @@ public class GroupITCase extends AbstractITCase {
             deassociationPatch.setAction(ResourceDeassociationAction.UNASSIGN);
             deassociationPatch.getResources().add(RESOURCE_NAME_LDAP);
 
-            assertNotNull(groupService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
+            assertNotNull(parseBatchResponse(groupService.deassociate(deassociationPatch)));
 
             groupTO = groupService.read(groupTO.getKey());
             assertNotNull(groupTO);
@@ -397,7 +397,7 @@ public class GroupITCase extends AbstractITCase {
     }
 
     @Test
-    public void assign() {
+    public void assign() throws IOException {
         GroupTO groupTO = getSampleTO("assign");
         groupTO.getResources().clear();
 
@@ -415,7 +415,7 @@ public class GroupITCase extends AbstractITCase {
             AssociationPatch associationPatch = new AssociationPatch.Builder().key(groupTO.getKey()).
                     action(ResourceAssociationAction.ASSIGN).resource(RESOURCE_NAME_LDAP).build();
 
-            assertNotNull(groupService.associate(associationPatch).readEntity(BulkActionResult.class));
+            assertNotNull(parseBatchResponse(groupService.associate(associationPatch)));
 
             groupTO = groupService.read(groupTO.getKey());
             assertFalse(groupTO.getResources().isEmpty());
@@ -429,7 +429,7 @@ public class GroupITCase extends AbstractITCase {
     }
 
     @Test
-    public void deprovision() {
+    public void deprovision() throws IOException {
         GroupTO groupTO = null;
 
         try {
@@ -442,7 +442,7 @@ public class GroupITCase extends AbstractITCase {
             DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(groupTO.getKey()).
                     action(ResourceDeassociationAction.DEPROVISION).resource(RESOURCE_NAME_LDAP).build();
 
-            assertNotNull(groupService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
+            assertNotNull(parseBatchResponse(groupService.deassociate(deassociationPatch)));
 
             groupTO = groupService.read(groupTO.getKey());
             assertNotNull(groupTO);
@@ -462,7 +462,7 @@ public class GroupITCase extends AbstractITCase {
     }
 
     @Test
-    public void provision() {
+    public void provision() throws IOException {
         GroupTO groupTO = getSampleTO("provision");
         groupTO.getResources().clear();
 
@@ -480,7 +480,7 @@ public class GroupITCase extends AbstractITCase {
             AssociationPatch associationPatch = new AssociationPatch.Builder().key(groupTO.getKey()).
                     action(ResourceAssociationAction.PROVISION).resource(RESOURCE_NAME_LDAP).build();
 
-            assertNotNull(groupService.associate(associationPatch).readEntity(BulkActionResult.class));
+            assertNotNull(parseBatchResponse(groupService.associate(associationPatch)));
 
             groupTO = groupService.read(groupTO.getKey());
             assertTrue(groupTO.getResources().isEmpty());
@@ -495,7 +495,7 @@ public class GroupITCase extends AbstractITCase {
     }
 
     @Test
-    public void deprovisionUnlinked() {
+    public void deprovisionUnlinked() throws IOException {
         GroupTO groupTO = getSampleTO("deprovision");
         groupTO.getResources().clear();
 
@@ -513,7 +513,7 @@ public class GroupITCase extends AbstractITCase {
             AssociationPatch associationPatch = new AssociationPatch.Builder().key(groupTO.getKey()).
                     action(ResourceAssociationAction.PROVISION).resource(RESOURCE_NAME_LDAP).build();
 
-            assertNotNull(groupService.associate(associationPatch).readEntity(BulkActionResult.class));
+            assertNotNull(parseBatchResponse(groupService.associate(associationPatch)));
 
             groupTO = groupService.read(groupTO.getKey());
             assertTrue(groupTO.getResources().isEmpty());
@@ -524,7 +524,7 @@ public class GroupITCase extends AbstractITCase {
             DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(groupTO.getKey()).
                     action(ResourceDeassociationAction.DEPROVISION).resource(RESOURCE_NAME_LDAP).build();
 
-            assertNotNull(groupService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
+            assertNotNull(parseBatchResponse(groupService.deassociate(deassociationPatch)));
 
             groupTO = groupService.read(groupTO.getKey());
             assertNotNull(groupTO);
@@ -776,7 +776,7 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(result);
             assertEquals(1, result.getPropagationStatuses().size());
             assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
-            assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
             group = result.getEntity();
 
             // 2. update succeeds
@@ -789,7 +789,7 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(result);
             assertEquals(1, result.getPropagationStatuses().size());
             assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
-            assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
             group = result.getEntity();
 
             // 3. set capability override with only search allowed, but not enable
@@ -811,7 +811,7 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(result);
             assertEquals(1, result.getPropagationStatuses().size());
             assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
-            assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
             group = result.getEntity();
 
             // 5. enable capability override
@@ -833,7 +833,7 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(result);
             assertEquals(1, result.getPropagationStatuses().size());
             assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
-            assertEquals(PropagationTaskExecStatus.NOT_ATTEMPTED, result.getPropagationStatuses().get(0).getStatus());
+            assertEquals(ExecStatus.NOT_ATTEMPTED, result.getPropagationStatuses().get(0).getStatus());
         } finally {
             ldap.getCapabilitiesOverride().clear();
             ldap.setOverrideCapabilities(false);
@@ -874,7 +874,7 @@ public class GroupITCase extends AbstractITCase {
     }
 
     @Test
-    public void bulkMembersAction() throws InterruptedException {
+    public void provisionMembers() throws InterruptedException {
         // 1. create group without resources
         GroupTO groupTO = getBasicSampleTO("forProvision");
         groupTO = createGroup(groupTO).getEntity();
@@ -893,7 +893,7 @@ public class GroupITCase extends AbstractITCase {
 
         PropagationStatus propStatus = groupUpdateResult.getPropagationStatuses().get(0);
         assertEquals(RESOURCE_NAME_LDAP, propStatus.getResource());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, propStatus.getStatus());
+        assertEquals(ExecStatus.SUCCESS, propStatus.getStatus());
 
         // 4. verify that the user above is not found on LDAP
         try {
@@ -904,8 +904,8 @@ public class GroupITCase extends AbstractITCase {
         }
 
         try {
-            // 5. bulk provision group members
-            ExecTO exec = groupService.bulkMembersAction(groupTO.getKey(), BulkMembersActionType.PROVISION);
+            // 5. provision group members
+            ExecTO exec = groupService.provisionMembers(groupTO.getKey(), ProvisionAction.PROVISION);
             assertNotNull(exec.getRefKey());
 
             int i = 0;

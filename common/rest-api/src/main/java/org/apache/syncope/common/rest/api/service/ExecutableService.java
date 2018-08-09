@@ -33,13 +33,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.BulkActionResult;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.JobAction;
-import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.ExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 
@@ -53,7 +53,7 @@ public interface ExecutableService extends JAXRSService {
      */
     @GET
     @Path("{key}/executions")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     PagedResult<ExecTO> listExecutions(@BeanParam ExecQuery query);
 
     /**
@@ -64,7 +64,7 @@ public interface ExecutableService extends JAXRSService {
      */
     @GET
     @Path("executions/recent")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<ExecTO> listRecentExecutions(@Min(1) @QueryParam(JAXRSService.PARAM_MAX) @DefaultValue("25") int max);
 
     /**
@@ -76,19 +76,22 @@ public interface ExecutableService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("executions/{executionKey}")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void deleteExecution(@NotNull @PathParam("executionKey") String executionKey);
 
     /**
      * Deletes the executions belonging matching the given query.
      *
      * @param query query conditions
-     * @return bulk action result
+     * @return batch results as Response entity
      */
     @DELETE
+    @ApiResponses(
+            @ApiResponse(responseCode = "200",
+                    description = "Batch results available, returned as Response entity"))
     @Path("{key}/executions")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    BulkActionResult deleteExecutions(@BeanParam BulkExecDeleteQuery query);
+    @Produces(RESTHeaders.MULTIPART_MIXED)
+    Response deleteExecutions(@BeanParam ExecDeleteQuery query);
 
     /**
      * Executes the executable matching the given query.
@@ -98,7 +101,7 @@ public interface ExecutableService extends JAXRSService {
      */
     @POST
     @Path("{key}/execute")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     ExecTO execute(@BeanParam ExecuteQuery query);
 
     /**
@@ -109,7 +112,7 @@ public interface ExecutableService extends JAXRSService {
      */
     @GET
     @Path("jobs/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     JobTO getJob(@PathParam("key") String key);
 
     /**
@@ -119,7 +122,7 @@ public interface ExecutableService extends JAXRSService {
      */
     @GET
     @Path("jobs")
-    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<JobTO> listJobs();
 
     /**

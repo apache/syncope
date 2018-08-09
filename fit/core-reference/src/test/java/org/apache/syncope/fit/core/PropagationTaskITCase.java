@@ -23,19 +23,20 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
@@ -52,6 +53,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
+import org.apache.syncope.common.rest.api.service.TaskService;
 import org.junit.jupiter.api.Test;
 
 public class PropagationTaskITCase extends AbstractTaskITCase {
@@ -92,9 +94,9 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
-    public void bulkAction() {
+    public void batch() throws IOException {
         // create user with testdb resource
-        UserTO userTO = UserITCase.getUniqueSampleTO("taskBulk@apache.org");
+        UserTO userTO = UserITCase.getUniqueSampleTO("taskBatch@apache.org");
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
         userTO = createUser(userTO).getEntity();
 
@@ -104,13 +106,16 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
                         getResult());
         assertFalse(tasks.isEmpty());
 
-        BulkAction bulkAction = new BulkAction();
-        bulkAction.setType(BulkAction.Type.DELETE);
-        tasks.forEach(taskTO -> bulkAction.getTargets().add(taskTO.getKey()));
+        BatchRequest batchRequest = adminClient.batch();
 
-        taskService.bulk(bulkAction);
+        TaskService batchTaskService = batchRequest.getService(TaskService.class);
+        tasks.forEach(task -> batchTaskService.delete(TaskType.PROPAGATION, task.getKey()));
 
-        assertFalse(taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(100).build()).
+        Response response = batchRequest.commit().getResponse();
+        parseBatchResponse(response);
+
+        assertFalse(taskService.search(
+                new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(100).build()).
                 getResult().containsAll(tasks));
     }
 

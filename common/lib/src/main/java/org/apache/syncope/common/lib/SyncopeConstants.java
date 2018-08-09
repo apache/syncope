@@ -21,7 +21,6 @@ package org.apache.syncope.common.lib;
 import java.util.Collections;
 import java.util.Set;
 import java.util.regex.Pattern;
-import javax.ws.rs.core.MediaType;
 
 public final class SyncopeConstants {
 
@@ -64,9 +63,9 @@ public final class SyncopeConstants {
 
     public static final Pattern UUID_PATTERN = Pattern.compile(UUID_REGEX);
 
-    public static final String APPLICATION_YAML = "application/yaml";
+    public static final String DOUBLE_DASH = "--";
 
-    public static final MediaType APPLICATION_YAML_TYPE = new MediaType("application", "yaml");
+    public static final String CRLF = "\r\n";
 
     private SyncopeConstants() {
         // private constructor for utility class

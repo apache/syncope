@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -78,7 +78,7 @@ public class TaskExecTest extends AbstractTest {
         TaskExec exec = entityFactory.newEntity(TaskExec.class);
         exec.setStart(new Date());
         exec.setEnd(new Date());
-        exec.setStatus(PropagationTaskExecStatus.SUCCESS.name());
+        exec.setStatus(ExecStatus.SUCCESS.name());
         exec.setMessage(faultyMessage);
 
         task.add(exec);

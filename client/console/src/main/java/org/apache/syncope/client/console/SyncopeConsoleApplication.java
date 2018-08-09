@@ -300,7 +300,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     public SyncopeClientFactoryBean newClientFactory() {
         return new SyncopeClientFactoryBean().
-                setAddress(scheme + "://" + host + ":" + port + "/" + rootPath).
+                setAddress(scheme + "://" + host + ":" + port + StringUtils.prependIfMissing(rootPath, "/")).
                 setUseCompression(BooleanUtils.toBoolean(useGZIPCompression));
     }
 
