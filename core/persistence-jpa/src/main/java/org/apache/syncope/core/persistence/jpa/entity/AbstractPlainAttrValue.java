@@ -219,18 +219,7 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
                                                 : getStringValue());
     }
 
-    @Override
-    public String getValueAsString() {
-        final AttrSchemaType type = getAttr() == null || getAttr().getSchema() == null
-                || getAttr().getSchema().getType() == null
-                ? AttrSchemaType.String
-                : getAttr().getSchema().getType();
-
-        return getValueAsString(type);
-    }
-
-    @Override
-    public String getValueAsString(final AttrSchemaType type) {
+    private String getValueAsString(final AttrSchemaType type, final PlainSchema schema) {
         String result;
         switch (type) {
 
@@ -239,24 +228,21 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
                 break;
 
             case Long:
-                result = getAttr() == null || getAttr().getSchema() == null
-                        || getAttr().getSchema().getConversionPattern() == null
+                result = schema == null || schema.getConversionPattern() == null
                         ? getLongValue().toString()
-                        : FormatUtils.format(getLongValue(), getAttr().getSchema().getConversionPattern());
+                        : FormatUtils.format(getLongValue(), schema.getConversionPattern());
                 break;
 
             case Double:
-                result = getAttr() == null || getAttr().getSchema() == null
-                        || getAttr().getSchema().getConversionPattern() == null
+                result = schema == null || schema.getConversionPattern() == null
                         ? getDoubleValue().toString()
-                        : FormatUtils.format(getDoubleValue(), getAttr().getSchema().getConversionPattern());
+                        : FormatUtils.format(getDoubleValue(), schema.getConversionPattern());
                 break;
 
             case Date:
-                result = getAttr() == null || getAttr().getSchema() == null
-                        || getAttr().getSchema().getConversionPattern() == null
+                result = schema == null || schema.getConversionPattern() == null
                         ? FormatUtils.format(getDateValue())
-                        : FormatUtils.format(getDateValue(), false, getAttr().getSchema().getConversionPattern());
+                        : FormatUtils.format(getDateValue(), false, schema.getConversionPattern());
                 break;
 
             case Binary:
@@ -272,6 +258,30 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
         }
 
         return result;
+    }
+
+    @Override
+    public String getValueAsString() {
+        PlainSchema schema = getAttr() == null || getAttr().getSchema() == null
+                ? null
+                : getAttr().getSchema();
+        AttrSchemaType type = schema == null || schema.getType() == null
+                ? AttrSchemaType.String
+                : getAttr().getSchema().getType();
+
+        return getValueAsString(type, schema);
+    }
+
+    @Override
+    public String getValueAsString(final AttrSchemaType type) {
+        return getValueAsString(
+                type,
+                getAttr() == null || getAttr().getSchema() == null ? null : getAttr().getSchema());
+    }
+
+    @Override
+    public String getValueAsString(final PlainSchema schema) {
+        return getValueAsString(schema.getType(), schema);
     }
 
     @Override
