@@ -49,7 +49,7 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
@@ -204,7 +204,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         add(mlp);
 
         final PropagationStatus syncope = new PropagationStatus();
-        syncope.setStatus(PropagationTaskExecStatus.SUCCESS);
+        syncope.setStatus(ExecStatus.SUCCESS);
         syncope.setResource(Constants.SYNCOPE);
 
         List<PropagationStatus> propagations = new ArrayList<>();
@@ -250,8 +250,8 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
             @Override
             protected boolean statusCondition(final PropagationStatus bean) {
                 return !Constants.SYNCOPE.equals(bean.getResource())
-                        && (PropagationTaskExecStatus.CREATED == bean.getStatus()
-                        || PropagationTaskExecStatus.SUCCESS == bean.getStatus());
+                        && (ExecStatus.CREATED == bean.getStatus()
+                        || ExecStatus.SUCCESS == bean.getStatus());
             }
 
             @Override

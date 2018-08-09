@@ -46,7 +46,7 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
-import org.apache.syncope.common.lib.types.BulkMembersActionType;
+import org.apache.syncope.common.lib.types.ProvisionAction;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 
@@ -212,13 +212,13 @@ public interface GroupService extends AnyService<GroupTO> {
      * (De)provision all members of the given group from / onto all the resources associated to it.
      *
      * @param key group key
-     * @param actionType action type to perform on all group members
+     * @param action action type to perform on all group members
      * @return execution report for the task generated on purpose
      */
     @POST
-    @Path("{key}/members/{actionType}")
+    @Path("{key}/members/{action}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    ExecTO bulkMembersAction(
+    ExecTO provisionMembers(
             @NotNull @PathParam("key") String key,
-            @NotNull @PathParam("actionType") BulkMembersActionType actionType);
+            @NotNull @PathParam("action") ProvisionAction action);
 }

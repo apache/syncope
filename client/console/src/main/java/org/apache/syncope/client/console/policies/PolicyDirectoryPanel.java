@@ -194,7 +194,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
     }
 
     @Override
-    protected Collection<ActionType> getBulkActions() {
+    protected Collection<ActionType> getBatches() {
         return Collections.<ActionType>emptyList();
     }
 

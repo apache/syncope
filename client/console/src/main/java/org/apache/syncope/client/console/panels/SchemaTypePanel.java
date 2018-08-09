@@ -120,7 +120,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
     }
 
     @Override
-    protected Collection<ActionLink.ActionType> getBulkActions() {
+    protected Collection<ActionLink.ActionType> getBatches() {
         return Collections.<ActionLink.ActionType>emptyList();
     }
 

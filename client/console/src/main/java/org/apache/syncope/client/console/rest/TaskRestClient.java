@@ -18,11 +18,15 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.to.TaskTO;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -34,6 +38,8 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
+import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
@@ -228,7 +234,29 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         getService(TaskService.class).update(type, taskTO);
     }
 
-    public BulkActionResult bulkAction(final BulkAction action) {
-        return getService(TaskService.class).bulk(action);
+    @Override
+    public Map<String, String> batch(final BatchRequest batchRequest) {
+        List<BatchRequestItem> batchRequestItems = new ArrayList<>(batchRequest.getItems());
+
+        Map<String, String> result = new LinkedHashMap<>();
+        try {
+            List<BatchResponseItem> batchResponseItems = batchRequest.commit().getItems();
+            for (int i = 0; i < batchResponseItems.size(); i++) {
+                String status = getStatus(batchResponseItems.get(i).getStatus());
+
+                if (batchRequestItems.get(i).getRequestURI().contains("/execute")) {
+                    result.put(StringUtils.substringAfterLast(
+                            StringUtils.substringBefore(batchRequestItems.get(i).getRequestURI(), "/execute"), "/"),
+                            status);
+                } else {
+                    result.put(StringUtils.substringAfterLast(
+                            batchRequestItems.get(i).getRequestURI(), "/"), status);
+                }
+            }
+        } catch (IOException e) {
+            LOG.error("While processing Batch response", e);
+        }
+
+        return result;
     }
 }

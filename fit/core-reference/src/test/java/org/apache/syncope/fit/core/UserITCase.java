@@ -27,7 +27,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import java.io.IOException;
 import java.security.AccessControlException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,6 +45,7 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
@@ -57,9 +60,6 @@ import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.HaveIBeenPwnedPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
-import org.apache.syncope.common.lib.to.BulkActionResult.Status;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -76,12 +76,13 @@ import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
@@ -148,7 +149,7 @@ public class UserITCase extends AbstractITCase {
         PropagationTaskTO taskTO = tasks.getResult().get(0);
         assertNotNull(taskTO);
         assertFalse(taskTO.getExecutions().isEmpty());
-        assertEquals(PropagationTaskExecStatus.NOT_ATTEMPTED.name(), taskTO.getExecutions().get(0).getStatus());
+        assertEquals(ExecStatus.NOT_ATTEMPTED.name(), taskTO.getExecutions().get(0).getStatus());
     }
 
     @Test
@@ -218,7 +219,7 @@ public class UserITCase extends AbstractITCase {
         ProvisioningResult<UserTO> result = createUser(userTO);
         assertNotNull(result);
         assertEquals(1, result.getPropagationStatuses().size());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
     }
 
     @Test
@@ -426,7 +427,7 @@ public class UserITCase extends AbstractITCase {
 
         // check for propagation result
         assertFalse(result.getPropagationStatuses().isEmpty());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
 
         try {
             userService.delete(userTO.getKey());
@@ -455,7 +456,7 @@ public class UserITCase extends AbstractITCase {
 
         // check for propagation result
         assertFalse(result.getPropagationStatuses().isEmpty());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
 
         try {
             userService.read(userTO.getKey());
@@ -875,11 +876,11 @@ public class UserITCase extends AbstractITCase {
         statuses.forEach(status -> {
             byResource.put(status.getResource(), status);
         });
-        assertEquals(PropagationTaskExecStatus.SUCCESS, byResource.get(RESOURCE_NAME_LDAP).getStatus());
-        assertTrue(byResource.get(RESOURCE_NAME_TESTDB).getStatus() == PropagationTaskExecStatus.CREATED
-                || byResource.get(RESOURCE_NAME_TESTDB).getStatus() == PropagationTaskExecStatus.SUCCESS);
-        assertTrue(byResource.get(RESOURCE_NAME_TESTDB2).getStatus() == PropagationTaskExecStatus.CREATED
-                || byResource.get(RESOURCE_NAME_TESTDB2).getStatus() == PropagationTaskExecStatus.SUCCESS);
+        assertEquals(ExecStatus.SUCCESS, byResource.get(RESOURCE_NAME_LDAP).getStatus());
+        assertTrue(byResource.get(RESOURCE_NAME_TESTDB).getStatus() == ExecStatus.CREATED
+                || byResource.get(RESOURCE_NAME_TESTDB).getStatus() == ExecStatus.SUCCESS);
+        assertTrue(byResource.get(RESOURCE_NAME_TESTDB2).getStatus() == ExecStatus.CREATED
+                || byResource.get(RESOURCE_NAME_TESTDB2).getStatus() == ExecStatus.SUCCESS);
     }
 
     @Test
@@ -1034,39 +1035,64 @@ public class UserITCase extends AbstractITCase {
     }
 
     @Test
-    public void bulkActions() {
-        BulkAction bulkAction = new BulkAction();
-
+    public void batch() throws IOException {
+        List<String> users = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            UserTO userTO = getUniqueSampleTO("bulk_" + i + "@apache.org");
-            bulkAction.getTargets().add(String.valueOf(createUser(userTO).getEntity().getKey()));
+            UserTO userTO = getUniqueSampleTO("batch_" + i + "@apache.org");
+            users.add(String.valueOf(createUser(userTO).getEntity().getKey()));
         }
 
         // check for a fail
-        bulkAction.getTargets().add(String.valueOf(Long.MAX_VALUE));
+        users.add(UUID.randomUUID().toString());
 
-        assertEquals(11, bulkAction.getTargets().size());
+        assertEquals(11, users.size());
 
-        bulkAction.setType(BulkAction.Type.SUSPEND);
-        BulkActionResult res = userService.bulk(bulkAction).readEntity(BulkActionResult.class);
-        assertEquals(10, res.getResultByStatus(Status.SUCCESS).size());
-        assertEquals(1, res.getResultByStatus(Status.FAILURE).size());
-        assertEquals("suspended", userService.read(res.getResultByStatus(Status.SUCCESS).get(3)).getStatus());
+        BatchRequest batchRequest = adminClient.batch();
 
-        bulkAction.setType(BulkAction.Type.REACTIVATE);
-        res = userService.bulk(bulkAction).readEntity(BulkActionResult.class);
-        assertEquals(10, res.getResultByStatus(Status.SUCCESS).size());
-        assertEquals(1, res.getResultByStatus(Status.FAILURE).size());
-        assertEquals("active", userService.read(res.getResultByStatus(Status.SUCCESS).get(3)).getStatus());
+        UserService batchUserService = batchRequest.getService(UserService.class);
+        users.forEach(user -> {
+            batchUserService.status(
+                    new StatusPatch.Builder().key(user).type(StatusPatchType.SUSPEND).onSyncope(true).build());
+        });
+        List<BatchResponseItem> batchResponseItems = parseBatchResponse(batchRequest.commit().getResponse());
+        assertEquals(10, batchResponseItems.stream().
+                filter(item -> Response.Status.OK.getStatusCode() == item.getStatus()).count());
+        assertEquals(1, batchResponseItems.stream().
+                filter(item -> Response.Status.NOT_FOUND.getStatusCode() == item.getStatus()).count());
+        assertEquals("suspended", userService.read(users.get(3)).getStatus());
 
-        bulkAction.setType(BulkAction.Type.DELETE);
-        res = userService.bulk(bulkAction).readEntity(BulkActionResult.class);
-        assertEquals(10, res.getResultByStatus(Status.SUCCESS).size());
-        assertEquals(1, res.getResultByStatus(Status.FAILURE).size());
+        UserService batchUserService2 = batchRequest.getService(UserService.class);
+        users.forEach(user -> {
+            batchUserService2.status(
+                    new StatusPatch.Builder().key(user).type(StatusPatchType.REACTIVATE).onSyncope(true).build());
+        });
+        batchResponseItems = parseBatchResponse(batchRequest.commit().getResponse());
+        assertEquals(10, batchResponseItems.stream().
+                filter(item -> Response.Status.OK.getStatusCode() == item.getStatus()).count());
+        assertEquals(1, batchResponseItems.stream().
+                filter(item -> Response.Status.NOT_FOUND.getStatusCode() == item.getStatus()).count());
+        assertEquals("active", userService.read(users.get(3)).getStatus());
+
+        UserService batchUserService3 = batchRequest.getService(UserService.class);
+        users.forEach(user -> {
+            batchUserService3.delete(user);
+        });
+        batchResponseItems = parseBatchResponse(batchRequest.commit().getResponse());
+        assertEquals(10, batchResponseItems.stream().
+                filter(item -> Response.Status.OK.getStatusCode() == item.getStatus()).count());
+        assertEquals(1, batchResponseItems.stream().
+                filter(item -> Response.Status.NOT_FOUND.getStatusCode() == item.getStatus()).count());
+
+        try {
+            userService.read(users.get(3));
+            fail("This should not happen");
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.NotFound, e.getType());
+        }
     }
 
     @Test
-    public void unlink() {
+    public void unlink() throws IOException {
         UserTO userTO = getUniqueSampleTO("unlink@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
@@ -1081,7 +1107,7 @@ public class UserITCase extends AbstractITCase {
         DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(actual.getKey()).
                 action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_CSV).build();
 
-        assertNotNull(userService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
+        assertNotNull(parseBatchResponse(userService.deassociate(deassociationPatch)));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
@@ -1091,7 +1117,7 @@ public class UserITCase extends AbstractITCase {
     }
 
     @Test
-    public void link() {
+    public void link() throws IOException {
         UserTO userTO = getUniqueSampleTO("link@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
@@ -1112,7 +1138,7 @@ public class UserITCase extends AbstractITCase {
         AssociationPatch associationPatch = new AssociationPatch.Builder().key(actual.getKey()).
                 action(ResourceAssociationAction.LINK).resource(RESOURCE_NAME_CSV).build();
 
-        assertNotNull(userService.associate(associationPatch).readEntity(BulkActionResult.class));
+        assertNotNull(parseBatchResponse(userService.associate(associationPatch)));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
@@ -1127,7 +1153,7 @@ public class UserITCase extends AbstractITCase {
     }
 
     @Test
-    public void unassign() {
+    public void unassign() throws IOException {
         UserTO userTO = getUniqueSampleTO("unassign@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
@@ -1142,7 +1168,7 @@ public class UserITCase extends AbstractITCase {
         DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(actual.getKey()).
                 action(ResourceDeassociationAction.UNASSIGN).resource(RESOURCE_NAME_CSV).build();
 
-        assertNotNull(userService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
+        assertNotNull(parseBatchResponse(userService.deassociate(deassociationPatch)));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
@@ -1157,7 +1183,7 @@ public class UserITCase extends AbstractITCase {
     }
 
     @Test
-    public void assign() {
+    public void assign() throws IOException {
         UserTO userTO = getUniqueSampleTO("assign@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
@@ -1178,7 +1204,7 @@ public class UserITCase extends AbstractITCase {
         AssociationPatch associationPatch = new AssociationPatch.Builder().key(actual.getKey()).
                 value("password").action(ResourceAssociationAction.ASSIGN).resource(RESOURCE_NAME_CSV).build();
 
-        assertNotNull(userService.associate(associationPatch).readEntity(BulkActionResult.class));
+        assertNotNull(parseBatchResponse(userService.associate(associationPatch)));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
@@ -1187,7 +1213,7 @@ public class UserITCase extends AbstractITCase {
     }
 
     @Test
-    public void deprovision() {
+    public void deprovision() throws IOException {
         UserTO userTO = getUniqueSampleTO("deprovision@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
@@ -1202,7 +1228,7 @@ public class UserITCase extends AbstractITCase {
         DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(actual.getKey()).
                 action(ResourceDeassociationAction.DEPROVISION).resource(RESOURCE_NAME_CSV).build();
 
-        assertNotNull(userService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
+        assertNotNull(parseBatchResponse(userService.deassociate(deassociationPatch)));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
@@ -1217,7 +1243,7 @@ public class UserITCase extends AbstractITCase {
     }
 
     @Test
-    public void provision() {
+    public void provision() throws IOException {
         UserTO userTO = getUniqueSampleTO("provision@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
@@ -1238,7 +1264,7 @@ public class UserITCase extends AbstractITCase {
         AssociationPatch associationPatch = new AssociationPatch.Builder().key(actual.getKey()).
                 value("password").action(ResourceAssociationAction.PROVISION).resource(RESOURCE_NAME_CSV).build();
 
-        assertNotNull(userService.associate(associationPatch).readEntity(BulkActionResult.class));
+        assertNotNull(parseBatchResponse(userService.associate(associationPatch)));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
@@ -1247,7 +1273,7 @@ public class UserITCase extends AbstractITCase {
     }
 
     @Test
-    public void deprovisionUnlinked() {
+    public void deprovisionUnlinked() throws IOException {
         UserTO userTO = getUniqueSampleTO("provision@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
@@ -1268,7 +1294,7 @@ public class UserITCase extends AbstractITCase {
         AssociationPatch associationPatch = new AssociationPatch.Builder().key(actual.getKey()).
                 value("password").action(ResourceAssociationAction.PROVISION).resource(RESOURCE_NAME_CSV).build();
 
-        assertNotNull(userService.associate(associationPatch).readEntity(BulkActionResult.class));
+        assertNotNull(parseBatchResponse(userService.associate(associationPatch)));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
@@ -1278,7 +1304,7 @@ public class UserITCase extends AbstractITCase {
         DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(actual.getKey()).
                 action(ResourceDeassociationAction.DEPROVISION).resource(RESOURCE_NAME_CSV).build();
 
-        assertNotNull(userService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
+        assertNotNull(parseBatchResponse(userService.deassociate(deassociationPatch)));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
@@ -1303,7 +1329,7 @@ public class UserITCase extends AbstractITCase {
                 new GenericType<ProvisioningResult<UserTO>>() {
         });
         assertEquals(1, result.getPropagationStatuses().size());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         assertEquals("rest-target-resource", result.getPropagationStatuses().get(0).getResource());
         assertEquals("surname", userTO.getPlainAttr("surname").get().getValues().get(0));
 
@@ -1323,7 +1349,7 @@ public class UserITCase extends AbstractITCase {
                 new GenericType<ProvisioningResult<UserTO>>() {
         });
         assertEquals(1, result.getPropagationStatuses().size());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         assertEquals("rest-target-resource", result.getPropagationStatuses().get(0).getResource());
         assertEquals("surname2", result.getEntity().getPlainAttr("surname").get().getValues().get(0));
 
@@ -1337,7 +1363,7 @@ public class UserITCase extends AbstractITCase {
                 new GenericType<ProvisioningResult<UserTO>>() {
         });
         assertEquals(1, result.getPropagationStatuses().size());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         assertEquals("rest-target-resource", result.getPropagationStatuses().get(0).getResource());
 
         // verify user was removed by the backend REST service

@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -43,6 +44,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColu
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -137,13 +139,18 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
                     final String componentId,
                     final IModel<T> rowModel) {
 
-                JobTO jobTO = restClient.getJob(rowModel.getObject().getKey());
-                JobActionPanel panel = new JobActionPanel(
-                        componentId, jobTO, false, ProvisioningTaskDirectoryPanel.this, pageRef);
-                MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
-                        String.format("%s,%s",
-                                StandardEntitlement.TASK_EXECUTE,
-                                StandardEntitlement.TASK_UPDATE));
+                Component panel;
+                try {
+                    JobTO jobTO = restClient.getJob(rowModel.getObject().getKey());
+                    panel = new JobActionPanel(componentId, jobTO, false, ProvisioningTaskDirectoryPanel.this, pageRef);
+                    MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
+                            String.format("%s,%s",
+                                    StandardEntitlement.TASK_EXECUTE,
+                                    StandardEntitlement.TASK_UPDATE));
+                } catch (Exception e) {
+                    LOG.error("Could not get job for task {}", rowModel.getObject().getKey(), e);
+                    panel = new Label(componentId, Model.of());
+                }
                 cellItem.add(panel);
             }
 

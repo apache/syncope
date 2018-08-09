@@ -332,7 +332,7 @@ public class JobWidget extends BaseWidget {
         }
 
         @Override
-        protected Collection<ActionLink.ActionType> getBulkActions() {
+        protected Collection<ActionLink.ActionType> getBatches() {
             return Collections.<ActionLink.ActionType>emptyList();
         }
 
@@ -614,7 +614,7 @@ public class JobWidget extends BaseWidget {
         }
 
         @Override
-        protected Collection<ActionLink.ActionType> getBulkActions() {
+        protected Collection<ActionLink.ActionType> getBatches() {
             return Collections.<ActionLink.ActionType>emptyList();
         }
 

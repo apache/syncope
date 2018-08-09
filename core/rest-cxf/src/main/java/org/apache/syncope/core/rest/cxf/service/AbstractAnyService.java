@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
@@ -30,29 +32,27 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
-import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
-import org.apache.syncope.common.lib.patch.StatusPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.lib.types.StatusPatchType;
+import org.apache.syncope.common.rest.api.Preference;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.batch.BatchPayloadGenerator;
+import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
-import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         extends AbstractServiceImpl
@@ -230,28 +230,60 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                 break;
 
             default:
-                updated = new ProvisioningResult<>();
-                updated.setEntity(getAnyLogic().read(patch.getKey()));
+                throw new BadRequestException("Missing action");
         }
 
-        BulkActionResult result = new BulkActionResult();
-
+        List<BatchResponseItem> batchResponseItems;
         if (patch.getAction() == ResourceDeassociationAction.UNLINK) {
-            patch.getResources().forEach(resource -> {
-                result.getResults().put(
-                        resource,
-                        updated.getEntity().getResources().contains(resource)
-                        ? BulkActionResult.Status.FAILURE
-                        : BulkActionResult.Status.SUCCESS);
-            });
+            batchResponseItems = patch.getResources().stream().map(resource -> {
+                BatchResponseItem item = new BatchResponseItem();
+
+                item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(resource));
+
+                item.setStatus(updated.getEntity().getResources().contains(resource)
+                        ? Response.Status.BAD_REQUEST.getStatusCode()
+                        : Response.Status.OK.getStatusCode());
+
+                if (getPreference() == Preference.RETURN_NO_CONTENT) {
+                    item.getHeaders().put(
+                            RESTHeaders.PREFERENCE_APPLIED,
+                            Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
+                } else {
+                    item.setContent(POJOHelper.serialize(updated.getEntity()));
+                }
+
+                return item;
+            }).collect(Collectors.toList());
         } else {
-            updated.getPropagationStatuses().forEach(propagationStatusTO
-                    -> result.getResults().put(
-                            propagationStatusTO.getResource(),
-                            BulkActionResult.Status.valueOf(propagationStatusTO.getStatus().toString())));
+            batchResponseItems = updated.getPropagationStatuses().stream().
+                    map(status -> {
+                        BatchResponseItem item = new BatchResponseItem();
+
+                        item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(status.getResource()));
+
+                        item.setStatus(status.getStatus().getHttpStatus());
+
+                        if (status.getFailureReason() != null) {
+                            item.getHeaders().put(RESTHeaders.ERROR_INFO, Arrays.asList(status.getFailureReason()));
+                        }
+
+                        if (getPreference() == Preference.RETURN_NO_CONTENT) {
+                            item.getHeaders().put(
+                                    RESTHeaders.PREFERENCE_APPLIED,
+                                    Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
+                        } else {
+                            item.setContent(POJOHelper.serialize(updated.getEntity()));
+                        }
+
+                        return item;
+                    }).collect(Collectors.toList());
         }
 
-        return modificationResponse(result);
+        String boundary = "deassociate_" + GENERATOR.generate().toString();
+        return Response.ok(BatchPayloadGenerator.generate(
+                batchResponseItems, SyncopeConstants.DOUBLE_DASH + boundary)).
+                type(RESTHeaders.multipartMixedWith(boundary)).
+                build();
     }
 
     @Override
@@ -287,121 +319,59 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                 break;
 
             default:
-                updated = new ProvisioningResult<>();
-                updated.setEntity(getAnyLogic().read(patch.getKey()));
+                throw new BadRequestException("Missing action");
         }
 
-        BulkActionResult result = new BulkActionResult();
-
+        List<BatchResponseItem> batchResponseItems;
         if (patch.getAction() == ResourceAssociationAction.LINK) {
-            patch.getResources().forEach(resource -> {
-                result.getResults().put(
-                        resource,
-                        updated.getEntity().getResources().contains(resource)
-                        ? BulkActionResult.Status.SUCCESS
-                        : BulkActionResult.Status.FAILURE);
-            });
+            batchResponseItems = patch.getResources().stream().map(resource -> {
+                BatchResponseItem item = new BatchResponseItem();
+
+                item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(resource));
+
+                item.setStatus(updated.getEntity().getResources().contains(resource)
+                        ? Response.Status.OK.getStatusCode()
+                        : Response.Status.BAD_REQUEST.getStatusCode());
+
+                if (getPreference() == Preference.RETURN_NO_CONTENT) {
+                    item.getHeaders().put(
+                            RESTHeaders.PREFERENCE_APPLIED,
+                            Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
+                } else {
+                    item.setContent(POJOHelper.serialize(updated.getEntity()));
+                }
+
+                return item;
+            }).collect(Collectors.toList());
         } else {
-            updated.getPropagationStatuses().forEach(propagationStatusTO
-                    -> result.getResults().put(
-                            propagationStatusTO.getResource(),
-                            BulkActionResult.Status.valueOf(propagationStatusTO.getStatus().toString())));
+            batchResponseItems = updated.getPropagationStatuses().stream().
+                    map(status -> {
+                        BatchResponseItem item = new BatchResponseItem();
+
+                        item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(status.getResource()));
+
+                        item.setStatus(status.getStatus().getHttpStatus());
+
+                        if (status.getFailureReason() != null) {
+                            item.getHeaders().put(RESTHeaders.ERROR_INFO, Arrays.asList(status.getFailureReason()));
+                        }
+
+                        if (getPreference() == Preference.RETURN_NO_CONTENT) {
+                            item.getHeaders().put(
+                                    RESTHeaders.PREFERENCE_APPLIED,
+                                    Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
+                        } else {
+                            item.setContent(POJOHelper.serialize(updated.getEntity()));
+                        }
+
+                        return item;
+                    }).collect(Collectors.toList());
         }
 
-        return modificationResponse(result);
+        String boundary = "associate_" + GENERATOR.generate().toString();
+        return Response.ok(BatchPayloadGenerator.generate(
+                batchResponseItems, SyncopeConstants.DOUBLE_DASH + boundary)).
+                type(RESTHeaders.multipartMixedWith(boundary)).
+                build();
     }
-
-    @Override
-    public Response bulk(final BulkAction bulkAction) {
-        AbstractAnyLogic<TO, P> logic = getAnyLogic();
-
-        BulkActionResult result = new BulkActionResult();
-
-        switch (bulkAction.getType()) {
-            case MUSTCHANGEPASSWORD:
-                if (logic instanceof UserLogic) {
-                    bulkAction.getTargets().forEach(key -> {
-                        try {
-                            final UserPatch userPatch = new UserPatch();
-                            userPatch.setKey(key);
-                            userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(true).build());
-
-                            result.getResults().put(
-                                    ((UserLogic) logic).update(userPatch, false).getEntity().getKey(),
-                                    BulkActionResult.Status.SUCCESS);
-                        } catch (Exception e) {
-                            LOG.error("Error performing delete for user {}", key, e);
-                            result.getResults().put(key, BulkActionResult.Status.FAILURE);
-                        }
-                    });
-                } else {
-                    throw new BadRequestException();
-                }
-                break;
-
-            case DELETE:
-                bulkAction.getTargets().forEach(key -> {
-                    try {
-                        result.getResults().put(
-                                logic.delete(key, isNullPriorityAsync()).getEntity().getKey(),
-                                BulkActionResult.Status.SUCCESS);
-                    } catch (Exception e) {
-                        LOG.error("Error performing delete for user {}", key, e);
-                        result.getResults().put(key, BulkActionResult.Status.FAILURE);
-                    }
-                });
-                break;
-
-            case SUSPEND:
-                if (logic instanceof UserLogic) {
-                    bulkAction.getTargets().forEach(key -> {
-                        StatusPatch statusPatch = new StatusPatch.Builder().key(key).
-                                type(StatusPatchType.SUSPEND).
-                                onSyncope(true).
-                                build();
-
-                        try {
-                            result.getResults().put(
-                                    ((UserLogic) logic).
-                                            status(statusPatch, isNullPriorityAsync()).getEntity().getKey(),
-                                    BulkActionResult.Status.SUCCESS);
-                        } catch (Exception e) {
-                            LOG.error("Error performing suspend for user {}", key, e);
-                            result.getResults().put(key, BulkActionResult.Status.FAILURE);
-                        }
-                    });
-                } else {
-                    throw new BadRequestException();
-                }
-                break;
-
-            case REACTIVATE:
-                if (logic instanceof UserLogic) {
-                    bulkAction.getTargets().forEach(key -> {
-                        StatusPatch statusPatch = new StatusPatch.Builder().key(key).
-                                type(StatusPatchType.REACTIVATE).
-                                onSyncope(true).
-                                build();
-
-                        try {
-                            result.getResults().put(
-                                    ((UserLogic) logic).
-                                            status(statusPatch, isNullPriorityAsync()).getEntity().getKey(),
-                                    BulkActionResult.Status.SUCCESS);
-                        } catch (Exception e) {
-                            LOG.error("Error performing reactivate for user {}", key, e);
-                            result.getResults().put(key, BulkActionResult.Status.FAILURE);
-                        }
-                    });
-                } else {
-                    throw new BadRequestException();
-                }
-                break;
-
-            default:
-        }
-
-        return modificationResponse(result);
-    }
-
 }

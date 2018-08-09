@@ -124,7 +124,7 @@ public interface SyncopeService extends JAXRSService {
     /**
      * Gets batch results, in case asynchronous was requested.
      *
-     * @return batch results returned as Response entity
+     * @return batch results as Response entity
      */
     @GET
     @ApiResponses({

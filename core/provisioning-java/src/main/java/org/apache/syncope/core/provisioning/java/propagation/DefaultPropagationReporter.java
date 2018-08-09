@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
@@ -48,7 +48,7 @@ public class DefaultPropagationReporter implements PropagationReporter {
     @Override
     public void onSuccessOrNonPriorityResourceFailures(
             final PropagationTaskTO taskTO,
-            final PropagationTaskExecStatus executionStatus,
+            final ExecStatus executionStatus,
             final String failureReason,
             final ConnectorObject beforeObj,
             final ConnectorObject afterObj) {
@@ -79,7 +79,7 @@ public class DefaultPropagationReporter implements PropagationReporter {
         if (propagationTask.isPresent()) {
             PropagationStatus status = new PropagationStatus();
             status.setResource(propagationTask.get().getResource());
-            status.setStatus(PropagationTaskExecStatus.FAILURE);
+            status.setStatus(ExecStatus.FAILURE);
             status.setFailureReason(
                     "Propagation error: " + failingResource + " priority resource failed to propagate.");
             add(status);

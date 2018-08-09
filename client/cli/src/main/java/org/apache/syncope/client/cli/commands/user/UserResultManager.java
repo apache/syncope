@@ -32,9 +32,9 @@ public class UserResultManager extends CommonsResultManager {
 
     public void printUsers(final List<UserTO> userTOs) {
         System.out.println("");
-        for (final UserTO userTO : userTOs) {
+        userTOs.forEach(userTO -> {
             printUser(userTO);
-        }
+        });
     }
 
     private void printUser(final UserTO userTO) {
@@ -69,40 +69,40 @@ public class UserResultManager extends CommonsResultManager {
     }
 
     private void printResource(final Set<String> resources) {
-        for (final String resource : resources) {
+        resources.forEach(resource -> {
             System.out.println("       - " + resource);
-        }
+        });
     }
 
     private void printRole(final List<String> roles) {
-        for (final String role : roles) {
+        roles.forEach((role) -> {
             System.out.println("       - " + role);
-        }
+        });
     }
 
     private void printAttributes(final Set<AttrTO> derAttrTOs) {
-        for (final AttrTO attrTO : derAttrTOs) {
+        derAttrTOs.forEach(attrTO -> {
             final StringBuilder attributeSentence = new StringBuilder();
             attributeSentence.append("       ")
                     .append(attrTO.getSchema())
                     .append(": ")
                     .append(attrTO.getValues());
             System.out.println(attributeSentence);
-        }
+        });
     }
 
     private void printRelationships(final List<RelationshipTO> relationshipTOs) {
-        for (final RelationshipTO relationshipTO : relationshipTOs) {
+        relationshipTOs.forEach(relationshipTO -> {
             System.out.println("       type: " + relationshipTO.getType());
-        }
+        });
     }
 
     public void printFailedUsers(final Map<String, String> users) {
-        final Table.TableBuilder tableBuilder =
+        Table.TableBuilder tableBuilder =
                 new Table.TableBuilder("Users not deleted").header("user key").header("cause");
-        for (final Map.Entry<String, String> entrySet : users.entrySet()) {
-            tableBuilder.rowValues(Arrays.asList(entrySet.getKey(), entrySet.getValue()));
-        }
+        users.forEach((key, value) -> {
+            tableBuilder.rowValues(Arrays.asList(key, value));
+        });
         tableBuilder.build().print();
     }
 

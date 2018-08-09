@@ -67,7 +67,7 @@ public abstract class AnySelectionDirectoryPanel<A extends AnyTO, E extends Abst
     }
 
     @Override
-    protected Collection<ActionType> getBulkActions() {
+    protected Collection<ActionType> getBatches() {
         return Collections.<ActionType>emptyList();
     }
 

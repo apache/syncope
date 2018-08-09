@@ -18,16 +18,17 @@
  */
 package org.apache.syncope.client.cli.commands.user;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.rest.api.batch.BatchPayloadParser;
+import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.UserService;
 
@@ -91,34 +92,35 @@ public class UserSyncopeOperations {
         userService.delete(userKey);
     }
 
-    public Map<String, BulkActionResult.Status> deleteByAttribute(
-            final String realm, final String attributeName, final String attributeValue) {
+    public List<BatchResponseItem> deleteByAttribute(
+            final String realm, final String attributeName, final String attributeValue) throws IOException {
 
-        return bulkDelete(new AnyQuery.Builder().realm(realm).fiql(
+        return batchDelete(new AnyQuery.Builder().realm(realm).fiql(
                 SyncopeClient.getUserSearchConditionBuilder().is(attributeName).equalTo(attributeValue).query()).
                 build());
     }
 
-    public Map<String, BulkActionResult.Status> deleteAll(final String realm) {
-        return bulkDelete(new AnyQuery.Builder().realm(realm).details(false).build());
+    public List<BatchResponseItem> deleteAll(final String realm) throws IOException {
+        return batchDelete(new AnyQuery.Builder().realm(realm).details(false).build());
     }
 
-    private Map<String, BulkActionResult.Status> bulkDelete(final AnyQuery query) {
+    private List<BatchResponseItem> batchDelete(final AnyQuery query) throws IOException {
         query.setPage(0);
         query.setSize(0);
         int count = userService.search(query).getTotalCount();
 
-        BulkAction bulkAction = new BulkAction();
-        bulkAction.setType(BulkAction.Type.DELETE);
+        BatchRequest batchRequest = SyncopeServices.batch();
+        UserService batchUserService = batchRequest.getService(UserService.class);
 
         query.setSize(PAGE_SIZE);
         for (int page = 1; page <= (count / PAGE_SIZE) + 1; page++) {
             query.setPage(page);
 
-            bulkAction.getTargets().addAll(userService.search(query).getResult().stream().
-                    map(EntityTO::getKey).collect(Collectors.toList()));
+            userService.search(query).getResult().forEach(user -> batchUserService.delete(user.getKey()));
         }
 
-        return userService.bulk(bulkAction).readEntity(BulkActionResult.class).getResults();
+        Response response = batchRequest.commit().getResponse();
+        return BatchPayloadParser.parse(
+                (InputStream) response.getEntity(), response.getMediaType(), new BatchResponseItem());
     }
 }

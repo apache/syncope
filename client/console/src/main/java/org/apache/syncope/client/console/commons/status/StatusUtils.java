@@ -30,7 +30,6 @@ import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.LabelPanel;
 import org.apache.syncope.client.console.rest.ReconciliationRestClient;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -38,7 +37,7 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -89,31 +88,27 @@ public final class StatusUtils implements Serializable {
     }
 
     public static StatusBean getStatusBean(
-            final RealmTO anyTO,
-            final String resourceName,
-            final ConnObjectTO objectTO) {
+            final RealmTO realmTO,
+            final String resource,
+            final ConnObjectTO connObjectTO) {
 
-        final StatusBean statusBean = new StatusBean(anyTO, resourceName);
+        StatusBean statusBean = new StatusBean(realmTO, resource);
 
-        if (objectTO != null) {
-            final Boolean enabled = isEnabled(objectTO);
-
-            final Status status = enabled == null
+        if (connObjectTO != null) {
+            Boolean enabled = isEnabled(connObjectTO);
+            statusBean.setStatus(enabled == null
                     ? Status.ACTIVE
                     : enabled
                             ? Status.ACTIVE
-                            : Status.SUSPENDED;
+                            : Status.SUSPENDED);
 
-            String connObjectLink = getConnObjectLink(objectTO);
-
-            statusBean.setStatus(status);
-            statusBean.setConnObjectLink(connObjectLink);
+            statusBean.setConnObjectLink(getConnObjectLink(connObjectTO));
         }
 
         return statusBean;
     }
 
-    private static Boolean isEnabled(final ConnObjectTO objectTO) {
+    public static Boolean isEnabled(final ConnObjectTO objectTO) {
         Optional<AttrTO> status = objectTO.getAttr(ConnIdSpecialName.ENABLE);
         return status.isPresent() && status.get().getValues() != null && !status.get().getValues().isEmpty()
                 ? Boolean.valueOf(status.get().getValues().get(0))
@@ -127,36 +122,18 @@ public final class StatusUtils implements Serializable {
                 : null;
     }
 
-    public static PasswordPatch buildPasswordPatch(final String password, final Collection<StatusBean> statuses) {
-        PasswordPatch.Builder builder = new PasswordPatch.Builder();
-        builder.value(password);
-
-        statuses.forEach((status) -> {
+    public static StatusPatch.Builder statusPatch(final Collection<StatusBean> statuses) {
+        StatusPatch.Builder builder = new StatusPatch.Builder();
+        builder.onSyncope(false);
+        statuses.forEach(status -> {
             if (Constants.SYNCOPE.equalsIgnoreCase(status.getResource())) {
                 builder.onSyncope(true);
             } else {
                 builder.resource(status.getResource());
             }
         });
-        return builder.build();
-    }
 
-    public static StatusPatch buildStatusPatch(final Collection<StatusBean> statuses) {
-        return buildStatusPatch(statuses, null);
-    }
-
-    public static StatusPatch buildStatusPatch(final Collection<StatusBean> statuses, final Boolean enable) {
-        StatusPatch.Builder builder = new StatusPatch.Builder();
-        builder.onSyncope(false);
-        statuses.forEach((status) -> {
-            if ("syncope".equalsIgnoreCase(status.getResource())) {
-                builder.onSyncope(true);
-            } else {
-                builder.resource(status.getResource());
-            }
-        });
-
-        return builder.build();
+        return builder;
     }
 
     public static Panel getStatusImagePanel(final String componentId, final Status status) {
@@ -214,11 +191,11 @@ public final class StatusUtils implements Serializable {
         return getLabel(componentId, alt, title, clazz);
     }
 
-    public static Panel getStatusImagePanel(final String componentId, final PropagationTaskExecStatus status) {
+    public static Panel getStatusImagePanel(final String componentId, final ExecStatus status) {
         return new LabelPanel(componentId, getStatusImage("label", status));
     }
 
-    public static Label getStatusImage(final String componentId, final PropagationTaskExecStatus status) {
+    public static Label getStatusImage(final String componentId, final ExecStatus status) {
         final String alt, title, clazz;
 
         switch (status) {

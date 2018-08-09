@@ -22,12 +22,15 @@ import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
+import javax.ws.rs.core.Response;
 import javax.xml.transform.stream.StreamSource;
 import org.apache.cocoon.pipeline.NonCachingPipeline;
 import org.apache.cocoon.pipeline.Pipeline;
@@ -39,7 +42,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
@@ -49,6 +51,8 @@ import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.core.logic.cocoon.FopSerializer;
 import org.apache.syncope.core.logic.cocoon.TextSerializer;
 import org.apache.syncope.core.logic.cocoon.XSLTTransformer;
@@ -62,6 +66,7 @@ import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
+import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.xmlgraphics.util.MimeConstants;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
@@ -332,7 +337,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")
     @Override
-    public BulkActionResult deleteExecutions(
+    public List<BatchResponseItem> deleteExecutions(
             final String key,
             final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
 
@@ -341,19 +346,24 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             throw new NotFoundException("Report " + key);
         }
 
-        BulkActionResult result = new BulkActionResult();
+        List<BatchResponseItem> batchResponseItems = new ArrayList<>();
 
         reportExecDAO.findAll(report, startedBefore, startedAfter, endedBefore, endedAfter).forEach(exec -> {
+            BatchResponseItem item = new BatchResponseItem();
+            item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(exec.getKey()));
+            batchResponseItems.add(item);
+
             try {
                 reportExecDAO.delete(exec);
-                result.getResults().put(String.valueOf(exec.getKey()), BulkActionResult.Status.SUCCESS);
+                item.setStatus(Response.Status.OK.getStatusCode());
             } catch (Exception e) {
                 LOG.error("Error deleting execution {} of report {}", exec.getKey(), key, e);
-                result.getResults().put(String.valueOf(exec.getKey()), BulkActionResult.Status.FAILURE);
+                item.setStatus(Response.Status.BAD_REQUEST.getStatusCode());
+                item.setContent(ExceptionUtils2.getFullStackTrace(e));
             }
         });
 
-        return result;
+        return batchResponseItems;
     }
 
     @Override

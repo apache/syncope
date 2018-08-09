@@ -24,12 +24,9 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.ResourceDeassociationPatch;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -114,19 +111,6 @@ public class ResourceRestClient extends BaseRestClient {
 
     public void delete(final String name) {
         getService(ResourceService.class).delete(name);
-    }
-
-    public BulkActionResult bulkAssociationAction(
-            final String resourceName, final String anyTypeName,
-            final ResourceDeassociationAction action, final List<String> anyKeys) {
-
-        ResourceDeassociationPatch patch = new ResourceDeassociationPatch();
-        patch.setKey(resourceName);
-        patch.setAnyTypeKey(anyTypeName);
-        patch.setAction(action);
-        patch.getAnyKyes().addAll(anyKeys);
-
-        return getService(ResourceService.class).bulkDeassociation(patch);
     }
 
     public void setLatestSyncToken(final String key, final String anyType) {

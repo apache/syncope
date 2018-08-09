@@ -43,8 +43,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.TaskTO;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -140,16 +138,4 @@ public interface TaskService extends ExecutableService {
     @Path("{type}/{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("type") TaskType type, @NotNull @PathParam("key") String key);
-
-    /**
-     * Executes the provided bulk action.
-     *
-     * @param bulkAction list of task ids against which the bulk action will be performed.
-     * @return Bulk action result
-     */
-    @POST
-    @Path("bulk")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    BulkActionResult bulk(@NotNull BulkAction bulkAction);
 }

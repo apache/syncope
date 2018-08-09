@@ -45,7 +45,7 @@ public class ActionDataTablePanel<T extends Serializable, S> extends DataTablePa
 
     private static final String CANCEL = "cancel";
 
-    private final Form<T> bulkActionForm;
+    private final Form<T> batchForm;
 
     private final ActionsPanel<Serializable> actionPanel;
 
@@ -57,8 +57,8 @@ public class ActionDataTablePanel<T extends Serializable, S> extends DataTablePa
 
         super(id);
 
-        bulkActionForm = new Form<>("groupForm");
-        add(bulkActionForm);
+        batchForm = new Form<>("groupForm");
+        add(batchForm);
 
         group = new ActionTableCheckGroup<T>("checkgroup", model) {
 
@@ -78,14 +78,14 @@ public class ActionDataTablePanel<T extends Serializable, S> extends DataTablePa
                 // triggers AJAX form submit
             }
         });
-        bulkActionForm.add(group);
+        batchForm.add(group);
 
         columns.add(0, new CheckGroupColumn<>(group));
         dataTable = new AjaxFallbackDataTable<>("dataTable", columns, dataProvider, rowsPerPage, this);
         group.add(dataTable);
 
         final WebMarkupContainer actionPanelContainer = new WebMarkupContainer("actionPanelContainer");
-        bulkActionForm.add(actionPanelContainer);
+        batchForm.add(actionPanelContainer);
 
         actionPanel = new ActionsPanel<>("actions", null);
         actionPanelContainer.add(actionPanel);
@@ -94,7 +94,7 @@ public class ActionDataTablePanel<T extends Serializable, S> extends DataTablePa
             actionPanelContainer.add(new AttributeModifier("style", "display: none"));
         }
 
-        bulkActionForm.add(new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
+        batchForm.add(new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = -2341391430136818025L;
 
@@ -123,7 +123,7 @@ public class ActionDataTablePanel<T extends Serializable, S> extends DataTablePa
         };
 
         cancel.setDefaultFormProcessing(false);
-        bulkActionForm.addOrReplace(cancel);
+        batchForm.addOrReplace(cancel);
     }
 
     public Collection<T> getModelObject() {

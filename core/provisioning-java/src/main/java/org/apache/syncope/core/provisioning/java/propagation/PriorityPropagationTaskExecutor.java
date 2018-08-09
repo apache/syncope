@@ -35,7 +35,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
@@ -99,15 +99,15 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         // first process priority resources sequentially and fail as soon as any propagation failure is reported
         prioritizedTasks.forEach(task -> {
             TaskExec execution = null;
-            PropagationTaskExecStatus execStatus;
+            ExecStatus execStatus;
             try {
                 execution = newPropagationTaskCallable(task, reporter).call();
-                execStatus = PropagationTaskExecStatus.valueOf(execution.getStatus());
+                execStatus = ExecStatus.valueOf(execution.getStatus());
             } catch (Exception e) {
                 LOG.error("Unexpected exception", e);
-                execStatus = PropagationTaskExecStatus.FAILURE;
+                execStatus = ExecStatus.FAILURE;
             }
-            if (execStatus != PropagationTaskExecStatus.SUCCESS) {
+            if (execStatus != ExecStatus.SUCCESS) {
                 throw new PropagationException(task.getResource(), execution == null ? null : execution.getMessage());
             }
         });
@@ -128,8 +128,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         if (!nullPriority.isEmpty()) {
             if (nullPriorityAsync) {
                 nullPriority.forEach((task, exec) -> {
-                    reporter.onSuccessOrNonPriorityResourceFailures(
-                            task, PropagationTaskExecStatus.CREATED, null, null, null);
+                    reporter.onSuccessOrNonPriorityResourceFailures(task, ExecStatus.CREATED, null, null, null);
                 });
             } else {
                 final Set<Future<TaskExec>> nullPriorityFutures = new HashSet<>(nullPriority.values());

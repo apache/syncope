@@ -260,7 +260,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
     }
 
     @Override
-    protected Collection<ActionLink.ActionType> getBulkActions() {
+    protected Collection<ActionLink.ActionType> getBatches() {
         return Collections.<ActionLink.ActionType>singletonList(ActionLink.ActionType.DELETE);
     }
 

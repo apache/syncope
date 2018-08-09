@@ -69,8 +69,6 @@ public class Topology extends BasePage {
 
     public static final String CONNECTOR_SERVER_LOCATION_PREFIX = "connid://";
 
-    public static final String ROOT_NAME = "Syncope";
-
     private final ResourceRestClient resourceRestClient = new ResourceRestClient();
 
     private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
@@ -200,7 +198,8 @@ public class Topology extends BasePage {
         // -----------------------------------------
         // Add Syncope (root topologynode)
         // -----------------------------------------
-        final TopologyNode syncopeTopologyNode = new TopologyNode(ROOT_NAME, ROOT_NAME, TopologyNode.Kind.SYNCOPE);
+        String rootName = StringUtils.capitalize(Constants.SYNCOPE);
+        final TopologyNode syncopeTopologyNode = new TopologyNode(rootName, rootName, TopologyNode.Kind.SYNCOPE);
         syncopeTopologyNode.setX(origX);
         syncopeTopologyNode.setY(origY);
 
@@ -208,7 +207,7 @@ public class Topology extends BasePage {
         syncopeTopologyNode.setHost(uri.getHost());
         syncopeTopologyNode.setPort(uri.getPort());
 
-        body.add(topologyNodePanel("syncope", syncopeTopologyNode));
+        body.add(topologyNodePanel(Constants.SYNCOPE, syncopeTopologyNode));
 
         final Map<Serializable, Map<Serializable, TopologyNode>> connections = new HashMap<>();
         final Map<Serializable, TopologyNode> syncopeConnections = new HashMap<>();

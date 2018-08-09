@@ -22,7 +22,7 @@ import java.util.List;
 
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 
@@ -43,7 +43,7 @@ public class PropagationTaskValidator extends AbstractValidator<PropagationTaskC
                 List<? extends TaskExec> executions = task.getExecs();
                 for (TaskExec execution : executions) {
                     try {
-                        PropagationTaskExecStatus.valueOf(execution.getStatus());
+                        ExecStatus.valueOf(execution.getStatus());
                     } catch (IllegalArgumentException e) {
                         LOG.error("Invalid execution status '" + execution.getStatus() + "'", e);
                         isValid = false;

@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
-import org.apache.syncope.common.lib.types.BulkMembersActionType;
+import org.apache.syncope.common.lib.types.ProvisionAction;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.GroupLogic;
@@ -89,8 +89,7 @@ public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupPatch> im
     }
 
     @Override
-    public ExecTO bulkMembersAction(final String key, final BulkMembersActionType actionType) {
-        return logic.bulkMembersAction(key, actionType);
+    public ExecTO provisionMembers(final String key, final ProvisionAction action) {
+        return logic.provisionMembers(key, action);
     }
-
 }
