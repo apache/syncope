@@ -361,7 +361,11 @@ public class MappingManagerImpl implements MappingManager {
                 if (FrameworkUtil.isSupportedAttributeType(schemaType.getType())) {
                     objValues.add(value.getValue());
                 } else {
-                    objValues.add(value.getValueAsString(schemaType));
+                    if (schema instanceof PlainSchema) {
+                        objValues.add(value.getValueAsString((PlainSchema) schema));
+                    } else {
+                        objValues.add(value.getValueAsString(schemaType));
+                    }
                 }
             }
 
