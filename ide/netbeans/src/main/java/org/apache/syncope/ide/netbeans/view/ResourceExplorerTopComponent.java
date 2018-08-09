@@ -196,7 +196,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     }
                 } catch (IOException e) {
                     Exceptions.printStackTrace(e);
-                }
+                }                 
             }
         } else if (evt.getButton() == MouseEvent.BUTTON3 && evt.getClickCount() == 1) {
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) resourceExplorerTree.
@@ -269,9 +269,12 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
            }; 
             REQUEST_PROCESSOR.post(tsk);
-        } catch (Exception e) {
+        } catch (IOException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Generic Error", JOptionPane.ERROR_MESSAGE);
             ServerDetailsView serverDetails = getRefreshServerDetails();
+        }
+        catch(Exception ex) {
+            getRefreshServerDetails().setVisible(true);
         }
       
     }
@@ -314,11 +317,12 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     private void addGroovyScripts() {
         for(ImplementationType type : ImplementationType.values())
         {
-            DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(type.toString());
-            if(type.toString().equals("PUSH_CORRELATION_RULE")) continue ; // Temporary Solution
+            String implType = type.toString();
+            DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(implType.toString());
+           if(implType.equals("JWT_SSO_PROVIDER") || implType.equals("AUDIT_APPENDER") ) continue ; 
             List<ImplementationTO> scripts = implementationManagerService.list(type);
             for(ImplementationTO script : scripts) {
-                if(script.getEngine() == ImplementationEngine.GROOVY) {
+                 if(script.getEngine() == ImplementationEngine.GROOVY) {
                     tempNode.add(new DefaultMutableTreeNode(
                         script.getKey()));
                 }
@@ -380,12 +384,16 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
-                String name = JOptionPane.showInputDialog("Enter Name");
+            try {
+                String name = "" ;
+                while(name.equals(""))
+                     name = JOptionPane.showInputDialog("Enter Name");
                 DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
                 boolean added = false;
                 if (!"exit".equals(e.getActionCommand())) {
 
                     if (node.getUserObject().equals(PluginConstants.MAIL_TEMPLATES)) {
+                        
                         MailTemplateTO mailTemplate = new MailTemplateTO();
                         mailTemplate.setKey(name);
                         added = mailTemplateManagerService.create(mailTemplate);
@@ -395,11 +403,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                         mailTemplateManagerService.setFormat(name,
                                 MailTemplateFormat.TEXT,
                                 IOUtils.toInputStream("//Enter Content here", encodingPattern));
-                        try {
-                            openMailEditor(name);
-                        } catch (IOException ex) {
-                            Exceptions.printStackTrace(ex);
-                        }
+                            openMailEditor(name);           
                     } else if((parent.getUserObject().equals(PluginConstants.GROOVY_SCRIPTS))) {
                             ImplementationTO newNode = new ImplementationTO();
                             ImplementationType type = getType((String)node.getUserObject());
@@ -452,6 +456,10 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                                     templateClassName = "MyPullCorrelationRule";
                                     break;
 
+                                case PUSH_CORRELATION_RULE:
+                                    templateClassName = "MyPushCorrelationRule";
+                                    break;    
+
                                 case VALIDATOR:
                                     templateClassName = "MyValidator";
                                     break;
@@ -461,18 +469,13 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                                     break;
 
                                 default:
-            }
+                            }
                             LOG.info(templateClassName);
-                            try {
                                     newNode.setBody(IOUtils.toString(
                                     getClass().getResourceAsStream("/org/apache/syncope/ide/netbeans/implementations/"
                                     + templateClassName + ".groovy")));
                                     added = implementationManagerService.create(newNode);
                                     openScriptEditor(name,(String)node.getUserObject());
-                            } catch(Exception ex)
-                            {
-                                Exceptions.printStackTrace(ex);
-                            }
                     } else {
                         ReportTemplateTO reportTemplate = new ReportTemplateTO();
                         reportTemplate.setKey(name);
@@ -486,11 +489,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                         reportTemplateManagerService.setFormat(name,
                                 ReportTemplateFormat.HTML,
                                 IOUtils.toInputStream("//Enter content here", encodingPattern));
-                        try {
                             openReportEditor(name);
-                        } catch (IOException ex) {
-                            Exceptions.printStackTrace(ex);
-                        }
                     }
 
                     if (added) {
@@ -501,7 +500,16 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                                 null, "Error while creating new element", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
+            }catch(SyncopeClientException excp) {
+                JOptionPane.showMessageDialog(null, excp.getMessage(), "Syncope Error", JOptionPane.ERROR_MESSAGE);
             }
+            catch(IOException | NullPointerException ex) {
+                JOptionPane.showMessageDialog(null ,ex.getMessage(),"Error", JOptionPane.ERROR_MESSAGE);
+            }
+            catch(Exception exc) {
+                 getRefreshServerDetails().setVisible(true);
+            }
+        }
         });
 
         menu.show(evt.getComponent(), evt.getX(), evt.getY());
@@ -520,14 +528,18 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                 int result = JOptionPane.showConfirmDialog(null, "Are you sure to delete the item?");
                 if (result == JOptionPane.OK_OPTION) {
                     DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+                    String nodeName = (String) node.getUserObject() ;
                     boolean deleted = false;
+                    boolean fileDeleted = false ;
+                    String tempFilePath  = "" ;
+                try {
                     if (parent.getUserObject().equals(PluginConstants.MAIL_TEMPLATES)) {
-                        deleted = mailTemplateManagerService.delete((String) node.getUserObject());
+                        deleted = mailTemplateManagerService.delete(nodeName);
                     } else if(parent.getUserObject().equals(PluginConstants.REPORT_XSLTS)) {
-                        deleted = reportTemplateManagerService.delete((String) node.getUserObject());
+                        deleted = reportTemplateManagerService.delete(nodeName);
                     } else {
                         ImplementationType type = getType((String)parent.getUserObject());
-                        deleted = implementationManagerService.delete(type, (String) node.getUserObject());
+                        deleted = implementationManagerService.delete(type, nodeName);
                     }
                     if(deleted) {
                         node.removeFromParent();
@@ -535,6 +547,13 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     } else {
                         JOptionPane.showMessageDialog(
                                 null, "Error while deleting new element", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                    } catch(SyncopeClientException exc) {
+                        JOptionPane.showMessageDialog(
+                            null, exc.getMessage(), "Syncope Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                    catch (Exception ex) {
+                        getRefreshServerDetails().setVisible(true);
                     }
                 }
             }
@@ -554,7 +573,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             String type = null;
             InputStream is = null;
 
-            try {
+        try {
                 switch (format) {
                     case HTML:
                         type = "html";
@@ -567,25 +586,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     default:
                         LOG.log(Level.SEVERE, String.format("Format [%s] not supported", format));
                         break;
-                }
-            } catch (SyncopeClientException e) {
-                LOG.log(Level.SEVERE,
-                        String.format("Unable to get [%s] mail template in [%s] format", name, format), e);
-                if (ClientExceptionType.NotFound.equals(e.getType())) {
-                    LOG.log(Level.SEVERE, String.format(
-                            "Report template in [%s] format not found, create an empty one", format));
-                } else {
-                    JOptionPane.showMessageDialog(
-                            null, String.format("Unable to get [%s] report template in [%s] format", name, format),
-                            "Connection Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (Exception e) {
-                LOG.log(Level.SEVERE,
-                        String.format("Unable to get [%s] mail template in [%s] format", name, format), e);
-                JOptionPane.showMessageDialog(
-                        null, String.format("Unable to get [%s] mail template in [%s] format", name, format), "Error",
-                        JOptionPane.ERROR_MESSAGE);
-            }
+                }           
             String content = is == null ? StringUtils.EMPTY : IOUtils.toString(is, encodingPattern);
 
             String mailTemplatesDirName = System.getProperty("java.io.tmpdir") + "/Templates/Mail/";
@@ -612,10 +613,22 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     }
                 }
             });
-        }
+        } catch (SyncopeClientException ex) {
+                JOptionPane.showMessageDialog(
+                            null, ex.getMessage(), "Syncope Error", JOptionPane.ERROR_MESSAGE);   
+            } 
+            catch(IOException | NullPointerException excp) {  
+                JOptionPane.showMessageDialog(null ,excp.getMessage(), "Error" ,JOptionPane.ERROR_MESSAGE);
+            }
+            catch (Exception ex) {
+                LOG.info("The Exception is"+ ex);
+                getRefreshServerDetails().setVisible(true);
+            }
+    }
     }
 
     private void openScriptEditor(final String name , final String type) throws IOException {
+        try {
             ImplementationTO node = implementationManagerService.read(getType(type),name);    
             String groovyScriptsDirName = System.getProperty("java.io.tmpdir") + "/Groovy/" + node.getType().toString() + "/";
             File groovyScriptsDir = new File(groovyScriptsDirName);
@@ -635,12 +648,23 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                 public void propertyChange(final PropertyChangeEvent evt) {
                     if (DataObject.PROP_MODIFIED.equals(evt.getPropertyName())) {
                         //save item remotely
-                        LOG.info(String.format("Saving Report template [%s]", name));
+                        LOG.info(String.format("Saving Groovy template [%s]", name));
                        saveContent();
                     }
                 }
             });
         
+        } catch (SyncopeClientException ex) {
+                JOptionPane.showMessageDialog(
+                            null, ex.getMessage(), "Syncope Error", JOptionPane.ERROR_MESSAGE);   
+            } 
+            catch(IOException | NullPointerException excp) {  
+                JOptionPane.showMessageDialog(null ,excp.getMessage(), "Error" ,JOptionPane.ERROR_MESSAGE);
+            }
+            catch (Exception ex) {
+                LOG.info("The Exception is"+ ex);
+                getRefreshServerDetails().setVisible(true);
+            }
     }
 
     private void openReportEditor(final String name) throws IOException {
@@ -651,7 +675,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             ReportTemplateFormat format = ReportTemplateFormat.valueOf(formatStr);
 
             InputStream is = null;
-            try {
+        try {
                 switch (format) {
                     case HTML:
                         is = (InputStream) reportTemplateManagerService.getFormat(name, ReportTemplateFormat.HTML);
@@ -666,24 +690,6 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                         LOG.log(Level.SEVERE, String.format("Format [%s] not supported", format));
                         break;
                 }
-            } catch (SyncopeClientException e) {
-                LOG.log(Level.SEVERE, String.format("Unable to get [%s] report template in [%s] format", name, format),
-                        e);
-                if (ClientExceptionType.NotFound.equals(e.getType())) {
-                    LOG.log(Level.SEVERE, String.format(
-                            "Report template [%s] not found, create an empty one", name));
-                } else {
-                    JOptionPane.showMessageDialog(
-                            null, String.format("Unable to get [%s] report template in [%s] format", name, format),
-                            "Connection Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (Exception e) {
-                LOG.log(Level.SEVERE, String.format("Unable to get [%s] report template in [%s] format", name, format),
-                        e);
-                JOptionPane.showMessageDialog(
-                        null, String.format("Unable to get [%s] report template in [%s] format", name, format),
-                        "Generic Error", JOptionPane.ERROR_MESSAGE);
-            }
             String content = is == null ? StringUtils.EMPTY : IOUtils.toString(is, encodingPattern);
 
             String reportTemplatesDirName = System.getProperty("java.io.tmpdir") + "/Templates/Report/";
@@ -710,6 +716,17 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     }
                 }
             });
+        } catch (SyncopeClientException ex) {
+                JOptionPane.showMessageDialog(
+                            null, ex.getMessage(), "Syncope Error", JOptionPane.ERROR_MESSAGE);   
+            } 
+            catch(IOException | NullPointerException excp) {  
+                JOptionPane.showMessageDialog(null ,excp.getMessage(), "Error" ,JOptionPane.ERROR_MESSAGE);
+            }
+            catch (Exception ex) {
+                LOG.info("The Exception is"+ ex);
+                getRefreshServerDetails().setVisible(true);
+            }
         }
     }
 
@@ -758,6 +775,9 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             } 
         } catch (BadLocationException e) {
             Exceptions.printStackTrace(e);
+        }
+        catch (Exception e) {
+            getRefreshServerDetails().setVisible(true);
         }
     }
     
