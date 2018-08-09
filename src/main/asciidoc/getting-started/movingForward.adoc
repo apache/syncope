@@ -37,13 +37,12 @@ The following values must be changed from the defaults in the `security.properti
 * *adminPassword* - The SHA1 hash evaluation of the cleartext password, the default value of which is "password".
 * *secretKey* - The secret key value used for AES ciphering. Only required if either:
 ** the value for "*adminPasswordAlgorithm*" is "AES" or
-** the configuration parameter "password.cipher.algorithm" is changed to "AES" (See section 4.6.12 "Configuration Parameters" of
+** the configuration parameter "password.cipher.algorithm" is changed to "AES" (See section 4.6.14 "Configuration Parameters" of
 the Reference Guide for more information).
 * *anonymousKey* - The key value to use for anonymous requests.
-* *jwsKey* - The symmetric signing key used to sign access tokens (Syncope 2.0.3 onwards only). See section 4.4.1 "REST Authentication and 
+* *jwsKey* - The symmetric signing key used to sign access tokens. See section 4.4.1 "REST Authentication and 
 Authorization" of the Reference Guide for more information.
 
 Note that if you installed Syncope using either the installer or the maven archetype methods, then you will have already
-supplied custom values for "*secretKey*" and "*anonymousKey*". From Syncope 2.0.4 onwards, both installation methods will also
+supplied custom values for "*secretKey*" and "*anonymousKey*". Both installation methods will also
 query for "*jwsKey*", and the installer method will prompt for the "*adminPassword*" as well. 
-
