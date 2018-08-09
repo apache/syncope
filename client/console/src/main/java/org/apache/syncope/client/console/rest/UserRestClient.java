@@ -18,20 +18,21 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.status.Status;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.to.BulkActionResult;
-import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
@@ -85,69 +86,70 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
     }
 
     public ProvisioningResult<UserTO> mustChangePassword(final String etag, final boolean value, final String key) {
-        final UserPatch userPatch = new UserPatch();
+        UserPatch userPatch = new UserPatch();
         userPatch.setKey(key);
         userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(value).build());
         return update(etag, userPatch);
     }
 
-    public BulkActionResult suspend(final String etag, final String userKey, final List<StatusBean> statuses) {
-        StatusPatch statusPatch = StatusUtils.buildStatusPatch(statuses, false);
-        statusPatch.setKey(userKey);
-        statusPatch.setType(StatusPatchType.SUSPEND);
+    private Map<String, String> status(
+            final StatusPatchType type, final String etag, final String userKey, final List<StatusBean> statuses) {
 
-        BulkActionResult bulkActionResult;
+        StatusPatch statusPatch = StatusUtils.statusPatch(statuses).key(userKey).type(type).build();
+
+        Map<String, String> results;
         synchronized (this) {
-            bulkActionResult = new BulkActionResult();
-            Map<String, BulkActionResult.Status> results = bulkActionResult.getResults();
-            UserService service = getService(etag, UserService.class);
+            ProvisioningResult<UserTO> provisioningResult = getService(etag, UserService.class).status(statusPatch).
+                    readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                    });
 
-            ProvisioningResult<UserTO> provisioningResult = service.status(statusPatch).readEntity(
-                    new GenericType<ProvisioningResult<UserTO>>() {
+            statuses.forEach(statusBean -> statusBean.setStatus(Status.UNDEFINED));
+
+            results = new HashMap<>();
+            provisioningResult.getPropagationStatuses().forEach(propagationStatus -> {
+                results.put(propagationStatus.getResource(), propagationStatus.getStatus().name());
+
+                if (propagationStatus.getAfterObj() != null) {
+                    Boolean enabled = StatusUtils.isEnabled(propagationStatus.getAfterObj());
+                    if (enabled != null) {
+                        statuses.stream().
+                                filter(statusBean -> propagationStatus.getResource().equals(statusBean.getResource())).
+                                findFirst().
+                                ifPresent(statusBean -> statusBean.setStatus(
+                                enabled ? Status.ACTIVE : Status.SUSPENDED));
+                    }
+                }
             });
-
+            statuses.stream().
+                    filter(statusBean -> Constants.SYNCOPE.equals(statusBean.getResource())).
+                    findFirst().
+                    ifPresent(statusBean -> statusBean.setStatus(
+                    "suspended".equalsIgnoreCase(provisioningResult.getEntity().getStatus())
+                    ? Status.SUSPENDED : Status.ACTIVE));
             if (statusPatch.isOnSyncope()) {
                 results.put(Constants.SYNCOPE,
-                        "suspended".equalsIgnoreCase(provisioningResult.getEntity().getStatus())
-                        ? BulkActionResult.Status.SUCCESS
-                        : BulkActionResult.Status.FAILURE);
+                        ("suspended".equalsIgnoreCase(provisioningResult.getEntity().getStatus())
+                        && type == StatusPatchType.SUSPEND)
+                        || ("active".equalsIgnoreCase(provisioningResult.getEntity().getStatus())
+                        && type == StatusPatchType.REACTIVATE)
+                                ? ExecStatus.SUCCESS.name()
+                                : ExecStatus.FAILURE.name());
             }
 
-            for (PropagationStatus status : provisioningResult.getPropagationStatuses()) {
-                results.put(status.getResource(), BulkActionResult.Status.valueOf(status.getStatus().name()));
-            }
             resetClient(UserService.class);
         }
-        return bulkActionResult;
+        return results;
     }
 
-    public BulkActionResult reactivate(final String etag, final String userKey, final List<StatusBean> statuses) {
-        StatusPatch statusPatch = StatusUtils.buildStatusPatch(statuses, true);
-        statusPatch.setKey(userKey);
-        statusPatch.setType(StatusPatchType.REACTIVATE);
+    public Map<String, String> suspend(
+            final String etag, final String userKey, final List<StatusBean> statuses) {
 
-        BulkActionResult bulkActionResult;
-        synchronized (this) {
-            bulkActionResult = new BulkActionResult();
-            Map<String, BulkActionResult.Status> results = bulkActionResult.getResults();
-            UserService service = getService(etag, UserService.class);
+        return status(StatusPatchType.SUSPEND, etag, userKey, statuses);
+    }
 
-            ProvisioningResult<UserTO> provisioningResult = service.status(statusPatch).readEntity(
-                    new GenericType<ProvisioningResult<UserTO>>() {
-            });
+    public Map<String, String> reactivate(
+            final String etag, final String userKey, final List<StatusBean> statuses) {
 
-            if (statusPatch.isOnSyncope()) {
-                results.put(Constants.SYNCOPE,
-                        "active".equalsIgnoreCase(provisioningResult.getEntity().getStatus())
-                        ? BulkActionResult.Status.SUCCESS
-                        : BulkActionResult.Status.FAILURE);
-            }
-
-            for (PropagationStatus status : provisioningResult.getPropagationStatuses()) {
-                results.put(status.getResource(), BulkActionResult.Status.valueOf(status.getStatus().name()));
-            }
-            resetClient(UserService.class);
-        }
-        return bulkActionResult;
+        return status(StatusPatchType.REACTIVATE, etag, userKey, statuses);
     }
 }

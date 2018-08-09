@@ -36,7 +36,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.report.AuditReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -51,7 +50,8 @@ import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
+import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
+import org.apache.syncope.common.rest.api.beans.ExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
@@ -279,7 +279,7 @@ public class ReportITCase extends AbstractITCase {
     }
 
     @Test
-    public void deleteExecutions() {
+    public void deleteExecutions() throws IOException {
         Date start = new Date();
         try {
             Thread.sleep(1000);
@@ -302,13 +302,12 @@ public class ReportITCase extends AbstractITCase {
         }
         Date end = new Date();
 
-        BulkActionResult result = reportService.deleteExecutions(
-                new BulkExecDeleteQuery.Builder().key(reportTO.getKey()).startedAfter(start).endedBefore(end).build());
-        assertNotNull(result);
-
-        assertEquals(1, result.getResults().size());
-        assertEquals(execKey, result.getResults().keySet().iterator().next());
-        assertEquals(BulkActionResult.Status.SUCCESS, result.getResults().entrySet().iterator().next().getValue());
+        Response response = reportService.deleteExecutions(
+                new ExecDeleteQuery.Builder().key(reportTO.getKey()).startedAfter(start).endedBefore(end).build());
+        List<BatchResponseItem> batchResponseItems = parseBatchResponse(response);
+        assertEquals(1, batchResponseItems.size());
+        assertEquals(execKey, batchResponseItems.get(0).getHeaders().get(RESTHeaders.RESOURCE_KEY).get(0));
+        assertEquals(Response.Status.OK.getStatusCode(), batchResponseItems.get(0).getStatus());
     }
 
     @Test

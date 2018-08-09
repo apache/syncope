@@ -41,7 +41,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -229,7 +229,7 @@ public class RealmITCase extends AbstractITCase {
         assertNotNull(result);
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(RESOURCE_NAME_LDAP_ORGUNIT, result.getPropagationStatuses().get(0).getResource());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
 
         ProvisioningResult<RealmTO> resultChild = realmService.create("/test", childRealm).readEntity(
                 new GenericType<ProvisioningResult<RealmTO>>() {
@@ -237,7 +237,7 @@ public class RealmITCase extends AbstractITCase {
         assertNotNull(resultChild);
         assertEquals(1, resultChild.getPropagationStatuses().size());
         assertEquals(RESOURCE_NAME_LDAP_ORGUNIT, resultChild.getPropagationStatuses().get(0).getResource());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, resultChild.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, resultChild.getPropagationStatuses().get(0).getStatus());
 
         ProvisioningResult<RealmTO> resultDescendant = realmService.create("/test/child", descendantRealm).readEntity(
                 new GenericType<ProvisioningResult<RealmTO>>() {
@@ -245,7 +245,7 @@ public class RealmITCase extends AbstractITCase {
         assertNotNull(resultDescendant);
         assertEquals(1, resultDescendant.getPropagationStatuses().size());
         assertEquals(RESOURCE_NAME_LDAP_ORGUNIT, resultDescendant.getPropagationStatuses().get(0).getResource());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, resultDescendant.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, resultDescendant.getPropagationStatuses().get(0).getStatus());
 
         // 3. check on LDAP
         assertNotNull(

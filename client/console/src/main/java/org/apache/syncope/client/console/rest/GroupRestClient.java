@@ -24,7 +24,7 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
-import org.apache.syncope.common.lib.types.BulkMembersActionType;
+import org.apache.syncope.common.lib.types.ProvisionAction;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.syncope.common.rest.api.service.GroupService;
@@ -80,7 +80,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
                         orderBy(toOrderBy(sort)).details(false).build()).getResult();
     }
 
-    public void bulkMembersAction(final String key, final BulkMembersActionType actionType) {
-        getService(GroupService.class).bulkMembersAction(key, actionType);
+    public void provisionMembers(final String key, final ProvisionAction actionType) {
+        getService(GroupService.class).provisionMembers(key, actionType);
     }
 }

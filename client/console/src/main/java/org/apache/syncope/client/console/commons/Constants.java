@@ -29,6 +29,8 @@ public final class Constants {
 
     public static final String SYNCOPE = "syncope";
 
+    public static final String UNKNOWN = "UNKNOWN";
+
     public static final String ROLE_AUTHENTICATED = "AUTHENTICATED";
 
     public static final String MENU_COLLAPSE = "MENU_COLLAPSE";

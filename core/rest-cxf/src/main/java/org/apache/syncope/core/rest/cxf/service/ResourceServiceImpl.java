@@ -19,26 +19,19 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.ResourceDeassociationPatch;
-import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
-import org.apache.syncope.core.logic.AbstractResourceAssociator;
 import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.logic.ResourceLogic;
 import org.apache.syncope.core.logic.GroupLogic;
@@ -140,45 +133,5 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     @Override
     public void check(final ResourceTO resourceTO) {
         logic.check(resourceTO);
-    }
-
-    @Override
-    public BulkActionResult bulkDeassociation(final ResourceDeassociationPatch patch) {
-        AbstractResourceAssociator<? extends AnyTO> associator =
-                patch.getAnyTypeKey().equalsIgnoreCase(AnyTypeKind.USER.name())
-                ? userLogic
-                : patch.getAnyTypeKey().equalsIgnoreCase(AnyTypeKind.GROUP.name())
-                ? groupLogic
-                : anyObjectLogic;
-
-        BulkActionResult result = new BulkActionResult();
-
-        for (String anyKey : patch.getAnyKyes()) {
-            Set<String> resources = Collections.singleton(patch.getKey());
-            try {
-                switch (patch.getAction()) {
-                    case DEPROVISION:
-                        associator.deprovision(anyKey, resources, isNullPriorityAsync());
-                        break;
-
-                    case UNASSIGN:
-                        associator.unassign(anyKey, resources, isNullPriorityAsync());
-                        break;
-
-                    case UNLINK:
-                        associator.unlink(anyKey, resources);
-                        break;
-
-                    default:
-                }
-
-                result.getResults().put(anyKey, BulkActionResult.Status.SUCCESS);
-            } catch (Exception e) {
-                LOG.warn("While executing {} on {} {}", patch.getAction(), patch.getAnyTypeKey(), anyKey, e);
-                result.getResults().put(anyKey, BulkActionResult.Status.FAILURE);
-            }
-        }
-
-        return result;
     }
 }

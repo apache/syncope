@@ -126,7 +126,7 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                 : Integer.valueOf(props.getProperty("maxUploadFileSizeMB"));
 
         clientFactory = new SyncopeClientFactoryBean().
-                setAddress(scheme + "://" + host + ":" + port + "/" + rootPath).
+                setAddress(scheme + "://" + host + ":" + port + StringUtils.prependIfMissing(rootPath, "/")).
                 setContentType(SyncopeClientFactoryBean.ContentType.JSON).
                 setUseCompression(BooleanUtils.toBoolean(useGZIPCompression));
 

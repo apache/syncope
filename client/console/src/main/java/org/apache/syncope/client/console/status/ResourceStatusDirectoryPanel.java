@@ -215,15 +215,15 @@ public class ResourceStatusDirectoryPanel
     }
 
     @Override
-    protected Collection<ActionLink.ActionType> getBulkActions() {
-        List<ActionLink.ActionType> bulkActions = new ArrayList<>();
-        bulkActions.add(ActionLink.ActionType.UNLINK);
-        bulkActions.add(ActionLink.ActionType.LINK);
-        bulkActions.add(ActionLink.ActionType.DEPROVISION);
-        bulkActions.add(ActionLink.ActionType.PROVISION);
-        bulkActions.add(ActionLink.ActionType.ASSIGN);
-        bulkActions.add(ActionLink.ActionType.UNASSIGN);
-        return bulkActions;
+    protected Collection<ActionLink.ActionType> getBatches() {
+        List<ActionLink.ActionType> batches = new ArrayList<>();
+        batches.add(ActionLink.ActionType.UNLINK);
+        batches.add(ActionLink.ActionType.LINK);
+        batches.add(ActionLink.ActionType.DEPROVISION);
+        batches.add(ActionLink.ActionType.PROVISION);
+        batches.add(ActionLink.ActionType.ASSIGN);
+        batches.add(ActionLink.ActionType.UNASSIGN);
+        return batches;
     }
 
     @Override

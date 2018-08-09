@@ -138,7 +138,7 @@ public class AccessTokenDirectoryPanel
     }
 
     @Override
-    protected Collection<ActionLink.ActionType> getBulkActions() {
+    protected Collection<ActionLink.ActionType> getBatches() {
         return Collections.emptyList();
     }
 

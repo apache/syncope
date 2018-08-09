@@ -19,16 +19,18 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.TaskTO;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
@@ -39,6 +41,8 @@ import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
@@ -56,6 +60,7 @@ import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
+import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
@@ -349,28 +354,36 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
     @Override
-    public BulkActionResult deleteExecutions(
+    public List<BatchResponseItem> deleteExecutions(
             final String key,
-            final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
+            final Date startedBefore,
+            final Date startedAfter,
+            final Date endedBefore,
+            final Date endedAfter) {
 
         Task task = taskDAO.find(key);
         if (task == null) {
             throw new NotFoundException("Task " + key);
         }
 
-        BulkActionResult result = new BulkActionResult();
+        List<BatchResponseItem> batchResponseItems = new ArrayList<>();
 
         taskExecDAO.findAll(task, startedBefore, startedAfter, endedBefore, endedAfter).forEach(exec -> {
+            BatchResponseItem item = new BatchResponseItem();
+            item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(exec.getKey()));
+            batchResponseItems.add(item);
+
             try {
                 taskExecDAO.delete(exec);
-                result.getResults().put(String.valueOf(exec.getKey()), BulkActionResult.Status.SUCCESS);
+                item.setStatus(Response.Status.OK.getStatusCode());
             } catch (Exception e) {
                 LOG.error("Error deleting execution {} of task {}", exec.getKey(), key, e);
-                result.getResults().put(String.valueOf(exec.getKey()), BulkActionResult.Status.FAILURE);
+                item.setStatus(Response.Status.BAD_REQUEST.getStatusCode());
+                item.setContent(ExceptionUtils2.getFullStackTrace(e));
             }
         });
 
-        return result;
+        return batchResponseItems;
     }
 
     @Override

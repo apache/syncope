@@ -47,6 +47,7 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -58,6 +59,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColu
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -112,7 +114,7 @@ public abstract class ReportDirectoryPanel
 
         columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("nextExec", this), null, "nextExec"));
-        
+
         columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("start", this), "start", "start"));
 
@@ -135,13 +137,18 @@ public abstract class ReportDirectoryPanel
                     final String componentId,
                     final IModel<ReportTO> rowModel) {
 
-                JobTO jobTO = restClient.getJob(rowModel.getObject().getKey());
-                JobActionPanel panel = new JobActionPanel(
-                        componentId, jobTO, false, ReportDirectoryPanel.this, pageRef);
-                MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
-                        String.format("%s,%s",
-                                StandardEntitlement.TASK_EXECUTE,
-                                StandardEntitlement.TASK_UPDATE));
+                Component panel;
+                try {
+                    JobTO jobTO = restClient.getJob(rowModel.getObject().getKey());
+                    panel = new JobActionPanel(componentId, jobTO, false, ReportDirectoryPanel.this, pageRef);
+                    MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
+                            String.format("%s,%s",
+                                    StandardEntitlement.REPORT_EXECUTE,
+                                    StandardEntitlement.REPORT_UPDATE));
+                } catch (Exception e) {
+                    LOG.error("Could not get job for report {}", rowModel.getObject().getKey(), e);
+                    panel = new Label(componentId, Model.of());
+                }
                 cellItem.add(panel);
             }
 
@@ -218,7 +225,7 @@ public abstract class ReportDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
-                viewTask(model.getObject(), target);
+                viewReport(model.getObject(), target);
             }
         }, ActionLink.ActionType.VIEW, StandardEntitlement.REPORT_READ);
 
@@ -257,11 +264,11 @@ public abstract class ReportDirectoryPanel
     }
 
     @Override
-    protected Collection<ActionType> getBulkActions() {
-        final List<ActionType> bulkActions = new ArrayList<>();
-        bulkActions.add(ActionType.EXECUTE);
-        bulkActions.add(ActionType.DELETE);
-        return bulkActions;
+    protected Collection<ActionType> getBatches() {
+        List<ActionType> batches = new ArrayList<>();
+        batches.add(ActionType.EXECUTE);
+        batches.add(ActionType.DELETE);
+        return batches;
     }
 
     @Override
@@ -274,7 +281,7 @@ public abstract class ReportDirectoryPanel
         return Constants.PREF_REPORT_TASKS_PAGINATOR_ROWS;
     }
 
-    protected abstract void viewTask(final ReportTO reportTO, final AjaxRequestTarget target);
+    protected abstract void viewReport(ReportTO reportTO, AjaxRequestTarget target);
 
     protected class ReportDataProvider extends DirectoryDataProvider<ReportTO> {
 

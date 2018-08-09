@@ -31,7 +31,7 @@ import org.apache.wicket.util.tester.FormTester;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class BulkActionITCase extends AbstractConsoleITCase {
+public class BatchesITCase extends AbstractConsoleITCase {
 
     private static final String TAB_PANEL = "body:content:body:container:content:tabbedPanel:panel:searchResult:";
 
@@ -43,7 +43,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
     }
 
     @Test
-    public void usersBulkAction() {
+    public void users() {
         TESTER.clickLink("body:realmsLI:realms");
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
@@ -56,18 +56,18 @@ public class BulkActionITCase extends AbstractConsoleITCase {
 
         formTester.select("checkgroup", 2);
 
-        TESTER.executeAjaxEvent(CONTAINER + "searchContainer:resultTable:tablePanel:bulkActionLink",
+        TESTER.executeAjaxEvent(CONTAINER + "searchContainer:resultTable:tablePanel:batchLink",
                 Constants.ON_CLICK);
 
         TESTER.assertComponent(CONTAINER
-                + "searchContainer:resultTable:bulkModal:form:content:content:container", WebMarkupContainer.class);
+                + "searchContainer:resultTable:batchModal:form:content:content:container", WebMarkupContainer.class);
 
         assertNotNull(findComponentByProp("username", CONTAINER
-                + "searchContainer:resultTable:bulkModal:form:content:content:container", "rossini"));
+                + "searchContainer:resultTable:batchModal:form:content:content:container", "rossini"));
     }
 
     @Test
-    public void userResourceBulkAction() {
+    public void userResource() {
         TESTER.clickLink("body:realmsLI:realms");
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
@@ -99,7 +99,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         formTester.select("checkgroup", 0);
 
         TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
-                + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
+                + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:batchLink",
                 Constants.ON_CLICK);
 
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
@@ -110,16 +110,16 @@ public class BulkActionITCase extends AbstractConsoleITCase {
     }
 
     @Test
-    public void userStatusBulkAction() {
-        userStatusBulkAction(1, "resource-testdb2");
+    public void userStatus() {
+        userStatusBatch(1, "resource-testdb2");
     }
 
     @Test
-    public void userStatusOnSyncopeOnlyBulkAction() {
-        userStatusBulkAction(0, Constants.SYNCOPE);
+    public void userStatusOnSyncopeOnly() {
+        userStatusBatch(0, Constants.SYNCOPE);
     }
 
-    private void userStatusBulkAction(final int index, final String resource) {
+    private void userStatusBatch(final int index, final String resource) {
         // suspend 
         TESTER.clickLink("body:realmsLI:realms");
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
@@ -154,7 +154,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         formTester.select("checkgroup", index);
 
         TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
-                + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
+                + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:batchLink",
                 Constants.ON_CLICK);
 
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
@@ -209,7 +209,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         formTester.select("checkgroup", index);
 
         TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
-                + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
+                + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:batchLink",
                 Constants.ON_CLICK);
 
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
@@ -243,7 +243,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
     }
 
     @Test
-    public void groupResourceBulkAction() {
+    public void groupResource() {
         TESTER.clickLink("body:realmsLI:realms");
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
 
@@ -279,7 +279,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         formTester.select("checkgroup", 0);
 
         TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
-                + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
+                + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:batchLink",
                 Constants.ON_CLICK);
 
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
@@ -290,7 +290,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
     }
 
     @Test
-    public void printerResourceBulkAction() {
+    public void printerResource() {
         TESTER.clickLink("body:realmsLI:realms");
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
@@ -327,7 +327,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         formTester.select("checkgroup", 0);
 
         TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
-                + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
+                + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:batchLink",
                 Constants.ON_CLICK);
 
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
@@ -354,7 +354,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         formTester.select("checkgroup", 0);
 
         TESTER.executeAjaxEvent("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:"
-                + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
+                + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:batchLink",
                 Constants.ON_CLICK);
 
         TESTER.assertComponent("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:secondLevelContainer:"

@@ -33,13 +33,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import org.apache.syncope.common.lib.to.BulkActionResult;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 
@@ -83,12 +83,15 @@ public interface ExecutableService extends JAXRSService {
      * Deletes the executions belonging matching the given query.
      *
      * @param query query conditions
-     * @return bulk action result
+     * @return batch results as Response entity
      */
     @DELETE
+    @ApiResponses(
+            @ApiResponse(responseCode = "200",
+                    description = "Batch results available, returned as Response entity"))
     @Path("{key}/executions")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    BulkActionResult deleteExecutions(@BeanParam BulkExecDeleteQuery query);
+    @Produces(RESTHeaders.MULTIPART_MIXED)
+    Response deleteExecutions(@BeanParam ExecDeleteQuery query);
 
     /**
      * Executes the executable matching the given query.

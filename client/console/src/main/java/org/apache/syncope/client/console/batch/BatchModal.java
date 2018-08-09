@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.bulk;
+package org.apache.syncope.client.console.batch;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -28,21 +28,21 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 
-public class BulkActionModal<T extends Serializable, S> extends AbstractModalPanel<T> {
+public class BatchModal<T extends Serializable, S> extends AbstractModalPanel<T> {
 
     private static final long serialVersionUID = 4114026480146090962L;
 
-    public BulkActionModal(
+    public BatchModal(
             final BaseModal<T> modal,
             final PageReference pageRef,
-            final Collection<T> items,
+            final List<T> items,
             final List<IColumn<T, S>> columns,
             final Collection<ActionLink.ActionType> actions,
-            final RestClient bulkActionExecutor,
+            final RestClient batchExecutor,
             final String keyFieldName) {
 
         super(modal, pageRef);
-        add(new BulkContent<>("content", modal, items, columns, actions, bulkActionExecutor, keyFieldName).
+        add(new BatchContent<>("content", modal, items, columns, actions, batchExecutor, keyFieldName).
                 setRenderBodyOnly(true));
     }
 }

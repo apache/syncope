@@ -127,7 +127,7 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
     }
 
     @Override
-    protected Collection<ActionType> getBulkActions() {
+    protected Collection<ActionType> getBatches() {
         return Collections.<ActionType>emptyList();
     }
 

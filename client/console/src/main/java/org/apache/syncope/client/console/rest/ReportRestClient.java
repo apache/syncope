@@ -18,16 +18,20 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import static org.apache.syncope.client.console.rest.BaseRestClient.getStatus;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
-import javax.ws.rs.NotSupportedException;
+import java.util.Map;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
@@ -35,6 +39,8 @@ import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
+import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
+import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.service.ReportService;
@@ -155,25 +161,29 @@ public class ReportRestClient extends BaseRestClient
                 key, format, IOUtils.toInputStream(content, StandardCharsets.UTF_8));
     }
 
-    public BulkActionResult bulkAction(final BulkAction action) {
-        BulkActionResult result = new BulkActionResult();
+    @Override
+    public Map<String, String> batch(final BatchRequest batchRequest) {
+        List<BatchRequestItem> batchRequestItems = new ArrayList<>(batchRequest.getItems());
 
-        switch (action.getType()) {
-            case DELETE:
-                for (String target : action.getTargets()) {
-                    delete(target);
-                    result.getResults().put(target, BulkActionResult.Status.SUCCESS);
+        Map<String, String> result = new LinkedHashMap<>();
+        try {
+            List<BatchResponseItem> batchResponseItems = batchRequest.commit().getItems();
+            for (int i = 0; i < batchResponseItems.size(); i++) {
+                String status = getStatus(batchResponseItems.get(i).getStatus());
+
+                if (batchRequestItems.get(i).getRequestURI().contains("/execute")) {
+                    result.put(StringUtils.substringAfterLast(
+                            StringUtils.substringBefore(batchRequestItems.get(i).getRequestURI(), "/execute"), "/"),
+                            status);
+                } else {
+                    result.put(StringUtils.substringAfterLast(
+                            batchRequestItems.get(i).getRequestURI(), "/"), status);
                 }
-                break;
-            case EXECUTE:
-                for (String target : action.getTargets()) {
-                    startExecution(target, null);
-                    result.getResults().put(target, BulkActionResult.Status.SUCCESS);
-                }
-                break;
-            default:
-                throw new NotSupportedException(action.getType().name());
+            }
+        } catch (IOException e) {
+            LOG.error("While processing Batch response", e);
         }
+
         return result;
     }
 }

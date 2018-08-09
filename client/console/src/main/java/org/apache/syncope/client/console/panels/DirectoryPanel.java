@@ -297,8 +297,7 @@ public abstract class DirectoryPanel<
 
         }.
                 setColumns(getColumns()).
-                setRowsPerPage(rows).
-                setBulkActions(getBulkActions(), restClient, itemKeyFieldName).
+                setRowsPerPage(rows).setBatches(getBatches(), restClient, itemKeyFieldName).
                 setContainer(container);
 
         if (!checkBoxEnabled) {
@@ -397,7 +396,7 @@ public abstract class DirectoryPanel<
         }
     }
 
-    protected abstract Collection<ActionLink.ActionType> getBulkActions();
+    protected abstract Collection<ActionLink.ActionType> getBatches();
 
     public abstract static class Builder<T extends Serializable, W extends Serializable, E extends RestClient>
             extends WizardMgtPanel.Builder<W> {

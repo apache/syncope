@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 /**
@@ -50,7 +50,7 @@ public interface PropagationReporter {
      */
     void onSuccessOrNonPriorityResourceFailures(
             PropagationTaskTO propagationTask,
-            PropagationTaskExecStatus execStatus,
+            ExecStatus execStatus,
             String failureReason,
             ConnectorObject beforeObj,
             ConnectorObject afterObj);

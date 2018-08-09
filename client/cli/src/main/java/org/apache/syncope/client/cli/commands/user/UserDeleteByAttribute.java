@@ -18,19 +18,28 @@
  */
 package org.apache.syncope.client.cli.commands.user;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import javax.xml.ws.WebServiceException;
+import java.util.concurrent.atomic.AtomicReference;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.cli.Input;
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UserDeleteByAttribute extends AbstractUserCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserDeleteByAttribute.class);
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private static final String SEARCH_HELP_MESSAGE = "user --delete-by-attribute {REALM} {ATTR-NAME}={ATTR-VALUE}";
 
@@ -49,34 +58,40 @@ public class UserDeleteByAttribute extends AbstractUserCommand {
                     userResultManager.notFoundError("Realm", realm);
                     return;
                 }
-                Map<String, BulkActionResult.Status> results = userSyncopeOperations.deleteByAttribute(
+                List<BatchResponseItem> results = userSyncopeOperations.deleteByAttribute(
                         realm, pairParameter.getKey(), pairParameter.getValue());
+
                 Map<String, String> failedUsers = new HashMap<>();
-                int deletedUsers = 0;
-                for (final Map.Entry<String, BulkActionResult.Status> entrySet : results.entrySet()) {
-                    String userId = entrySet.getKey();
-                    BulkActionResult.Status status = entrySet.getValue();
-                    if (BulkActionResult.Status.SUCCESS == status) {
-                        deletedUsers++;
+                AtomicReference<Integer> deletedUsers = new AtomicReference<>(0);
+
+                results.forEach(item -> {
+                    if (item.getStatus() == Response.Status.OK.getStatusCode()) {
+                        deletedUsers.getAndSet(deletedUsers.get() + 1);
                     } else {
-                        failedUsers.put(userId, status.name());
+                        try {
+                            ProvisioningResult<UserTO> user = MAPPER.readValue(item.getContent(),
+                                    new TypeReference<ProvisioningResult<UserTO>>() {
+                            });
+                            failedUsers.put(
+                                    user.getEntity().getUsername(),
+                                    item.getHeaders().get(RESTHeaders.ERROR_CODE).toString());
+                        } catch (IOException ioe) {
+                            LOG.error("Error reading {}", item.getContent(), ioe);
+                        }
                     }
-                }
+                });
+
                 userResultManager.genericMessage("Deleted users: " + deletedUsers);
                 if (!failedUsers.isEmpty()) {
                     userResultManager.printFailedUsers(failedUsers);
                 }
-            } catch (WebServiceException | SyncopeClientException ex) {
-                LOG.error("Error searching user", ex);
-                if (ex.getMessage().startsWith("NotFound")) {
+            } catch (Exception e) {
+                LOG.error("Error searching user", e);
+                if (e.getMessage().startsWith("NotFound")) {
                     userResultManager.notFoundError("User with " + pairParameter.getKey(), pairParameter.getValue());
                 } else {
-                    userResultManager.genericError(ex.getMessage());
+                    userResultManager.genericError(e.getMessage());
                 }
-            } catch (IllegalArgumentException ex) {
-                LOG.error("Error searching user", ex);
-                userResultManager.genericError(ex.getMessage());
-                userResultManager.genericError(SEARCH_HELP_MESSAGE);
             }
         } else {
             userResultManager.commandOptionError(SEARCH_HELP_MESSAGE);

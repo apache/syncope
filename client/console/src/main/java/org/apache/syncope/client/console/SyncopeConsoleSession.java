@@ -27,6 +27,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
@@ -39,6 +40,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
@@ -50,6 +52,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.request.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.task.TaskRejectedException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 public class SyncopeConsoleSession extends AuthenticatedWebSession {
@@ -113,11 +116,21 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     }
 
     public void execute(final Runnable command) {
-        executor.execute(command);
+        try {
+            executor.execute(command);
+        } catch (TaskRejectedException e) {
+            LOG.error("Could not execute {}", command, e);
+        }
     }
 
     public <T> Future<T> execute(final Callable<T> command) {
-        return executor.submit(command);
+        try {
+            return executor.submit(command);
+        } catch (TaskRejectedException e) {
+            LOG.error("Could not execute {}", command, e);
+
+            return new CompletableFuture<>();
+        }
     }
 
     public PlatformInfo getPlatformInfo() {
@@ -286,6 +299,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         }
 
         return service;
+    }
+
+    public BatchRequest batch() {
+        return client.batch();
     }
 
     public <T> void resetClient(final Class<T> service) {

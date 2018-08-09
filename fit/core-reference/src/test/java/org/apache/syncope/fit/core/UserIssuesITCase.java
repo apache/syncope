@@ -73,7 +73,7 @@ import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
@@ -220,7 +220,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(propagations);
         assertEquals(1, propagations.size());
 
-        assertEquals(PropagationTaskExecStatus.SUCCESS, propagations.get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, propagations.get(0).getStatus());
 
         String resource = propagations.get(0).getResource();
         assertEquals(RESOURCE_NAME_TESTDB, resource);
@@ -239,7 +239,7 @@ public class UserIssuesITCase extends AbstractITCase {
         List<PropagationStatus> propagations = result.getPropagationStatuses();
         assertNotNull(propagations);
         assertEquals(1, propagations.size());
-        assertNotEquals(PropagationTaskExecStatus.SUCCESS, propagations.get(0).getStatus());
+        assertNotEquals(ExecStatus.SUCCESS, propagations.get(0).getStatus());
 
         String resource = propagations.get(0).getResource();
         assertEquals(RESOURCE_NAME_CSV, resource);
@@ -350,7 +350,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(result);
         assertFalse(result.getPropagationStatuses().isEmpty());
         assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         userTO = result.getEntity();
 
         // 2. delete this user
@@ -407,7 +407,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(result);
         assertFalse(result.getPropagationStatuses().isEmpty());
         assertEquals(RESOURCE_NAME_DBVIRATTR, result.getPropagationStatuses().get(0).getResource());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         userTO = result.getEntity();
 
         ConnObjectTO connObjectTO =
@@ -450,7 +450,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ProvisioningResult<UserTO> result = createUser(userTO);
         assertEquals(RESOURCE_NAME_TIMEOUT, result.getPropagationStatuses().get(0).getResource());
         assertNotNull(result.getPropagationStatuses().get(0).getFailureReason());
-        assertEquals(PropagationTaskExecStatus.FAILURE, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.FAILURE, result.getPropagationStatuses().get(0).getStatus());
     }
 
     @Test
@@ -557,7 +557,7 @@ public class UserIssuesITCase extends AbstractITCase {
             PropagationStatus prop = props.iterator().next();
             assertNotNull(prop);
             assertEquals(RESOURCE_NAME_LDAP, prop.getResource());
-            assertEquals(PropagationTaskExecStatus.SUCCESS, prop.getStatus());
+            assertEquals(ExecStatus.SUCCESS, prop.getStatus());
         } finally {
             // restore initial cipher algorithm
             pwdCipherAlgo.getValues().set(0, origpwdCipherAlgo);
@@ -594,7 +594,7 @@ public class UserIssuesITCase extends AbstractITCase {
         PropagationStatus prop = props.iterator().next();
         assertNotNull(prop);
         assertEquals(RESOURCE_NAME_LDAP, prop.getResource());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, prop.getStatus());
+        assertEquals(ExecStatus.SUCCESS, prop.getStatus());
     }
 
     @Test
@@ -744,7 +744,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(result);
         userTO = result.getEntity();
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
-        assertNotEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertNotEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         assertNotNull(result.getPropagationStatuses().get(0).getFailureReason());
         userTO = result.getEntity();
 
@@ -757,7 +757,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         result = updateUser(userPatch);
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
     }
 
     @Test
@@ -794,7 +794,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(ws1PropagationStatus);
         assertEquals(RESOURCE_NAME_WS1, ws1PropagationStatus.getResource());
         assertNotNull(ws1PropagationStatus.getFailureReason());
-        assertEquals(PropagationTaskExecStatus.FAILURE, ws1PropagationStatus.getStatus());
+        assertEquals(ExecStatus.FAILURE, ws1PropagationStatus.getStatus());
     }
 
     @Test
@@ -862,7 +862,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(result);
         userTO = result.getEntity();
         assertEquals(Collections.singleton(RESOURCE_NAME_WS1), userTO.getResources());
-        assertNotEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertNotEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         assertTrue(result.getPropagationStatuses().get(0).getFailureReason().
                 startsWith("Not attempted because there are mandatory attributes without value(s): [__PASSWORD__]"));
     }
@@ -908,7 +908,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ProvisioningResult<UserTO> result = createUser(userTO);
         assertNotNull(userTO);
         assertEquals(1, result.getPropagationStatuses().size());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         userTO = result.getEntity();
 
         ConnObjectTO actual =
@@ -949,7 +949,7 @@ public class UserIssuesITCase extends AbstractITCase {
         result = updateUser(userPatch);
         assertNotNull(userTO);
         assertEquals(1, result.getPropagationStatuses().size());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         userTO = result.getEntity();
 
         ConnObjectTO newUser =
@@ -1304,7 +1304,7 @@ public class UserIssuesITCase extends AbstractITCase {
             PropagationStatus prop = props.iterator().next();
             assertNotNull(prop);
             assertEquals(RESOURCE_NAME_LDAP, prop.getResource());
-            assertEquals(PropagationTaskExecStatus.SUCCESS, prop.getStatus());
+            assertEquals(ExecStatus.SUCCESS, prop.getStatus());
         } finally {
             // restore initial cipher algorithm
             pwdCipherAlgo.getValues().set(0, origpwdCipherAlgo);
@@ -1431,9 +1431,9 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(result);
         assertEquals(2, result.getPropagationStatuses().size());
         assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         assertEquals(RESOURCE_NAME_DBVIRATTR, result.getPropagationStatuses().get(1).getResource());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(1).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(1).getStatus());
     }
 
     @Test

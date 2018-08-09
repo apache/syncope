@@ -159,7 +159,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
     }
 
     @Override
-    protected Collection<ActionLink.ActionType> getBulkActions() {
+    protected Collection<ActionLink.ActionType> getBatches() {
         return Collections.<ActionLink.ActionType>emptyList();
 
     }

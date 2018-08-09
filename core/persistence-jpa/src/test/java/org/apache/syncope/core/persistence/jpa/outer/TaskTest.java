@@ -36,7 +36,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.MatchingRule;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -150,7 +150,7 @@ public class TaskTest extends AbstractTest {
 
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setTask(task);
-        execution.setStatus(PropagationTaskExecStatus.CREATED.name());
+        execution.setStatus(ExecStatus.CREATED.name());
         execution.setStart(new Date());
         task.add(execution);
 

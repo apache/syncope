@@ -163,7 +163,7 @@ public class TypeExtensionDirectoryPanel
     }
 
     @Override
-    protected Collection<ActionLink.ActionType> getBulkActions() {
+    protected Collection<ActionLink.ActionType> getBatches() {
         return Collections.emptyList();
     }
 

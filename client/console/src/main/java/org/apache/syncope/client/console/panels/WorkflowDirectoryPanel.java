@@ -280,7 +280,7 @@ public class WorkflowDirectoryPanel extends DirectoryPanel<
     }
 
     @Override
-    protected Collection<ActionLink.ActionType> getBulkActions() {
+    protected Collection<ActionLink.ActionType> getBatches() {
         return Collections.emptyList();
     }
 

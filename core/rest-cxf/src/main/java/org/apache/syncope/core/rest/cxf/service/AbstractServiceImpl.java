@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -55,6 +57,8 @@ import org.slf4j.LoggerFactory;
 abstract class AbstractServiceImpl implements JAXRSService {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractServiceImpl.class);
+
+    protected static final RandomBasedGenerator GENERATOR = Generators.randomBasedGenerator();
 
     protected static final String OPTIONS_ALLOW = "GET,POST,OPTIONS,HEAD";
 

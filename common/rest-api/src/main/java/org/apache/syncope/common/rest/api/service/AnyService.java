@@ -43,8 +43,6 @@ import org.apache.syncope.common.lib.patch.AssociationPatch;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
@@ -190,7 +188,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      * Executes resource-related operations on given entity.
      *
      * @param patch external resources to be used for propagation-related operations
-     * @return Response object featuring BulkActionResult as Entity
+     * @return batch results as Response entity
      */
     @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
             description = "Allows client to specify a preference for the result to be returned from the server",
@@ -212,9 +210,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
             @Schema(implementation = ResourceDeassociationAction.class))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
-                description = "Bulk action result", content =
-                @Content(schema =
-                        @Schema(implementation = BulkActionResult.class))),
+                description = "Batch results available, returned as Response entity"),
         @ApiResponse(responseCode = "204",
                 description = "No content if 'Prefer: return-no-content' was specified", headers =
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
@@ -226,15 +222,15 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
                 + " date of the entity") })
     @POST
     @Path("{key}/deassociate/{action}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces(RESTHeaders.MULTIPART_MIXED)
     Response deassociate(@NotNull DeassociationPatch patch);
 
     /**
      * Executes resource-related operations on given entity.
      *
      * @param patch external resources to be used for propagation-related operations
-     * @return Response object featuring BulkActionResult as Entity
+     * @return batch results as Response entity
      */
     @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
             description = "Allows client to specify a preference for the result to be returned from the server",
@@ -256,9 +252,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
             @Schema(implementation = ResourceAssociationAction.class))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
-                description = "Bulk action result", content =
-                @Content(schema =
-                        @Schema(implementation = BulkActionResult.class))),
+                description = "Batch results available, returned as Response entity"),
         @ApiResponse(responseCode = "204",
                 description = "No content if 'Prefer: return-no-content' was specified", headers =
                 @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
@@ -270,39 +264,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
                 + " date of the entity") })
     @POST
     @Path("{key}/associate/{action}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces(RESTHeaders.MULTIPART_MIXED)
     Response associate(@NotNull AssociationPatch patch);
-
-    /**
-     * Executes the provided bulk action.
-     *
-     * @param bulkAction list of any object ids against which the bulk action will be performed.
-     * @return Response object featuring BulkActionResult as Entity
-     */
-    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
-            description = "Allows client to specify a preference for the result to be returned from the server",
-            allowEmptyValue = true, schema =
-            @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
-    @Parameter(name = RESTHeaders.NULL_PRIORITY_ASYNC, in = ParameterIn.HEADER,
-            description = "If 'true', instructs the propagation process not to wait for completion when communicating"
-            + " with External Resources with no priority set",
-            allowEmptyValue = true, schema =
-            @Schema(type = "boolean", defaultValue = "false"))
-    @ApiResponses({
-        @ApiResponse(responseCode = "200",
-                description = "Bulk action result", content =
-                @Content(schema =
-                        @Schema(implementation = BulkActionResult.class))),
-        @ApiResponse(responseCode = "204",
-                description = "No content if 'Prefer: return-no-content' was specified", headers =
-                @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
-                        @Schema(type = "string"),
-                        description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied")) })
-    @POST
-    @Path("bulk")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response bulk(@NotNull BulkAction bulkAction);
 }

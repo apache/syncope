@@ -16,19 +16,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+div.batch{
+  display:inline-table;
+}
 
-import javax.xml.bind.annotation.XmlEnum;
+div.batchCell{
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+  width: 40px;
+  padding-left: 7px;
+}
 
-/**
- * Status of a propagation task execution.
- */
-@XmlEnum
-public enum PropagationTaskExecStatus {
+.pageRowElement{
+  display: inline-table;
+  width: 100%;
+}
 
-    CREATED,
-    SUCCESS,
-    FAILURE,
-    NOT_ATTEMPTED;
+div#selectedObjects table {
+  border-collapse: collapse;
+}
 
+div#selectedObjects table td, div#selectedObjects table th {
+  border: 1px solid #eee;
+  padding: .5em 10px;
+}
+
+div#selectedObjects .circular-actions {
+  padding: 3px;
+  margin: 10px 0px 5px 0px;
+}
+
+.modal-body {
+  max-height: 650px !important;
 }

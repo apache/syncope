@@ -19,14 +19,41 @@
 package org.apache.syncope.common.lib.types;
 
 import javax.xml.bind.annotation.XmlEnum;
+import org.apache.syncope.common.lib.to.NotificationTaskTO;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
+import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.PushTaskTO;
+import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 
 @XmlEnum
 public enum TaskType {
 
-    PROPAGATION,
-    NOTIFICATION,
-    SCHEDULED,
-    PULL,
-    PUSH;
+    PROPAGATION(PropagationTaskTO.class),
+    NOTIFICATION(NotificationTaskTO.class),
+    SCHEDULED(SchedTaskTO.class),
+    PULL(PullTaskTO.class),
+    PUSH(PushTaskTO.class);
 
+    private final Class<? extends TaskTO> toClass;
+
+    TaskType(final Class<? extends TaskTO> toClass) {
+        this.toClass = toClass;
+    }
+
+    public Class<? extends TaskTO> getToClass() {
+        return toClass;
+    }
+
+    public static TaskType fromTOClass(final Class<? extends TaskTO> clazz) {
+        return PushTaskTO.class.isAssignableFrom(clazz)
+                ? TaskType.PUSH
+                : PullTaskTO.class.isAssignableFrom(clazz)
+                ? TaskType.PULL
+                : NotificationTaskTO.class.isAssignableFrom(clazz)
+                ? TaskType.NOTIFICATION
+                : PropagationTaskTO.class.isAssignableFrom(clazz)
+                ? TaskType.PROPAGATION
+                : TaskType.SCHEDULED;
+    }
 }

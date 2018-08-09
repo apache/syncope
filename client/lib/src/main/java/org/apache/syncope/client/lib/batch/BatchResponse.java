@@ -34,6 +34,9 @@ import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Encapsulates the Batch response management via CXF Proxy Client.
+ */
 public class BatchResponse {
 
     private static final Logger LOG = LoggerFactory.getLogger(BatchResponse.class);
@@ -63,7 +66,7 @@ public class BatchResponse {
     }
 
     /**
-     * If asynchronous processing was requested, query the monitor URI.
+     * If asynchronous processing was requested, queries the monitor URI.
      *
      * @return the last Response received from the Batch service
      */

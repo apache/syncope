@@ -31,6 +31,9 @@ import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Encapsulates the Batch request management via CXF Proxy Client.
+ */
 public class BatchRequest {
 
     private static final Logger LOG = LoggerFactory.getLogger(BatchRequest.class);
@@ -78,10 +81,26 @@ public class BatchRequest {
         return bcfb.getBatchRequestItems();
     }
 
+    /**
+     * Sends the current request, with items accumulated by invoking methods on proxies obtained via
+     * {@link #getService(java.lang.Class)}, to the Batch service, and awaits for synchronous response.
+     * It also clears out the accumulated items, in case of reuse of this instance for subsequent requests.
+     * 
+     * @return batch response
+     */
     public BatchResponse commit() {
         return commit(false);
     }
 
+    /**
+     * Sends the current request, with items accumulated by invoking methods on proxies obtained via
+     * {@link #getService(java.lang.Class)}, to the Batch service, and awaits for a synchronous or asynchronous
+     * response, depending on the {@code async} parameter.
+     * It also clears out the accumulated items, in case of reuse of this instance for subsequent requests.
+     * 
+     * @param async whether asynchronous Batch process is requested, or not
+     * @return batch response
+     */
     public BatchResponse commit(final boolean async) {
         String boundary = "--batch_" + UUID.randomUUID().toString();
 

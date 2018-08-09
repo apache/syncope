@@ -52,7 +52,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.BulkMembersActionType;
+import org.apache.syncope.common.lib.types.ProvisionAction;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -274,7 +274,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 try {
-                    restClient.bulkMembersAction(model.getObject().getKey(), BulkMembersActionType.PROVISION);
+                    restClient.provisionMembers(model.getObject().getKey(), ProvisionAction.PROVISION);
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -288,15 +288,14 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 String.format("%s,%s", StandardEntitlement.TASK_CREATE, StandardEntitlement.TASK_EXECUTE)).
                 setRealm(realm);
 
-        panel.add(
-                new ActionLink<GroupTO>() {
+        panel.add(new ActionLink<GroupTO>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 try {
-                    restClient.bulkMembersAction(model.getObject().getKey(), BulkMembersActionType.DEPROVISION);
+                    restClient.provisionMembers(model.getObject().getKey(), ProvisionAction.DEPROVISION);
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {

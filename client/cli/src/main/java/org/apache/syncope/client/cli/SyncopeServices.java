@@ -28,6 +28,7 @@ import org.apache.syncope.client.cli.commands.install.InstallConfigFileTemplate;
 import org.apache.syncope.client.cli.util.JasyptUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,7 @@ public final class SyncopeServices {
 
     private static String SYNCOPE_ADDRESS;
 
-    public static <T> T get(final Class<T> clazz) {
+    private static SyncopeClient client() {
         final Properties properties = new Properties();
         try (InputStream is = Files.newInputStream(Paths.get(InstallConfigFileTemplate.configurationFilePath()))) {
             properties.load(is);
@@ -49,13 +50,19 @@ public final class SyncopeServices {
         String syncopeAdminPassword = JasyptUtils.get().decrypt(properties.getProperty("syncope.admin.password"));
         SYNCOPE_ADDRESS = properties.getProperty("syncope.rest.services");
         String useGZIPCompression = properties.getProperty("useGZIPCompression");
-        SyncopeClient syncopeClient = new SyncopeClientFactoryBean().
+        return new SyncopeClientFactoryBean().
                 setAddress(SYNCOPE_ADDRESS).
                 setUseCompression(BooleanUtils.toBoolean(useGZIPCompression)).
                 create(properties.getProperty("syncope.admin.user"), syncopeAdminPassword);
+    }
 
+    public static <T> T get(final Class<T> clazz) {
         LOG.debug("Creating service for {}", clazz.getName());
-        return syncopeClient.getService(clazz);
+        return client().getService(clazz);
+    }
+
+    public static BatchRequest batch() {
+        return client().batch();
     }
 
     public static String getAddress() {

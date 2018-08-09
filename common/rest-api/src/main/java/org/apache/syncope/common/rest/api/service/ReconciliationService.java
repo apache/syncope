@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
- * REST operations for tasks.
+ * REST operations for reconciliation.
  */
 @Tag(name = "Reconciliation")
 @SecurityRequirements({

@@ -24,8 +24,6 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.TaskTO;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -92,51 +90,5 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
     @Override
     public void update(final TaskType type, final SchedTaskTO taskTO) {
         logic.updateSchedTask(type, taskTO);
-    }
-
-    @Override
-    public BulkActionResult bulk(final BulkAction bulkAction) {
-        BulkActionResult result = new BulkActionResult();
-
-        switch (bulkAction.getType()) {
-            case DELETE:
-                for (String key : bulkAction.getTargets()) {
-                    try {
-                        result.getResults().put(logic.delete(null, key).getKey(), BulkActionResult.Status.SUCCESS);
-                    } catch (Exception e) {
-                        LOG.error("Error performing delete for task {}", key, e);
-                        result.getResults().put(key, BulkActionResult.Status.FAILURE);
-                    }
-                }
-                break;
-
-            case DRYRUN:
-                for (String key : bulkAction.getTargets()) {
-                    try {
-                        logic.execute(key, null, true);
-                        result.getResults().put(key, BulkActionResult.Status.SUCCESS);
-                    } catch (Exception e) {
-                        LOG.error("Error performing dryrun for task {}", key, e);
-                        result.getResults().put(key, BulkActionResult.Status.FAILURE);
-                    }
-                }
-                break;
-
-            case EXECUTE:
-                for (String key : bulkAction.getTargets()) {
-                    try {
-                        logic.execute(key, null, false);
-                        result.getResults().put(key, BulkActionResult.Status.SUCCESS);
-                    } catch (Exception e) {
-                        LOG.error("Error performing execute for task {}", key, e);
-                        result.getResults().put(key, BulkActionResult.Status.FAILURE);
-                    }
-                }
-                break;
-
-            default:
-        }
-
-        return result;
     }
 }

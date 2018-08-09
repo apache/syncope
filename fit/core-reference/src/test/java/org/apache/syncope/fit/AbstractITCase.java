@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
@@ -69,6 +70,8 @@ import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.batch.BatchPayloadParser;
+import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
@@ -534,6 +537,12 @@ public abstract class AbstractITCase {
             }
         }
         return getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
+    }
+
+    protected List<BatchResponseItem> parseBatchResponse(final Response response) throws IOException {
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        return BatchPayloadParser.parse(
+                (InputStream) response.getEntity(), response.getMediaType(), new BatchResponseItem());
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes", "UseOfObsoleteCollectionType" })

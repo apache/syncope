@@ -89,15 +89,13 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
     }
 
     @Override
-    protected Collection<ActionType> getBulkActions() {
-        List<ActionType> bulkActions = new ArrayList<>();
-
-        bulkActions.add(ActionType.MUSTCHANGEPASSWORD);
-        bulkActions.add(ActionType.DELETE);
-        bulkActions.add(ActionType.SUSPEND);
-        bulkActions.add(ActionType.REACTIVATE);
-
-        return bulkActions;
+    protected Collection<ActionType> getBatches() {
+        List<ActionType> batches = new ArrayList<>();
+        batches.add(ActionType.MUSTCHANGEPASSWORD);
+        batches.add(ActionType.DELETE);
+        batches.add(ActionType.SUSPEND);
+        batches.add(ActionType.REACTIVATE);
+        return batches;
     }
 
     @Override

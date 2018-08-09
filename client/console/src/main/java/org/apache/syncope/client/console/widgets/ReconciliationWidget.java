@@ -348,7 +348,7 @@ public class ReconciliationWidget extends BaseWidget {
         }
 
         @Override
-        protected Collection<ActionLink.ActionType> getBulkActions() {
+        protected Collection<ActionLink.ActionType> getBatches() {
             return Collections.<ActionLink.ActionType>emptyList();
         }
 

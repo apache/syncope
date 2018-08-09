@@ -19,8 +19,8 @@
 package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table;
 
 import java.lang.reflect.InvocationTargetException;
-import org.apache.syncope.common.lib.to.BulkActionResult;
-import org.apache.syncope.common.lib.to.BulkActionResult.Status;
+import java.util.Map;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.wicket.Component;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
@@ -34,47 +34,41 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 
-public class BulkActionResultColumn<T, S> extends AbstractColumn<T, S> {
+public class BatchResponseColumn<T, S> extends AbstractColumn<T, S> {
 
     private static final long serialVersionUID = 7955560320949560716L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(BulkActionResultColumn.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BatchResponseColumn.class);
 
-    private final BulkActionResult results;
+    private final Map<String, String> results;
 
     private final String keyFieldName;
 
-    public BulkActionResultColumn(final BulkActionResult results, final String keyFieldName) {
+    public BatchResponseColumn(final Map<String, String> results, final String keyFieldName) {
         super(new Model<String>());
         this.results = results;
         this.keyFieldName = keyFieldName;
     }
 
     @Override
-    public String getCssClass() {
-        return "bulkResultColumn";
-    }
-
-    @Override
     public Component getHeader(final String componentId) {
-        final Label label = new Label(componentId, new Model<>());
-        label.setDefaultModel(new StringResourceModel("bulk.action.result.header", label, new Model<>("Result")));
+        Label label = new Label(componentId, new Model<>());
+        label.setDefaultModel(new StringResourceModel("batch.result.header", label, new Model<>("Result")));
         return label;
     }
 
     @Override
     public void populateItem(final Item<ICellPopulator<T>> item, final String componentId, final IModel<T> rowModel) {
         try {
-            final Object id = BeanUtils.getPropertyDescriptor(rowModel.getObject().getClass(), keyFieldName).
+            Object key = BeanUtils.getPropertyDescriptor(rowModel.getObject().getClass(), keyFieldName).
                     getReadMethod().invoke(rowModel.getObject(), new Object[0]);
-            final Status status = results.getResults().containsKey(id.toString())
-                    ? results.getResults().get(id.toString())
-                    : Status.NOT_ATTEMPTED;
+            String status = results.containsKey(key.toString())
+                    ? results.get(key.toString())
+                    : ExecStatus.NOT_ATTEMPTED.name();
 
-            item.add(new Label(componentId, new StringResourceModel(status.name(), item, new Model<>(status.name()))));
-
+            item.add(new Label(componentId, new StringResourceModel(status, item, new Model<>(status))));
         } catch (BeansException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            LOG.error("Errore retrieving target id value", e);
+            LOG.error("Errore retrieving target key value", e);
         }
     }
 }
