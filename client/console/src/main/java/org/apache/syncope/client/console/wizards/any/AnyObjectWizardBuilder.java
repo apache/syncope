@@ -53,6 +53,7 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
         if (inner.getKey() == null) {
             result = anyObjectRestClient.create(inner);
         } else {
+            inner.getPlainAttrs().addAll(cleanEmptyPlainAttrs(inner.getPlainAttrs()));
             AnyObjectPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
 
             // update just if it is changed
