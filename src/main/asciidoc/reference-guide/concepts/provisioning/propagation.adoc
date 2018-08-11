@@ -147,7 +147,7 @@ https://connid.atlassian.net/wiki/display/BASE/LDAP#LDAP-Configuration[LDAP conn
 
 | 
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/LDAPPasswordPropagationActions.java[DBPasswordPropagationActions^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/DBPasswordPropagationActions.java[DBPasswordPropagationActions^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/tree/2_0_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/DBPasswordPropagationActions.java[DBPasswordPropagationActions^]
