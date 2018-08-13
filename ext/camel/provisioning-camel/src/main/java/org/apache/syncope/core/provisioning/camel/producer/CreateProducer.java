@@ -79,6 +79,7 @@ public class CreateProducer extends AbstractProducer {
                     List<PropagationTaskTO> tasks = getPropagationManager().getCreateTasks(
                             AnyTypeKind.GROUP,
                             created.getResult(),
+                            null,
                             created.getPropByRes(),
                             ((AnyTO) actual).getVirAttrs(),
                             excludedResources);
@@ -89,6 +90,7 @@ public class CreateProducer extends AbstractProducer {
                     List<PropagationTaskTO> tasks = getPropagationManager().getCreateTasks(
                             actual instanceof AnyObjectTO ? AnyTypeKind.ANY_OBJECT : AnyTypeKind.GROUP,
                             created.getResult(),
+                            null,
                             created.getPropByRes(),
                             ((AnyTO) actual).getVirAttrs(),
                             excludedResources);

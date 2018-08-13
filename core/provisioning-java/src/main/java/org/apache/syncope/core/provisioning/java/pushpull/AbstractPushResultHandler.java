@@ -97,7 +97,12 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected void update(final Any<?> any, final ProvisioningReport result) {
+    protected void update(
+            final Any<?> any,
+            final Boolean enable,
+            final ConnectorObject beforeObj,
+            final ProvisioningReport result) {
+
         boolean changepwd = any instanceof User;
         List<String> ownedResources = CollectionUtils.collect(
                 getAnyUtils().getAllResources(any), EntityUtils.keyTransformer(), new ArrayList<String>());
@@ -112,7 +117,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 any.getType().getKind(),
                 any.getKey(),
                 changepwd,
-                null,
+                enable,
                 propByRes,
                 null,
                 noPropResources),
@@ -135,7 +140,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         reportPropagation(result, reporter);
     }
 
-    protected void provision(final Any<?> any, final Boolean enabled, final ProvisioningReport result) {
+    protected void provision(final Any<?> any, final Boolean enable, final ProvisioningReport result) {
         AnyTO before = getAnyTO(any.getKey());
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
@@ -147,6 +152,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         PropagationReporter reporter = taskExecutor.execute(propagationManager.getCreateTasks(
                 any.getType().getKind(),
                 any.getKey(),
+                enable,
                 propByRes,
                 before.getVirAttrs(),
                 noPropResources),
@@ -254,10 +260,6 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         result.setAnyType(any.getType().getKey());
         result.setName(getName(any));
 
-        Boolean enabled = any instanceof User && profile.getTask().isSyncStatus()
-                ? ((User) any).isSuspended() ? Boolean.FALSE : Boolean.TRUE
-                : null;
-
         LOG.debug("Propagating {} with key {} towards {}",
                 anyUtils.anyTypeKind(), any.getKey(), profile.getTask().getResource());
 
@@ -280,7 +282,11 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     provision.getMapping().getItems().iterator());
         }
 
-        Boolean status = profile.getTask().isSyncStatus() ? enabled : null;
+        Boolean enable = any instanceof User && profile.getTask().isSyncStatus()
+                ? ((User) any).isSuspended()
+                ? Boolean.FALSE
+                : Boolean.TRUE
+                : null;
 
         if (profile.isDryRun()) {
             if (beforeObj == null) {
@@ -318,7 +324,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                                 LOG.debug("PushTask not configured for create");
                                 result.setStatus(ProvisioningReport.Status.IGNORE);
                             } else {
-                                assign(any, status, result);
+                                assign(any, enable, result);
                             }
                             break;
 
@@ -331,7 +337,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                                 LOG.debug("PushTask not configured for create");
                                 result.setStatus(ProvisioningReport.Status.IGNORE);
                             } else {
-                                provision(any, status, result);
+                                provision(any, enable, result);
                             }
                             break;
 
@@ -368,7 +374,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                                 LOG.debug("PushTask not configured for update");
                                 result.setStatus(ProvisioningReport.Status.IGNORE);
                             } else {
-                                update(any, result);
+                                update(any, enable, beforeObj, result);
                             }
                             break;
 

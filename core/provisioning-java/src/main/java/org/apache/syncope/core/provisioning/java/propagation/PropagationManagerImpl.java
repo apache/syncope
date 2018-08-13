@@ -138,11 +138,12 @@ public class PropagationManagerImpl implements PropagationManager {
     public List<PropagationTaskTO> getCreateTasks(
             final AnyTypeKind kind,
             final String key,
+            final Boolean enable,
             final PropagationByResource propByRes,
             final Collection<AttrTO> vAttrs,
             final Collection<String> noPropResourceKeys) {
 
-        return getCreateTasks(dao(kind).authFind(key), null, null, propByRes, vAttrs, noPropResourceKeys);
+        return getCreateTasks(dao(kind).authFind(key), null, enable, propByRes, vAttrs, noPropResourceKeys);
     }
 
     @Override
