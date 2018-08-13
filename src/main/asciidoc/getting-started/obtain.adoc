@@ -422,6 +422,36 @@ services:
 <4> Apache Syncope Enduser UI, port `38080` exposed, working with `Master` domain
 ====
 
+How to start the containers:
+
+. Save the example file locally.
+. Download and start the containers:
++
+[source,bash]
+----
+$ docker-compose -f /path/to/docker-compose.yml up
+----
+
+The following services will be available:
+
+[cols="1,2"]
+|===
+
+| Complete REST API reference
+| http://localhost:18080/syncope/index.html
+
+| http://swagger.io/[Swagger^] UI
+| http://localhost:18080/syncope/swagger
+
+| Administration console
+| http://localhost:28080/syncope-console +
+Credentials: `admin` / `password`
+
+| End-user UI
+| http://localhost:38080/syncope-enduser
+
+|===
+
 === Maven Project
 
 This is the *preferred method* for working with Apache Syncope, giving access to the whole set of customization
