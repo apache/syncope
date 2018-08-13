@@ -90,7 +90,12 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected void update(final Any<?> any, final ConnectorObject beforeObj, final ProvisioningReport result) {
+    protected void update(
+            final Any<?> any,
+            final Boolean enable,
+            final ConnectorObject beforeObj,
+            final ProvisioningReport result) {
+
         boolean changepwd = any instanceof User;
         List<String> ownedResources = getAnyUtils().getAllResources(any).stream().
                 map(Entity::getKey).collect(Collectors.toList());
@@ -106,7 +111,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 any.getType().getKind(),
                 any.getKey(),
                 changepwd,
-                null,
+                enable,
                 propByRes,
                 null,
                 noPropResources),
@@ -133,7 +138,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         reportPropagation(result, reporter);
     }
 
-    protected void provision(final Any<?> any, final Boolean enabled, final ProvisioningReport result) {
+    protected void provision(final Any<?> any, final Boolean enable, final ProvisioningReport result) {
         AnyTO before = getAnyTO(any.getKey());
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
@@ -145,6 +150,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         PropagationReporter reporter = taskExecutor.execute(propagationManager.getCreateTasks(
                 any.getType().getKind(),
                 any.getKey(),
+                enable,
                 propByRes,
                 before.getVirAttrs(),
                 noPropResources),
@@ -260,13 +266,11 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         Object output = null;
         Result resultStatus = null;
 
-        Boolean enabled = any instanceof User && profile.getTask().isSyncStatus()
+        Boolean enable = any instanceof User && profile.getTask().isSyncStatus()
                 ? ((User) any).isSuspended()
                 ? Boolean.FALSE
                 : Boolean.TRUE
                 : null;
-
-        Boolean status = profile.getTask().isSyncStatus() ? enabled : null;
 
         if (profile.isDryRun()) {
             if (beforeObj == null) {
@@ -304,7 +308,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                                 LOG.debug("PushTask not configured for create");
                                 result.setStatus(ProvisioningReport.Status.IGNORE);
                             } else {
-                                assign(any, status, result);
+                                assign(any, enable, result);
                             }
                             break;
 
@@ -317,7 +321,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                                 LOG.debug("PushTask not configured for create");
                                 result.setStatus(ProvisioningReport.Status.IGNORE);
                             } else {
-                                provision(any, status, result);
+                                provision(any, enable, result);
                             }
                             break;
 
@@ -354,7 +358,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                                 LOG.debug("PushTask not configured for update");
                                 result.setStatus(ProvisioningReport.Status.IGNORE);
                             } else {
-                                update(any, beforeObj, result);
+                                update(any, enable, beforeObj, result);
                             }
                             break;
 
