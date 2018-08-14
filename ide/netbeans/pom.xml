@@ -176,6 +176,7 @@ under the License.
         <filtering>false</filtering>
         <includes>
           <include>org/apache/syncope/**/*.png</include>
+          <include>org/apache/syncope/**/*.groovy</include>
         </includes>
       </resource>
 

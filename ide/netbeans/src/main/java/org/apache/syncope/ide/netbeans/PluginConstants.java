@@ -27,6 +27,8 @@ public final class PluginConstants {
 
     public static final String REPORT_XSLTS = "Report XSLTs";
 
+    public static final String GROOVY_SCRIPTS = "Groovy Scripts";
+
     public static final String[] MAIL_TEMPLATE_FORMATS = {
         MailTemplateFormat.HTML.name(), MailTemplateFormat.TEXT.name() };
 
