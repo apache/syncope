@@ -181,7 +181,7 @@ abstract class AbstractAnyDataBinder {
                 ? values
                 : (values.isEmpty()
                 ? Collections.<String>emptyList()
-                : Collections.singletonList(values.iterator().next()));
+                : Collections.singletonList(values.get(0)));
 
         valuesProvided.forEach(value -> {
             if (StringUtils.isBlank(value)) {
@@ -313,7 +313,7 @@ abstract class AbstractAnyDataBinder {
                 List<String> valuesToBeAdded = patch.getAttrTO().getValues();
                 if (!valuesToBeAdded.isEmpty()
                         && (!schema.isUniqueConstraint() || attr.getUniqueValue() == null
-                        || !valuesToBeAdded.iterator().next().equals(attr.getUniqueValue().getValueAsString()))) {
+                        || !valuesToBeAdded.get(0).equals(attr.getUniqueValue().getValueAsString()))) {
 
                     fillAttr(valuesToBeAdded, anyUtils, schema, attr, invalidValues);
                 }
@@ -633,21 +633,18 @@ abstract class AbstractAnyDataBinder {
     protected Map<String, String> getConnObjectKeys(final Any<?> any, final AnyUtils anyUtils) {
         Map<String, String> connObjectKeys = new HashMap<>();
 
-        Iterable<? extends ExternalResource> iterable = anyUtils.getAllResources(any);
-        anyUtils.getAllResources(any).forEach(resource -> {
-            Optional<? extends Provision> provision = resource.getProvision(any.getType());
-            if (provision.isPresent() && provision.get().getMapping() != null) {
-                Optional<MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision.get());
-                if (!connObjectKeyItem.isPresent()) {
-                    throw new NotFoundException(
+        anyUtils.getAllResources(any).
+                forEach(resource -> resource.getProvision(any.getType()).
+                filter(provision -> provision.getMapping() != null).
+                ifPresent(provision -> {
+                    MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision).
+                            orElseThrow(() -> new NotFoundException(
                             "ConnObjectKey mapping for " + any.getType().getKey() + " " + any.getKey()
-                            + " on resource '" + resource.getKey() + "'");
-                }
+                            + " on resource '" + resource.getKey() + "'"));
 
-                mappingManager.getConnObjectKeyValue(any, provision.get()).
-                        ifPresent(connObjectKey -> connObjectKeys.put(resource.getKey(), connObjectKey));
-            }
-        });
+                    mappingManager.getConnObjectKeyValue(any, provision).
+                            ifPresent(value -> connObjectKeys.put(resource.getKey(), value));
+                }));
 
         return connObjectKeys;
     }

@@ -99,7 +99,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
         toRead.forEach((provision, schemasToRead) -> {
             LOG.debug("About to read from {}: {}", provision, schemasToRead);
 
-            Optional<MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+            Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
             String connObjectKeyValue = connObjectKeyItem.isPresent()
                     ? mappingManager.getConnObjectKeyValue(any, provision).orElse(null)
                     : null;

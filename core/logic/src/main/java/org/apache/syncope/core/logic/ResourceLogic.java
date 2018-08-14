@@ -312,12 +312,12 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }
 
         // 2. build connObjectKeyItem
-        Optional<MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(init.getRight());
-        if (!connObjectKeyItem.isPresent()) {
-            throw new NotFoundException(
-                    "ConnObjectKey mapping for " + init.getMiddle() + " " + anyKey + " on resource '" + key + "'");
-        }
-        Optional<String> connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, init.getRight());
+        MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(init.getRight()).
+                orElseThrow(() -> new NotFoundException(
+                "ConnObjectKey mapping for " + init.getMiddle() + " " + anyKey + " on resource '" + key + "'"));
+        String connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, init.getRight()).
+                orElseThrow(() -> new NotFoundException(
+                "ConnObjectKey value for " + init.getMiddle() + " " + anyKey + " on resource '" + key + "'"));
 
         // 3. determine attributes to query
         Set<MappingItem> linkinMappingItems = virSchemaDAO.findByProvision(init.getRight()).stream().
@@ -330,12 +330,12 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         Connector connector = connFactory.getConnector(init.getLeft());
         ConnectorObject connectorObject = connector.getObject(
                 init.getRight().getObjectClass(),
-                AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue.get()),
+                AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue),
                 init.getRight().isIgnoreCaseMatch(),
                 MappingUtils.buildOperationOptions(mapItems));
         if (connectorObject == null) {
             throw new NotFoundException(
-                    "Object " + connObjectKeyValue.get() + " with class " + init.getRight().getObjectClass()
+                    "Object " + connObjectKeyValue + " with class " + init.getRight().getObjectClass()
                     + " not found on resource " + key);
         }
 

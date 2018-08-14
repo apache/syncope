@@ -55,15 +55,15 @@ public final class MappingUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(MappingUtils.class);
 
-    public static Optional<MappingItem> getConnObjectKeyItem(final Provision provision) {
+    public static Optional<? extends MappingItem> getConnObjectKeyItem(final Provision provision) {
         Mapping mapping = null;
         if (provision != null) {
             mapping = provision.getMapping();
         }
 
-        return Optional.ofNullable(mapping == null
-                ? null
-                : mapping.getConnObjectKeyItem().get());
+        return mapping == null
+                ? Optional.empty()
+                : mapping.getConnObjectKeyItem();
     }
 
     public static List<? extends Item> getPropagationItems(final List<? extends Item> items) {
