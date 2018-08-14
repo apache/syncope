@@ -207,7 +207,7 @@ public class MappingManagerImpl implements MappingManager {
             }
         }
 
-        Optional<MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+        Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
         if (connObjectKeyItem.isPresent()) {
             Attribute connObjectKeyExtAttr = AttributeUtil.find(connObjectKeyItem.get().getExtAttrName(), attributes);
             if (connObjectKeyExtAttr != null) {
@@ -656,7 +656,7 @@ public class MappingManagerImpl implements MappingManager {
     }
 
     private String getGroupOwnerValue(final Provision provision, final Any<?> any) {
-        Optional<MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+        Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
 
         Pair<String, Attribute> preparedAttr = null;
         if (connObjectKeyItem.isPresent()) {
