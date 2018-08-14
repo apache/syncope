@@ -375,7 +375,7 @@ Core will return an empty response, with status `202 Accepted`.
 Clients can poll the `/batch` endpoint in `GET` by passing the same boundary used for request: if `202 Accepted` is
 returned, then the request is still under processing; otherwise, `200 OK` will be returned, along with the full batch
 response. +
-Once retrieved, the batch response is not available any more from the `/batch` endpoint any more.
+Once retrieved, the batch response is not available any more from the `/batch` endpoint.
 
 ==== Search
 
