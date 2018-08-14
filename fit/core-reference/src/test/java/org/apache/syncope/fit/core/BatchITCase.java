@@ -237,16 +237,18 @@ public class BatchITCase extends AbstractITCase {
         URI monitor = response.getLocation();
         assertNotNull(monitor);
 
-        // wait a bit...
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-        }
+        for (int i = 0; i < 10 && response.getStatus() == Response.Status.ACCEPTED.getStatusCode(); i++) {
+            // wait a bit...
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+            }
 
-        // check results: now available
-        response = WebClient.create(monitor).
-                header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT()).
-                type(RESTHeaders.multipartMixedWith(boundary.substring(2))).get();
+            // check results
+            response = WebClient.create(monitor).
+                    header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT()).
+                    type(RESTHeaders.multipartMixedWith(boundary.substring(2))).get();
+        }
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertTrue(response.getMediaType().toString().
                 startsWith(RESTHeaders.multipartMixedWith(boundary.substring(2))));
@@ -325,14 +327,16 @@ public class BatchITCase extends AbstractITCase {
         assertEquals(Response.Status.ACCEPTED.getStatusCode(), response.getStatus());
         assertTrue(response.getMediaType().toString().startsWith(RESTHeaders.MULTIPART_MIXED));
 
-        // wait a bit...
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-        }
+        for (int i = 0; i < 10 && response.getStatus() == Response.Status.ACCEPTED.getStatusCode(); i++) {
+            // wait a bit...
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+            }
 
-        // check results: now available
-        response = batchResponse.poll();
+            // check results
+            response = batchResponse.poll();
+        }
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertTrue(response.getMediaType().toString().startsWith(RESTHeaders.MULTIPART_MIXED));
 
