@@ -32,7 +32,7 @@ where `protocol`, `host` and `port` reflect your Java EE container installation.
 .REST Reference
 ====
 A complete REST reference generated from https://en.wikipedia.org/wiki/Web_Application_Description_Language[WADL^] is
-http://syncope.apache.org/rest/2.0/index.html[published^] as well as made available with each deployment at
+http://syncope.apache.org/rest/2.1/index.html[published^] as well as made available with each deployment at
 
 ....
 protocol://host:port/syncope/
@@ -166,16 +166,24 @@ when communicating with <<external-resource-details,External Resources>> with no
 
 ===== Prefer and Preference-Applied
 
-Some REST endpoints - typically for creating, updating or deleting Users, Groups or Any Objects - return the
-entity in the response payload by default. +
-If this is not required, the `Prefer` request header can be set to `return-no-content` (`return-content` will instead
-keep the default behavior).
+Some REST endpoints allow the clients to request certain behavior; this is done via the `Prefer` header.
 
 When `Prefer` is specified in the request, the response will feature the `Preference-Applied` header, with value set
 to the effective preference applied.
 
+====== return-content / return-no-content
+ 
+REST endpoints for creating, updating or deleting Users, Groups or Any Objects return the entity in the response payload
+by default. +
+If this is not required, the `Prefer` request header can be set to `return-no-content` (`return-content` will instead
+keep the default behavior).
+
 [TIP]
-Use `Prefer` in scenarios where it is important to avoid unnecessary data in the response payload.
+Use `Prefer: return-no-content` in scenarios where it is important to avoid unnecessary data in the response payload.
+
+====== respond-async
+
+The <<batch>> endpoint can be requested for <<asynchronous-batch-processing,asynchronous processing>>.
 
 ===== ETag, If-Match and If-None-Match
 
@@ -201,42 +209,173 @@ the <<entitlements,entitlements>> owned by the requesting user.
 When invoking the REST endpoint `/users/self` in `GET`, the `X-Syncope-Privileges` response header will list all
 the <<privileges,privileges>> owned by the requesting user.
 
-==== Bulk Operations
+==== Batch
 
-Some REST endpoints feature the _bulk mode_, e.g. the capability to perform a given operation onto several items at the
-same time.
+Batch requests allow grouping multiple operations into a single HTTP request payload. +
+A batch request is represented as a https://tools.ietf.org/html/rfc2046[Multipart MIME v1.0 message^], a standard format
+allowing the representation of multiple parts, each of which may have a different content type (currently
+JSON, YAML or XML), within a single request.
 
-The table below shows the bulk operations available.
+Batch requests are handled by the `/batch` REST endpoint: via HTTP `POST` method to submit requests, via HTTP `GET`
+method to fetch responses <<asynchronous-batch-processing,asynchronously>>.
 
-[cols="1,5a"]
-|===
+[NOTE]
+The specification and implementation of batch processing in Apache Syncope is inspired by the standards defined
+by http://docs.oasis-open.org/odata/odata/v4.0/os/part1-protocol/odata-v4.0-os-part1-protocol.html#_Toc372793748[OData 4.0^]
 
-|Any Objects
-| * `DELETE` - remove several any objects at once
+===== Batch requests
 
-|Groups
-| * `PROVISION` - provision all members of the given group onto all the associated external resources
- * `DEPROVISION` - deprovision all members of the given group from all the associated external resources
- * `DELETE` - remove several groups at once
+The batch request must contain a `Content-Type` header specifying a content type of `multipart/mixed` and a boundary
+specification as defined in https://tools.ietf.org/html/rfc2046[RFC2046^].
 
-|Users
-| * `SUSPEND` - suspend several users at once
-* `REACTIVATE` - set several users at once back to the active state
-* `MUSTCHANGEPASSWORD` - force several users at once to change their passwords
-* `DELETE` - remove several users at once
+The body of a batch request is made up of a series of individual requests, each represented as a distinct MIME part
+(i.e. separated by the boundary defined in the `Content-Type` header).
 
-| Tasks
-| * `DRYRUN` - executes several tasks at once, with the <<dryrun>> option set
-* `EXECUTE` - executes several tasks at once
-* `DELETE` - remove several tasks at once
+Core will process the requests within a batch request sequentially.
 
-| External Resources
-| * `DEPROVISION` - delete several users, groups or any objects at once from an external resource but keep in the
-internal storage and leave the external resource associated
- * `UNLINK` - remove the association between several users, groups or any objects at once and an external resource,
-without performing any deprovisioning operation
- * `UNASSIGN` - unlink and deprovision several users, groups or any objects at once from an external resource
-|===
+An individual request must include a `Content-Type` header with value `application/http` and a
+`Content-Transfer-Encoding` header with value `binary`.
+
+.Sample batch request
+====
+----
+--batch_61bfef8d-0a00-41aa-b775-7b6efff37652 // <1>
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+^M // <2>
+POST /users HTTP/1.1 // <3>
+Accept: application/json
+Content-Length: 1157
+Content-Type: application/json
+^M
+{"@class":"org.apache.syncope.common.lib.to.UserTO","key":null,"type":"USER","realm":"/"}
+--batch_61bfef8d-0a00-41aa-b775-7b6efff37652
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+^M
+POST /groups HTTP/1.1 // <4>
+Accept: application/xml
+Content-Length: 628
+Content-Type: application/xml
+^M
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><syncope21:group xmlns:syncope21="http://syncope.apache.org/2.1">
+</syncope21:group>
+--batch_61bfef8d-0a00-41aa-b775-7b6efff37652
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+^M
+PATCH /users/24eb15aebatch@syncope.apache.org HTTP/1.1 // <5>
+Accept: application/json
+Content-Length: 362
+Content-Type: application/json
+Prefer: return-no-content
+^M
+{"@class":"org.apache.syncope.common.lib.patch.UserPatch","key":"24eb15aebatch@syncope.apache.org"}
+--batch_61bfef8d-0a00-41aa-b775-7b6efff37652
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+^M
+DELETE /groups/287ede7c-98eb-44e8-979d-8777fa077e12 HTTP/1.1 // <6>
+--batch_61bfef8d-0a00-41aa-b775-7b6efff37652--
+----
+<1> message boundary
+<2> represents CR LF
+<3> user create, with JSON payload (shortened)
+<4> group create, with XML payload (shortened)
+<5> user update, with JSON payload (shortened)
+<6> group delete
+====
+
+===== Batch responses
+
+Requests within a batch are evaluated according to the same semantics used when the request appears outside the context
+of a batch.
+
+The order of individual requests in a batch request is significant.
+
+If the set of request headers of a batch request are valid (the `Content-Type` is set to `multipart/mixed`, etc.)
+Core will return a `200 OK` HTTP response code to indicate that the request was accepted for processing, and the
+related execution results.
+
+If Core receives a batch request with an invalid set of headers it will return a `400 Bad Request` code and perform no
+further processing of the request.
+
+A response to a batch request must contain a `Content-Type` header with value `multipart/mixed`.
+
+Structurally, a batch response body must match one-to-one with the corresponding batch request body, such that the same 
+multipart MIME message structure defined for requests is used for responses
+
+.Sample batch response
+====
+----
+--batch_61bfef8d-0a00-41aa-b775-7b6efff37652 // <1>
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+^M // <2>
+HTTP/1.1 201 Created // <3>
+Content-Type: application/json
+Date: Thu, 09 Aug 2018 09:55:46 GMT
+ETag: "1533808545975"
+Location: http://localhost:9080/syncope/rest/users/d399ba84-12e3-43d0-99ba-8412e303d083
+X-Syncope-Domain: Master
+X-Syncope-Key: d399ba84-12e3-43d0-99ba-8412e303d083
+^M
+{"entity":{"@class":"org.apache.syncope.common.lib.to.UserTO"}
+--batch_61bfef8d-0a00-41aa-b775-7b6efff37652
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+^M
+HTTP/1.1 201 Created // <4>
+Content-Type: application/xml
+Date: Thu, 09 Aug 2018 09:55:46 GMT
+ETag: "1533808546342"
+Location: http://localhost:9080/syncope/rest/groups/843b2fc3-b8a8-4a8b-bb2f-c3b8a87a8b2e
+X-Syncope-Domain: Master
+X-Syncope-Key: 843b2fc3-b8a8-4a8b-bb2f-c3b8a87a8b2e
+^M
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<syncope21:provisioningResult xmlns:syncope21="http://syncope.apache.org/2.1"></syncope21:provisioningResult>
+--batch_61bfef8d-0a00-41aa-b775-7b6efff37652
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+^M
+HTTP/1.1 204 No Content // <5>
+Content-Length: 0
+Date: Thu, 09 Aug 2018 09:55:47 GMT
+Preference-Applied: return-no-content
+X-Syncope-Domain: Master
+^M
+--batch_61bfef8d-0a00-41aa-b775-7b6efff37652
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+^M
+HTTP/1.1 200 OK // <6>
+Content-Type: application/json
+Date: Thu, 09 Aug 2018 09:55:47 GMT
+X-Syncope-Domain: Master
+^M
+{"entity":{"@class":"org.apache.syncope.common.lib.to.GroupTO"}
+--batch_61bfef8d-0a00-41aa-b775-7b6efff37652--
+----
+<1> message boundary (same as request)
+<2> represents CR LF
+<3> user create response, with JSON payload (shortened)
+<4> group create respose, with XML payload (shortened)
+<5> user update, no content as `Prefer: return-no-content` <<return-content-return-no-content,was specified>>
+<6> group delete response, with JSON payload (shortened)
+====
+
+===== Asynchronous Batch Processing
+
+Batch requests may be executed asynchronously by <<respond-async,including>> the `respond-async` preference in the
+`Prefer` header.
+
+Core will return an empty response, with status `202 Accepted`.
+
+Clients can poll the `/batch` endpoint in `GET` by passing the same boundary used for request: if `202 Accepted` is
+returned, then the request is still under processing; otherwise, `200 OK` will be returned, along with the full batch
+response. +
+Once retrieved, the batch response is not available any more from the `/batch` endpoint any more.
 
 ==== Search
 
@@ -413,7 +552,7 @@ SyncopeClientFactoryBean clientFactory = new SyncopeClientFactoryBean().
 You might also select a specific <<domains,domain>> - other than `Master`, choose to exchange XML payloads - rather
 than JSON (default), or to select 
 https://en.wikipedia.org/wiki/HTTP_compression[HTTP compression^] (more options in the
-http://syncope.apache.org/apidocs/2.0/org/apache/syncope/client/lib/SyncopeClientFactoryBean.html[Javadoc^]):
+http://syncope.apache.org/apidocs/2.1/org/apache/syncope/client/lib/SyncopeClientFactoryBean.html[Javadoc^]):
 
 [source,java]
 ----
@@ -444,7 +583,7 @@ SyncopeClient client = new SyncopeClientFactoryBean().
 ===== Usage
 
 Select one of the
-http://syncope.apache.org/apidocs/2.0/org/apache/syncope/common/rest/api/service/package-summary.html[RESTful services^]
+http://syncope.apache.org/apidocs/2.1/org/apache/syncope/common/rest/api/service/package-summary.html[RESTful services^]
 and invoke one of the available methods:
 
 [source,java]
@@ -459,21 +598,21 @@ loggerService.update(LoggerType.LOG, loggerTO);
 
 [NOTE]
 More RESTful services could be available besides the 
-http://syncope.apache.org/apidocs/2.0/org/apache/syncope/common/rest/api/service/package-summary.html[default set^],
+http://syncope.apache.org/apidocs/2.1/org/apache/syncope/common/rest/api/service/package-summary.html[default set^],
 as there might be <<extensions,extensions>> installed in the given deployment; the
 <<apache-camel-provisioning-manager>> provides the
-http://syncope.apache.org/apidocs/2.0/org/apache/syncope/common/rest/api/service/CamelRouteService.html[CamelRouteService^],
+http://syncope.apache.org/apidocs/2.1/org/apache/syncope/common/rest/api/service/CamelRouteService.html[CamelRouteService^],
 for instance.
 
 [TIP]
 Advanced REST features are also available from `SyncopeClient` instances: check
-http://syncope.apache.org/apidocs/2.0/org/apache/syncope/client/lib/SyncopeClient.html[the javadoc^]
+http://syncope.apache.org/apidocs/2.1/org/apache/syncope/client/lib/SyncopeClient.html[the javadoc^]
 for more information.
 
 .Search for Users, Groups or Any Objects
 ====
 All search operations return
-http://syncope.apache.org/apidocs/2.0/org/apache/syncope/common/lib/to/PagedResult.html[paged result handlers^]
+http://syncope.apache.org/apidocs/2.1/org/apache/syncope/common/lib/to/PagedResult.html[paged result handlers^]
 which can be exploited both for getting the actual results and for extrapolating pagination coordinates.
 
 [source,java]
@@ -526,31 +665,30 @@ where each page contains 150 items
 ====
 [source,java]
 ----
-UserService userService = client.getService(UserService.class);
+BatchRequest batchRequest = client.batch(); // <1>
 
-BulkAction bulkAction = new BulkAction();
-bulkAction.setType(BulkAction.Type.DELETE);
+UserService batchUserService = batchRequest.getService(UserService.class);
 
 final int pageSize = 100;
 final int count = userService.search(
-        new AnyQuery.Builder().page(0).size(0).build()).getTotalCount(); // <1>
+        new AnyQuery.Builder().page(0).size(0).build()).getTotalCount(); // <2>
 for (int page = 1; page <= (count / pageSize) + 1; page++) {
     for (UserTO user : userService.search(
-            new AnyQuery.Builder().page(page).size(pageSize).build()).getResult()) {  // <2>
+            new AnyQuery.Builder().page(page).size(pageSize).build()).getResult()) {  // <3>  
 
-        bulkAction.getTargets().add(user.getKey()); // <3>
-    }
-}
+        batchUserService.delete(user.getKey()); // <4>
+    }       
+}       
 
-BulkActionResult bulkResult = userService.bulk(bulkAction).
-        readEntity(BulkActionResult.class); // <4>
-Map<String, BulkActionResult.Status> results = bulkResult.getResults(); // <5>
+BatchResponse batchResponse = batchRequest.commit();  // <5>  
+List<BatchResponseItem> batchResponseItems = batchResponse.getItems(); // <6>
 ----
-<1> get the total number of users available in the given deployment (and <<domains,domain>>)
-<2> loop through all users available, using paginated search
-<3> add each user to the bulk action
-<4> execute the `DELETE` bulk action
-<5> examine the bulk action results
+<1> begin the batch request
+<2> get the total number of users available in the given deployment (and <<domains,domain>>)
+<3> loop through all users available, using paginated search
+<4> add each user's deletion to the batch request
+<5> send the batch request for processing
+<6> examine the batch results
 ====
 
 .Self-read own profile information
@@ -561,7 +699,7 @@ Pair<Map<String, Set<String>>, UserTO> self = client.self();
 UserTO userTO = self.getRight(); // <1>
 Map<String, Set<String>> realm2entitlements = self.getLeft(); // <2>
 ----
-<1> http://syncope.apache.org/apidocs/2.0/org/apache/syncope/common/lib/to/UserTO.html[UserTO^] of the requesting user
+<1> http://syncope.apache.org/apidocs/2.1/org/apache/syncope/common/lib/to/UserTO.html[UserTO^] of the requesting user
 <2> for each <<realms,realm>>, the owned <<entitlements,entitlements>>
 ====
 

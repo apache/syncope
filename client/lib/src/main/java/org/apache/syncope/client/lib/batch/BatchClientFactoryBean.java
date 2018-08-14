@@ -35,20 +35,6 @@ public class BatchClientFactoryBean extends JAXRSClientFactoryBean {
 
     private final List<BatchRequestItem> batchRequestItems = new ArrayList<>();
 
-    private ClassLoader proxyLoader;
-
-    private boolean inheritHeaders;
-
-    @Override
-    public void setClassLoader(final ClassLoader loader) {
-        this.proxyLoader = loader;
-    }
-
-    @Override
-    public void setInheritHeaders(final boolean inheritHeaders) {
-        this.inheritHeaders = inheritHeaders;
-    }
-
     @Override
     protected ConduitSelector getConduitSelector(final Endpoint ep) {
         ConduitSelector cs = getConduitSelector();

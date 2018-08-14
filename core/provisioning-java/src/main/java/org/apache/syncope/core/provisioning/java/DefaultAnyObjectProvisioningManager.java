@@ -78,6 +78,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
         List<PropagationTaskTO> tasks = propagationManager.getCreateTasks(
                 AnyTypeKind.ANY_OBJECT,
                 created.getResult(),
+                null,
                 created.getPropByRes(),
                 anyObjectTO.getVirAttrs(),
                 excludedResources);

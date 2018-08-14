@@ -74,6 +74,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
         List<PropagationTaskTO> tasks = propagationManager.getCreateTasks(
                 AnyTypeKind.GROUP,
                 created.getResult(),
+                null,
                 created.getPropByRes(),
                 groupTO.getVirAttrs(),
                 Collections.<String>emptySet());
@@ -99,6 +100,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
         List<PropagationTaskTO> tasks = propagationManager.getCreateTasks(
                 AnyTypeKind.GROUP,
                 created.getResult(),
+                null,
                 created.getPropByRes(),
                 groupTO.getVirAttrs(),
                 excludedResources);

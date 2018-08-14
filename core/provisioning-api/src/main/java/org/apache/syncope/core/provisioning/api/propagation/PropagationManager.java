@@ -36,6 +36,7 @@ public interface PropagationManager {
      *
      * @param kind any object type kind
      * @param key any object key
+     * @param enable whether any object should be enabled or not
      * @param propByRes operation to be performed per resource
      * @param vAttrs virtual attributes to be set
      * @param noPropResourceKeys external resources performing not to be considered for propagation
@@ -44,6 +45,7 @@ public interface PropagationManager {
     List<PropagationTaskTO> getCreateTasks(
             AnyTypeKind kind,
             String key,
+            Boolean enable,
             PropagationByResource propByRes,
             Collection<AttrTO> vAttrs,
             Collection<String> noPropResourceKeys);
