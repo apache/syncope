@@ -616,7 +616,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 map(schema -> schema.asLinkingMappingItem()).collect(Collectors.toSet());
 
         ConnectorObject obj = null;
-        Optional<MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+        Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
         if (connObjectKeyItem.isPresent()) {
             try {
                 obj = connector.getObject(

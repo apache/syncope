@@ -108,7 +108,7 @@ public class PushUtils {
             final Any<?> any,
             final Provision provision) {
 
-        Optional<MappingItem> connObjectKey = MappingUtils.getConnObjectKeyItem(provision);
+        Optional<? extends MappingItem> connObjectKey = MappingUtils.getConnObjectKeyItem(provision);
         Optional<String> connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, provision);
 
         ConnectorObject obj = null;

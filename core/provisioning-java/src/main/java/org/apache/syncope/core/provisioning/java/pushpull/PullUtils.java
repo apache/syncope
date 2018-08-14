@@ -174,7 +174,7 @@ public class PullUtils {
 
         String connObjectKey = null;
 
-        Optional<MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+        Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
         if (connObjectKeyItem.isPresent()) {
             Attribute connObjectKeyAttr = connObj.getAttributeByName(connObjectKeyItem.get().getExtAttrName());
             if (connObjectKeyAttr != null) {
