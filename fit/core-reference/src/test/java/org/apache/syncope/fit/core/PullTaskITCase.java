@@ -406,19 +406,18 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals(matchingUsers.getResult().iterator().next().getKey(), groupTO.getUserOwner());
         assertNull(groupTO.getGroupOwner());
         // SYNCOPE-1343, set value title to null on LDAP
-        ConnObjectTO connObject =
-                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(),
-                        matchingUsers.getResult().get(0).getKey());
-        assertNotNull(connObject);
-        assertEquals("odd", connObject.getAttr("title").get().getValues().get(0));
-        AttrTO userDn = connObject.getAttr(Name.NAME).get();
+        ConnObjectTO userConnObject = resourceService.readConnObject(
+                RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), matchingUsers.getResult().get(0).getKey());
+        assertNotNull(userConnObject);
+        assertEquals("odd", userConnObject.getAttr("title").get().getValues().get(0));
+        AttrTO userDn = userConnObject.getAttr(Name.NAME).get();
         updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
                 userDn.getValues().get(0), Collections.singletonMap("title", (String) null));
 
         // SYNCOPE-317
         execProvisioningTask(taskService, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", 50, false);
 
-        // 4. verify that LDAP group membership is propagated as Syncope membership
+        // 4. verify that LDAP group membership is pulled as Syncope membership
         int i = 0;
         int maxit = 50;
         PagedResult<UserTO> members;
@@ -440,13 +439,43 @@ public class PullTaskITCase extends AbstractTaskITCase {
         }
         assertEquals(1, members.getResult().size());
 
-        // SYNCOPE-1343, verify that the title attribte has been reset
+        // SYNCOPE-1343, verify that the title attribute has been reset
         matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                         fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").
                                 query()).
                         build());
         assertNull(matchingUsers.getResult().get(0).getPlainAttr("title").orElse(null));
+        
+        // SYNCOPE-1356 remove group membership from LDAP, pull and check in Syncope
+        ConnObjectTO groupConnObject = resourceService.readConnObject(
+                RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), matchingGroups.getResult().get(0).getKey());
+        assertNotNull(groupConnObject);
+        AttrTO groupDn = groupConnObject.getAttr(Name.NAME).get();
+        updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
+                groupDn.getValues().get(0), Collections.singletonMap("uniquemember", "uid=admin,ou=system"));
+
+        execProvisioningTask(taskService, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", 50, false);
+
+        i = 0;
+        maxit = 50;
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            members = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                    fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query()).
+                    build());
+            assertNotNull(members);
+
+            i++;
+        } while (!members.getResult().isEmpty() && i < maxit);
+        if (i == maxit) {
+            fail("Timeout while checking for memberships of " + groupTO.getName());
+        }
+        assertEquals(0, members.getResult().size());
     }
 
     @Test
