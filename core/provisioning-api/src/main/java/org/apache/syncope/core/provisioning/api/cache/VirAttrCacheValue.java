@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Cache entry value.
@@ -87,5 +88,42 @@ public class VirAttrCacheValue {
         } else {
             this.lastAccessDate = null;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 67 * hash + Objects.hashCode(this.values);
+        hash = 67 * hash + Objects.hashCode(this.creationDate);
+        hash = 67 * hash + Objects.hashCode(this.lastAccessDate);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final VirAttrCacheValue other = (VirAttrCacheValue) obj;
+        if (!Objects.equals(this.values, other.values)) {
+            return false;
+        }
+        if (!Objects.equals(this.creationDate, other.creationDate)) {
+            return false;
+        }
+        return Objects.equals(this.lastAccessDate, other.lastAccessDate);
+    }
+
+    @Override
+    public String toString() {
+        return "VirAttrCacheValue{"
+                + "values=" + values + ", creationDate=" + creationDate + ", lastAccessDate=" + lastAccessDate
+                + '}';
     }
 }
