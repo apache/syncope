@@ -18,10 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.cache;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import java.util.Objects;
 
 /**
  * Cache entry key.
@@ -62,17 +59,37 @@ public class VirAttrCacheKey {
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj, true);
+    public int hashCode() {
+        int hash = 5;
+        hash = 89 * hash + Objects.hashCode(this.type);
+        hash = 89 * hash + Objects.hashCode(this.key);
+        hash = 89 * hash + Objects.hashCode(this.virSchema);
+        return hash;
     }
 
     @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this, true);
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final VirAttrCacheKey other = (VirAttrCacheKey) obj;
+        if (!Objects.equals(this.type, other.type)) {
+            return false;
+        }
+        if (!Objects.equals(this.key, other.key)) {
+            return false;
+        }
+        return Objects.equals(this.virSchema, other.virSchema);
     }
 
     @Override
     public String toString() {
-        return ReflectionToStringBuilder.toString(this, ToStringStyle.JSON_STYLE, true);
+        return "VirAttrCacheKey{" + "type=" + type + ", key=" + key + ", virSchema=" + virSchema + '}';
     }
 }
