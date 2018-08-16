@@ -82,7 +82,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                 if (virAttrCache.isValidEntry(virAttrCacheValue)) {
                     LOG.debug("Values for {} found in cache: {}", schema, virAttrCacheValue);
                     result.put(schema, virAttrCacheValue.getValues());
-                } else {
+                } else if (schema.getProvision().getAnyType().equals(any.getType())) {
                     Set<VirSchema> schemasToRead = toRead.get(schema.getProvision());
                     if (schemasToRead == null) {
                         schemasToRead = new HashSet<>();
