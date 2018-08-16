@@ -34,6 +34,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -43,7 +44,6 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.java.job.SetUMembershipsJob;
 
 /**
@@ -79,7 +79,8 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
     protected String getGroupMembershipAttrName(final Connector connector) {
         Optional<ConnConfProperty> groupMembership = connector.getConnInstance().getConf().stream().
                 filter(property -> "groupMemberAttribute".equals(property.getSchema().getName())
-                && property.getValues() != null && !property.getValues().isEmpty()).findFirst();
+                && !property.getValues().isEmpty()).
+                findFirst();
 
         return groupMembership.isPresent()
                 ? (String) groupMembership.get().getValues().get(0)
@@ -96,15 +97,13 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
      * {@link #getGroupMembershipAttrName}
      */
     protected List<Object> getMembAttrValues(final SyncDelta delta, final Connector connector) {
-        List<Object> result = Collections.<Object>emptyList();
         String groupMemberName = getGroupMembershipAttrName(connector);
 
         // first, try to read the configured attribute from delta, returned by the ongoing pull
         Attribute membAttr = delta.getObject().getAttributeByName(groupMemberName);
         // if not found, perform an additional read on the underlying connector for the same connector object
         if (membAttr == null) {
-            OperationOptionsBuilder oob = new OperationOptionsBuilder();
-            oob.setAttributesToGet(groupMemberName);
+            OperationOptionsBuilder oob = new OperationOptionsBuilder().setAttributesToGet(groupMemberName);
             ConnectorObject remoteObj = connector.getObject(ObjectClass.GROUP, delta.getUid(), false, oob.build());
             if (remoteObj == null) {
                 LOG.debug("Object for '{}' not found", delta.getUid().getUidValue());
@@ -112,11 +111,10 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
                 membAttr = remoteObj.getAttributeByName(groupMemberName);
             }
         }
-        if (membAttr != null && membAttr.getValue() != null) {
-            result = membAttr.getValue();
-        }
 
-        return result;
+        return membAttr == null || membAttr.getValue() == null
+                ? Collections.emptyList()
+                : membAttr.getValue();
     }
 
     /**
@@ -131,15 +129,12 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
             final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final GroupTO groupTO)
             throws JobExecutionException {
 
-        Connector connector = profile.getConnector();
-        getMembAttrValues(delta, connector).stream().map(membValue -> {
+        getMembAttrValues(delta, profile.getConnector()).forEach(membValue -> {
             Set<String> memb = memberships.get(membValue.toString());
             if (memb == null) {
                 memb = new HashSet<>();
                 memberships.put(membValue.toString(), memb);
             }
-            return memb;
-        }).forEachOrdered(memb -> {
             memb.add(groupTO.getKey());
         });
     }
@@ -155,24 +150,24 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
             final EntityTO entity,
             final ProvisioningReport result) throws JobExecutionException {
 
-        if (!(profile.getTask() instanceof PullTask)) {
-            return;
+        if (!(entity instanceof GroupTO)) {
+            super.after(profile, delta, entity, result);
         }
 
-        if (!(entity instanceof GroupTO)
-                || !profile.getTask().getResource().getProvision(anyTypeDAO.findUser()).isPresent()
-                || profile.getTask().getResource().getProvision(anyTypeDAO.findUser()).get().getMapping() == null) {
-
-            super.after(profile, delta, entity, result);
-        } else {
+        Optional<? extends Provision> provision = profile.getTask().getResource().getProvision(anyTypeDAO.findUser()).
+                filter(p -> p.getMapping() != null);
+        if (provision.isPresent()) {
             populateMemberships(profile, delta, (GroupTO) entity);
+        } else {
+            super.after(profile, delta, entity, result);
         }
     }
 
     @Override
     public void afterAll(final ProvisioningProfile<?, ?> profile) throws JobExecutionException {
         Map<String, Set<String>> resolvedMemberships = new HashMap<>();
-        this.memberships.forEach((name, memb) -> {
+
+        memberships.forEach((name, memb) -> {
             Optional<String> userKey = pullUtils.match(
                     anyTypeDAO.findUser(),
                     name,
