@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
@@ -40,7 +42,9 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(SetUMembershipsJob.class);
 
-    public static final String MEMBERSHIPS_KEY = "memberships";
+    public static final String MEMBERSHIPS_BEFORE_KEY = "membershipsBefore";
+
+    public static final String MEMBERSHIPS_AFTER_KEY = "membershipsAfter";
 
     @Autowired
     private UserProvisioningManager userProvisioningManager;
@@ -48,31 +52,62 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
         try {
-            AuthContextUtils.execWithAuthContext(
-                    context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY), () -> {
+            AuthContextUtils.execWithAuthContext(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY), () -> {
 
                 @SuppressWarnings("unchecked")
-                Map<String, Set<String>> memberships =
-                        (Map<String, Set<String>>) context.getMergedJobDataMap().get(MEMBERSHIPS_KEY);
+                Map<String, Set<String>> membershipsBefore =
+                        (Map<String, Set<String>>) context.getMergedJobDataMap().get(MEMBERSHIPS_BEFORE_KEY);
+                LOG.debug("Memberships before pull (User -> Groups) {}", membershipsBefore);
 
-                LOG.debug("About to set memberships (User -> Groups) {}", memberships);
+                @SuppressWarnings("unchecked")
+                Map<String, Set<String>> membershipsAfter =
+                        (Map<String, Set<String>>) context.getMergedJobDataMap().get(MEMBERSHIPS_AFTER_KEY);
+                LOG.debug("Memberships after pull (User -> Groups) {}", membershipsAfter);
 
-                memberships.forEach((user, groups) -> {
+                List<UserPatch> patches = new ArrayList<>();
+
+                membershipsAfter.forEach((user, groups) -> {
                     UserPatch userPatch = new UserPatch();
                     userPatch.setKey(user);
+                    patches.add(userPatch);
 
                     groups.forEach(group -> {
-                        userPatch.getMemberships().add(
-                                new MembershipPatch.Builder().
-                                        operation(PatchOperation.ADD_REPLACE).
-                                        group(group).
-                                        build());
+                        Set<String> before = membershipsBefore.get(user);
+                        if (before == null || !before.contains(group)) {
+                            userPatch.getMemberships().add(
+                                    new MembershipPatch.Builder().
+                                            operation(PatchOperation.ADD_REPLACE).
+                                            group(group).
+                                            build());
+                        }
                     });
+                });
 
-                    if (!userPatch.isEmpty()) {
-                        LOG.debug("About to update User {}", userPatch.getKey());
-                        userProvisioningManager.update(userPatch, true);
-                    }
+                membershipsBefore.forEach((user, groups) -> {
+                    UserPatch userPatch = patches.stream().
+                            filter(patch -> user.equals(patch.getKey())).findFirst().
+                            orElseGet(() -> {
+                                UserPatch patch = new UserPatch();
+                                patch.setKey(user);
+                                patches.add(patch);
+                                return patch;
+                            });
+
+                    groups.forEach(group -> {
+                        Set<String> after = membershipsAfter.get(user);
+                        if (after == null || !after.contains(group)) {
+                            userPatch.getMemberships().add(
+                                    new MembershipPatch.Builder().
+                                            operation(PatchOperation.DELETE).
+                                            group(group).
+                                            build());
+                        }
+                    });
+                });
+
+                patches.stream().filter(patch -> !patch.isEmpty()).forEach(patch -> {
+                    LOG.debug("About to update User {}", patch);
+                    userProvisioningManager.update(patch, true);
                 });
 
                 return null;
