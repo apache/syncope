@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.cxf.jaxrs.ext.search.ConditionType;
@@ -40,7 +41,6 @@ import org.apache.syncope.common.lib.search.SyncopeFiqlSearchCondition;
 import org.apache.syncope.common.lib.search.SyncopeProperty;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -261,11 +261,23 @@ public final class SearchUtils implements Serializable {
                         if (StringUtils.isNotBlank(clause.getProperty())) {
                             boolean isLong = false;
                             boolean isDouble = false;
+                            boolean isBoolean = false;
                             if (availableSchemaTypes.get(clause.getProperty()) != null) {
-                                isLong = availableSchemaTypes.get(clause.getProperty()).getType()
-                                        == AttrSchemaType.Long;
-                                isDouble = availableSchemaTypes.get(clause.getProperty()).getType()
-                                        == AttrSchemaType.Double;
+                                switch (availableSchemaTypes.get(clause.getProperty()).getType()) {
+                                    case Long:
+                                        isLong = true;
+                                        break;
+
+                                    case Double:
+                                        isDouble = true;
+                                        break;
+
+                                    case Boolean:
+                                        isBoolean = true;
+                                        break;
+
+                                    default:
+                                }
                             }
 
                             SyncopeProperty property = builder.is(clause.getProperty());
@@ -311,7 +323,14 @@ public final class SearchUtils implements Serializable {
                                     break;
 
                                 case NOT_EQUALS:
-                                    condition = property.notEqualTolIgnoreCase(value);
+                                    condition = isLong
+                                            ? property.notEqualTo(NumberUtils.toLong(value))
+                                            : isDouble
+                                                    ? property.notEqualTo(NumberUtils.toDouble(value))
+                                                    : isBoolean
+                                                            ? property.notEqualTo(BooleanUtils.toStringTrueFalse(
+                                                                    BooleanUtils.toBoolean(value)))
+                                                            : property.notEqualTolIgnoreCase(value);
                                     break;
 
                                 case EQUALS:
@@ -319,8 +338,12 @@ public final class SearchUtils implements Serializable {
                                             ? property.equalTo(NumberUtils.toLong(value))
                                             : isDouble
                                                     ? property.equalTo(NumberUtils.toDouble(value))
-                                                    : property.equalToIgnoreCase(value);
+                                                    : isBoolean
+                                                            ? property.equalTo(BooleanUtils.toStringTrueFalse(
+                                                                    BooleanUtils.toBoolean(value)))
+                                                            : property.equalToIgnoreCase(value);
                                     break;
+
                                 default:
                                     condition = property.equalToIgnoreCase(value);
                                     break;
