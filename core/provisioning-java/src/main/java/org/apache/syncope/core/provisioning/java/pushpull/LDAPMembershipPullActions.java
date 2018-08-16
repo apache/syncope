@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -34,7 +35,6 @@ import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -45,7 +45,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.provisioning.java.job.SetUMembershipsJob;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Simple action for pulling LDAP groups memberships to Syncope group memberships, when the same resource is
@@ -61,15 +63,14 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
     protected AnyTypeDAO anyTypeDAO;
 
     @Autowired
-    protected UserDAO userDAO;
-
-    @Autowired
     protected GroupDAO groupDAO;
 
     @Autowired
     private PullUtils pullUtils;
 
-    protected final Map<String, Set<String>> memberships = new HashMap<>();
+    protected final Map<String, Set<String>> membershipsBefore = new HashMap<>();
+
+    protected final Map<String, Set<String>> membershipsAfter = new HashMap<>();
 
     /**
      * Allows easy subclassing for the ConnId AD connector bundle.
@@ -127,30 +128,39 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
     }
 
     /**
-     * Pull Syncope memberships with the situation read on the external resource's group.
+     * Keep track of members of the group being updated before actual update takes place.
+     * This is not needed on
+     * <ul>
+     * <li>{@link #beforeProvision} because the pulling group does not exist yet on Syncope</li>
+     * <li>{@link #beforeDelete} because group delete cascades as membership removal for all users involved</li>
+     * </ul>
      *
-     * @param profile pull profile
-     * @param delta representing the pullong group
-     * @param groupTO group after modification performed by the handler
-     * @throws JobExecutionException if anything goes wrong
+     * {@inheritDoc}
      */
-    protected void populateMemberships(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final GroupTO groupTO)
-            throws JobExecutionException {
+    @Transactional(readOnly = true)
+    @Override
+    public <P extends AnyPatch> void beforeUpdate(
+            final ProvisioningProfile<?, ?> profile,
+            final SyncDelta delta,
+            final EntityTO entity,
+            final P anyPatch) throws JobExecutionException {
 
-        Connector connector = profile.getConnector();
-        for (Object membValue : getMembAttrValues(delta, connector)) {
-            Set<String> memb = memberships.get(membValue.toString());
+        if (!(entity instanceof GroupTO)) {
+            super.beforeUpdate(profile, delta, entity, anyPatch);
+        }
+
+        for (UMembership uMembership : groupDAO.findUMemberships(groupDAO.find(entity.getKey()))) {
+            Set<String> memb = membershipsBefore.get(uMembership.getLeftEnd().getKey());
             if (memb == null) {
                 memb = new HashSet<>();
-                memberships.put(membValue.toString(), memb);
+                membershipsBefore.put(uMembership.getLeftEnd().getKey(), memb);
             }
-            memb.add(groupTO.getKey());
+            memb.add(entity.getKey());
         }
     }
 
     /**
-     * Pull membership at group pull time (because PullJob first pulls users then groups).
+     * Keep track of members of the group being updated after actual update took place.
      * {@inheritDoc}
      */
     @Override
@@ -169,29 +179,32 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
                 || profile.getTask().getResource().getProvision(anyTypeDAO.findUser()).getMapping() == null) {
 
             super.after(profile, delta, entity, result);
-        } else {
-            populateMemberships(profile, delta, (GroupTO) entity);
+        }
+
+        for (Object membValue : getMembAttrValues(delta, profile.getConnector())) {
+            String userKey = pullUtils.match(
+                    anyTypeDAO.findUser(),
+                    membValue.toString(),
+                    profile.getTask().getResource(),
+                    profile.getConnector());
+            if (userKey == null) {
+                LOG.warn("Could not find matching user for {}", membValue);
+            } else {
+                Set<String> memb = membershipsAfter.get(userKey);
+                if (memb == null) {
+                    memb = new HashSet<>();
+                    membershipsAfter.put(userKey, memb);
+                }
+                memb.add(entity.getKey());
+            }
         }
     }
 
     @Override
     public void afterAll(final ProvisioningProfile<?, ?> profile) throws JobExecutionException {
-        Map<String, Set<String>> resolvedMemberships = new HashMap<>();
-        for (Map.Entry<String, Set<String>> entry : this.memberships.entrySet()) {
-            String userKey = pullUtils.match(
-                    anyTypeDAO.findUser(),
-                    entry.getKey(),
-                    profile.getTask().getResource(),
-                    profile.getConnector());
-            if (userKey == null) {
-                LOG.warn("Could not find matching user for {}", entry.getKey());
-            } else {
-                resolvedMemberships.put(userKey, entry.getValue());
-            }
-        }
-
         Map<String, Object> jobMap = new HashMap<>();
-        jobMap.put(SetUMembershipsJob.MEMBERSHIPS_KEY, resolvedMemberships);
+        jobMap.put(SetUMembershipsJob.MEMBERSHIPS_BEFORE_KEY, membershipsBefore);
+        jobMap.put(SetUMembershipsJob.MEMBERSHIPS_AFTER_KEY, membershipsAfter);
         schedule(SetUMembershipsJob.class, jobMap);
     }
 }

@@ -18,8 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.types.PatchOperation;
@@ -40,7 +44,9 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(SetUMembershipsJob.class);
 
-    public static final String MEMBERSHIPS_KEY = "memberships";
+    public static final String MEMBERSHIPS_BEFORE_KEY = "membershipsBefore";
+
+    public static final String MEMBERSHIPS_AFTER_KEY = "membershipsAfter";
 
     @Autowired
     private UserProvisioningManager userProvisioningManager;
@@ -54,26 +60,64 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
                 @Override
                 public Void exec() {
                     @SuppressWarnings("unchecked")
-                    Map<String, Set<String>> memberships =
-                            (Map<String, Set<String>>) context.getMergedJobDataMap().get(MEMBERSHIPS_KEY);
+                    Map<String, Set<String>> membershipsBefore =
+                            (Map<String, Set<String>>) context.getMergedJobDataMap().get(MEMBERSHIPS_BEFORE_KEY);
+                    LOG.debug("Memberships before pull (User -> Groups) {}", membershipsBefore);
 
-                    LOG.debug("About to set memberships (User -> Groups) {}", memberships);
+                    @SuppressWarnings("unchecked")
+                    Map<String, Set<String>> membershipsAfter =
+                            (Map<String, Set<String>>) context.getMergedJobDataMap().get(MEMBERSHIPS_AFTER_KEY);
+                    LOG.debug("Memberships after pull (User -> Groups) {}", membershipsAfter);
 
-                    for (Map.Entry<String, Set<String>> membership : memberships.entrySet()) {
+                    List<UserPatch> patches = new ArrayList<>();
+
+                    for (Map.Entry<String, Set<String>> membership : membershipsAfter.entrySet()) {
                         UserPatch userPatch = new UserPatch();
                         userPatch.setKey(membership.getKey());
+                        patches.add(userPatch);
 
-                        for (String groupKey : membership.getValue()) {
-                            userPatch.getMemberships().add(
-                                    new MembershipPatch.Builder().
-                                            operation(PatchOperation.ADD_REPLACE).
-                                            group(groupKey).
-                                            build());
+                        for (String group : membership.getValue()) {
+                            Set<String> before = membershipsBefore.get(membership.getKey());
+                            if (before == null || !before.contains(group)) {
+                                userPatch.getMemberships().add(
+                                        new MembershipPatch.Builder().
+                                                operation(PatchOperation.ADD_REPLACE).
+                                                group(group).
+                                                build());
+                            }
+                        }
+                    }
+
+                    for (final Map.Entry<String, Set<String>> membership : membershipsBefore.entrySet()) {
+                        UserPatch userPatch = IterableUtils.find(patches, new Predicate<UserPatch>() {
+
+                            @Override
+                            public boolean evaluate(final UserPatch patch) {
+                                return membership.getKey().equals(patch.getKey());
+                            }
+                        });
+                        if (userPatch == null) {
+                            userPatch = new UserPatch();
+                            userPatch.setKey(membership.getKey());
+                            patches.add(userPatch);
                         }
 
-                        if (!userPatch.isEmpty()) {
-                            LOG.debug("About to update User {}", userPatch.getKey());
-                            userProvisioningManager.update(userPatch, true);
+                        for (String group : membership.getValue()) {
+                            Set<String> after = membershipsAfter.get(membership.getKey());
+                            if (after == null || !after.contains(group)) {
+                                userPatch.getMemberships().add(
+                                        new MembershipPatch.Builder().
+                                                operation(PatchOperation.DELETE).
+                                                group(group).
+                                                build());
+                            }
+                        }
+                    }
+
+                    for (UserPatch patch : patches) {
+                        if (!patch.isEmpty()) {
+                            LOG.debug("About to update User {}", patch);
+                            userProvisioningManager.update(patch, true);
                         }
                     }
 
@@ -85,5 +129,4 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
             throw new JobExecutionException("While executing memberships", e);
         }
     }
-
 }

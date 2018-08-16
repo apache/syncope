@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.migration;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -131,8 +132,8 @@ public class MigrationPullActions extends SchedulingPullActions {
     @Override
     public void afterAll(final ProvisioningProfile<?, ?> profile) throws JobExecutionException {
         Map<String, Object> jobMap = new HashMap<>();
-        jobMap.put(SetUMembershipsJob.MEMBERSHIPS_KEY, memberships);
+        jobMap.put(SetUMembershipsJob.MEMBERSHIPS_BEFORE_KEY, Collections.emptyMap());
+        jobMap.put(SetUMembershipsJob.MEMBERSHIPS_AFTER_KEY, memberships);
         schedule(SetUMembershipsJob.class, jobMap);
     }
-
 }
