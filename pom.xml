@@ -2276,8 +2276,8 @@ under the License.
           <reportSet>
             <reports>
               <report>index</report>
-              <report>project-team</report>
-              <report>issue-tracking</report>
+              <report>team</report>
+              <report>issue-management</report>
             </reports>
           </reportSet>
         </reportSets>

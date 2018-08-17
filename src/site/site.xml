@@ -64,7 +64,7 @@ under the License.
       <item name="Security" href="https://syncope.apache.org/security"/>
       <item name="Documentation" href="docs/"/>
       <item name="Mailing Lists" href="mailing-lists"/>
-      <item name="Project Team" href="team-list"/>
+      <item name="Team" href="team"/>
       <item name="License" href="https://www.apache.org/licenses/"/>
       <item name="Professional Services" href="professional-services"/>
     </menu>
@@ -74,7 +74,7 @@ under the License.
       <item name="How to contribute?" href="contributing"/>
       <item name="Source Repository" href="source-repository"/>
       <item name="Continuous Integration" href="integration"/>
-      <item name="Issue Tracking" href="issue-tracking"/>
+      <item name="Issue Management" href="issue-management"/>
       <item name="Building" href="building"/>
       <item name="Release Process" href="release-process"/>
     </menu>

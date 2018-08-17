@@ -327,7 +327,7 @@ sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/styles\/default.min.css/http:\
 sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/highlight.min.js/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.8.0\/highlight.min.js/' /tmp/schema_1_syncope2.html 
 
 # else if releasing from 2_1_X
-curl -o /tmp/schema_1_syncope21.html http://localhost:9080/syncope/schema_1_syncope21.html
+curl -o /tmp/schema_1_syncope2.html http://localhost:9080/syncope/schema_1_syncope21.html
 sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/styles\/default.min.css/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.8.0\/styles\/default.min.css/' /tmp/schema_1_syncope21.html 
 sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/highlight.min.js/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.8.0\/highlight.min.js/' /tmp/schema_1_syncope21.html 
 
@@ -356,6 +356,7 @@ cd ../..
 svn add $VERSION
 svn copy apidocs/2.1 $VERSION/apidocs/
 svn copy rest/2.1 $VERSION/rest/
+svn copy docs/2.1/ $VERSION/docs/
 
 # else if releasing from 2_1_X
 mkdir -p $VERSION/rest/2.1
@@ -373,6 +374,7 @@ cd ../..
 svn add $VERSION
 svn copy apidocs/2.0 $VERSION/apidocs/
 svn copy rest/2.0 $VERSION/rest/
+svn copy docs/2.0/ $VERSION/docs/
 
 svn commit -m "Staging site for release"]]></source>
           </li>
