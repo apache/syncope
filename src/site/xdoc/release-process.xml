@@ -297,7 +297,7 @@ do
 done
           
 for file in `find . -name '*.deb' -or -name '*.jar' -or -name '*.zip' -or -name '*.nbm'`; do
- openssl sha1 $file | sed 's/.*= //' > $file.sha1
+ openssl sha512 $file | sed 's/.*= //' > $file.sha512
 done
 
 cd ..
