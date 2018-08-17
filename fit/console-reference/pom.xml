@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-fit</artifactId>
-    <version>2.0.10-SNAPSHOT</version>
+    <version>2.0.10</version>
   </parent>
 
   <name>Apache Syncope FIT Console Reference</name>
@@ -385,9 +385,7 @@ under the License.
                 <phase>package</phase>
                 <configuration>
                   <target>                                               
-                    <copy file="${basedir}/../core-reference/target/test-classes/hotswap-agent.properties"
-                          tofile="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/hotswap-agent.properties"
-                          overwrite="true"/>
+                    <copy file="${basedir}/../core-reference/target/test-classes/hotswap-agent.properties" tofile="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/hotswap-agent.properties" overwrite="true" />
                   </target>
                 </configuration>
                 <goals>
