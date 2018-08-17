@@ -2,6 +2,38 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.1.1
+================================================================================
+
+** Bug
+    * [SYNCOPE-1331] - ExternalResourcePropagationAction is too long name for a table in Oracle DB
+    * [SYNCOPE-1333] - Missing virtual attribute value in case of type extension
+    * [SYNCOPE-1334] - Maven install problem with Apache Syncope 2.1.0
+    * [SYNCOPE-1335] - Missing SQL statements when upgrading from 2.0 Jazz
+    * [SYNCOPE-1337] - Password history policy is not enforced on salted passwords
+    * [SYNCOPE-1338] - Double type conversion applied during pull leads to errors
+    * [SYNCOPE-1339] - Enduser spinner does not apply to the whole page
+    * [SYNCOPE-1340] - Cannot update membership attribute
+    * [SYNCOPE-1342] - console UI login form ignores Domain selection
+    * [SYNCOPE-1343] - Attributes are not reset after pull of null values
+    * [SYNCOPE-1344] - CORE_SCHEME not being updated in enduser.properties
+    * [SYNCOPE-1346] - Adding a new task while re-executing a propagation task
+    * [SYNCOPE-1347] - Invocation Problem calling org.apache.syncope.installer.processes.ArchetypeProcess
+    * [SYNCOPE-1350] - Date values not formatted according to the conversion pattern
+    * [SYNCOPE-1352] - Group wizard doesn't update the plain attributes
+    * [SYNCOPE-1353] - DBPasswordPropagationActions link in the reference guide is wrong
+    * [SYNCOPE-1354] - Push Tasks do not send status onto External Resources
+    * [SYNCOPE-1356] - LDAPMembershipPullActions does not remove memberships
+    * [SYNCOPE-1357] - MemoryVirAttrCache not working
+    * [SYNCOPE-1358] - Search by boolean value does not work from Admin Console
+
+** New Feature
+    * [SYNCOPE-1348] - REST: replace bulk operations with batch requests
+
+** Improvement
+    * [SYNCOPE-1336] - Add pagination for approvals forms
+    * [SYNCOPE-1341] - Domain should be configurable parameter for syncope-enduser docker image
+
 Release Notes - Syncope - Version 2.1.0
 ================================================================================
 
