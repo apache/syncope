@@ -242,6 +242,14 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
     }
 
+    public <T> T getVariable(final String executionId, final String variableName, final Class<T> variableClass) {
+        return engine.getRuntimeService().getVariable(executionId, variableName, variableClass);
+    }
+
+    public void setVariable(final String executionId, final String variableName, final Object value) {
+        engine.getRuntimeService().setVariable(executionId, variableName, value);
+    }
+
     @Override
     protected WorkflowResult<Pair<String, Boolean>> doCreate(
             final UserTO userTO,
