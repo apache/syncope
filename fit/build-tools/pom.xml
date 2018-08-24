@@ -214,12 +214,23 @@ under the License.
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
-                
+
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>ianal-maven-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <inherited>true</inherited>
         <configuration>
-          <skip>true</skip>
+          <webResources>
+            <resource>
+              <directory>${basedir}</directory>
+              <targetPath>META-INF</targetPath>
+              <includes>
+                <include>LICENSE</include>
+                <include>NOTICE</include>
+              </includes>
+            </resource>
+          </webResources>
+          <packagingExcludes>WEB-INF/classes/META-INF/LICENSE*,WEB-INF/classes/META-INF/NOTICE*,WEB-INF/classes/META-INF/DEPENDENCIES*</packagingExcludes>
         </configuration>
       </plugin>
     </plugins>
@@ -228,6 +239,14 @@ under the License.
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE</include>
+          <include>NOTICE</include>
+        </includes>
       </resource>
     </resources>
   </build>
