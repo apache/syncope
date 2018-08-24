@@ -67,5 +67,5 @@ for interacting with the Core via REST.
 ==== Netbeans IDE Plugin
 
 The Netbeans IDE plugin allows remote management of <<notification-templates,notification e-mail>> and
-<<report-templates,report>> templates, and constitutes an example of a Java application relying on the Client Library
-for interacting with the Core via REST.
+<<report-templates,report>> templates, and remote editing of Apache Groovy <<implementations,implementations>>. +
+It constitutes an example of a Java application relying on the Client Library for interacting with the Core via REST.

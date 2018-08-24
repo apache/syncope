@@ -900,7 +900,8 @@ Each template is now ready for authoring or removal; new templates can also be c
 
 === Netbeans IDE Plugin
 
-The Netbeans IDE plugin allows remote management of notification e-mail and report templates.
+The Netbeans IDE plugin allows remote management of notification e-mail and report templates, and remote editing
+of Apache Groovy implementations.
 
 [[netbeansplugin-installation]]
 ==== Installation

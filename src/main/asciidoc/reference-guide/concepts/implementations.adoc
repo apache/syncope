@@ -22,7 +22,7 @@ Starting with Apache Syncope 2.1, it is possible to provide implementations suit
 as:
 
 . Java classes
-. http://www.groovy-lang.org/[Groovy^] classes
+. http://www.groovy-lang.org/[Apache Groovy^] classes
 
 While the former shows some advantages about execution performance, the latter is extremely useful as it allows for
 runtime updates, freeing from the hassle to redeploy when something needs to be changed.
