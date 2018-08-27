@@ -945,7 +945,7 @@ To refresh the list of available templates, or to update the connection details,
 
 image::netbeans09.png[netbeans09]
 
-To create a new template, right-click on the `Mail Templates` or `Report XSLTs` folder and then click on `New`:
+To create a new template, right-click on the `Mail Templates`, `Report XSLTs` or `Groovy Implementations` folder and then click on `New`:
 
 image::netbeans10.png[netbeans10]
 
