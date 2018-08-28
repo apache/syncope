@@ -23,6 +23,7 @@ describe('syncope enduser user edit', function () {
     console.log("");
     console.log("user edit");
     abstract.goHome();
+    abstract.waitSpinner();
 
     //login
     element(by.model('credentials.username')).sendKeys('bellini');
@@ -33,9 +34,13 @@ describe('syncope enduser user edit', function () {
             });
     element.all(by.options('language.name for language in languages.availableLanguages track by language.id')).
             get(1).click();
+    abstract.waitSpinner();
+    browser.wait(element(by.id('login-btn')).isPresent());
     element(by.id('login-btn')).click();
 
     //credential
+    var EC = protractor.ExpectedConditions;
+    browser.wait(EC.presenceOf(element(by.model('user.username')), 5000));
     abstract.waitSpinner();
     browser.wait(element(by.model('user.username')).isPresent());
     element(by.model('user.username')).clear();

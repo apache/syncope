@@ -22,14 +22,17 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
+import org.apache.syncope.client.enduser.model.CustomTemplateInfo;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -55,24 +58,31 @@ public class GroupResource extends BaseResource {
                 return response;
             }
 
-            String realm = URLDecoder.decode(attributes.getParameters().get("realm").
-                    toString(SyncopeConstants.ROOT_REALM), "UTF-8");
-            StringValue term = attributes.getParameters().get("term");
-
+            CustomTemplateInfo customTemplate =
+                    SyncopeEnduserApplication.get().getCustomTemplate();
             final GroupResponse groupResponse = new GroupResponse();
-            final int totGroups = SyncopeEnduserSession.get().
-                    getService(SyncopeService.class).numbers().getTotalGroups();
-            final List<GroupTO> groupTOs = SyncopeEnduserSession.get().
-                    getService(SyncopeService.class).searchAssignableGroups(
-                    realm,
-                    term.isNull() || term.isEmpty() ? null : URLDecoder.decode(term.toString(), "UTF-8"),
-                    1,
-                    30).getResult();
-            groupResponse.setTotGroups(totGroups);
-            groupResponse.setGroupTOs(groupTOs.stream().collect(
-                    Collectors.toMap(GroupTO::getKey, GroupTO::getName)));
+            if (customTemplate.getWizard().getSteps().containsKey("groups")) {
+                String realm = URLDecoder.decode(attributes.getParameters().get("realm").
+                        toString(SyncopeConstants.ROOT_REALM), "UTF-8");
+                StringValue term = attributes.getParameters().get("term");
 
-            response.setTextEncoding(StandardCharsets.UTF_8.name());
+                final int totGroups = SyncopeEnduserSession.get().
+                        getService(SyncopeService.class).numbers().getTotalGroups();
+                final List<GroupTO> groupTOs = SyncopeEnduserSession.get().
+                        getService(SyncopeService.class).searchAssignableGroups(
+                        realm,
+                        term.isNull() || term.isEmpty() ? null : URLDecoder.decode(term.toString(), "UTF-8"),
+                        1,
+                        30).getResult();
+                groupResponse.setTotGroups(totGroups);
+                groupResponse.setGroupTOs(groupTOs.stream().collect(
+                        Collectors.toMap(GroupTO::getKey, GroupTO::getName)));
+            } else {
+                groupResponse.setTotGroups(0);
+                Map<String, String> groups = new HashMap<>();
+                groupResponse.setGroupTOs(groups);
+            }
+
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 
                 @Override
@@ -80,6 +90,7 @@ public class GroupResource extends BaseResource {
                     attributes.getResponse().write(MAPPER.writeValueAsString(groupResponse));
                 }
             });
+            response.setTextEncoding(StandardCharsets.UTF_8.name());
             response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {
             LOG.error("Error retrieving available groups", e);

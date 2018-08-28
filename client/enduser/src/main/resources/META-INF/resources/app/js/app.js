@@ -66,12 +66,18 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
     $stateProvider
             .state('home', {
               url: '/',
-              templateUrl: 'views/self.html'
+              templateUrl: 'views/self.html',
+              resolve: {
+                loadAssets: ['DynamicTemplateService', function (DynamicTemplateService) {
+                    return DynamicTemplateService.getGeneralAssetsContent(["css"]);
+                  }]
+              }
             })
             .state('self', {
               url: '/self?errorMessage',
               templateUrl: 'views/self.html'
             })
+
             /* <Extensions> */
             .state('self-saml2sp', {
               url: '/self-saml2sp',
@@ -99,6 +105,7 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
               }
             })
             /* </Extensions> */
+
             .state('user-self-update', {
               url: '/user-self-update',
               templateUrl: 'views/home.html',
@@ -289,8 +296,8 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
       };
     });
   }]);
-app.run(['$rootScope', '$location', '$state', 'AuthService',
-  function ($rootScope, $location, $state, AuthService) {
+app.run(['$rootScope', '$location', '$state', 'AuthService', '$transitions',
+  function ($rootScope, $location, $state, AuthService, $transitions) {
     /*
      |--------------------------------------------------------------------------
      | Main of Syncope Enduser application
@@ -299,50 +306,63 @@ app.run(['$rootScope', '$location', '$state', 'AuthService',
      | If the route change failed due to authentication error, redirect them out
      |--------------------------------------------------------------------------
      */
-    $rootScope.$on('$routeChangeError', function (event, current, previous, rejection) {
-      if (rejection === 'Not Authenticated') {
-        $location.path('/self');
+    $transitions.onError({}, function (trans) {
+      if (trans.error().message === 'Not Authenticated') {
+        $state.go('home');
       }
     });
-    $rootScope.$on('$stateChangeSuccess', function (event, toState) {
+
+    $transitions.onSuccess({}, function (trans) {
+      var toState = trans.$to();
+      var fromState = trans.$from();
+
       if (toState.name === 'create') {
-        $state.go('create.credentials');
+        $state.go('create' + $rootScope.getWizardFirstStep());
       } else if (toState.name === 'update') {
-        $state.go('update.credentials');
+        $state.go('update' + $rootScope.getWizardFirstStep());
       } else if (toState.name.indexOf("update") > -1) {
         AuthService.islogged().then(function (response) {
           if (response === "true") {
             $state.go(toState);
           } else {
-            $state.go('self');
+            $state.go('home');
           }
         }, function (response) {
-          console.error("not logged");
-          $state.go('self');
+          console.error("Not logged");
+          $state.go('home');
         }
         );
-
       } else if (toState.name === 'home' || toState.name === 'self') {
+        if (fromState.name === 'home' || fromState.name === 'self') {
+          return false;
+        }
+
         AuthService.islogged().then(function (response) {
           if (response === "true") {
-            $state.go('update.credentials');
-          } else {
-            $state.go('self');
+            $state.go('update' + $rootScope.getWizardFirstStep());
           }
         }, function (response) {
           console.error("not logged");
-          $state.go('self');
-        }
-        );
+          $state.go('home');
+        });
         /*
          * enable "finish" button on every page in create mode
          */
       } else if (toState.name === 'create.finish') {
+        if (fromState.name === 'create.finish') {
+          return false;
+        }
+
         $rootScope.endReached = true;
       } else {
+        if (fromState.name === toState.name) {
+          return false;
+        }
+
         $state.go(toState);
       }
     });
+
     $rootScope.spinner = {
       active: false,
       on: function () {
@@ -353,9 +373,9 @@ app.run(['$rootScope', '$location', '$state', 'AuthService',
       }
     };
   }]);
-app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'InfoService', 'SAML2IdPService',
-  'OIDCProviderService',
-  function ($scope, $rootScope, $location, InfoService, SAML2IdPService, OIDCProviderService) {
+app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 'SAML2IdPService',
+  'OIDCProviderService', 'DynamicTemplateService',
+  function ($scope, $rootScope, InfoService, SAML2IdPService, OIDCProviderService, DynamicTemplateService) {
     $scope.initApplication = function () {
       /* 
        * disable by default wizard buttons in self-registration
@@ -396,6 +416,57 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
         selected: {}
       };
 
+      var doGetDynamicTemplateJSON = function (callback) {
+        if (!$rootScope.dynTemplate) {
+          DynamicTemplateService.getContent().then(
+                  function (response) {
+                    /* 
+                     * USER dynamic template JSON
+                     */
+                    $rootScope.dynTemplate = response;
+
+                    /*
+                     * Wizard steps from JSON
+                     */
+                    $scope.wizard = response.wizard.steps;
+                    $scope.wizardFirstStep = response.wizard.firstStep;
+
+                    callback($rootScope.dynTemplate);
+                  },
+                  function (response) {
+                    console.error("Something went wrong while accessing dynamic template resource", response);
+                  });
+        } else {
+          callback($rootScope.dynTemplate);
+        }
+      };
+      $rootScope.getDynamicTemplateInfo = function (type, key, callback) {
+        if (type) {
+          doGetDynamicTemplateJSON(function (templateJSON) {
+            callback((templateJSON && templateJSON["templates"] && templateJSON["templates"][type])
+                    ? templateJSON["templates"][type][key]
+                    : "");
+          });
+        } else {
+          callback("");
+        }
+      };
+      $rootScope.getDynamicTemplateOtherInfo = function (type, key, callback) {
+        if (type) {
+          doGetDynamicTemplateJSON(function (templateJSON) {
+            callback((templateJSON && templateJSON[type])
+                    ? templateJSON[type][key]
+                    : "");
+          });
+        } else {
+          callback("");
+        }
+      };
+
+      $rootScope.getWizardFirstStep = function () {
+        return ($scope.wizardFirstStep ? ('.' + $scope.wizardFirstStep) : '');
+      };
+
       InfoService.getInfo().then(
               function (response) {
                 $rootScope.pwdResetAllowed = response.pwdResetAllowed;
@@ -407,11 +478,12 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
                 /* 
                  * USER form customization JSON
                  */
-                $rootScope.customForm = response.customForm;
+                $rootScope.customFormAttributes = response.customFormAttributes;
               },
               function (response) {
                 console.error("Something went wrong while accessing info resource", response);
               });
+
       /* <Extensions> */
       SAML2IdPService.getAvailableSAML2IdPs().then(
               function (response) {
@@ -421,10 +493,6 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
                 console.debug("No SAML 2.0 SP extension available", response);
               });
       /* </Extensions> */
-      /* 
-       * configuration getters
-       */
-
       /* <Extensions> */
       OIDCProviderService.getAvailableOIDCProviders().then(
               function (response) {
@@ -434,6 +502,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
                 console.debug("No OIDC Client extension available", response);
               });
       /* </Extensions> */
+
       /* 
        * configuration getters
        */
@@ -462,6 +531,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
       $rootScope.getMaxUploadFileSizeMB = function () {
         return $rootScope.maxUploadFileSizeMB;
       };
+
       /* 
        * USER Attributes sorting strategies
        */
@@ -477,19 +547,25 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
           return schemaNameA < schemaNameB ? 1 : schemaNameA > schemaNameB ? -1 : 0;
         }
       };
+
       /*
        |--------------------------------------------------------------------------
        | Notification mgmt
        |--------------------------------------------------------------------------
        */
-      $scope.notification = $('#notifications').kendoNotification().data("kendoNotification");
-      $scope.notification.setOptions({stacking: "down"});
+      $scope.notificationSuccessTimeout = 4000;
+//      $scope.notification = $('#notifications').kendoNotification().data("kendoNotification");
+      $scope.notification = $("#notifications").kendoNotification({
+        stacking: "down",
+        hideOnClick: true,
+        width: 320
+      }).data("kendoNotification");
       $scope.notification.options.position["top"] = 20;
       $scope.showSuccess = function (message, component) {
         if (!$scope.notificationExists(message)) {
           //forcing scrollTo since kendo doesn't disable scrollTop if pinned is true
           window.scrollTo(0, 0);
-          component.options.autoHideAfter = 3000;
+          component.options.autoHideAfter = $scope.notificationSuccessTimeout;
           component.show(message, "success");
         }
       };
@@ -510,7 +586,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
       };
       $scope.notificationExists = function (message) {
         var result = false;
-        if ($scope.notification !== null) {
+        if ($scope.notification) {
           var pendingNotifications = $scope.notification.getNotifications();
           pendingNotifications.each(function (idx, element) {
             var popup = $(element).data("kendoPopup");
@@ -523,7 +599,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
         return result;
       };
       $scope.hideNotifications = function (timer) {
-        if ($scope.notification !== null) {
+        if ($scope.notification) {
           var pendingNotifications = $scope.notification.getNotifications();
           if (timer && timer > 0) {
             setTimeout(function () {
@@ -547,12 +623,13 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
           }
         }
       };
+
       /*
        * Intercepting location change event
        * When a location changes, old notifications should be removed
        */
       $rootScope.$on("$locationChangeStart", function (event, next, current) {
-        $scope.hideNotifications(3000);
+        $scope.hideNotifications($scope.notificationSuccessTimeout);
       });
       //Intercepting xhr start event
       $scope.$on('xhrStarted', function (event, next, current) {
@@ -562,20 +639,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
       $scope.$on('hideErrorMessage', function (event, popupMessage) {
         $scope.hideError(popupMessage, $scope.notification);
       });
-      /*
-       |--------------------------------------------------------------------------
-       | Wizard configuration
-       |--------------------------------------------------------------------------
-       */
-      $scope.wizard = {
-        "credentials": {url: "/credentials"},
-        "groups": {url: "/groups"},
-        "plainSchemas": {url: "/plainSchemas"},
-        "derivedSchemas": {url: "/derivedSchemas"},
-        "virtualSchemas": {url: "/virtualSchemas"},
-        "resources": {url: "/resources"},
-        "finish": {url: "/finish"}
-      };
+
       /*
        |--------------------------------------------------------------------------
        | Utilities

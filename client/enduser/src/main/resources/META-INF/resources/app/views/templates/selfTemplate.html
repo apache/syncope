@@ -1,0 +1,77 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<div id="login-container" ng-controller="LoginController">
+  <div id="login" class="card card-container">
+    <div>
+      <img class="login-logo" src="img/logo-green.png" />
+      <div id="login-form" class="form">              
+      </div>
+      <form id="login-form" class="form form-signin" novalidate>
+        <fieldset class="form-group input-group">
+          <div class="form-group">
+            <input autofocus="autofocus" type="text" class="form-control" id="login-username" 
+                   placeholder="{{'USERNAME_PLACEHOLDER'| translate}}"
+                   ng-required ng-model="credentials.username">
+          </div>
+          <div class="form-group">
+            <input type="password" class="form-control" id="login-password" 
+                   placeholder="{{'PASSWORD_PLACEHOLDER'| translate}}" 
+                   ng-required ng-model="credentials.password">
+          </div>
+          <div class="form-group" ng-controller="UserController">
+            <select  ng-change="switchLanguage()"
+                     id="language" class="dropdown-toggle custom-select btn btn-default" 
+                     ng-options="language.name for language in languages.availableLanguages track by language.id" 
+                     ng-model="languages.selectedLanguage"></select>
+          </div>                 
+          <div class="form-group">
+            <button type="submit" id="login-btn" class="btn btn-secondary btn-default btn-signin login-btn" 
+                    ng-click="login(credentials)">Login</button>
+          </div>
+          <div class="form-group">
+            <span ng-if="$root.saml2spExtAvailable()">SAML 2.0</span>
+            <select id="saml2sp" class="dropdown-toggle custom-select btn btn-default"
+                    ng-if="$root.saml2spExtAvailable()"
+                    ng-options="idp.name for idp in saml2idps.available track by idp.entityID"
+                    ng-model="saml2idps.selected" ng-change="saml2login()">
+            </select>
+          </div>
+          <div class="form-group">
+            <span ng-if="$root.oidcclientExtAvailable()">OpenID Connect</span>
+            <select id="oiscclient" class="dropdown-toggle custom-select btn btn-default"
+                    ng-if="$root.oidcclientExtAvailable()"
+                    ng-options="op.name for op in oidcops.available track by op.name"
+                    ng-model="oidcops.selected" ng-change="oidclogin()">
+            </select>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+  <div class="text-center" ng-show="$root.isSelfRegAllowed()">
+    <a href="#" class="btn btn-link" ng-click="$event.preventDefault(); selfCreate();" id="register">
+      {{ 'SELFREGISTRATION' | translate }}
+    </a>
+  </div>
+  <div class="text-center" ng-show="$root.isPwdResetAllowed()">
+    <a href="#" class="btn btn-link" ng-click="$event.preventDefault(); passwordReset();" id="passwordreset">
+      {{ 'PASSWORDRESET' | translate }}
+    </a>
+  </div>
+</div> <!-- /#login -->

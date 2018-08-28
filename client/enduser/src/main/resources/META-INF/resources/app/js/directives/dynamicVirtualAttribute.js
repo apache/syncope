@@ -29,12 +29,12 @@ angular.module('self')
               user: "="
             },
             controller: function ($scope, $rootScope) {
-              var customValues = $rootScope.customForm != null
-                      && $rootScope.customForm["VIRTUAL"] != null
-                      && $rootScope.customForm["VIRTUAL"]["attributes"] != null
-                      && $rootScope.customForm["VIRTUAL"]["attributes"][$scope.schema.key] != null
-                      && $rootScope.customForm["VIRTUAL"]["attributes"][$scope.schema.key].defaultValues
-                      ? $rootScope.customForm["VIRTUAL"]["attributes"][$scope.schema.key].defaultValues
+              var customValues = $rootScope.customFormAttributes
+                      && $rootScope.customFormAttributes["VIRTUAL"]
+                      && $rootScope.customFormAttributes["VIRTUAL"]["attributes"]
+                      && $rootScope.customFormAttributes["VIRTUAL"]["attributes"][$scope.schema.key]
+                      && $rootScope.customFormAttributes["VIRTUAL"]["attributes"][$scope.schema.key].defaultValues
+                      ? $rootScope.customFormAttributes["VIRTUAL"]["attributes"][$scope.schema.key].defaultValues
                       : [];
 
               $scope.$watch(function () {
@@ -55,11 +55,11 @@ angular.module('self')
               });
 
               $scope.customReadonly = function (schemaKey) {
-                return  $rootScope.customForm != null
-                        && $rootScope.customForm["VIRTUAL"] != null
-                        && $rootScope.customForm["VIRTUAL"]["attributes"] != null
-                        && $rootScope.customForm["VIRTUAL"]["attributes"][schemaKey] != null
-                        && $rootScope.customForm["VIRTUAL"]["attributes"][schemaKey].readonly;
+                return  $rootScope.customFormAttributes
+                        && $rootScope.customFormAttributes["VIRTUAL"]
+                        && $rootScope.customFormAttributes["VIRTUAL"]["attributes"]
+                        && $rootScope.customFormAttributes["VIRTUAL"]["attributes"][schemaKey]
+                        && $rootScope.customFormAttributes["VIRTUAL"]["attributes"][schemaKey].readonly;
               };
             }
             //replace: true

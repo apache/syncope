@@ -1,0 +1,78 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+*/
+
+html,
+body {
+  height: 100%;
+}
+body {
+  background: -moz-linear-gradient(94deg, rgba(51,51,51,1) 0%, rgba(101,141,93,1) 100%); /* ff3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(101,141,93,1)), color-stop(100%, rgba(51,51,51,1))); /* safari4+,chrome */
+  background: -webkit-linear-gradient(94deg, rgba(51,51,51,1) 0%, rgba(101,141,93,1) 100%); /* safari5.1+,chrome10+ */
+  background: -o-linear-gradient(94deg, rgba(51,51,51,1) 0%, rgba(101,141,93,1) 100%); /* opera 11.10+ */
+  background: -ms-linear-gradient(94deg, rgba(51,51,51,1) 0%, rgba(101,141,93,1) 100%); /* ie10+ */
+  background: linear-gradient(356deg, rgba(51,51,51,1) 0%, rgba(101,141,93,1) 100%); /* w3c */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#658d5d', endColorstr='#333333',GradientType=0 ); /* ie6-9 */
+}
+
+#login-container .card {
+  background-color: #151515;
+  color: white;
+}
+
+#login-container .login-logo {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+
+  margin: 0px auto 20px auto;
+}
+
+#login-container input,
+#login-container select,
+#login-container select option {
+  color: white;
+  background: #313131;
+}
+
+#login-container input:disabled {
+  background: #6d6d6d;
+}
+
+#login-container .btn-link {
+  color: #82b9e8;
+}
+#login-container .btn-link:focus, 
+#login-container .btn-link:hover {
+  color: #b5dcff;
+}
+
+#login-container .login-btn {
+  color: white;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#6a9647), color-stop(100%,#48543d));
+
+  background: linear-gradient(top, #6a9647 0%,#48543d 100%);
+  background: -webkit-linear-gradient(top, #6a9647 0%,#48543d 100%);
+  background: -moz-linear-gradient(top, #6a9647 0%, #48543d 100%);
+  background: -o-linear-gradient(top, #6a9647 0%,#48543d 100%);
+  background: -ms-linear-gradient(top, #6a9647 0%,#48543d 100%);
+}
+
+#login-container .form-group {
+  margin-bottom: 20px;
+}

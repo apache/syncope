@@ -1,7 +1,6 @@
 {
   "PLAIN": 
           {
-            "show": true,
             "attributes": {
               "firstname": {
                 "readonly": true,
@@ -33,13 +32,8 @@
               }
             }
           },
-  "DERIVED":
-          {
-            "show": false
-          },
   "VIRTUAL": 
           {
-            "show": true,
             "attributes": {
               "virtualdata": {
                 "readonly": true,

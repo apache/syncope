@@ -57,18 +57,20 @@ public class InfoResource extends BaseResource {
                         SaltGenerator.generate(SyncopeEnduserSession.get().getId()));
             }
             response.setTextEncoding(StandardCharsets.UTF_8.name());
+
             response.setWriteCallback(new WriteCallback() {
 
                 @Override
                 public void writeData(final IResource.Attributes attributes) throws IOException {
-                    Map<String, CustomAttributesInfo> customForm = SyncopeEnduserApplication.get().getCustomForm();
+                    Map<String, CustomAttributesInfo> customFormAttributes =
+                            SyncopeEnduserApplication.get().getCustomFormAttributes();
                     attributes.getResponse().write(
                             MAPPER.writeValueAsString(
                                     PlatformInfoAdapter.toPlatformInfoRequest(
                                             SyncopeEnduserSession.get().getPlatformInfo(),
-                                            customForm == null
+                                            customFormAttributes == null
                                                     ? new HashMap<>()
-                                                    : customForm)));
+                                                    : customFormAttributes)));
                 }
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());

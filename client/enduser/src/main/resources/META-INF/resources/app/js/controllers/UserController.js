@@ -119,12 +119,12 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         // initialize plain attributes
         for (var i = 0; i < schemas.plainSchemas.length; i++) {
           var plainSchemaKey = schemas.plainSchemas[i].key;
-          var initialAttributeValues = $rootScope.customForm != null
-                  && $rootScope.customForm["PLAIN"] != null
-                  && $rootScope.customForm["PLAIN"]["attributes"] != null
-                  && $rootScope.customForm["PLAIN"]["attributes"][plainSchemaKey] != null
-                  && $rootScope.customForm["PLAIN"]["attributes"][plainSchemaKey].defaultValues
-                  ? $rootScope.customForm["PLAIN"]["attributes"][plainSchemaKey].defaultValues
+          var initialAttributeValues = $rootScope.customFormAttributes
+                  && $rootScope.customFormAttributes["PLAIN"]
+                  && $rootScope.customFormAttributes["PLAIN"]["attributes"]
+                  && $rootScope.customFormAttributes["PLAIN"]["attributes"][plainSchemaKey]
+                  && $rootScope.customFormAttributes["PLAIN"]["attributes"][plainSchemaKey].defaultValues
+                  ? $rootScope.customFormAttributes["PLAIN"]["attributes"][plainSchemaKey].defaultValues
                   : [];
           if (!$scope.user.plainAttrs[plainSchemaKey]) {
             $scope.user.plainAttrs[plainSchemaKey] = {
@@ -135,7 +135,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             if ($scope.loadFromSAML2AuthSelfReg) {
               $scope.user.plainAttrs[plainSchemaKey].values = findLoadedSAML2AttrValue(plainSchemaKey);
             }
-            
+
             if ($scope.loadFromOIDCAuthSelfReg) {
               $scope.user.plainAttrs[plainSchemaKey].values = findLoadedOIDCAttrValue(plainSchemaKey);
             }
@@ -193,8 +193,8 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             if ($scope.loadFromSAML2AuthSelfReg) {
               $scope.user.virAttrs[virSchemaKey].values = findLoadedSAML2AttrValue(virSchemaKey);
             }
-            
-             if ($scope.loadFromOIDCAuthSelfReg) {
+
+            if ($scope.loadFromOIDCAuthSelfReg) {
               $scope.user.virAttrs[virSchemaKey].values = findLoadedOIDCAttrValue(virSchemaKey);
             }
 
@@ -221,7 +221,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
         //clean SAML Self Reg user attributes variable
         delete $rootScope.saml2idps.userAttrs;
-        
+
         //clean OIDC Self Reg user attributes variable
         delete $rootScope.oidcops.userAttrs;
       };
@@ -364,7 +364,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             $scope.$emit("groupAdded", $scope.user.memberships[index].groupName);
           }
           if ($scope.user.mustChangePassword) {
-            $location.path('/mustchangepassword');
+            $state.go('mustchangepassword');
           } else {
             initProperties();
           }
@@ -469,14 +469,14 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           if (username.length) {
             $scope.user.username = username[0];
           }
-        } 
-        
+        }
+
         if ($scope.loadFromOIDCAuthSelfReg) {
           var username = findLoadedOIDCAttrValue("username");
           if (username.length) {
             $scope.user.username = username[0];
           }
-        } 
+        }
       } else {
         // read user from syncope core
         readUser();
@@ -490,11 +490,13 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           console.debug("User " + $scope.user.username + " successfully CREATED");
           $rootScope.currentUser = $scope.user.username;
           $rootScope.currentOp = "SUCCESSFULLY_CREATED";
-          $scope.success({successMessage: $filter('translate')(["USER"]).USER
+          $scope.success({
+            successMessage: $filter('translate')(["USER"]).USER
                     + " "
                     + $scope.user.username
                     + " "
-                    + $filter('translate')(["SUCCESSFULLY_CREATED"]).SUCCESSFULLY_CREATED});
+                    + $filter('translate')(["SUCCESSFULLY_CREATED"]).SUCCESSFULLY_CREATED
+          });
         }, function (response) {
           console.error("Error during user creation: ", response);
           var errorMessage;
@@ -510,11 +512,13 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           console.debug("User " + $scope.user.username + " successfully UPDATED");
           $rootScope.currentUser = $scope.user.username;
           $rootScope.currentOp = "SUCCESSFULLY_UPDATED";
-          $scope.logout({successMessage: $filter('translate')(["USER"]).USER
+          $scope.logout({
+            successMessage: $filter('translate')(["USER"]).USER
                     + " "
                     + $scope.user.username
                     + " "
-                    + $filter('translate')(["SUCCESSFULLY_UPDATED"]).SUCCESSFULLY_UPDATED});
+                    + $filter('translate')(["SUCCESSFULLY_UPDATED"]).SUCCESSFULLY_UPDATED
+          });
         }, function (response) {
           console.info("Error during user update: ", response);
           var errorMessage;
@@ -652,7 +656,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
     $scope.redirect = function () {
       $translate.use($scope.languages.selectedLanguage.code);
-      $location.path('/self');
+      $state.go('home');
       $rootScope.endReached = false;
     };
 

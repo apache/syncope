@@ -20,12 +20,15 @@ package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
+import org.apache.syncope.client.enduser.model.CustomTemplateInfo;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
@@ -49,10 +52,13 @@ public class ExternalResourceResource extends BaseResource {
                 return response;
             }
 
-            final List<String> resources = SyncopeEnduserSession.get().
-                    getService(SyncopeService.class).platform().getResources();
+            CustomTemplateInfo customTemplate =
+                    SyncopeEnduserApplication.get().getCustomTemplate();
+            final List<String> resources = customTemplate.getWizard().getSteps().containsKey("groups")
+                    ? SyncopeEnduserSession.get().
+                            getService(SyncopeService.class).platform().getResources()
+                    : Collections.<String>emptyList();
 
-            response.setTextEncoding(StandardCharsets.UTF_8.name());
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 
                 @Override
@@ -60,6 +66,8 @@ public class ExternalResourceResource extends BaseResource {
                     attributes.getResponse().write(MAPPER.writeValueAsString(resources));
                 }
             });
+
+            response.setTextEncoding(StandardCharsets.UTF_8.name());
             response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {
             LOG.error("Error retrieving available resources", e);
