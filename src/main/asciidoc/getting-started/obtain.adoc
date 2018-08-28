@@ -452,6 +452,48 @@ Credentials: `admin` / `password`
 
 |===
 
+==== Kubernetes Install
+
+Using the same images above it is possible to install in Kubernetes.  Provided is a set of example helm charts that can be used to install Syncope directly in Kubernetes.  Your specific setup might be different but ideally these can be a baseline install for your specific needs.  This will walk you through the installation of syncope via helm.
+
+It makes a couple assumptions:
+
+* Have a working Kubernetes Cluster to install into.
+** If you don't have one then GCP has a decent https://kubernetes.io/docs/setup/[tutorial] .  **NOTE:** You could also use any other Cloud Provider or Local install (e.g. AWS, Minikub, Openshift)
+* Have helm installed
+** Follow these https://docs.helm.sh/using_helm/[instructions] if you don't
+* You have your kubernetes cluster to allow for dynamic provisioning of persistent volumes in K8s
+** If you don't have it then you will need to manually create the volume or turn on dynamic provisioning.  Refer to this link https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/[here]
+
+===== Overview Of Install
+
+The install is broken into two separate helm charts.  This is due to the fact that syncope doesn't startup properly is the database isn't fully initialized yet.
+
+* Postgres Chart - this will install the postgres database.  It will also configure a persistent volume and persistent volume claim to store the data
+* Syncope Chart - This is the actual syncope install.  It will install 3 separate pods (Core, Console, and Enduser)
+
+image::SyncopeLayoutInK8s.png[]
+
+**Values.yaml** - Each Helm Chart has a values.yaml.  These are the configurable parameters for your specific install.  Before running the install you need to update the values.yaml for your needs
+
+===== Install Commands
+
+Open a terminal and navigate to the "helm" https://github.com/apache/syncope/tree/master/docker/src/main/resources/k8s/helm[folder] wherever you downloaded the code.  **REMINDER:  SET YOUR VALUES.YAML!!!**
+
+.Install postgres
+[source,bash]
+----
+helm install postgres --name postgres --namespace <YOUR_NAMESPACE> -f postgres/values.yaml
+----
+
+Let Postgres initialize (about 20-30 seconds).  You can watch logs to confirm
+
+.Install syncope
+[source,bash]
+----
+helm install syncope --name syncope --namespace <YOUR_NAMESPACE> -f syncope/values.yaml
+----
+
 === Maven Project
 
 This is the *preferred method* for working with Apache Syncope, giving access to the whole set of customization

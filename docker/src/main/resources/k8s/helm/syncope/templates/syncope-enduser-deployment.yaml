@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{.Values.syncopeEndUserConfig.name}}
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        name: {{.Values.syncopeEndUserConfig.name}}
+    spec:
+      containers:
+      - name: {{.Values.syncopeEndUserConfig.name}}
+        envFrom:
+        - configMapRef:
+           name: syncope-environment-config
+        image: "{{.Values.syncopeEndUserConfig.repository}}/{{.Values.syncopeEndUserConfig.container}}:{{.Values.syncopeEndUserConfig.tag}}"
+        ports:
+        - containerPort: {{.Values.syncopeEndUserConfig.containerPort}}
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{.Values.syncopeEndUserConfig.name}}"
+spec:
+  type: "{{.Values.syncopeEndUserConfig.serviceType}}"
+  selector:
+    name: "{{.Values.syncopeEndUserConfig.name}}"
+  ports:
+  - port: {{.Values.syncopeEndUserConfig.containerPort}}
+    name: http-api

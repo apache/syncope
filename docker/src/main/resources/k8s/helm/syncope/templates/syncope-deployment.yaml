@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+ name: syncope-environment-config
+data:
+ DBMS: postgresql
+ DB_URL: {{.Values.syncopeEnvironment.dbUrl}}
+ DB_USER: {{.Values.syncopeEnvironment.dbUser}}
+ DB_PASSWORD: {{.Values.syncopeEnvironment.userCreds}}
+ DB_POOL_MAX: "{{.Values.syncopeEnvironment.dbPoolMax}}"
+ DB_POOL_MIN: "{{.Values.syncopeEnvironment.dbPoolMin}}"
+ OPENJPA_REMOTE_COMMIT: sjvm
+ CORE_SCHEME: "{{.Values.syncopeEnvironment.coreScheme}}"
+ CORE_HOST: "{{.Values.syncopeEnvironment.coreHost}}"
+ CORE_PORT: "{{.Values.syncopeEnvironment.corePort}}"
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{.Values.syncopeConfig.name}}
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        name: {{.Values.syncopeConfig.name}}
+    spec:
+      containers:
+      - name: {{.Values.syncopeConfig.name}}
+        envFrom:
+        - configMapRef:
+           name: syncope-environment-config
+        image: "{{.Values.syncopeConfig.repository}}/{{.Values.syncopeConfig.container}}:{{.Values.syncopeConfig.tag}}"
+        ports:
+        - containerPort: {{.Values.syncopeConfig.containerPort}}
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{.Values.syncopeConfig.name}}"
+spec:
+  type: "{{.Values.syncopeConfig.serviceType}}"
+  selector:
+    name: "{{.Values.syncopeConfig.name}}"
+  ports:
+  - port: {{.Values.syncopeConfig.containerPort}}
+    name: http-api

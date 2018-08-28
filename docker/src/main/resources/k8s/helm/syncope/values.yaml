@@ -1,0 +1,40 @@
+### Environment Variables that will be set on all 3 syncope docker containers (core, console, enduser)
+syncopeEnvironment:
+  dbUrl: jdbc:postgresql://postgres:5432/syncope
+  dbUser: syncope
+  dbPoolMax: 10
+  dbPoolMin: 2
+  coreScheme: http # valid values are http and https
+  coreHost: syncope # Host that syncope will use to connect to core.  Needs to match .Values.syncopeConfig.name
+  corePort: 8080
+  userCreds: <YOURPASSWORD> # Needs to match the databaseEnvironment.pgPassword that was provided to the database
+### Config Params for the syncope container (A.K.A. Core)
+syncopeConfig:
+  name: syncope
+  replicas: 1
+  repository: apache
+  container: syncope
+  tag: 2.1.0
+  containerPort: 8080
+  memoryLimit: 512Mi
+  serviceType: ClusterIP
+### Config Params for the syncope-console containers
+syncopeConsoleConfig:
+  name: syncope-console
+  replicas: 1
+  repository: apache
+  container: syncope-console
+  tag: 2.1.0
+  containerPort: 8080
+  memoryLimit: 512Mi
+  serviceType: ClusterIP
+### Config Params for the syncope-enduser containers
+syncopeEndUserConfig:
+  name: syncope-enduser
+  replicas: 1
+  repository: apache
+  container: syncope-enduser
+  tag: 2.1.0
+  containerPort: 8080
+  memoryLimit: 512Mi
+  serviceType: ClusterIP

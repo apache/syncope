@@ -1,0 +1,31 @@
+### Environment Variables that will be pumped into postgres
+databaseEnvironment:
+  pgDatabase: syncope
+  pgMode: primary
+  pgPassword: <YOURPASSWORD>
+  pgPrimaryHost: localhost
+  pgPrimaryPassword: <YOURPASSWORD>
+  pgPrimaryPort: 5432
+  pgPrimaryUser: postgres
+  pgRootPassword: <YOURPASSWORD>
+  pgUser: syncope
+  pgdataPathOverride: postgres-data
+### Database container information
+databaseConfig:
+  port: 5432
+  name: postgres
+  serviceType: ClusterIP
+  repository: crunchydata
+  container: crunchy-postgres
+  tag: centos7-10.3-1.8.2
+  cpu: 200m
+  memory: 512Mi
+### Persistent Volume Config
+pv:
+  storage: 20Gi
+  name: primary-pv
+  mode: ReadWriteOnce
+  path: /pgdata
+### The PVC that will be used by postgres
+pvc:
+  name: postgres-readwriteonce-pvc

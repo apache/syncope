@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{.Values.syncopeConsoleConfig.name}}
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        name: {{.Values.syncopeConsoleConfig.name}}
+    spec:
+      containers:
+      - name: {{.Values.syncopeConsoleConfig.name}}
+        envFrom:
+        - configMapRef:
+           name: syncope-environment-config
+        image: "{{.Values.syncopeConsoleConfig.repository}}/{{.Values.syncopeConsoleConfig.container}}:{{.Values.syncopeConsoleConfig.tag}}"
+        ports:
+        - containerPort: {{.Values.syncopeConsoleConfig.containerPort}}
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{.Values.syncopeConsoleConfig.name}}"
+spec:
+  type: "{{.Values.syncopeConsoleConfig.serviceType}}"
+  selector:
+    name: "{{.Values.syncopeConsoleConfig.name}}"
+  ports:
+  - port: {{.Values.syncopeConsoleConfig.containerPort}}
+    name: http-api
