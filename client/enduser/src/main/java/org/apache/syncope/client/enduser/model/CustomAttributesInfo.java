@@ -26,19 +26,9 @@ public class CustomAttributesInfo implements Serializable {
 
     private static final long serialVersionUID = 878444785696091916L;
 
-    private Boolean show = Boolean.TRUE;
-
     private Map<String, CustomAttribute> attributes = new LinkedHashMap<>();
 
     public CustomAttributesInfo() {
-    }
-
-    public Boolean isShow() {
-        return show;
-    }
-
-    public void setShow(final Boolean show) {
-        this.show = show;
     }
 
     public Map<String, CustomAttribute> getAttributes() {
@@ -47,11 +37,6 @@ public class CustomAttributesInfo implements Serializable {
 
     public void setAttributes(final Map<String, CustomAttribute> attributes) {
         this.attributes = attributes;
-    }
-
-    public CustomAttributesInfo show(final Boolean value) {
-        this.show = value;
-        return this;
     }
 
     public CustomAttributesInfo attributes(final Map<String, CustomAttribute> value) {

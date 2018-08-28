@@ -18,8 +18,9 @@
  */
 
 'use strict';
-angular.module("login").controller("LoginController", ['$scope', '$rootScope', '$http', '$location', 'AuthService',
-  function ($scope, $rootScope, $http, $location, AuthService) {
+angular.module("login").controller("LoginController", ['$scope', '$rootScope', '$http', '$state', '$location',
+  'AuthService',
+  function ($scope, $rootScope, $http, $state, $location, AuthService) {
 
     $scope.credentials = {
       username: '',
@@ -37,7 +38,7 @@ angular.module("login").controller("LoginController", ['$scope', '$rootScope', '
         // reset OIDC name
         $rootScope.oidcops.selected.name = null;
         // got to update page
-        $location.path("/self/update");
+        $state.go("update" + $rootScope.getWizardFirstStep());
       }, function (response) {
         console.info("Login failed for: ", response);
         var errorMessage;
@@ -65,11 +66,11 @@ angular.module("login").controller("LoginController", ['$scope', '$rootScope', '
     };
 
     $scope.selfCreate = function () {
-      $location.path("/self/create");
+      $state.go("create" + $rootScope.getWizardFirstStep());
     };
 
     $scope.passwordReset = function () {
-      $location.path("/passwordreset");
+      $state.go("passwordreset");
     };
 
     $scope.$watch(function () {

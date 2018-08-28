@@ -17,6 +17,8 @@ specific language governing permissions and limitations
 under the License.
 */
 
+/* Default style
+============================================================================= */
 * {
   box-sizing: border-box;
 }
@@ -27,6 +29,7 @@ under the License.
   margin-top:-4px;
   margin: 0 auto;
   text-align: center;
+  background-color: #F7F7F7;
 }
 
 #form-container .breadcrumb-header{
@@ -35,20 +38,23 @@ under the License.
   padding:10px; 
 }
 
-#form-container .page-header   { background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%); /* FF3.6+ */
-                                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9db80), color-stop(100%,#96c56f)); /* Chrome,Safari4+ */
-                                 background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Chrome10+,Safari5.1+ */
-                                 background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Opera 11.10+ */
-                                 background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* IE10+ */ 
-                                 margin: 1% 9%;
-                                 width: 83%; padding:10px; 
-                                 /* shadows and rounded borders */
-                                 -moz-border-radius: 5px;
-                                 -webkit-border-radius: 5px;
-                                 border-radius: 5px;
-                                 -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
-                                 -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
-                                 box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+#form-container .page-header   { 
+  background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9db80), color-stop(100%,#96c56f)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* IE10+ */ 
+  margin: 1% 9%;
+  width: 83%; padding:10px; 
+  /* shadows and rounded borders */
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+  -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+  text-align: left; 
+  font-weight: 700;
 }
 
 .signup-form {
@@ -93,79 +99,41 @@ under the License.
   list-style: none;
 }
 
-#previous {
-  background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%);  /*FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9db80), color-stop(100%,#96c56f));  /*Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Opera 11.10+*/ 
-  background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*IE10+*/ 
-  display: inline-block;
-  color: black;
-  padding-left: 8px;
-  padding-right: 8px;
-  margin-left: 5px;
-}
-
-#previous:hover {
-  background: #658D5D;
-}
-
-#next{
-  background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%); /*FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9db80), color-stop(100%,#96c56f));  /*Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Opera 11.10+ */
-  background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*IE10+ */
-  display: inline-block;
-  margin-left: 5px;
-  padding-left: 8px;
-  padding-right: 8px;
-  float: right;
-  color: black;
-}
-
-#next:hover {
-  background: #658D5D;
-}
-
-#save{
+#next,
+#previous,
+#save,
+#finish {
   background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%);  /*FF3.6+*/ 
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9db80), color-stop(100%,#96c56f));  /*Chrome,Safari4+ */
   background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Chrome10+,Safari5.1+ */
   background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Opera 11.10+ */
   background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*IE10+ */
-  color: black;
   display: inline-block;
+
   padding-left: 8px;
   padding-right: 8px;
   margin-left: 5px;
-  margin-right: 5px;
-}
-
-#save:hover {
-  background: #658D5D;
-}
-
-#finish{
-  background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%);  /*FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9db80), color-stop(100%,#96c56f));  /*Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Chrome10+,Safari5.1+*/ 
-  background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Opera 11.10+ */
-  background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*IE10+*/
-  display: inline-block;
-  margin-left:5px;
-  padding-left: 8px;
-  padding-right: 8px;
+  border: none;
   color: black;
-  margin-left: 5px;
+}
+
+#save:hover,
+#previous:hover,
+#finish:hover,
+#next:hover {
+  background: #658D5D;
+}
+
+#save {
   margin-right: 5px;
 }
 
-#finish:hover {
-  background: #658D5D;
+#finish {
+  margin-right: 5px;
 }
 
 #cancel {
+  color: #fff;
   margin-top: 0%;
 }
 
@@ -228,31 +196,23 @@ span.k-datetimepicker{
 
 /** Button breadcrumb **/
 .btn-breadcrumb .btn:not(:last-child):after {
-  content: " ";
-  display: block;
-  width: 0;
-  height: 0;
-  border-top: 17px solid transparent;
-  border-bottom: 17px solid transparent;
   border-left: 10px solid white;
-  position: absolute;
-  top: 50%;
-  margin-top: -17px;
-  left: 100%;
-  z-index: 3;
 }
 .btn-breadcrumb .btn:not(:last-child):before {
+  margin-left: 1px;
+  border-left: 10px solid rgb(173, 173, 173);
+}
+.btn-breadcrumb .btn:not(:last-child):before,
+.btn-breadcrumb .btn:not(:last-child):after {
   content: " ";
   display: block;
   width: 0;
   height: 0;
   border-top: 17px solid transparent;
   border-bottom: 17px solid transparent;
-  border-left: 10px solid rgb(173, 173, 173);
   position: absolute;
   top: 50%;
   margin-top: -17px;
-  margin-left: 1px;
   left: 100%;
   z-index: 3;
 }
@@ -268,31 +228,72 @@ span.k-datetimepicker{
   padding:6px 18px 6px 24px;
 }
 
-/** Default button **/
-.btn-breadcrumb .btn.btn-default:not(:last-child):after {
-  border-left: 10px solid #fff;
-}
-.btn-breadcrumb .btn.btn-default:not(:last-child):before {
-  border-left: 10px solid #ccc;
-}
-.btn-breadcrumb .btn.btn-default:hover:not(:last-child):after {
-  border-left: 10px solid #ebebeb;
-}
-.btn-breadcrumb .btn.btn-default:hover:not(:last-child):before {
-  border-left: 10px solid #adadad;
-}
-
-.btn-breadcrumb .btn.btn-default.active:not(:last-child):after {
-  border-left: 10px solid #e6e6e6;
-}
-
-.btn-breadcrumb .btn.btn-default.active {
-  box-shadow: 0 0px 0px rgba(0, 0, 0, 0.125)
-}
-
+/** Default buttons **/
 .breadcrumb-disabled-link {
   pointer-events: none;
   cursor: default;
+}
+
+.breadcrumb-btn-elem {
+  border-color: #ccc;
+}
+
+.btn-breadcrumb .breadcrumb-btn-elem:not(:last-child):after {
+  border-left: 10px solid #fff;
+}
+.btn-breadcrumb .breadcrumb-btn-elem:not(:last-child):before {
+  border-left: 10px solid #ccc;
+}
+
+.btn-breadcrumb .breadcrumb-btn-elem.active:not(:last-child):after,
+.btn-breadcrumb .breadcrumb-btn-elem:hover:not(:last-child):after {
+  border-left: 10px solid #ebebeb;
+}
+.btn-breadcrumb .breadcrumb-btn-elem.active:not(:last-child):before,
+.btn-breadcrumb .breadcrumb-btn-elem:hover:not(:last-child):before {
+  border-left: 10px solid #adadad;
+}
+
+.btn-breadcrumb .breadcrumb-btn-elem.active {
+  box-shadow: 0 0px 0px rgba(0, 0, 0, 0.125)
+}
+.btn-breadcrumb .breadcrumb-btn-elem:focus {
+  box-shadow: none !important;
+}
+
+.btn-breadcrumb .btn:before,
+.btn-breadcrumb .btn:after {
+  transition: all .15s ease-in-out;
+}
+
+div[role="tablist"] {
+  margin-bottom: 20px;
+}
+
+/* For Bootstrap 4 */
+
+/*
+.btn-breadcrumb .breadcrumb-btn-elem:hover {
+  color: #ffffff !important;
+}
+
+.btn-breadcrumb .breadcrumb-btn-elem:not(:hover),
+.btn-breadcrumb .breadcrumb-home:not(:hover) {
+  color: #333;
+  background-color: #fff;
+}
+
+.btn-breadcrumb .breadcrumb-btn-elem:hover:not(:last-child):after,
+.btn-breadcrumb .breadcrumb-btn-elem:hover:not(:last-child):before,
+.btn-breadcrumb .breadcrumb-btn-elem.active:not(:last-child):after,
+.btn-breadcrumb .breadcrumb-btn-elem.active:not(:last-child):before {
+  border-left: 10px solid #4c4c4c;
+}
+*/
+
+.btn-file {
+  background: transparent;
+  color: black;
 }
 
 .text-validation-error{
@@ -300,9 +301,81 @@ span.k-datetimepicker{
   font-weight: 600;
 }
 
-/*--------------end default style*/
+.multivalue button{
+  float: right
+}
+.schema-type #date{
+  margin-top: 35px;
+  margin-bottom: 2px;
+}
 
-/*style for devices max width 350 */
+.multivalue input{
+  width: calc(100% - 70px);
+  margin-top: 10px
+}
+
+.multivalue input:disabled{
+  width: 100%;  
+}
+
+.multivalue button{
+  margin-top: 2px
+}
+
+.multivalue #datetime{
+  margin-top: 0px
+}
+
+#datetime input{
+  width: 100%;
+  margin-top: 0px
+}
+#timepicker input{
+  width: 50px;
+  margin-top: 0px
+}
+
+.multivalue #timepicker {
+  margin-top: -35px;
+}
+
+.suggestions{
+  font-size: 10px;
+  display: inline-block;
+  margin-bottom: 5px;
+}
+
+#status-buttons {
+  padding-left: 15px;
+  -webkit-flex-flow: row wrap; /* Safari 6.1+ */
+  flex-flow: row wrap;
+}
+
+.card.card-open {
+  background-color: #ffffff;
+}
+
+.card-header a {
+  text-decoration: none;
+}
+
+.card-header h5 a {
+  color: black;
+}
+
+.card-header {
+  padding: 2px 15px;
+  border-bottom: 1px solid transparent;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  background-color: #f5f5f5;
+  border-color: #ddd;
+}
+/* end default style
+============================================================================= */
+
+/* Style for devices max width 350
+============================================================================= */
 @media only screen and (max-width: 350px) {
 
   input[type=file] {
@@ -337,39 +410,42 @@ span.k-datetimepicker{
     padding: 0px 0px 1px 0px
   }
 
-  #finish{
+  #finish,
+  #save,
+  #next,
+  #previous {
     padding-left: 2px;
     padding-right: 2px;
+  }
+
+  #finish{
     margin-left:-27px;
     margin-top: 2px;
   }
   #next{
-    padding-left: 2px;
-    padding-right: 2px;
     margin-left: 1px;
   }
   #previous{
-    padding-left: 2px;
-    padding-right: 2px;
     margin-left:-126px;
   }
   #save{
     margin-top: 4px;
-    padding-left: 2px;
-    padding-right: 2px;
     margin-top:-31px;
     margin-left: -42px;
     margin-right: 15px;
   }
-  
+
   span.k-datetimepicker {
     width: 141%;
     margin-top: -50px;
-}
+  }
 
 }
+/* 
+============================================================================= */
 
-/*style for devices max width 400 */
+/* Style for devices max width 400
+============================================================================= */
 @media only screen and (max-width: 400px) {
 
   input[type=file] {
@@ -418,36 +494,42 @@ span.k-datetimepicker{
     padding:6px 18px 6px 24px;
   }
 
-  #finish{
+  #next,
+  #finish,
+  #previous,
+  #save {
     padding-left: 2px;
+  }
+
+  #finish {
     padding-right: 2px;
     margin-right: -3px;
     margin-left: 0px;
   }
-  #next{
-    padding-left: 2px;
+  #next {
     padding-right: 2px;
     margin-right: 23px;
   }
-  #previous{
-    padding-left: 2px;
+  #previous {
     padding-right: 2px;
     margin-left: 0px
   }
-  #save{
-    padding-left: 2px;
+  #save {
     padding-right: 0px;
     margin-left: -21px;
     margin-top: 4px;
   }
-  
-    span.k-datetimepicker{
+
+  span.k-datetimepicker{
     width: 160%;
   }
 
 }
+/* 
+============================================================================= */
 
-/*style for devices max width 500*/
+/* Style for devices max width 500
+============================================================================= */
 @media only screen and (max-width: 500px) {
 
   * {
@@ -483,15 +565,11 @@ span.k-datetimepicker{
     font-size: 12px;
   }
 
-  .btn-group .btn+.btn, .btn-group .btn+.btn-group, .btn-group .btn-group+.btn, .btn-group .btn-group+.btn-group {
+  .btn-group .btn+.btn, 
+  .btn-group .btn+.btn-group, 
+  .btn-group .btn-group+.btn, 
+  .btn-group .btn-group+.btn-group {
     margin-left: 0px;
-  }
-
-  .btn-default {
-    color: #333;
-    background-color: #fff;
-    border-color: #ccc;
-    /*width: 100%;*/
   }
 
   .card-container.card {
@@ -543,12 +621,10 @@ span.k-datetimepicker{
 
   .select2-results .select2-result-label{
     font-size: 12px;
-
   }
 
   .select2-container-multi .select2-choices .select2-search-field input{
     font-size:12px;
-
   }
 
   #datetime{
@@ -666,8 +742,11 @@ span.k-datetimepicker{
 
   }
 }
+/* 
+============================================================================= */
 
-/*style for devices max width 800) */
+/* Style for devices max width 800)
+============================================================================= */
 @media only screen and (max-width: 800px) {
 
   * {
@@ -702,6 +781,8 @@ span.k-datetimepicker{
   }
 
 }
+/* 
+============================================================================= */
 
 /* ANIMATIONS
 ============================================================================= */
@@ -729,41 +810,5 @@ span.k-datetimepicker{
   from    { -webkit-transform:translateX(300%); }
   to      { -webkit-transform: translateX(0); }
 }
-
-.multivalue button{
-  float: right
-}
-.schema-type #date{
-  margin-top: 35px;
-  margin-bottom: 2px;
-}
-
-.multivalue input{
-  width: calc(100% - 70px);
-  margin-top: 10px
-}
-
-.multivalue input:disabled{
-  width: 100%;  
-}
-
-.multivalue button{
-  margin-top: 2px
-}
-
-.multivalue #datetime{
-  margin-top: 0px
-}
-
-#datetime input{
-  width: 100%;
-  margin-top: 0px
-}
-#timepicker input{
-  width: 50px;
-  margin-top: 0px
-}
-
-.multivalue #timepicker {
-  margin-top: -35px;
-}
+/* 
+============================================================================= */

@@ -127,11 +127,11 @@ angular.module('self')
               };
 
               $scope.customReadonly = function (schemaKey) {
-                return  $rootScope.customForm != null
-                        && $rootScope.customForm["PLAIN"] != null
-                        && $rootScope.customForm["PLAIN"]["attributes"] != null
-                        && $rootScope.customForm["PLAIN"]["attributes"][schemaKey] != null
-                        && $rootScope.customForm["PLAIN"]["attributes"][schemaKey].readonly;
+                return  $rootScope.customFormAttributes
+                        && $rootScope.customFormAttributes["PLAIN"]
+                        && $rootScope.customFormAttributes["PLAIN"]["attributes"]
+                        && $rootScope.customFormAttributes["PLAIN"]["attributes"][schemaKey]
+                        && $rootScope.customFormAttributes["PLAIN"]["attributes"][schemaKey].readonly;
               };
 
               $scope.$watch(function () {

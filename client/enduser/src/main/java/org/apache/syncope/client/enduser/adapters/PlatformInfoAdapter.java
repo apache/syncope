@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.info.PlatformInfo;
 public final class PlatformInfoAdapter {
 
     public static PlatformInfoRequest toPlatformInfoRequest(final PlatformInfo platformInfo,
-            final Map<String, CustomAttributesInfo> customForm) {
+            final Map<String, CustomAttributesInfo> customFormAttributes) {
         PlatformInfoRequest request = new PlatformInfoRequest();
         request.setPwdResetAllowed(platformInfo.isPwdResetAllowed());
         request.setSelfRegAllowed(platformInfo.isSelfRegAllowed());
@@ -37,7 +37,7 @@ public final class PlatformInfoAdapter {
         if (SyncopeEnduserApplication.get().getMaxUploadFileSizeMB() != null) {
             request.setMaxUploadFileSizeMB(SyncopeEnduserApplication.get().getMaxUploadFileSizeMB());
         }
-        request.setCustomForm(customForm);
+        request.setCustomFormAttributes(customFormAttributes);
 
         return request;
     }

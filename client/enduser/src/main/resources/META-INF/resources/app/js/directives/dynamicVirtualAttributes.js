@@ -56,7 +56,8 @@ angular.module('self')
               };
 
               $scope.addVirtualAttributeField = function (virSchemaKey) {
-                $scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.push(virSchemaKey + "_" + ($scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.length));
+                $scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.push(virSchemaKey + "_"
+                        + ($scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.length));
               };
 
               $scope.removeVirtualAttributeField = function (virSchemaKey, index) {

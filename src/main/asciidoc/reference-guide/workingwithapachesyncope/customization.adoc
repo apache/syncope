@@ -110,7 +110,8 @@ $ mvn clean verify \
 $ cp core/target/classes/*properties /opt/syncope/conf
 $ cp console/target/classes/*properties /opt/syncope/conf
 $ cp enduser/target/classes/*properties /opt/syncope/conf
-$ cp enduser/target/classes/customForm.json /opt/syncope/conf
+$ cp enduser/target/classes/customFormAttributes.json /opt/syncope/conf
+$ cp enduser/target/classes/customTemplate.json /opt/syncope/conf
 ....
 
 After downloading all of the dependencies that are needed, three WAR files will be produced:
@@ -628,17 +629,17 @@ The <<enduser-application>> allows to customize the form in order to:
 * set attributes read-only for users
 * provide default value(s)
 
-Under the `enduser/src/main/resources` directory, the `customForm.json` file is available, allowing to configure form
+Under the `enduser/src/main/resources` directory, the `customFormAttributes.json` file is available, allowing to configure form
 customization.
 
 [NOTE]
 .Hot deploy
 ====
-The `customForm.json` could be edited and reloaded without the need of re-starting the Java EE container.
+The `customFormAttributes.json` could be edited and reloaded without the need of re-starting the Java EE container.
 ====
 
 [TIP]
-The `customForm.json` default content is just an empty object `{}`: if such file is missing, empty or not valid,
+The `customFormAttributes.json` default content is just an empty object `{}`: if such file is missing, empty or not valid,
 form customization will be simply disabled and all attributes will be shown.
 
 .Sample form customization
@@ -648,7 +649,6 @@ form customization will be simply disabled and all attributes will be shown.
 {
   "PLAIN":
           {
-            "show": true,
             "attributes": {
               "firstname": {
                 "readonly": true,
@@ -681,13 +681,8 @@ form customization will be simply disabled and all attributes will be shown.
               }
             }
           },
-  "DERIVED":
-          {
-            "show": false
-          },
   "VIRTUAL":
           {
-            "show": true,
             "attributes": {
               "virtualdata": {
                 "readonly": true,
@@ -699,7 +694,7 @@ form customization will be simply disabled and all attributes will be shown.
 ----
 ====
 
-The `customForm.json` file has two main levels:
+The `customFormAttributes.json` file has two main levels:
 
 . Schema type, e.g. `PLAIN`, `DERIVED`, `VIRTUAL`;
 . Attributes: list of attributes (by schema type) to be shown on the form.
@@ -710,9 +705,6 @@ The `customForm.json` file has two main levels:
 The schema type level allows to define customization of the three sub-forms available in the Enduser Application's form.
 
 Only one, two or all three sections can be specified, in order to customize only what is really needed.
-
-Moreover, a global boolean field `show` is available, to indicate that the whole sub-form should be shown or hidden.
-When not specified, `show` is treated as `true`.
 
 [discrete]
 ====== Attributes
@@ -744,14 +736,13 @@ An empty `attributes` field translates to skip filtering and show all attributes
 {
   "PLAIN": 
           {
-            "show": true,
             "attributes": {}
           }
 }
 ```
 shows all `PLAIN` attributes.
 
-If all attributes are to be hidden, please set `"show": false`, instead.
+If all attributes are to be hidden, please use [[customization-enduser-template]] to hide the full wizard step, instead.
 ====
 
 [NOTE]
@@ -767,6 +758,190 @@ Within Enduser form customization, `readonly` prevents the user's browser to mod
 (timestamps). +
 Moreover, `defaultValues` do not overwrite any existing value.
 ====
+
+[[customization-enduser-template]]
+===== Dynamic Templating
+
+It is possible to customize the <<enduser-application>> using the "Dynamic Templating" feature. 
+It is a simple and fast way to customize structure and style of the whole Enduser.
+
+Under the `enduser/src/main/resources` directory, the `customTemplate.json` file is available, allowing to configure application
+style and structure.
+
+[NOTE]
+.Hot deploy
+====
+The `customTemplate.json` could be edited and reloaded without the need of re-starting the Java EE container.
+====
+
+[TIP]
+====
+The `customTemplate.json` default content is:
+```
+{
+  "templates": 
+          {
+            "login":
+                    {
+                      "templateUrl": "views/templates/selfTemplate.html",
+                      "css": [
+                        "css/login.css"
+                      ]
+                    },
+
+            "edit_user":
+                    {
+                      "templateUrl": "views/templates/editUserTemplate.html",
+                      "css": [
+                        "css/editUser.css"
+                      ]
+                    },
+
+            "password_reset":
+                    {
+                      "templateUrl": "views/templates/passwordresetTemplate.html",
+                      "css": [
+                        "css/editUser.css",
+                        "css/passwordReset.css"
+                      ]
+                    }
+          },
+
+  "generalAssets": 
+          {
+            "css": [
+              "css/notification.css",
+              "css/app.css"
+            ]
+          },
+
+  "wizard": 
+          {
+            "firstStep": "credentials",
+            "steps": {
+              "credentials": {
+                "url": "/credentials"
+              },
+              "groups": {
+                "url": "/groups"
+              },
+              "plainSchemas": {
+                "url": "/plainSchemas"
+              },
+              "derivedSchemas": {
+                "url": "/derivedSchemas"
+              },
+              "virtualSchemas": {
+                "url": "/virtualSchemas"
+              },
+              "resources": {
+                "url": "/resources"
+              },
+              "finish": {
+                "url": "/finish"
+              }
+            }
+          }
+}
+```
+if such file is missing, empty or not valid, Enduser structure will not be valid and won't work as expected.
+====
+
+[discrete]
+====== Editing default template
+
+As sample, Syncope provides a configuration to apply a dark theme to Enduser and edit the "User Edit / Create Wizard" 
+to only display 3 steps, like:
+
+* PlainSchemas;
+* Details (Username, Password, Security question etc…);
+* Finish.
+
+The configurations for that sample are in
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/client/enduser/src/test/resources/customTemplate.json[customTemplate.json^].
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/client/enduser/src/test/resources/customTemplate.json[customTemplate.json^].
+endif::[]
+In order to apply them, that content must be copied to your `customTemplate.json` file.
+
+[discrete]
+====== Template styling assets
+
+In case you need, place your static `.css` resources somewhere (e.g. `enduser/src/main/resources/META-INF/resources/app/css/templates/`)
+and refer them in `customTemplate.json` file.
+
+[discrete]
+====== Wizard steps
+
+It is also possible to customize the list of wizard steps to be shown in "User Edit / Create Wizard".
+E.g., only 3 steps are displayed in the dark theme template sample configuration:
+
+```
+"wizard": 
+        {
+          "steps": {
+            "plainSchemas": {
+              "url": "/plainSchemas"
+            },
+            "credentials": {
+              "url": "/credentials"
+            },
+            "finish": {
+              "url": "/finish"
+            }
+          }
+        }
+```
+
+Use the `"firstStep"` property to decide which step must be set as first one in the wizard:
+
+```
+"wizard": 
+        {
+          "firstStep": "plainSchemas",
+        }
+```
+
+[discrete]
+====== Template structure
+
+The structure of the template sections is defined by `templateUrl` property, for each main section:
+
+```
+"templates": 
+        {
+         "login":
+                {
+                  "templateUrl": "views/templates/selfTemplate.html",
+                },
+
+        "edit_user":
+                {
+                  "templateUrl": "views/templates/onlyPlainAttrsDetails/editUserTemplate.html",
+                },
+
+        "password_reset":
+                {
+                  "templateUrl": "views/templates/passwordresetTemplate.html",
+                },          
+        },
+```
+
+E.g., `enduser/src/main/resources/META-INF/resources/app/views/templates/onlyPlainAttrsDetails/editUserTemplate.html` is 
+equals to the default
+`enduser/src/main/resources/META-INF/resources/app/views/templates/editUserTemplate.html`
+template file. 
+Anyway, it is just helpful to show that it is possible to customize all the application structure in a very simple way.
+
+It could also be useful to edit the specific parts of a single wizard step or view; all of those are placed in 
+`enduser/src/main/resources/META-INF/resources/app/views/` folder.
+
+[WARNING]
+Please do not change the main object keys in `customTemplate.json` file (e.g. `templates`, `edit_user`, `login`, `generalAssets`, etc...); 
+they are used to identify the specific customizable template parts of the Enduser application.
+In case it is necessary to change those identifiers, remember to edit all references in other parts of the application.
 
 [[customization-extensions]]
 ==== Extensions

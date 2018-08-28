@@ -26,6 +26,7 @@ describe('syncope enduser user password reset ', function () {
     abstract.goHome();
 
     abstract.waitSpinner();
+    browser.wait(element(by.id('passwordreset')).isPresent());
     element(by.id('passwordreset')).click();
     abstract.waitSpinner();
 

@@ -1,0 +1,49 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+*/
+
+.treasure-overlay-spinner-container{
+  z-index : 10001;
+}
+
+treasure-overlay-spinner .treasure-overlay-spinner-content {
+  height: 100%;
+}
+treasure-overlay-spinner {
+  height: 100%;
+  top: 0;
+  bottom: 0;
+  position: fixed;
+  right: 0;
+  left: 0;
+  overflow-y: auto;
+}
+
+treasure-overlay-spinner .treasure-overlay-spinner {
+  position: fixed;
+  pointer-events: none;
+}
+
+treasure-overlay-spinner .treasure-overlay-spinner-container {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.5490196078431373);
+}
+
+treasure-overlay-spinner.treasure-overlay-spinner-active-remove {
+  transition: all 150ms ease-in 0s;
+}

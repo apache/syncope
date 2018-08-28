@@ -19,9 +19,11 @@
 exports.config = {
   directConnect: false,
   capabilities: {
-    'browserName': 'phantomjs',
-    'phantomjs.binary.path': '${phantomjs.binary}',
-    'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG']
+    'browserName': 'chrome',
+
+    chromeOptions: {
+      args: ["--headless", "--window-size=1600,1000"]
+    }
   },
 
   allScriptsTimeout: 241000,

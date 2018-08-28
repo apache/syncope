@@ -17,26 +17,30 @@ specific language governing permissions and limitations
 under the License.
 -->
 <div  ng-repeat="groupSchema in dynamicForm.groupSchemas">
-  <uib-accordion ng-if="getByGroup(groupSchema).length > 0">
+  <uib-accordion ng-if="getByGroup(groupSchema).length">
     <div uib-accordion-group heading="{{groupSchema| translate}}"
          ng-init="status = {isOpen: (groupSchema == 'own')}" is-open="status.isOpen"
-         class="breadcrumb-header">
+         class="breadcrumb-header panel panel-default">
+
       <div id="attribute" class="form-group" ng-repeat="virSchema in getByGroup(groupSchema) track by $index">
-        <label for="virSchema.key">{{virSchema.labels[language] || virSchema.simpleKey}} <span ng-if="virSchema.mandatoryCondition === 'true'">*</span></label>
+        <label for="virSchema.key">{{virSchema.labels[language]|| virSchema.simpleKey}}
+          <span ng-if="virSchema.mandatoryCondition === 'true'">*</span>
+        </label>
         <div ng-if="!virSchema.multivalue">
           <dynamic-virtual-attribute schema="virSchema" user="user" index="0"></dynamic-virtual-attribute>
           <validation-message name="{{virSchema.simpleKey}}"/>
         </div>
+
         <div ng-if="virSchema.multivalue">
           <div ng-repeat="field in dynamicForm.attributeTable[virSchema.key].fields track by $index" 
                ng-model='dynamicForm.attributeTable[virSchema.key].fields[$index]'>
             <div class="multivalue">
               <dynamic-virtual-attribute schema="virSchema" user="user" index="$index"></dynamic-virtual-attribute>
-              <button class="btn btn-default btn-sm minus" ng-if="$index > 0" type="button" 
+              <button class="btn btn-secondary btn-default btn-sm minus" ng-if="$index > 0" type="button" 
                       ng-click="removeAttributeField(virSchema.key, $index)">
-                <i class="glyphicon glyphicon-minus" title="Remove value"></i>
-              </button><button class="btn btn-default btn-sm" type="button" ng-click="addAttributeField(virSchema.key)">
-                <i class="glyphicon glyphicon-plus" title="Add value"></i>
+                <i class="fa fa-minus" title="Remove value"></i>
+              </button><button class="btn btn-secondary btn-default btn-sm" type="button" ng-click="addAttributeField(virSchema.key)">
+                <i class="fa fa-plus" title="Add value"></i>
               </button>
             </div>
           </div>
