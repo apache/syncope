@@ -1,0 +1,67 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+ name: syncope-environment-config
+data:
+ DBMS: postgresql
+ DB_URL: {{.Values.syncopeEnvironment.dbUrl}}
+ DB_USER: {{.Values.syncopeEnvironment.dbUser}}
+ DB_PASSWORD: {{.Values.syncopeEnvironment.userCreds}}
+ DB_POOL_MAX: "{{.Values.syncopeEnvironment.dbPoolMax}}"
+ DB_POOL_MIN: "{{.Values.syncopeEnvironment.dbPoolMin}}"
+ OPENJPA_REMOTE_COMMIT: sjvm
+ CORE_SCHEME: "{{.Values.syncopeEnvironment.coreScheme}}"
+ CORE_HOST: "{{.Values.syncopeEnvironment.coreHost}}"
+ CORE_PORT: "{{.Values.syncopeEnvironment.corePort}}"
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{.Values.syncopeConfig.name}}
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        name: {{.Values.syncopeConfig.name}}
+    spec:
+      containers:
+      - name: {{.Values.syncopeConfig.name}}
+        envFrom:
+        - configMapRef:
+           name: syncope-environment-config
+        image: "{{.Values.syncopeConfig.repository}}/{{.Values.syncopeConfig.container}}:{{.Values.syncopeConfig.tag}}"
+        ports:
+        - containerPort: {{.Values.syncopeConfig.containerPort}}
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{.Values.syncopeConfig.name}}"
+spec:
+  type: "{{.Values.syncopeConfig.serviceType}}"
+  selector:
+    name: "{{.Values.syncopeConfig.name}}"
+  ports:
+  - port: {{.Values.syncopeConfig.containerPort}}
+    name: http-api
