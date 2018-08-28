@@ -69,10 +69,11 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
             }
 
             UserTO userTO = MAPPER.readValue(request.getReader().readLine(), UserTO.class);
-            Map<String, CustomAttributesInfo> customForm = SyncopeEnduserApplication.get().getCustomForm();
+            Map<String, CustomAttributesInfo> customFormAttributes =
+                    SyncopeEnduserApplication.get().getCustomFormAttributes();
 
             // check if request is compliant with customization form rules
-            if (UserRequestValidator.compliant(userTO, customForm, false)) {
+            if (UserRequestValidator.compliant(userTO, customFormAttributes, false)) {
                 // 1. membership attributes management
                 Set<AttrTO> membAttrs = new HashSet<>();
                 for (AttrTO attr : userTO.getPlainAttrs()) {
@@ -161,7 +162,7 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
                 // get old user object from session
                 UserTO selfTO = SyncopeEnduserSession.get().getSelfTO();
                 // align "userTO" and "selfTO" objects
-                if (customForm != null && !customForm.isEmpty()) {
+                if (customFormAttributes != null && !customFormAttributes.isEmpty()) {
                     completeUserObject(userTO, selfTO);
                 }
                 // create diff patch

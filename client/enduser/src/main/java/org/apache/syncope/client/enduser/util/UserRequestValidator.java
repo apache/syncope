@@ -21,8 +21,10 @@ package org.apache.syncope.client.enduser.util;
 import java.util.Map;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.model.CustomAttribute;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
+import org.apache.syncope.client.enduser.model.CustomTemplateInfo;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -37,26 +39,26 @@ public final class UserRequestValidator {
     private UserRequestValidator() {
     }
 
-    public static boolean compliant(final UserTO userTO, final Map<String, CustomAttributesInfo> customForm,
+    public static boolean compliant(final UserTO userTO, final Map<String, CustomAttributesInfo> customFormAttributes,
             final boolean checkDefaultValues) {
 
-        if (customForm == null || customForm.isEmpty()) {
+        if (customFormAttributes == null || customFormAttributes.isEmpty()) {
             return true;
         }
 
         return validateAttributes(EntityTOUtils.buildAttrMap(userTO.getPlainAttrs()),
-                customForm.get(SchemaType.PLAIN.name()), checkDefaultValues)
+                customFormAttributes.get(SchemaType.PLAIN.name()), checkDefaultValues)
                 && validateAttributes(EntityTOUtils.buildAttrMap(userTO.getDerAttrs()),
-                        customForm.get(SchemaType.DERIVED.name()), checkDefaultValues)
+                        customFormAttributes.get(SchemaType.DERIVED.name()), checkDefaultValues)
                 && validateAttributes(EntityTOUtils.buildAttrMap(userTO.getVirAttrs()),
-                        customForm.get(SchemaType.VIRTUAL.name()), checkDefaultValues);
+                        customFormAttributes.get(SchemaType.VIRTUAL.name()), checkDefaultValues);
     }
 
     private static boolean validateAttributes(final Map<String, AttrTO> attrMap,
             final CustomAttributesInfo customAttrInfo, final boolean checkDefaultValues) {
 
         return customAttrInfo == null
-                || (customAttrInfo.getAttributes().isEmpty() && customAttrInfo.isShow())
+                || (customAttrInfo.getAttributes().isEmpty())
                 || IterableUtils.matchesAll(attrMap.entrySet(), new Predicate<Map.Entry<String, AttrTO>>() {
 
                     @Override
@@ -72,6 +74,21 @@ public final class UserRequestValidator {
                         return compliant;
                     }
                 });
+
+    }
+
+    public static boolean validateSteps(final CustomTemplateInfo customTemplateInfo) {
+        return customTemplateInfo != null
+                && StringUtils.isNotBlank(customTemplateInfo.getWizard().getFirstStep())
+                && !customTemplateInfo.getWizard().getSteps().isEmpty();
+
+    }
+
+    public static boolean validateStep(final String stepName, final CustomTemplateInfo customTemplateInfo) {
+        return customTemplateInfo != null
+                && !customTemplateInfo.getWizard().getSteps().isEmpty()
+                && customTemplateInfo.getWizard().getSteps().containsKey(stepName)
+                && StringUtils.isNotBlank(customTemplateInfo.getWizard().getSteps().get(stepName).getUrl());
 
     }
 

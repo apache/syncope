@@ -28,8 +28,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
+import org.apache.syncope.client.enduser.model.CustomTemplateInfo;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -55,35 +57,51 @@ public class GroupResource extends BaseResource {
                 return response;
             }
 
-            String realm = URLDecoder.decode(attributes.getParameters().get("realm").
-                    toString(SyncopeConstants.ROOT_REALM), "UTF-8");
-            StringValue term = attributes.getParameters().get("term");
+            CustomTemplateInfo customTemplate =
+                    SyncopeEnduserApplication.get().getCustomTemplate();
+            if (customTemplate.getWizard().getSteps().containsKey("groups")) {
+                String realm = URLDecoder.decode(attributes.getParameters().get("realm").
+                        toString(SyncopeConstants.ROOT_REALM), "UTF-8");
+                StringValue term = attributes.getParameters().get("term");
 
-            final GroupResponse groupResponse = new GroupResponse();
-            final int totGroups = SyncopeEnduserSession.get().
-                    getService(SyncopeService.class).numbers().getTotalGroups();
-            final List<GroupTO> groupTOs = SyncopeEnduserSession.get().
-                    getService(SyncopeService.class).searchAssignableGroups(
-                    realm,
-                    term.isNull() || term.isEmpty() ? null : URLDecoder.decode(term.toString(), "UTF-8"),
-                    1,
-                    30).getResult();
-            groupResponse.setTotGroups(totGroups);
+                final GroupResponse groupResponse = new GroupResponse();
+                final int totGroups = SyncopeEnduserSession.get().
+                        getService(SyncopeService.class).numbers().getTotalGroups();
+                final List<GroupTO> groupTOs = SyncopeEnduserSession.get().
+                        getService(SyncopeService.class).searchAssignableGroups(
+                        realm,
+                        term.isNull() || term.isEmpty() ? null : URLDecoder.decode(term.toString(), "UTF-8"),
+                        1,
+                        30).getResult();
+                groupResponse.setTotGroups(totGroups);
 
-            Map<String, String> groups = new HashMap<>();
-            for (GroupTO groupTO : groupTOs) {
-                groups.put(groupTO.getKey(), groupTO.getName());
-            }
-            groupResponse.setGroupTOs(groups);
-
-            response.setTextEncoding(StandardCharsets.UTF_8.name());
-            response.setWriteCallback(new AbstractResource.WriteCallback() {
-
-                @Override
-                public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(MAPPER.writeValueAsString(groupResponse));
+                Map<String, String> groups = new HashMap<>();
+                for (GroupTO groupTO : groupTOs) {
+                    groups.put(groupTO.getKey(), groupTO.getName());
                 }
-            });
+                groupResponse.setGroupTOs(groups);
+
+                response.setWriteCallback(new AbstractResource.WriteCallback() {
+
+                    @Override
+                    public void writeData(final Attributes attributes) throws IOException {
+                        attributes.getResponse().write(MAPPER.writeValueAsString(groupResponse));
+                    }
+                });
+            } else {
+                final GroupResponse groupResponse = new GroupResponse();
+                groupResponse.setTotGroups(0);
+                Map<String, String> groups = new HashMap<>();
+                groupResponse.setGroupTOs(groups);
+                response.setWriteCallback(new AbstractResource.WriteCallback() {
+
+                    @Override
+                    public void writeData(final Attributes attributes) throws IOException {
+                        attributes.getResponse().write(MAPPER.writeValueAsString(groupResponse));
+                    }
+                });
+            }
+            response.setTextEncoding(StandardCharsets.UTF_8.name());
             response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {
             LOG.error("Error retrieving available groups", e);

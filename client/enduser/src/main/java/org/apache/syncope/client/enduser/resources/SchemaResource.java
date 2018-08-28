@@ -37,6 +37,7 @@ import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.model.CustomAttribute;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
+import org.apache.syncope.client.enduser.model.CustomTemplateInfo;
 import org.apache.syncope.client.enduser.model.SchemaResponse;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
@@ -90,38 +91,47 @@ public class SchemaResource extends BaseResource {
             }
 
             // USER from customization, if empty or null ignore it, use it to filter attributes otherwise
-            Map<String, CustomAttributesInfo> customForm = SyncopeEnduserApplication.get().getCustomForm();
+            Map<String, CustomAttributesInfo> customFormAttributes =
+                    SyncopeEnduserApplication.get().getCustomFormAttributes();
+            CustomTemplateInfo customTemplate =
+                    SyncopeEnduserApplication.get().getCustomTemplate();
 
             SchemaService schemaService = SyncopeEnduserSession.get().getService(SchemaService.class);
             final List<SchemaTO> plainSchemas = classes.isEmpty()
                     ? Collections.<SchemaTO>emptyList()
-                    : customForm == null || customForm.isEmpty() || customForm.get(SchemaType.PLAIN.name()) == null
+                    : customFormAttributes == null
+                    || customFormAttributes.isEmpty()
+                    || customFormAttributes.get(SchemaType.PLAIN.name()) == null
                     ? schemaService.search(
                             new SchemaQuery.Builder().type(SchemaType.PLAIN).anyTypeClasses(classes).build())
-                    : customForm.get(SchemaType.PLAIN.name()).isShow()
+                    : customTemplate.getWizard().getSteps().containsKey("plainSchemas")
                     ? customizeSchemas(schemaService.search(new SchemaQuery.Builder().type(SchemaType.PLAIN).
-                            anyTypeClasses(classes).build()), group, customForm.get(SchemaType.PLAIN.name()).
-                            getAttributes())
+                            anyTypeClasses(classes).build()), group,
+                            customFormAttributes.get(SchemaType.PLAIN.name()).getAttributes())
                     : Collections.<SchemaTO>emptyList();
             final List<SchemaTO> derSchemas = classes.isEmpty()
                     ? Collections.<SchemaTO>emptyList()
-                    : customForm == null || customForm.isEmpty() || customForm.get(SchemaType.DERIVED.name()) == null
+                    : customFormAttributes == null
+                    || customFormAttributes.isEmpty()
+                    || customFormAttributes.get(SchemaType.DERIVED.name()) == null
                     ? schemaService.search(
                             new SchemaQuery.Builder().type(SchemaType.DERIVED).anyTypeClasses(classes).build())
-                    : customForm.get(SchemaType.DERIVED.name()).isShow()
+                    : customTemplate.getWizard().getSteps().containsKey("derivedSchemas")
                     ? customizeSchemas(schemaService.search(new SchemaQuery.Builder().type(SchemaType.DERIVED).
-                            anyTypeClasses(classes).build()), group, customForm.get(SchemaType.DERIVED.name()).
-                            getAttributes())
+                            anyTypeClasses(classes).build()), group,
+                            customFormAttributes.get(SchemaType.DERIVED.name()).getAttributes())
                     : Collections.<SchemaTO>emptyList();
             final List<SchemaTO> virSchemas = classes.isEmpty()
                     ? Collections.<SchemaTO>emptyList()
-                    : customForm == null || customForm.isEmpty() || customForm.get(SchemaType.VIRTUAL.name()) == null
+                    : customFormAttributes == null
+                    || customFormAttributes.isEmpty()
+                    || customFormAttributes.get(SchemaType.VIRTUAL.name()) == null
                     ? schemaService.search(
                             new SchemaQuery.Builder().type(SchemaType.VIRTUAL).anyTypeClasses(classes).build())
-                    : customForm.get(SchemaType.VIRTUAL.name()).isShow()
+                    : customTemplate.getWizard().getSteps().containsKey("virtualSchemas")
                     ? customizeSchemas(schemaService.search(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).
-                            anyTypeClasses(classes).build()), group, customForm.get(SchemaType.VIRTUAL.name()).
-                            getAttributes())
+                            anyTypeClasses(classes).build()), group,
+                            customFormAttributes.get(SchemaType.VIRTUAL.name()).getAttributes())
                     : Collections.<SchemaTO>emptyList();
 
             if (group != null) {
@@ -161,9 +171,9 @@ public class SchemaResource extends BaseResource {
     }
 
     private List<SchemaTO> customizeSchemas(final List<SchemaTO> schemaTOs, final String groupParam,
-            final Map<String, CustomAttribute> customForm) {
+            final Map<String, CustomAttribute> customFormAttributes) {
 
-        if (customForm.isEmpty()) {
+        if (customFormAttributes.isEmpty()) {
             return schemaTOs;
         }
         final boolean isGroupBlank = StringUtils.isBlank(groupParam);
@@ -172,7 +182,7 @@ public class SchemaResource extends BaseResource {
 
             @Override
             public boolean evaluate(final SchemaTO object) {
-                return customForm.containsKey(isGroupBlank
+                return customFormAttributes.containsKey(isGroupBlank
                         ? object.getKey()
                         : compositeSchemaKey(groupParam, object.getKey()));
             }
@@ -182,7 +192,7 @@ public class SchemaResource extends BaseResource {
 
             @Override
             public int compare(final SchemaTO schemaTO1, final SchemaTO schemaTO2) {
-                List<String> order = new ArrayList<>(customForm.keySet());
+                List<String> order = new ArrayList<>(customFormAttributes.keySet());
                 return order.indexOf(isGroupBlank
                         ? schemaTO1.getKey()
                         : compositeSchemaKey(groupParam, schemaTO1.getKey()))

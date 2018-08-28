@@ -1,0 +1,56 @@
+{
+  "templates": 
+          {
+            "login":
+                    {
+                      "templateUrl": "views/templates/selfTemplate.html",
+                      "css": [
+                        "css/login.css",
+                        "css/templates/dark/login.css"
+                      ]
+                    },
+
+            "edit_user":
+                    {
+                      "templateUrl": "views/templates/onlyPlainAttrsDetails/editUserTemplate.html",
+                      "css": [
+                        "css/editUser.css",
+                        "css/templates/dark/editUser.css"
+                      ]
+                    },
+
+            "password_reset":
+                    {
+                      "templateUrl": "views/templates/passwordresetTemplate.html",
+                      "css": [
+                        "css/editUser.css",
+                        "css/passwordReset.css",
+                        "css/templates/dark/editUser.css"
+                      ]
+                    }            
+          },
+
+  "generalAssets": 
+          {
+            "css": [
+              "css/app.css",
+              "css/notification.css"
+            ]
+          },
+
+  "wizard": 
+          {
+            "firstStep": "plainSchemas",
+            "steps": {
+              "plainSchemas": {
+                "url": "/plainSchemas"
+              },
+              "credentials": {
+                "url": "/credentials"
+              },
+              "finish": {
+                "url": "/finish"
+              }
+            }
+          }
+}

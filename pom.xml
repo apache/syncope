@@ -449,8 +449,8 @@ under the License.
     <swagger-ui.version>3.18.2</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
-    <jquery.version>2.2.4</jquery.version>
-    <jquery-ui.version>1.11.4</jquery-ui.version>
+    <jquery.version>3.3.1-1</jquery.version>
+    <jquery-ui.version>1.12.1</jquery-ui.version>
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
     
@@ -459,6 +459,7 @@ under the License.
     <bootstrap-fileinput.version>4.4.8</bootstrap-fileinput.version>
     <bootbox.version>4.4.0</bootbox.version>
     <font-awesome.version>4.7.0</font-awesome.version>
+    <font-awesome.filename>font-awesome.min.css</font-awesome.filename>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>9.8.0</highlightjs.version>
     <codemirror.version>5.33.0</codemirror.version>
@@ -470,16 +471,18 @@ under the License.
     <wicket-jqueryui.version>7.10.2</wicket-jqueryui.version>
     <wicket-bootstrap.version>0.10.17</wicket-bootstrap.version>
 
-    <angular.version>1.7.0</angular.version>
-    <angular-ui-router.version>0.3.2</angular-ui-router.version>
-    <angular-ui-bootstrap.version>1.3.3</angular-ui-bootstrap.version>
+    <angular.version>1.7.3</angular.version>
+    <angular-resource.version>1.7.0</angular-resource.version>
+    <angular-ui-router.version>1.0.20</angular-ui-router.version>
+    <ui-bootstrap.version>3.0.4</ui-bootstrap.version>
     <angular-ui-select.version>0.19.8</angular-ui-select.version>
     <angular-treasure-overlay-spinner.version>1.1.0</angular-treasure-overlay-spinner.version>
-    <angular-translate.version>2.17.1</angular-translate.version>
+    <angular-translate.version>2.18.1</angular-translate.version>
+    <angular-translate-loader-partial.version>2.17.1</angular-translate-loader-partial.version>
     
     <ng-password-strength.version>0.2.1</ng-password-strength.version>
     <lodash.version>4.17.4</lodash.version>
-    <kendo-ui-core.version>2014.2.716</kendo-ui-core.version>
+    <kendo-ui-core.version>2018.1.221</kendo-ui-core.version>
     <select2.version>3.4.8</select2.version>
     <fileSaver.version>0.0.2</fileSaver.version>
     
@@ -516,11 +519,8 @@ under the License.
 
     <tomcat.version>8.5.33</tomcat.version>
 
-    <phantomjs.driver.version>1.2.0</phantomjs.driver.version>
-    <phantomjs.version>2.1.1</phantomjs.version>
-    
-    <nodejs.version>v6.9.4</nodejs.version>    
-    <protractor.version>4.0.14</protractor.version>    
+    <nodejs.version>v8.11.4</nodejs.version>    
+    <protractor.version>5.4.0</protractor.version>    
 
     <jdbc.postgresql.version>42.2.5</jdbc.postgresql.version>
     <jdbc.mysql.version>5.1.47</jdbc.mysql.version>
@@ -1500,7 +1500,7 @@ under the License.
       <dependency>
         <groupId>org.webjars.bower</groupId>
         <artifactId>angular-resource</artifactId>
-        <version>${angular.version}</version>
+        <version>${angular-resource.version}</version>
       </dependency>
       <dependency>
         <groupId>org.webjars.bower</groupId>
@@ -1524,15 +1524,9 @@ under the License.
         <version>${angular.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.webjars</groupId>
-        <artifactId>angular-ui-bootstrap</artifactId>
-        <version>${angular-ui-bootstrap.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.webjars</groupId>
-            <artifactId>angularjs</artifactId>
-          </exclusion>
-        </exclusions>
+        <groupId>org.webjars.npm</groupId>
+        <artifactId>ui-bootstrap4</artifactId>
+        <version>${ui-bootstrap.version}</version>
       </dependency>
       <dependency>
         <groupId>org.webjars</groupId>
@@ -1563,7 +1557,7 @@ under the License.
       <dependency>
         <groupId>org.webjars.bower</groupId>
         <artifactId>angular-translate-loader-partial</artifactId>
-        <version>${angular-translate.version}</version>
+        <version>${angular-translate-loader-partial.version}</version>
       </dependency>      
       <dependency>
         <groupId>org.webjars.bower</groupId>
@@ -1748,12 +1742,6 @@ under the License.
       </dependency>
 
       <!-- TEST -->
-      <dependency>
-        <groupId>com.github.detro</groupId>
-        <artifactId>phantomjsdriver</artifactId>
-        <version>${phantomjs.driver.version}</version>
-        <scope>test</scope>
-      </dependency>
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>

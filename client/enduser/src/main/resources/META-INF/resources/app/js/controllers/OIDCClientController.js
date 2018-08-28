@@ -18,9 +18,9 @@
  */
 
 'use strict';
-angular.module("login").controller("OIDCClientController", function ($scope, $rootScope, $location, userAttrs) {
+angular.module("login").controller("OIDCClientController", function ($scope, $rootScope, $state, userAttrs) {
   $scope.selfCreate = function () {
-    $location.path("/self/create");
+    $state.go("create" + $rootScope.getWizardFirstStep());
   };
 
   $rootScope.oidcops.userAttrs = userAttrs;

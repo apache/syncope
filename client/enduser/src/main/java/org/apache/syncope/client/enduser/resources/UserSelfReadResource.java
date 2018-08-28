@@ -92,7 +92,7 @@ public class UserSelfReadResource extends BaseUserSelfResource {
                 membership.getVirAttrs().clear();
             }
             // USER from customization, if empty or null ignore it, use it to filter attributes otherwise
-            applyFromCustomization(userTO, SyncopeEnduserApplication.get().getCustomForm());
+            applyFromCustomization(userTO, SyncopeEnduserApplication.get().getCustomFormAttributes());
 
             // 1.1 Date -> millis conversion for PLAIN attributes of USER
             for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
@@ -122,20 +122,20 @@ public class UserSelfReadResource extends BaseUserSelfResource {
         return response;
     }
 
-    private void applyFromCustomization(final UserTO userTO, final Map<String, CustomAttributesInfo> customForm) {
-        if (customForm != null && !customForm.isEmpty()) {
+    private void applyFromCustomization(final UserTO userTO,
+            final Map<String, CustomAttributesInfo> customFormAttributes) {
+        if (customFormAttributes != null && !customFormAttributes.isEmpty()) {
             // filter PLAIN attributes
-            customizeAttrTOs(userTO.getPlainAttrs(), customForm.get(SchemaType.PLAIN.name()));
+            customizeAttrTOs(userTO.getPlainAttrs(), customFormAttributes.get(SchemaType.PLAIN.name()));
             // filter DERIVED attributes
-            customizeAttrTOs(userTO.getDerAttrs(), customForm.get(SchemaType.DERIVED.name()));
+            customizeAttrTOs(userTO.getDerAttrs(), customFormAttributes.get(SchemaType.DERIVED.name()));
             // filter VIRTUAL attributes
-            customizeAttrTOs(userTO.getVirAttrs(), customForm.get(SchemaType.VIRTUAL.name()));
+            customizeAttrTOs(userTO.getVirAttrs(), customFormAttributes.get(SchemaType.VIRTUAL.name()));
         }
     }
 
     private void customizeAttrTOs(final Set<AttrTO> attrs, final CustomAttributesInfo customAttributesInfo) {
         if (customAttributesInfo != null
-                && customAttributesInfo.isShow()
                 && !customAttributesInfo.getAttributes().isEmpty()) {
 
             CollectionUtils.filter(attrs, new Predicate<AttrTO>() {
@@ -146,7 +146,7 @@ public class UserSelfReadResource extends BaseUserSelfResource {
                 }
             });
 
-        } else if (customAttributesInfo != null && !customAttributesInfo.isShow()) {
+        } else if (customAttributesInfo != null) {
             attrs.clear();
         }
     }

@@ -32,11 +32,10 @@ under the License.
 
     <link rel="shortcut icon" href="img/favicon.png" type="image/png"/>
 
-    <link href="css/login.css" rel="stylesheet" type="text/css"/>
     <link href="../webjars/jquery-ui/${jquery-ui.version}/jquery-ui.css" rel="stylesheet" type="text/css"/>
     <link href="../webjars/bootstrap/${bootstrap.version}/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="../webjars/bootstrap-select/${bootstrap-select.version}/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
-    <link href="../webjars/font-awesome/${font-awesome.version}/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="../webjars/font-awesome/${font-awesome.version}/css/${font-awesome.filename}" rel="stylesheet" type="text/css"/>
     <link href="../webjars/ionicons/${ionicons.version}/css/ionicons.min.css" rel="stylesheet" type="text/css"/>
     <link href="../webjars/angular-ui-select/${angular-ui-select.version}/select.css" rel="stylesheet" type="text/css"/>
     <link href="../webjars//kendo-ui-core/${kendo-ui-core.version}/styles/web/kendo.common.core.min.css" rel="stylesheet" type="text/css"/>
@@ -44,9 +43,8 @@ under the License.
     <link href="../webjars/angular-treasure-overlay-spinner/${angular-treasure-overlay-spinner.version}/dist/treasure-overlay-spinner.min.css" rel="stylesheet" type="text/css"/>
     <link href="../webjars/ng-password-strength/${ng-password-strength.version}/dist/styles/main.css" rel="stylesheet" type="text/css">
     <link href="../webjars/select2/${select2.version}/select2.css" rel="stylesheet"/>
-    <link href="css/app.css" rel="stylesheet" type="text/css"/>
-    <link href="css/login.css" rel="stylesheet" type="text/css"/>
-    <link href="css/editUser.css" rel="stylesheet" type="text/css"/>
+
+    <link href="css/customSpinner.css" rel="stylesheet" type="text/css"/>
   </head>
   <body ng-cloak >
 
@@ -54,10 +52,11 @@ under the License.
         <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
-    <span id="notifications" kendo-notification="notifications"></span>
+    <span id="notifications"></span>
 
   <treasure-overlay-spinner active='spinner.active'>
-    <div ui-view ng-cloak ng-controller="ApplicationController" ng-init="initApplication()">      
+    <div ui-view ng-cloak ng-controller="ApplicationController" ng-init="initApplication()">   
+
     </div>    
   </treasure-overlay-spinner>
 
@@ -65,10 +64,11 @@ under the License.
   <script src="../webjars/angular/${angular.version}/angular.js"></script>
   <script src="../webjars/angular-ui-router/${angular-ui-router.version}/release/angular-ui-router.js"></script>
   <script src="../webjars/angular-animate/${angular.version}/angular-animate.js"></script>
-  <script src="../webjars/angular-resource/${angular.version}/angular-resource.js"></script>
+  <script src="../webjars/angular-resource/${angular-resource.version}/angular-resource.js"></script>
   <script src="../webjars/angular-cookies/${angular.version}/angular-cookies.js"></script>
   <script src="../webjars/angular-sanitize/${angular.version}/angular-sanitize.js"></script>
-  <script src="../webjars/angular-ui-bootstrap/${angular-ui-bootstrap.version}/ui-bootstrap-tpls.js"></script>
+  <script src="../webjars/ui-bootstrap4/${ui-bootstrap.version}/dist/ui-bootstrap.js"></script>
+  <script src="../webjars/ui-bootstrap4/${ui-bootstrap.version}/dist/ui-bootstrap-tpls.js"></script>
   <script src="../webjars/angular-ui-select/${angular-ui-select.version}/select.js"></script>
   <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/kendo.ui.core.min.js"></script>
   <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/kendo.notification.min.js"></script>
@@ -79,11 +79,11 @@ under the License.
   <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/cultures/kendo.culture.ja.js"></script>
   <script src="../webjars/angular-treasure-overlay-spinner/${angular-treasure-overlay-spinner.version}/dist/treasure-overlay-spinner.min.js"></script>
   <script src="../webjars/ng-password-strength/${ng-password-strength.version}/dist/scripts/ng-password-strength.min.js"></script>
-  <script type="text/javascript" src="../webjars/bootstrap-select/${bootstrap-select.version}/js/bootstrap-select.min.js"></script>
+  <script src="../webjars/bootstrap-select/${bootstrap-select.version}/js/bootstrap-select.min.js"></script>
   <script src="../webjars/FileSaver.js/${fileSaver.version}/FileSaver.js"></script>
   <script src="../webjars/lodash/${lodash.version}/lodash.min.js"></script>
   <script src="../webjars/angular-translate/${angular-translate.version}/angular-translate.js"></script>
-  <script src="../webjars/angular-translate-loader-partial/${angular-translate.version}/angular-translate-loader-partial.js"></script>
+  <script src="../webjars/angular-translate-loader-partial/${angular-translate-loader-partial.version}/angular-translate-loader-partial.js"></script>
   <script src="../webjars/angular-translate-storage-cookie/${angular-translate.version}/angular-translate-storage-cookie.js"></script>
   <script src="../webjars/bootstrap-fileinput/${bootstrap-fileinput.version}/js/fileinput.js"></script>
 
@@ -96,6 +96,7 @@ under the License.
   <script src="js/services/realmService.js"></script>
   <script src="js/services/securityQuestionService.js"></script>
   <script src="js/services/infoService.js"></script>
+  <script src="js/services/dynamicTemplateService.js"></script>
   <script src="js/services/resourceService.js"></script>
   <script src="js/services/groupService.js"></script>
   <script src="js/services/anyService.js"></script>
@@ -116,7 +117,7 @@ under the License.
   <script src="js/directives/dynamicPlainAttributes.js"></script>
   <script src="js/directives/dynamicDerivedAttributes.js"></script>
   <script src="js/directives/dynamicVirtualAttributes.js"></script>
-  <script src="js/directives/navigationButtons.js"></script>
+  <script src="js/directives/navigationButtonsPartial.js"></script>
   <script src="js/directives/loader.js"></script>
   <script src="js/directives/captcha.js"></script>
   <script src="js/directives/resources.js"></script>
@@ -126,6 +127,7 @@ under the License.
   <script src="js/directives/validationMessage.js"></script>
   <script src="js/directives/validateDropdown.js"></script>
   <script src="js/directives/fileInput.js"></script>
+  <script src="js/directives/dynamicTemplateItem.js"></script>
   <!--validator-->
   <script src="js/validator/validationRules.js"></script>
   <script src="js/validator/validationExecutor.js"></script>
@@ -134,5 +136,6 @@ under the License.
   <!--util-->
   <script src="js/util/userUtil.js"></script>
   <script src="js/util/genericUtil.js"></script>
+  <script src="js/util/assetsManager.js"></script>
 </body>
 </html>

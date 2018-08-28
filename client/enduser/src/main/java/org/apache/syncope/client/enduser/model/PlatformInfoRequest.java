@@ -37,7 +37,7 @@ public class PlatformInfoRequest implements Serializable {
 
     private int maxUploadFileSizeMB;
 
-    private Map<String, CustomAttributesInfo> customForm;
+    private Map<String, CustomAttributesInfo> customFormAttributes;
 
     public PlatformInfoRequest() {
     }
@@ -90,12 +90,12 @@ public class PlatformInfoRequest implements Serializable {
         this.maxUploadFileSizeMB = maxUploadFileSizeMB;
     }
 
-    public Map<String, CustomAttributesInfo> getCustomForm() {
-        return customForm;
+    public Map<String, CustomAttributesInfo> getCustomFormAttributes() {
+        return customFormAttributes;
     }
 
-    public void setCustomForm(final Map<String, CustomAttributesInfo> customForm) {
-        this.customForm = customForm;
+    public void setCustomFormAttributes(final Map<String, CustomAttributesInfo> customFormAttributes) {
+        this.customFormAttributes = customFormAttributes;
     }
 
 }

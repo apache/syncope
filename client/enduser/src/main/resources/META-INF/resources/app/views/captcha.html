@@ -21,16 +21,16 @@ under the License.
     <div class="container-fluid" style="text-align: center">
       <div id="captchainput" >
         <img id="captchaImg" alt="captcha" ng-src="{{captchaUrl}}'"/>
-        <div id="captchaButtons" style="margin-top: 5%; margin-bottom: 10px">
-          <button id="refresh" type="button" class="btn btn-default btn-xs glyphicon glyphicon-refresh" 
+        <div id="captchaButtons">
+          <button id="refresh" type="button" class="btn btn-default btn-xs fa fa-refresh" 
                   ng-click="refreshCaptcha()" title="Refresh Captcha"></button>
-          <a id="refresh" class="btn btn-default btn-xs glyphicon glyphicon-question-sign" title="What is?"
-             href="https://it.wikipedia.org/wiki/CAPTCHA" target="_blank"/>
+          <button id="questionCaptcha" class="btn btn-default btn-xs fa fa-question-circle" title="What is?"
+                  onclick="window.open('https://it.wikipedia.org/wiki/CAPTCHA')"></button>
         </div>
         <input class="form-control" style="margin:auto; max-width: 260px" type="text" ng-model="input.value"/>
-      </div>
-      <div>
-        <span class="help-block">{{'CAPTCHA' | translate}}</span>
+        <div>
+          <span class="help-block">{{'CAPTCHA'| translate}}</span>
+        </div>
       </div>
     </div>
   </nav>

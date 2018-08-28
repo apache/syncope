@@ -17,7 +17,8 @@ specific language governing permissions and limitations
 under the License.
 */
 
-/* app general css stylesheet */
+/* App general css stylesheet
+============================================================================= */
 
 .growl-container > .growl-item.ng-enter,
 .growl-container > .growl-item.ng-leave {
@@ -27,73 +28,73 @@ under the License.
   transition:1s linear all;
 }
 
-.k-notification-wrap{
-  white-space: normal !important;
-  word-wrap: break-word !important;
-  font-size: 12px;
-
-}
-
-.k-notification{
-  width : 320px;
-  font-size: 12px;
-}
-
-.suggestions{
-  font-size: 10px;
-  display: inline-block;
-  margin-bottom: 5px;
-}
-
-#resetpassword{
-  background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9db80), color-stop(100%,#96c56f)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Opera 11.10+ */
-  background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* IE10+ */
-  color: black;
-  margin-left: 5px;
-  /*width: 15%;*/
-}
-#resetpassword:hover {
-  background: #658D5D;
-}
-#captchaImg{
-  display: block;
-  margin: 0 auto;
-}
-
-.disable-link{
+.disable-link {
   pointer-events: none;
   cursor: default;
 }
 
-.treasure-overlay-spinner-container{
-  z-index : 10001;
+.form-control:disabled, 
+.form-control[readonly] {
+  cursor: not-allowed;
 }
 
-treasure-overlay-spinner .treasure-overlay-spinner-content {
-  height: 100%;
-}
-treasure-overlay-spinner {
-  height: 100%;
-  top: 0;
-  bottom: 0;
-  position: fixed;
-  right: 0;
-  left: 0;
-  overflow-y: auto;
+.card-container.card {
+  width: 350px;
+  padding: 40px 40px 0px;
 }
 
-treasure-overlay-spinner .treasure-overlay-spinner {
-  position: fixed;
+.card {
+  background-color: #F7F7F7;
+  /* just in case there no content*/
+  padding: 20px 25px 30px;
+  margin: 0 auto 25px;
+  margin-top: 50px;
+  /* shadows and rounded borders */
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+  border-radius: 2px;
+  -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+  -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
 }
 
-treasure-overlay-spinner .treasure-overlay-spinner-container {
-  position: fixed;
-  background: rgba(0, 0, 0, 0.5490196078431373);
+.form-control {
+  display: block;
+  width: 100%;
+  height: 34px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857;
+  color: #555;
+  background-color: #FFF;
+  /*background-image: none;*/
+  border: 1px solid #CCC;
+  border-radius: 4px;
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset;
+  transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
 }
 
-treasure-overlay-spinner.treasure-overlay-spinner-active-remove{
-  transition: all 150ms ease-in 0s
+#captchaButtons {
+  margin-top: 5%;
+  margin-bottom: 10px;
 }
+
+/* <!-- Useless with Bootstrap > 3 */
+.p-0 {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.float-left {
+  float: left !important;
+}
+.float-right {
+  float: right !important;
+}
+
+.btn-default {
+  color: #333;
+  background-color: #fff;
+  border-color: #ccc;
+}
+/* Useless with Bootstrap > 3 --> */

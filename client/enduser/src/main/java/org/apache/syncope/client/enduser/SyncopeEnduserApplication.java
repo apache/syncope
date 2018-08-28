@@ -40,6 +40,7 @@ import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.init.EnduserInitializer;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
+import org.apache.syncope.client.enduser.model.CustomTemplateInfo;
 import org.apache.syncope.client.enduser.resources.CaptchaResource;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.PropertyUtils;
@@ -65,7 +66,9 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
     private static final String ENDUSER_PROPERTIES = "enduser.properties";
 
-    private static final String CUSTOM_FORM_FILE = "customForm.json";
+    private static final String CUSTOM_FORM_ATTRIBUTES_FILE = "customFormAttributes.json";
+
+    private static final String CUSTOM_TEMPLATE_FILE = "customTemplate.json";
 
     public static SyncopeEnduserApplication get() {
         return (SyncopeEnduserApplication) WebApplication.get();
@@ -87,7 +90,9 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
     private SyncopeClientFactoryBean clientFactory;
 
-    private Map<String, CustomAttributesInfo> customForm;
+    private Map<String, CustomAttributesInfo> customFormAttributes;
+
+    private CustomTemplateInfo customTemplate;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -131,17 +136,20 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                 setContentType(SyncopeClientFactoryBean.ContentType.JSON).
                 setUseCompression(BooleanUtils.toBoolean(useGZIPCompression));
 
-        // read customForm.json
-        try (InputStream is = getClass().getResourceAsStream("/" + CUSTOM_FORM_FILE)) {
-            customForm = MAPPER.readValue(is,
+        // read customFormAttributes.json
+        File enduserDir;
+        try (InputStream is = getClass().getResourceAsStream("/" + CUSTOM_FORM_ATTRIBUTES_FILE)) {
+            customFormAttributes = MAPPER.readValue(is,
                     new TypeReference<HashMap<String, CustomAttributesInfo>>() {
             });
-            File enduserDir = new File(props.getProperty("enduser.directory"));
+            enduserDir = new File(props.getProperty("enduser.directory"));
             boolean existsEnduserDir = enduserDir.exists() && enduserDir.canRead() && enduserDir.isDirectory();
             if (existsEnduserDir) {
-                File customFormFile = FileUtils.getFile(enduserDir, CUSTOM_FORM_FILE);
-                if (customFormFile.exists() && customFormFile.canRead() && customFormFile.isFile()) {
-                    customForm = MAPPER.readValue(FileUtils.openInputStream(customFormFile),
+                File customFormAttributesFile = FileUtils.getFile(enduserDir, CUSTOM_FORM_ATTRIBUTES_FILE);
+                if (customFormAttributesFile.exists()
+                        && customFormAttributesFile.canRead()
+                        && customFormAttributesFile.isFile()) {
+                    customFormAttributes = MAPPER.readValue(FileUtils.openInputStream(customFormAttributesFile),
                             new TypeReference<HashMap<String, CustomAttributesInfo>>() {
                     });
                 }
@@ -151,15 +159,15 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
                         @Override
                         public boolean accept(final File pathname) {
-                            return StringUtils.contains(pathname.getPath(), CUSTOM_FORM_FILE);
+                            return StringUtils.contains(pathname.getPath(), CUSTOM_FORM_ATTRIBUTES_FILE);
                         }
                     })
-                    : new FileAlterationObserver(getClass().getResource("/" + CUSTOM_FORM_FILE).getFile(),
+                    : new FileAlterationObserver(getClass().getResource("/" + CUSTOM_FORM_ATTRIBUTES_FILE).getFile(),
                             new FileFilter() {
 
                         @Override
                         public boolean accept(final File pathname) {
-                            return StringUtils.contains(pathname.getPath(), CUSTOM_FORM_FILE);
+                            return StringUtils.contains(pathname.getPath(), CUSTOM_FORM_ATTRIBUTES_FILE);
                         }
                     });
 
@@ -170,8 +178,9 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                 @Override
                 public void onFileChange(final File file) {
                     try {
-                        LOG.trace("{} has changed. Reloading form customization configuration.", CUSTOM_FORM_FILE);
-                        customForm = MAPPER.readValue(FileUtils.openInputStream(file),
+                        LOG.trace("{} has changed. Reloading form attributes customization configuration.",
+                                CUSTOM_FORM_ATTRIBUTES_FILE);
+                        customFormAttributes = MAPPER.readValue(FileUtils.openInputStream(file),
                                 new TypeReference<HashMap<String, CustomAttributesInfo>>() {
                         });
                     } catch (IOException e) {
@@ -182,8 +191,9 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                 @Override
                 public void onFileCreate(final File file) {
                     try {
-                        LOG.trace("{} has been created. Loading form customization configuration.", CUSTOM_FORM_FILE);
-                        customForm = MAPPER.readValue(FileUtils.openInputStream(file),
+                        LOG.trace("{} has been created. Loading form attributes customization configuration.",
+                                CUSTOM_FORM_ATTRIBUTES_FILE);
+                        customFormAttributes = MAPPER.readValue(FileUtils.openInputStream(file),
                                 new TypeReference<HashMap<String, CustomAttributesInfo>>() {
                         });
                     } catch (IOException e) {
@@ -193,8 +203,9 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
                 @Override
                 public void onFileDelete(final File file) {
-                    LOG.trace("{} has been deleted. Resetting form customization configuration.", CUSTOM_FORM_FILE);
-                    customForm = null;
+                    LOG.trace("{} has been deleted. Resetting form attributes customization configuration.",
+                            CUSTOM_FORM_ATTRIBUTES_FILE);
+                    customFormAttributes = null;
                 }
             };
 
@@ -202,7 +213,79 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
             monitor.addObserver(observer);
             monitor.start();
         } catch (Exception e) {
-            throw new WicketRuntimeException("Could not read " + CUSTOM_FORM_FILE, e);
+            throw new WicketRuntimeException("Could not read " + CUSTOM_FORM_ATTRIBUTES_FILE, e);
+        }
+
+        // read customTemplate.json
+        try (InputStream is = getClass().getResourceAsStream("/" + CUSTOM_TEMPLATE_FILE)) {
+            customTemplate = MAPPER.readValue(is, CustomTemplateInfo.class);
+            if (enduserDir == null) {
+                enduserDir = new File(props.getProperty("enduser.directory"));
+            }
+            boolean existsEnduserDir = enduserDir.exists() && enduserDir.canRead() && enduserDir.isDirectory();
+            if (existsEnduserDir) {
+                File customTemplateFile = FileUtils.getFile(enduserDir, CUSTOM_TEMPLATE_FILE);
+                if (customTemplateFile.exists()
+                        && customTemplateFile.canRead()
+                        && customTemplateFile.isFile()) {
+                    customTemplate = MAPPER.readValue(FileUtils.openInputStream(customTemplateFile),
+                            CustomTemplateInfo.class);
+                }
+            }
+            FileAlterationObserver observer = existsEnduserDir
+                    ? new FileAlterationObserver(enduserDir, new FileFilter() {
+
+                        @Override
+                        public boolean accept(final File pathname) {
+                            return StringUtils.contains(pathname.getPath(), CUSTOM_TEMPLATE_FILE);
+                        }
+                    })
+                    : new FileAlterationObserver(getClass().getResource("/" + CUSTOM_TEMPLATE_FILE).getFile(),
+                            new FileFilter() {
+
+                        @Override
+                        public boolean accept(final File pathname) {
+                            return StringUtils.contains(pathname.getPath(), CUSTOM_TEMPLATE_FILE);
+                        }
+                    });
+
+            FileAlterationMonitor monitor = new FileAlterationMonitor(5000);
+
+            FileAlterationListener listener = new FileAlterationListenerAdaptor() {
+
+                @Override
+                public void onFileChange(final File file) {
+                    try {
+                        LOG.trace("{} has changed. Reloading app customization configuration.", CUSTOM_TEMPLATE_FILE);
+                        customTemplate = MAPPER.readValue(FileUtils.openInputStream(file), CustomTemplateInfo.class);
+                    } catch (IOException e) {
+                        e.printStackTrace(System.err);
+                    }
+                }
+
+                @Override
+                public void onFileCreate(final File file) {
+                    try {
+                        LOG.trace("{} has been created. Loading app customization configuration.",
+                                CUSTOM_TEMPLATE_FILE);
+                        customTemplate = MAPPER.readValue(FileUtils.openInputStream(file), CustomTemplateInfo.class);
+                    } catch (IOException e) {
+                        e.printStackTrace(System.err);
+                    }
+                }
+
+                @Override
+                public void onFileDelete(final File file) {
+                    LOG.trace("{} has been deleted. Resetting app customization configuration.", CUSTOM_TEMPLATE_FILE);
+                    customTemplate = null;
+                }
+            };
+
+            observer.addListener(listener);
+            monitor.addObserver(observer);
+            monitor.start();
+        } catch (Exception e) {
+            throw new WicketRuntimeException("Could not read " + CUSTOM_TEMPLATE_FILE, e);
         }
 
         // mount resources
@@ -287,13 +370,21 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
         return maxUploadFileSizeMB;
     }
 
-    public Map<String, CustomAttributesInfo> getCustomForm() {
-        return customForm;
+    public Map<String, CustomAttributesInfo> getCustomFormAttributes() {
+        return customFormAttributes;
     }
 
-    public void setCustomForm(final Map<String, CustomAttributesInfo> customForm) {
-        this.customForm.clear();
-        this.customForm.putAll(customForm);
+    public void setCustomFormAttributes(final Map<String, CustomAttributesInfo> customFormAttributes) {
+        this.customFormAttributes.clear();
+        this.customFormAttributes.putAll(customFormAttributes);
+    }
+
+    public void setCustomTemplate(final CustomTemplateInfo customTemplate) {
+        this.customTemplate = customTemplate;
+    }
+
+    public CustomTemplateInfo getCustomTemplate() {
+        return customTemplate;
     }
 
 }

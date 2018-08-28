@@ -247,7 +247,11 @@ under the License.
                           todir="${project.build.directory}/${project.build.finalName}/WEB-INF/classes" 
                           overwrite="true"/>
                     
-                    <copy file="${project.build.directory}/test-classes/customForm.json" 
+                    <copy file="${project.build.directory}/test-classes/customFormAttributes.json" 
+                          todir="${project.build.directory}/${project.build.finalName}/WEB-INF/classes" 
+                          overwrite="true"/>
+                    
+                    <copy file="${project.build.directory}/test-classes/customTemplate.json" 
                           todir="${project.build.directory}/${project.build.finalName}/WEB-INF/classes" 
                           overwrite="true"/>
                   </target>

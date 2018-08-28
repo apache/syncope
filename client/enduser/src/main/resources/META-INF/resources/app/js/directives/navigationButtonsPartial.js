@@ -19,17 +19,19 @@
 'use strict';
 
 angular.module('self')
-        .directive('navigationButtons', ['$state', 'GenericUtil', 'ValidationExecutor', function ($state, GenericUtil, ValidationExecutor) {
+        .directive('navigationButtonsPartial', ['$state', 'GenericUtil', 'ValidationExecutor',
+          function ($state, GenericUtil, ValidationExecutor) {
             return {
+
               restrict: 'E',
-              templateUrl: 'views/navigationButtons.html',
+              templateUrl: 'views/navigationButtonsPartial.html',
               scope: {
                 base: "@",
                 current: "@"
               },
               link: function (scope, element, attrs) {
                 var base = (scope.base && scope.base !== "" ? scope.base + "." : "");
-                scope.wizard = scope.$eval(attrs.wizard) || scope.$parent.wizard;
+                scope.wizard = scope.$eval(attrs.wizard) || scope.$parent.wizard || scope.$parent.$parent.wizard;
                 scope.previous = "none";
                 if (scope.wizard) {
                   var urls = Object.keys(scope.wizard);
@@ -39,7 +41,6 @@ angular.module('self')
                 }
               },
               controller: function ($scope) {
-
                 $scope.validateAndNext = function (event, state) {
                   //getting the enclosing form in order to access to its name                
                   var currentForm = GenericUtil.getEnclosingForm(event.target);
@@ -66,6 +67,5 @@ angular.module('self')
                 };
               }
 
-            }
-            ;
+            };
           }]);

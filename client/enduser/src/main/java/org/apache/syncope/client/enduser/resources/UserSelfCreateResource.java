@@ -84,7 +84,8 @@ public class UserSelfCreateResource extends BaseUserSelfResource {
                 LOG.trace("Request is [{}]", userTO);
 
                 // check if request is compliant with customization form rules
-                if (UserRequestValidator.compliant(userTO, SyncopeEnduserApplication.get().getCustomForm(), true)) {
+                if (UserRequestValidator.compliant(userTO,
+                        SyncopeEnduserApplication.get().getCustomFormAttributes(), true)) {
 
                     // 1. membership attributes management
                     Set<AttrTO> membAttrs = new HashSet<>();

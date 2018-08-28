@@ -34,10 +34,7 @@ exports.doSave = function () {
 };
 
 exports.waitSpinner = function () {
-  element.all(by.css('treasure-overlay-spinner')).isDisplayed().then(function (result) {
-    if (result) {
-      browser.driver.sleep(3000);
-    }
-  });
-}
-;
+  var el = element(by.css('treasure-overlay-spinner-active'));
+  var EC = protractor.ExpectedConditions;
+  browser.wait(EC.not(EC.presenceOf(el)), 5000);
+};

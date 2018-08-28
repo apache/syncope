@@ -17,33 +17,44 @@ specific language governing permissions and limitations
 under the License.
 -->
 <div id="attribute" class="form-group row upper-select">
-  <label>{{"REALM"|translate}}</label>
-  <select class="form-control"
+  <label class="col-md-12 p-0">{{"REALM"|translate}}</label>
+  <select class="form-control col-md-12 custom-select"
           ng-model="user.realm" ng-change="refreshGroups()"
           ng-required="true">
     <option ng-repeat="realm in availableRealms" value="{{realm}}">{{realm}}</option>
   </select>
 </div>
 <div id="attribute" class="form-group row upper-select">
-  <label>{{"GROUPS"|translate}}</label><br/>
-  <groups form="dynamicForm" user="user"></groups>
+  <label class="col-md-12 p-0">{{"GROUPS"|translate}}</label><br/>
+  <groups class="col-md-12 p-0" form="dynamicForm" user="user"></groups>
 </div>
 <div id="attribute" class="form-group row upper-select">
-  <label>{{"AUXILIARY CLASSES"|translate}}</label><br/>
-  <auxiliary form="dynamicForm" user="user"></auxiliary>
+  <label class="col-md-12 p-0">{{"AUXILIARY CLASSES"|translate}}</label>
+  <auxiliary class="col-md-12 p-0" form="dynamicForm" user="user"></auxiliary>
 </div>
-<div id="attribute" class="form-group row">
-  <div class="pull-right">
-    <div id="navButtons" class="pull-left">
-      <navigation-buttons ng-show="createMode" base="create" current="groups" wizard="{{wizard}}"></navigation-buttons>
-      <navigation-buttons ng-show="!createMode" base="update" current="groups" wizard="{{wizard}}"></navigation-buttons>
-    </div>
-    <div class="pull-right">
-      <button id="finish" ng-show="!createMode" type="button" class="btn btn-default pull-right" ng-click="finish()">{{'FINISH'| translate}}</button>
-      <button id="finish" ng-show="createMode && endReached" type="button" class="btn btn-default pull-right" ng-click="finish()">{{'FINISH'| translate}}</button>  
-    </div>
+
+<div id="attribute" class="form-group row justify-content-between p-0">
+  <div class="col-xs-3">
+    <a id="cancel" class="btn btn-danger float-left nav-button" tabindex="0" ng-click="logout()">
+      {{'CANCEL'| translate}}
+    </a>
   </div>
-  <div class="pull-left">
-    <a id="cancel" class="btn btn-danger pull-left" ng-click="logout()">{{'CANCEL'| translate}}</a>
+  <div class="col-xs-9">
+    <div id="navButtons" class="float-left"
+         ng-class="(!createMode || (createMode && endReached)) ? 'col-xs-10' : 'col-xs-12'">
+      <navigation-buttons-partial ng-show="createMode" base="create" current="groups" wizard="{{wizard}}">
+      </navigation-buttons-partial>
+      <navigation-buttons-partial ng-show="!createMode" base="update" current="groups" wizard="{{wizard}}">
+      </navigation-buttons-partial>
+    </div>
+    <div class="float-right p-0" 
+         ng-class="(!createMode || (createMode && endReached)) ? 'col-xs-2' : ''" 
+         ng-show="!createMode || (createMode && endReached)">
+      <button id="finish" type="button" tabindex="0"
+              class="btn btn-secondary btn-default float-right nav-button" 
+              ng-click="finish()">
+        {{'FINISH'| translate}}
+      </button>
+    </div>
   </div>
 </div>
