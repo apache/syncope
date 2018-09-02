@@ -935,30 +935,32 @@ The first time the plugin is run, it will prompt for connection details:
 
 image::netbeans12.png[netbeans12]
 
-Once a connection to the given Apache Syncope deployment is established, a panel showing Mail and Report templates will
-appear on the left; by double-clicking on each folder, the list of available templates is shown:
+Once a connection to the given Apache Syncope deployment is established, a panel showing Mail Templates, Report XSLTs
+and Groovy implementations will appear on the left; by double-clicking on each folder, the list of available items
+is shown:
 
 image::netbeans08.png[netbeans08]
 
-To refresh the list of available templates, or to update the connection details, right-click on the
+To refresh the list of available items, or to update the connection details, right-click on the
 `Apache Syncope` root node:
 
 image::netbeans09.png[netbeans09]
 
-To create a new template, right-click on the `Mail Templates`, `Report XSLTs` or `Groovy Implementations` folder and then click on `New`:
+To create a new item, right-click on the `Mail Templates`, `Report XSLTs` or `Groovy Implementations` folder and then
+click on `New` label:
 
 image::netbeans10.png[netbeans10]
 
 [NOTE]
 ====
-Before creating or editing a template, a modal window will be shown to select the edit format:
+Before creating or editing a mail or report template, a modal window will be shown to select the edit format:
 
 image::netbeans13.png[netbeans13]
 ====
 
-To edit a template, double-click on the template name and an editor will appear. On save, the template content will be
+To edit am item, double-click on the item name and an editor will appear. On save, the item content will be
 uploaded to the configured Apache Syncope deployment.
 
-To delete an existing template, right-click on the template and then click on `Delete`:
+To delete an existing item, right-click on the item name and then click on `Delete`:
 
 image::netbeans11.png[netbeans11]
