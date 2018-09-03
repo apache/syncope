@@ -111,7 +111,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
             }
         }, ActionType.EDIT,
                 String.format("%s,%s", AnyEntitlement.READ.getFor(type), AnyEntitlement.UPDATE.getFor(type))).
-                setRealm(realm);
+                setRealms(realm, model.getObject().getDynRealms());
 
         panel.add(new ActionLink<AnyObjectTO>() {
 
@@ -156,7 +156,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                 }
             }, ActionType.MANAGE_RESOURCES,
                     String.format("%s,%s", AnyEntitlement.READ.getFor(type), AnyEntitlement.UPDATE.getFor(type))).
-                    setRealm(realm);
+                    setRealms(realm, model.getObject().getDynRealms());
 
             panel.add(
                     new ActionLink<AnyObjectTO>() {

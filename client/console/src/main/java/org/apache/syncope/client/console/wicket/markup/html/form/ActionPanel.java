@@ -130,7 +130,7 @@ public final class ActionPanel<T extends Serializable> extends Panel {
             };
         }
 
-        if (SyncopeConsoleSession.get().owns(action.getEntitlements(), action.getRealm())) {
+        if (SyncopeConsoleSession.get().owns(action.getEntitlements(), action.getRealms())) {
             MetaDataRoleAuthorizationStrategy.authorizeAll(actionLink, RENDER);
         } else {
             MetaDataRoleAuthorizationStrategy.unauthorizeAll(actionLink, RENDER);

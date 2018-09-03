@@ -104,4 +104,5 @@ For example, the following entitlements are normally required to be granted for 
 . `USER_READ`
 . `ANYTYPE_READ`
 . `REALM_LIST`
+. `GROUP_SEARCH`
 ====

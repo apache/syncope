@@ -19,6 +19,8 @@
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.model.Model;
 
@@ -31,7 +33,7 @@ public final class Action<T extends Serializable> implements Serializable {
 
     private static final long serialVersionUID = -7989237020377623993L;
 
-    private String realm = null;
+    private final List<String> realms = new ArrayList<>();
 
     private final ActionLink<T> link;
 
@@ -66,12 +68,24 @@ public final class Action<T extends Serializable> implements Serializable {
         this.indicator = true;
     }
 
-    public String getRealm() {
-        return realm;
+    public String[] getRealms() {
+        return realms.toArray(new String[realms.size()]);
     }
 
     public void setRealm(final String realm) {
-        this.realm = realm;
+        this.realms.clear();
+
+        if (realm != null) {
+            this.realms.add(realm);
+        }
+    }
+
+    public void setRealms(final String realm, final List<String> dynRealms) {
+        setRealm(realm);
+
+        if (dynRealms != null) {
+            this.realms.addAll(dynRealms);
+        }
     }
 
     public ActionLink<T> getLink() {
@@ -104,7 +118,7 @@ public final class Action<T extends Serializable> implements Serializable {
         this.visibleLabel = false;
         return this;
     }
-    
+
     public Action<T> showLabel() {
         this.visibleLabel = true;
         return this;
