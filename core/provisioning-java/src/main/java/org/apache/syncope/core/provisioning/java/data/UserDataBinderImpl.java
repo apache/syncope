@@ -602,10 +602,10 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 userDAO.findAllResources(user),
                 details);
 
-        if (details) {
-            // dynamic realms
-            userTO.getDynRealms().addAll(userDAO.findDynRealms(user.getKey()));
+        // dynamic realms
+        userTO.getDynRealms().addAll(userDAO.findDynRealms(user.getKey()));
 
+        if (details) {
             // roles
             CollectionUtils.collect(user.getRoles(),
                     EntityUtils.<Role>keyTransformer(), userTO.getRoles());

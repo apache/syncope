@@ -20,8 +20,10 @@ package org.apache.syncope.client.console;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -33,6 +35,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.list.SetUniqueList;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
@@ -213,25 +216,39 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         return sortable;
     }
 
-    public boolean owns(final String entitlements) {
-        return owns(entitlements, SyncopeConstants.ROOT_REALM);
-    }
-
-    public boolean owns(final String entitlements, final String realm) {
+    public boolean owns(final String entitlements, final String... realms) {
         if (StringUtils.isEmpty(entitlements)) {
             return true;
         }
 
-        for (String entitlement : entitlements.split(",")) {
-            if (auth != null && auth.containsKey(entitlement)
-                    && (realm == null || IterableUtils.matchesAny(auth.get(entitlement), new Predicate<String>() {
+        if (auth == null) {
+            return false;
+        }
 
-                        @Override
-                        public boolean evaluate(final String ownedRealm) {
-                            return realm.startsWith(ownedRealm);
-                        }
-                    }))) {
-                return true;
+        Set<String> requested = ArrayUtils.isEmpty(realms)
+                ? Collections.singleton(SyncopeConstants.ROOT_REALM)
+                : new HashSet<>(Arrays.asList(realms));
+
+        for (String entitlement : entitlements.split(",")) {
+            if (auth.containsKey(entitlement)) {
+                boolean owns = false;
+
+                Set<String> owned = auth.get(entitlement);
+                for (final String realm : requested) {
+                    if (realm.startsWith(SyncopeConstants.ROOT_REALM)) {
+                        owns |= IterableUtils.matchesAny(owned, new Predicate<String>() {
+
+                            @Override
+                            public boolean evaluate(final String ownedRealm) {
+                                return realm.startsWith(ownedRealm);
+                            }
+                        });
+                    } else {
+                        owns |= owned.contains(realm);
+                    }
+                }
+
+                return owns;
             }
         }
 

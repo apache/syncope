@@ -104,7 +104,11 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
         } else {
             MetaDataRoleAuthorizationStrategy.unauthorizeAll(addAjaxLink, RENDER);
         }
-        setReadOnly(!SyncopeConsoleSession.get().owns(String.format("%s_UPDATE", builder.type), builder.realm));
+        if (builder.dynRealm == null) {
+            setReadOnly(!SyncopeConsoleSession.get().owns(String.format("%s_UPDATE", builder.type), builder.realm));
+        } else {
+            setReadOnly(!SyncopeConsoleSession.get().owns(String.format("%s_UPDATE", builder.type), builder.dynRealm));
+        }
 
         this.realm = builder.realm;
         this.type = builder.type;
@@ -251,6 +255,8 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
          */
         protected String realm = SyncopeConstants.ROOT_REALM;
 
+        protected String dynRealm = null;
+
         /**
          * Any type related to current panel.
          */
@@ -271,6 +277,11 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
 
         public Builder<A, E> setRealm(final String realm) {
             this.realm = realm;
+            return this;
+        }
+
+        public Builder<A, E> setDynRealm(final String dynRealm) {
+            this.dynRealm = dynRealm;
             return this;
         }
 

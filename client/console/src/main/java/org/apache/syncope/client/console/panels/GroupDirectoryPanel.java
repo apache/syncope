@@ -216,7 +216,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             }
         }, ActionType.EDIT,
                 String.format("%s,%s", StandardEntitlement.GROUP_READ, StandardEntitlement.GROUP_UPDATE)).
-                setRealm(realm);
+                setRealms(realm, model.getObject().getDynRealms());
 
         panel.add(new ActionLink<GroupTO>() {
 
@@ -247,7 +247,8 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 typeExtensionsModal.header(new StringResourceModel("typeExtensions", model));
                 typeExtensionsModal.show(true);
             }
-        }, ActionType.TYPE_EXTENSIONS, StandardEntitlement.GROUP_UPDATE).setRealm(realm);
+        }, ActionType.TYPE_EXTENSIONS, StandardEntitlement.GROUP_UPDATE).
+                setRealms(realm, model.getObject().getDynRealms());
 
         panel.add(new ActionLink<GroupTO>() {
 
@@ -265,7 +266,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             }
         }, ActionType.MEMBERS,
                 String.format("%s,%s", StandardEntitlement.GROUP_READ, StandardEntitlement.GROUP_UPDATE)).
-                setRealm(realm);
+                setRealms(realm, model.getObject().getDynRealms());
 
         panel.add(new ActionLink<GroupTO>() {
 
@@ -334,7 +335,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             }
         }, ActionType.MANAGE_RESOURCES,
                 String.format("%s,%s", StandardEntitlement.GROUP_READ, StandardEntitlement.GROUP_UPDATE)).
-                setRealm(realm);
+                setRealms(realm, model.getObject().getDynRealms());
 
         panel.add(new ActionLink<GroupTO>() {
 
