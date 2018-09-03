@@ -141,7 +141,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
             }
         }, ActionType.EDIT,
                 String.format("%s,%s", StandardEntitlement.USER_READ, StandardEntitlement.USER_UPDATE)).
-                setRealm(realm);
+                setRealms(realm, model.getObject().getDynRealms());
 
         panel.add(new ActionLink<UserTO>() {
 
@@ -183,7 +183,8 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionType.MUSTCHANGEPASSWORD, StandardEntitlement.USER_UPDATE).setRealm(realm);
+        }, ActionType.MUSTCHANGEPASSWORD, StandardEntitlement.USER_UPDATE).
+                setRealms(realm, model.getObject().getDynRealms());
 
         if (wizardInModal) {
             panel.add(new ActionLink<UserTO>() {
@@ -206,7 +207,8 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
                     displayAttributeModal.show(true);
                 }
-            }, ActionType.PASSWORD_MANAGEMENT, StandardEntitlement.USER_UPDATE).setRealm(realm);
+            }, ActionType.PASSWORD_MANAGEMENT, StandardEntitlement.USER_UPDATE).
+                    setRealms(realm, model.getObject().getDynRealms());
 
             if (SyncopeConsoleSession.get().getPlatformInfo().isPwdResetAllowed()
                     && !SyncopeConsoleSession.get().getPlatformInfo().isPwdResetRequiringSecurityQuestions()) {
@@ -230,7 +232,8 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
-                }, ActionType.REQUEST_PASSWORD_RESET, StandardEntitlement.USER_UPDATE).setRealm(realm);
+                }, ActionType.REQUEST_PASSWORD_RESET, StandardEntitlement.USER_UPDATE).
+                        setRealms(realm, model.getObject().getDynRealms());
             }
 
             panel.add(new ActionLink<UserTO>() {
@@ -255,7 +258,8 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
                     altDefaultModal.show(true);
                 }
-            }, ActionType.ENABLE, StandardEntitlement.USER_UPDATE).setRealm(realm);
+            }, ActionType.ENABLE, StandardEntitlement.USER_UPDATE).
+                    setRealms(realm, model.getObject().getDynRealms());
 
             panel.add(new ActionLink<UserTO>() {
 
@@ -281,7 +285,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 }
             }, ActionType.MANAGE_RESOURCES,
                     String.format("%s,%s", StandardEntitlement.USER_READ, StandardEntitlement.USER_UPDATE)).
-                    setRealm(realm);
+                    setRealms(realm, model.getObject().getDynRealms());
 
             panel.add(new ActionLink<UserTO>() {
 

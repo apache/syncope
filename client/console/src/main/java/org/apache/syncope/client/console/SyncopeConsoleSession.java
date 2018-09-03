@@ -20,8 +20,10 @@ package org.apache.syncope.client.console;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -32,6 +34,7 @@ import java.util.concurrent.Future;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.collections4.list.SetUniqueList;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
@@ -224,19 +227,33 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         return sortable;
     }
 
-    public boolean owns(final String entitlements) {
-        return owns(entitlements, SyncopeConstants.ROOT_REALM);
-    }
-
-    public boolean owns(final String entitlements, final String realm) {
+    public boolean owns(final String entitlements, final String... realms) {
         if (StringUtils.isEmpty(entitlements)) {
             return true;
         }
 
+        if (auth == null) {
+            return false;
+        }
+
+        Set<String> requested = ArrayUtils.isEmpty(realms)
+                ? Collections.singleton(SyncopeConstants.ROOT_REALM)
+                : new HashSet<>(Arrays.asList(realms));
+
         for (String entitlement : entitlements.split(",")) {
-            if (auth != null && auth.containsKey(entitlement) && (realm == null
-                    || auth.get(entitlement).stream().anyMatch(ownedRealm -> realm.startsWith(ownedRealm)))) {
-                return true;
+            if (auth.containsKey(entitlement)) {
+                boolean owns = false;
+
+                Set<String> owned = auth.get(entitlement);
+                for (String realm : requested) {
+                    if (realm.startsWith(SyncopeConstants.ROOT_REALM)) {
+                        owns |= owned.stream().anyMatch(ownedRealm -> realm.startsWith(ownedRealm));
+                    } else {
+                        owns |= owned.contains(realm);
+                    }
+                }
+
+                return owns;
             }
         }
 
