@@ -176,8 +176,15 @@ under the License.
         <filtering>false</filtering>
         <includes>
           <include>org/apache/syncope/**/*.png</include>
-          <include>org/apache/syncope/**/*.groovy</include>
         </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/../../client/console/src/main/resources/org/apache/syncope/client/console/implementations/</directory>
+        <filtering>false</filtering>
+        <includes>
+          <include>*.groovy</include>
+        </includes>
+        <targetPath>org/apache/syncope/ide/netbeans/implementations</targetPath>
       </resource>
 
       <resource>

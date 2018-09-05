@@ -32,7 +32,7 @@ import org.quartz.JobExecutionException
 class MyPullActions implements PullActions {
   
   @Override
-  SyncDelta preprocess(SyncDelta delta) {
+  SyncDelta preprocess(ProvisioningProfile profile, SyncDelta delta) {
     return delta;
   }
   
