@@ -378,7 +378,7 @@ public final class GenerateUpgradeSQL {
                 while (rs.next()) {
                     String realmId = rs.getString(1);
                     String actionClassName = rs.getString(2);
-                    OUT.write("INSERT INTO RealmAction(task_id,implementation_id) VALUES("
+                    OUT.write("INSERT INTO RealmAction(realm_id,implementation_id) VALUES("
                             + "'" + realmId + "',"
                             + "'" + actionClassName + "');\n");
                 }
