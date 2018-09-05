@@ -623,7 +623,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
             forms = getForms(engine.getTaskService().createTaskQuery().
                     taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE).
-                    taskCandidateOrAssigned(user.getKey()), page, size, orderByClauses);
+                    taskCandidateOrAssigned(user.getUsername()), page, size, orderByClauses);
 
             List<String> candidateGroups = new ArrayList<>();
             userDAO.findAllGroupNames(user).forEach(group -> {
