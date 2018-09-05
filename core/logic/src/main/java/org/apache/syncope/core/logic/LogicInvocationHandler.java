@@ -28,6 +28,7 @@ import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -67,7 +68,7 @@ public class LogicInvocationHandler {
         boolean notificationsAvailable = notificationManager.notificationsAvailable(
                 AuditElements.EventCategoryType.LOGIC, category, null, event);
         boolean auditRequested = auditManager.auditRequested(
-                AuditElements.EventCategoryType.LOGIC, category, null, event);
+                AuthContextUtils.getUsername(), AuditElements.EventCategoryType.LOGIC, category, null, event);
 
         AuditElements.Result condition = null;
         Object output = null;
@@ -100,6 +101,7 @@ public class LogicInvocationHandler {
             if (notificationsAvailable || auditRequested) {
                 Map<String, Object> jobMap = new HashMap<>();
                 jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
+                        AuthContextUtils.getUsername(),
                         AuditElements.EventCategoryType.LOGIC,
                         category,
                         null,

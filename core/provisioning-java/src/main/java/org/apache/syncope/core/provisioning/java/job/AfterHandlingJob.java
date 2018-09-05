@@ -98,5 +98,4 @@ public class AfterHandlingJob extends AbstractInterruptableJob {
             throw new JobExecutionException("While handling notification / audit events", e);
         }
     }
-
 }

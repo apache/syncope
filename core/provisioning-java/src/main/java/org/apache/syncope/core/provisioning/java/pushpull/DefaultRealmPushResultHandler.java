@@ -48,6 +48,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPushResultHandler;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -231,6 +232,7 @@ public class DefaultRealmPushResultHandler
                     profile.getTask().getResource().getKey(),
                     operation);
             boolean auditRequested = auditManager.auditRequested(
+                    AuthContextUtils.getUsername(),
                     AuditElements.EventCategoryType.PUSH,
                     REALM_TYPE.toLowerCase(),
                     profile.getTask().getResource().getKey(),
@@ -408,6 +410,7 @@ public class DefaultRealmPushResultHandler
                 if (notificationsAvailable || auditRequested) {
                     Map<String, Object> jobMap = new HashMap<>();
                     jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
+                            AuthContextUtils.getUsername(),
                             AuditElements.EventCategoryType.PUSH,
                             REALM_TYPE.toLowerCase(),
                             profile.getTask().getResource().getKey(),

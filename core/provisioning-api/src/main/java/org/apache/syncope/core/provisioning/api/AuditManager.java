@@ -26,6 +26,7 @@ public interface AuditManager {
     /**
      * Checks if audit is requested matching the provided conditions.
      *
+     * @param who user triggering the event
      * @param type event category type
      * @param category event category
      * @param subcategory event subcategory
@@ -33,6 +34,7 @@ public interface AuditManager {
      * @return created notification tasks
      */
     boolean auditRequested(
+            String who,
             AuditElements.EventCategoryType type,
             String category,
             String subcategory,
@@ -40,14 +42,15 @@ public interface AuditManager {
 
     /**
      * Create audit entries according to the provided event.
-     * 
+     *
      * @param event Spring event raised during Logic processing
      */
-    void audit(final AfterHandlingEvent event);
+    void audit(AfterHandlingEvent event);
 
     /**
      * Create audit entries for each audit matching provided conditions.
      *
+     * @param who user triggering the event
      * @param type event category type
      * @param category event category
      * @param subcategory event subcategory
@@ -58,6 +61,7 @@ public interface AuditManager {
      * @param input object(s) provided to the event
      */
     void audit(
+            String who,
             AuditElements.EventCategoryType type,
             String category,
             String subcategory,
@@ -66,5 +70,4 @@ public interface AuditManager {
             Object before,
             Object output,
             Object... input);
-
 }
