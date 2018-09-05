@@ -83,20 +83,20 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
 
             final AttrTO attr;
             if (schemaType == null) {
-                attr = this.anyTO.getPlainAttr(schema).get();
+                attr = this.anyTO.getPlainAttr(schema).orElse(null);
             } else {
                 switch (schemaType) {
                     case PLAIN:
                     default:
-                        attr = this.anyTO.getPlainAttr(schema).get();
+                        attr = this.anyTO.getPlainAttr(schema).orElse(null);
                         break;
 
                     case DERIVED:
-                        attr = this.anyTO.getDerAttr(schema).get();
+                        attr = this.anyTO.getDerAttr(schema).orElse(null);
                         break;
 
                     case VIRTUAL:
-                        attr = this.anyTO.getVirAttr(schema).get();
+                        attr = this.anyTO.getVirAttr(schema).orElse(null);
                         break;
                 }
             }
