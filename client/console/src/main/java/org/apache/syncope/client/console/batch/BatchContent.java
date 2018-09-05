@@ -22,9 +22,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -32,6 +34,8 @@ import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
+import org.apache.syncope.client.console.rest.AnyObjectRestClient;
+import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.RestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BatchResponseColumn;
@@ -245,6 +249,8 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                             TaskService batchTaskService = batch.getService(TaskService.class);
                             ReportService batchReportService = batch.getService(ReportService.class);
 
+                            Set<String> deletedAnys = new HashSet<>();
+
                             switch (action) {
                                 case MUSTCHANGEPASSWORD:
                                     items.forEach(item -> {
@@ -295,6 +301,7 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                             AnyTO any = (AnyTO) item;
 
                                             batchAnyService.delete(any.getKey());
+                                            deletedAnys.add(any.getKey());
                                         } else if (singleItem instanceof TaskTO) {
                                             TaskTO task = (TaskTO) item;
 
@@ -344,10 +351,17 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                     batchExecutor.getClass().getMethod("batch",
                                             BatchRequest.class).invoke(batchExecutor, batch)));
 
-                            if (singleItem instanceof UserTO) {
-                                UserRestClient userRestClient = UserRestClient.class.cast(batchExecutor);
+                            if (singleItem instanceof AnyTO) {
+                                AbstractAnyRestClient<? extends AnyTO> anyRestClient = singleItem instanceof UserTO
+                                        ? UserRestClient.class.cast(batchExecutor)
+                                        : singleItem instanceof GroupTO
+                                                ? GroupRestClient.class.cast(batchExecutor)
+                                                : AnyObjectRestClient.class.cast(batchExecutor);
                                 for (int i = 0; i < items.size(); i++) {
-                                    items.set(i, (T) userRestClient.read(((UserTO) items.get(i)).getKey()));
+                                    String key = ((AnyTO) items.get(i)).getKey();
+                                    if (!deletedAnys.contains(key)) {
+                                        items.set(i, (T) anyRestClient.read(key));
+                                    }
                                 }
                             }
                         }
@@ -369,7 +383,7 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                         SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     } catch (Exception e) {
                         LOG.error("Batch failure", e);
-                        SyncopeConsoleSession.get().error("Operation " + action.getActionId() + " not supported");
+                        SyncopeConsoleSession.get().error("Operation " + action.getActionId() + " failed");
                     }
                     ((BasePage) getPage()).getNotificationPanel().refresh(target);
                 }
