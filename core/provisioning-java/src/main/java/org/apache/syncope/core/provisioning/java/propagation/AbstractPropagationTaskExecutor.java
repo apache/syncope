@@ -72,6 +72,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationException
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -519,8 +520,12 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         String operation = task.getOperation().name().toLowerCase();
         boolean notificationsAvailable = notificationManager.notificationsAvailable(
                 AuditElements.EventCategoryType.PROPAGATION, anyTypeKind, resource, operation);
-        boolean auditRequested = auditManager.auditRequested(AuditElements.EventCategoryType.PROPAGATION, anyTypeKind,
-                resource, operation);
+        boolean auditRequested = auditManager.auditRequested(
+                AuthContextUtils.getUsername(),
+                AuditElements.EventCategoryType.PROPAGATION,
+                anyTypeKind,
+                resource,
+                operation);
 
         if (notificationsAvailable || auditRequested) {
             ExecTO execTO = taskDataBinder.getExecTO(execution);
@@ -531,7 +536,12 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     new Object[] { execTO, afterObj },
                     taskTO);
 
-            auditManager.audit(AuditElements.EventCategoryType.PROPAGATION, anyTypeKind, resource, operation,
+            auditManager.audit(
+                    AuthContextUtils.getUsername(),
+                    AuditElements.EventCategoryType.PROPAGATION,
+                    anyTypeKind,
+                    resource,
+                    operation,
                     result,
                     beforeObj,
                     new Object[] { execTO, afterObj },

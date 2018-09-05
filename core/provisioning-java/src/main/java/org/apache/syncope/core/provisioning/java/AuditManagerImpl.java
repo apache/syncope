@@ -23,10 +23,10 @@ import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.LoggerLevel;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,13 +42,14 @@ public class AuditManagerImpl implements AuditManager {
 
     @Override
     public boolean auditRequested(
+            final String who,
             final AuditElements.EventCategoryType type,
             final String category,
             final String subcategory,
             final String event) {
 
         AuditEntry auditEntry = new AuditEntry(
-                AuthContextUtils.getUsername(),
+                who,
                 new AuditLoggerName(type, category, subcategory, event, Result.SUCCESS),
                 null,
                 null,
@@ -62,7 +63,7 @@ public class AuditManagerImpl implements AuditManager {
         }
 
         auditEntry = new AuditEntry(
-                AuthContextUtils.getUsername(),
+                who,
                 new AuditLoggerName(type, category, subcategory, event, Result.FAILURE),
                 null,
                 null,
@@ -76,6 +77,7 @@ public class AuditManagerImpl implements AuditManager {
     @Override
     public void audit(final AfterHandlingEvent event) {
         audit(
+                event.getWho(),
                 event.getType(),
                 event.getCategory(),
                 event.getSubcategory(),
@@ -88,6 +90,7 @@ public class AuditManagerImpl implements AuditManager {
 
     @Override
     public void audit(
+            final String who,
             final AuditElements.EventCategoryType type,
             final String category,
             final String subcategory,
@@ -103,7 +106,7 @@ public class AuditManagerImpl implements AuditManager {
         }
 
         AuditEntry auditEntry = new AuditEntry(
-                AuthContextUtils.getUsername(),
+                who,
                 new AuditLoggerName(type, category, subcategory, event, condition),
                 before,
                 throwable == null ? output : throwable.getMessage(),

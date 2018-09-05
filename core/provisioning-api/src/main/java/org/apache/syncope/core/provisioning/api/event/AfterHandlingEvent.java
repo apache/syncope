@@ -27,6 +27,8 @@ public class AfterHandlingEvent implements Serializable {
 
     public static final String JOBMAP_KEY = "AfterHandlingEvent";
 
+    private final String who;
+
     private final AuditElements.EventCategoryType type;
 
     private final String category;
@@ -44,6 +46,7 @@ public class AfterHandlingEvent implements Serializable {
     private final Object[] input;
 
     public AfterHandlingEvent(
+            final String who,
             final AuditElements.EventCategoryType type,
             final String category,
             final String subcategory,
@@ -53,6 +56,7 @@ public class AfterHandlingEvent implements Serializable {
             final Object output,
             final Object... input) {
 
+        this.who = who;
         this.type = type;
         this.category = category;
         this.subcategory = subcategory;
@@ -61,6 +65,10 @@ public class AfterHandlingEvent implements Serializable {
         this.before = before;
         this.output = output;
         this.input = input;
+    }
+
+    public String getWho() {
+        return who;
     }
 
     public AuditElements.EventCategoryType getType() {
@@ -94,5 +102,4 @@ public class AfterHandlingEvent implements Serializable {
     public Object[] getInput() {
         return input;
     }
-
 }

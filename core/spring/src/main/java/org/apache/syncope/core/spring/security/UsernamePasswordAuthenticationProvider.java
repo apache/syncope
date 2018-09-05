@@ -141,13 +141,14 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
         UsernamePasswordAuthenticationToken token;
         if (isAuthenticated) {
             token = AuthContextUtils.execWithAuthContext(domainKey, () -> {
-                UsernamePasswordAuthenticationToken token1 =
-                        new UsernamePasswordAuthenticationToken(
-                                username[0],
-                                null,
-                                dataAccessor.getAuthorities(username[0]));
+                UsernamePasswordAuthenticationToken token1 = new UsernamePasswordAuthenticationToken(
+                        username[0],
+                        null,
+                        dataAccessor.getAuthorities(username[0]));
                 token1.setDetails(authentication.getDetails());
-                dataAccessor.audit(AuditElements.EventCategoryType.LOGIC,
+                dataAccessor.audit(
+                        username[0],
+                        AuditElements.EventCategoryType.LOGIC,
                         AuditElements.AUTHENTICATION_CATEGORY, null,
                         AuditElements.LOGIN_EVENT, Result.SUCCESS, null, isAuthenticated, authentication,
                         "Successfully authenticated, with entitlements: " + token1.getAuthorities());
@@ -158,7 +159,9 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
                     username[0], token.getAuthorities());
         } else {
             AuthContextUtils.execWithAuthContext(domainKey, () -> {
-                dataAccessor.audit(AuditElements.EventCategoryType.LOGIC,
+                dataAccessor.audit(
+                        username[0],
+                        AuditElements.EventCategoryType.LOGIC,
                         AuditElements.AUTHENTICATION_CATEGORY,
                         null,
                         AuditElements.LOGIN_EVENT,
