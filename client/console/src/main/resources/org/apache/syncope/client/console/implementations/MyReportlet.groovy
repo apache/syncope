@@ -20,11 +20,12 @@ import groovy.transform.CompileStatic
 import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator
 import org.apache.syncope.core.persistence.api.dao.Reportlet
 import org.xml.sax.SAXException
+import java.util.concurrent.atomic.AtomicReference
 
 @CompileStatic
 class MyReportlet implements Reportlet {
   
   @Override
-  void extract(ContentHandler handler) throws SAXException {
+  void extract(ContentHandler handler, AtomicReference<String> status) throws SAXException {
   }
 }
