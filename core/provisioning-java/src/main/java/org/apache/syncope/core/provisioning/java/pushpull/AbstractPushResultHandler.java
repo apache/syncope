@@ -59,6 +59,7 @@ import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.quartz.JobExecutionException;
@@ -306,6 +307,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     profile.getTask().getResource().getKey(),
                     operation);
             boolean auditRequested = auditManager.auditRequested(
+                    AuthContextUtils.getUsername(),
                     AuditElements.EventCategoryType.PUSH,
                     any.getType().getKind().name().toLowerCase(),
                     profile.getTask().getResource().getKey(),
@@ -475,6 +477,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 if (notificationsAvailable || auditRequested) {
                     Map<String, Object> jobMap = new HashMap<>();
                     jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
+                            AuthContextUtils.getUsername(),
                             AuditElements.EventCategoryType.PUSH,
                             any.getType().getKind().name().toLowerCase(),
                             profile.getTask().getResource().getKey(),

@@ -167,7 +167,9 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
                             dataAccessor.getAuthorities(username[0]));
                     token.setDetails(authentication.getDetails());
 
-                    dataAccessor.audit(AuditElements.EventCategoryType.LOGIC,
+                    dataAccessor.audit(
+                            username[0],
+                            AuditElements.EventCategoryType.LOGIC,
                             AuditElements.AUTHENTICATION_CATEGORY,
                             null,
                             AuditElements.LOGIN_EVENT,
@@ -187,7 +189,9 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
                 @Override
                 public Void exec() {
-                    dataAccessor.audit(AuditElements.EventCategoryType.LOGIC,
+                    dataAccessor.audit(
+                            username[0],
+                            AuditElements.EventCategoryType.LOGIC,
                             AuditElements.AUTHENTICATION_CATEGORY,
                             null,
                             AuditElements.LOGIN_EVENT,

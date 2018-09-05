@@ -53,6 +53,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
@@ -853,7 +854,9 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 delta,
                 furtherInput);
 
-        auditManager.audit(AuditElements.EventCategoryType.PULL,
+        auditManager.audit(
+                AuthContextUtils.getUsername(),
+                AuditElements.EventCategoryType.PULL,
                 getAnyUtils().anyTypeKind().name().toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,

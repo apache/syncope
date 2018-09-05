@@ -49,6 +49,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
@@ -783,7 +784,9 @@ public class DefaultRealmPullResultHandler
                 output,
                 delta);
 
-        auditManager.audit(AuditElements.EventCategoryType.PULL,
+        auditManager.audit(
+                AuthContextUtils.getUsername(),
+                AuditElements.EventCategoryType.PULL,
                 REALM_TYPE.toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,

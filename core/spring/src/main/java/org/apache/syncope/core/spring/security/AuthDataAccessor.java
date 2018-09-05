@@ -440,6 +440,7 @@ public class AuthDataAccessor {
 
     @Transactional(readOnly = true)
     public void audit(
+            final String who,
             final AuditElements.EventCategoryType type,
             final String category,
             final String subcategory,
@@ -449,7 +450,7 @@ public class AuthDataAccessor {
             final Object output,
             final Object... input) {
 
-        auditManager.audit(type, category, subcategory, event, result, before, output, input);
+        auditManager.audit(who, type, category, subcategory, event, result, before, output, input);
     }
 
 }
