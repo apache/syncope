@@ -122,12 +122,13 @@ public class LoggerLoader implements SyncopeLoader {
                             AuditLoggerName.getAuditEventLoggerName(entry.getKey(), event.toLoggerName());
                     LoggerConfig eventLogConf = ctx.getConfiguration().getLoggerConfig(domainAuditLoggerName);
 
-                    if (LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName())) {
+                    boolean isRootLogConf = LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName());
+                    if (isRootLogConf) {
                         eventLogConf = new LoggerConfig(domainAuditLoggerName, null, false);
                     }
                     addAppenderToContext(ctx, auditAppender, eventLogConf);
                     eventLogConf.setLevel(Level.DEBUG);
-                    if (LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName())) {
+                    if (isRootLogConf) {
                         ctx.getConfiguration().addLogger(domainAuditLoggerName, eventLogConf);
                     }
                 }
