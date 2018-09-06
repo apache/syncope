@@ -102,7 +102,7 @@ Prepare::
 . Install Apache Tomcat 8
 +
 [source,bash]
-sudo apt-get install tomcat8
+$ sudo apt-get install tomcat8
 +
 [WARNING]
 *Ubuntu LTS 14.04 LTS* does not provide the tomcat8 package by default: you will need instead to download and manually
@@ -112,23 +112,23 @@ http://packages.ubuntu.com/wily/all/libtomcat8-java/download[libtomcat8-java]
 http://packages.ubuntu.com/wily/all/tomcat8-common/download[tomcat8-common]
 http://packages.ubuntu.com/wily/all/tomcat8/download[tomcat8]
 +
-. Install PostgreSQL
-+
-[source,bash]
-sudo apt-get install libpostgresql-jdbc-java postgresql postgresql-client
-+
+. Install PostgreSQL packages for your actual https://www.postgresql.org/download/linux/debian/[Debian^] /
+https://www.postgresql.org/download/linux/ubuntu/[Ubuntu^] distribution:
+
+* `postgresql-10`
+* `postgresql-client-10`
+
 . Use the PostgreSQL JDBC driver with Tomcat
 +
-[source,bash]
-sudo ln -s /usr/share/java/postgresql-jdbc4.jar /usr/share/tomcat8/lib/
+[source,bash,subs="attributes"]
+$ cd /usr/share/tomcat8/lib/ && sudo wget http://central.maven.org/maven2/org/postgresql/postgresql/{postgresqlJDBC}/postgresql-{postgresqlJDBC}.jar
 +
 . Replace `JAVA_OPTS` in `/etc/default/tomcat8` with the following:
 +
 [source,bash]
 ----
 JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server \
-  -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m \
-  -XX:PermSize=256m -XX:MaxPermSize=256m -XX:+DisableExplicitGC \
+  -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:+DisableExplicitGC \
   -Djava.security.egd=file:/dev/./urandom"
 ----
 +
@@ -136,22 +136,22 @@ Install::
 . Stop Tomcat
 +
 [source,bash]
-sudo service tomcat8 stop
+$ sudo service tomcat8 stop
 +
 . Install Apache Syncope core, console and enduser via the downloaded packages
 +
 [source,bash]
-sudo dpkg -i apache-syncope-*.deb
+$ sudo dpkg -i apache-syncope-*.deb
 +
 . Create a database for use with Apache Syncope
 +
 [source,bash]
-sudo SYNCOPE_USER="syncope" SYNCOPE_PASS="syncope" sh /usr/share/apache-syncope/dbinit-postgresql.sh
+$ sudo SYNCOPE_USER="syncope" SYNCOPE_PASS="syncope" sh /usr/share/apache-syncope/dbinit-postgresql.sh
 +
 . Start Tomcat
 +
 [source,bash]
-sudo service tomcat8 start
+$ sudo service tomcat8 start
 
 [[deb-components]]
 ==== Components
@@ -488,7 +488,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 
 [subs="verbatim,attributes"]
 ----
-mvn archetype:generate \
+$ mvn archetype:generate \
     -DarchetypeGroupId=org.apache.syncope \
     -DarchetypeArtifactId=syncope-archetype \
     -DarchetypeRepository=http://repo1.maven.org/maven2 \
@@ -501,7 +501,7 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 
 [subs="verbatim,attributes"]
 ----
-mvn org.apache.maven.plugins:maven-archetype-plugin:2.4:generate \
+$ mvn org.apache.maven.plugins:maven-archetype-plugin:2.4:generate \
     -DarchetypeGroupId=org.apache.syncope \
     -DarchetypeArtifactId=syncope-archetype \
     -DarchetypeRepository=http://repository.apache.org/content/repositories/snapshots \
@@ -591,7 +591,7 @@ made are lost.
 From the top-level directory of your project, execute:
 
 [source,bash]
-mvn -P all clean install
+$ mvn -P all clean install
 
 [WARNING]
 ====
@@ -611,7 +611,7 @@ endif::[]
 then, from the `enduser` subdirectory, execute:
 
 [source,bash]
-mvn -P embedded,all
+$ mvn -P embedded,all
 
 ===== Paths and Components
 

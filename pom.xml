@@ -522,9 +522,9 @@ under the License.
     <nodejs.version>v6.9.4</nodejs.version>    
     <protractor.version>4.0.14</protractor.version>    
 
-    <jdbc.postgresql.version>42.2.2</jdbc.postgresql.version>
-    <jdbc.mysql.version>5.1.46</jdbc.mysql.version>
-    <jdbc.mariadb.version>2.2.5</jdbc.mariadb.version>
+    <jdbc.postgresql.version>42.2.5</jdbc.postgresql.version>
+    <jdbc.mysql.version>5.1.47</jdbc.mysql.version>
+    <jdbc.mariadb.version>2.2.6</jdbc.mariadb.version>
     <jdbc.mssql.version>6.4.0.jre</jdbc.mssql.version>
 
     <adminUser>admin</adminUser>
@@ -2481,6 +2481,10 @@ under the License.
               <attributes>
                 <docVersion>${project.version}</docVersion>
                 <snapshotOrRelease>${snapshotOrRelease}</snapshotOrRelease>
+                <postgresqlJDBC>${jdbc.postgresql.version}</postgresqlJDBC>
+                <mysqlJDBC>${jdbc.mysql.version}</mysqlJDBC>
+                <mariadbJDBC>${jdbc.mariadb.version}</mariadbJDBC>
+                <sqlserverJDBC>${jdbc.mssql.version}</sqlserverJDBC>
                 <year>${year}</year>
                 <numbered>true</numbered>
                 <icons>font</icons>
