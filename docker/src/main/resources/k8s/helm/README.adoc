@@ -1,6 +1,9 @@
 = Install Commands
 
-Open a terminal and navigate to the "helm" folder.  **REMINDER:  SET YOUR VALUES.YAML!!!**
+Open a terminal and navigate to the "helm" folder.  
+
+[WARNING]
+Do not forget to set your `values.yaml`!
 
 .Install postgres
 [source,bash]
