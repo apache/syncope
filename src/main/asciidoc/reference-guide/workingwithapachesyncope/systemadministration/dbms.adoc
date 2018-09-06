@@ -24,6 +24,9 @@ updated.
 
 ===== PostgreSQL
 
+[NOTE]
+Apache Syncope {docVersion} is verified with PostgreSQL server >= 10.3 and JDBC driver >= {postgresqlJDBC}.
+
 In `provisioning.properties`:
 
 ....
@@ -57,6 +60,9 @@ endif::[]
 and save it under `core/src/main/resources/`.
 
 ===== MySQL
+
+[NOTE]
+Apache Syncope {docVersion} is verified with MySQL server >= 5.7 and JDBC driver >= {mysqlJDBC}.
 
 In `provisioning.properties`:
 
@@ -95,6 +101,9 @@ This assumes that you have a MySQL instance running on localhost, listening on i
 
 ===== MariaDB
 
+[NOTE]
+Apache Syncope {docVersion} is verified with MariaDB server >= 10.3.7 and JDBC driver >= {mariadbJDBC}.
+
 In `provisioning.properties`:
 
 ....
@@ -127,6 +136,9 @@ This assumes that you have a MariaDB instance running on localhost, listening on
 
 ===== Oracle Database
 
+[NOTE]
+Apache Syncope {docVersion} is verified with Oracle database >= 11g and JDBC driver >= ojdbc8 12.2.0.1.
+
 In `provisioning.properties`:
 
 ....
@@ -152,6 +164,9 @@ This assumes that you have an Oracle instance running on localhost, listening on
 `syncope` under tablespace `SYNCOPE`, fully accessible by user `syncope` with password `syncope`.
 
 ===== MS SQL Server
+
+[NOTE]
+Apache Syncope {docVersion} is verified with MS SQL server >= 2017 and JDBC driver >= {sqlserverJDBC}8.
 
 In `provisioning.properties`:
 
