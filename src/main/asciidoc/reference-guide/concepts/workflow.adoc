@@ -75,6 +75,28 @@ Custom adapters can be provided by implementing the related interfaces, also as 
 https://camunda.org/[Camunda^] or http://jbpm.jboss.org/[jBPM^].
 ====
 
+[[which-user-worflow-adapter]]
+[TIP]
+.Which workflow adapter for users?
+====
+. Do you need <<approval,approval>> management? <<flowable-user-workflow-adapter,Flowable>>
+. If approval management is not needed, do you want to customize the internal user processing, or attach custom logic
+to it? Provide a Java class with your customizations, extending
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/workflow-java/src/main/java/org/apache/syncope/core/workflow/java/DefaultUserWorkflowAdapter.java[DefaultUserWorkflowAdapter^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/master/core/workflow-java/src/main/java/org/apache/syncope/core/workflow/java/DefaultUserWorkflowAdapter.java[DefaultUserWorkflowAdapter^]
+endif::[]
+. No approval nor customizations needed? Stick with
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/workflow-java/src/main/java/org/apache/syncope/core/workflow/java/DefaultUserWorkflowAdapter.java[DefaultUserWorkflowAdapter^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/master/core/workflow-java/src/main/java/org/apache/syncope/core/workflow/java/DefaultUserWorkflowAdapter.java[DefaultUserWorkflowAdapter^]
+endif::[]
+====
+
 ==== Flowable User Workflow Adapter
 
 An advanced adapter is provided for Users, based on http://www.flowable.org/[Flowable^], one of reference open
