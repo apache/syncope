@@ -104,22 +104,23 @@ Prepare::
 [source,bash]
 $ sudo apt-get install tomcat8
 +
-. Install PostgreSQL
-+
-[source,bash]
-$ sudo apt-get install libpostgresql-jdbc-java postgresql postgresql-client
-+
+. Install PostgreSQL packages for your actual https://www.postgresql.org/download/linux/debian/[Debian^] /
+https://www.postgresql.org/download/linux/ubuntu/[Ubuntu^] distribution:
+
+* `postgresql-10`
+* `postgresql-client-10`
+
 . Use the PostgreSQL JDBC driver with Tomcat
 +
-[source,bash]
-$ sudo ln -s /usr/share/java/postgresql-jdbc4.jar /usr/share/tomcat8/lib/
+[source,bash,subs="attributes"]
+$ cd /usr/share/tomcat8/lib/ && sudo wget http://central.maven.org/maven2/org/postgresql/postgresql/{postgresqlJDBC}/postgresql-{postgresqlJDBC}.jar
 +
 . Replace `JAVA_OPTS` in `/etc/default/tomcat8` with the following:
 +
 [source,bash]
 ----
 JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server \
-  -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC \
+  -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:+DisableExplicitGC \
   -Djava.security.egd=file:/dev/./urandom"
 ----
 +
