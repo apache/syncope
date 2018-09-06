@@ -182,7 +182,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     if (annotation == null) {
                         LOG.warn("Found pull correlation rule {} without declared configuration", clazz.getName());
                     } else {
-                        classNames.get(ImplementationType.ACCOUNT_RULE).add(clazz.getName());
+                        classNames.get(ImplementationType.PULL_CORRELATION_RULE).add(clazz.getName());
                         pullCRClasses.put(annotation.value(), (Class<? extends PullCorrelationRule>) clazz);
                     }
                 }
@@ -192,7 +192,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     if (annotation == null) {
                         LOG.warn("Found push correlation rule {} without declared configuration", clazz.getName());
                     } else {
-                        classNames.get(ImplementationType.ACCOUNT_RULE).add(clazz.getName());
+                        classNames.get(ImplementationType.PUSH_CORRELATION_RULE).add(clazz.getName());
                         pushCRClasses.put(annotation.value(), (Class<? extends PushCorrelationRule>) clazz);
                     }
                 }
