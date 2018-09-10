@@ -59,12 +59,13 @@ public class GroupResource extends BaseResource {
 
             CustomTemplateInfo customTemplate =
                     SyncopeEnduserApplication.get().getCustomTemplate();
+            final GroupResponse groupResponse = new GroupResponse();
+            
             if (customTemplate.getWizard().getSteps().containsKey("groups")) {
                 String realm = URLDecoder.decode(attributes.getParameters().get("realm").
                         toString(SyncopeConstants.ROOT_REALM), "UTF-8");
                 StringValue term = attributes.getParameters().get("term");
 
-                final GroupResponse groupResponse = new GroupResponse();
                 final int totGroups = SyncopeEnduserSession.get().
                         getService(SyncopeService.class).numbers().getTotalGroups();
                 final List<GroupTO> groupTOs = SyncopeEnduserSession.get().
@@ -80,27 +81,18 @@ public class GroupResource extends BaseResource {
                     groups.put(groupTO.getKey(), groupTO.getName());
                 }
                 groupResponse.setGroupTOs(groups);
-
-                response.setWriteCallback(new AbstractResource.WriteCallback() {
-
-                    @Override
-                    public void writeData(final Attributes attributes) throws IOException {
-                        attributes.getResponse().write(MAPPER.writeValueAsString(groupResponse));
-                    }
-                });
             } else {
-                final GroupResponse groupResponse = new GroupResponse();
                 groupResponse.setTotGroups(0);
                 Map<String, String> groups = new HashMap<>();
                 groupResponse.setGroupTOs(groups);
-                response.setWriteCallback(new AbstractResource.WriteCallback() {
-
-                    @Override
-                    public void writeData(final Attributes attributes) throws IOException {
-                        attributes.getResponse().write(MAPPER.writeValueAsString(groupResponse));
-                    }
-                });
             }
+            response.setWriteCallback(new AbstractResource.WriteCallback() {
+
+                @Override
+                public void writeData(final Attributes attributes) throws IOException {
+                    attributes.getResponse().write(MAPPER.writeValueAsString(groupResponse));
+                }
+            });
             response.setTextEncoding(StandardCharsets.UTF_8.name());
             response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {

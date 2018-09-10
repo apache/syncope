@@ -778,9 +778,9 @@ style and structure.
 The `customTemplate.json` could be edited and reloaded without the need of re-starting the Java EE container.
 ====
 
-[WARNING]
+[TIP]
+====
 The `customTemplate.json` default content is:
-
 ```
 {
   "templates": 
@@ -848,8 +848,8 @@ The `customTemplate.json` default content is:
           }
 }
 ```
-
 if such file is missing, empty or not valid, Enduser structure will not be valid and won't work as expected.
+====
 
 [discrete]
 ====== Editing default template
