@@ -863,12 +863,11 @@ to only display 3 steps, like:
 
 The configurations for that sample are in
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/client/enduser/src/test/resources/customTemplate.json
+https://github.com/apache/syncope/blob/syncope-{docVersion}/client/enduser/src/test/resources/customTemplate.json[customTemplate.json^].
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/2_0_X/client/enduser/src/test/resources/customTemplate.json
+https://github.com/apache/syncope/blob/2_0_X/client/enduser/src/test/resources/customTemplate.json[customTemplate.json^].
 endif::[]
-.
 In order to apply them, that content must be copied to your `customTemplate.json` file.
 
 [discrete]
