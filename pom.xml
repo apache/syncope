@@ -394,7 +394,7 @@ under the License.
     <jackson.version>2.9.6</jackson.version>
 
     <spring.version>5.0.9.RELEASE</spring.version>
-    <spring-security.version>5.0.7.RELEASE</spring-security.version>
+    <spring-security.version>5.0.8.RELEASE</spring-security.version>
 
     <openjpa.version>3.0.0</openjpa.version>
     <hikaricp.version>3.2.0</hikaricp.version>
@@ -433,7 +433,7 @@ under the License.
 
     <h2.version>1.4.197</h2.version>
 
-    <junit.version>5.3.0</junit.version>
+    <junit.version>5.3.1</junit.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
