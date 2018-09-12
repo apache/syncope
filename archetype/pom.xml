@@ -312,6 +312,7 @@ under the License.
           <include>enduser.properties</include>
           <include>saml2sp-agent.properties</include>
           <include>customFormAttributes.json</include>
+          <include>customTemplate.json</include>
         </includes>
       </resource>
       <resource>
