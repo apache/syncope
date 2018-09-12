@@ -74,7 +74,13 @@ public class UserSelfPasswordReset extends BaseUserSelfResource {
                         requestPasswordReset(usernameParam[0], null);
             }
         } catch (final Exception e) {
-            LOG.error("Error while updating user", e);
+            LOG.error("Unable to process password reset request", e);
+            response.setError(Response.Status.BAD_REQUEST.getStatusCode(),
+                    new StringBuilder().
+                            append("ErrorMessage{{ ").
+                            append(e.getMessage()).
+                            append(" }}").
+                            toString());
         }
 
         buildResponse(response, Response.Status.OK.getStatusCode(),
