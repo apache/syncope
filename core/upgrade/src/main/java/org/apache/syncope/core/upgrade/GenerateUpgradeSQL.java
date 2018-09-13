@@ -310,7 +310,7 @@ public final class GenerateUpgradeSQL {
                     String actionClassName = rs.getString(1);
                     OUT.write("INSERT INTO Implementation(id,type,engine,body) VALUES("
                             + "'" + actionClassName + "',"
-                            + "'PULL_ACTIONS',"
+                            + "'PUSH_ACTIONS',"
                             + "'JAVA',"
                             + "'" + actionClassName + "');\n");
                 }
@@ -366,7 +366,7 @@ public final class GenerateUpgradeSQL {
                     String actionClassName = rs.getString(1);
                     OUT.write("INSERT INTO Implementation(id,type,engine,body) VALUES("
                             + "'" + actionClassName + "',"
-                            + "'PULL_ACTIONS',"
+                            + "'LOGIC_ACTIONS',"
                             + "'JAVA',"
                             + "'" + actionClassName + "');\n");
                 }
