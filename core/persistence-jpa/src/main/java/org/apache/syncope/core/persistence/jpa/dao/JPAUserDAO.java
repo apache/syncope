@@ -349,6 +349,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                             : pwdHistory.subList(policy.getHistoryLength() >= pwdHistory.size()
                                     ? 0
                                     : pwdHistory.size() - policy.getHistoryLength(), pwdHistory.size())) {
+
                         matching |= ENCRYPTOR.verify(user.getClearPassword(), user.getCipherAlgorithm(), oldPwdValue);
                     }
                 }
@@ -362,7 +363,9 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             }
 
             // update user's password history with encrypted password
-            if (maxPPSpecHistory > 0 && user.getPassword() != null) {
+            if (maxPPSpecHistory > 0 && user.getPassword() != null
+                    && !user.getPasswordHistory().contains(user.getPassword())) {
+
                 user.getPasswordHistory().add(user.getPassword());
             }
             // keep only the last maxPPSpecHistory items in user's password history
@@ -590,5 +593,4 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     public Collection<String> findAllResourceKeys(final String key) {
         return CollectionUtils.collect(findAllResources(authFind(key)), EntityUtils.keyTransformer());
     }
-
 }
