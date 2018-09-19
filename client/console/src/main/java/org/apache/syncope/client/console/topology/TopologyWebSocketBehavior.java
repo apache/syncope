@@ -88,7 +88,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
             }
             Cookie jsessionid = cookieUtils.getCookie(jsessionCookieName);
             HttpServletRequest httpServletRequest = (HttpServletRequest) containerRequest;
-            if (jsessionid == null || httpServletRequest.isRequestedSessionIdValid() == false) {
+            if (jsessionid == null || !httpServletRequest.isRequestedSessionIdValid()) {
                 sessionId = component.getSession().getId();
             }
         }
