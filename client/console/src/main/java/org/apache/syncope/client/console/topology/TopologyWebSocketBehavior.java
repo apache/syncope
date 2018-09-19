@@ -27,17 +27,23 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.servlet.SessionTrackingMode;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.Application;
+import org.apache.wicket.Component;
 import org.apache.wicket.Session;
 import org.apache.wicket.ThreadContext;
+import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
 import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 import org.apache.wicket.protocol.ws.api.message.TextMessage;
+import org.apache.wicket.util.cookies.CookieUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,18 +56,44 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final Map<String, String> resources =
-            Collections.<String, String>synchronizedMap(new HashMap<String, String>());
+            Collections.<String, String>synchronizedMap(new HashMap<>());
 
-    private final Set<String> runningResCheck = Collections.synchronizedSet(new HashSet<String>());
+    private final Set<String> runningResCheck = Collections.synchronizedSet(new HashSet<>());
 
     private final Map<String, String> connectors =
-            Collections.<String, String>synchronizedMap(new HashMap<String, String>());
+            Collections.<String, String>synchronizedMap(new HashMap<>());
 
-    private final Set<String> runningConnCheck = Collections.synchronizedSet(new HashSet<String>());
+    private final Set<String> runningConnCheck = Collections.synchronizedSet(new HashSet<>());
 
     private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
 
     private final ResourceRestClient resourceRestClient = new ResourceRestClient();
+
+    @Override
+    protected CharSequence getSessionId(final Component component) {
+        String sessionId = "";
+        WebApplication application = (WebApplication) component.getApplication();
+        Set<SessionTrackingMode> effectiveSessionTrackingModes =
+                application.getServletContext().getEffectiveSessionTrackingModes();
+        Object containerRequest = component.getRequest().getContainerRequest();
+        if (effectiveSessionTrackingModes.size() == 1
+                && SessionTrackingMode.URL.equals(effectiveSessionTrackingModes.iterator().next())) {
+
+            sessionId = component.getSession().getId();
+        } else if (containerRequest instanceof HttpServletRequest) {
+            CookieUtils cookieUtils = new CookieUtils();
+            String jsessionCookieName = application.getServletContext().getSessionCookieConfig().getName();
+            if (jsessionCookieName == null) {
+                jsessionCookieName = "JSESSIONID";
+            }
+            Cookie jsessionid = cookieUtils.getCookie(jsessionCookieName);
+            HttpServletRequest httpServletRequest = (HttpServletRequest) containerRequest;
+            if (jsessionid == null || httpServletRequest.isRequestedSessionIdValid() == false) {
+                sessionId = component.getSession().getId();
+            }
+        }
+        return sessionId;
+    }
 
     @Override
     protected void onMessage(final WebSocketRequestHandler handler, final TextMessage message) {
