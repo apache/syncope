@@ -164,11 +164,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     @Autowired
     protected VirAttrCache virAttrCache;
 
-    @Override
-    public TaskExec execute(final PropagationTaskTO task) {
-        return execute(task, null);
-    }
-
     protected List<PropagationActions> getPropagationActions(final ExternalResource resource) {
         List<PropagationActions> result = new ArrayList<>();
 
@@ -350,7 +345,13 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return result;
     }
 
-    protected TaskExec execute(final PropagationTaskTO taskTO, final PropagationReporter reporter) {
+    @Override
+    public TaskExec execute(final PropagationTaskTO task) {
+        return execute(task, null);
+    }
+
+    @Override
+    public TaskExec execute(final PropagationTaskTO taskTO, final PropagationReporter reporter) {
         PropagationTask task;
         if (taskTO.getKey() == null) {
             task = entityFactory.newEntity(PropagationTask.class);
