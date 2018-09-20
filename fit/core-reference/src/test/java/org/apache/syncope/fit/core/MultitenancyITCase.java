@@ -42,20 +42,24 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
+import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
+import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.apache.syncope.common.rest.api.service.RealmService;
+import org.apache.syncope.common.rest.api.service.ReconciliationService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.TaskService;
@@ -101,7 +105,8 @@ public class MultitenancyITCase extends AbstractITCase {
 
     @Test
     public void readPlainSchemas() {
-        assertEquals(13, adminClient.getService(SchemaService.class).search(new SchemaQuery.Builder().type(SchemaType.PLAIN).build()).size());
+        assertEquals(13, adminClient.getService(SchemaService.class).search(new SchemaQuery.Builder().type(
+                SchemaType.PLAIN).build()).size());
     }
 
     @Test
@@ -215,6 +220,23 @@ public class MultitenancyITCase extends AbstractITCase {
                     build());
             assertNotNull(matchingUsers);
             assertEquals(1, matchingUsers.getResult().size());
+
+            // SYNCOPE-1374
+            String pullFromLDAPKey = matchingUsers.getResult().get(0).getKey();
+
+            assertEquals(0, adminClient.getService(TaskService.class).
+                    search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                            anyTypeKind(AnyTypeKind.USER).entityKey(pullFromLDAPKey).build()).getSize());
+
+            PushTaskTO pushTask = new PushTaskTO();
+            pushTask.setPerformUpdate(true);
+            pushTask.setMatchingRule(MatchingRule.UPDATE);
+            adminClient.getService(ReconciliationService.class).
+                    push(AnyTypeKind.USER, pullFromLDAPKey, resource.getKey(), pushTask);
+
+            assertEquals(1, adminClient.getService(TaskService.class).
+                    search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                            anyTypeKind(AnyTypeKind.USER).entityKey(pullFromLDAPKey).build()).getSize());
         } finally {
             adminClient.getService(ResourceService.class).delete(resource.getKey());
         }

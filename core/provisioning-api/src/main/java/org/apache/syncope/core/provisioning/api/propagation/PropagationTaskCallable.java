@@ -24,8 +24,6 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 
 public interface PropagationTaskCallable extends Callable<TaskExec> {
 
-    void setExecutor(PropagationTaskExecutor executor);
-
     void setTaskTO(PropagationTaskTO taskTO);
 
     void setReporter(PropagationReporter reporter);

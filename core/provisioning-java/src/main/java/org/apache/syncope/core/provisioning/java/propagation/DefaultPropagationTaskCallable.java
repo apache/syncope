@@ -28,6 +28,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskCalla
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -40,13 +41,14 @@ public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
 
     protected static final Logger LOG = LoggerFactory.getLogger(PropagationTaskCallable.class);
 
+    @Autowired
+    protected PropagationTaskExecutor taskExecutor;
+
     protected final String domain;
 
     protected final String username;
 
     protected final Collection<? extends GrantedAuthority> authorities;
-
-    protected AbstractPropagationTaskExecutor executor;
 
     protected PropagationTaskTO taskTO;
 
@@ -57,13 +59,6 @@ public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
         domain = AuthContextUtils.getDomain();
         username = ctx.getAuthentication().getName();
         authorities = ctx.getAuthentication().getAuthorities();
-    }
-
-    @Override
-    public void setExecutor(final PropagationTaskExecutor executor) {
-        if (executor instanceof AbstractPropagationTaskExecutor) {
-            this.executor = (AbstractPropagationTaskExecutor) executor;
-        }
     }
 
     @Override
@@ -86,11 +81,10 @@ public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
 
         LOG.debug("Execution started for {}", taskTO);
 
-        TaskExec execution = executor.execute(taskTO, reporter);
+        TaskExec execution = taskExecutor.execute(taskTO, reporter);
 
         LOG.debug("Execution completed for {}, {}", taskTO, execution);
 
         return execution;
     }
-
 }
