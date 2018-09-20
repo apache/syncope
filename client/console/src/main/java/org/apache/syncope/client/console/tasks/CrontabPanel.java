@@ -161,20 +161,20 @@ public class CrontabPanel extends Panel {
     public String getCronExpression() {
         String cronExpression = null;
 
-        if (seconds != null && seconds.getField().getInput() != null
-                && minutes != null && minutes.getField().getInput() != null
-                && hours != null && hours.getField().getInput() != null
-                && daysOfMonth != null && daysOfMonth.getField().getInput() != null
-                && months != null && months.getField().getInput() != null
-                && daysOfWeek != null && daysOfWeek.getField().getInput() != null) {
+        if (seconds != null && seconds.getModelObject() != null
+                && minutes != null && minutes.getModelObject() != null
+                && hours != null && hours.getModelObject() != null
+                && daysOfMonth != null && daysOfMonth.getModelObject() != null
+                && months != null && months.getModelObject() != null
+                && daysOfWeek != null && daysOfWeek.getModelObject() != null) {
 
             cronExpression = new StringBuilder().
-                    append(seconds.getField().getInput().trim()).append(" ").
-                    append(minutes.getField().getInput().trim()).append(" ").
-                    append(hours.getField().getInput().trim()).append(" ").
-                    append(daysOfMonth.getField().getInput().trim()).append(" ").
-                    append(months.getField().getInput().trim()).append(" ").
-                    append(daysOfWeek.getField().getInput().trim()).toString();
+                    append(seconds.getField().getModelObject().trim()).append(" ").
+                    append(minutes.getField().getModelObject().trim()).append(" ").
+                    append(hours.getField().getModelObject().trim()).append(" ").
+                    append(daysOfMonth.getField().getModelObject().trim()).append(" ").
+                    append(months.getField().getModelObject().trim()).append(" ").
+                    append(daysOfWeek.getField().getModelObject().trim()).toString();
         }
 
         return StringUtils.isNotBlank(cronExpression) ? cronExpression : null;
