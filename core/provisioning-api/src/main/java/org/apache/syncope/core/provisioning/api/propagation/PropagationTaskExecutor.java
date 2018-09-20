@@ -50,6 +50,15 @@ public interface PropagationTaskExecutor {
     TaskExec execute(PropagationTaskTO task);
 
     /**
+     * Execute the given PropagationTask and returns the generated {@link TaskExec}.
+     *
+     * @param task to be executed
+     * @param reporter to report propagation execution status
+     * @return the generated TaskExec
+     */
+    TaskExec execute(PropagationTaskTO task, PropagationReporter reporter);
+
+    /**
      * Execute a collection of PropagationTask objects.
      * The process is interrupted as soon as the result of the communication with a resource with non-null priority is
      * in error.
