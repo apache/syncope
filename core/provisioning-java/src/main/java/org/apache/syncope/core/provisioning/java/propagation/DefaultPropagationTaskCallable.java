@@ -34,9 +34,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(rollbackFor = { Throwable.class })
 public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
 
     protected static final Logger LOG = LoggerFactory.getLogger(PropagationTaskCallable.class);
