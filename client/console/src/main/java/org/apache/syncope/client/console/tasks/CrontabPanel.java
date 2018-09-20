@@ -169,12 +169,12 @@ public class CrontabPanel extends Panel {
                 && daysOfWeek != null && daysOfWeek.getModelObject() != null) {
 
             cronExpression = new StringBuilder().
-                    append(seconds.getField().getModelObject().trim()).append(" ").
-                    append(minutes.getField().getModelObject().trim()).append(" ").
-                    append(hours.getField().getModelObject().trim()).append(" ").
-                    append(daysOfMonth.getField().getModelObject().trim()).append(" ").
-                    append(months.getField().getModelObject().trim()).append(" ").
-                    append(daysOfWeek.getField().getModelObject().trim()).toString();
+                    append(seconds.getModelObject().trim()).append(" ").
+                    append(minutes.getModelObject().trim()).append(" ").
+                    append(hours.getModelObject().trim()).append(" ").
+                    append(daysOfMonth.getModelObject().trim()).append(" ").
+                    append(months.getModelObject().trim()).append(" ").
+                    append(daysOfWeek.getModelObject().trim()).toString();
         }
 
         return StringUtils.isNotBlank(cronExpression) ? cronExpression : null;
