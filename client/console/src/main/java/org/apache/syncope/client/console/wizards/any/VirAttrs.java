@@ -188,26 +188,23 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
                 @SuppressWarnings("unchecked")
                 protected void populateItem(final ListItem<AttrTO> item) {
                     AttrTO attrTO = item.getModelObject();
+                    VirSchemaTO virSchemaTO = schemas.get(attrTO.getSchema());
 
                     AbstractFieldPanel<?> panel = new AjaxTextFieldPanel(
                             "panel",
-                            schemas.get(attrTO.getSchema()).getLabel(SyncopeConsoleSession.get().getLocale()),
+                            virSchemaTO.getLabel(SyncopeConsoleSession.get().getLocale()),
                             new Model<>(),
                             false);
 
-                    boolean readonly = attrTO.getSchemaInfo() == null
-                            ? false
-                            : VirSchemaTO.class.cast(attrTO.getSchemaInfo()).isReadonly();
-
                     if (mode == AjaxWizard.Mode.TEMPLATE) {
-                        AjaxTextFieldPanel.class.cast(panel).enableJexlHelp().setEnabled(!readonly);
+                        AjaxTextFieldPanel.class.cast(panel).enableJexlHelp().setEnabled(!virSchemaTO.isReadonly());
                     } else {
                         panel = new MultiFieldPanel.Builder<>(
                                 new PropertyModel<List<String>>(attrTO, "values")).build(
                                 "panel",
-                                schemas.get(attrTO.getSchema()).getLabel(SyncopeConsoleSession.get().getLocale()),
+                                virSchemaTO.getLabel(SyncopeConsoleSession.get().getLocale()),
                                 AjaxTextFieldPanel.class.cast(panel));
-                        panel.setEnabled(!readonly);
+                        panel.setEnabled(!virSchemaTO.isReadonly());
                     }
 
                     item.add(panel);

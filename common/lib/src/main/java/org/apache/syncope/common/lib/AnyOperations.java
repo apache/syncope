@@ -407,9 +407,6 @@ public final class AnyOperations {
                 LOG.warn("Invalid {} specified: {}", AttrPatch.class.getName(), patch);
             } else {
                 AttrTO removed = rwattrs.remove(patch.getAttrTO().getSchema());
-                if (removed != null && removed.getSchemaInfo() != null) {
-                    patch.getAttrTO().setSchemaInfo(removed.getSchemaInfo());
-                }
                 if (patch.getOperation() == PatchOperation.ADD_REPLACE && !patch.getAttrTO().getValues().isEmpty()) {
                     rwattrs.put(patch.getAttrTO().getSchema(), patch.getAttrTO());
                 }

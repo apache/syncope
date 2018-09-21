@@ -174,9 +174,6 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             attrTO.setSchema(schema.getKey());
             if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
                 attrTO.getValues().add("");
-
-                // is important to set the schema info only after values setting
-                attrTO.setSchemaInfo(schema);
             } else {
                 attrTO = attrMap.get(schema.getKey());
             }
@@ -205,9 +202,6 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     attrTO.setSchema(schema.getKey());
                     if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
                         attrTO.getValues().add(StringUtils.EMPTY);
-
-                        // is important to set the schema info only after values setting
-                        attrTO.setSchemaInfo(schema);
                     } else {
                         attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
                     }

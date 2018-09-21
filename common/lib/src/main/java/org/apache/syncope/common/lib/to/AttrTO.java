@@ -20,7 +20,6 @@ package org.apache.syncope.common.lib.to;
 
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -46,11 +45,6 @@ public class AttrTO extends AbstractBaseBean {
             return this;
         }
 
-        public Builder schemaInfo(final SchemaTO schemaInfo) {
-            instance.schemaInfo = schemaInfo;
-            return this;
-        }
-
         public Builder value(final String value) {
             instance.getValues().add(value);
             return this;
@@ -72,11 +66,6 @@ public class AttrTO extends AbstractBaseBean {
     }
 
     /**
-     * (Optional) schema information for this attribute.
-     */
-    private SchemaTO schemaInfo;
-
-    /**
      * Name of the schema that this attribute is referring to.
      */
     private String schema;
@@ -85,18 +74,6 @@ public class AttrTO extends AbstractBaseBean {
      * Set of (string) values of this attribute.
      */
     private final List<String> values = new ArrayList<>();
-
-    /**
-     * @return schema information for this attribute; may be {@code NULL}
-     */
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    public SchemaTO getSchemaInfo() {
-        return schemaInfo;
-    }
-
-    public void setSchemaInfo(final SchemaTO schemaInfo) {
-        this.schemaInfo = schemaInfo;
-    }
 
     /**
      * @return the name of the schema that this attribute is referring to

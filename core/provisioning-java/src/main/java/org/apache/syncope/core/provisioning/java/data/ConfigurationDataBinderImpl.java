@@ -54,7 +54,6 @@ public class ConfigurationDataBinderImpl extends AbstractAnyDataBinder implement
     @Override
     public AttrTO getAttrTO(final CPlainAttr attr) {
         return new AttrTO.Builder().
-                schemaInfo(schemaDataBinder.getPlainSchemaTO(attr.getSchema().getKey())).
                 schema(attr.getSchema().getKey()).
                 values(attr.getValuesAsStrings()).
                 build();
