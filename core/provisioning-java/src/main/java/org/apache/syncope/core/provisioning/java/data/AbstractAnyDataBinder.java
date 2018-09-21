@@ -77,7 +77,6 @@ import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
-import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
@@ -88,9 +87,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 abstract class AbstractAnyDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractAnyDataBinder.class);
-
-    @Autowired
-    protected SchemaDataBinder schemaDataBinder;
 
     @Autowired
     protected RealmDAO realmDAO;
@@ -559,29 +555,17 @@ abstract class AbstractAnyDataBinder {
         anyTO.getAuxClasses().addAll(auxClasses.stream().map(Entity::getKey).collect(Collectors.toList()));
 
         plainAttrs.forEach(plainAttr -> {
-            AttrTO.Builder attrTOBuilder = new AttrTO.Builder().
+            anyTO.getPlainAttrs().add(new AttrTO.Builder().
                     schema(plainAttr.getSchema().getKey()).
-                    values(plainAttr.getValuesAsStrings());
-            if (details) {
-                attrTOBuilder.schemaInfo(schemaDataBinder.getPlainSchemaTO(plainAttr.getSchema().getKey()));
-            }
-            anyTO.getPlainAttrs().add(attrTOBuilder.build());
+                    values(plainAttr.getValuesAsStrings()).build());
         });
 
         derAttrs.forEach((schema, value) -> {
-            AttrTO.Builder attrTOBuilder = new AttrTO.Builder().schema(schema.getKey()).value(value);
-            if (details) {
-                attrTOBuilder.schemaInfo(schemaDataBinder.getDerSchemaTO(schema.getKey()));
-            }
-            anyTO.getDerAttrs().add(attrTOBuilder.build());
+            anyTO.getDerAttrs().add(new AttrTO.Builder().schema(schema.getKey()).value(value).build());
         });
 
         virAttrs.forEach((schema, values) -> {
-            AttrTO.Builder attrTOBuilder = new AttrTO.Builder().schema(schema.getKey()).values(values);
-            if (details) {
-                attrTOBuilder.schemaInfo(schemaDataBinder.getVirSchemaTO(schema.getKey()));
-            }
-            anyTO.getVirAttrs().add(attrTOBuilder.build());
+            anyTO.getVirAttrs().add(new AttrTO.Builder().schema(schema.getKey()).values(values).build());
         });
 
         anyTO.getResources().addAll(resources.stream().map(Entity::getKey).collect(Collectors.toSet()));
@@ -607,7 +591,6 @@ abstract class AbstractAnyDataBinder {
             membershipTO.getPlainAttrs().add(new AttrTO.Builder().
                     schema(plainAttr.getSchema().getKey()).
                     values(plainAttr.getValuesAsStrings()).
-                    schemaInfo(schemaDataBinder.getPlainSchemaTO(plainAttr.getSchema().getKey())).
                     build());
         });
 
@@ -615,7 +598,6 @@ abstract class AbstractAnyDataBinder {
             membershipTO.getDerAttrs().add(new AttrTO.Builder().
                     schema(schema.getKey()).
                     value(value).
-                    schemaInfo(schemaDataBinder.getDerSchemaTO(schema.getKey())).
                     build());
         });
 
@@ -623,7 +605,6 @@ abstract class AbstractAnyDataBinder {
             membershipTO.getVirAttrs().add(new AttrTO.Builder().
                     schema(schema.getKey()).
                     values(values).
-                    schemaInfo(schemaDataBinder.getVirSchemaTO(schema.getKey())).
                     build());
         });
 

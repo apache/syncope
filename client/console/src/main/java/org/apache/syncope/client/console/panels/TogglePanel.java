@@ -193,7 +193,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
         } else if (modelObject instanceof ReportTO) {
             key = ((ReportTO) modelObject).getKey();
         } else if (modelObject instanceof AttrTO) {
-            key = ((AttrTO) modelObject).getSchemaInfo().getKey();
+            key = ((AttrTO) modelObject).getSchema();
         } else if (modelObject instanceof PolicyTO) {
             key = ((PolicyTO) modelObject).getKey();
         } else if (modelObject instanceof SecurityQuestionTO) {

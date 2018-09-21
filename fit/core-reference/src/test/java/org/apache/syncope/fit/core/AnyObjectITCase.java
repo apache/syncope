@@ -178,8 +178,6 @@ public class AnyObjectITCase extends AbstractITCase {
         anyObjectService.update(anyObjectTO.getKey(), SchemaType.PLAIN, updated);
 
         AttrTO location = anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
-        // need to remove schemaInfo which is included when reading the any object
-        location.setSchemaInfo(null);
         assertEquals(updated, location);
     }
 

@@ -41,6 +41,7 @@ import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
@@ -146,10 +147,18 @@ public class ParametersDirectoryPanel
             private static final long serialVersionUID = -1822504503325964706L;
 
             @Override
-            public void populateItem(final Item<ICellPopulator<AttrTO>> item,
-                    final String componentId, final IModel<AttrTO> rowModel) {
-                PlainSchemaTO modelSchemaTO = (PlainSchemaTO) rowModel.getObject().getSchemaInfo();
-                AttrSchemaType type = modelSchemaTO.getType();
+            public void populateItem(
+                    final Item<ICellPopulator<AttrTO>> item,
+                    final String componentId,
+                    final IModel<AttrTO> rowModel) {
+
+                PlainSchemaTO schema = null;
+                try {
+                    schema = schemaRestClient.read(SchemaType.PLAIN, rowModel.getObject().getSchema());
+                } catch (Exception e) {
+                    LOG.error("Could not read conf schema {}", rowModel.getObject().getSchema(), e);
+                }
+                AttrSchemaType type = schema == null ? null : schema.getType();
                 if (type == AttrSchemaType.Binary || type == AttrSchemaType.Encrypted) {
                     item.add(new Label(componentId, type.name()).
                             add(new AttributeModifier("style", "font-style:italic")));
