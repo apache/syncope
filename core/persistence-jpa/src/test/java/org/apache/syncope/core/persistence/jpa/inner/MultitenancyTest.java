@@ -76,7 +76,7 @@ public class MultitenancyTest extends AbstractTest {
 
     @Test
     public void readPlainSchemas() {
-        assertEquals(13, plainSchemaDAO.findAll().size());
+        assertEquals(12, plainSchemaDAO.findAll().size());
     }
 
     @Test

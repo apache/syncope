@@ -87,7 +87,7 @@ public final class ActionPanel<T extends Serializable> extends Panel {
                 public void onClick(final AjaxRequestTarget target) {
                 }
             };
-        } else if (action.getType() == ActionType.WORKFLOW_MODELER) {
+        } else if (action.getType() == ActionType.EXTERNAL_EDITOR) {
             enabled = action.getLink().isEnabled(obj);
             actionLink = new BookmarkablePageLink<>(
                     "action", action.getLink().getPageClass(), action.getLink().getPageParameters()).

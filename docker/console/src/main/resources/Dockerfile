@@ -23,7 +23,6 @@ RUN set -x
 COPY *.deb /tmp/
 
 COPY *.properties.template /etc/apache-syncope/
-COPY flowable-modeler/ /etc/apache-syncope/flowable-modeler/
 
 COPY build.sh /tmp
 RUN chmod 755 /tmp/build.sh && sync && /tmp/build.sh && rm /tmp/build.sh

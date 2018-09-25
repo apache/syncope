@@ -67,10 +67,6 @@ under the License.
             <configuration>
               <target>
                 <copy file="${basedir}/../../deb/console/target/apache-syncope-console-${project.version}.deb" todir="${project.build.directory}/classes" overwrite="true" />
-
-                <copy todir="${project.build.directory}/classes/flowable-modeler">
-                  <fileset dir="${basedir}/../../fit/console-reference/target/flowable-modeler" />
-                </copy>
               </target>
             </configuration>
             <goals>

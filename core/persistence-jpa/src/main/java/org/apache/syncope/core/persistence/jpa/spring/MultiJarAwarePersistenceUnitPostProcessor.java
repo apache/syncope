@@ -22,7 +22,6 @@ import javax.persistence.Entity;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
@@ -40,10 +39,9 @@ public class MultiJarAwarePersistenceUnitPostProcessor implements PersistenceUni
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AnnotationTypeFilter(Entity.class));
 
-        for (BeanDefinition bd : scanner.findCandidateComponents(AbstractEntity.class.getPackage().getName())) {
+        scanner.findCandidateComponents(AbstractEntity.class.getPackage().getName()).forEach(bd -> {
             LOG.debug("Adding JPA entity {}", bd.getBeanClassName());
             pui.addManagedClassName(bd.getBeanClassName());
-        }
+        });
     }
-
 }

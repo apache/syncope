@@ -41,18 +41,17 @@ public class ArchetypeProcess extends BaseProcess {
         final String confDirectory = args[6];
         final String logsDirectory = args[7];
         final String bundlesDirectory = args[8];
-        final String modelerDirectory = args[9];
-        final String syncopeVersion = args[10];
-        final String syncopeAdminPassword = args[11];
-        final boolean isProxyEnabled = Boolean.valueOf(args[12]);
-        final String proxyHost = args[13];
-        final String proxyPort = args[14];
-        final String proxyUser = args[15];
-        final String proxyPwd = args[16];
-        final boolean mavenProxyAutoconf = Boolean.valueOf(args[17]);
-        final boolean swagger = Boolean.valueOf(args[18]);
-        final boolean flowable = Boolean.valueOf(args[19]);
-        final String jwsKey = args[20];
+        final String syncopeVersion = args[9];
+        final String syncopeAdminPassword = args[10];
+        final boolean isProxyEnabled = Boolean.valueOf(args[11]);
+        final String proxyHost = args[12];
+        final String proxyPort = args[13];
+        final String proxyUser = args[14];
+        final String proxyPwd = args[15];
+        final boolean mavenProxyAutoconf = Boolean.valueOf(args[16]);
+        final boolean swagger = Boolean.valueOf(args[17]);
+        final boolean flowable = Boolean.valueOf(args[18]);
+        final String jwsKey = args[19];
 
         setSyncopeInstallDir(installPath, artifactId);
 
@@ -103,7 +102,6 @@ public class ArchetypeProcess extends BaseProcess {
         fileSystemUtils.createDirectory(confDirectory);
         fileSystemUtils.createDirectory(logsDirectory);
         fileSystemUtils.createDirectory(bundlesDirectory);
-        fileSystemUtils.createDirectory(modelerDirectory);
 
         if (flowable) {
             File pomFile = new File(
@@ -129,15 +127,13 @@ public class ArchetypeProcess extends BaseProcess {
             contentPomFile = fileSystemUtils.readFile(pomFile);
             fileSystemUtils.writeToFile(
                     pomFile,
-                    contentPomFile.replace(ConsolePom.FLOWABLE_PLACEHOLDER, ConsolePom.FLOWABLE_CONTENT_TO_ADD).
-                            replace(ConsolePom.MODELER_PLACEHOLDER, ConsolePom.MODELER_CONTENT_TO_ADD));
+                    contentPomFile.replace(ConsolePom.FLOWABLE_PLACEHOLDER, ConsolePom.FLOWABLE_CONTENT_TO_ADD));
         }
 
         final Properties syncopeProperties = new Properties();
         syncopeProperties.setProperty("conf.directory", confDirectory);
         syncopeProperties.setProperty("log.directory", logsDirectory);
         syncopeProperties.setProperty("bundles.directory", bundlesDirectory);
-        syncopeProperties.setProperty("flowable-modeler.directory", modelerDirectory);
         mavenUtils.mvnCleanPackageWithProperties(
                 installPath + File.separator + artifactId, syncopeProperties, customMavenProxySettings);
     }

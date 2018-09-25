@@ -42,8 +42,6 @@ import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
-import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
-import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;
@@ -100,12 +98,8 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             header = ((AccessTokenTO) modelObject).getOwner();
         } else if (modelObject instanceof ExecTO) {
             header = ((ExecTO) modelObject).getKey();
-        } else if (modelObject instanceof WorkflowDefinitionTO) {
-            header = ((WorkflowDefinitionTO) modelObject).getName();
         } else if (modelObject instanceof ProvisioningTaskTO) {
             header = ((ProvisioningTaskTO) modelObject).getName();
-        } else if (modelObject instanceof WorkflowFormTO) {
-            header = ((WorkflowFormTO) modelObject).getKey();
         } else if (modelObject instanceof EntityTO) {
             header = ((EntityTO) modelObject).getKey();
         } else if (modelObject instanceof StatusBean) {
@@ -121,6 +115,8 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
                     ? ((JobTO) modelObject).getRefDesc() : ((JobTO) modelObject).getRefKey();
         } else if (modelObject instanceof ResourceProvision) {
             header = ((ResourceProvision) modelObject).getAnyType();
+        } else if (modelObject instanceof EntityTO) {
+            header = ((EntityTO) modelObject).getKey();
         } else {
             header = new ResourceModel("actions", StringUtils.EMPTY).getObject();
         }

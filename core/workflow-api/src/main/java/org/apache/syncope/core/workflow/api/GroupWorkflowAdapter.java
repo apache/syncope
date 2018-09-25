@@ -36,15 +36,6 @@ public interface GroupWorkflowAdapter extends WorkflowAdapter {
     WorkflowResult<String> create(GroupTO groupTO);
 
     /**
-     * Execute a task on a group.
-     *
-     * @param groupTO group to be subject to task
-     * @param taskId to be executed
-     * @return group just updated
-     */
-    WorkflowResult<String> execute(GroupTO groupTO, String taskId);
-
-    /**
      * Update a group.
      *
      * @param groupPatch modification set to be performed

@@ -97,7 +97,7 @@ public class TaskTest extends AbstractTest {
     public void findAll() {
         assertEquals(5, taskDAO.findAll(TaskType.PROPAGATION).size());
         assertEquals(1, taskDAO.findAll(TaskType.NOTIFICATION).size());
-        assertEquals(4, taskDAO.findAll(TaskType.SCHEDULED).size());
+        assertEquals(3, taskDAO.findAll(TaskType.SCHEDULED).size());
         assertEquals(10, taskDAO.findAll(TaskType.PULL).size());
         assertEquals(11, taskDAO.findAll(TaskType.PUSH).size());
     }

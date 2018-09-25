@@ -122,9 +122,6 @@ under the License.
       <spec id="options.flowable.workflow.adapter.id" true="true" false="false" set="true"/>
     </field>
     <field type="space"/>
-    <field type="dir" variable="mvn.modeler.directory" conditionid="options.choice.flowable">
-      <spec id="archetype.mvn.modeler.directory" size="20" set="/var/tmp/syncope/modeler" mustExist="false" create="true"/>
-    </field>
   </panel>
   
   <panel id="persistence">

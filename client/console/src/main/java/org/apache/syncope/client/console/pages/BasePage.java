@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.pages;
 
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
@@ -34,7 +35,7 @@ import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.widgets.ApprovalsWidget;
+import org.apache.syncope.client.console.widgets.ExtAlertWidget;
 import org.apache.syncope.client.console.widgets.RemediationsWidget;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
@@ -42,6 +43,7 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
@@ -81,8 +83,6 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     protected NotificationPanel notificationPanel;
 
-    protected ApprovalsWidget approvalsWidget;
-
     protected RemediationsWidget remediationWidget;
 
     public BasePage() {
@@ -107,9 +107,6 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
         remediationWidget = new RemediationsWidget("remediationWidget", getPageReference());
         body.add(remediationWidget.setRenderBodyOnly(true));
-
-        approvalsWidget = new ApprovalsWidget("approvalsWidget", getPageReference());
-        body.add(approvalsWidget.setRenderBodyOnly(true));
 
         // right sidebar
         PlatformInfo platformInfo = SyncopeConsoleSession.get().getPlatformInfo();
@@ -186,14 +183,6 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         body.add(confLIContainer);
         WebMarkupContainer confULContainer = new WebMarkupContainer(getULContainerId("configuration"));
         confLIContainer.add(confULContainer);
-
-        liContainer = new WebMarkupContainer(getLIContainerId("workflow"));
-        liContainer.setOutputMarkupPlaceholderTag(true);
-        liContainer.setVisible(platformInfo.getUserWorkflowAdapter().contains("Flowable"));
-        confULContainer.add(liContainer);
-        link = BookmarkablePageLinkBuilder.build("workflow", Workflow.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.WORKFLOW_DEF_GET);
-        liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("audit"));
         confULContainer.add(liContainer);
@@ -331,10 +320,33 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         }
 
         // Extensions
-        ClassPathScanImplementationLookup classPathScanImplementationLookup =
-                (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
-                        getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
-        List<Class<? extends BaseExtPage>> extPageClasses = classPathScanImplementationLookup.getExtPageClasses();
+        ClassPathScanImplementationLookup lookup = (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
+                getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
+
+        List<Class<? extends ExtAlertWidget<?>>> extAlertWidgetClasses = lookup.getExtAlertWidgetClasses();
+        ListView<Class<? extends ExtAlertWidget<?>>> extAlertWidgets = new ListView<Class<? extends ExtAlertWidget<?>>>(
+                "extAlertWidgets", extAlertWidgetClasses) {
+
+            private static final long serialVersionUID = -9112553137618363167L;
+
+            @Override
+            protected void populateItem(final ListItem<Class<? extends ExtAlertWidget<?>>> item) {
+                try {
+                    Constructor<? extends ExtAlertWidget<?>> constructor =
+                            item.getModelObject().getDeclaredConstructor(String.class, PageReference.class);
+                    ExtAlertWidget<?> widget = constructor.newInstance("extAlertWidget", getPageReference());
+
+                    SyncopeConsoleSession.get().setAttribute(widget.getClass().getName(), widget);
+
+                    item.add(widget.setRenderBodyOnly(true));
+                } catch (Exception e) {
+                    LOG.error("Could not instantiate {}", item.getModelObject().getName(), e);
+                }
+            }
+        };
+        body.add(extAlertWidgets);
+
+        List<Class<? extends BaseExtPage>> extPageClasses = lookup.getExtPageClasses();
 
         WebMarkupContainer extensionsLI = new WebMarkupContainer(getLIContainerId("extensions"));
         extensionsLI.setOutputMarkupPlaceholderTag(true);
@@ -429,10 +441,6 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     public RemediationsWidget getRemediationWidget() {
         return remediationWidget;
-    }
-
-    public ApprovalsWidget getApprovalsWidget() {
-        return approvalsWidget;
     }
 
     /**

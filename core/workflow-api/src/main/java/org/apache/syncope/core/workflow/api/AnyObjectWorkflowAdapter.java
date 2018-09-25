@@ -36,15 +36,6 @@ public interface AnyObjectWorkflowAdapter extends WorkflowAdapter {
     WorkflowResult<String> create(AnyObjectTO anyObjectTO);
 
     /**
-     * Execute a task on a anyObject.
-     *
-     * @param anyObjectTO anyObject to be subject to task
-     * @param taskId to be executed
-     * @return anyObject just updated
-     */
-    WorkflowResult<String> execute(AnyObjectTO anyObjectTO, String taskId);
-
-    /**
      * Update a anyObject.
      *
      * @param anyObjectPatch modification set to be performed

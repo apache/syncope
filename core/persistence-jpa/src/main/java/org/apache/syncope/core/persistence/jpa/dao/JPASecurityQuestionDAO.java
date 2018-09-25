@@ -23,8 +23,7 @@ import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
-import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.entity.JPASecurityQuestion;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPASecurityQuestion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -41,7 +40,7 @@ public class JPASecurityQuestionDAO extends AbstractDAO<SecurityQuestion> implem
 
     @Override
     public List<SecurityQuestion> findAll() {
-        final TypedQuery<SecurityQuestion> query = entityManager().createQuery(
+        TypedQuery<SecurityQuestion> query = entityManager().createQuery(
                 "SELECT e FROM " + JPASecurityQuestion.class.getSimpleName() + " e ", SecurityQuestion.class);
         return query.getResultList();
     }
@@ -58,13 +57,12 @@ public class JPASecurityQuestionDAO extends AbstractDAO<SecurityQuestion> implem
             return;
         }
 
-        for (User user : userDAO.findBySecurityQuestion(securityQuestion)) {
+        userDAO.findBySecurityQuestion(securityQuestion).forEach(user -> {
             user.setSecurityQuestion(null);
             user.setSecurityAnswer(null);
             userDAO.save(user);
-        }
+        });
 
         entityManager().remove(securityQuestion);
     }
-
 }

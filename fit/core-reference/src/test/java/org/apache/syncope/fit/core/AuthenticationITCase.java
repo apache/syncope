@@ -54,7 +54,7 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.to.WorkflowFormTO;
+import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -474,7 +474,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE434() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         // 1. create user with group 'groupForWorkflowApproval' 
         // (users with group groupForWorkflowApproval are defined in workflow as subject to approval)
@@ -495,10 +495,10 @@ public class AuthenticationITCase extends AbstractITCase {
         }
 
         // 3. approve user
-        WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getKey());
-        form = userWorkflowService.claimForm(form.getTaskId());
+        UserRequestForm form = userRequestService.getForms(userTO.getKey()).get(0);
+        form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
-        userTO = userWorkflowService.submitForm(form);
+        userTO = userRequestService.submitForm(form);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 

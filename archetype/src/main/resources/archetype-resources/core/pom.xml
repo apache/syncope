@@ -160,8 +160,8 @@ under the License.
       
       <dependencies>
         <dependency>
-          <groupId>org.apache.syncope.core</groupId>
-          <artifactId>syncope-core-workflow-flowable</artifactId>
+	  <groupId>org.apache.syncope.ext.flowable</groupId>
+          <artifactId>syncope-ext-flowable-rest-cxf</artifactId>
           <version>${syncope.version}</version>
         </dependency>
 

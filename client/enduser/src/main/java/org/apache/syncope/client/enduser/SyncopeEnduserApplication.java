@@ -268,16 +268,15 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
         }
 
         // mount resources
-        ClassPathScanImplementationLookup classPathScanImplementationLookup =
-                (ClassPathScanImplementationLookup) getServletContext().
-                        getAttribute(EnduserInitializer.CLASSPATH_LOOKUP);
-        for (final Class<? extends AbstractResource> resource : classPathScanImplementationLookup.getResources()) {
+        ClassPathScanImplementationLookup lookup = (ClassPathScanImplementationLookup) getServletContext().
+                getAttribute(EnduserInitializer.CLASSPATH_LOOKUP);
+        for (Class<? extends AbstractResource> resource : lookup.getResources()) {
             Resource annotation = resource.getAnnotation(Resource.class);
             if (annotation == null) {
                 LOG.debug("No @Resource annotation found on {}, ignoring", resource.getName());
             } else {
                 try {
-                    final AbstractResource instance = resource.getDeclaredConstructor().newInstance();
+                    AbstractResource instance = resource.getDeclaredConstructor().newInstance();
 
                     mountResource(annotation.path(), new ResourceReference(annotation.key()) {
 
@@ -365,5 +364,4 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
     public CustomTemplateInfo getCustomTemplate() {
         return customTemplate;
     }
-
 }

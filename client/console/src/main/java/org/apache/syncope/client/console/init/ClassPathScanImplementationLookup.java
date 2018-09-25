@@ -34,10 +34,12 @@ import org.apache.syncope.client.console.pages.BaseExtPage;
 import org.apache.syncope.client.console.annotations.BinaryPreview;
 import org.apache.syncope.client.console.annotations.ExtPage;
 import org.apache.syncope.client.console.annotations.ExtWidget;
+import org.apache.syncope.client.console.annotations.Resource;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SSOLoginFormPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.syncope.client.console.widgets.BaseExtWidget;
+import org.apache.syncope.client.console.widgets.ExtAlertWidget;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
@@ -46,6 +48,7 @@ import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.wicket.request.resource.AbstractResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -93,6 +96,8 @@ public class ClassPathScanImplementationLookup {
 
     private List<Class<? extends BaseExtWidget>> extWidgets;
 
+    private List<Class<? extends ExtAlertWidget<?>>> extAlertWidgets;
+
     private List<Class<? extends SSOLoginFormPanel>> ssoLoginFormPanels;
 
     private Map<String, Class<? extends ReportletConf>> reportletConfs;
@@ -104,6 +109,8 @@ public class ClassPathScanImplementationLookup {
     private Map<String, Class<? extends PullCorrelationRuleConf>> pullCorrelationRuleConfs;
 
     private Map<String, Class<? extends PushCorrelationRuleConf>> pushCorrelationRuleConfs;
+
+    private List<Class<? extends AbstractResource>> resources;
 
     /**
      * This method can be overridden by subclasses to customize classpath scan.
@@ -120,24 +127,28 @@ public class ClassPathScanImplementationLookup {
         previewers = new ArrayList<>();
         extPages = new ArrayList<>();
         extWidgets = new ArrayList<>();
+        extAlertWidgets = new ArrayList<>();
         ssoLoginFormPanels = new ArrayList<>();
         reportletConfs = new HashMap<>();
         accountRuleConfs = new HashMap<>();
         passwordRuleConfs = new HashMap<>();
         pullCorrelationRuleConfs = new HashMap<>();
         pushCorrelationRuleConfs = new HashMap<>();
+        resources = new ArrayList<>();
 
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AssignableTypeFilter(BasePage.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AbstractBinaryPreviewer.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtPage.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtWidget.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(ExtAlertWidget.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(SSOLoginFormPanel.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ReportletConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AccountRuleConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PasswordRuleConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PullCorrelationRuleConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PushCorrelationRuleConf.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(AbstractResource.class));
 
         scanner.findCandidateComponents(getBasePackage()).forEach(bd -> {
             try {
@@ -160,6 +171,13 @@ public class ClassPathScanImplementationLookup {
                             LOG.error("Could not find annotation {} in {}, ignoring",
                                     ExtWidget.class.getName(), clazz.getName());
                         }
+                    } else if (ExtAlertWidget.class.isAssignableFrom(clazz)) {
+                        if (clazz.isAnnotationPresent(ExtWidget.class)) {
+                            extAlertWidgets.add((Class<? extends ExtAlertWidget<?>>) clazz);
+                        } else {
+                            LOG.error("Could not find annotation {} in {}, ignoring",
+                                    ExtWidget.class.getName(), clazz.getName());
+                        }
                     } else if (BasePage.class.isAssignableFrom(clazz)) {
                         pages.add((Class<? extends BasePage>) clazz);
                     } else if (AbstractBinaryPreviewer.class.isAssignableFrom(clazz)) {
@@ -176,6 +194,13 @@ public class ClassPathScanImplementationLookup {
                         pullCorrelationRuleConfs.put(clazz.getName(), (Class<? extends PullCorrelationRuleConf>) clazz);
                     } else if (PushCorrelationRuleConf.class.isAssignableFrom(clazz)) {
                         pushCorrelationRuleConfs.put(clazz.getName(), (Class<? extends PushCorrelationRuleConf>) clazz);
+                    } else if (AbstractResource.class.isAssignableFrom(clazz)) {
+                        if (clazz.isAnnotationPresent(Resource.class)) {
+                            resources.add((Class<? extends AbstractResource>) clazz);
+                        } else {
+                            LOG.error("Could not find annotation {} in {}, ignoring",
+                                    Resource.class.getName(), clazz.getName());
+                        }
                     }
                 }
             } catch (Throwable t) {
@@ -185,17 +210,20 @@ public class ClassPathScanImplementationLookup {
         pages = Collections.unmodifiableList(pages);
         previewers = Collections.unmodifiableList(previewers);
 
-        Collections.sort(extPages, (o1, o2)
-                -> ObjectUtils.compare(
-                        o1.getAnnotation(ExtPage.class).priority(),
-                        o2.getAnnotation(ExtPage.class).priority()));
+        extPages.sort((o1, o2) -> ObjectUtils.compare(
+                o1.getAnnotation(ExtPage.class).priority(),
+                o2.getAnnotation(ExtPage.class).priority()));
         extPages = Collections.unmodifiableList(extPages);
 
-        Collections.sort(extWidgets, (o1, o2)
-                -> ObjectUtils.compare(
-                        o1.getAnnotation(ExtWidget.class).priority(),
-                        o2.getAnnotation(ExtWidget.class).priority()));
+        extWidgets.sort((o1, o2) -> ObjectUtils.compare(
+                o1.getAnnotation(ExtWidget.class).priority(),
+                o2.getAnnotation(ExtWidget.class).priority()));
         extWidgets = Collections.unmodifiableList(extWidgets);
+
+        extAlertWidgets.sort((o1, o2) -> ObjectUtils.compare(
+                o1.getAnnotation(ExtWidget.class).priority(),
+                o2.getAnnotation(ExtWidget.class).priority()));
+        extAlertWidgets = Collections.unmodifiableList(extAlertWidgets);
 
         ssoLoginFormPanels = Collections.unmodifiableList(ssoLoginFormPanels);
 
@@ -205,15 +233,19 @@ public class ClassPathScanImplementationLookup {
         pullCorrelationRuleConfs = Collections.unmodifiableMap(pullCorrelationRuleConfs);
         pushCorrelationRuleConfs = Collections.unmodifiableMap(pushCorrelationRuleConfs);
 
+        resources = Collections.unmodifiableList(resources);
+
         LOG.debug("Binary previewers found: {}", previewers);
         LOG.debug("Extension pages found: {}", extPages);
         LOG.debug("Extension widgets found: {}", extWidgets);
+        LOG.debug("Extension alert widgets found: {}", extAlertWidgets);
         LOG.debug("SSO Login pages found: {}", ssoLoginFormPanels);
         LOG.debug("Reportlet configurations found: {}", reportletConfs);
         LOG.debug("Account Rule configurations found: {}", accountRuleConfs);
         LOG.debug("Password Rule configurations found: {}", passwordRuleConfs);
         LOG.debug("Pull Correlation Rule configurations found: {}", pullCorrelationRuleConfs);
         LOG.debug("Push Correlation Rule configurations found: {}", pushCorrelationRuleConfs);
+        LOG.debug("Resources found: {}", resources);
     }
 
     public Class<? extends AbstractBinaryPreviewer> getPreviewerClass(final String mimeType) {
@@ -242,6 +274,10 @@ public class ClassPathScanImplementationLookup {
         return extWidgets;
     }
 
+    public List<Class<? extends ExtAlertWidget<?>>> getExtAlertWidgetClasses() {
+        return extAlertWidgets;
+    }
+
     public List<Class<? extends SSOLoginFormPanel>> getSSOLoginFormPanels() {
         return ssoLoginFormPanels;
     }
@@ -264,5 +300,9 @@ public class ClassPathScanImplementationLookup {
 
     public Map<String, Class<? extends PushCorrelationRuleConf>> getPushCorrelationRuleConfs() {
         return pushCorrelationRuleConfs;
+    }
+
+    public List<Class<? extends AbstractResource>> getResources() {
+        return resources;
     }
 }

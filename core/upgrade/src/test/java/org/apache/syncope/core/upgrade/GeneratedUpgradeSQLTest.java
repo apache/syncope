@@ -78,7 +78,7 @@ public class GeneratedUpgradeSQLTest {
 
         Integer implementations = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM Implementation", Integer.class);
         assertNotNull(implementations);
-        assertEquals(16, implementations.intValue());
+        assertEquals(15, implementations.intValue());
 
         Integer pullTaskActions = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM PullTaskAction", Integer.class);
         assertNotNull(pullTaskActions);

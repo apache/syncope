@@ -22,7 +22,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 
 /**
  * Interface for calling underlying workflow implementations.
@@ -49,23 +48,6 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      */
     WorkflowResult<Pair<String, Boolean>> create(
             UserTO userTO, boolean disablePwdPolicyCheck, final Boolean enabled, boolean storePassword);
-
-    /**
-     * Request certification for the given user.
-     *
-     * @param user user to be subject to recertification
-     * @return user just updated
-     */
-    WorkflowResult<String> requestCertify(User user);
-
-    /**
-     * Execute a task on an user.
-     *
-     * @param userTO user to be subject to task
-     * @param taskId to be executed
-     * @return user just updated
-     */
-    WorkflowResult<String> execute(UserTO userTO, String taskId);
 
     /**
      * Activate an user.

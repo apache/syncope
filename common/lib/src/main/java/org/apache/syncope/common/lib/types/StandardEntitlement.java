@@ -202,24 +202,6 @@ public final class StandardEntitlement {
 
     public static final String POLICY_DELETE = "POLICY_DELETE";
 
-    public static final String WORKFLOW_DEF_LIST = "WORKFLOW_DEF_LIST";
-
-    public static final String WORKFLOW_DEF_GET = "WORKFLOW_DEF_GET";
-
-    public static final String WORKFLOW_DEF_SET = "WORKFLOW_DEF_SET";
-
-    public static final String WORKFLOW_DEF_DELETE = "WORKFLOW_DEF_DELETE";
-
-    public static final String WORKFLOW_TASK_LIST = "WORKFLOW_TASK_LIST";
-
-    public static final String WORKFLOW_FORM_LIST = "WORKFLOW_FORM_LIST";
-
-    public static final String WORKFLOW_FORM_READ = "WORKFLOW_FORM_READ";
-
-    public static final String WORKFLOW_FORM_CLAIM = "WORKFLOW_FORM_CLAIM";
-
-    public static final String WORKFLOW_FORM_SUBMIT = "WORKFLOW_FORM_SUBMIT";
-
     public static final String MAIL_TEMPLATE_LIST = "MAIL_TEMPLATE_LIST";
 
     public static final String MAIL_TEMPLATE_CREATE = "MAIL_TEMPLATE_CREATE";

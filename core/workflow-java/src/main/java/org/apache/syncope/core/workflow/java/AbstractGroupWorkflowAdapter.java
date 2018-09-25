@@ -26,13 +26,12 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
-import org.apache.syncope.core.workflow.api.GroupWorkflowDefinitionAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = { Throwable.class })
-public abstract class AbstractGroupWorkflowAdapter implements GroupWorkflowAdapter, GroupWorkflowDefinitionAdapter {
+public abstract class AbstractGroupWorkflowAdapter implements GroupWorkflowAdapter {
 
     @Autowired
     protected GroupDataBinder dataBinder;

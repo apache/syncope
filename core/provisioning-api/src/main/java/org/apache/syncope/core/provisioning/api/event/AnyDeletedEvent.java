@@ -29,17 +29,21 @@ public class AnyDeletedEvent extends ApplicationEvent {
 
     private final String anyKey;
 
+    private final String anyName;
+
     private final String domain;
 
     public AnyDeletedEvent(
             final Object source,
             final AnyTypeKind anyTypeKind,
             final String anyKey,
+            final String anyName,
             final String domain) {
 
         super(source);
         this.anyTypeKind = anyTypeKind;
         this.anyKey = anyKey;
+        this.anyName = anyName;
         this.domain = domain;
     }
 
@@ -49,6 +53,10 @@ public class AnyDeletedEvent extends ApplicationEvent {
 
     public String getAnyKey() {
         return anyKey;
+    }
+
+    public String getAnyName() {
+        return anyName;
     }
 
     public String getDomain() {

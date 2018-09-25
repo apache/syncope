@@ -36,8 +36,6 @@ public abstract class AbstractAny<P extends PlainAttr<?>> extends AbstractAnnota
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private JPARealm realm;
 
-    private String workflowId;
-
     @Column(nullable = true)
     private String status;
 
@@ -50,16 +48,6 @@ public abstract class AbstractAny<P extends PlainAttr<?>> extends AbstractAnnota
     public void setRealm(final Realm realm) {
         checkType(realm, JPARealm.class);
         this.realm = (JPARealm) realm;
-    }
-
-    @Override
-    public String getWorkflowId() {
-        return workflowId;
-    }
-
-    @Override
-    public void setWorkflowId(final String workflowId) {
-        this.workflowId = workflowId;
     }
 
     @Override

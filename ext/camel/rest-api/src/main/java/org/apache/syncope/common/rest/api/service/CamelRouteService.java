@@ -44,7 +44,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 /**
  * REST operations for Camel routes.
  */
-@Tag(name = "CamelRoutes")
+@Tag(name = "Camel")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
     @SecurityRequirement(name = "Bearer") })

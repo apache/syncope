@@ -52,9 +52,6 @@ public class InfoCommand extends AbstractCommand {
             case PROVISIONING_MANAGER:
                 info.provisioningManager();
                 break;
-            case WORKFLOW_ADAPTER:
-                info.workflowAdapter();
-                break;
             case ACCOUNT_RULES:
                 info.accountRules();
                 break;
@@ -122,7 +119,6 @@ public class InfoCommand extends AbstractCommand {
         PWD_RESET_WITH_SECURITY_QUESTION("--pwd-reset-with-question"),
         SELF_REG_ALLOWED("--self-reg-allowed"),
         PROVISIONING_MANAGER("--provisioning-manager-classes"),
-        WORKFLOW_ADAPTER("--workflow-adapter-classes"),
         ACCOUNT_RULES("--account-rules-classes"),
         CONNID_LOCATION("--connid-locations"),
         RECON_FILTER_BUILDERS("--reconciliation-filter-builders"),

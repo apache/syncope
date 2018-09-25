@@ -140,9 +140,7 @@ public class ElasticsearchUtils {
             User user = ((User) any);
             builder = builder.
                     field("username", user.getUsername()).
-                    field("lastLoginDate", user.getLastLoginDate()).
-                    field("lastRecertification", user.getLastRecertification()).
-                    field("lastRecertificator", user.getLastRecertificator());
+                    field("lastLoginDate", user.getLastLoginDate());
 
             List<Object> roles = userDAO.findAllRoles(user).stream().
                     map(r -> r.getKey()).collect(Collectors.toList());

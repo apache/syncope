@@ -714,7 +714,7 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void createActivate() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         UserTO userTO = getUniqueSampleTO("createActivate@syncope.apache.org");
 
@@ -751,7 +751,7 @@ public class UserITCase extends AbstractITCase {
         userTO = createUser(userTO).getEntity();
 
         assertNotNull(userTO);
-        assertEquals(FlowableDetector.isFlowableEnabledForUsers(syncopeService)
+        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService)
                 ? "active"
                 : "created", userTO.getStatus());
 
@@ -787,7 +787,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getResources().add(RESOURCE_NAME_LDAP);
         userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
-        assertEquals(FlowableDetector.isFlowableEnabledForUsers(syncopeService)
+        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService)
                 ? "active"
                 : "created", userTO.getStatus());
         String userKey = userTO.getKey();

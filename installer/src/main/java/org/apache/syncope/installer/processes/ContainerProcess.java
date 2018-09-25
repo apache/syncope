@@ -73,8 +73,6 @@ public final class ContainerProcess extends BaseProcess {
 
     private String bundlesDirectory;
 
-    private String modelerDirectory;
-
     private boolean withDataSource;
 
     private boolean jbossSsl;
@@ -82,8 +80,6 @@ public final class ContainerProcess extends BaseProcess {
     private String jbossHost;
 
     private String jbossPort;
-
-    private String jbossJdbcModuleName;
 
     private String jbossAdminUsername;
 
@@ -121,21 +117,19 @@ public final class ContainerProcess extends BaseProcess {
         confDirectory = args[13];
         logsDirectory = args[14];
         bundlesDirectory = args[15];
-        modelerDirectory = args[16];
-        withDataSource = Boolean.valueOf(args[17]);
-        jbossSsl = Boolean.valueOf(args[18]);
-        jbossHost = args[19];
-        jbossPort = args[20];
-        jbossJdbcModuleName = args[21];
-        jbossAdminUsername = args[22];
-        jbossAdminPassword = args[23];
-        jbossManagementPort = args[24];
-        isProxyEnabled = Boolean.valueOf(args[25]);
-        proxyHost = args[26];
-        proxyPort = args[27];
-        proxyUser = args[28];
-        proxyPwd = args[29];
-        mavenProxyAutoconf = Boolean.valueOf(args[30]);
+        withDataSource = Boolean.valueOf(args[16]);
+        jbossSsl = Boolean.valueOf(args[17]);
+        jbossHost = args[18];
+        jbossPort = args[19];
+        jbossAdminUsername = args[20];
+        jbossAdminPassword = args[21];
+        jbossManagementPort = args[22];
+        isProxyEnabled = Boolean.valueOf(args[23]);
+        proxyHost = args[24];
+        proxyPort = args[25];
+        proxyUser = args[26];
+        proxyPwd = args[27];
+        mavenProxyAutoconf = Boolean.valueOf(args[28]);
 
         handler.logOutput("Configure web.xml file according to " + selectedContainer + " properties", true);
         InstallLog.getInstance().info("Configure web.xml file according to " + selectedContainer + " properties");
@@ -211,7 +205,6 @@ public final class ContainerProcess extends BaseProcess {
         mvnProperties.setProperty("conf.directory", confDirectory);
         mvnProperties.setProperty("log.directory", logsDirectory);
         mvnProperties.setProperty("bundles.directory", bundlesDirectory);
-        mvnProperties.setProperty("flowable-modeler.directory", modelerDirectory);
         mavenUtils.mvnCleanPackageWithProperties(
                 installPath + File.separator + artifactId, mvnProperties, customMavenProxySettings);
 

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -134,6 +135,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      * @param schemaType schema type
      * @param schema schema
      */
+    @Operation(operationId = "deleteAttr")
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
@@ -150,6 +152,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      * @param key any object key or name
      * @return Response object featuring the deleted any object enriched with propagation status information
      */
+    @Operation(operationId = "deleteAny")
     @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
             description = "Allows client to specify a preference for the result to be returned from the server",
             allowEmptyValue = true, schema =

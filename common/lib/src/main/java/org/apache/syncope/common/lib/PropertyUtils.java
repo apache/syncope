@@ -23,37 +23,44 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class for manipulating properties files.
  */
 public final class PropertyUtils {
 
-    public static Pair<Properties, String> read(
+    private static final Logger LOG = LoggerFactory.getLogger(PropertyUtils.class);
+
+    public static Pair<Properties, File> read(
             final Class<?> clazz, final String propertiesFileName, final String confDirProp) {
 
         Properties props = new Properties();
-        String confDirName = null;
+        File confDir = null;
 
         try (InputStream is = clazz.getResourceAsStream("/" + propertiesFileName)) {
             props.load(is);
 
-            confDirName = props.getProperty(confDirProp);
+            String confDirName = props.getProperty(confDirProp);
             if (confDirName != null) {
-                File confDir = new File(confDirName);
+                confDir = new File(confDirName);
                 if (confDir.exists() && confDir.canRead() && confDir.isDirectory()) {
                     File confDirProps = new File(confDir, propertiesFileName);
                     if (confDirProps.exists() && confDirProps.canRead() && confDirProps.isFile()) {
                         props.clear();
                         props.load(new FileInputStream(confDirProps));
                     }
+                } else {
+                    confDir = null;
+                    LOG.warn("{} not existing, unreadable or not a directory, ignoring", confDirName);
                 }
             }
         } catch (Exception e) {
             throw new RuntimeException("Could not read " + propertiesFileName, e);
         }
 
-        return Pair.of(props, confDirName);
+        return Pair.of(props, confDir);
     }
 
     /**

@@ -98,11 +98,11 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         NOTIFICATION_TASKS("read"),
         ZOOM_IN("zoomin"),
         ZOOM_OUT("zoomout"),
-        WORKFLOW_MODELER("workflowModeler"),
         VIEW_EXECUTIONS("read"),
         VIEW_DETAILS("read"),
         MANAGE_APPROVAL("edit"),
-        EDIT_APPROVAL("edit");
+        EDIT_APPROVAL("edit"),
+        EXTERNAL_EDITOR("externalEditor");
 
         private final String actionId;
 

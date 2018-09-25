@@ -166,7 +166,6 @@ public class ParametersDirectoryPanel
                     super.populateItem(item, componentId, rowModel);
                 }
             }
-
         });
         return columns;
     }

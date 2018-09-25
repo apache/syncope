@@ -253,7 +253,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             UserTO userTO = userService.read(inUserTO.getKey());
             assertNotNull(userTO);
             assertEquals(userName, userTO.getUsername());
-            assertEquals(FlowableDetector.isFlowableEnabledForUsers(syncopeService)
+            assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService)
                     ? "active" : "created", userTO.getStatus());
             assertEquals("test9@syncope.apache.org", userTO.getPlainAttr("email").get().getValues().get(0));
             assertEquals("test9@syncope.apache.org", userTO.getPlainAttr("userId").get().getValues().get(0));

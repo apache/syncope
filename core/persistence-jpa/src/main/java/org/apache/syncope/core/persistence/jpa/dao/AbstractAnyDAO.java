@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import org.apache.commons.jexl3.parser.Parser;
@@ -175,23 +174,6 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     @SuppressWarnings("unchecked")
     public A find(final String key) {
         return (A) entityManager().find(anyUtils().anyClass(), key);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public A findByWorkflowId(final String workflowId) {
-        Query query = entityManager().createQuery("SELECT e FROM " + anyUtils().anyClass().getSimpleName()
-                + " e WHERE e.workflowId = :workflowId", User.class);
-        query.setParameter("workflowId", workflowId);
-
-        A result = null;
-        try {
-            result = (A) query.getSingleResult();
-        } catch (NoResultException e) {
-            LOG.debug("No user found with workflow id {}", workflowId, e);
-        }
-
-        return result;
     }
 
     private Query findByPlainAttrValueQuery(final String entityName, final boolean ignoreCaseMatch) {

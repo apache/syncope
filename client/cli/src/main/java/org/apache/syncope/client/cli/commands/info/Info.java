@@ -82,18 +82,6 @@ public class Info {
         }
     }
 
-    public void workflowAdapter() {
-        try {
-            infoResultManager.printWorkflowAdapter(
-                    platformInfo.getAnyObjectWorkflowAdapter(),
-                    platformInfo.getUserWorkflowAdapter(),
-                    platformInfo.getGroupWorkflowAdapter());
-        } catch (final Exception ex) {
-            LOG.error("Information error", ex);
-            infoResultManager.genericError(ex.getMessage());
-        }
-    }
-
     public void accountRules() {
         platformInfo.getJavaImplInfo(ImplementationType.ACCOUNT_RULE).ifPresent(info -> {
             try {

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.workflow.java;
 
-import java.util.Base64;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -29,8 +28,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
-import org.apache.syncope.core.workflow.api.UserWorkflowDefinitionAdapter;
-import org.identityconnectors.common.security.EncryptorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +35,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = { Throwable.class })
-public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter, UserWorkflowDefinitionAdapter {
+public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter {
 
     protected static final Logger LOG = LoggerFactory.getLogger(UserWorkflowAdapter.class);
 
@@ -50,17 +47,6 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
 
     @Autowired
     protected EntityFactory entityFactory;
-
-    protected String encrypt(final String clear) {
-        byte[] encrypted = EncryptorFactory.getInstance().getDefaultEncryptor().encrypt(clear.getBytes());
-        return Base64.getEncoder().encodeToString(encrypted);
-    }
-
-    protected String decrypt(final String crypted) {
-        byte[] decrypted = EncryptorFactory.getInstance().getDefaultEncryptor().
-                decrypt(Base64.getDecoder().decode(crypted));
-        return new String(decrypted);
-    }
 
     @Override
     public String getPrefix() {

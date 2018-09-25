@@ -49,6 +49,6 @@ public class CommandUtilsTest {
     public void commands() throws Exception {
         List<AbstractCommand> commands = CommandUtils.commands();
         assertFalse(commands.isEmpty());
-        assertEquals(21, commands.size());
+        assertEquals(20, commands.size());
     }
 }

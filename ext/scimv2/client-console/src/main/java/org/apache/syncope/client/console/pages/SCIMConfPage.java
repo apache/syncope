@@ -37,7 +37,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ExtPage(label = "SCIM 2.0", icon = "fa-cloud", listEntitlement = SCIMEntitlement.SCIM_CONF_GET, priority = 100)
+@ExtPage(label = "SCIM 2.0", icon = "fa-cloud", listEntitlement = SCIMEntitlement.SCIM_CONF_GET, priority = 500)
 public class SCIMConfPage extends BaseExtPage {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SCIMConfPage.class);
