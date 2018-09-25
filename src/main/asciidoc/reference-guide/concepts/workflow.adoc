@@ -104,17 +104,17 @@ source http://www.bpmn.org/[BPMN 2.0^] implementations.
 
 The
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/workflow-flowable/src/main/java/org/apache/syncope/core/workflow/flowable/FlowableUserWorkflowAdapter.java[FlowableUserWorkflowAdapter^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/flowable/flowable-bpmn/src/main/java/org/apache/syncope/core/flowable/impl/FlowableUserWorkflowAdapter.java[FlowableUserWorkflowAdapter^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/workflow-flowable/src/main/java/org/apache/syncope/core/workflow/flowable/FlowableUserWorkflowAdapter.java[FlowableUserWorkflowAdapter^]
+https://github.com/apache/syncope/blob/master/ext/flowable/flowable-bpmn/src/main/java/org/apache/syncope/core/flowable/impl/FlowableUserWorkflowAdapter.java[FlowableUserWorkflowAdapter^]
 endif::[]
 is bootstrapped from
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/workflow-flowable/src/main/resources/userWorkflow.bpmn20.xml[userWorkflow.bpmn20.xml^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/flowable/flowable-bpmn/src/main/resources/userWorkflow.bpmn20.xml[userWorkflow.bpmn20.xml^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/workflow-flowable/src/main/resources/userWorkflow.bpmn20.xml[userWorkflow.bpmn20.xml^]
+https://github.com/apache/syncope/blob/master/ext/flowable/flowable-bpmn/src/main/resources/userWorkflow.bpmn20.xml[userWorkflow.bpmn20.xml^]
 endif::[]
 and presents several advantages and more features, if compared to the default user adapter:
 
@@ -124,7 +124,7 @@ constructs are available in the http://www.flowable.org/docs/userguide/index.htm
 Additional statuses and transitions allow the internal processes of Apache Syncope to better adapt to suit organizational flows.
 . Custom logic can be injected into the workflow process by providing BPMN `serviceTask` instances.
 . http://www.flowable.org/docs/userguide/index.html#forms[Flowable forms^] are used for implementing <<approval,approval>>.
-. The http://www.flowable.org/docs/userguide/index.html#flowableModelerApp[Flowable Modeler^] can be enabled in the
+. The http://www.flowable.org/docs/userguide/index.html#flowableModelerApp[Flowable Modeler^] is available with the
 <<admin-console,admin console>>, thus allowing web-based graphical modeling of the workflow definition.
 
 [.text-center]
