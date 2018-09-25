@@ -44,7 +44,7 @@ import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
- * REST operations for configuration.
+ * REST operations for security questions.
  */
 @Tag(name = "SecurityQuestions")
 @SecurityRequirements({

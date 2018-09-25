@@ -95,16 +95,6 @@ public class JPAConf extends AbstractProvidedKeyEntity implements Conf {
     }
 
     @Override
-    public String getWorkflowId() {
-        return null;
-    }
-
-    @Override
-    public void setWorkflowId(final String workflowId) {
-        // nothing to do
-    }
-
-    @Override
     public String getStatus() {
         return null;
     }

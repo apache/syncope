@@ -152,11 +152,6 @@ public class ReconciliationReportlet extends AbstractReportlet {
                     }
                     break;
 
-                case workflowId:
-                    type = ReportXMLConst.XSD_STRING;
-                    value = any.getWorkflowId();
-                    break;
-
                 case status:
                     type = ReportXMLConst.XSD_STRING;
                     value = any.getStatus();

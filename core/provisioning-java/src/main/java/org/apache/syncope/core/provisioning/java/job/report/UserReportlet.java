@@ -197,11 +197,6 @@ public class UserReportlet extends AbstractReportlet {
                         value = user.getUsername();
                         break;
 
-                    case workflowId:
-                        type = ReportXMLConst.XSD_STRING;
-                        value = user.getWorkflowId();
-                        break;
-
                     case status:
                         type = ReportXMLConst.XSD_STRING;
                         value = user.getStatus();

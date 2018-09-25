@@ -66,8 +66,6 @@ include::configureconnidlocations.adoc[]
 
 include::importexport.adoc[]
 
-include::flowablemodeler.adoc[]
-
 include::connectorbundles.adoc[]
 
 include::emailconfiguration.adoc[]

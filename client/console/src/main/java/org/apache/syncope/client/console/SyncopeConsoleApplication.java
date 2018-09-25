@@ -35,6 +35,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.annotations.Resource;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
@@ -42,9 +43,6 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Dashboard;
 import org.apache.syncope.client.console.pages.MustChangePassword;
 import org.apache.syncope.client.console.pages.Login;
-import org.apache.syncope.client.console.resources.FilesystemResource;
-import org.apache.syncope.client.console.resources.WorkflowDefGETResource;
-import org.apache.syncope.client.console.resources.WorkflowDefPUTResource;
 import org.apache.syncope.client.console.themes.AdminLTE;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -61,6 +59,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.CsrfPreventionRequestCycleListener;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.resource.DynamicJQueryResourceReference;
@@ -79,8 +78,6 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
                 Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE
             }));
 
-    private static final String FLOWABLE_MODELER_CONTEXT = "flowable-modeler";
-
     public static SyncopeConsoleApplication get() {
         return (SyncopeConsoleApplication) WebApplication.get();
     }
@@ -90,8 +87,6 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
     private String anonymousUser;
 
     private String anonymousKey;
-
-    private String flowableModelerDirectory;
 
     private String reconciliationReportKey;
 
@@ -203,9 +198,6 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
         mountPage("/login", getSignInPageClass());
 
-        flowableModelerDirectory = props.getProperty("flowableModelerDirectory");
-        Args.notNull(flowableModelerDirectory, "<flowableModelerDirectory>");
-
         try {
             reconciliationReportKey = props.getProperty("reconciliationReportKey");
         } catch (NumberFormatException e) {
@@ -213,34 +205,24 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         }
         Args.notNull(reconciliationReportKey, "<reconciliationReportKey>");
 
-        mountResource("/" + FLOWABLE_MODELER_CONTEXT, new ResourceReference(FLOWABLE_MODELER_CONTEXT) {
+        for (Class<? extends AbstractResource> resource : lookup.getResources()) {
+            Resource annotation = resource.getAnnotation(Resource.class);
+            try {
+                AbstractResource instance = resource.getDeclaredConstructor().newInstance();
 
-            private static final long serialVersionUID = -128426276529456602L;
+                mountResource(annotation.path(), new ResourceReference(annotation.key()) {
 
-            @Override
-            public IResource getResource() {
-                return new FilesystemResource(FLOWABLE_MODELER_CONTEXT, flowableModelerDirectory);
+                    private static final long serialVersionUID = -128426276529456602L;
+
+                    @Override
+                    public IResource getResource() {
+                        return instance;
+                    }
+                });
+            } catch (Exception e) {
+                LOG.error("Could not instantiate {}", resource.getName(), e);
             }
-
-        });
-        mountResource("/workflowDefGET", new ResourceReference("workflowDefGET") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new WorkflowDefGETResource();
-            }
-        });
-        mountResource("/workflowDefPUT", new ResourceReference("workflowDefPUT") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new WorkflowDefPUTResource();
-            }
-        });
+        }
 
         // enable component path
         if (getDebugSettings().isAjaxDebugModeEnabled()) {
@@ -280,10 +262,6 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     public String getAnonymousKey() {
         return anonymousKey;
-    }
-
-    public String getFlowableModelerDirectory() {
-        return flowableModelerDirectory;
     }
 
     public String getReconciliationReportKey() {

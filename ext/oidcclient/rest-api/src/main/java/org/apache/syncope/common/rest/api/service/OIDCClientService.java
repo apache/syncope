@@ -35,7 +35,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 /**
  * REST operations for OpenID Connect Clients.
  */
-@Tag(name = "OIDCClients")
+@Tag(name = "OpenID Connect 1.0")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
     @SecurityRequirement(name = "Bearer") })

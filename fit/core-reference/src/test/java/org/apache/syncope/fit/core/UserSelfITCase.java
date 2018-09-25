@@ -27,11 +27,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import javax.sql.DataSource;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -46,18 +50,22 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.to.WorkflowFormTO;
+import org.apache.syncope.common.lib.to.UserRequestForm;
+import org.apache.syncope.common.lib.to.WorkflowTask;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
+import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.FlowableDetector;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
@@ -74,7 +82,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void create() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         // 1. self-registration as admin: failure
         try {
@@ -96,7 +104,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void createAndApprove() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         // self-create user with membership: goes 'createApproval' with resources and membership but no propagation
         UserTO userTO = UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org");
@@ -122,10 +130,10 @@ public class UserSelfITCase extends AbstractITCase {
         }
 
         // now approve and verify that propagation has happened
-        WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getKey());
-        form = userWorkflowService.claimForm(form.getTaskId());
+        UserRequestForm form = userRequestService.getForms(userTO.getKey()).get(0);
+        form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
-        userTO = userWorkflowService.submitForm(form);
+        userTO = userRequestService.submitForm(form);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey()));
@@ -133,17 +141,17 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        UserService userService2 = clientFactory.create("rossini", ADMIN_PWD).getService(UserService.class);
-
+        UserTO user = createUser(UserITCase.getUniqueSampleTO("selfread@syncope.apache.org")).getEntity();
+        UserService us2 = clientFactory.create(user.getUsername(), "password123").getService(UserService.class);
         try {
-            userService2.read("1417acbe-cbf6-4277-9372-e75e04f97000");
+            us2.read(user.getKey());
             fail("This should not happen");
         } catch (ForbiddenException e) {
             assertNotNull(e);
         }
 
-        Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create("rossini", ADMIN_PWD).self();
-        assertEquals("rossini", self.getRight().getUsername());
+        Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(user.getUsername(), "password123").self();
+        assertEquals(user.getUsername(), self.getRight().getUsername());
     }
 
     @Test
@@ -174,14 +182,14 @@ public class UserSelfITCase extends AbstractITCase {
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
         assertNotNull(updated);
-        assertEquals(FlowableDetector.isFlowableEnabledForUsers(syncopeService)
+        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService)
                 ? "active" : "created", updated.getStatus());
         assertTrue(updated.getUsername().endsWith("XX"));
     }
 
     @Test
     public void updateWithApproval() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         // 1. create user as admin
         UserTO created = createUser(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org")).getEntity();
@@ -220,10 +228,10 @@ public class UserSelfITCase extends AbstractITCase {
         }
 
         // 3. approve self-update as admin
-        WorkflowFormTO form = userWorkflowService.getFormForUser(updated.getKey());
-        form = userWorkflowService.claimForm(form.getTaskId());
+        UserRequestForm form = userRequestService.getForms(updated.getKey()).get(0);
+        form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("approveUpdate").get().setValue(Boolean.TRUE.toString());
-        updated = userWorkflowService.submitForm(form);
+        updated = userRequestService.submitForm(form);
         assertNotNull(updated);
         assertEquals("active", updated.getStatus());
         assertTrue(updated.getUsername().endsWith("XX"));
@@ -244,14 +252,8 @@ public class UserSelfITCase extends AbstractITCase {
                 new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(deleted);
-        assertEquals(FlowableDetector.isFlowableEnabledForUsers(syncopeService)
+        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService)
                 ? "deleteApproval" : null, deleted.getStatus());
-    }
-
-    @Test
-    public void issueSYNCOPE373() {
-        UserTO userTO = adminClient.self().getRight();
-        assertEquals(ADMIN_UNAME, userTO.getUsername());
     }
 
     @Test
@@ -400,4 +402,308 @@ public class UserSelfITCase extends AbstractITCase {
         assertFalse(self.getRight().isMustChangePassword());
     }
 
+    @Test
+    public void createWithReject() {
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+
+        UserTO userTO = UserITCase.getUniqueSampleTO("createWithReject@syncope.apache.org");
+        userTO.getResources().add(RESOURCE_NAME_TESTDB);
+
+        // User with group 0cbcabd2-4410-4b6b-8f05-a052b451d18f are defined in workflow as subject to approval
+        userTO.getMemberships().add(new MembershipTO.Builder().group("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
+
+        // 1. create user with group 0cbcabd2-4410-4b6b-8f05-a052b451d18f
+        userTO = createUser(userTO).getEntity();
+        assertNotNull(userTO);
+        assertEquals(1, userTO.getMemberships().size());
+        assertEquals("0cbcabd2-4410-4b6b-8f05-a052b451d18f", userTO.getMemberships().get(0).getGroupKey());
+        assertEquals("createApproval", userTO.getStatus());
+
+        // 2. request if there is any pending task for user just created
+        UserRequestForm form = userRequestService.getForms(userTO.getKey()).get(0);
+        assertNotNull(form);
+        assertNotNull(form.getUsername());
+        assertEquals(userTO.getUsername(), form.getUsername());
+        assertNotNull(form.getTaskId());
+        assertNull(form.getOwner());
+
+        // 3. claim task as rossini, with role "User manager" granting entitlement to claim forms but not in
+        // groupForWorkflowApproval, designated for approval in workflow definition: fail
+        UserTO rossini = userService.read("1417acbe-cbf6-4277-9372-e75e04f97000");
+        if (!rossini.getRoles().contains("User manager")) {
+            UserPatch userPatch = new UserPatch();
+            userPatch.setKey("1417acbe-cbf6-4277-9372-e75e04f97000");
+            userPatch.getRoles().add(new StringPatchItem.Builder().
+                    operation(PatchOperation.ADD_REPLACE).value("User manager").build());
+            rossini = updateUser(userPatch).getEntity();
+        }
+        assertTrue(rossini.getRoles().contains("User manager"));
+
+        UserRequestService userService2 = clientFactory.create("rossini", ADMIN_PWD).
+                getService(UserRequestService.class);
+        try {
+            userService2.claimForm(form.getTaskId());
+            fail("This should not happen");
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.Workflow, e.getType());
+        }
+
+        // 4. claim task from bellini, with role "User manager" and in groupForWorkflowApproval
+        UserRequestService userService3 = clientFactory.create("bellini", ADMIN_PWD).
+                getService(UserRequestService.class);
+        form = userService3.claimForm(form.getTaskId());
+        assertNotNull(form);
+        assertNotNull(form.getTaskId());
+        assertNotNull(form.getOwner());
+
+        // 5. reject user
+        form.getProperty("approveCreate").get().setValue(Boolean.FALSE.toString());
+        form.getProperty("rejectReason").get().setValue("I don't like him.");
+        userTO = userService3.submitForm(form);
+        assertNotNull(userTO);
+        assertEquals("rejected", userTO.getStatus());
+
+        // 6. check that rejected user was not propagated to external resource (SYNCOPE-364)
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        Exception exception = null;
+        try {
+            jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
+                    new String[] { userTO.getUsername() }, Integer.class);
+        } catch (EmptyResultDataAccessException e) {
+            exception = e;
+        }
+        assertNotNull(exception);
+    }
+
+    @Test
+    public void createWithApproval() {
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+
+        // read forms *before* any operation
+        PagedResult<UserRequestForm> forms =
+                userRequestService.getForms(new UserRequestFormQuery.Builder().page(1).size(1000).build());
+        int preForms = forms.getTotalCount();
+
+        UserTO userTO = UserITCase.getUniqueSampleTO("createWithApproval@syncope.apache.org");
+        userTO.getResources().add(RESOURCE_NAME_TESTDB);
+
+        // User with group 0cbcabd2-4410-4b6b-8f05-a052b451d18f are defined in workflow as subject to approval
+        userTO.getMemberships().add(
+                new MembershipTO.Builder().group("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
+
+        // 1. create user and verify that no propagation occurred)
+        ProvisioningResult<UserTO> result = createUser(userTO);
+        assertNotNull(result);
+        userTO = result.getEntity();
+        assertEquals(1, userTO.getMemberships().size());
+        assertEquals("0cbcabd2-4410-4b6b-8f05-a052b451d18f", userTO.getMemberships().get(0).getGroupKey());
+        assertEquals("createApproval", userTO.getStatus());
+        assertEquals(Collections.singleton(RESOURCE_NAME_TESTDB), userTO.getResources());
+
+        assertTrue(result.getPropagationStatuses().isEmpty());
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+
+        Exception exception = null;
+        try {
+            jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
+                    new String[] { userTO.getUsername() }, Integer.class);
+        } catch (EmptyResultDataAccessException e) {
+            exception = e;
+        }
+        assertNotNull(exception);
+
+        // 2. request if there is any pending form for user just created
+        forms = userRequestService.getForms(new UserRequestFormQuery.Builder().page(1).size(1000).build());
+        assertEquals(preForms + 1, forms.getTotalCount());
+
+        // 3. as admin, update user: still pending approval
+        String updatedUsername = "changed-" + UUID.randomUUID().toString();
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setUsername(new StringReplacePatchItem.Builder().value(updatedUsername).build());
+        updateUser(userPatch);
+
+        UserRequestForm form = userRequestService.getForms(userTO.getKey()).get(0);
+        assertNotNull(form);
+        assertNotNull(form.getTaskId());
+        assertNotNull(form.getUserTO());
+        assertEquals(updatedUsername, form.getUserTO().getUsername());
+        assertNull(form.getUserPatch());
+        assertNull(form.getOwner());
+
+        // 4. claim task (as admin)
+        form = userRequestService.claimForm(form.getTaskId());
+        assertNotNull(form);
+        assertNotNull(form.getTaskId());
+        assertNotNull(form.getUserTO());
+        assertEquals(updatedUsername, form.getUserTO().getUsername());
+        assertNull(form.getUserPatch());
+        assertNotNull(form.getOwner());
+
+        // 5. approve user (and verify that propagation occurred)
+        form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
+        userTO = userRequestService.submitForm(form);
+        assertNotNull(userTO);
+        assertEquals(updatedUsername, userTO.getUsername());
+        assertEquals("active", userTO.getStatus());
+        assertEquals(Collections.singleton(RESOURCE_NAME_TESTDB), userTO.getResources());
+
+        String username = queryForObject(
+                jdbcTemplate, 50, "SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
+        assertEquals(userTO.getUsername(), username);
+
+        // 6. update user
+        userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().value("anotherPassword123").build());
+
+        userTO = updateUser(userPatch).getEntity();
+        assertNotNull(userTO);
+    }
+
+    @Test
+    public void updateApproval() {
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+
+        // read forms *before* any operation
+        PagedResult<UserRequestForm> forms = userRequestService.getForms(new UserRequestFormQuery.Builder().
+                page(1).size(1000).build());
+        int preForms = forms.getTotalCount();
+
+        UserTO created = createUser(UserITCase.getUniqueSampleTO("updateApproval@syncope.apache.org")).getEntity();
+        assertNotNull(created);
+        assertEquals("/", created.getRealm());
+        assertEquals(0, created.getMemberships().size());
+
+        UserPatch patch = new UserPatch();
+        patch.setKey(created.getKey());
+        patch.getMemberships().add(new MembershipPatch.Builder().group("b1f7c12d-ec83-441f-a50e-1691daaedf3b").build());
+
+        SyncopeClient client = clientFactory.create(created.getUsername(), "password123");
+        Response response = client.getService(UserSelfService.class).update(patch);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals("updateApproval", userService.read(created.getKey()).getStatus());
+
+        forms = userRequestService.getForms(new UserRequestFormQuery.Builder().page(1).size(1000).build());
+        assertEquals(preForms + 1, forms.getTotalCount());
+
+        UserRequestForm form = userRequestService.getForms(created.getKey()).get(0);
+        assertNotNull(form);
+        assertNotNull(form.getTaskId());
+        assertNull(form.getOwner());
+        assertNotNull(form.getUserTO());
+        assertNotNull(form.getUserPatch());
+        assertEquals(patch, form.getUserPatch());
+
+        // as admin, update user: still pending approval
+        UserPatch adminPatch = new UserPatch();
+        adminPatch.setKey(created.getKey());
+        adminPatch.setRealm(new StringReplacePatchItem.Builder().value("/even/two").build());
+
+        UserTO updated = updateUser(adminPatch).getEntity();
+        assertEquals("updateApproval", updated.getStatus());
+        assertEquals("/even/two", updated.getRealm());
+        assertEquals(0, updated.getMemberships().size());
+
+        // the patch is not updated in the approval form
+        form = userRequestService.getForms(created.getKey()).get(0);
+        assertEquals(patch, form.getUserPatch());
+
+        // approve the user
+        form = userRequestService.claimForm(form.getTaskId());
+        form.getProperty("approveUpdate").get().setValue(Boolean.TRUE.toString());
+        userRequestService.submitForm(form);
+
+        // verify that the approved user bears both original and further changes
+        UserTO approved = userService.read(created.getKey());
+        assertEquals("active", approved.getStatus());
+        assertEquals("/even/two", approved.getRealm());
+        assertEquals(1, approved.getMemberships().size());
+        assertTrue(approved.getMembership("b1f7c12d-ec83-441f-a50e-1691daaedf3b").isPresent());
+    }
+
+    @Test
+    public void availableTasks() {
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+
+        UserTO user = createUser(UserITCase.getUniqueSampleTO("availableTasks@apache.org")).getEntity();
+        assertEquals("active", user.getStatus());
+
+        List<WorkflowTask> tasks = userWorkflowTaskService.getAvailableTasks(user.getKey());
+        assertNotNull(tasks);
+        assertTrue(tasks.stream().anyMatch(task -> "update".equals(task.getName())));
+        assertTrue(tasks.stream().anyMatch(task -> "suspend".equals(task.getName())));
+        assertTrue(tasks.stream().anyMatch(task -> "delete".equals(task.getName())));
+    }
+
+    @Test
+    public void issueSYNCOPE15() {
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+
+        // read forms *before* any operation
+        PagedResult<UserRequestForm> forms = userRequestService.getForms(new UserRequestFormQuery.Builder().
+                page(1).size(1000).build());
+        int preForms = forms.getTotalCount();
+
+        UserTO userTO = UserITCase.getUniqueSampleTO("issueSYNCOPE15@syncope.apache.org");
+        userTO.getResources().clear();
+        userTO.getVirAttrs().clear();
+        userTO.getDerAttrs().clear();
+        userTO.getMemberships().clear();
+
+        // Users with group 0cbcabd2-4410-4b6b-8f05-a052b451d18f are defined in workflow as subject to approval
+        userTO.getMemberships().add(
+                new MembershipTO.Builder().group("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
+
+        // 1. create user with group 9 (and verify that no propagation occurred)
+        userTO = createUser(userTO).getEntity();
+        assertNotNull(userTO);
+        assertNotEquals(0L, userTO.getKey());
+        assertNotNull(userTO.getCreationDate());
+        assertNotNull(userTO.getCreator());
+        assertNotNull(userTO.getLastChangeDate());
+        assertNotNull(userTO.getLastModifier());
+        assertEquals(userTO.getCreationDate(), userTO.getLastChangeDate());
+
+        // 2. request if there is any pending form for user just created
+        forms = userRequestService.getForms(new UserRequestFormQuery.Builder().page(1).size(1000).build());
+        assertEquals(preForms + 1, forms.getTotalCount());
+
+        UserRequestForm form = userRequestService.getForms(userTO.getKey()).get(0);
+        assertNotNull(form);
+
+        // 3. first claim by bellini ....
+        UserRequestService userService3 = clientFactory.create("bellini", ADMIN_PWD).
+                getService(UserRequestService.class);
+        form = userService3.claimForm(form.getTaskId());
+        assertNotNull(form);
+        assertNotNull(form.getTaskId());
+        assertNotNull(form.getOwner());
+
+        // 4. second claim task by admin
+        form = userRequestService.claimForm(form.getTaskId());
+        assertNotNull(form);
+
+        // 5. approve user
+        form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
+
+        // 6. submit approve
+        userTO = userRequestService.submitForm(form);
+        assertNotNull(userTO);
+        assertEquals(preForms,
+                userRequestService.getForms(new UserRequestFormQuery.Builder().page(1).size(1000).build()).
+                        getTotalCount());
+        assertTrue(userRequestService.getForms(userTO.getKey()).isEmpty());
+
+        // 7.check that no more forms are still to be processed
+        forms = userRequestService.getForms(new UserRequestFormQuery.Builder().page(1).size(1000).build());
+        assertEquals(preForms, forms.getTotalCount());
+    }
+
+    @Test
+    public void issueSYNCOPE373() {
+        UserTO userTO = adminClient.self().getRight();
+        assertEquals(ADMIN_UNAME, userTO.getUsername());
+    }
 }

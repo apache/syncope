@@ -36,7 +36,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 /**
  * REST operations for SCIM 2.0 configuration.
  */
-@Tag(name = "SCIMConf")
+@Tag(name = "SCIM 2.0")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
     @SecurityRequirement(name = "Bearer") })

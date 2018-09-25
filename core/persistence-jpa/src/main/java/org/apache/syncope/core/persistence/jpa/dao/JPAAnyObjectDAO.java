@@ -264,8 +264,8 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         });
 
         entityManager().remove(anyObject);
-        publisher.publishEvent(
-                new AnyDeletedEvent(this, AnyTypeKind.ANY_OBJECT, anyObject.getKey(), AuthContextUtils.getDomain()));
+        publisher.publishEvent(new AnyDeletedEvent(
+                this, AnyTypeKind.ANY_OBJECT, anyObject.getKey(), anyObject.getName(), AuthContextUtils.getDomain()));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

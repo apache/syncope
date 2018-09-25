@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.FlowableEntitlement;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.fit.AbstractITCase;
@@ -90,16 +91,16 @@ public class RoleITCase extends AbstractITCase {
         role = createRole(role);
         assertNotNull(role);
 
-        assertFalse(role.getEntitlements().contains(StandardEntitlement.WORKFLOW_TASK_LIST));
+        assertFalse(role.getEntitlements().contains(FlowableEntitlement.WORKFLOW_TASK_LIST));
         assertFalse(role.getRealms().contains("/even/two"));
 
-        role.getEntitlements().add(StandardEntitlement.WORKFLOW_TASK_LIST);
+        role.getEntitlements().add(FlowableEntitlement.WORKFLOW_TASK_LIST);
         role.getRealms().add("/even/two");
 
         roleService.update(role);
 
         role = roleService.read(role.getKey());
-        assertTrue(role.getEntitlements().contains(StandardEntitlement.WORKFLOW_TASK_LIST));
+        assertTrue(role.getEntitlements().contains(FlowableEntitlement.WORKFLOW_TASK_LIST));
         assertTrue(role.getRealms().contains("/even/two"));
     }
 

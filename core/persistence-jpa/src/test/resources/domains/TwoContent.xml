@@ -105,15 +105,6 @@ under the License.
   <CPlainAttrValue id="e5fa94db-b524-4309-908d-8198d0b3f779"
                    attribute_id="bcfd7efc-0605-4b5e-b4bb-85c1d5f6493a" booleanValue="0"/>
   
-  <!-- Identity Recertification interval in days -->                   
-  <SyncopeSchema id="identity.recertification.day.interval"/>
-  <PlainSchema id="identity.recertification.day.interval" type="Long"
-               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <CPlainAttr id="bcfd7efc-0605-4b5e-b4bb-85c1d5f64bbb"
-              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="identity.recertification.day.interval"/>
-  <CPlainAttrValue id="e5fa94db-b524-4309-908d-8198d0b3f77b"
-                   attribute_id="bcfd7efc-0605-4b5e-b4bb-85c1d5f64bbb" longValue="-1"/>
-
   <!--  JWT lifetime in minutes -->                   
   <SyncopeSchema id="jwt.lifetime.minutes"/>
   <PlainSchema id="jwt.lifetime.minutes" type="Long"
@@ -141,11 +132,6 @@ under the License.
                   body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>
   <Implementation id="PushJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate"/>
-
-  <Implementation id="IdentityRecertification" type="TASKJOB_DELEGATE" engine="JAVA"
-                  body="org.apache.syncope.core.provisioning.java.job.IdentityRecertification"/>
-  <Task DTYPE="SchedTask" id="e95555d2-1b09-42c8-b25b-f4c4ec598989" name="Identity Recertification Task"  active="1"
-        jobDelegate_id="IdentityRecertification"/>
 
   <Implementation id="ExpiredAccessTokenCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup"/>

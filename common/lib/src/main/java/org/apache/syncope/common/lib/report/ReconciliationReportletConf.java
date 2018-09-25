@@ -40,7 +40,6 @@ public class ReconciliationReportletConf extends AbstractReportletConf {
         key,
         username,
         groupName,
-        workflowId,
         status,
         creationDate,
         lastLoginDate,

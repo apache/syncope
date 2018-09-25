@@ -39,8 +39,6 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
     A find(String key);
 
-    A findByWorkflowId(String workflowId);
-
     List<A> findByPlainAttrValue(String schemaName, PlainAttrValue attrValue, boolean ignoreCaseMatch);
 
     A findByPlainAttrUniqueValue(String schemaName, PlainAttrValue attrUniqueValue, boolean ignoreCaseMatch);

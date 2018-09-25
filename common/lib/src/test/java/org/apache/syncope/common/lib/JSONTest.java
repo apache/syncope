@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.UUID;
+import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
@@ -35,7 +36,6 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
-import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.junit.jupiter.api.Test;
 
@@ -43,16 +43,16 @@ public class JSONTest {
 
     @Test
     public void map() throws IOException {
-        WorkflowFormPropertyTO prop = new WorkflowFormPropertyTO();
-        prop.getEnumValues().put("key1", "value1");
-        prop.getEnumValues().put("key2", "value2");
+        GroupPatch prop = new GroupPatch();
+        prop.getADynMembershipConds().put("key1", "value1");
+        prop.getADynMembershipConds().put("key2", "value2");
 
         ObjectMapper mapper = new ObjectMapper();
 
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, prop);
 
-        WorkflowFormPropertyTO unserializedProp = mapper.readValue(writer.toString(), WorkflowFormPropertyTO.class);
+        GroupPatch unserializedProp = mapper.readValue(writer.toString(), GroupPatch.class);
         assertEquals(prop, unserializedProp);
     }
 

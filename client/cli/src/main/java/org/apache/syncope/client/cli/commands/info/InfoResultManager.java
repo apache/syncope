@@ -48,15 +48,6 @@ public class InfoResultManager extends CommonsResultManager {
                 "Group provisioning manager class: " + getGroupProvisioningManager);
     }
 
-    public void printWorkflowAdapter(final String anyObjectWorkflowAdapter,
-            final String userWorkflowAdapter,
-            final String groupWorkflowAdapter) {
-        genericMessage(
-                "Any object workflow adapter class: " + anyObjectWorkflowAdapter,
-                "User       workflow adapter class: " + userWorkflowAdapter,
-                "Group      workflow adapter class: " + groupWorkflowAdapter);
-    }
-
     public void printAccountRules(final Collection<String> rules) {
         rules.forEach(accountRule -> {
             genericMessage("Account rule: " + accountRule);

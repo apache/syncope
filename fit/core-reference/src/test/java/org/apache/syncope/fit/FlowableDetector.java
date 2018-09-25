@@ -22,15 +22,7 @@ import org.apache.syncope.common.rest.api.service.SyncopeService;
 
 public class FlowableDetector {
 
-    public static boolean isFlowableEnabledForUsers(final SyncopeService syncopeService) {
+    public static boolean isFlowableEnabledForUserWorkflow(final SyncopeService syncopeService) {
         return syncopeService.platform().getUserWorkflowAdapter().contains("Flowable");
-    }
-
-    public static boolean isFlowableEnabledForGroups(final SyncopeService syncopeService) {
-        return syncopeService.platform().getGroupWorkflowAdapter().contains("Flowable");
-    }
-
-    public static boolean isFlowableEnabledForAnyObjects(final SyncopeService syncopeService) {
-        return syncopeService.platform().getAnyObjectWorkflowAdapter().contains("Flowable");
     }
 }

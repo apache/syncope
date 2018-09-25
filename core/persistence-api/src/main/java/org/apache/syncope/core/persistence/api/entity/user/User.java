@@ -91,13 +91,4 @@ public interface User extends
     boolean add(Role role);
 
     List<? extends Role> getRoles();
-
-    String getLastRecertificator();
-
-    void setLastRecertificator(String lastRecertificator);
-
-    Date getLastRecertification();
-
-    void setLastRecertification(Date lastRecertificion);
-
 }

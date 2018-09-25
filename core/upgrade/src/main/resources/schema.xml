@@ -175,7 +175,6 @@ under the License.
       <column name="lastChangeDate" type="timestamp"/>
       <column name="lastModifier" type="varchar" size="255"/>
       <column name="status" type="varchar" size="255"/>
-      <column name="workflowId" type="varchar" size="255"/>
       <column name="name" type="varchar" size="255"/>
       <column name="REALM_ID" type="varchar" size="36"/>
       <column name="TYPE_ID" type="varchar" size="255"/>
@@ -884,7 +883,6 @@ under the License.
       <column name="lastChangeDate" type="timestamp"/>
       <column name="lastModifier" type="varchar" size="255"/>
       <column name="status" type="varchar" size="255"/>
-      <column name="workflowId" type="varchar" size="255"/>
       <column name="name" type="varchar" size="255"/>
       <column name="REALM_ID" type="varchar" size="36"/>
       <column name="GROUPOWNER_ID" type="varchar" size="36"/>
@@ -966,13 +964,10 @@ under the License.
       <column name="lastChangeDate" type="timestamp"/>
       <column name="lastModifier" type="varchar" size="255"/>
       <column name="status" type="varchar" size="255"/>
-      <column name="workflowId" type="varchar" size="255"/>
       <column name="changePwdDate" type="timestamp"/>
       <column name="cipherAlgorithm" type="varchar" size="20"/>
       <column name="failedLogins" type="integer"/>
       <column name="lastLoginDate" type="timestamp"/>
-      <column name="lastRecertification" type="timestamp"/>
-      <column name="lastRecertificator" type="varchar" size="255"/>
       <column name="mustChangePassword" type="integer"/>
       <column name="password" type="varchar" size="255"/>
       <column name="securityAnswer" type="varchar" size="255"/>

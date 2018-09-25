@@ -49,7 +49,6 @@ import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
-import org.apache.syncope.core.persistence.jpa.entity.JPASecurityQuestion;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -96,8 +95,6 @@ public class JPAUser
     @Valid
     private List<JPAUPlainAttr> plainAttrs = new ArrayList<>();
 
-    private String workflowId;
-
     @Column(nullable = true)
     private String status;
 
@@ -143,13 +140,6 @@ public class JPAUser
     @Column(nullable = true)
     @Temporal(TemporalType.TIMESTAMP)
     private Date changePwdDate;
-
-    @Column(nullable = true)
-    private String lastRecertificator;
-
-    @Column(nullable = true)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date lastRecertification;
 
     private Boolean suspended = false;
 
@@ -282,16 +272,6 @@ public class JPAUser
     }
 
     @Override
-    public String getWorkflowId() {
-        return workflowId;
-    }
-
-    @Override
-    public void setWorkflowId(final String workflowId) {
-        this.workflowId = workflowId;
-    }
-
-    @Override
     public String getStatus() {
         return status;
     }
@@ -383,31 +363,6 @@ public class JPAUser
         this.lastLoginDate = lastLoginDate == null
                 ? null
                 : new Date(lastLoginDate.getTime());
-    }
-
-    @Override
-    public String getLastRecertificator() {
-        return lastRecertificator;
-    }
-
-    @Override
-    public void setLastRecertificator(final String lastRecertificator) {
-        this.lastRecertificator = lastRecertificator;
-    }
-
-    @Override
-    public Date getLastRecertification() {
-        if (lastRecertification != null) {
-            return new Date(lastRecertification.getTime());
-        }
-        return null;
-    }
-
-    @Override
-    public void setLastRecertification(final Date lastRecertification) {
-        this.lastRecertification = lastRecertification == null
-                ? null
-                : new Date(lastRecertification.getTime());
     }
 
     @Override

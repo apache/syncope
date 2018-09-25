@@ -32,9 +32,9 @@ public final class CorePom {
     public static final String FLOWABLE_PLACEHOLDER = "</dependencies>";
 
     public static final String FLOWABLE_CONTENT_TO_ADD = "    <dependency>\n"
-            + "      <groupId>org.apache.syncope.core</groupId>\n"
-            + "      <artifactId>syncope-core-workflow-flowable</artifactId>\n"
-            + "    </dependency>\n"
+            + "      <groupId>org.apache.syncope.ext.flowable</groupId>\n"
+            + "      <artifactId>syncope-ext-flowable-rest-cxf</artifactId>\n"
+            + "        </dependency>\n"
             + "  </dependencies>\n";
 
     private CorePom() {

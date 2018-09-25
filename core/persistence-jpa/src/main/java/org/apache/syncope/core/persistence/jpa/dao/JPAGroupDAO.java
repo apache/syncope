@@ -380,8 +380,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         clearADynMembers(group);
 
         entityManager().remove(group);
-        publisher.publishEvent(
-                new AnyDeletedEvent(this, AnyTypeKind.GROUP, group.getKey(), AuthContextUtils.getDomain()));
+        publisher.publishEvent(new AnyDeletedEvent(
+                this, AnyTypeKind.GROUP, group.getKey(), group.getName(), AuthContextUtils.getDomain()));
     }
 
     @Override

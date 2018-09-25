@@ -51,7 +51,6 @@ public class UserReportletConf extends AbstractAnyReportletConf {
 
         key,
         username,
-        workflowId,
         status,
         creator,
         creationDate,

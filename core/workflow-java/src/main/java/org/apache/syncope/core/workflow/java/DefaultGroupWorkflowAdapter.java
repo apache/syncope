@@ -18,22 +18,12 @@
  */
 package org.apache.syncope.core.workflow.java;
 
-import java.io.OutputStream;
-import java.util.Collections;
-import java.util.List;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
-import org.apache.syncope.common.lib.to.WorkflowFormTO;
-import org.apache.syncope.common.lib.to.WorkflowTaskTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
-import org.apache.syncope.core.workflow.api.WorkflowException;
 
 /**
  * Simple implementation basically not involving any workflow engine.
@@ -61,62 +51,5 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
     @Override
     protected void doDelete(final Group group) {
         groupDAO.delete(group);
-    }
-
-    @Override
-    public WorkflowResult<String> execute(final GroupTO group, final String taskId) {
-        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
-    }
-
-    @Override
-    public Pair<Integer, List<WorkflowFormTO>> getForms(
-            final int page, final int size, final List<OrderByClause> orderByClauses) {
-
-        return Pair.of(0, Collections.<WorkflowFormTO>emptyList());
-    }
-
-    @Override
-    public WorkflowFormTO getForm(final String workflowId) {
-        return null;
-    }
-
-    @Override
-    public WorkflowFormTO claimForm(final String taskId) {
-        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
-    }
-
-    @Override
-    public WorkflowResult<GroupPatch> submitForm(final WorkflowFormTO form) {
-        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
-    }
-
-    @Override
-    public List<WorkflowTaskTO> getAvailableTasks(final String workflowId) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<WorkflowDefinitionTO> getDefinitions() {
-        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
-    }
-
-    @Override
-    public void exportDefinition(final String key, final WorkflowDefinitionFormat format, final OutputStream os) {
-        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
-    }
-
-    @Override
-    public void exportDiagram(final String key, final OutputStream os) {
-        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
-    }
-
-    @Override
-    public void importDefinition(final String key, final WorkflowDefinitionFormat format, final String definition) {
-        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
-    }
-
-    @Override
-    public void deleteDefinition(final String key) {
-        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 }

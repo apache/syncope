@@ -108,14 +108,15 @@ import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
-import org.apache.syncope.common.rest.api.service.UserWorkflowService;
-import org.apache.syncope.common.rest.api.service.WorkflowService;
 import org.apache.syncope.fit.core.UserITCase;
 import org.identityconnectors.common.security.Encryptor;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.apache.syncope.common.rest.api.service.UserRequestService;
+import org.apache.syncope.common.rest.api.service.BpmnProcessService;
+import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
 
 public abstract class AbstractITCase {
 
@@ -217,7 +218,9 @@ public abstract class AbstractITCase {
 
     protected static UserSelfService userSelfService;
 
-    protected static UserWorkflowService userWorkflowService;
+    protected static UserRequestService userRequestService;
+
+    protected static UserWorkflowTaskService userWorkflowTaskService;
 
     protected static GroupService groupService;
 
@@ -241,7 +244,7 @@ public abstract class AbstractITCase {
 
     protected static ReconciliationService reconciliationService;
 
-    protected static WorkflowService workflowService;
+    protected static BpmnProcessService bpmnProcessService;
 
     protected static MailTemplateService mailTemplateService;
 
@@ -314,7 +317,8 @@ public abstract class AbstractITCase {
         dynRealmService = adminClient.getService(DynRealmService.class);
         userService = adminClient.getService(UserService.class);
         userSelfService = adminClient.getService(UserSelfService.class);
-        userWorkflowService = adminClient.getService(UserWorkflowService.class);
+        userRequestService = adminClient.getService(UserRequestService.class);
+        userWorkflowTaskService = adminClient.getService(UserWorkflowTaskService.class);
         groupService = adminClient.getService(GroupService.class);
         resourceService = adminClient.getService(ResourceService.class);
         resourceHistoryService = adminClient.getService(ResourceHistoryService.class);
@@ -327,7 +331,7 @@ public abstract class AbstractITCase {
         taskService = adminClient.getService(TaskService.class);
         reconciliationService = adminClient.getService(ReconciliationService.class);
         policyService = adminClient.getService(PolicyService.class);
-        workflowService = adminClient.getService(WorkflowService.class);
+        bpmnProcessService = adminClient.getService(BpmnProcessService.class);
         mailTemplateService = adminClient.getService(MailTemplateService.class);
         notificationService = adminClient.getService(NotificationService.class);
         schemaService = adminClient.getService(SchemaService.class);

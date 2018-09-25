@@ -60,7 +60,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
         if (securityQuestion == null) {
             LOG.error("Could not find security question '" + key + "'");
 
-            throw new NotFoundException(String.valueOf(key));
+            throw new NotFoundException(key);
         }
 
         return binder.getSecurityQuestionTO(securityQuestion);
@@ -77,7 +77,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
         if (securityQuestion == null) {
             LOG.error("Could not find security question '" + securityQuestionTO.getKey() + "'");
 
-            throw new NotFoundException(String.valueOf(securityQuestionTO.getKey()));
+            throw new NotFoundException(securityQuestionTO.getKey());
         }
 
         binder.update(securityQuestion, securityQuestionTO);
@@ -92,7 +92,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
         if (securityQuestion == null) {
             LOG.error("Could not find security question '" + key + "'");
 
-            throw new NotFoundException(String.valueOf(key));
+            throw new NotFoundException(key);
         }
 
         SecurityQuestionTO deleted = binder.getSecurityQuestionTO(securityQuestion);

@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.util.Date;
 import java.util.List;
@@ -40,16 +39,12 @@ import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.ImplementationType;
-import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
-import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
-import org.apache.syncope.common.rest.api.beans.WorkflowFormQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
-import org.apache.syncope.fit.FlowableDetector;
 import org.apache.syncope.fit.core.reference.TestSampleJobDelegate;
 import org.junit.jupiter.api.Test;
 
@@ -136,27 +131,6 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         assertTrue(execs.getResult().get(0).getStart().after(initial));
         // round 1 sec for safety
         assertTrue(DateUtils.addSeconds(execs.getResult().get(0).getStart(), 1).after(later));
-    }
-
-    @Test
-    public void recertification() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
-
-        execTask(taskService, TaskType.SCHEDULED, "e95555d2-1b09-42c8-b25b-f4c4ec598989", "JOB_FIRED", 50, false);
-
-        List<WorkflowFormTO> forms = userWorkflowService.getForms(
-                new WorkflowFormQuery.Builder().page(1).size(1000).build()).getResult();
-        assertFalse(forms.isEmpty());
-        forms.forEach(form -> {
-            userWorkflowService.claimForm(form.getTaskId());
-            WorkflowFormPropertyTO approve = form.getProperty("approve").orElse(null);
-            approve.setValue("true");
-            userWorkflowService.submitForm(form);
-        });
-
-        forms = userWorkflowService.getForms(
-                new WorkflowFormQuery.Builder().page(1).size(1000).build()).getResult();
-        assertTrue(forms.isEmpty());
     }
 
     @Test

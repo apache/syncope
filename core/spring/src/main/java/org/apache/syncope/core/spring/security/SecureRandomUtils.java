@@ -49,6 +49,10 @@ public final class SecureRandomUtils {
         return FOR_LETTERS.generate(1);
     }
 
+    public static String generateRandomLetters(final int length) {
+        return FOR_LETTERS.generate(length);
+    }
+
     public static String generateRandomNumber() {
         return FOR_NUMBERS.generate(1);
     }

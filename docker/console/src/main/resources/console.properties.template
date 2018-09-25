@@ -33,8 +33,6 @@ maxWaitTimeOnApplyChanges=30
 
 csrf=true
 
-flowableModelerDirectory=/etc/apache-syncope/flowable-modeler
-
 reconciliationReportKey=c3520ad9-179f-49e7-b315-d684d216dd97
 
 page.dashboard=org.apache.syncope.client.console.pages.Dashboard

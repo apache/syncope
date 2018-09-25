@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Properties;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
@@ -95,9 +94,8 @@ public class SAML2SPLoader implements SyncopeLoader {
     public void load() {
         EntitlementsHolder.getInstance().init(SAML2SPEntitlement.values());
 
-        Pair<Properties, String> init = PropertyUtils.read(getClass(), SAML2SP_LOGIC_PROPERTIES, "conf.directory");
-        Properties props = init.getLeft();
-        String confDirectory = init.getRight();
+        Properties props = PropertyUtils.read(getClass(), SAML2SP_LOGIC_PROPERTIES, "conf.directory").getLeft();
+        String confDirectory = props.getProperty("conf.directory");
 
         assertNotNull(confDirectory, "<conf.directory>");
 
@@ -174,5 +172,4 @@ public class SAML2SPLoader implements SyncopeLoader {
     public String getSignatureAlgorithm() {
         return signatureAlgorithm;
     }
-
 }

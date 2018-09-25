@@ -244,10 +244,6 @@ under the License.
         <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources</targetPath>
         <includes>
           <include>log4j2.xml</include>
-          <include>save-model.html</include>
-          <include>app-cfg.js</include>
-          <include>url-config.js</include>
-          <include>toolbar.js</include>
         </includes>
       </resource>
       <resource>

@@ -36,10 +36,6 @@ public interface Any<P extends PlainAttr<?>> extends AnnotatedEntity {
 
     void setStatus(String status);
 
-    String getWorkflowId();
-
-    void setWorkflowId(String workflowId);
-
     boolean add(P attr);
 
     boolean remove(P attr);

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import org.apache.syncope.core.persistence.jpa.entity.user.JPASecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;

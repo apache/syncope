@@ -46,7 +46,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 /**
  * REST operations for SAML 2.0 Identity Providers.
  */
-@Tag(name = "SAML2IdP")
+@Tag(name = "SAML 2.0")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
     @SecurityRequirement(name = "Bearer") })

@@ -429,8 +429,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         }
 
         entityManager().remove(user);
-        publisher.publishEvent(
-                new AnyDeletedEvent(this, AnyTypeKind.USER, user.getKey(), AuthContextUtils.getDomain()));
+        publisher.publishEvent(new AnyDeletedEvent(
+                this, AnyTypeKind.USER, user.getKey(), user.getUsername(), AuthContextUtils.getDomain()));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

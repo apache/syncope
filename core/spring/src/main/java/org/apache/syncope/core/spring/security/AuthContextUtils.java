@@ -19,8 +19,6 @@
 package org.apache.syncope.core.spring.security;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,33 +63,26 @@ public final class AuthContextUtils {
     public static Set<SyncopeGrantedAuthority> getAuthorities() {
         SecurityContext ctx = SecurityContextHolder.getContext();
         if (ctx != null && ctx.getAuthentication() != null && ctx.getAuthentication().getAuthorities() != null) {
-            Set<SyncopeGrantedAuthority> result = new HashSet<>();
-            ctx.getAuthentication().getAuthorities().stream().
-                    filter(authority -> (authority instanceof SyncopeGrantedAuthority)).
-                    forEachOrdered(authority -> result.add(SyncopeGrantedAuthority.class.cast(authority)));
-
-            return result;
+            return ctx.getAuthentication().getAuthorities().stream().
+                    filter(SyncopeGrantedAuthority.class::isInstance).
+                    map(SyncopeGrantedAuthority.class::cast).
+                    collect(Collectors.toSet());
         }
 
         return Collections.emptySet();
     }
 
     public static Map<String, Set<String>> getAuthorizations() {
-        Map<String, Set<String>> result = null;
-
         SecurityContext ctx = SecurityContextHolder.getContext();
         if (ctx != null && ctx.getAuthentication() != null && ctx.getAuthentication().getAuthorities() != null) {
-            result = new HashMap<>();
-            for (GrantedAuthority authority : ctx.getAuthentication().getAuthorities()) {
-                if (authority instanceof SyncopeGrantedAuthority) {
-                    result.put(
-                            SyncopeGrantedAuthority.class.cast(authority).getAuthority(),
-                            SyncopeGrantedAuthority.class.cast(authority).getRealms());
-                }
-            }
+            return ctx.getAuthentication().getAuthorities().stream().
+                    filter(SyncopeGrantedAuthority.class::isInstance).
+                    map(SyncopeGrantedAuthority.class::cast).
+                    collect(Collectors.toMap(
+                            SyncopeGrantedAuthority::getAuthority, SyncopeGrantedAuthority::getRealms));
         }
 
-        return result == null ? Collections.emptyMap() : result;
+        return Collections.emptyMap();
     }
 
     public static String getDomain() {

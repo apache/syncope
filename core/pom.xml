@@ -84,7 +84,6 @@ under the License.
     <module>provisioning-java</module>
     <module>workflow-api</module>
     <module>workflow-java</module>
-    <module>workflow-flowable</module>
     <module>logic</module>
     <module>rest-cxf</module>
     <module>upgrade</module>
