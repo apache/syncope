@@ -75,7 +75,8 @@ The Workflow layer is responsible for managing the internal lifecycle of Users, 
 
 Besides the default engine, another engine is available based on http://www.flowable.org/[Flowable^], the 
 reference open source http://www.bpmn.org/[BPMN 2.0^] implementation. It enables advanced features such
-as approval management and new statuses definitions. An optional web-based GUI editor is also available.
+as approval management and new statuses definitions; a web-based GUI editor, the
+http://www.flowable.org/docs/userguide/index.html#flowableModelerApp[Flowable Modeler^], is also available.
 
 [.text-center]
 image::userWorkflow.png[title="Default Flowable user workflow",alt="Default Flowable user workflow"] 
