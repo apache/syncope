@@ -769,7 +769,7 @@ public class MappingManagerImpl implements MappingManager {
 
                 default:
             }
-        } else if (intAttrName.getSchemaType() != null) {
+        } else if (intAttrName.getSchemaType() != null && attr != null) {
             GroupableRelatableTO groupableTO = null;
             Group group = null;
             if (anyTO instanceof GroupableRelatableTO && intAttrName.getMembershipOfGroup() != null) {
@@ -829,7 +829,7 @@ public class MappingManagerImpl implements MappingManager {
                     attrTO.setSchema(intAttrName.getSchemaName());
 
                     // virtual attributes don't get transformed, iterate over original attr.getValue()
-                    if (attr != null && attr.getValue() != null && !attr.getValue().isEmpty()) {
+                    if (attr.getValue() != null && !attr.getValue().isEmpty()) {
                         attr.getValue().stream().
                                 filter(value -> value != null).
                                 forEachOrdered(value -> attrTO.getValues().add(value.toString()));
