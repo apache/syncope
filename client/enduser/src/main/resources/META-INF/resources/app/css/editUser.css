@@ -32,13 +32,13 @@ under the License.
   background-color: #F7F7F7;
 }
 
-#form-container .breadcrumb-header{
+#form-container .breadcrumb-header {
   margin: auto;
   width: 80%; 
   padding:10px; 
 }
 
-#form-container .page-header   { 
+#form-container .page-header { 
   background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%); /* FF3.6+ */
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9db80), color-stop(100%,#96c56f)); /* Chrome,Safari4+ */
   background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Chrome10+,Safari5.1+ */
@@ -196,7 +196,7 @@ span.k-datetimepicker{
 
 /** Button breadcrumb **/
 .btn-breadcrumb .btn:not(:last-child):after {
-  border-left: 10px solid white;
+  border-left: 10px solid #ffffff;
 }
 .btn-breadcrumb .btn:not(:last-child):before {
   margin-left: 1px;
@@ -380,7 +380,7 @@ div[role="tablist"] {
 
   input[type=file] {
     display: block;
-    color: white !important;
+    color: #ffffff !important;
   }
 
   #form-container {

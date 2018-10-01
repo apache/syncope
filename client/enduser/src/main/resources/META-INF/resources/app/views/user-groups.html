@@ -35,7 +35,8 @@ under the License.
 
 <div id="attribute" class="form-group row justify-content-between p-0">
   <div class="col-xs-3">
-    <a id="cancel" class="btn btn-danger float-left nav-button" tabindex="0" ng-click="logout()">
+    <a id="cancel" class="btn btn-danger float-left nav-button" tabindex="0" 
+       ng-enter="logout()" ng-click="logout()">
       {{'CANCEL'| translate}}
     </a>
   </div>
@@ -52,7 +53,7 @@ under the License.
          ng-show="!createMode || (createMode && endReached)">
       <button id="finish" type="button" tabindex="0"
               class="btn btn-secondary btn-default float-right nav-button" 
-              ng-click="finish()">
+              ng-enter="finish()" ng-click="finish()">
         {{'FINISH'| translate}}
       </button>
     </div>
