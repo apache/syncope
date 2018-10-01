@@ -31,7 +31,7 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 
 /**
- * Adds the <tt>ETag</tt> header to any response containing an instance of {@link AbstractAnnotatedBean} as entity.
+ * Adds the {@code ETag} header to any response containing an instance of {@link AbstractAnnotatedBean} as entity.
  * The actual ETag value is computed on the basis of last change date (or creation date if not available).
  */
 @Provider
