@@ -31,7 +31,8 @@
           {
             "css": [
               "css/notification.css",
-              "css/app.css"
+              "css/app.css",
+              "css/accessibility.css"
             ]
           },
 

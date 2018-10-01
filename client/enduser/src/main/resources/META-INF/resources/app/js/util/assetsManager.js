@@ -23,20 +23,30 @@ angular.module('SyncopeEnduserApp')
         .factory("AssetsManager", ['$q', function ($q) {
             var assetsManager = {};
 
+            assetsManager.accessibilityCssId = "access_css";
+
             var createLink = function (id, url, deferred) {
-              if (!angular.element('link#' + id).length && !angular.element('link[href="' + url + '"').length) {
+              if (!angular.element('link[href="' + url + '"').length) {
                 var link = document.createElement('link');
+                link.id = id;
                 link.rel = 'stylesheet';
                 link.href = url;
                 link.onload = deferred.resolve;
                 link.onerror = deferred.reject;
-                angular.element('head').append(link);
+
+                var themeElems = angular.element('[id*="' + assetsManager.accessibilityCssId + '"]');
+                if (themeElems.length) {
+                  angular.element(themeElems[0]).before(link);
+                } else {
+                  angular.element('head').append(link);
+                }
               }
             };
 
             var createScript = function (id, url, deferred) {
-              if (!angular.element('script#' + id).length && !angular.element('script[src="' + url + '"').length) {
+              if (!angular.element('script[src="' + url + '"').length) {
                 var script = document.createElement('script');
+                script.id = id;
                 script.src = url;
                 script.onload = deferred.resolve;
                 script.onerror = deferred.reject;

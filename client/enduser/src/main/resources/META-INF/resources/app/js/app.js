@@ -42,7 +42,8 @@ var app = angular.module('SyncopeEnduserApp', [
   'self',
   'info',
   'ngCookies',
-  'pascalprecht.translate'
+  'pascalprecht.translate',
+  'ngAria'
 ]);
 
 app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider', '$translatePartialLoaderProvider',
@@ -261,7 +262,7 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
      * SYNCOPE-780
      */
     $httpProvider.defaults.headers.common["If-Modified-Since"] = "0";
-    $httpProvider.interceptors.push(function ($q, $rootScope, $location) {
+    $httpProvider.interceptors.push(function ($q, $rootScope) {
       return {
         'request': function (config, a, b) {
           //if the url is an html, we're changing page
@@ -296,8 +297,8 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
       };
     });
   }]);
-app.run(['$rootScope', '$location', '$state', 'AuthService', '$transitions',
-  function ($rootScope, $location, $state, AuthService, $transitions) {
+app.run(['$rootScope', '$state', 'AuthService', '$transitions',
+  function ($rootScope, $state, AuthService, $transitions) {
     /*
      |--------------------------------------------------------------------------
      | Main of Syncope Enduser application
@@ -464,7 +465,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       };
 
       $rootScope.getWizardFirstStep = function () {
-        return ($scope.wizardFirstStep ? ('.' + $scope.wizardFirstStep) : '');
+        return $scope.wizardFirstStep ? ('.' + $scope.wizardFirstStep) : '';
       };
 
       InfoService.getInfo().then(

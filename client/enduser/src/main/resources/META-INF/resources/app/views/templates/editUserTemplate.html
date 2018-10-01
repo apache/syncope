@@ -31,11 +31,12 @@ under the License.
             <div growl reference="2" inline="true"></div>              
             <div id="status-buttons" class="btn-group btn-breadcrumb">
               <a class="btn btn-secondary btn-default breadcrumb-btn-elem breadcrumb-home" 
-                 ng-show="createMode" ng-click="logout()">
+                 tabindex="0" ng-enter="logout()" ng-show="createMode" ng-click="logout()">
                 <i class="fa fa-home"></i>
               </a>
+
               <a id="logout" class="btn btn-secondary btn-default breadcrumb-btn-elem" 
-                 ng-show="!createMode" ng-click="logout()">
+                 tabindex="0" ng-enter="logout()" ng-show="!createMode" ng-click="logout()">
                 <i class="fa fa-power-off" style="color:red"></i>
               </a>
               <!-- add class breadcrumb-disabled-link to buttons to prevent click -->              

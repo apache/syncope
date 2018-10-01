@@ -44,20 +44,39 @@ under the License.
     <link href="../webjars/ng-password-strength/${ng-password-strength.version}/dist/styles/main.css" rel="stylesheet" type="text/css">
     <link href="../webjars/select2/${select2.version}/select2.css" rel="stylesheet"/>
 
+    <link href="css/init.css" rel="stylesheet" type="text/css"/>
     <link href="css/customSpinner.css" rel="stylesheet" type="text/css"/>
   </head>
   <body ng-cloak >
 
-    <!--[if lt IE 7]>
-        <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-    <![endif]-->
+  <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+  <![endif]-->
 
-    <span id="notifications"></span>
+  <span id="notifications"></span>
 
   <treasure-overlay-spinner active='spinner.active'>
-    <div ui-view ng-cloak ng-controller="ApplicationController" ng-init="initApplication()">   
+    <div ng-cloak ng-controller="ApplicationController" ng-init="initApplication()">   
+      <div id="accessibility" ng-controller="AccessibilityController">
+        <div id="change_contrast" class="btn-accessibility" 
+             ng-init="checkPref(HC_THEME_PREF)">
+          <i ng-click="switchTheme()"
+             aria-label="Toggle high contrast colors mode" tabindex="0" accesskey="H"
+             class="fa fa-adjust">
+          </i>
+        </div>
+        <div id="change_fontSize" class="btn-accessibility" 
+             ng-init="checkPref(FONT_SIZE_PREF)">
+          <i ng-click="switchIncreasedFont()"
+             aria-label="Toggle font size increment" tabindex="0" accesskey="F"
+             class="fa fa-font">
+          </i>
+        </div>
+      </div>
 
-    </div>    
+      <!-- Dynamic view -->
+      <div ui-view></div>
+    </div>
   </treasure-overlay-spinner>
 
   <script src="../webjars/jquery/${jquery.version}/jquery.js"></script>
@@ -86,6 +105,7 @@ under the License.
   <script src="../webjars/angular-translate-loader-partial/${angular-translate-loader-partial.version}/angular-translate-loader-partial.js"></script>
   <script src="../webjars/angular-translate-storage-cookie/${angular-translate.version}/angular-translate-storage-cookie.js"></script>
   <script src="../webjars/bootstrap-fileinput/${bootstrap-fileinput.version}/js/fileinput.js"></script>
+  <script src="../webjars/angular-aria/angular-aria.min.js" ></script>
 
   <!--main angular application-->
   <script src="js/app.js"></script>
@@ -110,6 +130,7 @@ under the License.
   <script src="js/controllers/SAML2SPController.js"></script>
   <script src="js/controllers/OIDCClientController.js"></script>
   <script src="js/controllers/UserController.js"></script>
+  <script src="js/controllers/AccessibilityController.js"></script>
   <!--directives-->
   <script src="js/directives/dynamicPlainAttribute.js"></script>
   <script src="js/directives/dynamicDerivedAttribute.js"></script>
@@ -128,6 +149,7 @@ under the License.
   <script src="js/directives/validateDropdown.js"></script>
   <script src="js/directives/fileInput.js"></script>
   <script src="js/directives/dynamicTemplateItem.js"></script>
+  <script src="js/directives/ngEnter.js"></script>
   <!--validator-->
   <script src="js/validator/validationRules.js"></script>
   <script src="js/validator/validationExecutor.js"></script>

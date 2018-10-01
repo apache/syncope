@@ -41,9 +41,9 @@ angular.module('self')
                 }
               },
               controller: function ($scope) {
-                $scope.validateAndNext = function (event, state) {
+                $scope.validateAndNext = function ($event, state) {
                   //getting the enclosing form in order to access to its name                
-                  var currentForm = GenericUtil.getEnclosingForm(event.target);
+                  var currentForm = GenericUtil.getEnclosingForm($event.target);
                   if (currentForm !== null) {
                     if (ValidationExecutor.validate(currentForm, $scope.$parent)) {
                       if (state) {
@@ -53,7 +53,6 @@ angular.module('self')
                       }
                     }
                   }
-
                 };
 
                 $scope.nextTab = function (state) {
