@@ -1460,7 +1460,12 @@ under the License.
         <groupId>org.webjars.bower</groupId>
         <artifactId>angular-translate-storage-cookie</artifactId>
         <version>${angular-translate.version}</version>
-      </dependency>      
+      </dependency>
+      <dependency>
+        <groupId>org.webjars.bowergithub.angular</groupId>
+        <artifactId>bower-angular-aria</artifactId>
+        <version>${angular.version}</version>
+      </dependency>  
 
       <dependency>
         <groupId>org.webjars.bower</groupId>

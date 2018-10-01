@@ -24,7 +24,8 @@ under the License.
 
   <!--navigation buttons-->
   <div class="col-xs-3">
-    <a id="cancel" class="btn btn-danger float-left nav-button" tabindex="0" ng-click="logout()">
+    <a id="cancel" class="btn btn-danger float-left nav-button" tabindex="0" 
+       ng-enter="logout()" ng-click="logout()">
       {{'CANCEL'| translate}}
     </a>
   </div>
@@ -36,7 +37,8 @@ under the License.
       </navigation-buttons-partial>
     </div>
     <div class="col-xs-2 float-right p-0">
-      <button id="save" type="submit" tabindex="0" class="btn btn-secondary btn-default float-right nav-button">
+      <button id="save" type="submit" tabindex="0" 
+              class="btn btn-secondary btn-default float-right nav-button">
         {{'SAVE'| translate}}
       </button>
     </div>
