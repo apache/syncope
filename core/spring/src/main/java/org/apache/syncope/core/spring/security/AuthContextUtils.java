@@ -98,7 +98,7 @@ public final class AuthContextUtils {
         return domainKey;
     }
 
-    private static void setFakeAuth(final String domain) {
+    private static Authentication getFakeAuth(final String domain) {
         List<GrantedAuthority> authorities = EntitlementsHolder.getInstance().getValues().stream().
                 map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
                 collect(Collectors.toList());
@@ -107,20 +107,19 @@ public final class AuthContextUtils {
                 new User(ApplicationContextProvider.getBeanFactory().getBean("adminUser", String.class),
                         "FAKE_PASSWORD", authorities), "FAKE_PASSWORD", authorities);
         auth.setDetails(new SyncopeAuthenticationDetails(domain));
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        return auth;
     }
 
-    public static <T> T execWithAuthContext(final String domainKey, final Executable<T> executable) {
-        SecurityContext ctx = SecurityContextHolder.getContext();
-        setFakeAuth(domainKey);
+    public static <T> T execWithAuthContext(final String domain, final Executable<T> executable) {
+        Authentication original = SecurityContextHolder.getContext().getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(getFakeAuth(domain));
         try {
             return executable.exec();
         } catch (Throwable t) {
-            LOG.debug("Error during execution with domain {} context", domainKey, t);
+            LOG.debug("Error during execution with domain {} context", domain, t);
             throw t;
         } finally {
-            SecurityContextHolder.clearContext();
-            SecurityContextHolder.setContext(ctx);
+            SecurityContextHolder.getContext().setAuthentication(original);
         }
     }
 

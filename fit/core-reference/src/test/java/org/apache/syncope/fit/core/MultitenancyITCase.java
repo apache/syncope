@@ -21,6 +21,7 @@ package org.apache.syncope.fit.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
@@ -31,6 +32,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ItemTO;
@@ -45,6 +47,7 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.ExecStatus;
@@ -63,6 +66,7 @@ import org.apache.syncope.common.rest.api.service.ReconciliationService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.TaskService;
+import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -239,6 +243,19 @@ public class MultitenancyITCase extends AbstractITCase {
                             anyTypeKind(AnyTypeKind.USER).entityKey(pullFromLDAPKey).build()).getSize());
         } finally {
             adminClient.getService(ResourceService.class).delete(resource.getKey());
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE1377() {
+        try {
+            new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("NotExisting").create().
+                    getService(UserSelfService.class).
+                    create(UserITCase.getUniqueSampleTO("syncope1377@syncope.apache.org"), true);
+            fail("This should not happen");
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.NotFound, e.getType());
+            assertTrue(e.getMessage().contains("NotExisting"));
         }
     }
 }
