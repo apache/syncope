@@ -90,6 +90,7 @@ under the License.
   
   <bean id="searchContextProvider" class="org.apache.cxf.jaxrs.ext.search.SearchContextProvider"/>
     
+  <bean id="checkDomainFilter" class="org.apache.syncope.core.rest.cxf.CheckDomainFilter"/>
   <bean id="addDomainFilter" class="org.apache.syncope.core.rest.cxf.AddDomainFilter"/>
   <bean id="addETagFilter" class="org.apache.syncope.core.rest.cxf.AddETagFilter"/>
   
@@ -165,6 +166,7 @@ under the License.
       <ref bean="yamlProvider"/>
       <ref bean="exceptionMapper"/>
       <ref bean="searchContextProvider"/>
+      <ref bean="checkDomainFilter"/>
       <ref bean="addDomainFilter"/>
       <ref bean="addETagFilter"/>
       <ref bean="wadlGenerator"/>
