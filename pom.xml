@@ -408,7 +408,7 @@ under the License.
 
     <groovy.version>3.0.0-alpha-3</groovy.version>
 
-    <flowable.version>6.3.1</flowable.version>
+    <flowable.version>6.4.0</flowable.version>
 
     <camel.version>2.22.1</camel.version>	
 
@@ -1147,6 +1147,11 @@ under the License.
             <artifactId>slf4j-log4j12</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.flowable</groupId>
+        <artifactId>flowable-idm-spring-configurator</artifactId>
+        <version>${flowable.version}</version>
       </dependency>
       <dependency>
         <groupId>org.flowable</groupId>

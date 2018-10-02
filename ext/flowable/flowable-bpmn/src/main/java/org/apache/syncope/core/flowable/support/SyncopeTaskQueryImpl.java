@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.flowable.impl;
+package org.apache.syncope.core.flowable.support;
 
 import org.flowable.common.engine.impl.interceptor.CommandExecutor;
 import org.flowable.task.api.TaskQuery;

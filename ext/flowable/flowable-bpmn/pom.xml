@@ -61,6 +61,10 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.flowable</groupId>
+      <artifactId>flowable-idm-spring-configurator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.flowable</groupId>
       <artifactId>flowable-json-converter</artifactId>
     </dependency>
 
