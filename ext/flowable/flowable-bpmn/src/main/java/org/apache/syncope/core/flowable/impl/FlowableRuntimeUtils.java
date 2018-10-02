@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.flowable.impl;
 
+import org.apache.syncope.core.flowable.support.SyncopeTaskQueryImpl;
 import java.util.Base64;
 import java.util.List;
 import java.util.Set;
