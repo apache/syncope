@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.client.console.annotations.Resource;
 import org.apache.syncope.client.console.rest.BpmnProcessRestClient;
-import org.apache.syncope.common.lib.to.BpmnProcessTO;
+import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.wicket.util.io.IOUtils;
 
 /**
@@ -36,7 +36,7 @@ public class BpmnProcessGETResource extends AbstractBpmnProcessResource {
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
-        final BpmnProcessTO toGet = getBpmnProcess(attributes);
+        final BpmnProcess toGet = getBpmnProcess(attributes);
 
         ResourceResponse response = new ResourceResponse();
         response.disableCaching();

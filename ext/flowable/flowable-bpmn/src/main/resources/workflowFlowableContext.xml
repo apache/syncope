@@ -38,6 +38,8 @@ under the License.
     <property name="idmEngineConfiguration" ref="syncopeIdmEngineConfiguration"/> 
   </bean>
 
+  <bean id="syncopeFormHandlerHelper" class="org.apache.syncope.core.flowable.support.SyncopeFormHandlerHelper"/>
+
   <bean class="org.apache.syncope.core.flowable.support.DomainProcessEngineConfiguration" scope="prototype">
     <property name="databaseSchemaUpdate" value="true"/>
 
@@ -52,6 +54,8 @@ under the License.
         <bean class="org.apache.syncope.core.flowable.support.SyncopeEntitiesVariableType"/>
       </list>
     </property>
+    
+    <property name="formHandlerHelper" ref="syncopeFormHandlerHelper"/>
   </bean>
 
   <bean id="bpmnProcessManager" class="org.apache.syncope.core.flowable.impl.FlowableBpmnProcessManager"/>

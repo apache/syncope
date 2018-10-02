@@ -1541,6 +1541,26 @@ under the License.
       
       <build>
         <plugins>
+          <!-- Adds Flowable custom classes -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>add-flowable-custom-classes</id>
+                <phase>initialize</phase>
+                <goals>
+                  <goal>add-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>${basedir}/src/main/java-all</source>
+                  </sources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
           <!-- Adds Flowable test content -->
           <plugin>
             <groupId>org.codehaus.mojo</groupId>

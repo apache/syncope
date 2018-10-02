@@ -136,14 +136,13 @@ public class Relationships extends WizardStep implements ICondition {
                 public Panel getPanel(final String panelId) {
                     return new ListViewPanel.Builder<>(RelationshipTO.class, pageRef).
                             setItems(relationships.get(relationship)).
-                            includes("otherEndType", "otherEndKey").
+                            includes("otherEndType", "otherEndKey", "otherEndName").
                             addAction(new ActionLink<RelationshipTO>() {
 
                                 private static final long serialVersionUID = -6847033126124401556L;
 
                                 @Override
-                                public void onClick(
-                                        final AjaxRequestTarget target, final RelationshipTO modelObject) {
+                                public void onClick(final AjaxRequestTarget target, final RelationshipTO modelObject) {
                                     removeRelationships(relationships, modelObject);
                                     send(Relationships.this, Broadcast.DEPTH, new ListViewReload<>(target));
                                 }

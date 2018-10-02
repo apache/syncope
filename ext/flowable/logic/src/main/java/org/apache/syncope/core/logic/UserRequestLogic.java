@@ -25,13 +25,12 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
-import org.apache.syncope.common.lib.to.UserRequestTO;
+import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.types.BpmnProcessFormat;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.flowable.api.BpmnProcessManager;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -41,6 +40,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.flowable.api.UserRequestHandler;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,24 +52,49 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserRequestLogic extends AbstractTransactionalLogic<UserRequestForm> {
 
     @Autowired
-    private BpmnProcessManager bpmnProcessManager;
+    protected BpmnProcessManager bpmnProcessManager;
 
     @Autowired
-    private UserRequestHandler userRequestHandler;
+    protected UserRequestHandler userRequestHandler;
 
     @Autowired
-    private PropagationManager propagationManager;
+    protected PropagationManager propagationManager;
 
     @Autowired
-    private PropagationTaskExecutor taskExecutor;
+    protected PropagationTaskExecutor taskExecutor;
 
     @Autowired
-    private UserDataBinder binder;
+    protected UserDataBinder binder;
 
     @Autowired
-    private UserDAO userDAO;
+    protected UserDAO userDAO;
 
-    protected UserRequestTO doStart(final String bpmnProcess, final User user) {
+    @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
+    public Pair<Integer, List<UserRequest>> list(final String userKey,
+            final int page,
+            final int size,
+            final List<OrderByClause> orderByClauses) {
+
+        if (userKey == null) {
+            securityChecks(null,
+                    FlowableEntitlement.USER_REQUEST_LIST,
+                    "Listing user requests not allowed");
+        } else {
+            User user = userDAO.find(userKey);
+            if (user == null) {
+                throw new NotFoundException("User " + userKey);
+            }
+
+            securityChecks(user.getUsername(),
+                    FlowableEntitlement.USER_REQUEST_LIST,
+                    "Listing requests for user" + user.getUsername() + " not allowed");
+        }
+
+        return userRequestHandler.getUserRequests(userKey, page, size, orderByClauses);
+    }
+
+    protected UserRequest doStart(final String bpmnProcess, final User user) {
         // check if BPMN process exists
         bpmnProcessManager.exportProcess(bpmnProcess, BpmnProcessFormat.XML, new NullOutputStream());
 
@@ -77,56 +102,84 @@ public class UserRequestLogic extends AbstractTransactionalLogic<UserRequestForm
     }
 
     @PreAuthorize("isAuthenticated()")
-    public UserRequestTO start(final String bpmnProcess) {
+    public UserRequest start(final String bpmnProcess) {
         return doStart(bpmnProcess, userDAO.findByUsername(AuthContextUtils.getUsername()));
     }
 
     @PreAuthorize("hasRole('" + FlowableEntitlement.USER_REQUEST_START + "')")
-    public UserRequestTO start(final String bpmnProcess, final String userKey) {
+    public UserRequest start(final String bpmnProcess, final String userKey) {
         return doStart(bpmnProcess, userDAO.authFind(userKey));
+    }
+
+    protected void securityChecks(final String username, final String entitlement, final String errorMessage) {
+        if (!AuthContextUtils.getUsername().equals(username)
+                && !AuthContextUtils.getAuthorities().stream().
+                        anyMatch(auth -> entitlement.equals(auth.getAuthority()))) {
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.DelegatedAdministration);
+            sce.getElements().add(errorMessage);
+            throw sce;
+        }
     }
 
     @PreAuthorize("isAuthenticated()")
     public void cancel(final String executionId, final String reason) {
         Pair<ProcessInstance, String> parsed = userRequestHandler.parse(executionId);
 
-        if (!AuthContextUtils.getUsername().equals(userDAO.find(parsed.getRight()).getUsername())
-                && !AuthContextUtils.getAuthorities().stream().
-                        anyMatch(auth -> FlowableEntitlement.USER_REQUEST_CANCEL.equals(auth.getAuthority()))) {
-
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.DelegatedAdministration);
-            sce.getElements().add("Canceling " + executionId + " not allowed");
-            throw sce;
-        }
+        securityChecks(userDAO.find(parsed.getRight()).getUsername(),
+                FlowableEntitlement.USER_REQUEST_CANCEL,
+                "Canceling " + executionId + " not allowed");
 
         userRequestHandler.cancel(parsed.getLeft(), reason);
     }
 
-    @PreAuthorize("hasRole('" + FlowableEntitlement.WORKFLOW_FORM_CLAIM + "')")
+    @PreAuthorize("isAuthenticated()")
     public UserRequestForm claimForm(final String taskId) {
-        return userRequestHandler.claimForm(taskId);
+        UserRequestForm form = userRequestHandler.claimForm(taskId);
+        securityChecks(form.getUsername(),
+                FlowableEntitlement.USER_REQUEST_FORM_CLAIM,
+                "Claiming form " + taskId + " not allowed");
+        return form;
     }
 
-    @PreAuthorize("hasRole('" + FlowableEntitlement.WORKFLOW_FORM_READ + "') "
-            + "and hasRole('" + StandardEntitlement.USER_READ + "')")
-    @Transactional(readOnly = true)
-    public List<UserRequestForm> getForms(final String key) {
-        User user = userDAO.authFind(key);
-        return userRequestHandler.getForms(user.getKey());
-    }
-
-    @PreAuthorize("hasRole('" + FlowableEntitlement.WORKFLOW_FORM_LIST + "')")
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public Pair<Integer, List<UserRequestForm>> getForms(
+            final String userKey,
             final int page,
             final int size,
             final List<OrderByClause> orderByClauses) {
 
-        return userRequestHandler.getForms(page, size, orderByClauses);
+        if (userKey == null) {
+            securityChecks(null,
+                    FlowableEntitlement.USER_REQUEST_FORM_LIST,
+                    "Listing forms not allowed");
+        } else {
+            User user = userDAO.find(userKey);
+            if (user == null) {
+                throw new NotFoundException("User " + userKey);
+            }
+
+            securityChecks(user.getUsername(),
+                    FlowableEntitlement.USER_REQUEST_FORM_LIST,
+                    "Listing forms for user" + user.getUsername() + " not allowed");
+        }
+
+        return userRequestHandler.getForms(userKey, page, size, orderByClauses);
     }
 
-    @PreAuthorize("hasRole('" + FlowableEntitlement.WORKFLOW_FORM_SUBMIT + "')")
+    @PreAuthorize("isAuthenticated()")
     public UserTO submitForm(final UserRequestForm form) {
+        if (form.getUsername() == null) {
+            securityChecks(null,
+                    FlowableEntitlement.USER_REQUEST_FORM_SUBMIT,
+                    "Submitting forms not allowed");
+        } else {
+            securityChecks(form.getUsername(),
+                    FlowableEntitlement.USER_REQUEST_FORM_SUBMIT,
+                    "Submitting forms for user" + form.getUsername() + " not allowed");
+        }
+
         WorkflowResult<UserPatch> wfResult = userRequestHandler.submitForm(form);
 
         // propByRes can be made empty by the workflow definition if no propagation should occur 

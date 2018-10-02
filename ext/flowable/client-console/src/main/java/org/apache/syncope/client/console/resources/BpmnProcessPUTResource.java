@@ -24,7 +24,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.common.util.UrlUtils;
 import org.apache.syncope.client.console.annotations.Resource;
-import org.apache.syncope.common.lib.to.BpmnProcessTO;
+import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.wicket.util.io.IOUtils;
 
 /**
@@ -52,7 +52,7 @@ public class BpmnProcessPUTResource extends AbstractBpmnProcessResource {
             LOG.error("Could not extract BPMN process", e);
         }
 
-        BpmnProcessTO toSet = getBpmnProcess(attributes);
+        BpmnProcess toSet = getBpmnProcess(attributes);
 
         if (definition == null || toSet == null) {
             return new ResourceResponse().setStatusCode(Response.Status.BAD_REQUEST.getStatusCode()).

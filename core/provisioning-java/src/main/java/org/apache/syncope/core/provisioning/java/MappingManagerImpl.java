@@ -770,11 +770,14 @@ public class MappingManagerImpl implements MappingManager {
                 default:
             }
         } else if (intAttrName.getSchemaType() != null && attr != null) {
-            GroupableRelatableTO groupableTO = null;
-            Group group = null;
+            GroupableRelatableTO groupableTO;
+            Group group;
             if (anyTO instanceof GroupableRelatableTO && intAttrName.getMembershipOfGroup() != null) {
                 groupableTO = (GroupableRelatableTO) anyTO;
                 group = groupDAO.findByName(intAttrName.getMembershipOfGroup());
+            } else {
+                groupableTO = null;
+                group = null;
             }
 
             switch (intAttrName.getSchemaType()) {
@@ -798,29 +801,28 @@ public class MappingManagerImpl implements MappingManager {
                     if (groupableTO == null || group == null) {
                         anyTO.getPlainAttrs().add(attrTO);
                     } else {
-                        Optional<MembershipTO> membership = groupableTO.getMembership(group.getKey());
-                        if (!membership.isPresent()) {
-                            membership = Optional.of(
-                                    new MembershipTO.Builder().group(group.getKey(), group.getName()).build());
-                            groupableTO.getMemberships().add(membership.get());
-                        }
-                        membership.get().getPlainAttrs().add(attrTO);
+                        MembershipTO membership = groupableTO.getMembership(group.getKey()).orElseGet(() -> {
+                            MembershipTO newMemb = new MembershipTO.Builder().group(group.getKey()).build();
+                            groupableTO.getMemberships().add(newMemb);
+                            return newMemb;
+                        });
+                        membership.getPlainAttrs().add(attrTO);
                     }
                     break;
 
                 case DERIVED:
                     attrTO = new AttrTO();
                     attrTO.setSchema(intAttrName.getSchemaName());
+
                     if (groupableTO == null || group == null) {
                         anyTO.getDerAttrs().add(attrTO);
                     } else {
-                        Optional<MembershipTO> membership = groupableTO.getMembership(group.getKey());
-                        if (!membership.isPresent()) {
-                            membership = Optional.of(
-                                    new MembershipTO.Builder().group(group.getKey(), group.getName()).build());
-                            groupableTO.getMemberships().add(membership.get());
-                        }
-                        membership.get().getDerAttrs().add(attrTO);
+                        MembershipTO membership = groupableTO.getMembership(group.getKey()).orElseGet(() -> {
+                            MembershipTO newMemb = new MembershipTO.Builder().group(group.getKey()).build();
+                            groupableTO.getMemberships().add(newMemb);
+                            return newMemb;
+                        });
+                        membership.getDerAttrs().add(attrTO);
                     }
                     break;
 
@@ -838,13 +840,12 @@ public class MappingManagerImpl implements MappingManager {
                     if (groupableTO == null || group == null) {
                         anyTO.getVirAttrs().add(attrTO);
                     } else {
-                        Optional<MembershipTO> membership = groupableTO.getMembership(group.getKey());
-                        if (!membership.isPresent()) {
-                            membership = Optional.of(
-                                    new MembershipTO.Builder().group(group.getKey(), group.getName()).build());
-                            groupableTO.getMemberships().add(membership.get());
-                        }
-                        membership.get().getVirAttrs().add(attrTO);
+                        MembershipTO membership = groupableTO.getMembership(group.getKey()).orElseGet(() -> {
+                            MembershipTO newMemb = new MembershipTO.Builder().group(group.getKey()).build();
+                            groupableTO.getMemberships().add(newMemb);
+                            return newMemb;
+                        });
+                        membership.getVirAttrs().add(attrTO);
                     }
                     break;
 

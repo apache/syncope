@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.resources;
 import javax.ws.rs.NotFoundException;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.BpmnProcessRestClient;
-import org.apache.syncope.common.lib.to.BpmnProcessTO;
+import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.util.string.StringValue;
 import org.slf4j.Logger;
@@ -35,10 +35,10 @@ abstract class AbstractBpmnProcessResource extends AbstractResource {
 
     protected final BpmnProcessRestClient restClient = new BpmnProcessRestClient();
 
-    protected BpmnProcessTO getBpmnProcess(final Attributes attributes) {
+    protected BpmnProcess getBpmnProcess(final Attributes attributes) {
         StringValue modelId = attributes.getRequest().getQueryParameters().getParameterValue(Constants.MODEL_ID_PARAM);
 
-        BpmnProcessTO bpmnProcess = modelId == null || modelId.isNull()
+        BpmnProcess bpmnProcess = modelId == null || modelId.isNull()
                 ? null
                 : restClient.getDefinitions().stream().
                         filter(object -> modelId.toString().equals(object.getModelId())).findAny().orElse(null);

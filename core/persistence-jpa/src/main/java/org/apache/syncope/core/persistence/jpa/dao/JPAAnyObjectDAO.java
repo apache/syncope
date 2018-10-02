@@ -168,20 +168,20 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     }
 
     @Override
-    public List<Relationship<Any<?>, Any<?>>> findAllRelationships(final AnyObject anyObject) {
-        List<Relationship<Any<?>, Any<?>>> result = new ArrayList<>();
+    public List<Relationship<Any<?>, AnyObject>> findAllRelationships(final AnyObject anyObject) {
+        List<Relationship<Any<?>, AnyObject>> result = new ArrayList<>();
 
         @SuppressWarnings("unchecked")
-        TypedQuery<Relationship<Any<?>, Any<?>>> aquery =
-                (TypedQuery<Relationship<Any<?>, Any<?>>>) entityManager().createQuery(
+        TypedQuery<Relationship<Any<?>, AnyObject>> aquery =
+                (TypedQuery<Relationship<Any<?>, AnyObject>>) entityManager().createQuery(
                         "SELECT e FROM " + JPAARelationship.class.getSimpleName()
                         + " e WHERE e.rightEnd=:anyObject OR e.leftEnd=:anyObject");
         aquery.setParameter("anyObject", anyObject);
         result.addAll(aquery.getResultList());
 
         @SuppressWarnings("unchecked")
-        TypedQuery<Relationship<Any<?>, Any<?>>> uquery =
-                (TypedQuery<Relationship<Any<?>, Any<?>>>) entityManager().createQuery(
+        TypedQuery<Relationship<Any<?>, AnyObject>> uquery =
+                (TypedQuery<Relationship<Any<?>, AnyObject>>) entityManager().createQuery(
                         "SELECT e FROM " + JPAURelationship.class.getSimpleName()
                         + " e WHERE e.rightEnd=:anyObject");
         uquery.setParameter("anyObject", anyObject);

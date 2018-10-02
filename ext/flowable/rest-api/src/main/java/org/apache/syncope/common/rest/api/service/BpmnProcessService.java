@@ -19,6 +19,9 @@
 package org.apache.syncope.common.rest.api.service;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -35,7 +38,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.BpmnProcessTO;
+import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
@@ -51,11 +54,16 @@ public interface BpmnProcessService extends JAXRSService {
     /**
      * Lists the available BPMN processes.
      *
-     * @return available BPMN processs, for the given any object type
+     * @return available BPMN processs
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "200", description = "available BPMN processes", content =
+                    @Content(array =
+                            @ArraySchema(schema =
+                                    @Schema(implementation = BpmnProcess.class)))))
     @GET
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    List<BpmnProcessTO> list();
+    List<BpmnProcess> list();
 
     /**
      * Exports the BPMN process for matching key.
@@ -63,6 +71,8 @@ public interface BpmnProcessService extends JAXRSService {
      * @param key BPMN process key
      * @return BPMN process for matching key
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "200", description = "BPMN process for matching key"))
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -72,8 +82,10 @@ public interface BpmnProcessService extends JAXRSService {
      * Exports the BPMN diagram representation (if available), for matching key.
      *
      * @param key BPMN process key
-     * @return workflow diagram representation
+     * @return BPMN diagram representation
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "200", description = "BPMN diagram representation"))
     @GET
     @Path("{key}/diagram.png")
     @Produces({ RESTHeaders.MEDIATYPE_IMAGE_PNG })

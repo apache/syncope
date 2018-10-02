@@ -23,7 +23,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.annotations.ExtPage;
 import org.apache.syncope.client.console.panels.BpmnProcessDirectoryPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
-import org.apache.syncope.common.lib.to.BpmnProcessTO;
+import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -48,7 +48,7 @@ public class Flowable extends BaseExtPage {
         disabled.setOutputMarkupPlaceholderTag(true);
         content.add(disabled);
 
-        WizardMgtPanel<BpmnProcessTO> bpmnProcessesPanel = new BpmnProcessDirectoryPanel.Builder(getPageReference()) {
+        WizardMgtPanel<BpmnProcess> bpmnProcessesPanel = new BpmnProcessDirectoryPanel.Builder(getPageReference()) {
 
             private static final long serialVersionUID = -5960765294082359003L;
 

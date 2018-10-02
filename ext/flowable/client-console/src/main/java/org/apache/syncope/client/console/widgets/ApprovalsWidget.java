@@ -87,8 +87,7 @@ public class ApprovalsWidget extends ExtAlertWidget<UserRequestForm> {
 
     @Override
     protected int getLatestAlertsSize() {
-        return SyncopeConsoleSession.get().owns(FlowableEntitlement.WORKFLOW_FORM_LIST)
-                && SyncopeConsoleSession.get().owns(FlowableEntitlement.WORKFLOW_FORM_READ)
+        return SyncopeConsoleSession.get().owns(FlowableEntitlement.USER_REQUEST_FORM_LIST)
                 ? restClient.countForms()
                 : 0;
     }
@@ -102,9 +101,7 @@ public class ApprovalsWidget extends ExtAlertWidget<UserRequestForm> {
             @Override
             public List<UserRequestForm> getObject() {
                 List<UserRequestForm> updatedApprovals;
-                if (SyncopeConsoleSession.get().owns(FlowableEntitlement.WORKFLOW_FORM_LIST)
-                        && SyncopeConsoleSession.get().owns(FlowableEntitlement.WORKFLOW_FORM_READ)) {
-
+                if (SyncopeConsoleSession.get().owns(FlowableEntitlement.USER_REQUEST_FORM_LIST)) {
                     updatedApprovals = restClient.getForms(1, MAX_SIZE, new SortParam<>("createTime", true));
                 } else {
                     updatedApprovals = Collections.<UserRequestForm>emptyList();
@@ -118,7 +115,8 @@ public class ApprovalsWidget extends ExtAlertWidget<UserRequestForm> {
     @Override
     protected AbstractLink getEventsLink(final String linkid) {
         BookmarkablePageLink<Approvals> approvals = BookmarkablePageLinkBuilder.build(linkid, Approvals.class);
-        MetaDataRoleAuthorizationStrategy.authorize(approvals, WebPage.ENABLE, FlowableEntitlement.WORKFLOW_FORM_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(
+                approvals, WebPage.ENABLE, FlowableEntitlement.USER_REQUEST_FORM_LIST);
         return approvals;
     }
 

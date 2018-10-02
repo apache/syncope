@@ -101,11 +101,12 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
             // relationships
             anyObjectTO.getRelationships().addAll(
-                    anyObjectDAO.findAllRelationships(anyObject).stream().map(relationship -> getRelationshipTO(
-                    relationship.getType().getKey(),
-                    relationship.getLeftEnd().getKey().equals(anyObject.getKey())
-                    ? relationship.getRightEnd()
-                    : relationship.getLeftEnd())).
+                    anyObjectDAO.findAllRelationships(anyObject).stream().
+                            map(relationship -> getRelationshipTO(
+                            relationship.getType().getKey(),
+                            relationship.getLeftEnd().getKey().equals(anyObject.getKey())
+                            ? relationship.getRightEnd()
+                            : anyObject)).
                             collect(Collectors.toList()));
 
             // memberships

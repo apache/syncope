@@ -25,7 +25,7 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.common.lib.to.BpmnProcessTO;
+import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.BpmnProcessService;
 
@@ -37,7 +37,7 @@ public class BpmnProcessRestClient extends BaseRestClient {
         return SyncopeConsoleSession.get().getService(mediaType, BpmnProcessService.class);
     }
 
-    public List<BpmnProcessTO> getDefinitions() {
+    public List<BpmnProcess> getDefinitions() {
         return getService(BpmnProcessService.class).list();
     }
 

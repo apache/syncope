@@ -45,7 +45,6 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,7 +102,7 @@ public abstract class Approval extends Panel {
                         break;
 
                     case Date:
-                        final FastDateFormat formatter = FastDateFormat.getInstance(prop.getDatePattern());
+                        FastDateFormat formatter = FastDateFormat.getInstance(prop.getDatePattern());
                         field = new AjaxDateTimeFieldPanel("value", label, new PropertyModel<Date>(prop, "value") {
 
                             private static final long serialVersionUID = -3743432456095828573L;
@@ -111,11 +110,9 @@ public abstract class Approval extends Panel {
                             @Override
                             public Date getObject() {
                                 try {
-                                    if (StringUtils.isBlank(prop.getValue())) {
-                                        return null;
-                                    } else {
-                                        return formatter.parse(prop.getValue());
-                                    }
+                                    return StringUtils.isBlank(prop.getValue())
+                                            ? null
+                                            : formatter.parse(prop.getValue());
                                 } catch (ParseException e) {
                                     LOG.error("Unparsable date: {}", prop.getValue(), e);
                                     return null;
@@ -131,19 +128,17 @@ public abstract class Approval extends Panel {
                         break;
 
                     case Enum:
-                        MapChoiceRenderer<String, String> enumCR = new MapChoiceRenderer<>(prop.getEnumValues());
-
                         field = new AjaxDropDownChoicePanel(
                                 "value", label, new PropertyModel<String>(prop, "value"), false).
-                                setChoiceRenderer(enumCR).setChoices(new Model<ArrayList<String>>() {
+                                setChoiceRenderer(new MapChoiceRenderer(prop.getEnumValues())).
+                                setChoices(new ArrayList<>(prop.getEnumValues().keySet()));
+                        break;
 
-                            private static final long serialVersionUID = -858521070366432018L;
-
-                            @Override
-                            public ArrayList<String> getObject() {
-                                return new ArrayList<>(prop.getEnumValues().keySet());
-                            }
-                        });
+                    case Dropdown:
+                        field = new AjaxDropDownChoicePanel(
+                                "value", label, new PropertyModel<String>(prop, "value"), false).
+                                setChoiceRenderer(new MapChoiceRenderer(prop.getDropdownValues())).
+                                setChoices(new ArrayList<>(prop.getDropdownValues().keySet()));
                         break;
 
                     case Long:

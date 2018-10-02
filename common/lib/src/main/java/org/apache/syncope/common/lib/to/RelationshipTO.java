@@ -43,6 +43,13 @@ public class RelationshipTO extends AbstractBaseBean {
             return this;
         }
 
+        public Builder otherEnd(final String otherEndType, final String otherEndKey, final String otherEndName) {
+            instance.setOtherEndType(otherEndType);
+            instance.setOtherEndKey(otherEndKey);
+            instance.setOtherEndName(otherEndName);
+            return this;
+        }
+
         public RelationshipTO build() {
             return instance;
         }
@@ -53,6 +60,8 @@ public class RelationshipTO extends AbstractBaseBean {
     private String otherEndType;
 
     private String otherEndKey;
+
+    private String otherEndName;
 
     public String getType() {
         return type;
@@ -78,4 +87,11 @@ public class RelationshipTO extends AbstractBaseBean {
         this.otherEndKey = otherEndKey;
     }
 
+    public String getOtherEndName() {
+        return otherEndName;
+    }
+
+    public void setOtherEndName(final String otherEndName) {
+        this.otherEndName = otherEndName;
+    }
 }

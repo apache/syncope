@@ -43,7 +43,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.BpmnProcessTO;
+import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
@@ -65,7 +65,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.io.IOUtils;
 
 public class BpmnProcessDirectoryPanel extends DirectoryPanel<
-        BpmnProcessTO, BpmnProcessTO, BpmProcessDataProvider, BpmnProcessRestClient> {
+        BpmnProcess, BpmnProcess, BpmProcessDataProvider, BpmnProcessRestClient> {
 
     private static final long serialVersionUID = 2705668831139984998L;
 
@@ -76,13 +76,13 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
     protected BpmnProcessDirectoryPanel(final String id, final Builder builder) {
         super(id, builder);
 
-        this.addNewItemPanelBuilder(new AjaxWizardBuilder<BpmnProcessTO>(new BpmnProcessTO(), pageRef) {
+        this.addNewItemPanelBuilder(new AjaxWizardBuilder<BpmnProcess>(new BpmnProcess(), pageRef) {
 
             private static final long serialVersionUID = 1633859795677053912L;
 
             @Override
             protected WizardModel buildModelSteps(
-                    final BpmnProcessTO modelObject, final WizardModel wizardModel) {
+                    final BpmnProcess modelObject, final WizardModel wizardModel) {
 
                 return wizardModel;
             }
@@ -133,8 +133,8 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
     }
 
     @Override
-    protected List<IColumn<BpmnProcessTO, String>> getColumns() {
-        List<IColumn<BpmnProcessTO, String>> columns = new ArrayList<>();
+    protected List<IColumn<BpmnProcess, String>> getColumns() {
+        List<IColumn<BpmnProcess, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<>(new ResourceModel("key"), "key"));
         columns.add(new PropertyColumn<>(new ResourceModel("name"), "name", "name"));
@@ -143,15 +143,15 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
     }
 
     @Override
-    public ActionsPanel<BpmnProcessTO> getActions(final IModel<BpmnProcessTO> model) {
-        final ActionsPanel<BpmnProcessTO> panel = super.getActions(model);
+    public ActionsPanel<BpmnProcess> getActions(final IModel<BpmnProcess> model) {
+        final ActionsPanel<BpmnProcess> panel = super.getActions(model);
 
-        panel.add(new ActionLink<BpmnProcessTO>() {
+        panel.add(new ActionLink<BpmnProcess>() {
 
             private static final long serialVersionUID = -184018732772021627L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final BpmnProcessTO ignore) {
+            public void onClick(final AjaxRequestTarget target, final BpmnProcess ignore) {
                 final IModel<String> wfDefinition = new Model<>();
                 try {
                     wfDefinition.setObject(IOUtils.toString(restClient.getDefinition(
@@ -189,12 +189,12 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
             }
         }, ActionLink.ActionType.EDIT, FlowableEntitlement.BPMN_PROCESS_SET);
 
-        panel.add(new ActionLink<BpmnProcessTO>() {
+        panel.add(new ActionLink<BpmnProcess>() {
 
             private static final long serialVersionUID = 3109256773218160485L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final BpmnProcessTO ignore) {
+            public void onClick(final AjaxRequestTarget target, final BpmnProcess ignore) {
                 modal.header(Model.of(model.getObject().getKey()));
                 modal.setContent(new ImageModalPanel<>(
                         modal, restClient.getDiagram(model.getObject().getKey()), pageRef));
@@ -203,7 +203,7 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
             }
         }, ActionLink.ActionType.VIEW, FlowableEntitlement.BPMN_PROCESS_GET);
 
-        panel.add(new ActionLink<BpmnProcessTO>() {
+        panel.add(new ActionLink<BpmnProcess>() {
 
             private static final long serialVersionUID = -184018732772021627L;
 
@@ -222,22 +222,22 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
             }
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final BpmnProcessTO ignore) {
+            public void onClick(final AjaxRequestTarget target, final BpmnProcess ignore) {
                 // do nothing
             }
         }, ActionLink.ActionType.EXTERNAL_EDITOR, FlowableEntitlement.BPMN_PROCESS_SET);
 
-        panel.add(new ActionLink<BpmnProcessTO>() {
+        panel.add(new ActionLink<BpmnProcess>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            protected boolean statusCondition(final BpmnProcessTO modelObject) {
+            protected boolean statusCondition(final BpmnProcess modelObject) {
                 return !modelObject.isUserWorkflow();
             }
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final BpmnProcessTO ignore) {
+            public void onClick(final AjaxRequestTarget target, final BpmnProcess ignore) {
                 try {
                     restClient.deleteDefinition(model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
@@ -260,7 +260,7 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
     }
 
     public abstract static class Builder
-            extends DirectoryPanel.Builder<BpmnProcessTO, BpmnProcessTO, BpmnProcessRestClient> {
+            extends DirectoryPanel.Builder<BpmnProcess, BpmnProcess, BpmnProcessRestClient> {
 
         private static final long serialVersionUID = 5088962796986706805L;
 
@@ -269,16 +269,16 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
         }
 
         @Override
-        protected WizardMgtPanel<BpmnProcessTO> newInstance(final String id, final boolean wizardInModal) {
+        protected WizardMgtPanel<BpmnProcess> newInstance(final String id, final boolean wizardInModal) {
             return new BpmnProcessDirectoryPanel(id, this);
         }
     }
 
-    protected class BpmProcessDataProvider extends DirectoryDataProvider<BpmnProcessTO> {
+    protected class BpmProcessDataProvider extends DirectoryDataProvider<BpmnProcess> {
 
         private static final long serialVersionUID = 1764153405387687592L;
 
-        private final SortableDataProviderComparator<BpmnProcessTO> comparator;
+        private final SortableDataProviderComparator<BpmnProcess> comparator;
 
         private final BpmnProcessRestClient restClient = new BpmnProcessRestClient();
 
@@ -289,8 +289,8 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
         }
 
         @Override
-        public Iterator<BpmnProcessTO> iterator(final long first, final long count) {
-            List<BpmnProcessTO> result = restClient.getDefinitions();
+        public Iterator<BpmnProcess> iterator(final long first, final long count) {
+            List<BpmnProcess> result = restClient.getDefinitions();
             Collections.sort(result, comparator);
             return result.subList((int) first, (int) first + (int) count).iterator();
         }
@@ -301,7 +301,7 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
         }
 
         @Override
-        public IModel<BpmnProcessTO> model(final BpmnProcessTO object) {
+        public IModel<BpmnProcess> model(final BpmnProcess object) {
             return new CompoundPropertyModel<>(object);
         }
     }

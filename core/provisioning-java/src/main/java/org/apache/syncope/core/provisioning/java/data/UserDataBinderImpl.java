@@ -602,10 +602,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     flatMap(role -> role.getPrivileges().stream()).map(Entity::getKey).collect(Collectors.toSet()));
 
             // relationships
-            userTO.getRelationships().addAll(
-                    user.getRelationships().stream().map(relationship -> getRelationshipTO(
-                    relationship.getType().getKey(), relationship.getRightEnd())).
-                            collect(Collectors.toList()));
+            userTO.getRelationships().addAll(user.getRelationships().stream().
+                    map(relationship -> getRelationshipTO(relationship.getType().getKey(), relationship.getRightEnd())).
+                    collect(Collectors.toList()));
 
             // memberships
             userTO.getMemberships().addAll(
