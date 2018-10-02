@@ -28,9 +28,10 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.common.lib.to.BpmnProcessTO;
+import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.lib.types.BpmnProcessFormat;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
+import org.apache.syncope.core.flowable.support.DropdownAwareJsonConverter;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.flowable.bpmn.converter.BpmnXMLConverter;
@@ -73,11 +74,11 @@ public class FlowableBpmnProcessManager implements BpmnProcessManager {
     }
 
     @Override
-    public List<BpmnProcessTO> getProcesses() {
+    public List<BpmnProcess> getProcesses() {
         try {
             return engine.getRepositoryService().createProcessDefinitionQuery().latestVersion().list().stream().
                     map(procDef -> {
-                        BpmnProcessTO defTO = new BpmnProcessTO();
+                        BpmnProcess defTO = new BpmnProcess();
                         defTO.setKey(procDef.getKey());
                         defTO.setName(procDef.getName());
 
@@ -163,7 +164,7 @@ public class FlowableBpmnProcessManager implements BpmnProcessManager {
                                 "Could not find JSON node " + BpmnJsonConverter.EDITOR_CHILD_SHAPES);
                     }
 
-                    BpmnModel bpmnModel = new BpmnJsonConverter().convertToBpmnModel(definitionNode);
+                    BpmnModel bpmnModel = new DropdownAwareJsonConverter().convertToBpmnModel(definitionNode);
                     deployment = FlowableDeployUtils.deployDefinition(
                             engine,
                             resourceName,

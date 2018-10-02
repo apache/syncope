@@ -37,7 +37,11 @@ public class UserRequestForm extends AbstractBaseBean {
 
     private static final long serialVersionUID = -7044543391316529128L;
 
+    private String bpmnProcess;
+
     private String username;
+
+    private String executionId;
 
     private String taskId;
 
@@ -55,12 +59,28 @@ public class UserRequestForm extends AbstractBaseBean {
 
     private final List<UserRequestFormProperty> properties = new ArrayList<>();
 
+    public String getBpmnProcess() {
+        return bpmnProcess;
+    }
+
+    public void setBpmnProcess(final String bpmnProcess) {
+        this.bpmnProcess = bpmnProcess;
+    }
+
     public String getUsername() {
         return username;
     }
 
     public void setUsername(final String username) {
         this.username = username;
+    }
+
+    public String getExecutionId() {
+        return executionId;
+    }
+
+    public void setExecutionId(final String executionId) {
+        this.executionId = executionId;
     }
 
     public String getTaskId() {
@@ -138,9 +158,9 @@ public class UserRequestForm extends AbstractBaseBean {
         return properties.stream().filter(property -> id.equals(property.getId())).findFirst();
     }
 
-    @XmlElementWrapper(name = "workflowFormProperties")
-    @XmlElement(name = "workflowFormProperty")
-    @JsonProperty("workflowFormProperties")
+    @XmlElementWrapper(name = "properties")
+    @XmlElement(name = "property")
+    @JsonProperty("properties")
     public List<UserRequestFormProperty> getProperties() {
         return properties;
     }

@@ -27,6 +27,7 @@ public enum UserRequestFormPropertyType {
     Long,
     Enum,
     Date,
-    Boolean
+    Boolean,
+    Dropdown
 
 }

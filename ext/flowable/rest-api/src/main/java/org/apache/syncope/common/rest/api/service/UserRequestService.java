@@ -18,10 +18,13 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -34,11 +37,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.UserRequestTO;
+import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
+import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 
 /**
  * REST operations related to user workflow.
@@ -51,19 +55,37 @@ import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
 public interface UserRequestService extends JAXRSService {
 
     /**
-     * Starts a new user request, for the given BOMN Process and
-     * user (if provided) or requesting user (if not provided).
+     * Returns a list of running user requests matching the given query.
+     *
+     * @param query query conditions
+     * @return list of all running user requests
+     */
+    @ApiResponses(
+            @ApiResponse(responseCode = "200", description = "list of all running user requests", content =
+                    @Content(schema =
+                            @Schema(implementation = PagedResult.class))))
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    PagedResult<UserRequest> list(@BeanParam UserRequestQuery query);
+
+    /**
+     * Starts a new request for the given BPMN Process and user (if provided) or requesting user (if not provided).
      *
      * @param bpmnProcess BPMN process
-     * @param userKey user key
+     * @param user if value looks like a UUID then it is interpreted as key otherwise as a username
      * @return data about the started request service, including execution id
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "200",
+                    description = "data about the started request service, including execution id", content =
+                    @Content(schema =
+                            @Schema(implementation = UserRequest.class))))
     @POST
     @Path("start/{bpmnProcess}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    UserRequestTO start(
+    UserRequest start(
             @NotNull @PathParam("bpmnProcess") String bpmnProcess,
-            @QueryParam("userKey") String userKey);
+            @QueryParam("user") String user);
 
     /**
      * Cancel a running user request.
@@ -71,6 +93,8 @@ public interface UserRequestService extends JAXRSService {
      * @param executionId execution id
      * @param reason reason to cancel the user request
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{executionId}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -79,44 +103,45 @@ public interface UserRequestService extends JAXRSService {
             @QueryParam("reason") String reason);
 
     /**
-     * Returns a list of all available workflow forms.
+     * Returns a list of user request forms matching the given query.
      *
      * @param query query conditions
-     * @return list of all available workflow forms
+     * @return list of all available user request forms
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "200", description = "list of all available user request forms", content =
+                    @Content(schema =
+                            @Schema(implementation = PagedResult.class))))
     @GET
     @Path("forms")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     PagedResult<UserRequestForm> getForms(@BeanParam UserRequestFormQuery query);
 
     /**
-     * Returns a list of available forms for the given user key.
-     *
-     * @param userKey user key
-     * @return list of available forms for the given user key
-     */
-    @GET
-    @Path("forms/{userKey}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    List<UserRequestForm> getForms(@NotNull @PathParam("userKey") String userKey);
-
-    /**
-     * Claims the form for the given task id.
+     * Requests to manage the form for the given task id.
      *
      * @param taskId workflow task id
-     * @return the workflow form for the given task id
+     * @return the form for the given task id
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "200", description = "the form for the given task id", content =
+                    @Content(schema =
+                            @Schema(implementation = UserRequestForm.class))))
     @POST
     @Path("forms/{taskId}/claim")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     UserRequestForm claimForm(@NotNull @PathParam("taskId") String taskId);
 
     /**
-     * Submits a workflow form.
+     * Submits a user request form.
      *
-     * @param form workflow form.
+     * @param form user request form.
      * @return updated user
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "200", description = "updated user", content =
+                    @Content(schema =
+                            @Schema(implementation = UserTO.class))))
     @POST
     @Path("forms")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })

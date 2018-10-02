@@ -1748,6 +1748,12 @@ under the License.
         </plugin>
         
         <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>3.0.0</version>
+        </plugin>
+
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>2.10.4</version>          
@@ -2305,8 +2311,8 @@ under the License.
             <link>https://docs.spring.io/spring-security/site/docs/5.0.x/api/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.0/apidocs/</link>
-	    <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/6.4.1/index.html</link>
-	    <link>http://docs.swagger.io/swagger-core/v2.0.5/apidocs/</link>
+            <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/6.4.1/index.html</link>
+            <link>http://docs.swagger.io/swagger-core/v2.0.5/apidocs/</link>
           </links>
         </configuration>
         <reportSets>

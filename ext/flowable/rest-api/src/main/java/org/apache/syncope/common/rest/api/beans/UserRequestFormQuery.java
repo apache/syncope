@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import javax.ws.rs.QueryParam;
+
 public class UserRequestFormQuery extends AbstractQuery {
 
     private static final long serialVersionUID = -4762457303770028554L;
@@ -28,5 +30,21 @@ public class UserRequestFormQuery extends AbstractQuery {
         protected UserRequestFormQuery newInstance() {
             return new UserRequestFormQuery();
         }
+
+        public Builder user(final String user) {
+            getInstance().setUser(user);
+            return this;
+        }
+    }
+
+    private String user;
+
+    public String getUser() {
+        return user;
+    }
+
+    @QueryParam("user")
+    public void setUser(final String user) {
+        this.user = user;
     }
 }

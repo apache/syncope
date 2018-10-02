@@ -46,7 +46,7 @@ public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
     List<Group> findDynGroups(String key);
 
-    List<Relationship<Any<?>, Any<?>>> findAllRelationships(AnyObject anyObject);
+    List<Relationship<Any<?>, AnyObject>> findAllRelationships(AnyObject anyObject);
 
     Collection<Group> findAllGroups(AnyObject anyObject);
 

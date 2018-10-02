@@ -36,19 +36,13 @@ public final class FlowableEntitlement {
 
     public static final String WORKFLOW_TASK_LIST = "WORKFLOW_TASK_LIST";
 
-    public static final String WORKFLOW_FORM_LIST = "WORKFLOW_FORM_LIST";
+    public static final String USER_REQUEST_LIST = "USER_REQUEST_LIST";
 
-    public static final String WORKFLOW_FORM_READ = "WORKFLOW_FORM_READ";
+    public static final String USER_REQUEST_FORM_LIST = "USER_REQUEST_FORM_LIST";
 
-    public static final String WORKFLOW_FORM_CLAIM = "WORKFLOW_FORM_CLAIM";
+    public static final String USER_REQUEST_FORM_CLAIM = "USER_REQUEST_FORM_CLAIM";
 
-    public static final String WORKFLOW_FORM_SUBMIT = "WORKFLOW_FORM_SUBMIT";
-
-    public static final String USER_REQUEST_DEF_CREATE = "USER_REQUEST_DEF_CREATE";
-
-    public static final String USER_REQUEST_DEF_UPDATE = "USER_REQUEST_DEF_UPDATE";
-
-    public static final String USER_REQUEST_DEF_DELETE = "USER_REQUEST_DEF_DELETE";
+    public static final String USER_REQUEST_FORM_SUBMIT = "USER_REQUEST_FORM_SUBMIT";
 
     public static final String USER_REQUEST_START = "USER_REQUEST_START";
 

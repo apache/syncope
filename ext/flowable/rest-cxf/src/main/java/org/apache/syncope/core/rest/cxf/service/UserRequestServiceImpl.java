@@ -21,14 +21,16 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.UserRequestTO;
+import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
+import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.syncope.core.logic.UserRequestLogic;
+import org.apache.syncope.common.rest.api.service.UserRequestService;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.apache.syncope.common.rest.api.service.UserRequestService;
 
 @Service
 public class UserRequestServiceImpl extends AbstractServiceImpl implements UserRequestService {
@@ -36,11 +38,25 @@ public class UserRequestServiceImpl extends AbstractServiceImpl implements UserR
     @Autowired
     private UserRequestLogic logic;
 
+    @Autowired
+    private UserDAO userDAO;
+
     @Override
-    public UserRequestTO start(final String bpmnProcess, final String userKey) {
-        return userKey == null
+    public PagedResult<UserRequest> list(final UserRequestQuery query) {
+        if (query.getUser() != null) {
+            query.setUser(getActualKey(userDAO, query.getUser()));
+        }
+
+        Pair<Integer, List<UserRequest>> result = logic.list(
+                query.getUser(), query.getPage(), query.getSize(), getOrderByClauses(query.getOrderBy()));
+        return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
+    }
+
+    @Override
+    public UserRequest start(final String bpmnProcess, final String user) {
+        return user == null
                 ? logic.start(bpmnProcess)
-                : logic.start(bpmnProcess, userKey);
+                : logic.start(bpmnProcess, getActualKey(userDAO, user));
     }
 
     @Override
@@ -54,14 +70,13 @@ public class UserRequestServiceImpl extends AbstractServiceImpl implements UserR
     }
 
     @Override
-    public List<UserRequestForm> getForms(final String userKey) {
-        return logic.getForms(userKey);
-    }
-
-    @Override
     public PagedResult<UserRequestForm> getForms(final UserRequestFormQuery query) {
+        if (query.getUser() != null) {
+            query.setUser(getActualKey(userDAO, query.getUser()));
+        }
+
         Pair<Integer, List<UserRequestForm>> result = logic.getForms(
-                query.getPage(), query.getSize(), getOrderByClauses(query.getOrderBy()));
+                query.getUser(), query.getPage(), query.getSize(), getOrderByClauses(query.getOrderBy()));
         return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
     }
 
@@ -69,5 +84,4 @@ public class UserRequestServiceImpl extends AbstractServiceImpl implements UserR
     public UserTO submitForm(final UserRequestForm form) {
         return logic.submitForm(form);
     }
-
 }

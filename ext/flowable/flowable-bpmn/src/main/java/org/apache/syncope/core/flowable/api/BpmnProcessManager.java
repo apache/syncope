@@ -20,7 +20,7 @@ package org.apache.syncope.core.flowable.api;
 
 import java.io.OutputStream;
 import java.util.List;
-import org.apache.syncope.common.lib.to.BpmnProcessTO;
+import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.lib.types.BpmnProcessFormat;
 
 public interface BpmnProcessManager {
@@ -28,7 +28,7 @@ public interface BpmnProcessManager {
     /**
      * @return all available workflow processes.
      */
-    List<BpmnProcessTO> getProcesses();
+    List<BpmnProcess> getProcesses();
 
     /**
      * Export the process for the given key, in the requested format.

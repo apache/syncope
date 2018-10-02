@@ -22,6 +22,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
@@ -33,7 +34,6 @@ import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.flowable.common.engine.api.FlowableException;
 import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.impl.RuntimeServiceImpl;
-import org.flowable.engine.impl.persistence.entity.ExecutionEntity;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
@@ -97,8 +97,17 @@ public final class FlowableRuntimeUtils {
         return procInst == null ? null : procInst.getId();
     }
 
-    public static String getProcBusinessKey(final String processDefinitionId, final String userKey) {
-        return processDefinitionId + ":" + userKey;
+    public static String getProcBusinessKey(final String procDefId, final String userKey) {
+        return procDefId + ":" + userKey;
+    }
+
+    public static Pair<String, String> splitProcBusinessKey(final String procBusinessKey) {
+        String[] split = procBusinessKey.split(":");
+        if (split == null || split.length != 2) {
+            throw new WorkflowException(new IllegalArgumentException("Unexpected business key: " + procBusinessKey));
+        }
+
+        return Pair.of(split[0], split[1]);
     }
 
     public static ProcessDefinition getLatestProcDefByKey(final DomainProcessEngine engine, final String key) {
@@ -111,29 +120,22 @@ public final class FlowableRuntimeUtils {
     }
 
     public static Set<String> getPerformedTasks(
-            final DomainProcessEngine engine, final String procInstID, final User user) {
+            final DomainProcessEngine engine, final String procInstId, final User user) {
 
         return engine.getHistoryService().createHistoricActivityInstanceQuery().
-                executionId(procInstID).
+                executionId(procInstId).
                 list().stream().
                 map(HistoricActivityInstance::getActivityId).
                 collect(Collectors.toSet());
     }
 
-    public static void updateStatus(final DomainProcessEngine engine, final String procInstID, final User user) {
-        List<Task> tasks = createTaskQuery(engine, false).processInstanceId(procInstID).list();
+    public static void updateStatus(final DomainProcessEngine engine, final String procInstId, final User user) {
+        List<Task> tasks = createTaskQuery(engine, false).processInstanceId(procInstId).list();
         if (tasks.isEmpty() || tasks.size() > 1) {
             LOG.warn("While setting user status: unexpected task number ({})", tasks.size());
         } else {
             user.setStatus(tasks.get(0).getTaskDefinitionKey());
         }
-    }
-
-    public static List<ProcessInstance> getProcessInstances(final DomainProcessEngine engine, final String userKey) {
-        return engine.getRuntimeService().createNativeProcessInstanceQuery().
-                sql("SELECT ID_,PROC_INST_ID_ FROM " + engine.getManagementService().getTableName(ExecutionEntity.class)
-                        + " WHERE BUSINESS_KEY_ LIKE '" + getProcBusinessKey("%", userKey) + "'"
-                        + " AND PARENT_ID_ IS NULL").list();
     }
 
     public static TaskQuery createTaskQuery(final DomainProcessEngine engine, final boolean onlyFormTasks) {
@@ -145,10 +147,10 @@ public final class FlowableRuntimeUtils {
         return taskQuery;
     }
 
-    public static String getFormTask(final DomainProcessEngine engine, final String procInstID) {
+    public static String getFormTask(final DomainProcessEngine engine, final String procInstId) {
         String result = null;
 
-        List<Task> tasks = createTaskQuery(engine, true).processInstanceId(procInstID).list();
+        List<Task> tasks = createTaskQuery(engine, true).processInstanceId(procInstId).list();
         if (tasks.isEmpty() || tasks.size() > 1) {
             LOG.debug("While checking if form task: unexpected task number ({})", tasks.size());
         } else {
@@ -162,7 +164,7 @@ public final class FlowableRuntimeUtils {
      * Saves resources to be propagated and password for later - after form submission - propagation.
      *
      * @param engine Flowable engine
-     * @param procInstID process instance id
+     * @param procInstId process instance id
      * @param user user JPA entity
      * @param userTO user transfer object
      * @param password password
@@ -171,35 +173,35 @@ public final class FlowableRuntimeUtils {
      */
     public static void saveForFormSubmit(
             final DomainProcessEngine engine,
-            final String procInstID,
+            final String procInstId,
             final User user,
             final UserTO userTO,
             final String password,
             final Boolean enabled,
             final PropagationByResource propByRes) {
 
-        String formTaskId = getFormTask(engine, procInstID);
+        String formTaskId = getFormTask(engine, procInstId);
         if (formTaskId == null) {
             return;
         }
 
-        engine.getRuntimeService().setVariable(procInstID, FlowableRuntimeUtils.USER_TO, userTO);
+        engine.getRuntimeService().setVariable(procInstId, FlowableRuntimeUtils.USER_TO, userTO);
 
         if (password == null) {
             String encryptedPwd = engine.getRuntimeService().
-                    getVariable(procInstID, FlowableRuntimeUtils.ENCRYPTED_PWD, String.class);
+                    getVariable(procInstId, FlowableRuntimeUtils.ENCRYPTED_PWD, String.class);
             if (encryptedPwd != null) {
                 userTO.setPassword(decrypt(encryptedPwd));
             }
         } else {
             userTO.setPassword(password);
             engine.getRuntimeService().
-                    setVariable(procInstID, FlowableRuntimeUtils.ENCRYPTED_PWD, encrypt(password));
+                    setVariable(procInstId, FlowableRuntimeUtils.ENCRYPTED_PWD, encrypt(password));
         }
 
-        engine.getRuntimeService().setVariable(procInstID, FlowableRuntimeUtils.ENABLED, enabled);
+        engine.getRuntimeService().setVariable(procInstId, FlowableRuntimeUtils.ENABLED, enabled);
 
-        engine.getRuntimeService().setVariable(procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE, propByRes);
+        engine.getRuntimeService().setVariable(procInstId, FlowableRuntimeUtils.PROP_BY_RESOURCE, propByRes);
         if (propByRes != null) {
             propByRes.clear();
         }

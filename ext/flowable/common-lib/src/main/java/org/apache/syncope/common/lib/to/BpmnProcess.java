@@ -22,49 +22,51 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
-@XmlRootElement(name = "userRequest")
+@XmlRootElement(name = "bpmnProcess")
 @XmlType
-public class UserRequestTO extends AbstractBaseBean {
+public class BpmnProcess extends AbstractBaseBean implements EntityTO {
 
-    private static final long serialVersionUID = -8430826310789942133L;
+    private static final long serialVersionUID = -7044543391316529128L;
 
-    private String processInstanceId;
+    private String key;
 
-    private String executionId;
+    private String modelId;
 
-    private String bpmnProcess;
+    private String name;
 
-    private String user;
+    private boolean userWorkflow;
 
-    public String getProcessInstanceId() {
-        return processInstanceId;
+    @Override
+    public String getKey() {
+        return key;
     }
 
-    public void setProcessInstanceId(final String processInstanceId) {
-        this.processInstanceId = processInstanceId;
+    @Override
+    public void setKey(final String key) {
+        this.key = key;
     }
 
-    public String getExecutionId() {
-        return executionId;
+    public String getModelId() {
+        return modelId;
     }
 
-    public void setExecutionId(final String executionId) {
-        this.executionId = executionId;
+    public void setModelId(final String modelId) {
+        this.modelId = modelId;
     }
 
-    public String getBpmnProcess() {
-        return bpmnProcess;
+    public String getName() {
+        return name;
     }
 
-    public void setBpmnProcess(final String bpmnProcess) {
-        this.bpmnProcess = bpmnProcess;
+    public void setName(final String name) {
+        this.name = name;
     }
 
-    public String getUser() {
-        return user;
+    public boolean isUserWorkflow() {
+        return userWorkflow;
     }
 
-    public void setUser(final String user) {
-        this.user = user;
+    public void setUserWorkflow(final boolean userWorkflow) {
+        this.userWorkflow = userWorkflow;
     }
 }

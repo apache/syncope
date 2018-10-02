@@ -28,7 +28,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.common.lib.to.BpmnProcessTO;
+import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.FlowableDetector;
 import org.junit.jupiter.api.BeforeAll;
@@ -42,7 +42,7 @@ public class BpmnProcessITCase extends AbstractITCase {
     public static void findDefault() {
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
         bpmnProcessService.list().stream().
-                filter(BpmnProcessTO::isUserWorkflow).findAny().
+                filter(BpmnProcess::isUserWorkflow).findAny().
                 ifPresent(process -> {
                     userWorkflowKey = process.getKey();
                 });

@@ -23,33 +23,28 @@ import java.util.Map;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 
-public class MapChoiceRenderer<T, K> implements IChoiceRenderer<T> {
+public class MapChoiceRenderer implements IChoiceRenderer<String> {
 
     private static final long serialVersionUID = -7452881117778186644L;
 
-    private final Map<T, K> map;
+    private final Map<String, String> map;
 
-    public MapChoiceRenderer(final Map<T, K> map) {
+    public MapChoiceRenderer(final Map<String, String> map) {
         this.map = map;
     }
 
     @Override
-    public Object getDisplayValue(final T key) {
+    public Object getDisplayValue(final String key) {
         return map.get(key);
     }
 
     @Override
-    public String getIdValue(final T key, final int index) {
-        return key.toString();
+    public String getIdValue(final String key, final int index) {
+        return key;
     }
 
     @Override
-    public T getObject(final String id, final IModel<? extends List<? extends T>> choices) {
-        for (Map.Entry<T, K> entry : map.entrySet()) {
-            if (entry.getValue() != null && entry.getValue().toString().equals(id)) {
-                return entry.getKey();
-            }
-        }
-        return null;
+    public String getObject(final String id, final IModel<? extends List<? extends String>> choices) {
+        return id;
     }
 }

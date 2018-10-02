@@ -113,7 +113,7 @@ public class ApprovalDirectoryPanel
 
         initResultTable();
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, FlowableEntitlement.WORKFLOW_FORM_SUBMIT);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, FlowableEntitlement.USER_REQUEST_FORM_SUBMIT);
     }
 
     @Override
@@ -121,7 +121,7 @@ public class ApprovalDirectoryPanel
         List<IColumn<UserRequestForm, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<>(
-                new ResourceModel("taskId"), "taskId", "taskId"));
+                new ResourceModel("bpmnProcess"), "bpmnProcess", "bpmnProcess"));
         columns.add(new PropertyColumn<>(
                 new ResourceModel("key"), "formKey", "formKey"));
         columns.add(new PropertyColumn<>(
@@ -151,7 +151,7 @@ public class ApprovalDirectoryPanel
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 target.add(container);
             }
-        }, ActionLink.ActionType.CLAIM, FlowableEntitlement.WORKFLOW_FORM_CLAIM);
+        }, ActionLink.ActionType.CLAIM, FlowableEntitlement.USER_REQUEST_FORM_CLAIM);
 
         panel.add(new ActionLink<UserRequestForm>() {
 
@@ -190,7 +190,7 @@ public class ApprovalDirectoryPanel
                         equals(model.getObject().getOwner());
             }
 
-        }, ActionLink.ActionType.MANAGE_APPROVAL, FlowableEntitlement.WORKFLOW_FORM_READ);
+        }, ActionLink.ActionType.MANAGE_APPROVAL, FlowableEntitlement.USER_REQUEST_FORM_SUBMIT);
 
         // SYNCOPE-1200 edit user while in approval state
         panel.add(new ActionLink<UserRequestForm>() {
@@ -239,7 +239,7 @@ public class ApprovalDirectoryPanel
                         equals(model.getObject().getOwner());
             }
 
-        }, ActionLink.ActionType.EDIT_APPROVAL, FlowableEntitlement.WORKFLOW_FORM_SUBMIT);
+        }, ActionLink.ActionType.EDIT_APPROVAL, FlowableEntitlement.USER_REQUEST_FORM_SUBMIT);
 
         return panel;
     }
@@ -326,8 +326,6 @@ public class ApprovalDirectoryPanel
         protected Serializable onApplyInternal(final AnyWrapper<UserTO> modelObject) {
             UserTO inner = modelObject.getInnerObject();
 
-            ProvisioningResult<UserTO> result;
-
             UserPatch patch = AnyOperations.diff(inner, formTO.getUserTO(), false);
 
             if (StringUtils.isNotBlank(inner.getPassword())) {
@@ -337,16 +335,15 @@ public class ApprovalDirectoryPanel
                         build();
                 patch.setPassword(passwordPatch);
             }
+
             // update just if it is changed
+            ProvisioningResult<UserTO> result;
             if (patch.isEmpty()) {
                 result = new ProvisioningResult<>();
                 result.setEntity(inner);
             } else {
                 result = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
-                UserRequestForm workFlowTO = restClient.getForms(result.getEntity().getKey()).get(0);
-                if (workFlowTO != null) {
-                    claimForm(workFlowTO.getTaskId());
-                }
+                restClient.getForm(result.getEntity().getKey()).ifPresent(form -> claimForm(form.getTaskId()));
             }
 
             return result;

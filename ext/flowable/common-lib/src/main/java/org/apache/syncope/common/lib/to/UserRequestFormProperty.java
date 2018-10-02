@@ -51,6 +51,9 @@ public class UserRequestFormProperty extends AbstractBaseBean {
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     private final Map<String, String> enumValues = new HashMap<>();
 
+    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
+    private final Map<String, String> dropdownValues = new HashMap<>();
+
     private String value;
 
     public String getId() {
@@ -112,6 +115,11 @@ public class UserRequestFormProperty extends AbstractBaseBean {
     @JsonProperty
     public Map<String, String> getEnumValues() {
         return enumValues;
+    }
+
+    @JsonProperty
+    public Map<String, String> getDropdownValues() {
+        return dropdownValues;
     }
 
     public String getValue() {

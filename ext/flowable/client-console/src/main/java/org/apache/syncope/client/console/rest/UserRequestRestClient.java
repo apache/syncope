@@ -19,6 +19,8 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
+import java.util.Optional;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -40,8 +42,13 @@ public class UserRequestRestClient extends BaseRestClient {
                 getResult();
     }
 
-    public List<UserRequestForm> getForms(final String userKey) {
-        return getService(UserRequestService.class).getForms(userKey);
+    public Optional<UserRequestForm> getForm(final String userKey) {
+        PagedResult<UserRequestForm> forms = getService(UserRequestService.class).
+                getForms(new UserRequestFormQuery.Builder().user(userKey).page(1).size(1).build());
+        UserRequestForm form = forms.getResult().isEmpty()
+                ? null
+                : forms.getResult().get(0);
+        return Optional.ofNullable(form);
     }
 
     public UserRequestForm claimForm(final String taskKey) {

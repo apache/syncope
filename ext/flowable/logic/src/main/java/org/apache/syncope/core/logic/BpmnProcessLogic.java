@@ -21,7 +21,7 @@ package org.apache.syncope.core.logic;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.List;
-import org.apache.syncope.common.lib.to.BpmnProcessTO;
+import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
 import org.apache.syncope.common.lib.types.BpmnProcessFormat;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +31,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.flowable.api.BpmnProcessManager;
 
 @Component
-public class BpmnProcessLogic extends AbstractTransactionalLogic<BpmnProcessTO> {
+public class BpmnProcessLogic extends AbstractTransactionalLogic<BpmnProcess> {
 
     @Autowired
     private BpmnProcessManager bpmnProcessManager;
 
     @PreAuthorize("hasRole('" + FlowableEntitlement.BPMN_PROCESS_LIST + "')")
     @Transactional(readOnly = true)
-    public List<BpmnProcessTO> list() {
+    public List<BpmnProcess> list() {
         return bpmnProcessManager.getProcesses();
     }
 
@@ -65,7 +65,7 @@ public class BpmnProcessLogic extends AbstractTransactionalLogic<BpmnProcessTO> 
     }
 
     @Override
-    protected BpmnProcessTO resolveReference(final Method method, final Object... args)
+    protected BpmnProcess resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
         throw new UnresolvedReferenceException();

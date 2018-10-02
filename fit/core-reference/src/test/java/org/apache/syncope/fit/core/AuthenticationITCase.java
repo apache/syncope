@@ -66,6 +66,7 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -495,7 +496,8 @@ public class AuthenticationITCase extends AbstractITCase {
         }
 
         // 3. approve user
-        UserRequestForm form = userRequestService.getForms(userTO.getKey()).get(0);
+        UserRequestForm form = userRequestService.getForms(
+                new UserRequestFormQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
         form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
         userTO = userRequestService.submitForm(form);

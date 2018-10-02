@@ -22,51 +22,49 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
-@XmlRootElement(name = "bpmnProcess")
+@XmlRootElement(name = "userRequest")
 @XmlType
-public class BpmnProcessTO extends AbstractBaseBean implements EntityTO {
+public class UserRequest extends AbstractBaseBean {
 
-    private static final long serialVersionUID = -7044543391316529128L;
+    private static final long serialVersionUID = -8430826310789942133L;
 
-    private String key;
+    private String bpmnProcess;
 
-    private String modelId;
+    private String user;
 
-    private String name;
+    private String executionId;
 
-    private boolean userWorkflow;
+    private String activityId;
 
-    @Override
-    public String getKey() {
-        return key;
+    public String getBpmnProcess() {
+        return bpmnProcess;
     }
 
-    @Override
-    public void setKey(final String key) {
-        this.key = key;
+    public void setBpmnProcess(final String bpmnProcess) {
+        this.bpmnProcess = bpmnProcess;
     }
 
-    public String getModelId() {
-        return modelId;
+    public String getUser() {
+        return user;
     }
 
-    public void setModelId(final String modelId) {
-        this.modelId = modelId;
+    public void setUser(final String user) {
+        this.user = user;
     }
 
-    public String getName() {
-        return name;
+    public String getExecutionId() {
+        return executionId;
     }
 
-    public void setName(final String name) {
-        this.name = name;
+    public void setExecutionId(final String executionId) {
+        this.executionId = executionId;
     }
 
-    public boolean isUserWorkflow() {
-        return userWorkflow;
+    public String getActivityId() {
+        return activityId;
     }
 
-    public void setUserWorkflow(final boolean userWorkflow) {
-        this.userWorkflow = userWorkflow;
+    public void setActivityId(final String activityId) {
+        this.activityId = activityId;
     }
 }

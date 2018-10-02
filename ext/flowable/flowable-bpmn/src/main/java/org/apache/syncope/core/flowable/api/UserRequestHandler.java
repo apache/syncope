@@ -21,7 +21,7 @@ package org.apache.syncope.core.flowable.api;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.to.UserRequestTO;
+import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -33,13 +33,25 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public interface UserRequestHandler {
 
     /**
+     * Get the running user requests matching the provided parameters.
+     *
+     * @param userKey user key (optional)
+     * @param page result page
+     * @param size items per page
+     * @param orderByClauses sort conditions
+     * @return total number of user requests, list of user requests matching the provided parameters
+     */
+    Pair<Integer, List<UserRequest>> getUserRequests(
+            String userKey, int page, int size, List<OrderByClause> orderByClauses);
+
+    /**
      * Starts a new user request, for the given BPMN process and user.
      *
      * @param bpmnProcess BPMN process
      * @param user user
      * @return data about the started request service, including execution id
      */
-    UserRequestTO start(String bpmnProcess, User user);
+    UserRequest start(String bpmnProcess, User user);
 
     /**
      * Parses the given execution id to find matching user request and owner.
@@ -73,22 +85,16 @@ public interface UserRequestHandler {
     void cancelByUser(AnyDeletedEvent event);
 
     /**
-     * Get the forms for current workflow process instances matching the provided parameters.
+     * Get the forms matching the provided parameters.
      *
+     * @param userKey user key (optional)
      * @param page result page
      * @param size items per page
      * @param orderByClauses sort conditions
      * @return total number of forms, list of forms matching the provided parameters
      */
-    Pair<Integer, List<UserRequestForm>> getForms(int page, int size, List<OrderByClause> orderByClauses);
-
-    /**
-     * Get forms for given user (if present).
-     *
-     * @param userKey user key
-     * @return form (if present), otherwise null
-     */
-    List<UserRequestForm> getForms(String userKey);
+    Pair<Integer, List<UserRequestForm>> getForms(
+            String userKey, int page, int size, List<OrderByClause> orderByClauses);
 
     /**
      * Claim a form for a given object.
