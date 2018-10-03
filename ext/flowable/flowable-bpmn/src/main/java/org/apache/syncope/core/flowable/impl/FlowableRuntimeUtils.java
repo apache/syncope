@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.flowable.impl;
 
-import org.apache.syncope.core.flowable.support.SyncopeTaskQueryImpl;
 import java.util.Base64;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +26,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
+import org.apache.syncope.core.flowable.support.SyncopeTaskQueryImpl;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.entity.user.User;
