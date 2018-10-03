@@ -2459,7 +2459,7 @@ under the License.
           <plugin>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctor-maven-plugin</artifactId>
-            <version>1.5.7</version>
+            <version>1.5.7.1</version>
             <dependencies>
               <dependency>
                 <groupId>org.asciidoctor</groupId>
