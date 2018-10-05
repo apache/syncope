@@ -25,7 +25,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.LogStatementPanel;
 import org.apache.syncope.client.console.rest.LoggerRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.common.lib.log.LogStatementTO;
+import org.apache.syncope.common.lib.log.LogStatement;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.AjaxSelfUpdatingTimerBehavior;
@@ -64,13 +64,13 @@ public class LogViewer extends WebPage {
         viewer.add(stContainer);
 
         final Model<Long> lastTimeInMillis = Model.of(0L);
-        final IModel<List<LogStatementTO>> statementViewModel = new ListModel<>(new ArrayList<>());
-        final ListView<LogStatementTO> statementView = new ListView<LogStatementTO>("statements", statementViewModel) {
+        final IModel<List<LogStatement>> statementViewModel = new ListModel<>(new ArrayList<>());
+        final ListView<LogStatement> statementView = new ListView<LogStatement>("statements", statementViewModel) {
 
             private static final long serialVersionUID = -9180479401817023838L;
 
             @Override
-            protected void populateItem(final ListItem<LogStatementTO> item) {
+            protected void populateItem(final ListItem<LogStatement> item) {
                 LogStatementPanel panel = new LogStatementPanel("statement", item.getModelObject());
                 panel.setOutputMarkupId(true);
                 item.add(panel);
@@ -88,7 +88,7 @@ public class LogViewer extends WebPage {
                 target.prependJavaScript(
                         String.format("window.scrollTop = $('#%s').scrollTop();", stContainer.getMarkupId()));
 
-                List<LogStatementTO> recentLogStatements = appenders.getModelObject() == null
+                List<LogStatement> recentLogStatements = appenders.getModelObject() == null
                         ? new ArrayList<>()
                         : restClient.getLastLogStatements(appenders.getModelObject(), lastTimeInMillis.getObject());
                 if (!recentLogStatements.isEmpty()) {
@@ -97,7 +97,7 @@ public class LogViewer extends WebPage {
                     int currentSize = statementView.getModelObject().size();
                     int recentSize = recentLogStatements.size();
 
-                    List<LogStatementTO> newModelObject = SetUniqueList.<LogStatementTO>setUniqueList(
+                    List<LogStatement> newModelObject = SetUniqueList.<LogStatement>setUniqueList(
                             new ArrayList<>(MAX_STATEMENTS_PER_APPENDER));
                     if (currentSize <= MAX_STATEMENTS_PER_APPENDER - recentSize) {
                         newModelObject.addAll(statementView.getModelObject());
@@ -124,7 +124,7 @@ public class LogViewer extends WebPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                List<LogStatementTO> lastStatements = appenders.getModelObject() == null
+                List<LogStatement> lastStatements = appenders.getModelObject() == null
                         ? new ArrayList<>()
                         : restClient.getLastLogStatements(appenders.getModelObject(), 0);
                 statementViewModel.setObject(lastStatements);

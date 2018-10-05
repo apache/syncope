@@ -25,7 +25,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.syncope.common.lib.log.EventCategoryTO;
+import org.apache.syncope.common.lib.log.EventCategory;
 import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 
@@ -104,7 +104,7 @@ public class AuditLoggerName extends AbstractBaseBean {
             throw new ParseException("Audit logger name must start with " + LoggerType.AUDIT.getPrefix(), 0);
         }
 
-        final Map.Entry<EventCategoryTO, Result> eventCategory = parseEventCategory(
+        Map.Entry<EventCategory, Result> eventCategory = parseEventCategory(
                 loggerName.replaceAll(LoggerType.AUDIT.getPrefix() + ".", ""));
 
         return new AuditLoggerName(
@@ -116,8 +116,8 @@ public class AuditLoggerName extends AbstractBaseBean {
                 eventCategory.getValue());
     }
 
-    public static Pair<EventCategoryTO, Result> parseEventCategory(final String event) {
-        EventCategoryTO eventCategoryTO = new EventCategoryTO();
+    public static Pair<EventCategory, Result> parseEventCategory(final String event) {
+        EventCategory eventCategoryTO = new EventCategory();
 
         Result condition = null;
 
@@ -181,7 +181,7 @@ public class AuditLoggerName extends AbstractBaseBean {
             final String event,
             final AuditElements.Result condition) {
 
-        final StringBuilder eventBuilder = new StringBuilder();
+        StringBuilder eventBuilder = new StringBuilder();
 
         eventBuilder.append('[');
         if (type != null) {

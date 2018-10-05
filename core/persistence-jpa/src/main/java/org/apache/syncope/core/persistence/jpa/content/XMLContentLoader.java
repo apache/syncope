@@ -117,7 +117,7 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
         views.stringPropertyNames().stream().sorted().forEachOrdered(idx -> {
             LOG.debug("[{}] Creating view {}", domain, views.get(idx).toString());
             try {
-                jdbcTemplate.execute(views.get(idx).toString().replaceAll("\\n", " "));
+                jdbcTemplate.execute(views.getProperty(idx).replaceAll("\\n", " "));
             } catch (DataAccessException e) {
                 LOG.error("[{}] Could not create view", domain, e);
             }
@@ -135,7 +135,7 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
         indexes.stringPropertyNames().stream().sorted().forEachOrdered(idx -> {
             LOG.debug("[{}] Creating index {}", domain, indexes.get(idx).toString());
             try {
-                jdbcTemplate.execute(indexes.get(idx).toString());
+                jdbcTemplate.execute(indexes.getProperty(idx));
             } catch (DataAccessException e) {
                 LOG.error("[{}] Could not create index", domain, e);
             }
@@ -143,5 +143,4 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
 
         LOG.debug("Indexes created");
     }
-
 }

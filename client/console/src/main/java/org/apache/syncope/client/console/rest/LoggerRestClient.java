@@ -27,9 +27,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.syncope.common.lib.log.EventCategoryTO;
+import org.apache.syncope.common.lib.log.EventCategory;
 import org.apache.syncope.common.lib.log.LogAppender;
-import org.apache.syncope.common.lib.log.LogStatementTO;
+import org.apache.syncope.common.lib.log.LogStatement;
 import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.LoggerLevel;
@@ -46,8 +46,8 @@ public class LoggerRestClient extends BaseRestClient {
                 map(LogAppender::getName).collect(Collectors.toList());
     }
 
-    public List<LogStatementTO> getLastLogStatements(final String appender, final long lastStatementTime) {
-        List<LogStatementTO> result = new ArrayList<>();
+    public List<LogStatement> getLastLogStatements(final String appender, final long lastStatementTime) {
+        List<LogStatement> result = new ArrayList<>();
         getService(LoggerService.class).getLastLogStatements(appender).stream().
                 filter(statement -> statement.getTimeMillis() > lastStatementTime).
                 forEachOrdered(statement -> {
@@ -100,11 +100,11 @@ public class LoggerRestClient extends BaseRestClient {
         getService(LoggerService.class).delete(LoggerType.AUDIT, auditLoggerName.toLoggerName());
     }
 
-    public List<EventCategoryTO> listEvents() {
+    public List<EventCategory> listEvents() {
         try {
             return getService(LoggerService.class).events();
         } catch (Exception e) {
-            return Collections.<EventCategoryTO>emptyList();
+            return Collections.<EventCategory>emptyList();
         }
     }
 }

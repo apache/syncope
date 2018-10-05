@@ -30,14 +30,14 @@ import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.ReusableMessage;
 import org.apache.syncope.common.lib.collections.CircularFifoQueue;
-import org.apache.syncope.common.lib.log.LogStatementTO;
+import org.apache.syncope.common.lib.log.LogStatement;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 
 @Plugin(name = "Memory", category = "Core", elementType = Appender.ELEMENT_TYPE, printObject = true)
 public class MemoryAppender extends AbstractAppender {
 
-    private final CircularFifoQueue<LogStatementTO> statements;
+    private final CircularFifoQueue<LogStatement> statements;
 
     protected MemoryAppender(
             final String name,
@@ -51,7 +51,7 @@ public class MemoryAppender extends AbstractAppender {
 
     @Override
     public void append(final LogEvent event) {
-        LogStatementTO statement = new LogStatementTO();
+        LogStatement statement = new LogStatement();
 
         statement.setLevel(LoggerLevel.fromLevel(event.getLevel()));
         statement.setLoggerName(event.getLoggerName());
@@ -74,7 +74,7 @@ public class MemoryAppender extends AbstractAppender {
         this.statements.add(statement);
     }
 
-    public Queue<LogStatementTO> getStatements() {
+    public Queue<LogStatement> getStatements() {
         return statements;
     }
 
