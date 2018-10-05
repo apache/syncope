@@ -28,7 +28,7 @@ import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.events.EventCategoryPanel;
 import org.apache.syncope.client.console.events.SelectedEventsPanel;
 import org.apache.syncope.client.console.rest.LoggerRestClient;
-import org.apache.syncope.common.lib.log.EventCategoryTO;
+import org.apache.syncope.common.lib.log.EventCategory;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -89,7 +89,7 @@ public class Audit extends BasePage {
                             (SelectedEventsPanel.EventSelectionChanged) event.getPayload();
 
                     eventSelectionChanged.getToBeRemoved().forEach(toBeRemoved -> {
-                        Pair<EventCategoryTO, AuditElements.Result> eventCategory =
+                        Pair<EventCategory, AuditElements.Result> eventCategory =
                                 AuditLoggerName.parseEventCategory(toBeRemoved);
 
                         AuditLoggerName auditLoggerName = new AuditLoggerName(
@@ -104,7 +104,7 @@ public class Audit extends BasePage {
                     });
 
                     eventSelectionChanged.getToBeAdded().forEach(toBeAdded -> {
-                        Pair<EventCategoryTO, AuditElements.Result> eventCategory =
+                        Pair<EventCategory, AuditElements.Result> eventCategory =
                                 AuditLoggerName.parseEventCategory(toBeAdded);
 
                         AuditLoggerName auditLoggerName = new AuditLoggerName(

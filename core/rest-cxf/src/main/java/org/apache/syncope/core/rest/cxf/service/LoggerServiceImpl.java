@@ -21,9 +21,9 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.text.ParseException;
 import java.util.List;
 import javax.ws.rs.BadRequestException;
-import org.apache.syncope.common.lib.log.EventCategoryTO;
+import org.apache.syncope.common.lib.log.EventCategory;
 import org.apache.syncope.common.lib.log.LogAppender;
-import org.apache.syncope.common.lib.log.LogStatementTO;
+import org.apache.syncope.common.lib.log.LogStatement;
 import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.LoggerType;
@@ -45,7 +45,7 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
     }
 
     @Override
-    public List<LogStatementTO> getLastLogStatements(final String memoryAppender) {
+    public List<LogStatement> getLastLogStatements(final String memoryAppender) {
         return logic.getLastLogStatements(memoryAppender);
     }
 
@@ -119,7 +119,7 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
     }
 
     @Override
-    public List<EventCategoryTO> events() {
+    public List<EventCategory> events() {
         return logic.listAuditEvents();
     }
 }

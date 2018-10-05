@@ -20,10 +20,10 @@ package org.apache.syncope.core.logic.init;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -70,11 +70,11 @@ public class LoggerLoader implements SyncopeLoader {
 
     @Override
     public void load() {
-        final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 
         ctx.getConfiguration().getAppenders().entrySet().stream().
                 filter(entry -> (entry.getValue() instanceof MemoryAppender)).
-                forEachOrdered(entry -> {
+                forEach(entry -> {
                     memoryAppenders.put(entry.getKey(), (MemoryAppender) entry.getValue());
                 });
 
@@ -109,11 +109,10 @@ public class LoggerLoader implements SyncopeLoader {
                 ctx.getConfiguration().addAppender(appender);
             }
 
-            LoggerConfig logConf = new LoggerConfig(
-                    AuditLoggerName.getAuditLoggerName(entry.getKey()), null, false);
+            LoggerConfig logConf = new LoggerConfig(AuditLoggerName.getAuditLoggerName(entry.getKey()), null, false);
             logConf.addAppender(appender, Level.DEBUG, null);
             logConf.setLevel(Level.DEBUG);
-            ctx.getConfiguration().addLogger(AuditLoggerName.getAuditLoggerName(entry.getKey()), logConf);
+            ctx.getConfiguration().addLogger(logConf.getName(), logConf);
 
             // SYNCOPE-1144 For each custom audit appender class add related appenders to log4j logger
             auditAppenders(entry.getKey()).forEach(auditAppender -> {
@@ -147,8 +146,7 @@ public class LoggerLoader implements SyncopeLoader {
     }
 
     public List<AuditAppender> auditAppenders(final String domain) throws BeansException {
-        List<AuditAppender> auditAppenders = new ArrayList<>();
-        implementationLookup.getAuditAppenderClasses().stream().map(clazz -> {
+        return implementationLookup.getAuditAppenderClasses().stream().map(clazz -> {
             AuditAppender auditAppender;
             if (ApplicationContextProvider.getBeanFactory().containsSingleton(clazz.getName())) {
                 auditAppender = (AuditAppender) ApplicationContextProvider.getBeanFactory().
@@ -160,10 +158,7 @@ public class LoggerLoader implements SyncopeLoader {
                 auditAppender.init();
             }
             return auditAppender;
-        }).forEachOrdered(auditAppender -> {
-            auditAppenders.add(auditAppender);
-        });
-        return auditAppenders;
+        }).collect(Collectors.toList());
     }
 
     public void addAppenderToContext(
@@ -211,6 +206,5 @@ public class LoggerLoader implements SyncopeLoader {
         public String toString() {
             return this.description;
         }
-
     }
 }

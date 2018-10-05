@@ -120,9 +120,10 @@ public class AuditManagerImpl implements AuditManager {
             Logger eventLogger = LoggerFactory.getLogger(
                     AuditLoggerName.getAuditEventLoggerName(AuthContextUtils.getDomain(), syncopeLogger.getKey()));
             String serializedAuditEntry = POJOHelper.serialize(auditEntry);
+
             if (throwable == null) {
                 logger.debug(serializedAuditEntry);
-                eventLogger.debug(POJOHelper.serialize(auditEntry));
+                eventLogger.debug(serializedAuditEntry);
             } else {
                 logger.debug(serializedAuditEntry, throwable);
                 eventLogger.debug(serializedAuditEntry, throwable);

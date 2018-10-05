@@ -36,9 +36,9 @@ import javax.xml.ws.WebServiceException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.log.EventCategoryTO;
+import org.apache.syncope.common.lib.log.EventCategory;
 import org.apache.syncope.common.lib.log.LogAppender;
-import org.apache.syncope.common.lib.log.LogStatementTO;
+import org.apache.syncope.common.lib.log.LogStatement;
 import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
@@ -74,11 +74,11 @@ public class LoggerITCase extends AbstractITCase {
 
     @Test
     public void lastStatements() {
-        List<LogStatementTO> statements = loggerService.getLastLogStatements("connid");
+        List<LogStatement> statements = loggerService.getLastLogStatements("connid");
         assertNotNull(statements);
         assertFalse(statements.isEmpty());
 
-        LogStatementTO statement = statements.get(0);
+        LogStatement statement = statements.get(0);
         assertNotNull(statement);
         assertNotNull(statement.getLoggerName());
         assertNotNull(statement.getLevel());
@@ -163,11 +163,11 @@ public class LoggerITCase extends AbstractITCase {
 
     @Test
     public void listAuditEvents() {
-        final List<EventCategoryTO> events = loggerService.events();
+        final List<EventCategory> events = loggerService.events();
 
         boolean found = false;
 
-        for (EventCategoryTO eventCategoryTO : events) {
+        for (EventCategory eventCategoryTO : events) {
             if (UserLogic.class.getSimpleName().equals(eventCategoryTO.getCategory())) {
                 assertEquals(EventCategoryType.LOGIC, eventCategoryTO.getType());
                 assertTrue(eventCategoryTO.getEvents().contains("create"));
@@ -181,7 +181,7 @@ public class LoggerITCase extends AbstractITCase {
         assertTrue(found);
 
         found = false;
-        for (EventCategoryTO eventCategoryTO : events) {
+        for (EventCategory eventCategoryTO : events) {
             if (GroupLogic.class.getSimpleName().equals(eventCategoryTO.getCategory())) {
                 assertEquals(EventCategoryType.LOGIC, eventCategoryTO.getType());
                 assertTrue(eventCategoryTO.getEvents().contains("create"));
@@ -193,7 +193,7 @@ public class LoggerITCase extends AbstractITCase {
         assertTrue(found);
 
         found = false;
-        for (EventCategoryTO eventCategoryTO : events) {
+        for (EventCategory eventCategoryTO : events) {
             if (ResourceLogic.class.getSimpleName().equals(eventCategoryTO.getCategory())) {
                 assertEquals(EventCategoryType.LOGIC, eventCategoryTO.getType());
                 assertTrue(eventCategoryTO.getEvents().contains("create"));
@@ -206,7 +206,7 @@ public class LoggerITCase extends AbstractITCase {
         assertTrue(found);
 
         found = false;
-        for (EventCategoryTO eventCategoryTO : events) {
+        for (EventCategory eventCategoryTO : events) {
             if (AnyTypeKind.USER.name().toLowerCase().equals(eventCategoryTO.getCategory())) {
                 if (RESOURCE_NAME_LDAP.equals(eventCategoryTO.getSubcategory())
                         && EventCategoryType.PULL == eventCategoryTO.getType()) {
@@ -219,7 +219,7 @@ public class LoggerITCase extends AbstractITCase {
         assertTrue(found);
 
         found = false;
-        for (EventCategoryTO eventCategoryTO : events) {
+        for (EventCategory eventCategoryTO : events) {
             if (AnyTypeKind.USER.name().toLowerCase().equals(eventCategoryTO.getCategory())) {
                 if (RESOURCE_NAME_CSV.equals(eventCategoryTO.getSubcategory())
                         && EventCategoryType.PROPAGATION == eventCategoryTO.getType()) {
@@ -234,7 +234,7 @@ public class LoggerITCase extends AbstractITCase {
         assertTrue(found);
 
         found = false;
-        for (EventCategoryTO eventCategoryTO : events) {
+        for (EventCategory eventCategoryTO : events) {
             if (EventCategoryType.TASK == eventCategoryTO.getType()
                     && "PullJobDelegate".equals(eventCategoryTO.getCategory())) {
                 found = true;
@@ -335,10 +335,10 @@ public class LoggerITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE976() {
-        List<EventCategoryTO> events = loggerService.events();
+        List<EventCategory> events = loggerService.events();
         assertNotNull(events);
 
-        EventCategoryTO userLogic = events.stream().
+        EventCategory userLogic = events.stream().
                 filter(object -> "UserLogic".equals(object.getCategory())).findAny().get();
         assertNotNull(userLogic);
         assertEquals(1, userLogic.getEvents().stream().filter(event -> "create".equals(event)).count());

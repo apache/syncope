@@ -24,7 +24,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Alert;
 import de.agilecoders.wicket.core.util.Attributes;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.apache.syncope.common.lib.log.LogStatementTO;
+import org.apache.syncope.common.lib.log.LogStatement;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -39,7 +39,7 @@ public class LogStatementPanel extends Panel {
 
     private final String labelCssClass;
 
-    public LogStatementPanel(final String id, final LogStatementTO statement) {
+    public LogStatementPanel(final String id, final LogStatement statement) {
         super(id);
 
         Alert.Type type;

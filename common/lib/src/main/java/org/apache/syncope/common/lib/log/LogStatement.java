@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.types.LoggerLevel;
 
 @XmlRootElement(name = "logStatement")
 @XmlType
-public class LogStatementTO extends AbstractBaseBean {
+public class LogStatement extends AbstractBaseBean {
 
     private static final long serialVersionUID = -2931205859104653385L;
 
@@ -108,5 +108,4 @@ public class LogStatementTO extends AbstractBaseBean {
     public void setThreadPriority(final int threadPriority) {
         this.threadPriority = threadPriority;
     }
-
 }

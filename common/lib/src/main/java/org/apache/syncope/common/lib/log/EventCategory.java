@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.types.AuditElements;
 
 @XmlRootElement(name = "eventCategory")
 @XmlType
-public class EventCategoryTO extends AbstractBaseBean {
+public class EventCategory extends AbstractBaseBean {
 
     private static final long serialVersionUID = -4340060002701633401L;
 
@@ -45,7 +45,7 @@ public class EventCategoryTO extends AbstractBaseBean {
     /**
      * Constructor for Type.REST event category.
      */
-    public EventCategoryTO() {
+    public EventCategory() {
         this(AuditElements.EventCategoryType.LOGIC);
     }
 
@@ -54,7 +54,7 @@ public class EventCategoryTO extends AbstractBaseBean {
      *
      * @param type event category type
      */
-    public EventCategoryTO(final AuditElements.EventCategoryType type) {
+    public EventCategory(final AuditElements.EventCategoryType type) {
         super();
         this.type = type;
     }

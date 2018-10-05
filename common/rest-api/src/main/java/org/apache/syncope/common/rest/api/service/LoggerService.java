@@ -20,6 +20,8 @@ package org.apache.syncope.common.rest.api.service;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -36,9 +38,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import org.apache.syncope.common.lib.log.EventCategoryTO;
+import org.apache.syncope.common.lib.log.EventCategory;
 import org.apache.syncope.common.lib.log.LogAppender;
-import org.apache.syncope.common.lib.log.LogStatementTO;
+import org.apache.syncope.common.lib.log.LogStatement;
 import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -58,6 +60,13 @@ public interface LoggerService extends JAXRSService {
      *
      * @return the list of memory appenders available in the current logging configuration
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "200",
+                    description = "list of memory appenders available in the current logging configuration",
+                    content =
+                    @Content(array =
+                            @ArraySchema(schema =
+                                    @Schema(implementation = LogAppender.class)))))
     @GET
     @Path("memoryAppenders")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -69,20 +78,34 @@ public interface LoggerService extends JAXRSService {
      * @param memoryAppender memory appender name
      * @return the last log statements available in the provided memory appender
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "200",
+                    description = "last log statements available in the provided memory appender",
+                    content =
+                    @Content(array =
+                            @ArraySchema(schema =
+                                    @Schema(implementation = LogStatement.class)))))
     @GET
     @Path("memoryAppenders/{memoryAppender}/lastLogStatements")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    List<LogStatementTO> getLastLogStatements(@NotNull @PathParam("memoryAppender") String memoryAppender);
+    List<LogStatement> getLastLogStatements(@NotNull @PathParam("memoryAppender") String memoryAppender);
 
     /**
      * Returns the list of all managed events in audit.
      *
      * @return list of all managed events in audit
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "200",
+                    description = "list of all managed events in audit",
+                    content =
+                    @Content(array =
+                            @ArraySchema(schema =
+                                    @Schema(implementation = EventCategory.class)))))
     @GET
     @Path("events")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    List<EventCategoryTO> events();
+    List<EventCategory> events();
 
     /**
      * Returns logger with matching type and name.
@@ -91,6 +114,12 @@ public interface LoggerService extends JAXRSService {
      * @param name Logger name to be read
      * @return logger with matching type and name
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "200",
+                    description = "logger with matching type and name",
+                    content =
+                    @Content(schema =
+                            @Schema(implementation = LoggerTO.class))))
     @GET
     @Path("{type}/{name}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -102,6 +131,13 @@ public interface LoggerService extends JAXRSService {
      * @param type LoggerType to be selected
      * @return list of loggers with matching type
      */
+    @ApiResponses(
+            @ApiResponse(responseCode = "200",
+                    description = "list of loggers with matching type",
+                    content =
+                    @Content(array =
+                            @ArraySchema(schema =
+                                    @Schema(implementation = LoggerTO.class)))))
     @GET
     @Path("{type}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -135,5 +171,4 @@ public interface LoggerService extends JAXRSService {
     @Path("{type}/{name}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("type") LoggerType type, @NotNull @PathParam("name") String name);
-
 }

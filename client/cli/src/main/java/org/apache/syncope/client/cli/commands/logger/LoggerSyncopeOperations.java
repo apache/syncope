@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.common.lib.log.LogAppender;
-import org.apache.syncope.common.lib.log.LogStatementTO;
+import org.apache.syncope.common.lib.log.LogStatement;
 import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.rest.api.service.LoggerService;
@@ -35,7 +35,7 @@ public class LoggerSyncopeOperations {
         return loggerService.memoryAppenders().stream().map(LogAppender::getName).collect(Collectors.toList());
     }
 
-    public List<LogStatementTO> getLastLogStatements(final String appender) {
+    public List<LogStatement> getLastLogStatements(final String appender) {
         return loggerService.getLastLogStatements(appender);
     }
 

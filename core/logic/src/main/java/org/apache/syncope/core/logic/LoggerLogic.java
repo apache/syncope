@@ -23,6 +23,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.Level;
@@ -31,9 +32,9 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.log.EventCategoryTO;
+import org.apache.syncope.common.lib.log.EventCategory;
 import org.apache.syncope.common.lib.log.LogAppender;
-import org.apache.syncope.common.lib.log.LogStatementTO;
+import org.apache.syncope.common.lib.log.LogStatement;
 import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
@@ -48,6 +49,7 @@ import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.logic.init.LoggerLoader;
+import org.apache.syncope.core.persistence.api.dao.DomainDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -83,15 +85,10 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
     private ExternalResourceDAO resourceDAO;
 
     @Autowired
-    private EntityFactory entityFactory;
+    private DomainDAO domainDAO;
 
-    private List<LoggerTO> list(final LoggerType type) {
-        return loggerDAO.findAll(type).stream().map(logger -> {
-            LoggerTO loggerTO = new LoggerTO();
-            BeanUtils.copyProperties(logger, loggerTO);
-            return loggerTO;
-        }).collect(Collectors.toList());
-    }
+    @Autowired
+    private EntityFactory entityFactory;
 
     @PreAuthorize("hasRole('" + StandardEntitlement.LOG_LIST + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
@@ -107,7 +104,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
     @PreAuthorize("hasRole('" + StandardEntitlement.LOG_READ + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     @Transactional(readOnly = true)
-    public List<LogStatementTO> getLastLogStatements(final String memoryAppender) {
+    public List<LogStatement> getLastLogStatements(final String memoryAppender) {
         MemoryAppender appender = loggerLoader.getMemoryAppenders().get(memoryAppender);
         if (appender == null) {
             throw new NotFoundException("Appender " + memoryAppender);
@@ -116,18 +113,29 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         return appender.getStatements().stream().collect(Collectors.toList());
     }
 
+    private List<LoggerTO> list(final LoggerType type) {
+        return loggerDAO.findAll(type).stream().map(logger -> {
+            LoggerTO loggerTO = new LoggerTO();
+            BeanUtils.copyProperties(logger, loggerTO);
+            return loggerTO;
+        }).collect(Collectors.toList());
+    }
+
     @PreAuthorize("hasRole('" + StandardEntitlement.LOG_LIST + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     @Transactional(readOnly = true)
     public List<LoggerTO> listLogs() {
-        return list(LoggerType.LOG);
+        return list(LoggerType.LOG).stream().
+                filter(logger -> !logger.getKey().startsWith(SyncopeConstants.MASTER_DOMAIN)).
+                filter(logger -> domainDAO.findAll().stream().
+                noneMatch(domain -> logger.getKey().startsWith(domain.getKey()))).
+                collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_LIST + "')")
     @Transactional(readOnly = true)
     public List<AuditLoggerName> listAudits() {
         return list(LoggerType.AUDIT).stream().
-                filter(logger -> logger != null).
                 map(logger -> {
                     AuditLoggerName result = null;
                     try {
@@ -137,7 +145,9 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
                     }
 
                     return result;
-                }).collect(Collectors.toList());
+                }).
+                filter(Objects::nonNull).
+                collect(Collectors.toList());
     }
 
     private void throwInvalidLogger(final LoggerType type) {
@@ -151,26 +161,22 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     @Transactional(readOnly = true)
     public LoggerTO readLog(final String name) {
-        for (final LoggerTO logger : listLogs()) {
-            if (logger.getKey().equals(name)) {
-                return logger;
-            }
-        }
-        throw new NotFoundException("Logger " + name);
+        return listLogs().stream().
+                filter(logger -> logger.getKey().equals(name)).findFirst().
+                orElseThrow(() -> new NotFoundException("Logger " + name));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_READ + "')")
     @Transactional(readOnly = true)
     public LoggerTO readAudit(final String name) {
-        for (final AuditLoggerName logger : listAudits()) {
-            if (logger.toLoggerName().equals(name)) {
-                final LoggerTO loggerTO = new LoggerTO();
-                loggerTO.setKey(logger.toLoggerName());
-                loggerTO.setLevel(LoggerLevel.DEBUG);
-                return loggerTO;
-            }
-        }
-        throw new NotFoundException("Logger " + name);
+        return listAudits().stream().
+                filter(logger -> logger.toLoggerName().equals(name)).findFirst().
+                map(logger -> {
+                    LoggerTO loggerTO = new LoggerTO();
+                    loggerTO.setKey(logger.toLoggerName());
+                    loggerTO.setLevel(LoggerLevel.DEBUG);
+                    return loggerTO;
+                }).orElseThrow(() -> new NotFoundException("Audit " + name));
     }
 
     private LoggerTO setLevel(final String name, final Level level, final LoggerType expectedType) {
@@ -297,11 +303,11 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         }
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_LIST + "') or hasRole('"
-            + StandardEntitlement.NOTIFICATION_LIST + "')")
-    public List<EventCategoryTO> listAuditEvents() {
+    @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_LIST + "') "
+            + "or hasRole('" + StandardEntitlement.NOTIFICATION_LIST + "')")
+    public List<EventCategory> listAuditEvents() {
         // use set to avoid duplications or null elements
-        Set<EventCategoryTO> events = new HashSet<>();
+        Set<EventCategory> events = new HashSet<>();
 
         try {
             ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
@@ -319,75 +325,75 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
                     final Class<?> clazz = Class.forName(metadataReader.getClassMetadata().getClassName());
 
                     if (clazz.isAnnotationPresent(Component.class) && AbstractLogic.class.isAssignableFrom(clazz)) {
-                        EventCategoryTO eventCategoryTO = new EventCategoryTO();
-                        eventCategoryTO.setCategory(clazz.getSimpleName());
+                        EventCategory eventCategory = new EventCategory();
+                        eventCategory.setCategory(clazz.getSimpleName());
                         for (Method method : clazz.getDeclaredMethods()) {
                             if (Modifier.isPublic(method.getModifiers())
-                                    && !eventCategoryTO.getEvents().contains(method.getName())) {
+                                    && !eventCategory.getEvents().contains(method.getName())) {
 
-                                eventCategoryTO.getEvents().add(method.getName());
+                                eventCategory.getEvents().add(method.getName());
                             }
                         }
 
-                        events.add(eventCategoryTO);
+                        events.add(eventCategory);
                     }
                 }
             }
 
             // SYNCOPE-608
-            EventCategoryTO authenticationControllerEvents = new EventCategoryTO();
+            EventCategory authenticationControllerEvents = new EventCategory();
             authenticationControllerEvents.setCategory(AuditElements.AUTHENTICATION_CATEGORY);
             authenticationControllerEvents.getEvents().add(AuditElements.LOGIN_EVENT);
             events.add(authenticationControllerEvents);
 
-            events.add(new EventCategoryTO(EventCategoryType.PROPAGATION));
-            events.add(new EventCategoryTO(EventCategoryType.PULL));
-            events.add(new EventCategoryTO(EventCategoryType.PUSH));
+            events.add(new EventCategory(EventCategoryType.PROPAGATION));
+            events.add(new EventCategory(EventCategoryType.PULL));
+            events.add(new EventCategory(EventCategoryType.PUSH));
 
             for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
                 resourceDAO.findAll().forEach(resource -> {
-                    EventCategoryTO propEventCategoryTO = new EventCategoryTO(EventCategoryType.PROPAGATION);
-                    EventCategoryTO pullEventCategoryTO = new EventCategoryTO(EventCategoryType.PULL);
-                    EventCategoryTO pushEventCategoryTO = new EventCategoryTO(EventCategoryType.PUSH);
+                    EventCategory propEventCategory = new EventCategory(EventCategoryType.PROPAGATION);
+                    EventCategory pullEventCategory = new EventCategory(EventCategoryType.PULL);
+                    EventCategory pushEventCategory = new EventCategory(EventCategoryType.PUSH);
 
-                    propEventCategoryTO.setCategory(anyTypeKind.name().toLowerCase());
-                    propEventCategoryTO.setSubcategory(resource.getKey());
+                    propEventCategory.setCategory(anyTypeKind.name().toLowerCase());
+                    propEventCategory.setSubcategory(resource.getKey());
 
-                    pullEventCategoryTO.setCategory(anyTypeKind.name().toLowerCase());
-                    pushEventCategoryTO.setCategory(anyTypeKind.name().toLowerCase());
-                    pullEventCategoryTO.setSubcategory(resource.getKey());
-                    pushEventCategoryTO.setSubcategory(resource.getKey());
+                    pullEventCategory.setCategory(anyTypeKind.name().toLowerCase());
+                    pushEventCategory.setCategory(anyTypeKind.name().toLowerCase());
+                    pullEventCategory.setSubcategory(resource.getKey());
+                    pushEventCategory.setSubcategory(resource.getKey());
 
                     for (ResourceOperation resourceOperation : ResourceOperation.values()) {
-                        propEventCategoryTO.getEvents().add(resourceOperation.name().toLowerCase());
+                        propEventCategory.getEvents().add(resourceOperation.name().toLowerCase());
                     }
-                    pullEventCategoryTO.getEvents().add(ResourceOperation.DELETE.name().toLowerCase());
+                    pullEventCategory.getEvents().add(ResourceOperation.DELETE.name().toLowerCase());
 
                     for (UnmatchingRule unmatching : UnmatchingRule.values()) {
                         String event = UnmatchingRule.toEventName(unmatching);
-                        pullEventCategoryTO.getEvents().add(event);
-                        pushEventCategoryTO.getEvents().add(event);
+                        pullEventCategory.getEvents().add(event);
+                        pushEventCategory.getEvents().add(event);
                     }
 
                     for (MatchingRule matching : MatchingRule.values()) {
                         String event = MatchingRule.toEventName(matching);
-                        pullEventCategoryTO.getEvents().add(event);
-                        pushEventCategoryTO.getEvents().add(event);
+                        pullEventCategory.getEvents().add(event);
+                        pushEventCategory.getEvents().add(event);
                     }
 
-                    events.add(propEventCategoryTO);
-                    events.add(pullEventCategoryTO);
-                    events.add(pushEventCategoryTO);
+                    events.add(propEventCategory);
+                    events.add(pullEventCategory);
+                    events.add(pushEventCategory);
                 });
             }
 
-            EventCategoryTO eventCategoryTO = new EventCategoryTO(EventCategoryType.TASK);
-            eventCategoryTO.setCategory(PullJobDelegate.class.getSimpleName());
-            events.add(eventCategoryTO);
+            EventCategory eventCategory = new EventCategory(EventCategoryType.TASK);
+            eventCategory.setCategory(PullJobDelegate.class.getSimpleName());
+            events.add(eventCategory);
 
-            eventCategoryTO = new EventCategoryTO(EventCategoryType.TASK);
-            eventCategoryTO.setCategory(PushJobDelegate.class.getSimpleName());
-            events.add(eventCategoryTO);
+            eventCategory = new EventCategory(EventCategoryType.TASK);
+            eventCategory.setCategory(PushJobDelegate.class.getSimpleName());
+            events.add(eventCategory);
         } catch (Exception e) {
             LOG.error("Failure retrieving audit/notification events", e);
         }

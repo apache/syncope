@@ -35,7 +35,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.log.EventCategoryTO;
+import org.apache.syncope.common.lib.log.EventCategory;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
@@ -57,9 +57,9 @@ public abstract class EventCategoryPanel extends Panel {
 
     private static final long serialVersionUID = 6429053774964787734L;
 
-    private final List<EventCategoryTO> eventCategoryTOs;
+    private final List<EventCategory> eventCategoryTOs;
 
-    private final EventCategoryTO eventCategoryTO = new EventCategoryTO();
+    private final EventCategory eventCategoryTO = new EventCategory();
 
     private final WebMarkupContainer categoryContainer;
 
@@ -75,13 +75,13 @@ public abstract class EventCategoryPanel extends Panel {
 
     private final AjaxTextFieldPanel custom;
 
-    private final ActionsPanel<EventCategoryTO> actionsPanel;
+    private final ActionsPanel<EventCategory> actionsPanel;
 
     private final IModel<List<String>> model;
 
     public EventCategoryPanel(
             final String id,
-            final List<EventCategoryTO> eventCategoryTOs,
+            final List<EventCategory> eventCategoryTOs,
             final IModel<List<String>> model) {
 
         super(id);
@@ -187,14 +187,14 @@ public abstract class EventCategoryPanel extends Panel {
         categoryContainer.add(custom.hideLabel());
 
         actionsPanel = new ActionsPanel<>("customActions", null);
-        actionsPanel.add(new ActionLink<EventCategoryTO>() {
+        actionsPanel.add(new ActionLink<EventCategory>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final EventCategoryTO ignore) {
+            public void onClick(final AjaxRequestTarget target, final EventCategory ignore) {
                 if (StringUtils.isNotBlank(custom.getModelObject())) {
-                    Pair<EventCategoryTO, AuditElements.Result> parsed = AuditLoggerName.parseEventCategory(custom.
+                    Pair<EventCategory, AuditElements.Result> parsed = AuditLoggerName.parseEventCategory(custom.
                             getModelObject());
 
                     String eventString = AuditLoggerName.buildEvent(
@@ -214,14 +214,14 @@ public abstract class EventCategoryPanel extends Panel {
                 }
             }
         }, ActionLink.ActionType.CREATE, StringUtils.EMPTY).hideLabel();
-        actionsPanel.add(new ActionLink<EventCategoryTO>() {
+        actionsPanel.add(new ActionLink<EventCategory>() {
 
             private static final long serialVersionUID = -3722207913631435521L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final EventCategoryTO ignore) {
+            public void onClick(final AjaxRequestTarget target, final EventCategory ignore) {
                 if (StringUtils.isNotBlank(custom.getModelObject())) {
-                    Pair<EventCategoryTO, AuditElements.Result> parsed = AuditLoggerName.parseEventCategory(custom.
+                    Pair<EventCategory, AuditElements.Result> parsed = AuditLoggerName.parseEventCategory(custom.
                             getModelObject());
 
                     String eventString = AuditLoggerName.buildEvent(
@@ -259,7 +259,7 @@ public abstract class EventCategoryPanel extends Panel {
         });
     }
 
-    private List<String> filter(final List<EventCategoryTO> eventCategoryTOs, final EventCategoryType type) {
+    private List<String> filter(final List<EventCategory> eventCategoryTOs, final EventCategoryType type) {
         Set<String> res = new HashSet<>();
 
         eventCategoryTOs.stream().filter(eventCategory
@@ -274,7 +274,7 @@ public abstract class EventCategoryPanel extends Panel {
     }
 
     private List<String> filter(
-            final List<EventCategoryTO> eventCategoryTOs, final EventCategoryType type, final String category) {
+            final List<EventCategory> eventCategoryTOs, final EventCategoryType type, final String category) {
 
         Set<String> res = new HashSet<>();
 
@@ -348,7 +348,7 @@ public abstract class EventCategoryPanel extends Panel {
 
             final InspectSelectedEvent inspectSelectedEvent = (InspectSelectedEvent) event.getPayload();
 
-            final Map.Entry<EventCategoryTO, AuditElements.Result> categoryEvent = AuditLoggerName.parseEventCategory(
+            final Map.Entry<EventCategory, AuditElements.Result> categoryEvent = AuditLoggerName.parseEventCategory(
                     inspectSelectedEvent.getEvent());
 
             eventCategoryTO.setType(categoryEvent.getKey().getType());
@@ -389,9 +389,9 @@ public abstract class EventCategoryPanel extends Panel {
     }
 
     private void setEvents() {
-        final Iterator<EventCategoryTO> itor = eventCategoryTOs.iterator();
+        final Iterator<EventCategory> itor = eventCategoryTOs.iterator();
         while (itor.hasNext() && eventCategoryTO.getEvents().isEmpty()) {
-            final EventCategoryTO eventCategory = itor.next();
+            final EventCategory eventCategory = itor.next();
             if (eventCategory.getType() == eventCategoryTO.getType()
                     && StringUtils.equals(eventCategory.getCategory(), eventCategoryTO.getCategory())
                     && StringUtils.equals(eventCategory.getSubcategory(), eventCategoryTO.getSubcategory())) {
