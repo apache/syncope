@@ -55,10 +55,12 @@ import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.logic.init.LoggerLoader;
+import org.apache.syncope.core.persistence.api.dao.DomainDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
+import org.apache.syncope.core.persistence.api.entity.Domain;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Logger;
@@ -96,19 +98,10 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
     private TaskDAO taskDAO;
 
     @Autowired
+    private DomainDAO domainDAO;
+
+    @Autowired
     private EntityFactory entityFactory;
-
-    private List<LoggerTO> list(final LoggerType type) {
-        return CollectionUtils.collect(loggerDAO.findAll(type), new Transformer<Logger, LoggerTO>() {
-
-            @Override
-            public LoggerTO transform(final Logger logger) {
-                LoggerTO loggerTO = new LoggerTO();
-                BeanUtils.copyProperties(logger, loggerTO);
-                return loggerTO;
-            }
-        }, new ArrayList<LoggerTO>());
-    }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.LOG_LIST + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
@@ -142,11 +135,35 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
                 new ArrayList<LogStatementTO>());
     }
 
+    private List<LoggerTO> list(final LoggerType type) {
+        return CollectionUtils.collect(loggerDAO.findAll(type), new Transformer<Logger, LoggerTO>() {
+
+            @Override
+            public LoggerTO transform(final Logger logger) {
+                LoggerTO loggerTO = new LoggerTO();
+                BeanUtils.copyProperties(logger, loggerTO);
+                return loggerTO;
+            }
+        }, new ArrayList<LoggerTO>());
+    }
+
     @PreAuthorize("hasRole('" + StandardEntitlement.LOG_LIST + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     @Transactional(readOnly = true)
     public List<LoggerTO> listLogs() {
-        return list(LoggerType.LOG);
+        List<LoggerTO> logs = list(LoggerType.LOG);
+        CollectionUtils.filterInverse(logs, new Predicate<LoggerTO>() {
+
+            @Override
+            public boolean evaluate(final LoggerTO logger) {
+                boolean result = logger.getKey().startsWith(SyncopeConstants.MASTER_DOMAIN);
+                for (Domain domain : domainDAO.findAll()) {
+                    result |= logger.getKey().startsWith(domain.getKey());
+                }
+                return result;
+            }
+        });
+        return logs;
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_LIST + "')")
