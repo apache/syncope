@@ -18,12 +18,16 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
+import io.swagger.models.Swagger;
 import io.swagger.models.parameters.HeaderParameter;
 import io.swagger.models.parameters.Parameter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.swagger.Swagger2Customizer;
+import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
@@ -40,6 +44,18 @@ public class SyncopeSwagger2Customizer extends Swagger2Customizer {
         if (javaDocURLs != null) {
             super.setJavaDocURLs(javaDocURLs);
         }
+    }
+
+    @Override
+    public Swagger customize(final Swagger data) {
+        super.customize(data);
+
+        MessageContext ctx = JAXRSUtils.createContextValue(JAXRSUtils.getCurrentMessage(), null, MessageContext.class);
+        String basePath = StringUtils.substringBeforeLast(ctx.getHttpServletRequest().getRequestURI(), "/");
+        data.setBasePath(basePath);
+        data.setHost(null);
+
+        return data;
     }
 
     @Override
