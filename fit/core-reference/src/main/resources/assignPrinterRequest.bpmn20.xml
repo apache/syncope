@@ -50,7 +50,7 @@ under the License.
       </extensionElements>
     </userTask>
     <sequenceFlow id="sid-D7047714-8E57-46B8-B6D4-4844DE330329" sourceRef="selectPrinter" targetRef="approvePrinter"/>
-    <serviceTask id="createARelationship" name="Create ARelationship" flowable:expression="#{createARelationship.execute(execution.processInstanceId)}"/>
+    <serviceTask id="createARelationship" name="Create ARelationship" flowable:delegateExpression="${createARelationship}"/>
     <sequenceFlow id="sid-33880AE7-35C6-4A39-8E5B-12D8BA53F042" sourceRef="approvePrinter" targetRef="createARelationship"/>
     <sequenceFlow id="sid-831E1896-EDF9-4F7D-AA42-E86CC1F8C5D3" sourceRef="createARelationship" targetRef="endevent1"/>
   </process>

@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.flowable.task;
 
-import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,17 +29,15 @@ import org.springframework.transaction.annotation.Transactional;
  * Abstract base class for Flowable's service tasks in Syncope, with Spring support.
  */
 @Component
-public abstract class AbstractFlowableServiceTask {
+public abstract class FlowableServiceTask implements JavaDelegate {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractFlowableServiceTask.class);
-
-    @Autowired
-    protected ProcessEngine engine;
+    protected static final Logger LOG = LoggerFactory.getLogger(FlowableServiceTask.class);
 
     @Transactional(rollbackFor = { Throwable.class })
-    public void execute(final String executionId) {
-        doExecute(executionId);
+    @Override
+    public void execute(final DelegateExecution execution) {
+        doExecute(execution);
     }
 
-    protected abstract void doExecute(final String executionId);
+    protected abstract void doExecute(final DelegateExecution execution);
 }

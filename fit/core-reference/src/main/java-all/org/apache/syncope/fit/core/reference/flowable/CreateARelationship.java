@@ -22,16 +22,17 @@ import org.apache.syncope.common.lib.patch.RelationshipPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
-import org.apache.syncope.core.flowable.task.AbstractFlowableServiceTask;
+import org.apache.syncope.core.flowable.task.FlowableServiceTask;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CreateARelationship extends AbstractFlowableServiceTask {
+public class CreateARelationship extends FlowableServiceTask {
 
     @Autowired
     private UserDataBinder dataBinder;
@@ -40,17 +41,15 @@ public class CreateARelationship extends AbstractFlowableServiceTask {
     private UserDAO userDAO;
 
     @Override
-    protected void doExecute(final String executionId) {
-        User user = engine.getRuntimeService().
-                getVariable(executionId, FlowableRuntimeUtils.USER, User.class);
+    protected void doExecute(final DelegateExecution execution) {
+        User user = execution.
+                getVariable(FlowableRuntimeUtils.USER, User.class);
 
-        Boolean approve = engine.getRuntimeService().
-                getVariable(executionId, "approve", Boolean.class);
+        Boolean approve = execution.getVariable("approve", Boolean.class);
         if (Boolean.TRUE.equals(approve)) {
             user = userDAO.save(user);
 
-            String printer = engine.getRuntimeService().
-                    getVariable(executionId, "printer", String.class);
+            String printer = execution.getVariable("printer", String.class);
 
             UserPatch userPatch = new UserPatch();
             userPatch.setKey(user.getKey());
@@ -62,8 +61,8 @@ public class CreateARelationship extends AbstractFlowableServiceTask {
             PropagationByResource propByRes = dataBinder.update(user, userPatch);
 
             // report updated user and propagation by resource as result
-            engine.getRuntimeService().setVariable(executionId, FlowableRuntimeUtils.USER, user);
-            engine.getRuntimeService().setVariable(executionId, FlowableRuntimeUtils.PROP_BY_RESOURCE, propByRes);
+            execution.setVariable(FlowableRuntimeUtils.USER, user);
+            execution.setVariable(FlowableRuntimeUtils.PROP_BY_RESOURCE, propByRes);
         } else {
             LOG.info("Printer assignment to " + user.getUsername() + " was not approved");
         }

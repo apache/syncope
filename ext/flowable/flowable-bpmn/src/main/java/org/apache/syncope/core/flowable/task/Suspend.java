@@ -18,12 +18,13 @@
  */
 package org.apache.syncope.core.flowable.task;
 
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Suspend extends AbstractFlowableServiceTask {
+public class Suspend extends FlowableServiceTask {
 
     @Override
-    protected void doExecute(final String executionId) {
+    protected void doExecute(final DelegateExecution execution) {
     }
 }

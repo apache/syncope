@@ -20,15 +20,15 @@ package org.apache.syncope.core.flowable.task;
 
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Delete extends AbstractFlowableServiceTask {
+public class Delete extends FlowableServiceTask {
 
     @Override
-    protected void doExecute(final String executionId) {
-        User user = engine.getRuntimeService().
-                getVariable(executionId, FlowableRuntimeUtils.USER, User.class);
+    protected void doExecute(final DelegateExecution execution) {
+        User user = execution.getVariable(FlowableRuntimeUtils.USER, User.class);
 
         // Do something with user...
         if (user != null) {
@@ -36,6 +36,6 @@ public class Delete extends AbstractFlowableServiceTask {
         }
 
         // remove user variable
-        engine.getRuntimeService().removeVariable(executionId, FlowableRuntimeUtils.USER);
+        execution.removeVariable(FlowableRuntimeUtils.USER);
     }
 }
