@@ -25,11 +25,12 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AutoActivate extends AbstractFlowableServiceTask {
+public class AutoActivate extends FlowableServiceTask {
 
     @Autowired
     private UserDataBinder dataBinder;
@@ -38,11 +39,9 @@ public class AutoActivate extends AbstractFlowableServiceTask {
     private UserDAO userDAO;
 
     @Override
-    protected void doExecute(final String executionId) {
-        User user = engine.getRuntimeService().
-                getVariable(executionId, FlowableRuntimeUtils.USER, User.class);
-        UserTO userTO = engine.getRuntimeService().
-                getVariable(executionId, FlowableRuntimeUtils.USER_TO, UserTO.class);
+    protected void doExecute(final DelegateExecution execution) {
+        User user = execution.getVariable(FlowableRuntimeUtils.USER, User.class);
+        UserTO userTO = execution.getVariable(FlowableRuntimeUtils.USER_TO, UserTO.class);
         if (userTO != null && userTO.getKey() != null && user.getKey() != null) {
             user = userDAO.save(user);
 
@@ -52,9 +51,9 @@ public class AutoActivate extends AbstractFlowableServiceTask {
 
             dataBinder.update(user, userPatch);
 
-            engine.getRuntimeService().setVariable(executionId, FlowableRuntimeUtils.USER, user);
+            execution.setVariable(FlowableRuntimeUtils.USER, user);
         }
 
-        engine.getRuntimeService().setVariable(executionId, FlowableRuntimeUtils.PROPAGATE_ENABLE, Boolean.TRUE);
+        execution.setVariable(FlowableRuntimeUtils.PROPAGATE_ENABLE, Boolean.TRUE);
     }
 }

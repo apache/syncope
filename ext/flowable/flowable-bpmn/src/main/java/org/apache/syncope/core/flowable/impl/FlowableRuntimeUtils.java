@@ -209,14 +209,12 @@ public final class FlowableRuntimeUtils {
     }
 
     public static void throwException(final FlowableException e, final String defaultMessage) {
-        if (e.getCause() != null) {
-            if (e.getCause().getCause() instanceof SyncopeClientException) {
-                throw (SyncopeClientException) e.getCause().getCause();
-            } else if (e.getCause().getCause() instanceof ParsingValidationException) {
-                throw (ParsingValidationException) e.getCause().getCause();
-            } else if (e.getCause().getCause() instanceof InvalidEntityException) {
-                throw (InvalidEntityException) e.getCause().getCause();
-            }
+        if (e.getCause() instanceof SyncopeClientException) {
+            throw (SyncopeClientException) e.getCause();
+        } else if (e.getCause() instanceof ParsingValidationException) {
+            throw (ParsingValidationException) e.getCause();
+        } else if (e.getCause() instanceof InvalidEntityException) {
+            throw (InvalidEntityException) e.getCause();
         }
 
         throw new WorkflowException(defaultMessage, e);

@@ -30,7 +30,7 @@ under the License.
   <process id="userWorkflow" name="User Workflow" isExecutable="true">
     <startEvent id="theStart"/>
     <sequenceFlow id="flow1" sourceRef="theStart" targetRef="create"/>
-    <serviceTask id="create" name="Create" flowable:expression="#{create.execute(execution.processInstanceId)}"/>
+    <serviceTask id="create" name="Create" flowable:delegateExpression="${create}"/>
     <sequenceFlow id="flow2" sourceRef="create" targetRef="activate"/>
     <scriptTask id="activate" name="Activate" scriptFormat="groovy" flowable:autoStoreVariables="false">
       <script><![CDATA[execution.setVariable("propagateEnable", Boolean.TRUE);]]></script>
@@ -54,9 +54,9 @@ under the License.
     <sequenceFlow id="active2ConfirmPasswordReset" sourceRef="activeGw" targetRef="checkToken4ConfirmPasswordReset">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'confirmPasswordReset'}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="update" name="Update" flowable:expression="#{update.execute(execution.processInstanceId)}"/>
+    <serviceTask id="update" name="Update" flowable:delegateExpression="${update}"/>
     <sequenceFlow id="sid-EA22026A-25F0-4ED0-AB6E-9CE9CE74623C" sourceRef="update" targetRef="active"/>
-    <serviceTask id="suspend" name="Suspend" flowable:expression="#{suspend.execute(execution.processInstanceId)}"/>
+    <serviceTask id="suspend" name="Suspend" flowable:delegateExpression="${suspend}"/>
     <sequenceFlow id="flow10" sourceRef="suspend" targetRef="suspended"/>
     <userTask id="suspended" name="Suspended"/>
     <sequenceFlow id="flow11" sourceRef="suspended" targetRef="suspendedGw"/>
@@ -67,17 +67,17 @@ under the License.
     <sequenceFlow id="suspended2Delete" sourceRef="suspendedGw" targetRef="delete">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'delete'}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="reactivate" name="Reactivate" flowable:expression="#{reactivate.execute(execution.processInstanceId)}"/>
+    <serviceTask id="reactivate" name="Reactivate" flowable:delegateExpression="${reactivate}"/>
     <sequenceFlow id="flow12" sourceRef="reactivate" targetRef="active"/>
-    <serviceTask id="generateToken4PasswordReset" name="Generate Token" flowable:expression="#{generateToken.execute(execution.processInstanceId)}"/>
+    <serviceTask id="generateToken4PasswordReset" name="Generate Token" flowable:delegateExpression="${generateToken}"/>
     <sequenceFlow id="sid-7F78CE07-A7A1-467F-BB4B-40FB234AEFF7" sourceRef="generateToken4PasswordReset" targetRef="notify4RequestPasswordReset"/>
-    <serviceTask id="notify4RequestPasswordReset" name="Notification" flowable:expression="#{notify.execute(execution.processInstanceId)}"/>
+    <serviceTask id="notify4RequestPasswordReset" name="Notification" flowable:delegateExpression="${notify}"/>
     <sequenceFlow id="sid-CF9ACA40-7750-47C3-A508-7250D24D4F1F" sourceRef="notify4RequestPasswordReset" targetRef="active"/>
-    <serviceTask id="checkToken4ConfirmPasswordReset" name="Check token, remove and update password" flowable:expression="#{passwordReset.execute(execution.processInstanceId)}"/>
+    <serviceTask id="checkToken4ConfirmPasswordReset" name="Check token, remove and update password" flowable:delegateExpression="${passwordReset}"/>
     <sequenceFlow id="sid-3E9FE01D-CC60-4A95-B356-CA0DC000FAD6" sourceRef="checkToken4ConfirmPasswordReset" targetRef="notify4ConfirmPasswordReset"/>
-    <serviceTask id="notify4ConfirmPasswordReset" name="Notification" flowable:expression="#{notify.execute(execution.processInstanceId)}"/>
+    <serviceTask id="notify4ConfirmPasswordReset" name="Notification" flowable:delegateExpression="${notify}"/>
     <sequenceFlow id="sid-A37806A7-6B7B-48A2-BB37-DAE640231144" sourceRef="notify4ConfirmPasswordReset" targetRef="active"/>
-    <serviceTask id="delete" name="Delete" flowable:expression="#{delete.execute(execution.processInstanceId)}"/>
+    <serviceTask id="delete" name="Delete" flowable:delegateExpression="${delete}"/>
     <sequenceFlow id="flow99" sourceRef="delete" targetRef="theEnd"/>
     <endEvent id="theEnd"/>
   </process>

@@ -26,11 +26,12 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PasswordReset extends AbstractFlowableServiceTask {
+public class PasswordReset extends FlowableServiceTask {
 
     @Autowired
     private UserDAO userDAO;
@@ -39,13 +40,10 @@ public class PasswordReset extends AbstractFlowableServiceTask {
     private UserDataBinder dataBinder;
 
     @Override
-    protected void doExecute(final String executionId) {
-        User user = engine.getRuntimeService().
-                getVariable(executionId, FlowableRuntimeUtils.USER, User.class);
-        String token = engine.getRuntimeService().
-                getVariable(executionId, FlowableRuntimeUtils.TOKEN, String.class);
-        String password = engine.getRuntimeService().
-                getVariable(executionId, FlowableRuntimeUtils.PASSWORD, String.class);
+    protected void doExecute(final DelegateExecution execution) {
+        User user = execution.getVariable(FlowableRuntimeUtils.USER, User.class);
+        String token = execution.getVariable(FlowableRuntimeUtils.TOKEN, String.class);
+        String password = execution.getVariable(FlowableRuntimeUtils.PASSWORD, String.class);
 
         if (!user.checkToken(token)) {
             throw new WorkflowException(new IllegalArgumentException("Wrong token: " + token + " for " + user));
@@ -63,8 +61,8 @@ public class PasswordReset extends AbstractFlowableServiceTask {
         PropagationByResource propByRes = dataBinder.update(user, userPatch);
 
         // report updated user and propagation by resource as result
-        engine.getRuntimeService().setVariable(executionId, FlowableRuntimeUtils.USER, user);
-        engine.getRuntimeService().setVariable(executionId, FlowableRuntimeUtils.USER_PATCH, userPatch);
-        engine.getRuntimeService().setVariable(executionId, FlowableRuntimeUtils.PROP_BY_RESOURCE, propByRes);
+        execution.setVariable(FlowableRuntimeUtils.USER, user);
+        execution.setVariable(FlowableRuntimeUtils.USER_PATCH, userPatch);
+        execution.setVariable(FlowableRuntimeUtils.PROP_BY_RESOURCE, propByRes);
     }
 }

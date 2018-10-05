@@ -30,7 +30,7 @@ under the License.
   <process id="userWorkflow" name="User Workflow" isExecutable="true">
     <startEvent id="theStart"/>
     <sequenceFlow id="flow1" sourceRef="theStart" targetRef="create"/>
-    <serviceTask id="create" name="Create" flowable:expression="#{create.execute(execution.processInstanceId)}"/>
+    <serviceTask id="create" name="Create" flowable:delegateExpression="${create}"/>
     <sequenceFlow id="flow2" sourceRef="create" targetRef="createGW"/>
     <exclusiveGateway id="createGW" default="create2Activate"/>
     <userTask id="createApproval" name="Create approval" flowable:candidateGroups="managingDirector" flowable:formKey="createApproval">
@@ -75,9 +75,9 @@ try {
     <sequenceFlow id="enableGW2Suspended" sourceRef="enableGW" targetRef="suspend">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!enabled}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="activate" name="Activate" flowable:expression="#{autoActivate.execute(execution.processInstanceId)}"/>
+    <serviceTask id="activate" name="Activate" flowable:delegateExpression="${autoActivate}"/>
     <sequenceFlow id="flow4" sourceRef="activate" targetRef="active"/>
-    <serviceTask id="generateToken" name="Generate token" flowable:expression="#{generateToken.execute(execution.processInstanceId)}"/>
+    <serviceTask id="generateToken" name="Generate token" flowable:delegateExpression="${generateToken}"/>
     <sequenceFlow id="flow5" sourceRef="generateToken" targetRef="created"/>
     <userTask id="created" name="Created"/>
     <sequenceFlow id="flow6" sourceRef="created" targetRef="optinGW"/>
@@ -164,9 +164,9 @@ try {
       ]]></script>
     </scriptTask>
     <sequenceFlow id="flow8ter" sourceRef="rejectUpdate" targetRef="active"/>
-    <serviceTask id="update" name="Update" flowable:expression="#{update.execute(execution.processInstanceId)}"/>
+    <serviceTask id="update" name="Update" flowable:delegateExpression="${update}"/>
     <sequenceFlow id="flow9" sourceRef="update" targetRef="active"/>
-    <serviceTask id="suspend" name="Suspend" flowable:expression="#{suspend.execute(execution.processInstanceId)}"/>
+    <serviceTask id="suspend" name="Suspend" flowable:delegateExpression="${suspend}"/>
     <sequenceFlow id="flow10" sourceRef="suspend" targetRef="suspended"/>
     <userTask id="suspended" name="Suspended"/>
     <sequenceFlow id="flow11" sourceRef="suspended" targetRef="suspendedGw"/>
@@ -177,7 +177,7 @@ try {
     <sequenceFlow id="suspended2Delete" sourceRef="suspendedGw" targetRef="delete">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'delete'}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="reactivate" name="Reactivate" flowable:expression="#{reactivate.execute(execution.processInstanceId)}"/>
+    <serviceTask id="reactivate" name="Reactivate" flowable:delegateExpression="${reactivate}"/>
     <sequenceFlow id="flow12" sourceRef="reactivate" targetRef="active"/>
     <scriptTask id="reject" name="Reject" scriptFormat="groovy" flowable:autoStoreVariables="false">
       <script><![CDATA[
@@ -216,18 +216,18 @@ try {
       ]]></script>
     </scriptTask>
     <sequenceFlow id="flow14ter" sourceRef="rejectDelete" targetRef="active"/>
-    <serviceTask id="generateToken4PasswordReset" name="Generate token" flowable:expression="#{generateToken.execute(execution.processInstanceId)}"/>
+    <serviceTask id="generateToken4PasswordReset" name="Generate token" flowable:delegateExpression="${generateToken}"/>
     <sequenceFlow id="flow15" sourceRef="generateToken4PasswordReset" targetRef="notify4RequestPasswordReset"/>
-    <serviceTask id="notify4RequestPasswordReset" name="Notification" flowable:expression="#{notify.execute(execution.processInstanceId)}"/>
+    <serviceTask id="notify4RequestPasswordReset" name="Notification" flowable:delegateExpression="${notify}"/>
     <sequenceFlow id="flow16" sourceRef="notify4RequestPasswordReset" targetRef="active"/>
-    <serviceTask id="checkToken4ConfirmPasswordReset" name="Check token, remove and update password" flowable:expression="#{passwordReset.execute(execution.processInstanceId)}"/>
+    <serviceTask id="checkToken4ConfirmPasswordReset" name="Check token, remove and update password" flowable:delegateExpression="${passwordReset}"/>
     <sequenceFlow id="flow17" sourceRef="checkToken4ConfirmPasswordReset" targetRef="notify4ConfirmPasswordReset"/>
-    <serviceTask id="notify4ConfirmPasswordReset" name="Notification" flowable:expression="#{notify.execute(execution.processInstanceId)}"/>
+    <serviceTask id="notify4ConfirmPasswordReset" name="Notification" flowable:delegateExpression="${notify}"/>
     <sequenceFlow id="flow18" sourceRef="notify4ConfirmPasswordReset" targetRef="active"/>
-    <serviceTask id="delete" name="Delete" flowable:expression="#{delete.execute(execution.processInstanceId)}"/>
+    <serviceTask id="delete" name="Delete" flowable:delegateExpression="${delete}"/>
     <sequenceFlow id="flow99" sourceRef="delete" targetRef="theEnd"/>
     <endEvent id="theEnd"/>
-    <serviceTask id="updateWhilePendingCreateApproval" name="Update" flowable:expression="#{update.execute(execution.processInstanceId)}"/>
+    <serviceTask id="updateWhilePendingCreateApproval" name="Update" flowable:delegateExpression="${update}"/>
     <sequenceFlow id="sid-76B82B68-099D-4729-B8CF-D028386FE900" sourceRef="createApprovalGW" targetRef="createApproval"/>
     <sequenceFlow id="sid-B2EEC511-2924-4A95-B0B8-E35DA268DD58" sourceRef="createApprovalGW" targetRef="rejectedGw">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'delete'}]]></conditionExpression>
@@ -246,7 +246,7 @@ try {
     <sequenceFlow id="createAsAnonymous2Approval" sourceRef="createGW" targetRef="createApproval">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${wfExecutor == 'anonymous' || flowableUtils.isUserIngroup(userTO, 'groupForWorkflowApproval')}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="updateWhilePendingUpdateApproval" name="Update" flowable:expression="#{update.execute(execution.processInstanceId)}"/>
+    <serviceTask id="updateWhilePendingUpdateApproval" name="Update" flowable:delegateExpression="${update}"/>
     <exclusiveGateway id="sid-4C9C9117-26DB-4326-A12B-EEDA42EADF07" default="sid-12E29B94-C369-45C1-BCEF-C165AFDA525A"/>
     <sequenceFlow id="sid-930DADF1-C361-43DD-A240-582F21DEB9B6" sourceRef="createApproval" targetRef="sid-8CFA3152-19AA-4878-AD2C-96B63F6E98C7"/>
     <sequenceFlow id="sid-A2BDF803-688C-4A4D-9D33-6D859C029245" sourceRef="updateApproval" targetRef="sid-4C9C9117-26DB-4326-A12B-EEDA42EADF07"/>

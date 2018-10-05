@@ -44,7 +44,7 @@ under the License.
         <flowable:formProperty id="rejectReason" name="Reason for rejecting" type="string" variable="rejectReason"/>
       </extensionElements>
     </userTask>
-    <serviceTask id="assignDirectorGroup" name="Assign director group" flowable:expression="#{assignDirectorGroup.execute(execution.processInstanceId)}"/>
+    <serviceTask id="assignDirectorGroup" name="Assign director group" flowable:delegateExpression="${assignDirectorGroup}"/>
     <exclusiveGateway id="sid-1E2454BD-FAE9-4A15-B169-D41843A39C15" default="sid-338A4B20-89E9-46B2-8AB3-36291455051B"/>
     <sequenceFlow id="sid-A7C20EB5-AAE6-4CF3-A151-F1A9FA9207A0" sourceRef="firstApproval" targetRef="sid-1E2454BD-FAE9-4A15-B169-D41843A39C15"/>
     <sequenceFlow id="sid-92E7D60C-09E7-465A-8115-C60ACD06E955" sourceRef="secondApproval" targetRef="assignDirectorGroup"/>

@@ -23,11 +23,12 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Create extends AbstractFlowableServiceTask {
+public class Create extends FlowableServiceTask {
 
     @Autowired
     private UserDataBinder dataBinder;
@@ -36,20 +37,16 @@ public class Create extends AbstractFlowableServiceTask {
     private EntityFactory entityFactory;
 
     @Override
-    protected void doExecute(final String executionId) {
-        UserTO userTO = engine.getRuntimeService().
-                getVariable(executionId, FlowableRuntimeUtils.USER_TO, UserTO.class);
-        Boolean storePassword = engine.getRuntimeService().
-                getVariable(executionId, FlowableRuntimeUtils.STORE_PASSWORD, Boolean.class);
+    protected void doExecute(final DelegateExecution execution) {
+        UserTO userTO = execution.getVariable(FlowableRuntimeUtils.USER_TO, UserTO.class);
+        Boolean storePassword = execution.getVariable(FlowableRuntimeUtils.STORE_PASSWORD, Boolean.class);
 
         // create user
         User user = entityFactory.newEntity(User.class);
         dataBinder.create(user, userTO, storePassword == null ? true : storePassword);
 
         // report user as result
-        engine.getRuntimeService().
-                setVariable(executionId, FlowableRuntimeUtils.USER, user);
-        engine.getRuntimeService().
-                setVariable(executionId, FlowableRuntimeUtils.USER_TO, dataBinder.getUserTO(user, true));
+        execution.setVariable(FlowableRuntimeUtils.USER, user);
+        execution.setVariable(FlowableRuntimeUtils.USER_TO, dataBinder.getUserTO(user, true));
     }
 }

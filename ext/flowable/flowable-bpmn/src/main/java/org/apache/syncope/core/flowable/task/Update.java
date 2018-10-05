@@ -24,11 +24,12 @@ import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Update extends AbstractFlowableServiceTask {
+public class Update extends FlowableServiceTask {
 
     @Autowired
     private UserDataBinder dataBinder;
@@ -37,22 +38,20 @@ public class Update extends AbstractFlowableServiceTask {
     private UserDAO userDAO;
 
     @Override
-    protected void doExecute(final String executionId) {
-        UserPatch userPatch = engine.getRuntimeService().
-                getVariable(executionId, FlowableRuntimeUtils.USER_PATCH, UserPatch.class);
+    protected void doExecute(final DelegateExecution execution) {
+        UserPatch userPatch = execution.getVariable(FlowableRuntimeUtils.USER_PATCH, UserPatch.class);
         if (userPatch == null || userPatch.isEmpty()) {
             LOG.warn("No actual update is to be performed: null patch");
         } else {
-            User user = engine.getRuntimeService().
-                    getVariable(executionId, FlowableRuntimeUtils.USER, User.class);
+            User user = execution.getVariable(FlowableRuntimeUtils.USER, User.class);
 
             user = userDAO.save(user);
 
             PropagationByResource propByRes = dataBinder.update(user, userPatch);
 
             // report updated user and propagation by resource as result
-            engine.getRuntimeService().setVariable(executionId, FlowableRuntimeUtils.USER, user);
-            engine.getRuntimeService().setVariable(executionId, FlowableRuntimeUtils.PROP_BY_RESOURCE, propByRes);
+            execution.setVariable(FlowableRuntimeUtils.USER, user);
+            execution.setVariable(FlowableRuntimeUtils.PROP_BY_RESOURCE, propByRes);
         }
     }
 }

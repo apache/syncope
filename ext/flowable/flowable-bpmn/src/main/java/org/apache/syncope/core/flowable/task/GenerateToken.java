@@ -21,24 +21,24 @@ package org.apache.syncope.core.flowable.task;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GenerateToken extends AbstractFlowableServiceTask {
+public class GenerateToken extends FlowableServiceTask {
 
     @Autowired
     private ConfDAO confDAO;
 
     @Override
-    protected void doExecute(final String executionId) {
-        User user = engine.getRuntimeService().
-                getVariable(executionId, FlowableRuntimeUtils.USER, User.class);
+    protected void doExecute(final DelegateExecution execution) {
+        User user = execution.getVariable(FlowableRuntimeUtils.USER, User.class);
 
         user.generateToken(
                 confDAO.find("token.length", 256L).intValue(),
                 confDAO.find("token.expireTime", 60L).intValue());
 
-        engine.getRuntimeService().setVariable(executionId, FlowableRuntimeUtils.USER, user);
+        execution.setVariable(FlowableRuntimeUtils.USER, user);
     }
 }
