@@ -122,7 +122,7 @@ under the License.
     <property name="bearerFormat" value="JWT"/>
   </bean>
   <bean id="openApiCustomizer" class="org.apache.syncope.core.rest.cxf.SyncopeOpenApiCustomizer">
-    <property name="dynamicBasePath" value="true"/>
+    <property name="dynamicBasePath" value="false"/>
     <property name="replaceTags" value="false"/>
     <property name="javaDocPaths">
       <list>

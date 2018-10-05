@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest.cxf;
 
 import io.swagger.v3.jaxrs2.Reader;
+import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -30,6 +31,7 @@ import io.swagger.v3.oas.models.parameters.HeaderParameter;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
 import java.net.URL;
 import java.util.ArrayList;
@@ -41,10 +43,12 @@ import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.jaxrs.model.doc.JavaDocProvider;
 import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
+import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ErrorTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -87,6 +91,19 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
         // remove this method with CXF 3.2.7
         this.cris = classResourceInfos;
         super.setClassResourceInfos(classResourceInfos);
+    }
+
+    @Override
+    public OpenAPIConfiguration customize(final OpenAPIConfiguration configuration) {
+        super.customize(configuration);
+
+        MessageContext ctx = JAXRSUtils.createContextValue(
+                JAXRSUtils.getCurrentMessage(), null, MessageContext.class);
+
+        String url = StringUtils.substringBeforeLast(ctx.getUriInfo().getRequestUri().getRawPath(), "/");
+        configuration.getOpenAPI().setServers(Collections.singletonList(new Server().url(url)));
+
+        return configuration;
     }
 
     @Override
