@@ -1218,7 +1218,7 @@ under the License.
     </profile>
 
     <profile>
-      <id>jboss-it</id>
+      <id>wildfly-it</id>
 
       <dependencies>
         <dependency>
@@ -1281,7 +1281,7 @@ under the License.
               <container>
                 <containerId>wildfly13x</containerId>
                 <zipUrlInstaller>
-                  <url>http://download.jboss.org/wildfly/13.0.0.Final/wildfly-13.0.0.Final.zip</url>
+                  <url>http://download.jboss.org/wildfly/14.0.1.Final/wildfly-14.0.1.Final.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>

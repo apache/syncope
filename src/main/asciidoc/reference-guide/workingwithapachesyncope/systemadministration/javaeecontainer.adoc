@@ -116,7 +116,7 @@ For better performance under GNU / Linux, do not forget to include
 among JVM options.
 ====
 
-===== Wildfly 13
+===== Wildfly 14
 
 Add
 
