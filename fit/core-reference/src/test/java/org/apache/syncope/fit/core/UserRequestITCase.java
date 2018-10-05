@@ -174,8 +174,6 @@ public class UserRequestITCase extends AbstractITCase {
     public void userSelection() {
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
-
         PagedResult<UserRequestForm> forms =
                 userRequestService.getForms(new UserRequestFormQuery.Builder().build());
         int preForms = forms.getTotalCount();

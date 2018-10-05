@@ -160,7 +160,7 @@ under the License.
         <h5>Wildfly</h5>
         Perform the full test suite by deploying Syncope core in 
         <a href="http://www.wildfly.org">Wildfly</a> via
-        <source>$ mvn -Pjboss-it</source>
+        <source>$ mvn -Pwildfly-it</source>
       </subsection>
       
       <subsection name="fit/console-reference">
