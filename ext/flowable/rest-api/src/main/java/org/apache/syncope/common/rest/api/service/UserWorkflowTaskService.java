@@ -18,11 +18,9 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -53,11 +51,6 @@ public interface UserWorkflowTaskService extends JAXRSService {
      * @param userKey user key
      * @return list of available tasks for the given user key
      */
-    @ApiResponses(
-            @ApiResponse(responseCode = "200", description = "list of available tasks for the given user key", content =
-                    @Content(array =
-                            @ArraySchema(schema =
-                                    @Schema(implementation = WorkflowTask.class)))))
     @GET
     @Path("tasks/{userKey}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -69,10 +62,8 @@ public interface UserWorkflowTaskService extends JAXRSService {
      * @param workflowTaskExecInput input for task execution
      * @return updated user
      */
-    @ApiResponses(
-            @ApiResponse(responseCode = "200", description = "updated user", content =
-                    @Content(schema =
-                            @Schema(implementation = UserTO.class))))
+    @Parameter(name = "userKey", description = "user key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @POST
     @Path("tasks/{userKey}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
