@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -60,10 +58,6 @@ public interface UserRequestService extends JAXRSService {
      * @param query query conditions
      * @return list of all running user requests
      */
-    @ApiResponses(
-            @ApiResponse(responseCode = "200", description = "list of all running user requests", content =
-                    @Content(schema =
-                            @Schema(implementation = PagedResult.class))))
     @GET
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     PagedResult<UserRequest> list(@BeanParam UserRequestQuery query);
@@ -75,11 +69,6 @@ public interface UserRequestService extends JAXRSService {
      * @param user if value looks like a UUID then it is interpreted as key otherwise as a username
      * @return data about the started request service, including execution id
      */
-    @ApiResponses(
-            @ApiResponse(responseCode = "200",
-                    description = "data about the started request service, including execution id", content =
-                    @Content(schema =
-                            @Schema(implementation = UserRequest.class))))
     @POST
     @Path("start/{bpmnProcess}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -108,10 +97,6 @@ public interface UserRequestService extends JAXRSService {
      * @param query query conditions
      * @return list of all available user request forms
      */
-    @ApiResponses(
-            @ApiResponse(responseCode = "200", description = "list of all available user request forms", content =
-                    @Content(schema =
-                            @Schema(implementation = PagedResult.class))))
     @GET
     @Path("forms")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -123,10 +108,6 @@ public interface UserRequestService extends JAXRSService {
      * @param taskId workflow task id
      * @return the form for the given task id
      */
-    @ApiResponses(
-            @ApiResponse(responseCode = "200", description = "the form for the given task id", content =
-                    @Content(schema =
-                            @Schema(implementation = UserRequestForm.class))))
     @POST
     @Path("forms/{taskId}/claim")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -138,10 +119,6 @@ public interface UserRequestService extends JAXRSService {
      * @param form user request form.
      * @return updated user
      */
-    @ApiResponses(
-            @ApiResponse(responseCode = "200", description = "updated user", content =
-                    @Content(schema =
-                            @Schema(implementation = UserTO.class))))
     @POST
     @Path("forms")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })

@@ -19,9 +19,6 @@
 package org.apache.syncope.common.rest.api.service;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -56,11 +53,6 @@ public interface BpmnProcessService extends JAXRSService {
      *
      * @return available BPMN processs
      */
-    @ApiResponses(
-            @ApiResponse(responseCode = "200", description = "available BPMN processes", content =
-                    @Content(array =
-                            @ArraySchema(schema =
-                                    @Schema(implementation = BpmnProcess.class)))))
     @GET
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<BpmnProcess> list();
