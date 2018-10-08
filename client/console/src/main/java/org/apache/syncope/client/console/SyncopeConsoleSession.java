@@ -104,9 +104,9 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
         executor = new ThreadPoolTaskExecutor();
         executor.setWaitForTasksToCompleteOnShutdown(false);
-        executor.setCorePoolSize(5);
-        executor.setMaxPoolSize(10);
-        executor.setQueueCapacity(50);
+        executor.setCorePoolSize(SyncopeConsoleApplication.get().getCorePoolSize());
+        executor.setMaxPoolSize(SyncopeConsoleApplication.get().getMaxPoolSize());
+        executor.setQueueCapacity(SyncopeConsoleApplication.get().getQueueCapacity());
         executor.initialize();
     }
 
