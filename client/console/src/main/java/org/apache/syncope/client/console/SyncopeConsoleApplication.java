@@ -111,6 +111,12 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     private Integer maxWaitTime;
 
+    private Integer corePoolSize;
+
+    private Integer maxPoolSize;
+
+    private Integer queueCapacity;
+
     private List<String> domains;
 
     private Map<String, Class<? extends BasePage>> pageClasses;
@@ -165,6 +171,11 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
                 : Integer.valueOf(props.getProperty("maxUploadFileSizeMB"));
 
         maxWaitTime = Integer.valueOf(props.getProperty("maxWaitTimeOnApplyChanges", "30"));
+
+        // Resource connections check thread pool size
+        corePoolSize = Integer.valueOf(props.getProperty("topology.corePoolSize", "5"));
+        maxPoolSize = Integer.valueOf(props.getProperty("topology.maxPoolSize", "10"));
+        queueCapacity = Integer.valueOf(props.getProperty("topology.queueCapacity", "50"));
 
         String csrf = props.getProperty("csrf");
 
@@ -320,6 +331,18 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     public Integer getMaxWaitTimeInSeconds() {
         return maxWaitTime;
+    }
+
+    public Integer getCorePoolSize() {
+        return corePoolSize;
+    }
+
+    public Integer getMaxPoolSize() {
+        return maxPoolSize;
+    }
+
+    public Integer getQueueCapacity() {
+        return queueCapacity;
     }
 
     public SyncopeClientFactoryBean newClientFactory() {
