@@ -69,8 +69,8 @@ public class UserRequestITCase extends AbstractITCase {
         assertNotNull(req);
         assertEquals("directorGroupRequest", req.getBpmnProcess());
         assertNotNull(req.getExecutionId());
-        assertEquals(req.getUser(), user.getKey());
-        
+        assertEquals(req.getUsername(), user.getUsername());
+
         // check that user can see the ongoing request
         SyncopeClient client = clientFactory.create(user.getUsername(), "password123");
         PagedResult<UserRequest> requests = client.getService(UserRequestService.class).

@@ -62,9 +62,7 @@ import org.flowable.engine.form.TaskFormData;
 import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntity;
 import org.flowable.engine.impl.persistence.entity.HistoricFormPropertyEntity;
-import org.flowable.engine.runtime.NativeProcessInstanceQuery;
 import org.flowable.engine.runtime.ProcessInstance;
-import org.flowable.engine.runtime.ProcessInstanceQuery;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskQuery;
 import org.flowable.task.api.history.HistoricTaskInstance;
@@ -99,26 +97,28 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     @Autowired
     protected EntityFactory entityFactory;
 
-    protected NativeProcessInstanceQuery createProcessInstanceQuery(final String userKey) {
-        return engine.getRuntimeService().createNativeProcessInstanceQuery().
-                sql("SELECT DISTINCT ID_,BUSINESS_KEY_,ACT_ID_ FROM "
-                        + engine.getManagementService().getTableName(ExecutionEntity.class)
-                        + " WHERE BUSINESS_KEY_ LIKE '"
-                        + FlowableRuntimeUtils.getProcBusinessKey("%", userKey) + "'"
-                        + " AND BUSINESS_KEY_ NOT LIKE '"
-                        + FlowableRuntimeUtils.getProcBusinessKey(FlowableRuntimeUtils.WF_PROCESS_ID, "%") + "'"
-                        + " AND PARENT_ID_ IS NULL");
+    protected StringBuilder createProcessInstanceQuery(final String userKey) {
+        StringBuilder query = new StringBuilder().
+                append("SELECT DISTINCT ID_,BUSINESS_KEY_,PROC_DEF_ID_,PROC_INST_ID_,START_TIME_ FROM ").
+                append(engine.getManagementService().getTableName(ExecutionEntity.class)).
+                append(" WHERE BUSINESS_KEY_ NOT LIKE '").
+                append(FlowableRuntimeUtils.getProcBusinessKey(FlowableRuntimeUtils.WF_PROCESS_ID, "%")).
+                append("'");
+        if (userKey != null) {
+            query.append(" AND BUSINESS_KEY_ LIKE '").
+                    append(FlowableRuntimeUtils.getProcBusinessKey("%", userKey)).
+                    append("'");
+        }
+        query.append(" AND PARENT_ID_ IS NULL");
+
+        return query;
     }
 
-    protected int countProcessInstances(final String userKey) {
+    protected int countProcessInstances(final StringBuilder processInstanceQuery) {
         return (int) engine.getRuntimeService().createNativeProcessInstanceQuery().
                 sql("SELECT COUNT(ID_) FROM "
-                        + engine.getManagementService().getTableName(ExecutionEntity.class)
-                        + " WHERE BUSINESS_KEY_ LIKE '"
-                        + FlowableRuntimeUtils.getProcBusinessKey("%", userKey) + "'"
-                        + " AND BUSINESS_KEY_ NOT LIKE '"
-                        + FlowableRuntimeUtils.getProcBusinessKey(FlowableRuntimeUtils.WF_PROCESS_ID, "%") + "'"
-                        + " AND PARENT_ID_ IS NULL").count();
+                        + StringUtils.substringAfter(processInstanceQuery.toString(), " FROM ")).
+                count();
     }
 
     protected UserRequest getUserRequest(final ProcessInstance procInst) {
@@ -126,9 +126,11 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
         UserRequest userRequest = new UserRequest();
         userRequest.setBpmnProcess(split.getLeft());
-        userRequest.setUser(split.getRight());
+        userRequest.setStartTime(procInst.getStartTime());
+        userRequest.setUsername(userDAO.find(split.getRight()).getUsername());
         userRequest.setExecutionId(procInst.getId());
-        userRequest.setActivityId(procInst.getActivityId());
+        userRequest.setActivityId(FlowableRuntimeUtils.createTaskQuery(engine, false).
+                processInstanceId(procInst.getProcessInstanceId()).singleResult().getTaskDefinitionKey());
         return userRequest;
     }
 
@@ -140,23 +142,25 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
             final int size,
             final List<OrderByClause> orderByClauses) {
 
-        Integer count = null;
-        List<UserRequest> result = null;
-        if (userKey == null) {
-            ProcessInstanceQuery query = engine.getRuntimeService().createProcessInstanceQuery().active();
+        StringBuilder query = createProcessInstanceQuery(userKey);
+        Integer count = countProcessInstances(query);
+
+        if (!orderByClauses.isEmpty()) {
+            query.append(" ORDER BY");
+
             for (OrderByClause clause : orderByClauses) {
                 boolean sorted = true;
                 switch (clause.getField().trim()) {
-                    case "processDefinitionId":
-                        query.orderByProcessDefinitionId();
+                    case "bpmnProcess":
+                        query.append(" PROC_DEF_ID_");
                         break;
 
-                    case "processDefinitionKey":
-                        query.orderByProcessDefinitionKey();
+                    case "startTime":
+                        query.append(" START_TIME_");
                         break;
 
-                    case "processInstanceId":
-                        query.orderByProcessInstanceId();
+                    case "executionId":
+                        query.append(" PROC_INST_ID_");
                         break;
 
                     default:
@@ -165,23 +169,21 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                 }
                 if (sorted) {
                     if (clause.getDirection() == OrderByClause.Direction.ASC) {
-                        query.asc();
+                        query.append(" ASC,");
                     } else {
-                        query.desc();
+                        query.append(" DESC,");
                     }
                 }
-
-                count = (int) query.count();
-                result = query.listPage(size * (page <= 0 ? 0 : page - 1), size).stream().
-                        map(procInst -> getUserRequest(procInst)).
-                        collect(Collectors.toList());
             }
-        } else {
-            count = countProcessInstances(userKey);
-            result = createProcessInstanceQuery(userKey).listPage(size * (page <= 0 ? 0 : page - 1), size).stream().
-                    map(procInst -> getUserRequest(procInst)).
-                    collect(Collectors.toList());
+
+            query.setLength(query.length() - 1);
         }
+
+        List<UserRequest> result = engine.getRuntimeService().createNativeProcessInstanceQuery().
+                sql(query.toString()).
+                listPage(size * (page <= 0 ? 0 : page - 1), size).stream().
+                map(procInst -> getUserRequest(procInst)).
+                collect(Collectors.toList());
 
         return Pair.of(count, result);
     }
@@ -256,8 +258,9 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     public void cancelByUser(final AnyDeletedEvent event) {
         if (AuthContextUtils.getDomain().equals(event.getDomain()) && event.getAnyTypeKind() == AnyTypeKind.USER) {
             String username = event.getAnyName();
-            createProcessInstanceQuery(event.getAnyKey()).list().
-                    forEach(procInst -> {
+            engine.getRuntimeService().createNativeProcessInstanceQuery().
+                    sql(createProcessInstanceQuery(event.getAnyKey()).toString()).
+                    list().forEach(procInst -> {
                         engine.getRuntimeService().deleteProcessInstance(
                                 procInst.getId(), "Cascade Delete user " + username);
                     });

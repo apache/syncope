@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.approvals;
+package org.apache.syncope.client.console.panels;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.console.commons.MapChoiceRenderer;
-import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -49,13 +48,13 @@ import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class Approval extends Panel {
+public abstract class UserRequestFormPanel extends Panel {
 
     private static final long serialVersionUID = -8847854414429745216L;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(Approval.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(UserRequestFormPanel.class);
 
-    public Approval(final PageReference pageRef, final UserRequestForm formTO) {
+    public UserRequestFormPanel(final PageReference pageRef, final UserRequestForm form) {
         super(MultilevelPanel.FIRST_LEVEL_ID);
 
         IModel<List<UserRequestFormProperty>> formProps = new LoadableDetachableModel<List<UserRequestFormProperty>>() {
@@ -64,7 +63,7 @@ public abstract class Approval extends Panel {
 
             @Override
             protected List<UserRequestFormProperty> load() {
-                return formTO.getProperties();
+                return form.getProperties();
             }
         };
 
@@ -190,7 +189,7 @@ public abstract class Approval extends Panel {
         };
         MetaDataRoleAuthorizationStrategy.authorize(userDetails, ENABLE, StandardEntitlement.USER_READ);
 
-        boolean enabled = formTO.getUserTO() != null;
+        boolean enabled = form.getUserTO() != null;
         userDetails.setVisible(enabled).setEnabled(enabled);
 
         add(propView);

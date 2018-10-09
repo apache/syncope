@@ -16,10 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.approvals;
+package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
-import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.any.UserWizardBuilder;
@@ -29,11 +28,11 @@ import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 
-public class ApprovalDetails extends MultilevelPanel.SecondLevel {
+public class UserRequestFormDetails extends MultilevelPanel.SecondLevel {
 
     private static final long serialVersionUID = -8847854414429745216L;
 
-    public ApprovalDetails(final PageReference pageRef, final UserRequestForm formTO) {
+    public UserRequestFormDetails(final PageReference pageRef, final UserRequestForm formTO) {
         super(MultilevelPanel.SECOND_LEVEL_ID);
 
         final UserTO newUserTO;

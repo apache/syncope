@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import static org.apache.syncope.client.console.rest.BaseRestClient.getStatus;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;

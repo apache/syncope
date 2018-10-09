@@ -21,14 +21,32 @@ package org.apache.syncope.client.console.rest;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
+import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
 
 public class UserRequestRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -4785231164900813921L;
+
+    public int countUserRequests() {
+        return getService(UserRequestService.class).
+                list(new UserRequestQuery.Builder().page(1).size(1).build()).
+                getTotalCount();
+    }
+
+    public List<UserRequest> getUserRequests(final int page, final int size, final SortParam<String> sort) {
+        return getService(UserRequestService.class).
+                list(new UserRequestQuery.Builder().page(page).size(size).orderBy(toOrderBy(sort)).build()).
+                getResult();
+    }
+
+    public void cancelRequest(final String executionId, final String reason) {
+        getService(UserRequestService.class).cancel(executionId, reason);
+    }
 
     public int countForms() {
         return getService(UserRequestService.class).

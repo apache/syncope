@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.approvals;
+package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
@@ -29,9 +29,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
-import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.UserRequestRestClient;
-import org.apache.syncope.client.console.approvals.ApprovalDirectoryPanel.ApprovalProvider;
+import org.apache.syncope.client.console.panels.UserRequestFormDirectoryPanel.UserRequestFormProvider;
 import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -40,7 +39,7 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
-import org.apache.syncope.client.console.widgets.ApprovalsWidget;
+import org.apache.syncope.client.console.widgets.UserRequestFormsWidget;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.UserWizardBuilder;
@@ -66,12 +65,14 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
-public class ApprovalDirectoryPanel
-        extends DirectoryPanel<UserRequestForm, UserRequestForm, ApprovalProvider, UserRequestRestClient> {
+public class UserRequestFormDirectoryPanel
+        extends DirectoryPanel<UserRequestForm, UserRequestForm, UserRequestFormProvider, UserRequestRestClient> {
 
     private static final long serialVersionUID = -7122136682275797903L;
 
-    protected final BaseModal<UserRequestForm> manageApprovalModal = new BaseModal<UserRequestForm>("outer") {
+    private static final String PREF_USER_REQUEST_FORM_PAGINATOR_ROWS = "userrequestform.paginator.rows";
+
+    protected final BaseModal<UserRequestForm> manageFormModal = new BaseModal<UserRequestForm>("outer") {
 
         private static final long serialVersionUID = 389935548143327858L;
 
@@ -84,15 +85,15 @@ public class ApprovalDirectoryPanel
 
     };
 
-    public ApprovalDirectoryPanel(final String id, final PageReference pageReference) {
+    public UserRequestFormDirectoryPanel(final String id, final PageReference pageReference) {
         super(id, pageReference, true);
         disableCheckBoxes();
         setFooterVisibility(false);
         modal.size(Modal.Size.Large);
 
-        addOuterObject(manageApprovalModal);
+        addOuterObject(manageFormModal);
 
-        manageApprovalModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+        manageFormModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
 
@@ -100,12 +101,12 @@ public class ApprovalDirectoryPanel
             public void onClose(final AjaxRequestTarget target) {
                 updateResultTable(target);
 
-                Serializable widget = SyncopeConsoleSession.get().getAttribute(ApprovalsWidget.class.getName());
-                if (widget instanceof ApprovalsWidget) {
-                    ((ApprovalsWidget) widget).refreshLatestAlerts(target);
+                Serializable widget = SyncopeConsoleSession.get().getAttribute(UserRequestFormsWidget.class.getName());
+                if (widget instanceof UserRequestFormsWidget) {
+                    ((UserRequestFormsWidget) widget).refreshLatestAlerts(target);
                 }
 
-                manageApprovalModal.show(false);
+                manageFormModal.show(false);
             }
         });
 
@@ -159,10 +160,10 @@ public class ApprovalDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final UserRequestForm ignore) {
-                manageApprovalModal.setFormModel(new CompoundPropertyModel<>(model.getObject()));
+                manageFormModal.setFormModel(new CompoundPropertyModel<>(model.getObject()));
 
-                target.add(manageApprovalModal.setContent(
-                        new ApprovalModal(manageApprovalModal, pageRef, model.getObject()) {
+                target.add(manageFormModal.setContent(new UserRequestFormModal(manageFormModal, pageRef, model.
+                        getObject()) {
 
                     private static final long serialVersionUID = 5546519445061007248L;
 
@@ -171,7 +172,7 @@ public class ApprovalDirectoryPanel
                         try {
                             super.onSubmit(target);
 
-                            ApprovalDirectoryPanel.this.getTogglePanel().close(target);
+                            UserRequestFormDirectoryPanel.this.getTogglePanel().close(target);
                         } catch (SyncopeClientException e) {
                             SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
                         }
@@ -180,8 +181,8 @@ public class ApprovalDirectoryPanel
 
                 }));
 
-                manageApprovalModal.header(new Model<>(getString("approval.manage", new Model<>(model.getObject()))));
-                manageApprovalModal.show(true);
+                manageFormModal.header(new Model<>(getString("form.manage", new Model<>(model.getObject()))));
+                manageFormModal.show(true);
             }
 
             @Override
@@ -221,7 +222,7 @@ public class ApprovalDirectoryPanel
 
                 AjaxWizard.EditItemActionEvent<UserTO> editItemActionEvent =
                         new AjaxWizard.EditItemActionEvent<>(newUserTO, target);
-                editItemActionEvent.forceModalPanel(new ApprovalUserWizardBuilder(
+                editItemActionEvent.forceModalPanel(new FormUserWizardBuilder(
                         model.getObject(),
                         previousUserTO,
                         newUserTO,
@@ -230,7 +231,7 @@ public class ApprovalDirectoryPanel
                         pageRef
                 ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
 
-                send(ApprovalDirectoryPanel.this, Broadcast.EXACT, editItemActionEvent);
+                send(UserRequestFormDirectoryPanel.this, Broadcast.EXACT, editItemActionEvent);
             }
 
             @Override
@@ -245,22 +246,22 @@ public class ApprovalDirectoryPanel
     }
 
     @Override
-    protected ApprovalProvider dataProvider() {
-        return new ApprovalProvider(rows);
+    protected UserRequestFormProvider dataProvider() {
+        return new UserRequestFormProvider(rows);
     }
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_WORKFLOW_FORM_PAGINATOR_ROWS;
+        return PREF_USER_REQUEST_FORM_PAGINATOR_ROWS;
     }
 
-    public static class ApprovalProvider extends DirectoryDataProvider<UserRequestForm> {
+    protected static class UserRequestFormProvider extends DirectoryDataProvider<UserRequestForm> {
 
         private static final long serialVersionUID = -2311716167583335852L;
 
         private final UserRequestRestClient restClient = new UserRequestRestClient();
 
-        public ApprovalProvider(final int paginatorRows) {
+        public UserRequestFormProvider(final int paginatorRows) {
             super(paginatorRows);
 
             setSort("createTime", SortOrder.ASCENDING);
@@ -304,13 +305,13 @@ public class ApprovalDirectoryPanel
         }
     }
 
-    private class ApprovalUserWizardBuilder extends UserWizardBuilder {
+    private class FormUserWizardBuilder extends UserWizardBuilder {
 
         private static final long serialVersionUID = 1854981134836384069L;
 
         private final UserRequestForm formTO;
 
-        ApprovalUserWizardBuilder(
+        FormUserWizardBuilder(
                 final UserRequestForm formTO,
                 final UserTO previousUserTO,
                 final UserTO userTO,

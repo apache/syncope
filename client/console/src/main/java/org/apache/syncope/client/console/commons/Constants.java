@@ -123,8 +123,6 @@ public final class Constants {
 
     public static final String PREF_ACCESS_TOKEN_PAGINATOR_ROWS = "accessToken.paginator.rows";
 
-    public static final String PREF_WORKFLOW_FORM_PAGINATOR_ROWS = "workflow.paginator.rows";
-
     public static final String PREF_REMEDIATION_PAGINATOR_ROWS = "remediation.paginator.rows";
 
     public static final String PREF_RESOURCES_PAGINATOR_ROWS = "resources.paginator.rows";

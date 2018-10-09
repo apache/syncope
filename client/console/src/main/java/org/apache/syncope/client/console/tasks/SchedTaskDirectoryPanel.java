@@ -229,8 +229,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                         new AjaxWizard.EditItemActionEvent<>(clone, target).setResourceModel(
                                 new StringResourceModel("inner.task.clone",
                                         SchedTaskDirectoryPanel.this,
-                                        Model.of(Pair.of(
-                                                ActionLink.ActionType.CLONE, model.getObject())))));
+                                        Model.of(Pair.of(ActionLink.ActionType.CLONE, model.getObject())))));
             }
         }, ActionLink.ActionType.CLONE, StandardEntitlement.TASK_CREATE);
 
@@ -241,8 +240,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             @Override
             public void onClick(final AjaxRequestTarget target, final T ignore) {
                 SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
-                startAt.setExecutionDetail(
-                        model.getObject().getKey(), model.getObject().getName(), target);
+                startAt.setExecutionDetail(model.getObject().getKey(), model.getObject().getName(), target);
                 startAt.toggle(target, true);
             }
         }, ActionLink.ActionType.EXECUTE, StandardEntitlement.TASK_EXECUTE);
