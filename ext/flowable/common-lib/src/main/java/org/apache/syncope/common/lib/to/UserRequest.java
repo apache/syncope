@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import java.util.Date;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
@@ -30,7 +31,9 @@ public class UserRequest extends AbstractBaseBean {
 
     private String bpmnProcess;
 
-    private String user;
+    private Date startTime;
+
+    private String username;
 
     private String executionId;
 
@@ -44,12 +47,20 @@ public class UserRequest extends AbstractBaseBean {
         this.bpmnProcess = bpmnProcess;
     }
 
-    public String getUser() {
-        return user;
+    public Date getStartTime() {
+        return startTime;
     }
 
-    public void setUser(final String user) {
-        this.user = user;
+    public void setStartTime(final Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(final String username) {
+        this.username = username;
     }
 
     public String getExecutionId() {

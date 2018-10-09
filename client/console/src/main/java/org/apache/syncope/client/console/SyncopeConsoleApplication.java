@@ -62,7 +62,7 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
-import org.apache.wicket.resource.DynamicJQueryResourceReference;
+import org.apache.wicket.resource.JQueryResourceReference;
 import org.apache.wicket.util.lang.Args;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,7 +190,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
         getResourceSettings().setThrowExceptionOnMissingResource(true);
 
-        getJavaScriptLibrarySettings().setJQueryReference(new DynamicJQueryResourceReference());
+        getJavaScriptLibrarySettings().setJQueryReference(JQueryResourceReference.getV2());
 
         getSecuritySettings().setAuthorizationStrategy(new MetaDataRoleAuthorizationStrategy(this));
 

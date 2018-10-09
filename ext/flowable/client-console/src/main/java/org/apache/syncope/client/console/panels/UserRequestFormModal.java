@@ -16,22 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.approvals;
+package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.UserRequestRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.syncope.client.console.panels.SubmitableModalPanel;
-import org.apache.syncope.client.console.panels.WizardModalPanel;
 
-public class ApprovalModal extends Panel implements SubmitableModalPanel, WizardModalPanel<UserRequestForm> {
+public class UserRequestFormModal extends Panel implements SubmitableModalPanel, WizardModalPanel<UserRequestForm> {
 
     private static final long serialVersionUID = -8847854414429745216L;
 
@@ -43,20 +40,20 @@ public class ApprovalModal extends Panel implements SubmitableModalPanel, Wizard
 
     private final PageReference pageRef;
 
-    public ApprovalModal(final BaseModal<?> modal, final PageReference pageRef, final UserRequestForm formTO) {
+    public UserRequestFormModal(final BaseModal<?> modal, final PageReference pageRef, final UserRequestForm formTO) {
         super(BaseModal.CONTENT_ID);
         this.modal = modal;
         this.formTO = formTO;
         this.pageRef = pageRef;
 
-        MultilevelPanel mlp = new MultilevelPanel("approval");
-        mlp.setFirstLevel(new Approval(pageRef, formTO) {
+        MultilevelPanel mlp = new MultilevelPanel("userRequestForm");
+        mlp.setFirstLevel(new UserRequestFormPanel(pageRef, formTO) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 
             @Override
             protected void viewDetails(final AjaxRequestTarget target) {
-                mlp.next(getString("approval.details"), new ApprovalDetails(pageRef, formTO), target);
+                mlp.next(getString("userRequest.details"), new UserRequestFormDetails(pageRef, formTO), target);
             }
         });
         add(mlp);

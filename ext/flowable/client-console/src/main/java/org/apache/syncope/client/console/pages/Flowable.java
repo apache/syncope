@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.pages;
 
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.annotations.ExtPage;
 import org.apache.syncope.client.console.panels.BpmnProcessDirectoryPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
@@ -57,11 +56,5 @@ public class Flowable extends BaseExtPage {
         MetaDataRoleAuthorizationStrategy.authorize(bpmnProcessesPanel, ENABLE, FlowableEntitlement.BPMN_PROCESS_LIST);
 
         content.add(bpmnProcessesPanel);
-
-        if (SyncopeConsoleSession.get().getPlatformInfo().getUserWorkflowAdapter().contains("Flowable")) {
-            disabled.setVisible(false);
-        } else {
-            bpmnProcessesPanel.setVisible(false);
-        }
     }
 }

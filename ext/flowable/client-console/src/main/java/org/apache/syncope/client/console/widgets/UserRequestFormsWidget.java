@@ -26,7 +26,7 @@ import java.util.List;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.annotations.ExtWidget;
-import org.apache.syncope.client.console.pages.Approvals;
+import org.apache.syncope.client.console.pages.UserRequests;
 import org.apache.syncope.client.console.rest.UserRequestRestClient;
 import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.common.lib.to.UserRequestForm;
@@ -43,15 +43,15 @@ import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.time.Duration;
 
 @ExtWidget(priority = 10)
-public class ApprovalsWidget extends ExtAlertWidget<UserRequestForm> {
+public class UserRequestFormsWidget extends ExtAlertWidget<UserRequestForm> {
 
     private static final long serialVersionUID = 7667120094526529934L;
 
     private final UserRequestRestClient restClient = new UserRequestRestClient();
 
-    private final List<UserRequestForm> lastApprovals = new ArrayList<>();
+    private final List<UserRequestForm> lastForms = new ArrayList<>();
 
-    public ApprovalsWidget(final String id, final PageReference pageRef) {
+    public UserRequestFormsWidget(final String id, final PageReference pageRef) {
         super(id);
         setOutputMarkupId(true);
 
@@ -61,7 +61,7 @@ public class ApprovalsWidget extends ExtAlertWidget<UserRequestForm> {
 
             @Override
             protected void onTimer(final AjaxRequestTarget target) {
-                if (!latestAlerts.getObject().equals(lastApprovals)) {
+                if (!latestAlerts.getObject().equals(lastForms)) {
                     refreshLatestAlerts(target);
                 }
             }
@@ -70,7 +70,7 @@ public class ApprovalsWidget extends ExtAlertWidget<UserRequestForm> {
 
     public final void refreshLatestAlerts(final AjaxRequestTarget target) {
         latestAlerts.getObject().clear();
-        latestAlerts.getObject().addAll(lastApprovals);
+        latestAlerts.getObject().addAll(lastForms);
 
         int latestAlertSize = getLatestAlertsSize();
         linkAlertsNumber.setDefaultModelObject(latestAlertSize);
@@ -81,8 +81,8 @@ public class ApprovalsWidget extends ExtAlertWidget<UserRequestForm> {
 
         target.add(latestAlertsList);
 
-        lastApprovals.clear();
-        lastApprovals.addAll(latestAlerts.getObject());
+        lastForms.clear();
+        lastForms.addAll(latestAlerts.getObject());
     }
 
     @Override
@@ -100,24 +100,24 @@ public class ApprovalsWidget extends ExtAlertWidget<UserRequestForm> {
 
             @Override
             public List<UserRequestForm> getObject() {
-                List<UserRequestForm> updatedApprovals;
+                List<UserRequestForm> updatedForms;
                 if (SyncopeConsoleSession.get().owns(FlowableEntitlement.USER_REQUEST_FORM_LIST)) {
-                    updatedApprovals = restClient.getForms(1, MAX_SIZE, new SortParam<>("createTime", true));
+                    updatedForms = restClient.getForms(1, MAX_SIZE, new SortParam<>("createTime", true));
                 } else {
-                    updatedApprovals = Collections.<UserRequestForm>emptyList();
+                    updatedForms = Collections.<UserRequestForm>emptyList();
                 }
 
-                return updatedApprovals;
+                return updatedForms;
             }
         };
     }
 
     @Override
     protected AbstractLink getEventsLink(final String linkid) {
-        BookmarkablePageLink<Approvals> approvals = BookmarkablePageLinkBuilder.build(linkid, Approvals.class);
+        BookmarkablePageLink<UserRequests> userRequests = BookmarkablePageLinkBuilder.build(linkid, UserRequests.class);
         MetaDataRoleAuthorizationStrategy.authorize(
-                approvals, WebPage.ENABLE, FlowableEntitlement.USER_REQUEST_FORM_LIST);
-        return approvals;
+                userRequests, WebPage.ENABLE, FlowableEntitlement.USER_REQUEST_FORM_LIST);
+        return userRequests;
     }
 
     @Override
