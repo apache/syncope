@@ -242,6 +242,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
             result.setOperation(ResourceOperation.NONE);
             result.setStatus(ProvisioningReport.Status.IGNORE);
+            result.setMessage(e.getMessage());
 
             LOG.warn("Ignoring during push", e);
             return true;

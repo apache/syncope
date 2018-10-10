@@ -144,6 +144,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             ignoreResult.setAnyType(provision == null
                     ? getAnyUtils().anyTypeKind().name() : provision.getAnyType().getKey());
             ignoreResult.setStatus(ProvisioningReport.Status.IGNORE);
+            ignoreResult.setMessage(e.getMessage());
             ignoreResult.setKey(null);
             ignoreResult.setName(delta.getObject().getName().getNameValue());
             profile.getResults().add(ignoreResult);
@@ -728,21 +729,22 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 processed.getDeltaType(), processed.getUid().getUidValue(), processed.getObject().getObjectClass());
 
         try {
-            List<String> anyKeys = pullUtils.match(processed.getObject(), provision, anyUtils);
+            List<String> keys = pullUtils.match(processed.getObject(), provision, anyUtils);
             LOG.debug("Match(es) found for {} as {}: {}",
-                    processed.getUid().getUidValue(), processed.getObject().getObjectClass(), anyKeys);
+                    processed.getUid().getUidValue(), processed.getObject().getObjectClass(), keys);
 
-            if (anyKeys.size() > 1) {
+            if (keys.size() > 1) {
                 switch (profile.getResAct()) {
                     case IGNORE:
-                        throw new IllegalStateException("More than one match " + anyKeys);
+                        throw new IgnoreProvisionException("More than one match found for "
+                                + processed.getObject().getUid().getUidValue() + ": " + keys);
 
                     case FIRSTMATCH:
-                        anyKeys = anyKeys.subList(0, 1);
+                        keys = keys.subList(0, 1);
                         break;
 
                     case LASTMATCH:
-                        anyKeys = anyKeys.subList(anyKeys.size() - 1, anyKeys.size());
+                        keys = keys.subList(keys.size() - 1, keys.size());
                         break;
 
                     default:
@@ -751,7 +753,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             }
 
             if (SyncDeltaType.CREATE_OR_UPDATE == processed.getDeltaType()) {
-                if (anyKeys.isEmpty()) {
+                if (keys.isEmpty()) {
                     switch (profile.getTask().getUnmatchingRule()) {
                         case ASSIGN:
                             profile.getResults().addAll(assign(processed, provision, anyUtils));
@@ -772,7 +774,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     // update VirAttrCache
                     for (VirSchema virSchema : virSchemaDAO.findByProvision(provision)) {
                         Attribute attr = processed.getObject().getAttributeByName(virSchema.getExtAttrName());
-                        for (String anyKey : anyKeys) {
+                        for (String anyKey : keys) {
                             if (attr == null) {
                                 virAttrCache.expire(
                                         provision.getAnyType().getKey(),
@@ -792,27 +794,27 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
                     switch (profile.getTask().getMatchingRule()) {
                         case UPDATE:
-                            profile.getResults().addAll(update(processed, anyKeys, provision));
+                            profile.getResults().addAll(update(processed, keys, provision));
                             break;
 
                         case DEPROVISION:
-                            profile.getResults().addAll(deprovision(processed, anyKeys, provision, false));
+                            profile.getResults().addAll(deprovision(processed, keys, provision, false));
                             break;
 
                         case UNASSIGN:
-                            profile.getResults().addAll(deprovision(processed, anyKeys, provision, true));
+                            profile.getResults().addAll(deprovision(processed, keys, provision, true));
                             break;
 
                         case LINK:
-                            profile.getResults().addAll(link(processed, anyKeys, provision, false));
+                            profile.getResults().addAll(link(processed, keys, provision, false));
                             break;
 
                         case UNLINK:
-                            profile.getResults().addAll(link(processed, anyKeys, provision, true));
+                            profile.getResults().addAll(link(processed, keys, provision, true));
                             break;
 
                         case IGNORE:
-                            profile.getResults().addAll(ignore(processed, anyKeys, provision, true));
+                            profile.getResults().addAll(ignore(processed, keys, provision, true));
                             break;
 
                         default:
@@ -820,11 +822,11 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     }
                 }
             } else if (SyncDeltaType.DELETE == processed.getDeltaType()) {
-                if (anyKeys.isEmpty()) {
+                if (keys.isEmpty()) {
                     finalize(ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, processed);
                     LOG.debug("No match found for deletion");
                 } else {
-                    profile.getResults().addAll(delete(processed, anyKeys, provision));
+                    profile.getResults().addAll(delete(processed, keys, provision));
                 }
             }
         } catch (IllegalStateException | IllegalArgumentException e) {
