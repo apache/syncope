@@ -43,10 +43,6 @@ public class Flowable extends BaseExtPage {
         content.setOutputMarkupId(true);
         body.add(content);
 
-        WebMarkupContainer disabled = new WebMarkupContainer("disabled");
-        disabled.setOutputMarkupPlaceholderTag(true);
-        content.add(disabled);
-
         WizardMgtPanel<BpmnProcess> bpmnProcessesPanel = new BpmnProcessDirectoryPanel.Builder(getPageReference()) {
 
             private static final long serialVersionUID = -5960765294082359003L;
