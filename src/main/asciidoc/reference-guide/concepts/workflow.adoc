@@ -147,10 +147,9 @@ for http://www.flowable.org/docs/userguide/index.html#forms[Flowable forms^].
 The following conditions must be met, for an User `U` to act as administrator for approval:
 
 . `U` must own the following <<entitlements,entitlements>>, for all the required realms:
-.. `WORKFLOW_FORM_CLAIM`
-.. `WORKFLOW_FORM_LIST`
-.. `WORKFLOW_FORM_READ`
-.. `WORKFLOW_FORM_SUBMIT`
+.. `USER_REQUEST_FORM_CLAIM`
+.. `USER_REQUEST_FORM_LIST`
+.. `USER_REQUEST_FORM_SUBMIT`
 .. `USER_READ`
 . The BPMN `userTask` must either indicate `U` among `candidateUsers` or at least one of the groups assigned to `U`
 among `candidateGroups`, as required by
@@ -172,7 +171,7 @@ http://www.flowable.org/docs/userguide/index.html#flowableModelerApp[Flowable Mo
           flowable:candidateGroups="managingDirector" flowable:formKey="createApproval"> // <1>
   <extensionElements>
     <flowable:formProperty id="username" name="Username" type="string"
-                           expression="${user.username}" writable="false"/> // <2>
+                           expression="${userTO.username}" writable="false"/> // <2>
     <flowable:formProperty id="approve" name="Approve?" type="boolean"
                            variable="approve" required="true"/> // <3>
     <flowable:formProperty id="rejectReason" name="Reason for rejecting" type="string"
@@ -196,3 +195,86 @@ the following flow (the actual operations on the admin console for the sample ab
 . administrator A claims the approval and is then allowed to manage it
 . administrator A reviews the updated user, with ongoing modification applied (no actual modification performed yet)
 . administrator A can approve or reject such modification
+
+===== Request Management
+
+Request management is a key-feature of Identity Governance and allows to define and manage, in a structured way,
+whatever process intended to update identity attributes, memberships and relationships. +
+Request examples are "assign mobile phone", "grant groups on AD" or "consent access to application".
+
+Users can initiate whichever request among the ones defined; once initiated, such requests will follow their own path,
+which might also include one or more <<approval,approval>> steps.
+
+[[sample-user-request]]
+.Assigning printer to user
+====
+The BPMN process below shows how to define an user request in XML; the same operation can be performed via the
+http://www.flowable.org/docs/userguide/index.html#flowableModelerApp[Flowable Modeler^].
+
+In this user request definition:
+
+. user selects one of printers defined in the system, for self-assignment
+. administrator approves user's selection
+. a <<memberships-relationships,relationship>> between user and printer is established
+
+[source,xml]
+----
+<process id="assignPrinterRequest" name="Assign printer" isExecutable="true">
+  <startEvent id="startevent1" name="Start"/>
+  <endEvent id="endevent1" name="End"/>
+  <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="selectPrinter"/>
+  <userTask id="selectPrinter" name="Select printer" flowable:formKey="selectPrinter"
+            flowable:assignee="${wfExecutor}"> // <1>
+    <extensionElements>
+      <flowable:formProperty id="printer" name="Printer"
+                             variable="printer" type="dropdown" required="true"> // <2>
+        <flowable:value id="dropdownValueProvider" name="printersValueProvider"/>
+      </flowable:formProperty>
+      <flowable:formProperty id="printMode" name="Preferred print mode?" type="enum">
+        <flowable:value id="bw" name="Black / White"/>
+        <flowable:value id="color" name="Color"/>
+      </flowable:formProperty>
+    </extensionElements>
+  </userTask>
+  <userTask id="approvePrinter" name="Approve printer" flowable:formKey="approvePrinter"> // <3>
+    <extensionElements>
+      <flowable:formProperty id="username" name="Username" type="string" 
+                             expression="${userTO.username}" writable="false"/>
+      <flowable:formProperty id="printer" name="Selected printer" type="string" 
+                             expression="${printer}" writable="false"/>
+      <flowable:formProperty id="approve" name="Approve?" type="boolean"
+                             variable="approve" required="true"/>
+    </extensionElements>
+  </userTask>
+  <sequenceFlow id="sid-D7047714-8E57-46B8-B6D4-4844DE330329"
+                sourceRef="selectPrinter" targetRef="approvePrinter"/>
+  <serviceTask id="createARelationship" name="Create ARelationship"
+               flowable:delegateExpression="${createARelationship}"/> // <4>
+  <sequenceFlow id="sid-33880AE7-35C6-4A39-8E5B-12D8BA53F042"
+                sourceRef="approvePrinter" targetRef="createARelationship"/>
+  <sequenceFlow id="sid-831E1896-EDF9-4F7D-AA42-E86CC1F8C5D3"
+                sourceRef="createARelationship" targetRef="endevent1"/>
+</process>
+----
+<1> the first form defined is self-assigned to the user which has started this request
+<2> the `dropdown` type is a Syncope extension of the
+https://www.flowable.org/docs/userguide/index.html#formProperties[form property types supported by Flowable^]
+and allows to inject a list of elements via the `dropdownValueProvider` value (with name `printersValueProvider` in this
+sample), which must be a Spring bean implementing the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/flowable/flowable-bpmn/src/main/java/org/apache/syncope/core/flowable/api/DropdownValueProvider.java[DropdownValueProvider^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/ext/flowable/flowable-bpmn/src/main/java/org/apache/syncope/core/flowable/api/DropdownValueProvider.java[DropdownValueProvider^]
+endif::[]
+interface
+<3> the second form is a traditional approval form, as seen <<sample-selfreg-approval,above>>
+<4> this is a
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/flowable/flowable-bpmn/src/main/java/org/apache/syncope/core/flowable/task/FlowableServiceTask.java[FlowableServiceTask^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/ext/flowable/flowable-bpmn/src/main/java/org/apache/syncope/core/flowable/task/FlowableServiceTask.java[FlowableServiceTask^]
+endif::[]
+implementation which takes care of establishing the relationship
+====
