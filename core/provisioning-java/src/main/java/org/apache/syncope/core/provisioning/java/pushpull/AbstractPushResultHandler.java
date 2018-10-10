@@ -208,20 +208,21 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             doHandle(any, provision);
             return true;
         } catch (IgnoreProvisionException e) {
-            ProvisioningReport result = profile.getResults().stream().
+            ProvisioningReport ignoreResult = profile.getResults().stream().
                     filter(report -> anyKey.equalsIgnoreCase(report.getKey())).
                     findFirst().
                     orElse(null);
-            if (result == null) {
-                result = new ProvisioningReport();
-                result.setKey(anyKey);
-                result.setAnyType(any == null ? null : any.getType().getKey());
+            if (ignoreResult == null) {
+                ignoreResult = new ProvisioningReport();
+                ignoreResult.setKey(anyKey);
+                ignoreResult.setAnyType(any == null ? null : any.getType().getKey());
 
-                profile.getResults().add(result);
+                profile.getResults().add(ignoreResult);
             }
 
-            result.setOperation(ResourceOperation.NONE);
-            result.setStatus(ProvisioningReport.Status.IGNORE);
+            ignoreResult.setOperation(ResourceOperation.NONE);
+            ignoreResult.setStatus(ProvisioningReport.Status.IGNORE);
+            ignoreResult.setMessage(e.getMessage());
 
             LOG.warn("Ignoring during push", e);
             return true;
@@ -249,7 +250,8 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         if (connObjs.size() > 1) {
             switch (profile.getConflictResolutionAction()) {
                 case IGNORE:
-                    throw new IllegalStateException("More than one match: " + connObjs);
+                    throw new IgnoreProvisionException("More than one match found for "
+                            + any.getKey() + ": " + connObjs);
 
                 case FIRSTMATCH:
                     connObjs = connObjs.subList(0, 1);

@@ -19,11 +19,17 @@
 package org.apache.syncope.core.provisioning.api.pushpull;
 
 /**
- * Raised by {@link PullActions} or {@link PushActions} methods when the given any object is to be ignored for
- * pull / push.
+ * Raised when the given any object is to be ignored for pull / push.
  */
 public class IgnoreProvisionException extends RuntimeException {
 
     private static final long serialVersionUID = -8803817097998786364L;
 
+    public IgnoreProvisionException() {
+        super();
+    }
+
+    public IgnoreProvisionException(final String message) {
+        super(message);
+    }
 }
