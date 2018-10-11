@@ -53,6 +53,23 @@ Suspended Users are anyway not allowed to authenticate.
 * `connector.conf.history.size` - how many previous configurations shall be kept for each Connector Instance,
 for usage with <<connectors-resources-history, connectors and resources configuration history management>>;
 * `resource.conf.history.size` - how many previous configurations shall be kept for each External Resource,
-for usage with <<connectors-resources-history, connectors and resources configuration history management>>.
+for usage with <<connectors-resources-history, connectors and resources configuration history management>>;
+* `connector.test.timeout` - timeout (in seconds) for testing connector connection in <<Admin Console>>. 
+A value of `0` means there will be no timeout;
+
+[NOTE]
+====
+This parameter is useful to avoid waiting for the default connector timeout, by setting a shorter value; 
+or to completely disable connector connection testing.
+====
+
+* `resource.test.timeout` - timeout (in seconds) for testing resource connection in <<Admin Console>>. 
+A value of `0` means there will be no timeout.
+
+[NOTE]
+====
+This parameter is useful to avoid waiting for the default resource timeout, by setting a shorter value; 
+or to completely disable resource connection testing.
+====
 
 Besides this default set, new configuration parameters can be defined to support <<customization,custom>> code.
