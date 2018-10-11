@@ -680,7 +680,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         boolean ignoreCase = AttributeCond.Type.ILIKE == cond.getType() || AttributeCond.Type.IEQ == cond.getType();
 
         String column = (cond instanceof AnyCond) ? cond.getSchema() : svs.fieldName(schema.getType());
-        if (ignoreCase) {
+        if ((schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) && ignoreCase) {
             column = "LOWER (" + column + ")";
         }
         if (!(cond instanceof AnyCond)) {
@@ -731,7 +731,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 } else {
                     query.append('=');
                 }
-                if (ignoreCase) {
+                if ((schema.getType() == AttrSchemaType.String 
+                        || schema.getType() == AttrSchemaType.Enum) && ignoreCase) {
                     query.append("LOWER(?").append(setParameter(parameters, attrValue.getValue())).append(')');
                 } else {
                     query.append('?').append(setParameter(parameters, attrValue.getValue()));
