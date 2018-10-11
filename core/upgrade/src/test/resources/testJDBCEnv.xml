@@ -46,8 +46,8 @@ under the License.
     <property name="dataSource" ref="syncope20DataSource"/>
     <property name="databasePopulator">
       <bean class="org.springframework.jdbc.datasource.init.ResourceDatabasePopulator">
-        <property name="continueOnError" value="true"/>
-        <property name="ignoreFailedDrops" value="true"/>
+        <property name="continueOnError" value="false"/>
+        <property name="ignoreFailedDrops" value="false"/>
         <property name="sqlScriptEncoding" value="UTF-8"/>
         <property name="scripts">
           <array>
