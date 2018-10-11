@@ -75,6 +75,7 @@ import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.Uid;
+import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -387,7 +388,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         final List<ConnObjectTO> connObjects = new ArrayList<>();
 
-        SearchResult searchResult = connFactory.getConnector(resource).search(objectClass, null, new ResultsHandler() {
+        SearchResult searchResult = connFactory.getConnector(resource).search(
+                objectClass, null, new SearchResultsHandler() {
 
             private int count;
 
@@ -397,6 +399,11 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 // safety protection against uncontrolled result size
                 count++;
                 return count < size;
+            }
+
+            @Override
+            public void handleResult(final SearchResult sr) {
+                // do nothing
             }
         }, size, pagedResultsCookie, orderBy, options);
 
