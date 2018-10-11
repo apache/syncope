@@ -28,9 +28,11 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
+import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -107,10 +109,20 @@ public class AsyncConnectorFacade {
         connector.search(
                 objectClass,
                 ignoreCaseMatch ? FilterBuilder.equalsIgnoreCase(connObjectKey) : FilterBuilder.equalTo(connObjectKey),
-                connectorObject -> {
-                    objects[0] = connectorObject;
-                    return false;
-                }, options);
+                new SearchResultsHandler() {
+
+            @Override
+            public boolean handle(final ConnectorObject connectorObject) {
+                objects[0] = connectorObject;
+                return false;
+            }
+
+            @Override
+            public void handleResult(final SearchResult sr) {
+                // do nothing
+            }
+        },
+                options);
 
         return new AsyncResult<>(objects[0]);
     }
