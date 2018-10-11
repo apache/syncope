@@ -76,7 +76,6 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
-import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
@@ -407,24 +406,24 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         final List<ConnObjectTO> connObjects = new ArrayList<>();
 
-        SearchResult searchResult = connFactory.getConnector(resource).search(
-                objectClass, null, new SearchResultsHandler() {
+        SearchResult searchResult = connFactory.getConnector(resource).
+                search(objectClass, null, new SearchResultsHandler() {
 
-            private int count;
+                    private int count;
 
-            @Override
-            public boolean handle(final ConnectorObject connectorObject) {
-                connObjects.add(ConnObjectUtils.getConnObjectTO(connectorObject));
-                // safety protection against uncontrolled result size
-                count++;
-                return count < size;
-            }
+                    @Override
+                    public boolean handle(final ConnectorObject connectorObject) {
+                        connObjects.add(ConnObjectUtils.getConnObjectTO(connectorObject));
+                        // safety protection against uncontrolled result size
+                        count++;
+                        return count < size;
+                    }
 
-            @Override
-            public void handleResult(final SearchResult sr) {
-                // do nothing
-            }
-        }, size, pagedResultsCookie, orderBy, options);
+                    @Override
+                    public void handleResult(final SearchResult sr) {
+                        // do nothing
+                    }
+                }, size, pagedResultsCookie, orderBy, options);
 
         return ImmutablePair.of(searchResult, connObjects);
     }
