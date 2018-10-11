@@ -117,4 +117,32 @@ public class GeneratedUpgradeSQLTest {
         assertNotNull(pushCorrelationRuleEntities);
         assertEquals(0, pushCorrelationRuleEntities.intValue());
     }
+
+    @Test
+    public void upgradeFlowableTo212() throws Exception {
+        StringWriter out = new StringWriter();
+        GenerateUpgradeSQL.setWriter(out);
+
+        String[] args = new String[] { driverClassName, jdbcURL, username, password, "h2", "-flowable-2.1.2" };
+        GenerateUpgradeSQL.main(args);
+
+        String upgradeSQL = out.toString();
+
+        try {
+            DataSourceInitializer adminUsersInit = new DataSourceInitializer();
+            adminUsersInit.setDataSource(syncope20DataSource);
+            adminUsersInit.setDatabasePopulator(
+                    new ResourceDatabasePopulator(new ByteArrayResource(upgradeSQL.getBytes(StandardCharsets.UTF_8))));
+            adminUsersInit.afterPropertiesSet();
+        } catch (Exception e) {
+            fail("Unexpected error while upgrading Flowable to 2.1.2", e);
+        }
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(syncope20DataSource);
+
+        Integer processInstances = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM ACT_RU_EXECUTION WHERE BUSINESS_KEY_ IS NOT NULL", Integer.class);
+        assertNotNull(processInstances);
+        assertEquals(5, processInstances.intValue());
+    }
 }
