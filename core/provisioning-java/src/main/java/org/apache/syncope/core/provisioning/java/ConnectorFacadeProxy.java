@@ -329,7 +329,7 @@ public class ConnectorFacadeProxy implements Connector {
             actualOptions = filterBuilder.build(actualOptions);
         }
 
-        search(objectClass, filter, new ResultsHandler() {
+        search(objectClass, filter, new SearchResultsHandler() {
 
             @Transactional
             @Override
@@ -340,6 +340,11 @@ public class ConnectorFacadeProxy implements Connector {
                         setDeltaType(SyncDeltaType.CREATE_OR_UPDATE).
                         setToken(new SyncToken("")).
                         build());
+            }
+
+            @Override
+            public void handleResult(final SearchResult sr) {
+                // do nothing
             }
         }, actualOptions);
     }

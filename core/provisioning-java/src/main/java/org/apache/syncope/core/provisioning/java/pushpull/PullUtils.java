@@ -69,6 +69,8 @@ import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
+import org.identityconnectors.framework.common.objects.SearchResult;
+import org.identityconnectors.framework.spi.SearchResultsHandler;
 
 @Transactional(readOnly = true)
 @Component
@@ -133,11 +135,16 @@ public class PullUtils {
         final List<ConnectorObject> found = new ArrayList<>();
         connector.search(provision.getObjectClass(),
                 new EqualsFilter(new Name(name)),
-                new ResultsHandler() {
+                new SearchResultsHandler() {
 
             @Override
             public boolean handle(final ConnectorObject obj) {
                 return found.add(obj);
+            }
+
+            @Override
+            public void handleResult(final SearchResult sr) {
+                // do nothing
             }
         }, MappingUtils.buildOperationOptions(MappingUtils.getPullItems(provision.getMapping().getItems()).iterator()));
 
