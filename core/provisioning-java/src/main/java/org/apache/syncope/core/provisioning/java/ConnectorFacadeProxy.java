@@ -32,6 +32,7 @@ import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
+import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.common.security.GuardedByteArray;
@@ -47,7 +48,6 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
-import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.SortKey;
 import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
@@ -62,7 +62,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ClassUtils;
-import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 
 public class ConnectorFacadeProxy implements Connector {
 
@@ -326,12 +325,23 @@ public class ConnectorFacadeProxy implements Connector {
             actualOptions = filterBuilder.build(actualOptions);
         }
 
-        search(objectClass, filter, object -> handler.handle(new SyncDeltaBuilder().
-                setObject(object).
-                setUid(object.getUid()).
-                setDeltaType(SyncDeltaType.CREATE_OR_UPDATE).
-                setToken(new SyncToken("")).
-                build()), actualOptions);
+        search(objectClass, filter, new SearchResultsHandler() {
+
+            @Override
+            public void handleResult(final SearchResult result) {
+                // nothing to do
+            }
+
+            @Override
+            public boolean handle(final ConnectorObject object) {
+                return handler.handle(new SyncDeltaBuilder().
+                        setObject(object).
+                        setUid(object.getUid()).
+                        setDeltaType(SyncDeltaType.CREATE_OR_UPDATE).
+                        setToken(new SyncToken("")).
+                        build());
+            }
+        }, actualOptions);
     }
 
     @Override
@@ -423,7 +433,7 @@ public class ConnectorFacadeProxy implements Connector {
     public SearchResult search(
             final ObjectClass objectClass,
             final Filter filter,
-            final ResultsHandler handler,
+            final SearchResultsHandler handler,
             final OperationOptions options) {
 
         SearchResult result = null;
@@ -443,9 +453,7 @@ public class ConnectorFacadeProxy implements Connector {
 
                         @Override
                         public void handleResult(final SearchResult result) {
-                            if (handler instanceof SearchResultsHandler) {
-                                SearchResultsHandler.class.cast(handler).handleResult(result);
-                            }
+                            handler.handleResult(result);
                             cookies[0] = result.getPagedResultsCookie();
                         }
 
@@ -470,7 +478,7 @@ public class ConnectorFacadeProxy implements Connector {
     public SearchResult search(
             final ObjectClass objectClass,
             final Filter filter,
-            final ResultsHandler handler,
+            final SearchResultsHandler handler,
             final int pageSize,
             final String pagedResultsCookie,
             final List<OrderByClause> orderBy,
