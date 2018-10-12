@@ -346,10 +346,10 @@ Environment variables:
 
 Besides the one reported below, more samples are
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/tree/syncope-{docVersion}/docker/src/main/resources[available^].
+https://github.com/apache/syncope/tree/syncope-{docVersion}/docker/src/main/resources/docker-compose[available^].
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/docker/src/main/resources[available^].
+https://github.com/apache/syncope/tree/master/docker/src/main/resources/docker-compose[available^].
 endif::[]
 
 .Syncope Core, Admin UI and Enduser UI with PostgreSQL
@@ -453,43 +453,65 @@ Credentials: `admin` / `password`
 
 |===
 
-==== Kubernetes Install
+==== Kubernetes sample
 
-Using the same images above it is possible to install in Kubernetes.  Provided is a set of example helm charts that can be used to install Syncope directly in Kubernetes.  Your specific setup might be different but ideally these can be a baseline install for your specific needs.  This will walk you through the installation of syncope via helm.
+A set of example https://www.helm.sh/[Helm^] charts is
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/tree/syncope-{docVersion}/docker/src/main/resources/kubernetes[available^],
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/master/docker/src/main/resources/kubernetes[available^],
+endif::[]
+that can be used to install Apache Syncope directly in Kubernetes.
 
-It makes a couple assumptions:
+Some assumptions are made:
 
-* Have a working Kubernetes Cluster to install into.
-** If you don't have one then GCP has a decent https://kubernetes.io/docs/setup/[tutorial] .  **NOTE:** You could also use any other Cloud Provider or Local install (e.g. AWS, Minikub, Openshift)
-* Have helm installed
-** Follow these https://docs.helm.sh/using_helm/[instructions] if you don't
-* You have your kubernetes cluster to allow for dynamic provisioning of persistent volumes in K8s
-** If you don't have it then you will need to manually create the volume or turn on dynamic provisioning.  Refer to this link https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/[here]
+* a working Kubernetes Cluster to install into - if not available, follow this
+https://kubernetes.io/docs/setup/[tutorial^]
+[NOTE]
+Any other cloud provider or local install (e.g. AWS, Minikube, OpenShift) can be used
 
-===== Overview Of Install
+* Helm installed - follow these https://docs.helm.sh/using_helm/[instructions^] if you don't
 
-The install is broken into two separate helm charts.  This is due to the fact that syncope doesn't startup properly is the database isn't fully initialized yet.
+* allow for https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/[dynamic provisioning^] of persistent
+volumes - otherwise you will need to manually create the volume
 
-* Postgres Chart - this will install the postgres database.  It will also configure a persistent volume and persistent volume claim to store the data
-* Syncope Chart - This is the actual syncope install.  It will install 3 separate pods (Core, Console, and Enduser)
+The install process is broken into two separate Helm charts; this is due to the fact that Apache Syncope doesn't startup
+properly if the database used as internal storage is not fully initialized yet:
+
+* `postgres` chart; this will install the PostgreSQL database and configure a persistent volume and persistent volume
+claim to store the data
+* `syncope` chart; this is the actual Apache Syncope install, which will deploy three separate pods
+(Core, Console, and Enduser)
 
 image::SyncopeLayoutInK8s.png[]
 
-**Values.yaml** - Each Helm Chart has a values.yaml.  These are the configurable parameters for your specific install.  Before running the install you need to update the values.yaml for your needs
+The installation steps are:
 
-===== Install Commands
+. Open a terminal and navigate to the `kubernetes`
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/tree/syncope-{docVersion}/docker/src/main/resources/kubernetes[folder^],
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/master/docker/src/main/resources/kubernetes[folder^],
+endif::[]
+wherever you downloaded it
 
-Open a terminal and navigate to the "helm" https://github.com/apache/syncope/tree/master/docker/src/main/resources/k8s/helm[folder] wherever you downloaded the code.  **REMINDER:  SET YOUR VALUES.YAML!!!**
+. Set your actual values in `postgres/values.yaml`
 
-.Install postgres
+. Install PostgreSQL
++
 [source,bash]
 ----
 helm install postgres --name postgres --namespace <YOUR_NAMESPACE> -f postgres/values.yaml
 ----
++
+Wait until PostgreSQL is initialized (watch logs for confirmation)
 
-Let Postgres initialize (about 20-30 seconds).  You can watch logs to confirm
+. Set your actual values in `syncope/values.yaml`
 
-.Install syncope
+. Install Apache Syncope
++
 [source,bash]
 ----
 helm install syncope --name syncope --namespace <YOUR_NAMESPACE> -f syncope/values.yaml
