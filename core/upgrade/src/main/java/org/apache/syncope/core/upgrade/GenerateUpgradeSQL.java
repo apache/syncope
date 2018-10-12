@@ -417,6 +417,14 @@ public final class GenerateUpgradeSQL {
         OUT.write("DROP VIEW user_search;\n");
         OUT.write("ALTER TABLE SyncopeUser DROP COLUMN workflowId;\n");
         OUT.write("CREATE VIEW user_search AS SELECT u.id as any_id, u.* FROM SyncopeUser u;\n");
+
+        OUT.write("DROP VIEW group_search;\n");
+        OUT.write("ALTER TABLE SyncopeGroup DROP COLUMN workflowId;\n");
+        OUT.write("CREATE VIEW group_search AS SELECT r.id as any_id, r.* FROM SyncopeGroup r;\n");
+
+        OUT.write("DROP VIEW anyObject_search;\n");
+        OUT.write("ALTER TABLE AnyObject DROP COLUMN workflowId;\n");
+        OUT.write("CREATE VIEW anyObject_search AS SELECT a.id as any_id, a.* FROM AnyObject a;\n");
     }
 
     public static void main(final String[] args) throws Exception {
