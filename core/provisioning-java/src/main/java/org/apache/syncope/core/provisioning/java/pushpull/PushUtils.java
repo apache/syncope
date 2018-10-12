@@ -34,6 +34,8 @@ import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.SearchResult;
+import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,13 +88,19 @@ public class PushUtils {
         List<ConnectorObject> objs = new ArrayList<>();
 
         try {
-            connector.search(
-                    provision.getObjectClass(),
-                    rule.getFilter(any, provision),
-                    obj -> {
-                        objs.add(obj);
-                        return true;
-                    }, MappingUtils.buildOperationOptions(provision.getMapping().getItems().iterator()));
+            connector.search(provision.getObjectClass(), rule.getFilter(any, provision), new SearchResultsHandler() {
+
+                @Override
+                public void handleResult(final SearchResult result) {
+                    // nothing to do
+                }
+
+                @Override
+                public boolean handle(final ConnectorObject connectorObject) {
+                    objs.add(connectorObject);
+                    return true;
+                }
+            }, MappingUtils.buildOperationOptions(provision.getMapping().getItems().iterator()));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;

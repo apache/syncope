@@ -65,7 +65,9 @@ import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
+import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
+import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -137,8 +139,18 @@ public class PullUtils {
         Name nameAttr = new Name(name);
         connector.search(provision.get().getObjectClass(),
                 ignoreCaseMatch ? FilterBuilder.equalsIgnoreCase(nameAttr) : FilterBuilder.equalTo(nameAttr),
-                obj -> found.add(obj),
-                MappingUtils.buildOperationOptions(
+                new SearchResultsHandler() {
+
+            @Override
+            public void handleResult(final SearchResult result) {
+                // nothing to do
+            }
+
+            @Override
+            public boolean handle(final ConnectorObject connectorObject) {
+                return found.add(connectorObject);
+            }
+        }, MappingUtils.buildOperationOptions(
                         MappingUtils.getPullItems(provision.get().getMapping().getItems()).iterator()));
 
         if (found.isEmpty()) {
