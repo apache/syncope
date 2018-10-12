@@ -199,14 +199,19 @@ public interface Connector {
     Set<ObjectClassInfo> getObjectClassInfo();
 
     /**
-     * Validate a connector instance.
+     * Validate connector instance.
      */
     void validate();
 
     /**
-     * Check connection to resource.
+     * Check connection.
      */
     void test();
+
+    /**
+     * Dispose of any resources associated with connector instance.
+     */
+    void dispose();
 
     /**
      * Getter for active connector instance.

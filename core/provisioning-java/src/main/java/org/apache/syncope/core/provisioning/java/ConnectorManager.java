@@ -84,7 +84,7 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory, Sy
             registerConnector(resource);
         }
 
-        return (Connector) ApplicationContextProvider.getBeanFactory().getBean(getBeanName(resource));
+        return ApplicationContextProvider.getBeanFactory().getBean(getBeanName(resource), Connector.class);
     }
 
     @Override
@@ -113,21 +113,21 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory, Sy
         Map<String, ConnConfProperty> overridable = new HashMap<>();
         Set<ConnConfProperty> conf = new HashSet<>();
 
-        for (ConnConfProperty prop : override.getConf()) {
+        override.getConf().forEach(prop -> {
             if (prop.isOverridable()) {
                 overridable.put(prop.getSchema().getName(), prop);
             } else {
                 conf.add(prop);
             }
-        }
+        });
 
         // add override properties
-        for (ConnConfProperty prop : confOverride) {
-            if (overridable.containsKey(prop.getSchema().getName()) && !prop.getValues().isEmpty()) {
-                conf.add(prop);
-                overridable.remove(prop.getSchema().getName());
-            }
-        }
+        confOverride.stream().
+                filter(prop -> overridable.containsKey(prop.getSchema().getName()) && !prop.getValues().isEmpty()).
+                forEach(prop -> {
+                    conf.add(prop);
+                    overridable.remove(prop.getSchema().getName());
+                });
 
         // add override properties not substituted
         conf.addAll(overridable.values());
@@ -190,6 +190,7 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory, Sy
             LOG.info("Registering resource-connector pair {}-{}", resource, resource.getConnector());
             try {
                 registerConnector(resource);
+
                 connectors++;
             } catch (Exception e) {
                 LOG.error("While registering resource-connector pair {}-{}", resource, resource.getConnector(), e);
@@ -207,7 +208,10 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory, Sy
             String beanName = getBeanName(resource);
             if (ApplicationContextProvider.getBeanFactory().containsSingleton(beanName)) {
                 LOG.info("Unegistering resource-connector pair {}-{}", resource, resource.getConnector());
+
+                getConnector(resource).dispose();
                 unregisterConnector(beanName);
+
                 connectors++;
             }
         }
