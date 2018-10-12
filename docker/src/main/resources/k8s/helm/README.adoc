@@ -1,0 +1,25 @@
+= Install Commands
+
+Open a terminal and navigate to the "helm" folder.  
+
+[WARNING]
+Do not forget to set your `values.yaml`!
+
+.Install postgres
+[source,bash]
+----
+helm install postgres --name postgres --namespace <YOUR_NAMESPACE> -f postgres/values.yaml
+----
+
+Let Postgres initialize (about 20-30 seconds).  You can watch logs to confirm
+
+.Install syncope
+[source,bash]
+----
+helm install syncope --name syncope --namespace <YOUR_NAMESPACE> -f syncope/values.yaml
+----
+=== Todo
+Still more to do:
+
+* Have some value parameters that are not plumbed in (e.g. resources)
+* Need to put in liveness and readyness checks
