@@ -30,7 +30,7 @@ syncopeConfig:
   replicas: 1
   repository: apache
   container: syncope
-  tag: 2.1.0
+  tag: ${syncope.version}
   containerPort: 8080
   memoryLimit: 512Mi
   serviceType: ClusterIP
@@ -40,7 +40,7 @@ syncopeConsoleConfig:
   replicas: 1
   repository: apache
   container: syncope-console
-  tag: 2.1.0
+  tag: ${syncope.version}
   containerPort: 8080
   memoryLimit: 512Mi
   serviceType: ClusterIP
@@ -50,7 +50,7 @@ syncopeEndUserConfig:
   replicas: 1
   repository: apache
   container: syncope-enduser
-  tag: 2.1.0
+  tag: ${syncope.version}
   containerPort: 8080
   memoryLimit: 512Mi
   serviceType: ClusterIP
