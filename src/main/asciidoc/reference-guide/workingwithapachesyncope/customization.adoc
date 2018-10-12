@@ -873,7 +873,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/client/enduser/src/test/resources/customTemplate.json[customTemplate.json^].
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/2_1_X/client/enduser/src/test/resources/customTemplate.json[customTemplate.json^].
+https://github.com/apache/syncope/blob/master/client/enduser/src/test/resources/customTemplate.json[customTemplate.json^].
 endif::[]
 In order to apply them, that content must be copied to your `customTemplate.json` file.
 
