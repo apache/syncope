@@ -51,7 +51,6 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
-import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.SortKey;
 import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
@@ -437,7 +436,7 @@ public class ConnectorFacadeProxy implements Connector {
     public SearchResult search(
             final ObjectClass objectClass,
             final Filter filter,
-            final ResultsHandler handler,
+            final SearchResultsHandler handler,
             final OperationOptions options) {
 
         SearchResult result = null;
@@ -457,9 +456,7 @@ public class ConnectorFacadeProxy implements Connector {
 
                         @Override
                         public void handleResult(final SearchResult result) {
-                            if (handler instanceof SearchResultsHandler) {
-                                SearchResultsHandler.class.cast(handler).handleResult(result);
-                            }
+                            handler.handleResult(result);
                             cookies[0] = result.getPagedResultsCookie();
                         }
 
@@ -484,7 +481,7 @@ public class ConnectorFacadeProxy implements Connector {
     public SearchResult search(
             final ObjectClass objectClass,
             final Filter filter,
-            final ResultsHandler handler,
+            final SearchResultsHandler handler,
             final int pageSize,
             final String pagedResultsCookie,
             final List<OrderByClause> orderBy,

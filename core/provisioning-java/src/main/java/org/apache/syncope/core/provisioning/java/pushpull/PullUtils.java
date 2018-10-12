@@ -24,9 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -51,26 +50,26 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
-import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
+import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
+import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
+import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
-import org.identityconnectors.framework.common.objects.ResultsHandler;
+import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
+import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
-import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
-import org.identityconnectors.framework.common.objects.SearchResult;
-import org.identityconnectors.framework.spi.SearchResultsHandler;
 
 @Transactional(readOnly = true)
 @Component
@@ -133,9 +132,7 @@ public class PullUtils {
         AnyUtils anyUtils = anyUtilsFactory.getInstance(anyType.getKind());
 
         final List<ConnectorObject> found = new ArrayList<>();
-        connector.search(provision.getObjectClass(),
-                new EqualsFilter(new Name(name)),
-                new SearchResultsHandler() {
+        connector.search(provision.getObjectClass(), new EqualsFilter(new Name(name)), new SearchResultsHandler() {
 
             @Override
             public boolean handle(final ConnectorObject obj) {

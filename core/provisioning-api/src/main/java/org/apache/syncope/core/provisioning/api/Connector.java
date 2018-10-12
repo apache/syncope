@@ -28,13 +28,13 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
-import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
 import org.identityconnectors.framework.common.objects.SearchResult;
+import org.identityconnectors.framework.spi.SearchResultsHandler;
 
 /**
  * Entry point for making requests on underlying connector bundles.
@@ -160,7 +160,7 @@ public interface Connector {
     SearchResult search(
             ObjectClass objectClass,
             Filter filter,
-            ResultsHandler handler,
+            SearchResultsHandler handler,
             OperationOptions options);
 
     /**
@@ -180,7 +180,7 @@ public interface Connector {
     SearchResult search(
             ObjectClass objectClass,
             Filter filter,
-            ResultsHandler handler,
+            SearchResultsHandler handler,
             int pageSize,
             String pagedResultsCookie,
             List<OrderByClause> orderBy,
