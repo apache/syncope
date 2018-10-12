@@ -94,12 +94,15 @@ public class ConnectorFacadeProxy implements Connector {
     public ConnectorFacadeProxy(final ConnInstance connInstance) {
         this.connInstance = connInstance;
 
-        ConnIdBundleManager connIdBundleManager = ApplicationContextProvider.getBeanFactory().getBean(
-                ConnIdBundleManager.class);
+        ConnIdBundleManager connIdBundleManager =
+                ApplicationContextProvider.getBeanFactory().getBean(ConnIdBundleManager.class);
         ConnectorInfo info = connIdBundleManager.getConnectorInfo(connInstance).getRight();
 
         // create default configuration
         APIConfiguration apiConfig = info.createDefaultAPIConfiguration();
+        if (connInstance.getDisplayName() != null) {
+            apiConfig.setInstanceName(connInstance.getDisplayName());
+        }
         // enable filtered results handler in validation mode
         apiConfig.getResultsHandlerConfiguration().setFilteredResultsHandlerInValidationMode(true);
 
@@ -495,6 +498,11 @@ public class ConnectorFacadeProxy implements Connector {
         builder.setAttributesToGet(options.getAttributesToGet());
 
         return search(objectClass, filter, handler, builder.build());
+    }
+
+    @Override
+    public void dispose() {
+        connector.dispose();
     }
 
     @Override
