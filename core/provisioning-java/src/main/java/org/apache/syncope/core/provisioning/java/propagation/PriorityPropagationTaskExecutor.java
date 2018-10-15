@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,7 +32,6 @@ import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
@@ -83,11 +83,26 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             final PropagationReporter reporter,
             final boolean nullPriorityAsync) {
 
-        Map<PropagationTaskTO, ExternalResource> taskToResource = tasks.stream().
-                collect(Collectors.toMap(Function.identity(), task -> resourceDAO.find(task.getResource())));
+        Map<PropagationTaskTO, ExternalResource> taskToResource = new HashMap<>(tasks.size());
+        List<PropagationTaskTO> prioritizedTasks = new ArrayList<>();
 
-        List<PropagationTaskTO> prioritizedTasks = tasks.stream().
-                filter(task -> taskToResource.get(task).getPropagationPriority() != null).collect(Collectors.toList());
+        int[] connRequestTimeout = { 60 };
+
+        tasks.forEach(task -> {
+            ExternalResource resource = resourceDAO.find(task.getResource());
+            taskToResource.put(task, resource);
+
+            if (resource.getPropagationPriority() != null) {
+                prioritizedTasks.add(task);
+
+                if (resource.getConnector().getConnRequestTimeout() != null
+                        && connRequestTimeout[0] < resource.getConnector().getConnRequestTimeout()) {
+                    connRequestTimeout[0] = resource.getConnector().getConnRequestTimeout();
+                    LOG.debug("Upgrade request connection timeout to {}", connRequestTimeout);
+                }
+            }
+        });
+
         Collections.sort(prioritizedTasks, new PriorityComparator(taskToResource));
         LOG.debug("Propagation tasks sorted by priority, for serial execution: {}", prioritizedTasks);
 
@@ -140,7 +155,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                                 LOG.error("Unexpected exception", e);
                             }
                         }
-                    }).get(60, TimeUnit.SECONDS);
+                    }).get(connRequestTimeout[0], TimeUnit.SECONDS);
                 } catch (Exception e) {
                     LOG.error("Unexpected exception", e);
                 } finally {
