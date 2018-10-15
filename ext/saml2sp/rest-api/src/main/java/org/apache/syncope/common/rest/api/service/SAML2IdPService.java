@@ -64,6 +64,16 @@ public interface SAML2IdPService extends JAXRSService {
     Set<String> getActionsClasses();
 
     /**
+     * Returns the list of available RequestedAuthnContextProviders implementations.
+     *
+     * @return the list of available RequestedAuthnContextProviders implementations
+     */
+    @GET
+    @Path("requestedAuthnContextProviders")
+    @Produces({ MediaType.APPLICATION_JSON })
+    Set<String> getRequestedAuthnContextProviderClasses();
+
+    /**
      * Returns a list of all defined SAML 2.0 Identity Providers.
      *
      * @return list of all defined SAML 2.0 Identity Providers

@@ -54,6 +54,11 @@ under the License.
       <artifactId>syncope-ext-saml2sp-common-lib</artifactId>
       <version>${project.version}</version>
     </dependency>
+    
+    <dependency>
+      <groupId>org.opensaml</groupId>
+      <artifactId>opensaml-saml-api</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

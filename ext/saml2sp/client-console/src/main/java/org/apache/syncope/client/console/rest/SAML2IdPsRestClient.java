@@ -38,6 +38,10 @@ public class SAML2IdPsRestClient extends BaseRestClient {
         return getService(SAML2IdPService.class).getActionsClasses();
     }
 
+    public Set<String> getRequestedAuthnContextProviderClasses() {
+        return getService(SAML2IdPService.class).getRequestedAuthnContextProviderClasses();
+    }
+
     public void importIdPs(final InputStream input) {
         SyncopeConsoleSession.get().
                 getService(MediaType.APPLICATION_XML_TYPE, SAML2IdPService.class).importFromMetadata(input);
@@ -54,5 +58,4 @@ public class SAML2IdPsRestClient extends BaseRestClient {
     public void delete(final String key) {
         getService(SAML2IdPService.class).delete(key);
     }
-
 }

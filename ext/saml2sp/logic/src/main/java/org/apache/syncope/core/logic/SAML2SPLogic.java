@@ -55,6 +55,7 @@ import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
+import org.apache.syncope.core.provisioning.api.RequestedAuthnContextProvider;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.joda.time.DateTime;
 import org.opensaml.core.xml.XMLObject;
@@ -64,9 +65,6 @@ import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
-import org.opensaml.saml.saml2.core.AuthnContext;
-import org.opensaml.saml.saml2.core.AuthnContextClassRef;
-import org.opensaml.saml.saml2.core.AuthnContextComparisonTypeEnumeration;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.LogoutRequest;
@@ -74,17 +72,14 @@ import org.opensaml.saml.saml2.core.LogoutResponse;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.NameIDPolicy;
 import org.opensaml.saml.saml2.core.NameIDType;
-import org.opensaml.saml.saml2.core.RequestedAuthnContext;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.SessionIndex;
 import org.opensaml.saml.saml2.core.StatusCode;
-import org.opensaml.saml.saml2.core.impl.AuthnContextClassRefBuilder;
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder;
 import org.opensaml.saml.saml2.core.impl.IssuerBuilder;
 import org.opensaml.saml.saml2.core.impl.LogoutRequestBuilder;
 import org.opensaml.saml.saml2.core.impl.NameIDBuilder;
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder;
-import org.opensaml.saml.saml2.core.impl.RequestedAuthnContextBuilder;
 import org.opensaml.saml.saml2.core.impl.SessionIndexBuilder;
 import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
@@ -104,10 +99,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.provisioning.java.DefaultRequestedAuthnContextProvider;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.opensaml.core.xml.schema.XSAny;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.util.ResourceUtils;
 
 @Component
@@ -298,11 +296,18 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         nameIDPolicy.setAllowCreate(true);
         nameIDPolicy.setSPNameQualifier(spEntityID);
 
-        AuthnContextClassRef authnContextClassRef = new AuthnContextClassRefBuilder().buildObject();
-        authnContextClassRef.setAuthnContextClassRef(AuthnContext.PPT_AUTHN_CTX);
-        RequestedAuthnContext requestedAuthnContext = new RequestedAuthnContextBuilder().buildObject();
-        requestedAuthnContext.setComparison(AuthnContextComparisonTypeEnumeration.EXACT);
-        requestedAuthnContext.getAuthnContextClassRefs().add(authnContextClassRef);
+        RequestedAuthnContextProvider requestedAuthnContextProvider = new DefaultRequestedAuthnContextProvider();
+        if (idp.getRequestedAuthnContextProviderClassName() != null) {
+            try {
+                Class<?> actionsClass = Class.forName(idp.getRequestedAuthnContextProviderClassName());
+                requestedAuthnContextProvider = (RequestedAuthnContextProvider) ApplicationContextProvider.
+                        getBeanFactory().createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+            } catch (Exception e) {
+                LOG.warn("Cannot instantiate '{}', reverting to {}",
+                        idp.getRequestedAuthnContextProviderClassName(),
+                        DefaultRequestedAuthnContextProvider.class.getName(), e);
+            }
+        }
 
         AuthnRequest authnRequest = new AuthnRequestBuilder().buildObject();
         authnRequest.setID("_" + UUID_GENERATOR.generate().toString());
@@ -313,7 +318,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         authnRequest.setIssueInstant(new DateTime());
         authnRequest.setIssuer(issuer);
         authnRequest.setNameIDPolicy(nameIDPolicy);
-        authnRequest.setRequestedAuthnContext(requestedAuthnContext);
+        authnRequest.setRequestedAuthnContext(requestedAuthnContextProvider.provide());
         authnRequest.setDestination(idp.getSSOLocation(idp.getBindingType()).getLocation());
 
         SAML2RequestTO requestTO = new SAML2RequestTO();

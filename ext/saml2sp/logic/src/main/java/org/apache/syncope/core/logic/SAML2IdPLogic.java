@@ -79,6 +79,11 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
         return implLookup.getActionsClasses();
     }
 
+    @PreAuthorize("isAuthenticated()")
+    public Set<String> getRequestedAuthnContextProviderClasses() {
+        return implLookup.getRequestedAuthnContextProvidersClasses();
+    }
+
     private SAML2IdPTO complete(final SAML2IdP idp, final SAML2IdPTO idpTO) {
         SAML2IdPEntity idpEntity = cache.get(idpTO.getEntityID());
         if (idpEntity == null) {

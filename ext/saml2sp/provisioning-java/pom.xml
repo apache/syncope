@@ -48,6 +48,11 @@ under the License.
       <artifactId>syncope-ext-saml2sp-provisioning-api</artifactId>
       <version>${project.version}</version>
     </dependency>
+   
+    <dependency>
+      <groupId>org.opensaml</groupId>
+      <artifactId>opensaml-saml-impl</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
