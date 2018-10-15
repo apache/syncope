@@ -93,6 +93,8 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
             @JoinColumn(name = "saml2IdP_id", referencedColumnName = "id"))
     private List<String> actionsClassNames = new ArrayList<>();
 
+    private String requestedAuthnContextProviderClassName;
+
     @Override
     public String getEntityID() {
         return entityID;
@@ -219,5 +221,15 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
     @Override
     public List<String> getActionsClassNames() {
         return actionsClassNames;
+    }
+
+    @Override
+    public String getRequestedAuthnContextProviderClassName() {
+        return requestedAuthnContextProviderClassName;
+    }
+
+    @Override
+    public void setRequestedAuthnContextProviderClassName(final String requestedAuthnContextProviderClassName) {
+        this.requestedAuthnContextProviderClassName = requestedAuthnContextProviderClassName;
     }
 }

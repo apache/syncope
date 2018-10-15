@@ -162,6 +162,10 @@ public class SAML2IdPEntity {
         return idpTO.getActionsClassNames();
     }
 
+    public String getRequestedAuthnContextProviderClassName() {
+        return idpTO.getRequestedAuthnContextProviderClassName();
+    }
+
     public Endpoint getSSOLocation(final SAML2BindingType bindingType) {
         return ssoBindings.get(bindingType.getUri());
     }
@@ -177,5 +181,4 @@ public class SAML2IdPEntity {
     public KeyStore getTrustStore() {
         return trustStore;
     }
-
 }

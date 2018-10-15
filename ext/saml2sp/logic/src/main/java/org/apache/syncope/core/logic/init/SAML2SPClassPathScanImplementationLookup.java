@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
+import org.apache.syncope.core.provisioning.api.RequestedAuthnContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -42,6 +43,8 @@ public class SAML2SPClassPathScanImplementationLookup implements SyncopeLoader {
 
     private Set<String> actionsClasses;
 
+    private Set<String> requestedAuthnContextProvidersClasses;
+
     @Override
     public Integer getPriority() {
         return Integer.MIN_VALUE;
@@ -50,9 +53,11 @@ public class SAML2SPClassPathScanImplementationLookup implements SyncopeLoader {
     @Override
     public void load() {
         actionsClasses = new HashSet<>();
+        requestedAuthnContextProvidersClasses = new HashSet<>();
 
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AssignableTypeFilter(SAML2IdPActions.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(RequestedAuthnContextProvider.class));
 
         for (BeanDefinition bd : scanner.findCandidateComponents(DEFAULT_BASE_PACKAGE)) {
             try {
@@ -62,6 +67,8 @@ public class SAML2SPClassPathScanImplementationLookup implements SyncopeLoader {
 
                 if (SAML2IdPActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     actionsClasses.add(clazz.getName());
+                } else if (RequestedAuthnContextProvider.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                    requestedAuthnContextProvidersClasses.add(clazz.getName());
                 }
             } catch (Throwable t) {
                 LOG.warn("Could not inspect class {}", bd.getBeanClassName(), t);
@@ -69,10 +76,14 @@ public class SAML2SPClassPathScanImplementationLookup implements SyncopeLoader {
         }
 
         actionsClasses = Collections.unmodifiableSet(actionsClasses);
+        requestedAuthnContextProvidersClasses = Collections.unmodifiableSet(requestedAuthnContextProvidersClasses);
     }
 
     public Set<String> getActionsClasses() {
         return actionsClasses;
     }
 
+    public Set<String> getRequestedAuthnContextProvidersClasses() {
+        return requestedAuthnContextProvidersClasses;
+    }
 }
