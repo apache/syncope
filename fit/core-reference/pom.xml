@@ -427,6 +427,16 @@ under the License.
     <profile>
       <id>full-it</id>
 
+      <dependencies>
+        <!-- required by wicket tester -->
+        <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>4.12</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+
       <build>
         <plugins>
           <plugin>
