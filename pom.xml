@@ -758,6 +758,33 @@ under the License.
       <!-- OpenSAML -->
       <dependency>
         <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-saml-api</artifactId>
+        <version>${opensaml.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml-storage-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml-messaging-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.opensaml</groupId>
         <artifactId>opensaml-saml-impl</artifactId>
         <version>${opensaml.version}</version>
         <exclusions>

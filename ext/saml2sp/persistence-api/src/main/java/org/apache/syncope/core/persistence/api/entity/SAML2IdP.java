@@ -74,4 +74,7 @@ public interface SAML2IdP extends Entity {
 
     Set<String> getActionsClassNames();
 
+    String getRequestedAuthnContextProviderClassName();
+
+    void setRequestedAuthnContextProviderClassName(String requestedAuthnContextProviderClassName);
 }

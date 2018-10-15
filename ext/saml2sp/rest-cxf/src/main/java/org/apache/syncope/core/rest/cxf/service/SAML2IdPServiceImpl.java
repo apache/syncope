@@ -41,6 +41,11 @@ public class SAML2IdPServiceImpl extends AbstractServiceImpl implements SAML2IdP
     }
 
     @Override
+    public Set<String> getRequestedAuthnContextProviderClasses() {
+        return logic.getRequestedAuthnContextProviderClasses();
+    }
+
+    @Override
     public List<SAML2IdPTO> list() {
         return logic.list();
     }

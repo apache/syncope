@@ -215,6 +215,8 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         idp.getActionsClassNames().clear();
         idp.getActionsClassNames().addAll(idpTO.getActionsClassNames());
 
+        idp.setRequestedAuthnContextProviderClassName(idpTO.getRequestedAuthnContextProviderClassName());
+
         return saml2IdPDAO.save(idp);
     }
 
@@ -255,6 +257,8 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         populateItems(idp, idpTO);
 
         idpTO.getActionsClassNames().addAll(idp.getActionsClassNames());
+
+        idpTO.setRequestedAuthnContextProviderClassName(idp.getRequestedAuthnContextProviderClassName());
 
         return idpTO;
     }

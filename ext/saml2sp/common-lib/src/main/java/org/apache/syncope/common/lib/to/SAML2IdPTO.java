@@ -67,6 +67,8 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO, ItemContai
 
     private final Set<String> actionsClassNames = new HashSet<>();
 
+    private String requestedAuthnContextProviderClassName;
+
     @Override
     public String getKey() {
         return key;
@@ -132,6 +134,14 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO, ItemContai
 
     public void setUseDeflateEncoding(final boolean useDeflateEncoding) {
         this.useDeflateEncoding = useDeflateEncoding;
+    }
+
+    public boolean isSupportUnsolicited() {
+        return supportUnsolicited;
+    }
+
+    public void setSupportUnsolicited(final boolean supportUnsolicited) {
+        this.supportUnsolicited = supportUnsolicited;
     }
 
     public SAML2BindingType getBindingType() {
@@ -207,12 +217,11 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO, ItemContai
         return actionsClassNames;
     }
 
-    public boolean isSupportUnsolicited() {
-        return supportUnsolicited;
+    public String getRequestedAuthnContextProviderClassName() {
+        return requestedAuthnContextProviderClassName;
     }
 
-    public void setSupportUnsolicited(final boolean supportUnsolicited) {
-        this.supportUnsolicited = supportUnsolicited;
+    public void setRequestedAuthnContextProviderClassName(final String requestedAuthnContextProviderClassName) {
+        this.requestedAuthnContextProviderClassName = requestedAuthnContextProviderClassName;
     }
-
 }

@@ -133,6 +133,13 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
             bindingType.setChoices(Arrays.asList(SAML2BindingType.values()));
             fields.add(bindingType);
 
+            AjaxTextFieldPanel requestedAuthnContextProviderClassName = new AjaxTextFieldPanel(
+                    "field", "requestedAuthnContextProviderClassName",
+                    new PropertyModel<String>(idpTO, "requestedAuthnContextProviderClassName"));
+            requestedAuthnContextProviderClassName.setChoices(
+                    new ArrayList<>(restClient.getRequestedAuthnContextProviderClasses()));
+            fields.add(requestedAuthnContextProviderClassName);
+
             AjaxPalettePanel<String> actionsClassNames = new AjaxPalettePanel.Builder<String>().
                     setAllowMoveAll(true).setAllowOrder(true).
                     setName(new StringResourceModel("actionsClassNames", directoryPanel).getString()).

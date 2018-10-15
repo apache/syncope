@@ -144,7 +144,6 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
-//                target.add(content);
                 templateModal.show(false);
             }
         });
@@ -193,7 +192,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
         columns.add(new BooleanPropertyColumn<SAML2IdPTO>(
                 new ResourceModel("useDeflateEncoding"), "useDeflateEncoding", "useDeflateEncoding"));
         columns.add(new BooleanPropertyColumn<SAML2IdPTO>(
-            new ResourceModel("supportUnsolicited"), "supportUnsolicited", "supportUnsolicited"));
+                new ResourceModel("supportUnsolicited"), "supportUnsolicited", "supportUnsolicited"));
         columns.add(new PropertyColumn<SAML2IdPTO, String>(
                 new ResourceModel("bindingType"), "bindingType", "bindingType"));
         columns.add(new BooleanPropertyColumn<SAML2IdPTO>(

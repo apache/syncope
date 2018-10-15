@@ -59,11 +59,6 @@ under the License.
       <groupId>org.apache.wss4j</groupId>
       <artifactId>wss4j-ws-security-dom</artifactId>
     </dependency>
-
-    <dependency>
-      <groupId>org.opensaml</groupId>
-      <artifactId>opensaml-saml-impl</artifactId>
-    </dependency>
   </dependencies>
 
   <build>
