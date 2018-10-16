@@ -35,12 +35,32 @@ under the License.
     <rootpom.basedir>${basedir}/..</rootpom.basedir>
   </properties>
 
-  <modules>
-    <module>eclipse</module>
-    <module>netbeans</module>
-  </modules>
-
   <profiles>
+    <profile>
+      <id>without-eclipse</id>
+
+      <activation>
+	<activeByDefault>false</activeByDefault>
+      </activation>
+
+      <modules>
+	<module>netbeans</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>with-eclipse</id>
+
+      <activation>
+	<activeByDefault>true</activeByDefault>
+      </activation>
+
+      <modules>
+	<module>eclipse</module>
+	<module>netbeans</module>
+      </modules>
+    </profile>
+
     <profile>
       <id>site</id>
 
