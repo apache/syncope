@@ -101,7 +101,7 @@ under the License.
     <property name="jpaPropertyMap">
       <map>
         <entry key="openjpa.MetaDataFactory" 
-               value="jpa(URLs=vfs:${project.build.directory}/cargo/configurations/wildfly13x/deployments/syncope.war/WEB-INF/lib/syncope-core-persistence-jpa-${syncope.version}.jar, Resources=${Master.orm})"/>
+               value="jpa(URLs=vfs:${project.build.directory}/cargo/configurations/wildfly14x/deployments/syncope.war/WEB-INF/lib/syncope-core-persistence-jpa-${syncope.version}.jar, Resources=${Master.orm})"/>
       </map>
     </property>
   </bean>  
