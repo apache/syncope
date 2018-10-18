@@ -16,7 +16,7 @@
 sudo: false
 language: java
 jdk:
-  - oraclejdk10
+  - openjdk11
 before_install:
   - echo 'MAVEN_OPTS="-Xms512m -Xmx1024m -XX:+TieredCompilation -XX:TieredStopAtLevel=1"' >~/.mavenrc
 # default install is mvn install --quiet -DskipTests=true
