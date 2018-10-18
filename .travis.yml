@@ -20,7 +20,7 @@ jdk:
 before_install:
   - echo 'MAVEN_OPTS="-Xms512m -Xmx1024m -XX:+TieredCompilation -XX:TieredStopAtLevel=1"' >~/.mavenrc
 # default install is mvn install --quiet -DskipTests=true
-install: travis_wait mvn --show-version --quiet -T 1C -P all,skipTests,without-eclipse
+install: travis_wait mvn --show-version --quiet -T 1C -P java9-plus,all,skipTests,without-eclipse
 before_script:
   - cd fit/core-reference
 script:
