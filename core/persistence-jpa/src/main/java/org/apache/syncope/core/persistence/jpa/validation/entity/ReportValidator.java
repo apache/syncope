@@ -31,14 +31,24 @@ public class ReportValidator extends AbstractValidator<ReportCheck, Report> {
 
     @Override
     @SuppressWarnings("ResultOfObjectAllocationIgnored")
-    public boolean isValid(final Report object, final ConstraintValidatorContext context) {
+    public boolean isValid(final Report report, final ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
+
         boolean isValid = true;
 
-        if (object.getCronExpression() != null) {
+        if (isHtml(report.getName())) {
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidName, "Invalid name")).
+                    addPropertyNode("name").addConstraintViolation();
+
+            isValid = false;
+        }
+
+        if (report.getCronExpression() != null) {
             try {
-                new CronExpression(object.getCronExpression());
+                new CronExpression(report.getCronExpression());
             } catch (ParseException e) {
-                LOG.error("Invalid cron expression '" + object.getCronExpression() + "'", e);
+                LOG.error("Invalid cron expression '" + report.getCronExpression() + "'", e);
                 isValid = false;
 
                 context.disableDefaultConstraintViolation();
@@ -48,9 +58,9 @@ public class ReportValidator extends AbstractValidator<ReportCheck, Report> {
             }
         }
 
-        Set<String> reportletKeys = object.getReportlets().stream().
+        Set<String> reportletKeys = report.getReportlets().stream().
                 map(Entity::getKey).collect(Collectors.toSet());
-        if (reportletKeys.size() != object.getReportlets().size()) {
+        if (reportletKeys.size() != report.getReportlets().size()) {
             LOG.error("Reportlet key must be unique");
             isValid = false;
 

@@ -22,24 +22,35 @@ import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.core.persistence.api.entity.OIDCProvider;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 
 public class OIDCProviderValidator extends AbstractValidator<OIDCProviderCheck, OIDCProvider> {
 
     @Override
-    public boolean isValid(final OIDCProvider value, final ConstraintValidatorContext context) {
+    public boolean isValid(final OIDCProvider oidcProvider, final ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
 
-        if (value.isSelfRegUnmatching() && value.isCreateUnmatching()) {
+        if (isHtml(oidcProvider.getKey())) {
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidKey, "Invalid key")).
+                    addPropertyNode("key").addConstraintViolation();
+
+            return false;
+        }
+
+        if (oidcProvider.isSelfRegUnmatching() && oidcProvider.isCreateUnmatching()) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.Standard,
                             "Either selfRegUnmatching or createUnmatching, not both")).
                     addPropertyNode("selfRegUnmatching").
                     addPropertyNode("createUnmatching").addConstraintViolation();
+
             return false;
         }
 
-        long connObjectKeys = value.getItems().stream().filter(item -> item.isConnObjectKey()).count();
-        if (!value.getItems().isEmpty() && connObjectKeys != 1) {
+        long connObjectKeys = oidcProvider.getItems().stream().filter(Item::isConnObjectKey).count();
+        if (!oidcProvider.getItems().isEmpty() && connObjectKeys != 1) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "Single ConnObjectKey mapping is required")).
                     addPropertyNode("connObjectKey.size").addConstraintViolation();
@@ -48,7 +59,7 @@ public class OIDCProviderValidator extends AbstractValidator<OIDCProviderCheck, 
 
         final boolean[] isValid = new boolean[] { true };
 
-        long passwords = value.getItems().stream().filter(item -> item.isPassword()).count();
+        long passwords = oidcProvider.getItems().stream().filter(Item::isPassword).count();
         if (passwords > 0) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "No password mapping is allowed")).
@@ -56,11 +67,10 @@ public class OIDCProviderValidator extends AbstractValidator<OIDCProviderCheck, 
             isValid[0] = false;
         }
 
-        value.getItems().forEach(item -> {
+        oidcProvider.getItems().forEach(item -> {
             item.getTransformers().stream().
                     filter(transformer -> transformer.getEngine() == ImplementationEngine.JAVA).
                     forEach(transformer -> {
-
                         Class<?> actionsClass = null;
                         boolean isAssignable = false;
                         try {

@@ -22,32 +22,45 @@ import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 
 public class SAML2IdPValidator extends AbstractValidator<SAML2IdPCheck, SAML2IdP> {
 
     @Override
-    public boolean isValid(final SAML2IdP value, final ConstraintValidatorContext context) {
-        if (value.isSelfRegUnmatching() && value.isCreateUnmatching()) {
+    public boolean isValid(final SAML2IdP saml2IdP, final ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
+
+        if (isHtml(saml2IdP.getKey())) {
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidKey, "Invalid key")).
+                    addPropertyNode("key").addConstraintViolation();
+
+            return false;
+        }
+
+        if (saml2IdP.isSelfRegUnmatching() && saml2IdP.isCreateUnmatching()) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.Standard,
                             "Either selfRegUnmatching or createUnmatching, not both")).
                     addPropertyNode("selfRegUnmatching").
                     addPropertyNode("createUnmatching").addConstraintViolation();
+
             return false;
         }
 
-        long connObjectKeys = value.getItems().stream().filter(item -> item.isConnObjectKey()).count();
-        if (!value.getItems().isEmpty() && connObjectKeys != 1) {
+        long connObjectKeys = saml2IdP.getItems().stream().filter(Item::isConnObjectKey).count();
+        if (!saml2IdP.getItems().isEmpty() && connObjectKeys != 1) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "Single ConnObjectKey mapping is required")).
                     addPropertyNode("connObjectKey.size").addConstraintViolation();
+
             return false;
         }
 
         final boolean[] isValid = new boolean[] { true };
 
-        long passwords = value.getItems().stream().filter(item -> item.isPassword()).count();
+        long passwords = saml2IdP.getItems().stream().filter(Item::isPassword).count();
         if (passwords > 0) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "No password mapping is allowed")).
@@ -55,11 +68,10 @@ public class SAML2IdPValidator extends AbstractValidator<SAML2IdPCheck, SAML2IdP
             isValid[0] = false;
         }
 
-        value.getItems().forEach(item -> {
+        saml2IdP.getItems().forEach(item -> {
             item.getTransformers().stream().
                     filter(transformer -> transformer.getEngine() == ImplementationEngine.JAVA).
                     forEach(transformer -> {
-
                         Class<?> actionsClass = null;
                         boolean isAssignable = false;
                         try {
@@ -81,5 +93,4 @@ public class SAML2IdPValidator extends AbstractValidator<SAML2IdPCheck, SAML2IdP
 
         return isValid[0];
     }
-
 }

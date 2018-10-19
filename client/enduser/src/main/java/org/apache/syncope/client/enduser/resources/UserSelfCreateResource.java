@@ -28,7 +28,7 @@ import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
-import org.apache.syncope.client.enduser.util.UserRequestValidator;
+import org.apache.syncope.client.enduser.util.Validation;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -81,7 +81,7 @@ public class UserSelfCreateResource extends BaseUserSelfResource {
                 LOG.trace("Request is [{}]", userTO);
 
                 // check if request is compliant with customization form rules
-                if (UserRequestValidator.compliant(userTO,
+                if (Validation.isCompliant(userTO,
                         SyncopeEnduserApplication.get().getCustomFormAttributes(), true)) {
 
                     // 1. membership attributes management
