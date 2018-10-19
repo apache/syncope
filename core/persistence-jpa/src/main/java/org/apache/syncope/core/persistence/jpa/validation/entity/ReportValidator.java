@@ -33,14 +33,24 @@ public class ReportValidator extends AbstractValidator<ReportCheck, Report> {
 
     @Override
     @SuppressWarnings("ResultOfObjectAllocationIgnored")
-    public boolean isValid(final Report object, final ConstraintValidatorContext context) {
+    public boolean isValid(final Report report, final ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
+
         boolean isValid = true;
 
-        if (object.getCronExpression() != null) {
+        if (isHtml(report.getName())) {
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidName, "Invalid name")).
+                    addPropertyNode("name").addConstraintViolation();
+
+            isValid = false;
+        }
+
+        if (report.getCronExpression() != null) {
             try {
-                new CronExpression(object.getCronExpression());
+                new CronExpression(report.getCronExpression());
             } catch (ParseException e) {
-                LOG.error("Invalid cron expression '" + object.getCronExpression() + "'", e);
+                LOG.error("Invalid cron expression '" + report.getCronExpression() + "'", e);
                 isValid = false;
 
                 context.disableDefaultConstraintViolation();
@@ -50,15 +60,15 @@ public class ReportValidator extends AbstractValidator<ReportCheck, Report> {
             }
         }
 
-        Set<String> reportletNames = CollectionUtils.collect(object.getReportletConfs(),
+        Set<String> reportletNames = CollectionUtils.collect(report.getReportletConfs(),
                 new Transformer<ReportletConf, String>() {
 
-                    @Override
-                    public String transform(final ReportletConf input) {
-                        return input.getName();
-                    }
-                }, new HashSet<String>());
-        if (reportletNames.size() != object.getReportletConfs().size()) {
+            @Override
+            public String transform(final ReportletConf input) {
+                return input.getName();
+            }
+        }, new HashSet<String>());
+        if (reportletNames.size() != report.getReportletConfs().size()) {
             LOG.error("Reportlet name must be unique");
             isValid = false;
 

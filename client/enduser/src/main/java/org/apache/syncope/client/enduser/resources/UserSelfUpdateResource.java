@@ -32,7 +32,7 @@ import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
-import org.apache.syncope.client.enduser.util.UserRequestValidator;
+import org.apache.syncope.client.enduser.util.Validation;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -73,7 +73,7 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
                     SyncopeEnduserApplication.get().getCustomFormAttributes();
 
             // check if request is compliant with customization form rules
-            if (UserRequestValidator.compliant(userTO, customFormAttributes, false)) {
+            if (Validation.isCompliant(userTO, customFormAttributes, false)) {
                 // 1. membership attributes management
                 Set<AttrTO> membAttrs = new HashSet<>();
                 for (AttrTO attr : userTO.getPlainAttrs()) {

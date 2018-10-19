@@ -28,7 +28,17 @@ public class ConnInstanceValidator extends AbstractValidator<ConnInstanceCheck, 
 
     @Override
     public boolean isValid(final ConnInstance connInstance, final ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
+
         boolean isValid = true;
+
+        if (isHtml(connInstance.getDisplayName())) {
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidName, "Invalid display name")).
+                    addPropertyNode("displayName").addConstraintViolation();
+
+            isValid = false;
+        }
 
         try {
             URIUtils.buildForConnId(connInstance.getLocation());

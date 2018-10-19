@@ -29,25 +29,35 @@ import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 public class OIDCProviderValidator extends AbstractValidator<OIDCProviderCheck, OIDCProvider> {
 
     @Override
-    public boolean isValid(final OIDCProvider value, final ConstraintValidatorContext context) {
+    public boolean isValid(final OIDCProvider oidcProvider, final ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
 
-        if (value.isSelfRegUnmatching() && value.isCreateUnmatching()) {
+        if (isHtml(oidcProvider.getKey())) {
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidKey, "Invalid key")).
+                    addPropertyNode("key").addConstraintViolation();
+
+            return false;
+        }
+
+        if (oidcProvider.isSelfRegUnmatching() && oidcProvider.isCreateUnmatching()) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.Standard,
                             "Either selfRegUnmatching or createUnmatching, not both")).
                     addPropertyNode("selfRegUnmatching").
                     addPropertyNode("createUnmatching").addConstraintViolation();
+
             return false;
         }
 
-        long connObjectKeys = IterableUtils.countMatches(value.getItems(), new Predicate<OIDCProviderItem>() {
+        long connObjectKeys = IterableUtils.countMatches(oidcProvider.getItems(), new Predicate<OIDCProviderItem>() {
 
             @Override
             public boolean evaluate(final OIDCProviderItem item) {
                 return item.isConnObjectKey();
             }
         });
-        if (!value.getItems().isEmpty() && connObjectKeys != 1) {
+        if (!oidcProvider.getItems().isEmpty() && connObjectKeys != 1) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "Single ConnObjectKey mapping is required")).
                     addPropertyNode("connObjectKey.size").addConstraintViolation();
@@ -56,7 +66,7 @@ public class OIDCProviderValidator extends AbstractValidator<OIDCProviderCheck, 
 
         boolean isValid = true;
 
-        long passwords = IterableUtils.countMatches(value.getItems(), new Predicate<OIDCProviderItem>() {
+        long passwords = IterableUtils.countMatches(oidcProvider.getItems(), new Predicate<OIDCProviderItem>() {
 
             @Override
             public boolean evaluate(final OIDCProviderItem item) {
@@ -70,7 +80,7 @@ public class OIDCProviderValidator extends AbstractValidator<OIDCProviderCheck, 
             isValid = false;
         }
 
-        for (OIDCProviderItem item : value.getItems()) {
+        for (OIDCProviderItem item : oidcProvider.getItems()) {
             for (String className : item.getTransformerClassNames()) {
                 Class<?> actionsClass = null;
                 boolean isAssignable = false;
@@ -93,5 +103,4 @@ public class OIDCProviderValidator extends AbstractValidator<OIDCProviderCheck, 
 
         return isValid;
     }
-
 }

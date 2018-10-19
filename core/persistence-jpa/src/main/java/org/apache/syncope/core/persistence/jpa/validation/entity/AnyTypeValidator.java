@@ -27,32 +27,41 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 public class AnyTypeValidator extends AbstractValidator<AnyTypeCheck, AnyType> {
 
     @Override
-    public boolean isValid(final AnyType object, final ConstraintValidatorContext context) {
+    public boolean isValid(final AnyType anyType, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        boolean isValid;
-        switch (object.getKind()) {
+        boolean isValid = true;
+
+        if (isHtml(anyType.getKey())) {
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidKey, "Invalid key")).
+                    addPropertyNode("key").addConstraintViolation();
+
+            isValid = false;
+        }
+
+        boolean nameKindMatch;
+        switch (anyType.getKind()) {
             case USER:
-                isValid = AnyTypeKind.USER.name().equalsIgnoreCase(object.getKey());
+                nameKindMatch = AnyTypeKind.USER.name().equalsIgnoreCase(anyType.getKey());
                 break;
 
             case GROUP:
-                isValid = AnyTypeKind.GROUP.name().equalsIgnoreCase(object.getKey());
+                nameKindMatch = AnyTypeKind.GROUP.name().equalsIgnoreCase(anyType.getKey());
                 break;
 
             case ANY_OBJECT:
             default:
-                isValid = !AnyTypeKind.USER.name().equalsIgnoreCase(object.getKey())
-                        && !AnyTypeKind.GROUP.name().equalsIgnoreCase(object.getKey())
-                        && !SyncopeConstants.REALM_ANYTYPE.equalsIgnoreCase(object.getKey());
+                nameKindMatch = !AnyTypeKind.USER.name().equalsIgnoreCase(anyType.getKey())
+                        && !AnyTypeKind.GROUP.name().equalsIgnoreCase(anyType.getKey())
+                        && !SyncopeConstants.REALM_ANYTYPE.equalsIgnoreCase(anyType.getKey());
         }
-
-        if (!isValid) {
+        if (!nameKindMatch) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidAnyType, "Name / kind mismatch")).
                     addPropertyNode("name").addConstraintViolation();
         }
 
-        return isValid;
+        return isValid && nameKindMatch;
     }
 }

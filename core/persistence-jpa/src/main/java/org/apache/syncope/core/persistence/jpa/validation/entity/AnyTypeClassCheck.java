@@ -16,24 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.enduser.util;
+package org.apache.syncope.core.persistence.jpa.validation.entity;
 
-import java.security.SecureRandom;
-import org.apache.wicket.util.crypt.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public final class SaltGenerator {
+import javax.validation.Constraint;
+import javax.validation.Payload;
 
-    public static String generate(final String input) {
-        // generate salt
-        byte[] salt = new byte[16];
-        // fill array with random bytes
-        new SecureRandom().nextBytes(salt);
-        // create digest with MD5
-        return DigestUtils.md2Hex(input + Base64.encodeBase64String(salt));
-    }
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = AnyTypeClassValidator.class)
+@Documented
+public @interface AnyTypeClassCheck {
 
-    private SaltGenerator() {
-        // private constructor for static utility class
-    }
+    String message() default "{org.apache.syncope.core.persistence.validation.anytypeclass}";
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
 }

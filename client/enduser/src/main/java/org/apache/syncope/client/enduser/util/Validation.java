@@ -32,14 +32,13 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class UserRequestValidator {
+public final class Validation {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UserRequestValidator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Validation.class);
 
-    private UserRequestValidator() {
-    }
-
-    public static boolean compliant(final UserTO userTO, final Map<String, CustomAttributesInfo> customFormAttributes,
+    public static boolean isCompliant(
+            final UserTO userTO,
+            final Map<String, CustomAttributesInfo> customFormAttributes,
             final boolean checkDefaultValues) {
 
         if (customFormAttributes == null || customFormAttributes.isEmpty()) {
@@ -74,7 +73,6 @@ public final class UserRequestValidator {
                         return compliant;
                     }
                 });
-
     }
 
     public static boolean validateSteps(final CustomTemplateInfo customTemplateInfo) {
@@ -104,4 +102,7 @@ public final class UserRequestValidator {
                 : true;
     }
 
+    private Validation() {
+        // private constructor for static utility class
+    }
 }

@@ -24,9 +24,11 @@ import javax.persistence.InheritanceType;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
+import org.apache.syncope.core.persistence.jpa.validation.entity.PolicyCheck;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@PolicyCheck
 public abstract class AbstractPolicy extends AbstractGeneratedKeyEntity implements Policy {
 
     private static final long serialVersionUID = -5844833125843247458L;

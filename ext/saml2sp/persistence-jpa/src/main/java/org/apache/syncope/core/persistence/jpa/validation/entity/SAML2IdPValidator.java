@@ -29,34 +29,45 @@ import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 public class SAML2IdPValidator extends AbstractValidator<SAML2IdPCheck, SAML2IdP> {
 
     @Override
-    public boolean isValid(final SAML2IdP value, final ConstraintValidatorContext context) {
+    public boolean isValid(final SAML2IdP saml2IdP, final ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
 
-        if (value.isSelfRegUnmatching() && value.isCreateUnmatching()) {
+        if (isHtml(saml2IdP.getKey())) {
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidKey, "Invalid key")).
+                    addPropertyNode("key").addConstraintViolation();
+
+            return false;
+        }
+
+        if (saml2IdP.isSelfRegUnmatching() && saml2IdP.isCreateUnmatching()) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.Standard,
                             "Either selfRegUnmatching or createUnmatching, not both")).
                     addPropertyNode("selfRegUnmatching").
                     addPropertyNode("createUnmatching").addConstraintViolation();
+
             return false;
         }
 
-        long connObjectKeys = IterableUtils.countMatches(value.getItems(), new Predicate<SAML2IdPItem>() {
+        long connObjectKeys = IterableUtils.countMatches(saml2IdP.getItems(), new Predicate<SAML2IdPItem>() {
 
             @Override
             public boolean evaluate(final SAML2IdPItem item) {
                 return item.isConnObjectKey();
             }
         });
-        if (!value.getItems().isEmpty() && connObjectKeys != 1) {
+        if (!saml2IdP.getItems().isEmpty() && connObjectKeys != 1) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "Single ConnObjectKey mapping is required")).
                     addPropertyNode("connObjectKey.size").addConstraintViolation();
+
             return false;
         }
 
         boolean isValid = true;
 
-        long passwords = IterableUtils.countMatches(value.getItems(), new Predicate<SAML2IdPItem>() {
+        long passwords = IterableUtils.countMatches(saml2IdP.getItems(), new Predicate<SAML2IdPItem>() {
 
             @Override
             public boolean evaluate(final SAML2IdPItem item) {
@@ -70,7 +81,7 @@ public class SAML2IdPValidator extends AbstractValidator<SAML2IdPCheck, SAML2IdP
             isValid = false;
         }
 
-        for (SAML2IdPItem item : value.getItems()) {
+        for (SAML2IdPItem item : saml2IdP.getItems()) {
             for (String className : item.getTransformerClassNames()) {
                 Class<?> actionsClass = null;
                 boolean isAssignable = false;
@@ -93,5 +104,4 @@ public class SAML2IdPValidator extends AbstractValidator<SAML2IdPCheck, SAML2IdP
 
         return isValid;
     }
-
 }

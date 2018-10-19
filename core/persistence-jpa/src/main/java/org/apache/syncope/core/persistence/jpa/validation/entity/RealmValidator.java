@@ -40,8 +40,7 @@ public class RealmValidator extends AbstractValidator<RealmCheck, Realm> {
                 isValid = false;
 
                 context.buildConstraintViolationWithTemplate(
-                        getTemplate(EntityViolationType.InvalidRealm,
-                                "Root realm cannot have a parent realm")).
+                        getTemplate(EntityViolationType.InvalidRealm, "Root realm cannot have a parent realm")).
                         addPropertyNode("parent").addConstraintViolation();
             }
         } else {
@@ -49,8 +48,7 @@ public class RealmValidator extends AbstractValidator<RealmCheck, Realm> {
                 isValid = false;
 
                 context.buildConstraintViolationWithTemplate(
-                        getTemplate(EntityViolationType.InvalidRealm,
-                                "A realm needs to reference a parent realm")).
+                        getTemplate(EntityViolationType.InvalidRealm, "A realm needs to reference a parent realm")).
                         addPropertyNode("parent").addConstraintViolation();
             }
 
@@ -58,8 +56,7 @@ public class RealmValidator extends AbstractValidator<RealmCheck, Realm> {
                 isValid = false;
 
                 context.buildConstraintViolationWithTemplate(
-                        getTemplate(EntityViolationType.InvalidRealm,
-                                "Only letters and numbers are allowed in realm name")).
+                        getTemplate(EntityViolationType.InvalidRealm, "Only alphanumeric chars allowed in realm name")).
                         addPropertyNode("name").addConstraintViolation();
             }
         }
