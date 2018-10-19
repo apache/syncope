@@ -63,7 +63,7 @@ public abstract class AbstractPlainAttr<O extends Any<?>> extends AbstractGenera
     protected abstract boolean addForMultiValue(PlainAttrValue attrValue);
 
     private void checkNonNullSchema() {
-        if (schema == null) {
+        if (getSchema() == null) {
             throw new IllegalStateException("First set owner then schema and finally add values");
         }
     }
