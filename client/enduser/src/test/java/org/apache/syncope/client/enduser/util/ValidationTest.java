@@ -34,7 +34,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 
-public class UserRequestValidatorTest {
+public class ValidationTest {
 
     private AttrTO attrTO(String schemaKey, String... values) {
         return new AttrTO.Builder().schema(schemaKey).values(values).build();
@@ -58,16 +58,16 @@ public class UserRequestValidatorTest {
                 "customTemplate.json").getFile(), CustomTemplateInfo.class);
 
         // not allowed because of presence of notAllowed attribute
-        assertFalse(UserRequestValidator.compliant(userTO, customFormAttributes, true));
+        assertFalse(Validation.isCompliant(userTO, customFormAttributes, true));
 
         // remove notAllowed attribute and make it compliant
         userTO.getPlainAttrs().remove(notAllowed);
-        assertTrue(UserRequestValidator.compliant(userTO, customFormAttributes, true));
+        assertTrue(Validation.isCompliant(userTO, customFormAttributes, true));
 
         // firstname must have only one defaultValue
         userTO.getPlainAttr("firstname").get().getValues().add("notAllowedFirstnameValue");
-        assertFalse(UserRequestValidator.compliant(userTO, customFormAttributes, true));
-        assertTrue(UserRequestValidator.compliant(userTO, customFormAttributes, false));
+        assertFalse(Validation.isCompliant(userTO, customFormAttributes, true));
+        assertTrue(Validation.isCompliant(userTO, customFormAttributes, false));
 
         // clean
         userTO.getPlainAttr("firstname").get().getValues().remove("notAllowedFirstnameValue");
@@ -75,24 +75,23 @@ public class UserRequestValidatorTest {
         // virtual
         AttrTO virtualdata = attrTO("virtualdata", "defaultVirtualData");
         userTO.getVirAttrs().add(virtualdata);
-        assertTrue(UserRequestValidator.compliant(userTO, customFormAttributes, true));
+        assertTrue(Validation.isCompliant(userTO, customFormAttributes, true));
 
         // with empty form is compliant by definition
-        assertTrue(UserRequestValidator.compliant(userTO, new HashMap<>(), true));
+        assertTrue(Validation.isCompliant(userTO, new HashMap<>(), true));
 
         // check wizard steps
         // only "credentials", "plainSchemas" and "finish" steps must be visible
-        assertTrue(UserRequestValidator.validateSteps(customTemplate));
+        assertTrue(Validation.validateSteps(customTemplate));
 
-        assertTrue(UserRequestValidator.validateStep("credentials", customTemplate));
-        assertTrue(UserRequestValidator.validateStep("plainSchemas", customTemplate));
-        assertTrue(UserRequestValidator.validateStep("finish", customTemplate));
+        assertTrue(Validation.validateStep("credentials", customTemplate));
+        assertTrue(Validation.validateStep("plainSchemas", customTemplate));
+        assertTrue(Validation.validateStep("finish", customTemplate));
 
-        assertFalse(UserRequestValidator.validateStep("test", customTemplate));
-        assertFalse(UserRequestValidator.validateStep("resources", customTemplate));
-        assertFalse(UserRequestValidator.validateStep("virtualSchemas", customTemplate));
-        assertFalse(UserRequestValidator.validateStep("derivedSchemas", customTemplate));
-        assertFalse(UserRequestValidator.validateStep("groups", customTemplate));
+        assertFalse(Validation.validateStep("test", customTemplate));
+        assertFalse(Validation.validateStep("resources", customTemplate));
+        assertFalse(Validation.validateStep("virtualSchemas", customTemplate));
+        assertFalse(Validation.validateStep("derivedSchemas", customTemplate));
+        assertFalse(Validation.validateStep("groups", customTemplate));
     }
-
 }

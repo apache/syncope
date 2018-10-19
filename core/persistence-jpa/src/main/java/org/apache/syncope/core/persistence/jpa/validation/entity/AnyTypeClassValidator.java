@@ -20,28 +20,19 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.core.persistence.api.entity.MembershipType;
-import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 
-public class RelationshipTypeValidator extends AbstractValidator<RelationshipTypeCheck, RelationshipType> {
+public class AnyTypeClassValidator extends AbstractValidator<AnyTypeClassCheck, AnyTypeClass> {
 
     @Override
-    public boolean isValid(final RelationshipType relationShipType, final ConstraintValidatorContext context) {
+    public boolean isValid(final AnyTypeClass anyTypeClass, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
         boolean isValid = true;
 
-        if (isHtml(relationShipType.getKey())) {
+        if (isHtml(anyTypeClass.getKey())) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidKey, "Invalid key")).
-                    addPropertyNode("key").addConstraintViolation();
-
-            isValid = false;
-        }
-
-        if (MembershipType.getInstance().getKey().equalsIgnoreCase(relationShipType.getKey())) {
-            context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidKey, "Invalid relationshipType name")).
                     addPropertyNode("key").addConstraintViolation();
 
             isValid = false;

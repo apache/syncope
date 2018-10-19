@@ -41,4 +41,8 @@ public abstract class AbstractValidator<A extends Annotation, T> implements Cons
     protected final String getTemplate(final EntityViolationType type, final String message) {
         return type.name() + ";" + message;
     }
+
+    protected boolean isHtml(final String text) {
+        return text != null && (text.indexOf('<') != -1 || text.indexOf('>') != -1);
+    }
 }

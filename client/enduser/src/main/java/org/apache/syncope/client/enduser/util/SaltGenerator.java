@@ -43,5 +43,6 @@ public final class SaltGenerator {
     }
 
     private SaltGenerator() {
+        // private constructor for static utility class
     }
 }
