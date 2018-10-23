@@ -512,10 +512,6 @@ public class DefaultRealmPullResultHandler
                         }
                         output = update(delta, Collections.singletonList(key));
 
-                        for (PullActions action : profile.getActions()) {
-                            action.after(profile, delta, RealmTO.class.cast(output), result);
-                        }
-
                         resultStatus = Result.SUCCESS;
 
                         LOG.debug("{} successfully updated", realm);
