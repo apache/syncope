@@ -352,7 +352,9 @@ public class PropagationManagerImpl implements PropagationManager {
                     }
                     values.add(AttributeBuilder.build(schema.getExtAttrName(), vAttr.getValues()));
 
-                    propByRes.add(ResourceOperation.UPDATE, schema.getProvision().getResource().getKey());
+                    if (!propByRes.contains(ResourceOperation.CREATE, schema.getProvision().getResource().getKey())) {
+                        propByRes.add(ResourceOperation.UPDATE, schema.getProvision().getResource().getKey());
+                    }
                 } else {
                     LOG.warn("{} not owned by or {} not allowed for {}",
                             schema.getProvision().getResource(), schema, any);
