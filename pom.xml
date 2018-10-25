@@ -469,7 +469,7 @@ under the License.
     <angular.version>1.7.5</angular.version>
     <angular-resource.version>1.7.0</angular-resource.version>
     <angular-ui-router.version>1.0.20</angular-ui-router.version>
-    <ui-bootstrap.version>3.0.4</ui-bootstrap.version>
+    <ui-bootstrap.version>3.0.5</ui-bootstrap.version>
     <angular-ui-select.version>0.19.8</angular-ui-select.version>
     <angular-treasure-overlay-spinner.version>1.1.0</angular-treasure-overlay-spinner.version>
     <angular-translate.version>2.18.1</angular-translate.version>
@@ -972,7 +972,7 @@ under the License.
       <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
-        <version>1.9.1</version>
+        <version>1.9.2</version>
       </dependency>
       
       <dependency>
