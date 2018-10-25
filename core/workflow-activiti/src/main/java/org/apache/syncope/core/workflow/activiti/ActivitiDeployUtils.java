@@ -41,6 +41,13 @@ public final class ActivitiDeployUtils {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+    private static final XMLInputFactory XML_INPUT_FACTORY = XMLInputFactory.newInstance();
+
+    static {
+        XML_INPUT_FACTORY.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+        XML_INPUT_FACTORY.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
+    }
+
     public static Deployment deployDefinition(
             final ProcessEngine engine, final String resourceName, final byte[] definition) {
 
@@ -58,7 +65,7 @@ public final class ActivitiDeployUtils {
                 getResourceAsStream(procDef.getDeploymentId(), procDef.getResourceName());
                 InputStreamReader isr = new InputStreamReader(bpmnStream)) {
 
-            xtr = XMLInputFactory.newInstance().createXMLStreamReader(isr);
+            xtr = XML_INPUT_FACTORY.createXMLStreamReader(isr);
             BpmnModel bpmnModel = new BpmnXMLConverter().convertToBpmnModel(xtr);
 
             Model model = engine.getRepositoryService().newModel();

@@ -73,6 +73,7 @@ public class DomainProcessEngineFactoryBean
                     if (conf.getExpressionManager() == null) {
                         conf.setExpressionManager(new SpringExpressionManager(ctx, conf.getBeans()));
                     }
+                    conf.setEnableSafeBpmnXml(true);
 
                     engines.put(domain, conf.buildProcessEngine());
                 }
