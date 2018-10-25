@@ -32,10 +32,15 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 public final class ReconciliationReportParser {
 
-    private static final XMLInputFactory INPUT_FACTORY = XMLInputFactory.newInstance();
+    private static final XMLInputFactory XML_INPUT_FACTORY = XMLInputFactory.newInstance();
+
+    static {
+        XML_INPUT_FACTORY.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+        XML_INPUT_FACTORY.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
+    }
 
     public static ReconciliationReport parse(final Date run, final InputStream in) throws XMLStreamException {
-        XMLStreamReader streamReader = INPUT_FACTORY.createXMLStreamReader(in);
+        XMLStreamReader streamReader = XML_INPUT_FACTORY.createXMLStreamReader(in);
         streamReader.nextTag(); // root
         streamReader.nextTag(); // report
         streamReader.nextTag(); // reportlet

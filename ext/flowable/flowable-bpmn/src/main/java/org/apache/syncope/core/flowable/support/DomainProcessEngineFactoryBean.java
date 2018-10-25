@@ -18,16 +18,14 @@
  */
 package org.apache.syncope.core.flowable.support;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.common.engine.impl.cfg.SpringBeanFactoryProxyMap;
 import org.flowable.common.engine.impl.interceptor.EngineConfigurationConstants;
-import org.flowable.engine.form.AbstractFormType;
 import org.flowable.engine.impl.util.EngineServiceUtil;
 import org.flowable.idm.spring.SpringIdmEngineConfiguration;
 import org.flowable.spring.SpringExpressionManager;
@@ -84,9 +82,8 @@ public class DomainProcessEngineFactoryBean
                                 EngineConfigurationConstants.KEY_IDM_ENGINE_CONFIG,
                                 ctx.getBean(SpringIdmEngineConfiguration.class));
                     }
-                    List<AbstractFormType> customFormTypes = new ArrayList<>();
-                    customFormTypes.add(new DropdownFormType(null));
-                    conf.setCustomFormTypes(customFormTypes);
+                    conf.setEnableSafeBpmnXml(true);
+                    conf.setCustomFormTypes(Arrays.asList(new DropdownFormType(null)));
 
                     engines.put(domain, conf.buildProcessEngine());
                 }
