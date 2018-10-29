@@ -393,7 +393,7 @@ under the License.
 
     <jackson.version>2.9.7</jackson.version>
 
-    <spring.version>5.1.1.RELEASE</spring.version>
+    <spring.version>5.1.2.RELEASE</spring.version>
     <spring-security.version>5.1.1.RELEASE</spring-security.version>
 
     <openjpa.version>3.0.0</openjpa.version>
