@@ -18,11 +18,8 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
-import io.swagger.v3.jaxrs2.Reader;
 import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
-import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
@@ -32,19 +29,15 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.servers.Server;
-import io.swagger.v3.oas.models.tags.Tag;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.ext.MessageContext;
-import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.jaxrs.model.doc.JavaDocProvider;
 import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
@@ -57,14 +50,7 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 
 public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
 
-    // remove the line below with CXF 3.2.7
     private JavaDocProvider javadocProvider;
-
-    // remove the line below with CXF 3.2.7
-    private boolean replaceTags;
-
-    // remove the line below with CXF 3.2.7
-    private List<ClassResourceInfo> cris;
 
     private List<String> domains;
 
@@ -73,24 +59,9 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
 
         URL[] javaDocURLs = JavaDocUtils.getJavaDocURLs();
         if (javaDocURLs != null) {
-            // remove the line below with CXF 3.2.7
             this.javadocProvider = new JavaDocProvider(javaDocURLs);
-            super.setJavaDocURLs(javaDocURLs);
+            super.setJavadocProvider(javadocProvider);
         }
-    }
-
-    @Override
-    public void setReplaceTags(final boolean replaceTags) {
-        // remove this method with CXF 3.2.7
-        this.replaceTags = replaceTags;
-        super.setReplaceTags(replaceTags);
-    }
-
-    @Override
-    public void setClassResourceInfos(final List<ClassResourceInfo> classResourceInfos) {
-        // remove this method with CXF 3.2.7
-        this.cris = classResourceInfos;
-        super.setClassResourceInfos(classResourceInfos);
     }
 
     @Override
@@ -104,75 +75,6 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
         configuration.getOpenAPI().setServers(Collections.singletonList(new Server().url(url)));
 
         return configuration;
-    }
-
-    @Override
-    public void customize(final OpenAPI oas) {
-        // remove this method with CXF 3.2.7
-        if (replaceTags || javadocProvider != null) {
-            Map<String, ClassResourceInfo> operations = new HashMap<>();
-            Map<Pair<String, String>, OperationResourceInfo> methods = new HashMap<>();
-            cris.forEach(cri -> {
-                cri.getMethodDispatcher().getOperationResourceInfos().forEach(ori -> {
-                    String normalizedPath = getNormalizedPath(
-                            cri.getURITemplate().getValue(), ori.getURITemplate().getValue());
-
-                    operations.put(normalizedPath, cri);
-                    methods.put(Pair.of(ori.getHttpMethod(), normalizedPath), ori);
-                });
-            });
-
-            List<Tag> tags = new ArrayList<>();
-            oas.getPaths().forEach((pathKey, pathItem) -> {
-                Tag tag = null;
-                if (replaceTags && operations.containsKey(pathKey)) {
-                    ClassResourceInfo cri = operations.get(pathKey);
-
-                    tag = new Tag();
-                    tag.setName(cri.getURITemplate().getValue().replaceAll("/", "_"));
-                    if (javadocProvider != null) {
-                        tag.setDescription(javadocProvider.getClassDoc(cri));
-                    }
-
-                    if (!tags.contains(tag)) {
-                        tags.add(tag);
-                    }
-                }
-
-                for (Map.Entry<PathItem.HttpMethod, Operation> subentry : pathItem.readOperationsMap().entrySet()) {
-                    if (replaceTags && tag != null) {
-                        subentry.getValue().setTags(Collections.singletonList(tag.getName()));
-                    }
-
-                    Pair<String, String> key = Pair.of(subentry.getKey().name(), pathKey);
-                    if (methods.containsKey(key) && javadocProvider != null) {
-                        OperationResourceInfo ori = methods.get(key);
-
-                        if (StringUtils.isBlank(subentry.getValue().getSummary())) {
-                            subentry.getValue().setSummary(javadocProvider.getMethodDoc(ori));
-                        }
-                        if (subentry.getValue().getParameters() == null) {
-                            List<Parameter> parameters = new ArrayList<>();
-                            addParameters(parameters);
-                            subentry.getValue().setParameters(parameters);
-                        } else {
-                            for (int i = 0; i < subentry.getValue().getParameters().size(); i++) {
-                                if (StringUtils.isBlank(subentry.getValue().getParameters().get(i).getDescription())) {
-                                    subentry.getValue().getParameters().get(i).
-                                            setDescription(javadocProvider.getMethodParameterDoc(ori, i));
-                                }
-                            }
-                            addParameters(subentry.getValue().getParameters());
-                        }
-
-                        customizeResponses(subentry.getValue(), ori);
-                    }
-                }
-            });
-            if (replaceTags && oas.getTags() != null) {
-                oas.setTags(tags);
-            }
-        }
     }
 
     @Override
@@ -201,18 +103,9 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
         }
     }
 
+    @Override
     protected void customizeResponses(final Operation operation, final OperationResourceInfo ori) {
-        // this will be replaced by super.customizeResponses(operation, ori);
-        if (operation.getResponses() != null && !operation.getResponses().isEmpty()) {
-            ApiResponse response = operation.getResponses().entrySet().iterator().next().getValue();
-            if (StringUtils.isBlank(response.getDescription())
-                    || (StringUtils.isNotBlank(javadocProvider.getMethodResponseDoc(ori))
-                    && Reader.DEFAULT_DESCRIPTION.equals(response.getDescription()))) {
-
-                response.setDescription(javadocProvider.getMethodResponseDoc(ori));
-            }
-        }
-        //
+        super.customizeResponses(operation, ori);
 
         ApiResponses responses = operation.getResponses();
         if (responses == null) {
