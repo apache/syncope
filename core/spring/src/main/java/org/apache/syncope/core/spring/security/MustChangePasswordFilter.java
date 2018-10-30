@@ -25,17 +25,12 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 
 public class MustChangePasswordFilter implements Filter {
-
-    private static final String[] ALLOWED = new String[] {
-        "/users/self", "/users/self/changePassword"
-    };
 
     @Override
     public void init(final FilterConfig filterConfig) throws ServletException {
@@ -58,8 +53,8 @@ public class MustChangePasswordFilter implements Filter {
 
             SecurityContextHolderAwareRequestWrapper wrapper =
                     SecurityContextHolderAwareRequestWrapper.class.cast(request);
-            if (isMustChangePassword && "GET".equalsIgnoreCase(wrapper.getMethod())
-                    && !ArrayUtils.contains(ALLOWED, wrapper.getPathInfo())) {
+            if (isMustChangePassword && !"POST".equalsIgnoreCase(wrapper.getMethod())
+                    && !"/users/self/changePassword".equals(wrapper.getPathInfo())) {
 
                 throw new AccessDeniedException("Please change your password first");
             }
@@ -67,5 +62,4 @@ public class MustChangePasswordFilter implements Filter {
 
         chain.doFilter(request, response);
     }
-
 }

@@ -87,7 +87,7 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
         Set<SyncopeGrantedAuthority> authorities = Collections.emptySet();
         if (user != null) {
             AccessToken accessToken = accessTokenDAO.find(jwtClaims.getTokenId());
-            if (accessToken.getAuthorities() != null) {
+            if (accessToken != null && accessToken.getAuthorities() != null) {
                 try {
                     authorities = POJOHelper.deserialize(
                             ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),

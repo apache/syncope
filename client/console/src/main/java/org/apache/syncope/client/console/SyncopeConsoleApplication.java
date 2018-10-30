@@ -49,7 +49,6 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.wicket.Page;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
@@ -254,7 +253,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
     @Override
     public Class<? extends Page> getHomePage() {
         return AuthenticatedWebSession.get().isSignedIn()
-                && SyncopeConsoleSession.get().owns(StandardEntitlement.MUST_CHANGE_PASSWORD)
+                && SyncopeConsoleSession.get().getSelfTO().isMustChangePassword()
                 ? MustChangePassword.class
                 : Dashboard.class;
     }

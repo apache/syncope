@@ -341,7 +341,6 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           $scope.user = UserUtil.getUnwrappedUser(response);
           $scope.user.password = undefined;
 
-
           $scope.initialSecurityQuestion = $scope.user.securityQuestion;
           // initialize already assigned resources
           $scope.dynamicForm.selectedResources = $scope.user.resources;
@@ -520,7 +519,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
                     + $filter('translate')(["SUCCESSFULLY_UPDATED"]).SUCCESSFULLY_UPDATED
           });
         }, function (response) {
-          console.info("Error during user update: ", response);
+          console.error("Error during user update: ", response);
           var errorMessage;
           // parse error response 
           if (response !== undefined) {
@@ -614,8 +613,11 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         //check if password and confirmPassword are equals using angular built-in validation
         if (ValidationExecutor.validate(currentForm, $scope)) {
           if (user && user.password) {
-            UserSelfService.changePassword({"newPassword": user.password}).then(function (data) {
-              $scope.logout(data);
+            UserSelfService.changePassword({"newPassword": user.password}).then(function (response) {
+              console.debug("User " + user.username + " password successfully CHANGED");
+              $scope.logout({
+                successMessage: $filter('translate')(["PASSWORD_UPDATED"]).PASSWORD_UPDATED
+              });
             }, function (response) {
               var errorMessage;
               // parse error response 
