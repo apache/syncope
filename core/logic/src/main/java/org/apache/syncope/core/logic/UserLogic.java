@@ -85,7 +85,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     @Autowired
     protected SyncopeLogic syncopeLogic;
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() and not(hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "'))")
     @Transactional(readOnly = true)
     public Pair<String, UserTO> selfRead() {
         return Pair.of(
@@ -164,7 +164,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 binder.returnUserTO(binder.getUserTO(created.getKey())), created.getRight(), before.getRight());
     }
 
-    @PreAuthorize("isAuthenticated() and not(hasRole('" + StandardEntitlement.ANONYMOUS + "'))")
+    @PreAuthorize("isAuthenticated() "
+            + "and not(hasRole('" + StandardEntitlement.ANONYMOUS + "')) "
+            + "and not(hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "'))")
     public ProvisioningResult<UserTO> selfUpdate(final UserPatch userPatch, final boolean nullPriorityAsync) {
         UserTO userTO = binder.getAuthenticatedUserTO();
         userPatch.setKey(userTO.getKey());
@@ -264,7 +266,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 Collections.<String>emptySet());
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() and not(hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "'))")
     public ProvisioningResult<UserTO> selfStatus(final StatusPatch statusPatch, final boolean nullPriorityAsync) {
         statusPatch.setKey(userDAO.findKey(AuthContextUtils.getUsername()));
         Pair<String, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusPatch, nullPriorityAsync);
@@ -316,7 +318,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         provisioningManager.confirmPasswordReset(user.getKey(), token, password);
     }
 
-    @PreAuthorize("isAuthenticated() and not(hasRole('" + StandardEntitlement.ANONYMOUS + "'))")
+    @PreAuthorize("isAuthenticated() "
+            + "and not(hasRole('" + StandardEntitlement.ANONYMOUS + "')) "
+            + "and not(hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "'))")
     public ProvisioningResult<UserTO> selfDelete(final boolean nullPriorityAsync) {
         UserTO userTO = binder.getAuthenticatedUserTO();
         return doDelete(userTO, true, nullPriorityAsync);

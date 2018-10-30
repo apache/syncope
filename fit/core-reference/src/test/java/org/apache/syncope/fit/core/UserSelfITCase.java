@@ -57,7 +57,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
-import org.apache.syncope.common.rest.api.service.ResourceService;
+import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -377,10 +377,10 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 0. access as vivaldi -> succeed
         SyncopeClient vivaldiClient = clientFactory.create("vivaldi", "password321");
-        Pair<Map<String, Set<String>>, UserTO> self = vivaldiClient.self();
-        assertFalse(self.getRight().isMustChangePassword());
+        Response response = vivaldiClient.getService(AccessTokenService.class).refresh();
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
 
-        // 1. update user vivaldi (3) requirig password update
+        // 1. update user vivaldi requiring password update
         userPatch = new UserPatch();
         userPatch.setKey("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee");
         userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(true).build());
@@ -389,7 +389,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 2. attempt to access -> fail
         try {
-            vivaldiClient.getService(ResourceService.class).list();
+            vivaldiClient.self();
             fail("This should not happen");
         } catch (ForbiddenException e) {
             assertNotNull(e);
@@ -400,7 +400,7 @@ public class UserSelfITCase extends AbstractITCase {
         vivaldiClient.getService(UserSelfService.class).mustChangePassword("password123");
 
         // 4. verify it worked
-        self = clientFactory.create("vivaldi", "password123").self();
+        Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create("vivaldi", "password123").self();
         assertFalse(self.getRight().isMustChangePassword());
     }
 

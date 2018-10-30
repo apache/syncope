@@ -68,5 +68,4 @@ public class SAML2SPLogin extends WebPage {
         }
         strategy.remove();
     }
-
 }
