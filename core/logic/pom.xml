@@ -107,6 +107,7 @@ under the License.
         <configuration>
           <doCheck>false</doCheck>
           <doUpdate>false</doUpdate>
+          <skip>${skipTests}</skip>
         </configuration>
         <executions>
           <execution>
