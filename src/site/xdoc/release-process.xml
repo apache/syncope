@@ -469,10 +469,10 @@ Subject: [VOTE] Apache Syncope $VERSION
 I've created a $VERSION release, with the following artifacts up for a vote:
 
 GIT source tag (XXXXXXXXXXXXXXXX):
-https://git-wip-us.apache.org/repos/asf?p=syncope.git;a=tag;h=XXXXXXXXXXXXXXXX
+https://gitbox.apache.org/repos/asf?p=syncope.git;a=tag;h=XXXXXXXXXXXXXXXX
 
 List of changes:
-https://git-wip-us.apache.org/repos/asf?p=syncope.git;a=blob_plain;f=CHANGES;h=XXXXXXXXXXXXXXXX;hb=YYYYYYYYYYYYYYYYYYYYY              
+https://gitbox.apache.org/repos/asf?p=syncope.git;a=blob_plain;f=CHANGES;h=XXXXXXXXXXXXXXXX;hb=YYYYYYYYYYYYYYYYYYYYY              
 
 Staging artifacts:
 https://dist.apache.org/repos/dist/dev/syncope/$VERSION
