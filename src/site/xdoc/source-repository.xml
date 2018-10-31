@@ -29,13 +29,21 @@ under the License.
     <section name="Web Browsing">    
       <p>To browse use the GIT web interface:<br/>
 
-        <a href="https://git-wip-us.apache.org/repos/asf?p=syncope.git">https://git-wip-us.apache.org/repos/asf?p=syncope.git</a>
+        <a href="https://gitbox.apache.org/repos/asf?p=syncope.git">https://gitbox.apache.org/repos/asf?p=syncope.git</a>
+      </p>
+      <p>Alternatively, use GitHub web interface:<br/>
+
+        <a href="https://github.com/apache/syncope">https://github.com/apache/syncope</a>
       </p>
     </section>
       
-    <section name="Checking out">      
+    <section name="Checking out">
       <p>The source code can be checked out anonymously over HTTPs by doing:
-        <source>git clone https://git-wip-us.apache.org/repos/asf/syncope.git</source>
+        <source>git clone https://gitbox.apache.org/repos/asf/syncope.git</source>
+        or
+        <source>git clone https://github.com/apache/syncope.git</source>
+        or alternatively via SSH
+        <source>git clone git@github.com:apache/syncope.git</source>
       </p>
 
       <p class="alert alert-warning">
