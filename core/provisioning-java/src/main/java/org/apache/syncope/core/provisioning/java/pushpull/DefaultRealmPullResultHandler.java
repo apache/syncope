@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MatchingRule;
-import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
@@ -42,6 +41,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
@@ -160,7 +160,7 @@ public class DefaultRealmPullResultHandler
                 action.beforeAssign(profile, delta, realmTO);
             }
 
-            create(realmTO, delta, UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), result);
+            create(realmTO, delta, UnmatchingRule.ASSIGN, result);
         }
 
         return Collections.singletonList(result);
@@ -198,7 +198,7 @@ public class DefaultRealmPullResultHandler
                 action.beforeProvision(profile, delta, realmTO);
             }
 
-            create(realmTO, delta, UnmatchingRule.toEventName(UnmatchingRule.PROVISION), result);
+            create(realmTO, delta, UnmatchingRule.PROVISION, result);
         }
 
         return Collections.singletonList(result);
@@ -225,7 +225,7 @@ public class DefaultRealmPullResultHandler
     private void create(
             final RealmTO realmTO,
             final SyncDelta delta,
-            final String operation,
+            final UnmatchingRule unmatchingRule,
             final ProvisioningReport result)
             throws JobExecutionException {
 
@@ -239,8 +239,10 @@ public class DefaultRealmPullResultHandler
             for (String resource : realm.getResourceKeys()) {
                 propByRes.add(ResourceOperation.CREATE, resource);
             }
-            List<PropagationTaskTO> tasks = propagationManager.createTasks(realm, propByRes, null);
-            taskExecutor.execute(tasks, false);
+            if (unmatchingRule == UnmatchingRule.ASSIGN) {
+                List<PropagationTaskTO> tasks = propagationManager.createTasks(realm, propByRes, null);
+                taskExecutor.execute(tasks, false);
+            }
 
             RealmTO actual = binder.getRealmTO(realm, true);
 
@@ -271,7 +273,7 @@ public class DefaultRealmPullResultHandler
             resultStatus = Result.FAILURE;
         }
 
-        finalize(operation, resultStatus, null, output, delta);
+        finalize(UnmatchingRule.toEventName(unmatchingRule), resultStatus, null, output, delta);
     }
 
     private List<ProvisioningReport> update(final SyncDelta delta, final List<String> keys)
