@@ -30,9 +30,8 @@ Once the project has been created from the provided Maven archetype, the generat
 adding new features or replacing existing components.
 
 [[override-behavior]]
-[TIP]
 .Override behavior
-====
+****
 As a rule of thumb, any file of the local project will take precedence over a file with the same name in the same
 directory of the standard Apache Syncope release.
 
@@ -60,8 +59,40 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/2_1_X/client/console/src/main/resources/org/apache/syncope/client/console/pages/BasePage.html[BasePage.html^].
 endif::[]
 
-This general behavior might have exceptions, as highlighted below.
-====
+This general behavior might have exceptions: when you need to customize one of the Spring context definitions, say
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/resources/securityContext.xml[securityContext.xml^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/core/spring/src/main/resources/securityContext.xml[securityContext.xml^]
+endif::[]
+for example, you will also need to replace the following text in `core/src/main/webapp/WEB-INF/web.xml`,
+
+....
+classpath*:/coreContext.xml
+classpath*:/securityContext.xml
+classpath*:/logicContext.xml
+classpath*:/restCXFContext.xml
+classpath*:/persistenceContext.xml
+classpath*:/provisioning*Context.xml
+classpath*:/workflow*Context.xml
+....
+
+with
+
+....
+classpath*:/coreContext.xml
+classpath:/securityContext.xml
+classpath*:/logicContext.xml
+classpath*:/restCXFContext.xml
+classpath*:/persistenceContext.xml
+classpath*:/provisioning*Context.xml
+classpath*:/workflow*Context.xml
+....
+
+to be sure that `core/src/main/resources/securityContext.xml` is picked up. +
+Please also note that the actual list of Spring context files to include might depend on the configured extensions.
+****
 
 In general, the Embedded Mode (see the
 ifeval::["{backend}" == "html5"]
@@ -195,54 +226,16 @@ be provided - under `core/src/main/java` if Java - for the following components:
 * <<jwtssoprovider,JWT SSO providers>>
 * <<audit-appenders, audit appenders>>
 
-[[new-rest-endpoints]]
-[TIP]
-.New REST endpoints
-====
-Adding a new REST endpoint involves several operations:
+[discrete]
+===== Customize OpenJPA settings
 
-. create - in an extension's `rest-api` module or under `common` otherwise - a Java interface with package
-`org.apache.syncope.common.rest.api.service` and proper JAX-RS annotations; check
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/camel/rest-api/src/main/java/org/apache/syncope/common/rest/api/service/CamelRouteService.java[CamelRouteService^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/2_1_X/ext/camel/rest-api/src/main/java/org/apache/syncope/common/rest/api/service/CamelRouteService.java[CamelRouteService^]
-endif::[]
-for reference;
-. if needed, define supporting payload objects - in an extension's `common-lib` module or under `common` otherwise;
-check
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/camel/common-lib/src/main/java/org/apache/syncope/common/lib/to/CamelRouteTO.java[CamelRouteTO^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/2_1_X/ext/camel/common-lib/src/main/java/org/apache/syncope/common/lib/to/CamelRouteTO.java[CamelRouteTO^]
-endif::[]
-for reference;
-. implement - in an extension's `rest-cxf` module or under `core` otherwise -  the interface defined above in a Java
-class with package `org.apache.syncope.core.rest.cxf.service`; check
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/camel/rest-cxf/src/main/java/org/apache/syncope/core/rest/cxf/service/CamelRouteServiceImpl.java[CamelRouteServiceImpl^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/2_1_X/ext/camel/rest-cxf/src/main/java/org/apache/syncope/core/rest/cxf/service/CamelRouteServiceImpl.java[CamelRouteServiceImpl^]
-endif::[]
-for reference.
+Apache OpenJPA is at the core of the <<persistence,persistence>> layer; its configuration can be tweaked under several
+aspects - including http://openjpa.apache.org/builds/3.0.0/apache-openjpa/docs/ref_guide_caching.html[caching^] for
+example, to best suit the various environments.
 
-By following such conventions, the new REST endpoint will be automatically picked up alongside the default services.
-====
+In case you need to alter the standard settings provided, proceed as follows.
 
-[WARNING]
-====
-The <<override-behavior,override behavior>> might have exceptions; if you need to customize one of the
-Spring context definitions. For example, if you want to customize 
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/resources/securityContext.xml[securityContext.xml^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/2_1_X/core/spring/src/main/resources/securityContext.xml[securityContext.xml^]
-endif::[]
-, you will also need to replace the following text in `core/src/main/webapp/WEB-INF/web.xml`,
+Replace
 
 ....
 classpath*:/coreContext.xml
@@ -258,16 +251,63 @@ with
 
 ....
 classpath*:/coreContext.xml
-classpath:/securityContext.xml
+classpath*:/securityContext.xml
 classpath*:/logicContext.xml
-classpath*:/restCXFContext.xml
-classpath*:/persistenceContext.xml
+classpath:/restCXFContext.xml
+classpath:/persistenceContext.xml
 classpath*:/provisioning*Context.xml
 classpath*:/workflow*Context.xml
 ....
 
-to be sure that `core/src/main/resources/securityContext.xml` is picked up. +
-Please also note that the actual list of Spring context files to include might depend on the configured extensions.
+in `core/src/main/webapp/WEB-INF/web.xml`.
+
+Download
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/resources/persistenceContext.xml[persistenceContext.xml^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa/src/main/resources/persistenceContext.xml[persistenceContext.xml^]
+endif::[]
+and save it under `core/src/main/resources/`.
+
+Download
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/resources/domains.xml
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa/src/main/resources/domains.xml[domains.xml^]
+endif::[]
+and save it under `core/src/main/resources/`.
+
+Now you can add any OpenJPA configuration property in one of domains configuration files as
+`core/src/main/resources/domains/MasterDomain.xml` as follows, for the `EntityManagerFactory` bean:
+
+[source,xml]
+....
+<property name="jpaPropertyMap">
+  <map>
+    <entry key="openjpa.DataCache" value="true(Lru=true)"/>
+    <entry key="openjpa.QueryCache" value="true(Lru=true)"/>
+  </map>
+</property>
+....
+
+[WARNING]
+====
+The OpenJPA documentation's XML snippets refer to a different configuration style; for example, when used in
+one of domains configuration files as `MasterDomain.xml`, this:
+
+[source,xml]
+....
+<property name="openjpa.DataCache" value="true"/>
+....
+
+becomes:
+
+[source,xml]
+....
+<entry key="openjpa.DataCache" value="true"/>
+....
 ====
 
 [discrete]
@@ -465,6 +505,40 @@ Add the following dependencies to `core/pom.xml`:
   <version>${syncope.version}</version>
 </dependency>
 ----
+
+[discrete]
+===== New REST endpoints
+Adding a new REST endpoint involves several operations:
+
+. create - in an extension's `rest-api` module or under `common` otherwise - a Java interface with package
+`org.apache.syncope.common.rest.api.service` and proper JAX-RS annotations; check
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/camel/rest-api/src/main/java/org/apache/syncope/common/rest/api/service/CamelRouteService.java[CamelRouteService^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/ext/camel/rest-api/src/main/java/org/apache/syncope/common/rest/api/service/CamelRouteService.java[CamelRouteService^]
+endif::[]
+for reference;
+. if needed, define supporting payload objects - in an extension's `common-lib` module or under `common` otherwise;
+check
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/camel/common-lib/src/main/java/org/apache/syncope/common/lib/to/CamelRouteTO.java[CamelRouteTO^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/ext/camel/common-lib/src/main/java/org/apache/syncope/common/lib/to/CamelRouteTO.java[CamelRouteTO^]
+endif::[]
+for reference;
+. implement - in an extension's `rest-cxf` module or under `core` otherwise -  the interface defined above in a Java
+class with package `org.apache.syncope.core.rest.cxf.service`; check
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/camel/rest-cxf/src/main/java/org/apache/syncope/core/rest/cxf/service/CamelRouteServiceImpl.java[CamelRouteServiceImpl^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/ext/camel/rest-cxf/src/main/java/org/apache/syncope/core/rest/cxf/service/CamelRouteServiceImpl.java[CamelRouteServiceImpl^]
+endif::[]
+for reference.
+
+By following such conventions, the new REST endpoint will be automatically picked up alongside the default services.
 
 [[customization-console]]
 ==== Console
