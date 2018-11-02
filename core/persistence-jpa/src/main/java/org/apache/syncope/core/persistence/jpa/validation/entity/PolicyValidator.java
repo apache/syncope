@@ -22,7 +22,7 @@ import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 
-public class PolicyValidator extends AbstractValidator<RoleCheck, Policy> {
+public class PolicyValidator extends AbstractValidator<PolicyCheck, Policy> {
 
     @Override
     public boolean isValid(final Policy policy, final ConstraintValidatorContext context) {
