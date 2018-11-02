@@ -120,9 +120,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         Realm realm = realmDAO.save(binder.create(parent, realmTO));
 
         PropagationByResource propByRes = new PropagationByResource();
-        realm.getResourceKeys().forEach(resource -> {
-            propByRes.add(ResourceOperation.CREATE, resource);
-        });
+        propByRes.addAll(ResourceOperation.CREATE, realm.getResourceKeys());
         List<PropagationTaskTO> tasks = propagationManager.createTasks(realm, propByRes, null);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, false);
 
@@ -185,9 +183,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         }
 
         PropagationByResource propByRes = new PropagationByResource();
-        realm.getResourceKeys().forEach(resource -> {
-            propByRes.add(ResourceOperation.DELETE, resource);
-        });
+        propByRes.addAll(ResourceOperation.DELETE, realm.getResourceKeys());
         List<PropagationTaskTO> tasks = propagationManager.createTasks(realm, propByRes, null);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, false);
 
