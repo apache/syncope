@@ -40,7 +40,7 @@ see the OpenJPA documentation for reference.
 [WARNING]
 ====
 The http://openjpa.apache.org/builds/2.4.3/apache-openjpa/docs/ref_guide_event.html[OpenJPA documentation^]'s XML
-snippets refer to a different configuration style; for example, when used in persistence.properties`, this:
+snippets refer to a different configuration style; for example, when used in `persistence.properties`, this:
 
 [source,xml]
 ....
