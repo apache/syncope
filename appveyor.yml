@@ -20,6 +20,7 @@ init:
  - git config --global core.autocrlf true
 install:
   - cinst git
+  - cinst patch
   - ps: |
       Add-Type -AssemblyName System.IO.Compression.FileSystem
       if (!(Test-Path -Path "C:\maven" )) {
