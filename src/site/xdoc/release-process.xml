@@ -311,14 +311,14 @@ unzip $SYNCOPE_RELEASE_DIR/target/syncope-$VERSION-source-release.zip
 cd syncope-$VERSION        
 mvn -PskipTests,all
 
-cd standalone/target/standalone/apache-tomcat-* && ./bin/startup.sh
+cd standalone/target/standalone/apache-tomcat-* && chmod 755 bin/*.sh && ./bin/startup.sh
 
 curl -o /tmp/syncope.wadl http://localhost:9080/syncope/syncope.wadl
 
 curl -o /tmp/index.html http://localhost:9080/syncope/index.html
-sed -i 's/\/syncope\/webjars\/jquery\/2.2.4\/jquery.min.js/https:\/\/code.jquery.com\/jquery-2.2.4.min.js/' /tmp/index.html 
-sed -i 's/\/syncope\/webjars\/jquery-ui\/1.11.4\/jquery-ui.min.js/http:\/\/code.jquery.com\/ui\/1.11.4\/jquery-ui.min.js/' /tmp/index.html               
-sed -i 's/\/syncope\/webjars\/jquery-ui-themes\/1.11.4\/smoothness\/jquery-ui.min.css/https:\/\/code.jquery.com\/ui\/1.11.4\/themes\/smoothness\/jquery-ui.css/' /tmp/index.html 
+sed -i 's/\/syncope\/webjars\/jquery\/3.3.1-1\/jquery.min.js/https:\/\/code.jquery.com\/jquery-3.3.1.min.js/' /tmp/index.html 
+sed -i 's/\/syncope\/webjars\/jquery-ui\/1.12.1\/jquery-ui.min.js/http:\/\/code.jquery.com\/ui\/1.12.1\/jquery-ui.min.js/' /tmp/index.html               
+sed -i 's/\/syncope\/webjars\/jquery-ui-themes\/1.12.1\/smoothness\/jquery-ui.min.css/https:\/\/code.jquery.com\/ui\/1.12.1\/themes\/smoothness\/jquery-ui.css/' /tmp/index.html 
 
 # if releasing from 2_0_X
 curl -o /tmp/schema_1_syncope2.html http://localhost:9080/syncope/schema_1_syncope2.html
@@ -326,7 +326,7 @@ sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/styles\/default.min.css/http:\
 sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/highlight.min.js/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.8.0\/highlight.min.js/' /tmp/schema_1_syncope2.html 
 
 # else if releasing from 2_1_X
-curl -o /tmp/schema_1_syncope2.html http://localhost:9080/syncope/schema_1_syncope21.html
+curl -o /tmp/schema_1_syncope21.html http://localhost:9080/syncope/schema_1_syncope21.html
 sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/styles\/default.min.css/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.8.0\/styles\/default.min.css/' /tmp/schema_1_syncope21.html 
 sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/highlight.min.js/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.8.0\/highlight.min.js/' /tmp/schema_1_syncope21.html 
 
@@ -340,10 +340,10 @@ mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to/site>/$VERSION
 cd <absolute path to/site>/$VERSION
 
 # if releasing from 2_0_X
-mkdir -p $VERSION/rest/2.0
-mv /tmp/index.html $VERSION/rest/2.0
-mv /tmp/schema_1_syncope2.html $VERSION/rest/2.0
-mv /tmp/syncope.wadl $VERSION/rest/2.0
+mkdir -p rest/2.0
+mv /tmp/index.html rest/2.0
+mv /tmp/schema_1_syncope2.html rest/2.0
+mv /tmp/syncope.wadl rest/2.0
 cp $SYNCOPE_SITE_DIR/target/generated-docs/getting-started.* docs/2.0/
 cp $SYNCOPE_SITE_DIR/target/generated-docs/reference-guide.* docs/2.0/
 cp -r $SYNCOPE_SITE_DIR/target/generated-docs/images docs/2.0/
@@ -358,10 +358,10 @@ svn copy rest/2.1 $VERSION/rest/
 svn copy docs/2.1/ $VERSION/docs/
 
 # else if releasing from 2_1_X
-mkdir -p $VERSION/rest/2.1
-mv /tmp/index.html $VERSION/rest/2.1
-mv /tmp/schema_1_syncope21.html $VERSION/rest/2.1
-mv /tmp/syncope.wadl $VERSION/rest/2.1
+mkdir -p rest/2.1
+mv /tmp/index.html rest/2.1
+mv /tmp/schema_1_syncope21.html rest/2.1
+mv /tmp/syncope.wadl rest/2.1
 cp $SYNCOPE_SITE_DIR/target/generated-docs/getting-started.* docs/2.1/
 cp $SYNCOPE_SITE_DIR/target/generated-docs/reference-guide.* docs/2.1/
 cp -r $SYNCOPE_SITE_DIR/target/generated-docs/images docs/2.1/

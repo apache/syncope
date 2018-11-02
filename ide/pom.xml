@@ -122,6 +122,11 @@ under the License.
           </plugin>
         </plugins>
       </build>
+
+      <modules>
+	<module>eclipse</module>
+	<module>netbeans</module>
+      </modules>
     </profile>
   </profiles>
 </project>
