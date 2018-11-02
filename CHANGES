@@ -2,6 +2,44 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.1.2
+================================================================================
+
+** Bug
+    * [SYNCOPE-1360] - Delegated administration to Dynamic Realms not possible
+    * [SYNCOPE-1361] - Custom audit appender does not work after a restart
+    * [SYNCOPE-1362] - Sorting users by creation date raises RuntimeException
+    * [SYNCOPE-1363] - Deleting multiple users at once reports "Operation delete not supported"
+    * [SYNCOPE-1364] - Upgrade tool from 2.0 script error
+    * [SYNCOPE-1365] - Erorr during retrieve candidate groups for approval process
+    * [SYNCOPE-1366] - Audit events ownership always set to admin user
+    * [SYNCOPE-1370] - Password reset succeeds also on wrong captcha
+    * [SYNCOPE-1371] - After upgrade from 2.0, error when updating Realm: ClassCastException: Expected LOGIC_ACTIONS, got PULL_ACTIONS
+    * [SYNCOPE-1372] - Password history checks not effective
+    * [SYNCOPE-1373] - Custom task schedule is reset after update
+    * [SYNCOPE-1374] - Concurrent propagation tasks for non-Master domains not saved
+    * [SYNCOPE-1375] - The existence of a membership attribute mapping implies membership creation during pull
+    * [SYNCOPE-1376] - swagger-ui server URL incorrect behind ssl reverse proxy
+    * [SYNCOPE-1377] - Wrong X-Syncope-Domain header does not throw an error
+    * [SYNCOPE-1380] - During Push or Pull, if policy with conflict resolution IGNORE is set, the process is interrupted as soon as such setting applies
+    * [SYNCOPE-1383] - Exception during "getObject" from external resource
+    * [SYNCOPE-1387] - ClassCast exception when pull realms
+    * [SYNCOPE-1388] - mustChangePassword flag does not prevent user from invoking actions
+    * [SYNCOPE-1389] - In case of virtual attribute mapping, propagation is always set as UPDATE also in case of CREATE
+    * [SYNCOPE-1390] - Pull Realms: pull task with Unmatching Rules: PROVISION shouldn't create propagation task
+
+** New Feature
+    * [SYNCOPE-1019] - Template mechanism for Enduser UI
+    * [SYNCOPE-1220] - Support Groovy implementations in the Netbeans IDE plugin
+    * [SYNCOPE-1367] - Add some accessibility features to Enduser
+    * [SYNCOPE-1369] - User requests
+
+** Improvement
+    * [SYNCOPE-1379] - Make configurable resource check timeout
+    * [SYNCOPE-1382] - Failure specifying push task filters including db column mapped as integer
+    * [SYNCOPE-1384] - SAML 2.0: Allow to customize RequestedAuthnContext for a given Service Provider
+    * [SYNCOPE-1385] - Priority propagation timeout hard coded into PriorityPropagationTaskExecutor
+
 Release Notes - Syncope - Version 2.1.1
 ================================================================================
 
