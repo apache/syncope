@@ -236,9 +236,7 @@ public class DefaultRealmPullResultHandler
             Realm realm = realmDAO.save(binder.create(profile.getTask().getDestinatioRealm(), realmTO));
 
             PropagationByResource propByRes = new PropagationByResource();
-            for (String resource : realm.getResourceKeys()) {
-                propByRes.add(ResourceOperation.CREATE, resource);
-            }
+            propByRes.addAll(ResourceOperation.CREATE, realm.getResourceKeys());
             if (unmatchingRule == UnmatchingRule.ASSIGN) {
                 List<PropagationTaskTO> tasks = propagationManager.createTasks(realm, propByRes, null);
                 taskExecutor.execute(tasks, false);
@@ -609,9 +607,7 @@ public class DefaultRealmPullResultHandler
                         }
 
                         PropagationByResource propByRes = new PropagationByResource();
-                        for (String resource : realm.getResourceKeys()) {
-                            propByRes.add(ResourceOperation.DELETE, resource);
-                        }
+                        propByRes.addAll(ResourceOperation.DELETE, realm.getResourceKeys());
                         List<PropagationTaskTO> tasks = propagationManager.createTasks(realm, propByRes, null);
                         taskExecutor.execute(tasks, false);
 
