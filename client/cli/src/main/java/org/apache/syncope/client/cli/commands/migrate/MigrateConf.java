@@ -53,11 +53,16 @@ public class MigrateConf {
 
     private static final String HELP_MESSAGE = "migrate --conf {SRC} {DST}";
 
-    private static final XMLInputFactory INPUT_FACTORY = XMLInputFactory.newInstance();
+    private static final XMLInputFactory XML_INPUT_FACTORY = XMLInputFactory.newInstance();
 
     private static final XMLOutputFactory OUTPUT_FACTORY = XMLOutputFactory.newInstance();
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    static {
+        XML_INPUT_FACTORY.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+        XML_INPUT_FACTORY.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
+    }
 
     private final MigrateResultManager migrateResultManager = new MigrateResultManager();
 
@@ -144,7 +149,7 @@ public class MigrateConf {
         reporter.writeStartElement("dataset");
 
         InputStream inputStream = Files.newInputStream(Paths.get(src));
-        XMLStreamReader reader = INPUT_FACTORY.createXMLStreamReader(inputStream);
+        XMLStreamReader reader = XML_INPUT_FACTORY.createXMLStreamReader(inputStream);
         reader.nextTag(); // root
         reader.nextTag(); // dataset
 

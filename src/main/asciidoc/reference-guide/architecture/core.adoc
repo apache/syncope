@@ -36,7 +36,7 @@ An <<swagger,extension>> is also available, providing full http://swagger.io/[Sw
 which enables in-browser access to all the REST endpoints defined.
 
 At a technical level, the RESTful interface is a fully-compliant 
-https://en.wikipedia.org/wiki/Java_API_for_RESTful_Web_Services[JAX-RS 2.0^] implementation based on 
+https://en.wikipedia.org/wiki/Java_API_for_RESTful_Web_Services[JAX-RS 2.1^] implementation based on 
 http://cxf.apache.org[Apache CXF^], natively dealing either with JSON, YAML and XML payloads.
 
 More details are available in the dedicated <<restful-services,usage>> section.
@@ -73,20 +73,22 @@ In addition, an http://camel.apache.org/[Apache Camel^]-based implementation is 
 
 The Workflow layer is responsible for managing the internal lifecycle of Users, Groups and Any Objects.
 
-Besides the default engine, another engine is available based on http://www.activiti.org/[Activiti BPM^], the 
+Besides the default engine, another engine is available based on http://www.flowable.org/[Flowable^], the 
 reference open source http://www.bpmn.org/[BPMN 2.0^] implementation. It enables advanced features such
-as approval management and new statuses definitions. An optional web-based GUI editor is also available.
+as approval management and new statuses definitions; a web-based GUI editor, the
+http://www.flowable.org/docs/userguide/index.html#flowableModelerApp[Flowable Modeler^], is also available.
 
 [.text-center]
-image::userWorkflow.png[title="Default Activiti user workflow",alt="Default Activiti user workflow"] 
+image::userWorkflow.png[title="Default Flowable user workflow",alt="Default Flowable user workflow"] 
 
-Besides Activiti, new workflow engines - possibly integrating with third-party tools as 
+Besides Flowable, new workflow engines - possibly integrating with third-party tools as 
 https://camunda.org/[Camunda^] or http://jbpm.jboss.org/[jBPM^], can be written and plugged into specific deployments.
 
 ==== Persistence
 
 All data (users, groups, attributes, resources, ...) is internally managed at a high level using a standard 
-https://en.wikipedia.org/wiki/Java_Persistence_API[JPA 2.0^] approach. The data is persisted into an underlying 
+https://en.wikipedia.org/wiki/Java_Persistence_API[JPA 2.0^] approach based on http://openjpa.apache.org[Apache OpenJPA^].
+The data is persisted into an underlying 
 database, referred to as *_Internal Storage_*. Consistency is ensured via the comprehensive
 http://docs.spring.io/spring/docs/4.2.x/spring-framework-reference/html/transaction.html[transaction management^] 
 provided by the Spring Framework.

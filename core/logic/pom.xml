@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-core</artifactId>
-    <version>2.0.11-SNAPSHOT</version>
+    <version>2.0.12-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Core Logic</name>
@@ -107,6 +107,7 @@ under the License.
         <configuration>
           <doCheck>false</doCheck>
           <doUpdate>false</doUpdate>
+          <skip>${skipTests}</skip>
         </configuration>
         <executions>
           <execution>

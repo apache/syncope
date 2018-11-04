@@ -19,13 +19,11 @@
 package org.apache.syncope.client.enduser;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -34,6 +32,7 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -93,9 +92,16 @@ public class SyncopeEnduserSession extends WebSession {
         });
     }
 
-    private void afterAuthentication() {
-        Pair<Map<String, Set<String>>, UserTO> self = client.self();
-        selfTO = self.getRight();
+    private void afterAuthentication(final String username) {
+        try {
+            selfTO = client.self().getRight();
+        } catch (ForbiddenException e) {
+            LOG.warn("Could not read self(), probably in a {} scenario", StandardEntitlement.MUST_CHANGE_PASSWORD, e);
+
+            selfTO = new UserTO();
+            selfTO.setUsername(username);
+            selfTO.setMustChangePassword(true);
+        }
 
         // bind explicitly this session to have a stateful behavior during http requests, unless session will
         // expire for every request
@@ -110,7 +116,7 @@ public class SyncopeEnduserSession extends WebSession {
                     setDomain(SyncopeEnduserApplication.get().getDomain()).
                     create(username, password);
 
-            afterAuthentication();
+            afterAuthentication(username);
 
             authenticated = true;
         } catch (Exception e) {
@@ -127,7 +133,7 @@ public class SyncopeEnduserSession extends WebSession {
             client = SyncopeEnduserApplication.get().getClientFactory().
                     setDomain(SyncopeEnduserApplication.get().getDomain()).create(jwt);
 
-            afterAuthentication();
+            afterAuthentication(null);
 
             authenticated = true;
         } catch (Exception e) {
@@ -196,5 +202,4 @@ public class SyncopeEnduserSession extends WebSession {
     public void setXsrfTokenGenerated(final boolean xsrfTokenGenerated) {
         this.xsrfTokenGenerated = xsrfTokenGenerated;
     }
-
 }

@@ -150,5 +150,4 @@ public class UserSelfReadResource extends BaseUserSelfResource {
             attrs.clear();
         }
     }
-
 }

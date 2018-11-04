@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -56,16 +55,7 @@ public class UserSelfChangePassword extends BaseResource {
                     mustChangePassword(parameters.get("newPassword")[0]);
 
             response.setTextEncoding(StandardCharsets.UTF_8.name());
-
-            response.setWriteCallback(new WriteCallback() {
-
-                @Override
-                public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write("Password changed correctly");
-                }
-            });
-
-            response.setStatusCode(Response.Status.OK.getStatusCode());
+            response.setStatusCode(Response.Status.NO_CONTENT.getStatusCode());
         } catch (final Exception e) {
             LOG.error("Error while updating user", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()

@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.collections4.IterableUtils;
@@ -48,6 +49,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
@@ -152,7 +154,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         try {
             client = clientFactory.setDomain(getDomain()).create(username, password);
 
-            refreshAuth();
+            refreshAuth(username);
 
             authenticated = true;
         } catch (Exception e) {
@@ -168,7 +170,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         try {
             client = clientFactory.setDomain(getDomain()).create(jwt);
 
-            refreshAuth();
+            refreshAuth(null);
 
             authenticated = true;
         } catch (Exception e) {
@@ -265,11 +267,19 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         return roles;
     }
 
-    public void refreshAuth() {
-        Pair<Map<String, Set<String>>, UserTO> self = client.self();
-        auth = self.getLeft();
-        selfTO = self.getRight();
-        roles = null;
+    public void refreshAuth(final String username) {
+        try {
+            Pair<Map<String, Set<String>>, UserTO> self = client.self();
+            auth = self.getLeft();
+            selfTO = self.getRight();
+            roles = null;
+        } catch (ForbiddenException e) {
+            LOG.warn("Could not read self(), probably in a {} scenario", StandardEntitlement.MUST_CHANGE_PASSWORD, e);
+
+            selfTO = new UserTO();
+            selfTO.setUsername(username);
+            selfTO.setMustChangePassword(true);
+        }
     }
 
     @SuppressWarnings("unchecked")

@@ -22,7 +22,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>2.0.11-SNAPSHOT</version>
+    <version>2.0.12-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope IDE</name>
@@ -122,6 +122,11 @@ under the License.
           </plugin>
         </plugins>
       </build>
+
+      <modules>
+	<module>eclipse</module>
+	<module>netbeans</module>
+      </modules>
     </profile>
   </profiles>
 </project>
