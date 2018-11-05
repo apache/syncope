@@ -25,6 +25,7 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
@@ -32,11 +33,15 @@ import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @SuppressWarnings("unchecked")
 public final class JPATaskUtils implements TaskUtils {
 
     private final TaskType type;
+
+    @Autowired
+    private EntityFactory entityFactory;
 
     protected JPATaskUtils(final TaskType type) {
         this.type = type;
@@ -84,23 +89,23 @@ public final class JPATaskUtils implements TaskUtils {
 
         switch (type) {
             case PROPAGATION:
-                result = (T) new JPAPropagationTask();
+                result = (T) entityFactory.newEntity(PropagationTask.class);
                 break;
 
             case SCHEDULED:
-                result = (T) new JPASchedTask();
+                result = (T) entityFactory.newEntity(SchedTask.class);
                 break;
 
             case PULL:
-                result = (T) new JPAPullTask();
+                result = (T) entityFactory.newEntity(PullTask.class);
                 break;
 
             case PUSH:
-                result = (T) new JPAPushTask();
+                result = (T) entityFactory.newEntity(PushTask.class);
                 break;
 
             case NOTIFICATION:
-                result = (T) new JPANotificationTask();
+                result = (T) entityFactory.newEntity(NotificationTask.class);
                 break;
 
             default:

@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
@@ -34,13 +36,26 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 
 @Component
 public class JPATaskUtilsFactory implements TaskUtilsFactory {
 
+    private final Map<TaskType, TaskUtils> instances = new HashMap<>(5);
+
     @Override
     public TaskUtils getInstance(final TaskType type) {
-        return new JPATaskUtils(type);
+        TaskUtils instance;
+        synchronized (instances) {
+            instance = instances.get(type);
+            if (instance == null) {
+                instance = new JPATaskUtils(type);
+                ApplicationContextProvider.getBeanFactory().autowireBean(instance);
+                instances.put(type, instance);
+            }
+        }
+
+        return instance;
     }
 
     @Override

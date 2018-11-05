@@ -315,7 +315,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(newUserTO.getCreator());
         assertNotNull(newUserTO.getLastChangeDate());
         assertNotNull(newUserTO.getLastModifier());
-        assertEquals(newUserTO.getCreationDate(), newUserTO.getLastChangeDate());
+        assertTrue(newUserTO.getLastChangeDate().getTime() - newUserTO.getCreationDate().getTime() < 3000);
 
         assertFalse(newUserTO.getPlainAttrs().contains(attrWithInvalidSchemaTO));
 

@@ -34,8 +34,6 @@ under the License.
     </persistence-unit-defaults>
   </persistence-unit-metadata>
   
-  <sequence-generator name="uuid" sequence-name="org.apache.syncope.core.persistence.jpa.openjpa.UUIDGenerator()"/>
-
   <entity class="org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrUniqueValue">
     <table>
       <unique-constraint>

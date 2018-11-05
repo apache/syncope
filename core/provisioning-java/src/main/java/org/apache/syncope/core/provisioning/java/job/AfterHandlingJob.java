@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
-import com.fasterxml.uuid.Generators;
-import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import java.util.Map;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
@@ -28,6 +26,7 @@ import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -50,13 +49,11 @@ public class AfterHandlingJob extends AbstractInterruptableJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(AfterHandlingJob.class);
 
-    private static final RandomBasedGenerator UUID_GENERATOR = Generators.randomBasedGenerator();
-
     public static void schedule(final SchedulerFactoryBean scheduler, final Map<String, Object> jobMap) {
         @SuppressWarnings("unchecked")
         AfterHandlingJob jobInstance = (AfterHandlingJob) ApplicationContextProvider.getBeanFactory().
                 createBean(AfterHandlingJob.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-        String jobName = AfterHandlingJob.class.getName() + UUID_GENERATOR.generate();
+        String jobName = AfterHandlingJob.class.getName() + SecureRandomUtils.generateRandomUUID();
 
         jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
 

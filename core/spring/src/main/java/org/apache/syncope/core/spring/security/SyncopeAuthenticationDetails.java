@@ -23,8 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
@@ -49,18 +48,33 @@ public class SyncopeAuthenticationDetails implements Serializable {
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(domain).
+                build();
     }
 
     @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SyncopeAuthenticationDetails other = (SyncopeAuthenticationDetails) obj;
+        return new EqualsBuilder().
+                append(domain, other.domain).
+                build();
     }
 
     @Override
     public String toString() {
-        return ReflectionToStringBuilder.toString(this, ToStringStyle.JSON_STYLE);
+        return new ToStringBuilder(this).
+                append(domain).
+                build();
     }
-
 }

@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import com.fasterxml.uuid.Generators;
-import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import java.util.Date;
 import java.util.Map;
 import javax.annotation.Resource;
@@ -38,14 +36,13 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
-
-    private static final RandomBasedGenerator UUID_GENERATOR = Generators.randomBasedGenerator();
 
     @Resource(name = "adminUser")
     private String adminUser;
@@ -134,7 +131,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
         if (accessToken == null) {
             // no AccessToken found: create new
             accessToken = entityFactory.newEntity(AccessToken.class);
-            accessToken.setKey(UUID_GENERATOR.generate().toString());
+            accessToken.setKey(SecureRandomUtils.generateRandomUUID().toString());
 
             accessToken = replace(subject, claims, authorities, accessToken);
         } else if (replace) {

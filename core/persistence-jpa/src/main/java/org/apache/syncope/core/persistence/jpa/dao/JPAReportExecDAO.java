@@ -159,8 +159,8 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec> implements ReportE
         return query.getResultList();
     }
 
-    @Override
     @Transactional(rollbackFor = Throwable.class)
+    @Override
     public ReportExec save(final ReportExec execution) {
         return entityManager().merge(execution);
     }

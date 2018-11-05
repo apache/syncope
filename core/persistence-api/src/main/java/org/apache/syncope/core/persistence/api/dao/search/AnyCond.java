@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.api.dao.search;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 /**
  * Search condition to be applied when comparing bean field values.
  */
@@ -31,5 +33,10 @@ public class AnyCond extends AttributeCond {
 
     public AnyCond(final Type conditionType) {
         super(conditionType);
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).appendSuper(super.toString()).build();
     }
 }

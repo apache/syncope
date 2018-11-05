@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.core.persistence.api.dao.search;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 public class RelationshipCond extends AbstractSearchCond {
 
     private static final long serialVersionUID = 6865985945516722103L;
@@ -35,5 +39,36 @@ public class RelationshipCond extends AbstractSearchCond {
     @Override
     public final boolean isValid() {
         return anyObject != null;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(anyObject).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final RelationshipCond other = (RelationshipCond) obj;
+        return new EqualsBuilder().
+                append(anyObject, other.anyObject).
+                build();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).
+                append(anyObject).
+                build();
     }
 }

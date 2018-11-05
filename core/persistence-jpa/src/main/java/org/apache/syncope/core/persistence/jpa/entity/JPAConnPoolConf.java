@@ -91,17 +91,45 @@ public class JPAConnPoolConf implements ConnPoolConf, Serializable {
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(maxObjects).
+                append(minIdle).
+                append(maxIdle).
+                append(maxWait).
+                append(minEvictableIdleTimeMillis).
+                build();
     }
 
     @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final JPAConnPoolConf other = (JPAConnPoolConf) obj;
+        return new EqualsBuilder().
+                append(maxObjects, other.maxObjects).
+                append(minIdle, other.minIdle).
+                append(maxIdle, other.maxIdle).
+                append(maxWait, other.maxWait).
+                append(minEvictableIdleTimeMillis, other.minEvictableIdleTimeMillis).
+                build();
     }
 
     @Override
     public String toString() {
-        return ToStringBuilder.reflectionToString(this);
+        return new ToStringBuilder(this).
+                append(maxObjects).
+                append(minIdle).
+                append(maxIdle).
+                append(maxWait).
+                append(minEvictableIdleTimeMillis).
+                build();
     }
 }

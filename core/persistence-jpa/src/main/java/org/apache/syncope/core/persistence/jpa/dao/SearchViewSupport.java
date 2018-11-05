@@ -18,32 +18,23 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 
-public class OrderBySupport {
+public class SearchViewSupport extends SearchSupport {
 
-    public static class Item {
-
-        protected String select;
-
-        protected String where;
-
-        protected String orderBy;
-
-        protected boolean isEmpty() {
-            return (select == null || select.isEmpty())
-                    && (where == null || where.isEmpty())
-                    && (orderBy == null || orderBy.isEmpty());
-        }
+    public SearchViewSupport(final AnyTypeKind anyTypeKind) {
+        super(anyTypeKind);
     }
 
-    protected Set<SearchSupport.SearchView> views = new HashSet<>();
+    public SearchView attr() {
+        return new SearchView("sva", field().name + "_attr");
+    }
 
-    protected List<Item> items = new ArrayList<>();
+    public SearchView nullAttr() {
+        return new SearchView("svna", field().name + "_null_attr");
+    }
 
-    protected boolean nonMandatorySchemas = false;
-
+    public SearchView uniqueAttr() {
+        return new SearchView("svua", field().name + "_unique_attr");
+    }
 }

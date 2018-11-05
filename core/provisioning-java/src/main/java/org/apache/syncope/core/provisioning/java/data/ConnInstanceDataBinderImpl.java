@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.net.URI;
-import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -44,6 +43,7 @@ import org.apache.syncope.core.persistence.api.entity.ConnInstanceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
+import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConfigurationProperty;
@@ -57,7 +57,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
-    private static final String[] IGNORE_PROPERTIES = { "poolConf", "location", "adminRealm", "conf" };
+    private static final String[] IGNORE_PROPERTIES = { "key", "poolConf", "location", "adminRealm", "conf" };
 
     @Autowired
     private ConnIdBundleManager connIdBundleManager;
@@ -246,6 +246,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
         Pair<URI, ConnectorInfo> info = connIdBundleManager.getConnectorInfo(connInstance);
         BeanUtils.copyProperties(connInstance, connInstanceTO, IGNORE_PROPERTIES);
+        connInstanceTO.setKey(connInstance.getKey());
         connInstanceTO.setAdminRealm(connInstance.getAdminRealm().getFullPath());
         connInstanceTO.setLocation(info.getLeft().toASCIIString());
         connInstanceTO.getConf().addAll(connInstance.getConf());

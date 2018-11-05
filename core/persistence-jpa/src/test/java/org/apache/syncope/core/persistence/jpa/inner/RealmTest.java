@@ -109,7 +109,6 @@ public class RealmTest extends AbstractTest {
         Realm realm = entityFactory.newEntity(Realm.class);
         realm.setName("last");
         realm.setParent(realmDAO.findByFullPath("/even/two"));
-        assertNull(realm.getKey());
 
         Realm actual = realmDAO.save(realm);
         assertNotNull(actual.getKey());
@@ -120,10 +119,8 @@ public class RealmTest extends AbstractTest {
         assertEquals("ce93fcda-dc3a-4369-a7b0-a6108c261c85", realm.getPasswordPolicy().getKey());
 
         realm = actual;
-        realm.setAccountPolicy(
-                (AccountPolicy) policyDAO.find("06e2ed52-6966-44aa-a177-a0ca7434201f"));
-        realm.setPasswordPolicy(
-                (PasswordPolicy) policyDAO.find("986d1236-3ac5-4a19-810c-5ab21d79cba1"));
+        realm.setAccountPolicy((AccountPolicy) policyDAO.find("06e2ed52-6966-44aa-a177-a0ca7434201f"));
+        realm.setPasswordPolicy((PasswordPolicy) policyDAO.find("986d1236-3ac5-4a19-810c-5ab21d79cba1"));
 
         actual = realmDAO.save(realm);
         assertEquals("06e2ed52-6966-44aa-a177-a0ca7434201f", actual.getAccountPolicy().getKey());

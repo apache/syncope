@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
+import java.lang.reflect.Field;
 import java.util.Set;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -31,7 +32,7 @@ public interface AnyUtils {
 
     <T extends Any<?>> Class<T> anyClass();
 
-    boolean isFieldName(String name);
+    Field getField(String name);
 
     <T extends PlainAttr<?>> Class<T> plainAttrClass();
 

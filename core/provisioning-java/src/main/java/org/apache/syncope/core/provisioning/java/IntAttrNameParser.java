@@ -90,11 +90,11 @@ public class IntAttrNameParser {
             final AnyTypeKind anyTypeKind,
             final IntAttrName result) {
 
-        if (anyUtilsFactory.getInstance(anyTypeKind).isFieldName(fieldOrSchemaName)) {
-            result.setField(fieldOrSchemaName);
-        } else {
+        if (anyUtilsFactory.getInstance(anyTypeKind).getField(fieldOrSchemaName) == null) {
             result.setSchemaType(find(fieldOrSchemaName));
             result.setSchemaName(fieldOrSchemaName);
+        } else {
+            result.setField(fieldOrSchemaName);
         }
     }
 

@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -43,25 +44,26 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
+import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
-import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
-import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,19 +75,19 @@ public class JPAAnyUtils implements AnyUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnyUtils.class);
 
-    private static final Set<String> USER_FIELD_NAMES = new HashSet<>();
+    private static final Map<String, Field> USER_FIELDS = new HashMap<>();
 
-    private static final Set<String> GROUP_FIELD_NAMES = new HashSet<>();
+    private static final Map<String, Field> GROUP_FIELDS = new HashMap<>();
 
-    private static final Set<String> ANY_OBJECT_FIELD_NAMES = new HashSet<>();
+    private static final Map<String, Field> ANY_OBJECT_FIELDS = new HashMap<>();
 
     static {
-        initFieldNames(JPAUser.class, USER_FIELD_NAMES);
-        initFieldNames(JPAGroup.class, GROUP_FIELD_NAMES);
-        initFieldNames(JPAAnyObject.class, ANY_OBJECT_FIELD_NAMES);
+        initFieldNames(JPAUser.class, USER_FIELDS);
+        initFieldNames(JPAGroup.class, GROUP_FIELDS);
+        initFieldNames(JPAAnyObject.class, ANY_OBJECT_FIELDS);
     }
 
-    private static void initFieldNames(final Class<?> entityClass, final Set<String> keys) {
+    private static void initFieldNames(final Class<?> entityClass, final Map<String, Field> fields) {
         List<Class<?>> classes = ClassUtils.getAllSuperclasses(entityClass);
         classes.add(entityClass);
         classes.forEach(clazz -> {
@@ -95,16 +97,19 @@ public class JPAAnyUtils implements AnyUtils {
                         && !Collection.class.isAssignableFrom(field.getType())
                         && !Map.class.isAssignableFrom(field.getType())) {
 
-                    keys.add("id".equals(field.getName()) ? "key" : field.getName());
+                    fields.put(field.getName(), field);
+                    if ("id".equals(field.getName())) {
+                        fields.put("key", field);
+                    }
                 }
             }
         });
     }
 
     public static boolean matchesFieldName(final String candidate) {
-        return USER_FIELD_NAMES.contains(candidate)
-                || GROUP_FIELD_NAMES.contains(candidate)
-                || ANY_OBJECT_FIELD_NAMES.contains(candidate);
+        return USER_FIELDS.containsKey(candidate)
+                || GROUP_FIELDS.containsKey(candidate)
+                || ANY_OBJECT_FIELDS.containsKey(candidate);
     }
 
     private final AnyTypeKind anyTypeKind;
@@ -117,6 +122,9 @@ public class JPAAnyUtils implements AnyUtils {
 
     @Autowired
     private AnyObjectDAO anyObjectDAO;
+
+    @Autowired
+    private EntityFactory entityFactory;
 
     protected JPAAnyUtils(final AnyTypeKind typeKind) {
         this.anyTypeKind = typeKind;
@@ -133,63 +141,47 @@ public class JPAAnyUtils implements AnyUtils {
 
         switch (anyTypeKind) {
             case GROUP:
-                result = JPAGroup.class;
+                result = entityFactory.newEntity(Group.class).getClass();
                 break;
 
             case ANY_OBJECT:
-                result = JPAAnyObject.class;
+                result = entityFactory.newEntity(AnyObject.class).getClass();
                 break;
 
             case USER:
             default:
-                result = JPAUser.class;
+                result = entityFactory.newEntity(User.class).getClass();
         }
 
         return result;
     }
 
     @Override
-    public boolean isFieldName(final String name) {
-        Set<String> names;
+    public Field getField(final String name) {
+        Map<String, Field> fields;
 
         switch (anyTypeKind) {
             case GROUP:
-                names = GROUP_FIELD_NAMES;
+                fields = GROUP_FIELDS;
                 break;
 
             case ANY_OBJECT:
-                names = ANY_OBJECT_FIELD_NAMES;
+                fields = ANY_OBJECT_FIELDS;
                 break;
 
             case USER:
             default:
-                names = USER_FIELD_NAMES;
+                fields = USER_FIELDS;
                 break;
         }
 
-        return names.contains(name);
+        return fields.get(name);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends PlainAttr<?>> Class<T> plainAttrClass() {
-        Class result;
-
-        switch (anyTypeKind) {
-            case GROUP:
-                result = JPAGPlainAttr.class;
-                break;
-
-            case ANY_OBJECT:
-                result = JPAAPlainAttr.class;
-                break;
-
-            case USER:
-            default:
-                result = JPAUPlainAttr.class;
-                break;
-        }
-
-        return result;
+        return (Class<T>) newPlainAttr().getClass();
     }
 
     @Override
@@ -198,15 +190,15 @@ public class JPAAnyUtils implements AnyUtils {
 
         switch (anyTypeKind) {
             case USER:
-                result = (T) new JPAUPlainAttr();
+                result = (T) entityFactory.newEntity(UPlainAttr.class);
                 break;
 
             case GROUP:
-                result = (T) new JPAGPlainAttr();
+                result = (T) entityFactory.newEntity(GPlainAttr.class);
                 break;
 
             case ANY_OBJECT:
-                result = (T) new JPAAPlainAttr();
+                result = (T) entityFactory.newEntity(APlainAttr.class);
                 break;
 
             default:
@@ -216,25 +208,9 @@ public class JPAAnyUtils implements AnyUtils {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends PlainAttrValue> Class<T> plainAttrValueClass() {
-        Class result;
-
-        switch (anyTypeKind) {
-            case GROUP:
-                result = JPAGPlainAttrValue.class;
-                break;
-
-            case ANY_OBJECT:
-                result = JPAAPlainAttrValue.class;
-                break;
-
-            case USER:
-            default:
-                result = JPAUPlainAttrValue.class;
-                break;
-        }
-
-        return result;
+        return (Class<T>) newPlainAttrValue().getClass();
     }
 
     @Override
@@ -243,15 +219,15 @@ public class JPAAnyUtils implements AnyUtils {
 
         switch (anyTypeKind) {
             case USER:
-                result = (T) new JPAUPlainAttrValue();
+                result = (T) entityFactory.newEntity(UPlainAttrValue.class);
                 break;
 
             case GROUP:
-                result = (T) new JPAGPlainAttrValue();
+                result = (T) entityFactory.newEntity(GPlainAttrValue.class);
                 break;
 
             case ANY_OBJECT:
-                result = (T) new JPAAPlainAttrValue();
+                result = (T) entityFactory.newEntity(APlainAttrValue.class);
                 break;
 
             default:
@@ -261,25 +237,9 @@ public class JPAAnyUtils implements AnyUtils {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends PlainAttrValue> Class<T> plainAttrUniqueValueClass() {
-        Class result;
-
-        switch (anyTypeKind) {
-            case GROUP:
-                result = JPAGPlainAttrUniqueValue.class;
-                break;
-
-            case ANY_OBJECT:
-                result = JPAAPlainAttrUniqueValue.class;
-                break;
-
-            case USER:
-            default:
-                result = JPAUPlainAttrUniqueValue.class;
-                break;
-        }
-
-        return result;
+        return (Class<T>) newPlainAttrUniqueValue().getClass();
     }
 
     @Override
@@ -288,15 +248,15 @@ public class JPAAnyUtils implements AnyUtils {
 
         switch (anyTypeKind) {
             case USER:
-                result = (T) new JPAUPlainAttrUniqueValue();
+                result = (T) entityFactory.newEntity(UPlainAttrUniqueValue.class);
                 break;
 
             case GROUP:
-                result = (T) new JPAGPlainAttrUniqueValue();
+                result = (T) entityFactory.newEntity(GPlainAttrUniqueValue.class);
                 break;
 
             case ANY_OBJECT:
-                result = (T) new JPAAPlainAttrUniqueValue();
+                result = (T) entityFactory.newEntity(APlainAttrUniqueValue.class);
                 break;
 
             default:

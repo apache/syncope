@@ -18,14 +18,13 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import com.fasterxml.uuid.Generators;
-import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import java.util.Map;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
@@ -44,8 +43,6 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
  */
 public abstract class SchedulingPullActions implements PullActions {
 
-    private static final RandomBasedGenerator UUID_GENERATOR = Generators.randomBasedGenerator();
-
     @Autowired
     protected SchedulerFactoryBean scheduler;
 
@@ -55,7 +52,7 @@ public abstract class SchedulingPullActions implements PullActions {
         @SuppressWarnings("unchecked")
         T jobInstance = (T) ApplicationContextProvider.getBeanFactory().
                 createBean(reference, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-        String jobName = getClass().getName() + UUID_GENERATOR.generate();
+        String jobName = getClass().getName() + SecureRandomUtils.generateRandomUUID();
 
         jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
 

@@ -90,12 +90,9 @@ public class ReportTest extends AbstractTest {
         reportExec.setStatus(ReportExecStatus.SUCCESS);
 
         report.add(reportExec);
+        reportDAO.save(report);
 
-        reportExec = reportExecDAO.save(reportExec);
-        assertNotNull(reportExec);
-        assertNotNull(reportExec.getKey());
-
-        reportExecDAO.flush();
+        reportDAO.flush();
 
         report = reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
         assertNotNull(report);

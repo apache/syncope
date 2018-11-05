@@ -60,7 +60,7 @@ public class RemediationTest extends AbstractTest {
     }
 
     @Test
-    public void create() {
+    public void createMissingPayload() {
         Remediation remediation = entityFactory.newEntity(Remediation.class);
         remediation.setAnyType(anyTypeDAO.find("PRINTER"));
         remediation.setOperation(ResourceOperation.CREATE);
@@ -78,7 +78,17 @@ public class RemediationTest extends AbstractTest {
             assertEquals(2, violations.size());
             assertTrue(violations.stream().allMatch(violation -> violation.getPropertyPath().equals("payload")));
         }
+    }
 
+    @Test
+    public void createWrongPayload() {
+        Remediation remediation = entityFactory.newEntity(Remediation.class);
+        remediation.setAnyType(anyTypeDAO.find("PRINTER"));
+        remediation.setOperation(ResourceOperation.CREATE);
+        remediation.setError("Error");
+        remediation.setInstant(new Date());
+        remediation.setRemoteName("remote");
+        remediation.setPullTask(taskDAO.find("38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1"));
         remediation.setPayload(UUID.randomUUID().toString());
 
         // wrong payload for operation
@@ -90,7 +100,18 @@ public class RemediationTest extends AbstractTest {
             assertEquals(1, violations.size());
             assertTrue(violations.stream().anyMatch(violation -> violation.getPropertyPath().equals("payload")));
         }
+    }
 
+    @Test
+    public void create() {
+        Remediation remediation = entityFactory.newEntity(Remediation.class);
+        remediation.setAnyType(anyTypeDAO.find("PRINTER"));
+        remediation.setOperation(ResourceOperation.CREATE);
+        remediation.setError("Error");
+        remediation.setInstant(new Date());
+        remediation.setRemoteName("remote");
+        remediation.setPullTask(taskDAO.find("38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1"));
+        remediation.setPayload(UUID.randomUUID().toString());
         remediation.setOperation(ResourceOperation.DELETE);
 
         remediation = remediationDAO.save(remediation);

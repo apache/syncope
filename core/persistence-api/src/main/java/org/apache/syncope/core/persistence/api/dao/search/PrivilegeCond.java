@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.core.persistence.api.dao.search;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 public class PrivilegeCond extends AbstractSearchCond {
 
     private static final long serialVersionUID = -8095105031495519762L;
@@ -35,5 +39,36 @@ public class PrivilegeCond extends AbstractSearchCond {
     @Override
     public final boolean isValid() {
         return privilege != null;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(privilege).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PrivilegeCond other = (PrivilegeCond) obj;
+        return new EqualsBuilder().
+                append(privilege, other.privilege).
+                build();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).
+                append(privilege).
+                build();
     }
 }

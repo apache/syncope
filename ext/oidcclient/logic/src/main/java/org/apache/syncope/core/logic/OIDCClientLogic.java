@@ -19,8 +19,6 @@
 package org.apache.syncope.core.logic;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import com.fasterxml.uuid.Generators;
-import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -67,6 +65,7 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.Encryptor;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -74,13 +73,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class OIDCClientLogic extends AbstractTransactionalLogic<AbstractBaseBean> {
 
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
-    private static final RandomBasedGenerator UUID_GENERATOR = Generators.randomBasedGenerator();
-
     private static final String JWT_CLAIM_OP_ENTITYID = "OP_ENTITYID";
 
     private static final String JWT_CLAIM_USERID = "USERID";
+
+    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     @Autowired
     private AuthDataAccessor authDataAccessor;
@@ -124,7 +121,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<AbstractBaseBean
         requestTO.setScope("openid email profile");
         requestTO.setResponseType(OAuthConstants.CODE_RESPONSE_TYPE);
         requestTO.setRedirectURI(redirectURI);
-        requestTO.setState(UUID_GENERATOR.generate().toString());
+        requestTO.setState(SecureRandomUtils.generateRandomUUID().toString());
         return requestTO;
     }
 

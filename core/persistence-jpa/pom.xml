@@ -55,10 +55,6 @@ under the License.
       <groupId>org.apache.openjpa</groupId>
       <artifactId>openjpa-persistence-jdbc</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.fasterxml.uuid</groupId>
-      <artifactId>java-uuid-generator</artifactId>
-    </dependency>
     
     <dependency>
       <groupId>com.zaxxer</groupId>

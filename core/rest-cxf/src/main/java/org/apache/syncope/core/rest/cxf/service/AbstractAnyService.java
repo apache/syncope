@@ -53,6 +53,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
 public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         extends AbstractServiceImpl
@@ -279,7 +280,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                     }).collect(Collectors.toList());
         }
 
-        String boundary = "deassociate_" + GENERATOR.generate().toString();
+        String boundary = "deassociate_" + SecureRandomUtils.generateRandomUUID().toString();
         return Response.ok(BatchPayloadGenerator.generate(
                 batchResponseItems, SyncopeConstants.DOUBLE_DASH + boundary)).
                 type(RESTHeaders.multipartMixedWith(boundary)).
@@ -368,7 +369,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                     }).collect(Collectors.toList());
         }
 
-        String boundary = "associate_" + GENERATOR.generate().toString();
+        String boundary = "associate_" + SecureRandomUtils.generateRandomUUID().toString();
         return Response.ok(BatchPayloadGenerator.generate(
                 batchResponseItems, SyncopeConstants.DOUBLE_DASH + boundary)).
                 type(RESTHeaders.multipartMixedWith(boundary)).

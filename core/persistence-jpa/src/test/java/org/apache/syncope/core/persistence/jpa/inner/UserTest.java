@@ -152,13 +152,12 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void save() {
+    public void saveInvalidPassword() {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.setCreator("admin");
         user.setCreationDate(new Date());
-
         user.setPassword("pass", CipherAlgorithm.SHA256);
 
         try {
@@ -167,10 +166,16 @@ public class UserTest extends AbstractTest {
         } catch (InvalidEntityException e) {
             assertNotNull(e);
         }
+    }
 
-        user.setPassword("password123", CipherAlgorithm.SHA256);
-
+    @Test
+    public void saveInvalidUsername() {
+        User user = entityFactory.newEntity(User.class);
         user.setUsername("username!");
+        user.setRealm(realmDAO.findByFullPath("/even/two"));
+        user.setCreator("admin");
+        user.setCreationDate(new Date());
+        user.setPassword("password123", CipherAlgorithm.SHA256);
 
         try {
             userDAO.save(user);
@@ -178,8 +183,16 @@ public class UserTest extends AbstractTest {
         } catch (InvalidEntityException e) {
             assertNotNull(e);
         }
+    }
 
+    @Test
+    public void save() {
+        User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
+        user.setRealm(realmDAO.findByFullPath("/even/two"));
+        user.setCreator("admin");
+        user.setCreationDate(new Date());
+        user.setPassword("password123", CipherAlgorithm.SHA256);
 
         User actual = userDAO.save(user);
         assertNotNull(actual);
