@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java.jexl;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -57,7 +58,7 @@ public class SyncopeJexlFunctions {
     public String fullPath2Dn(final String fullPath, final String attr, final String prefix) {
         String[] fullPathSplitted = fullPath.split("/");
         if (fullPathSplitted == null || fullPathSplitted.length <= 1) {
-            return prefix;
+            return StringUtils.EMPTY;
         }
 
         List<String> headless = Arrays.asList(fullPathSplitted).subList(1, fullPathSplitted.length);
