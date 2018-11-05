@@ -57,7 +57,7 @@ public class SyncopeJexlFunctions {
     public String fullPath2Dn(final String fullPath, final String attr, final String prefix) {
         String[] fullPathSplitted = fullPath.split("/");
         if (fullPathSplitted == null || fullPathSplitted.length <= 1) {
-            return prefix;
+            return StringUtils.EMPTY;
         }
 
         List<String> headless = Arrays.asList(fullPathSplitted).subList(1, fullPathSplitted.length);
