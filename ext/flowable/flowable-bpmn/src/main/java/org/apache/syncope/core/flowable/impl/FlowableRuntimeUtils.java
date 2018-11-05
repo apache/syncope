@@ -215,6 +215,8 @@ public final class FlowableRuntimeUtils {
             throw (ParsingValidationException) e.getCause();
         } else if (e.getCause() instanceof InvalidEntityException) {
             throw (InvalidEntityException) e.getCause();
+        } else if (e.getCause().getClass().getName().contains("persistence")) {
+            throw (RuntimeException) e.getCause();
         }
 
         throw new WorkflowException(defaultMessage, e);

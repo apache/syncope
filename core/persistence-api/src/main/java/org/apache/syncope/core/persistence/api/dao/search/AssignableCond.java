@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.core.persistence.api.dao.search;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 public class AssignableCond extends AbstractSearchCond {
 
     private static final long serialVersionUID = 1237627275756159522L;
@@ -50,5 +54,39 @@ public class AssignableCond extends AbstractSearchCond {
     @Override
     public final boolean isValid() {
         return realmFullPath != null;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(realmFullPath).
+                append(fromGroup).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AssignableCond other = (AssignableCond) obj;
+        return new EqualsBuilder().
+                append(realmFullPath, other.realmFullPath).
+                append(fromGroup, other.fromGroup).
+                build();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).
+                append(realmFullPath).
+                append(fromGroup).
+                build();
     }
 }

@@ -102,8 +102,8 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
                 SearchCondConverter.convert(memb.getFIQLCond()), memb.getAnyType().getKind())).
                 forEachOrdered(matching -> {
                     matching.forEach(any -> {
-                        Query insert = entityManager().createNativeQuery("INSERT INTO " + DYNMEMB_TABLE
-                                + " VALUES(?, ?)");
+                        Query insert = entityManager().createNativeQuery(
+                                "INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
                         insert.setParameter(1, any.getKey());
                         insert.setParameter(2, merged.getKey());
                         insert.executeUpdate();

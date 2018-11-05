@@ -18,18 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.beans.PropertyDescriptor;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+import java.util.Objects;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 
 public abstract class AbstractEntity implements Entity {
 
@@ -49,31 +43,21 @@ public abstract class AbstractEntity implements Entity {
         }
     }
 
-    /**
-     * @return fields to be excluded when computing equals() or hashcode()
-     */
-    private String[] getExcludeFields() {
-        Set<String> excludeFields = new HashSet<>();
-
-        for (PropertyDescriptor propDesc : BeanUtils.getPropertyDescriptors(getClass())) {
-            if (propDesc.getPropertyType().isInstance(Collections.emptySet())
-                    || propDesc.getPropertyType().isInstance(Collections.emptyList())) {
-
-                excludeFields.add(propDesc.getName());
-            }
-        }
-
-        return excludeFields.toArray(new String[] {});
-    }
-
     @Override
     public boolean equals(final Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj, getExcludeFields());
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof AbstractEntity)) {
+            return false;
+        }
+        AbstractEntity entity = (AbstractEntity) obj;
+        return Objects.equals(getKey(), entity.getKey());
     }
 
     @Override
     public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this, getExcludeFields());
+        return Objects.hash(getKey());
     }
 
     @Override

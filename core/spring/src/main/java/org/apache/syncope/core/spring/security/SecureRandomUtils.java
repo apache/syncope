@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import java.security.SecureRandom;
+import java.util.UUID;
 import org.apache.commons.text.RandomStringGenerator;
 
 public final class SecureRandomUtils {
@@ -40,6 +43,8 @@ public final class SecureRandomUtils {
             usingRandom(RANDOM::nextInt).
             withinRange('0', '9').
             build();
+
+    private static final RandomBasedGenerator UUID_GENERATOR = Generators.randomBasedGenerator(RANDOM);
 
     public static String generateRandomPassword(final int tokenLength) {
         return FOR_PASSWORD.generate(tokenLength);
@@ -68,6 +73,10 @@ public final class SecureRandomUtils {
 
                     return found;
                 }).build().generate(1);
+    }
+
+    public static UUID generateRandomUUID() {
+        return UUID_GENERATOR.generate();
     }
 
     private SecureRandomUtils() {

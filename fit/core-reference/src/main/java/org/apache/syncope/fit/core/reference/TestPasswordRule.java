@@ -43,15 +43,13 @@ public class TestPasswordRule implements PasswordRule {
             throw new IllegalArgumentException(
                     PasswordRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
         }
-
     }
 
     @Transactional(readOnly = true)
     @Override
     public void enforce(final User user) {
-        if (!user.getClearPassword().endsWith(this.conf.getMustEndWith())) {
+        if (user.getClearPassword() != null && !user.getClearPassword().endsWith(this.conf.getMustEndWith())) {
             throw new PasswordPolicyException("Password not ending with " + this.conf.getMustEndWith());
         }
     }
-
 }

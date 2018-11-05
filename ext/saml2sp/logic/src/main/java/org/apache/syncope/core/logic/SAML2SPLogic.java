@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.logic;
 
-import com.fasterxml.uuid.Generators;
-import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
@@ -104,6 +102,7 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.Encryptor;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.opensaml.core.xml.schema.XSAny;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.util.ResourceUtils;
@@ -124,8 +123,6 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
     private static final String JWT_CLAIM_NAMEID_VALUE = "NAMEID_VALUE";
 
     private static final String JWT_CLAIM_SESSIONINDEX = "SESSIONINDEX";
-
-    private static final RandomBasedGenerator UUID_GENERATOR = Generators.randomBasedGenerator();
 
     private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
@@ -310,7 +307,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         }
 
         AuthnRequest authnRequest = new AuthnRequestBuilder().buildObject();
-        authnRequest.setID("_" + UUID_GENERATOR.generate().toString());
+        authnRequest.setID("_" + SecureRandomUtils.generateRandomUUID().toString());
         authnRequest.setForceAuthn(false);
         authnRequest.setIsPassive(false);
         authnRequest.setVersion(SAMLVersion.VERSION_20);
@@ -329,7 +326,8 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
             Map<String, Object> claims = new HashMap<>();
             claims.put(JWT_CLAIM_IDP_DEFLATE, idp.isUseDeflateEncoding());
             Pair<String, Date> relayState = accessTokenDataBinder.generateJWT(
-                    UUID_GENERATOR.generate().toString(), authnRequest.getID(), JWT_RELAY_STATE_DURATION, claims);
+                    SecureRandomUtils.generateRandomUUID().toString(),
+                    authnRequest.getID(), JWT_RELAY_STATE_DURATION, claims);
 
             // 4. sign and encode AuthnRequest
             switch (idp.getBindingType()) {
@@ -582,7 +580,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
         // 3. create LogoutRequest
         LogoutRequest logoutRequest = new LogoutRequestBuilder().buildObject();
-        logoutRequest.setID("_" + UUID_GENERATOR.generate().toString());
+        logoutRequest.setID("_" + SecureRandomUtils.generateRandomUUID().toString());
         logoutRequest.setDestination(idp.getSLOLocation(idp.getBindingType()).getLocation());
 
         DateTime now = new DateTime();
@@ -611,7 +609,8 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
             claims.put(JWT_CLAIM_IDP_DEFLATE,
                     idp.getBindingType() == SAML2BindingType.REDIRECT ? true : idp.isUseDeflateEncoding());
             Pair<String, Date> relayState = accessTokenDataBinder.generateJWT(
-                    UUID_GENERATOR.generate().toString(), logoutRequest.getID(), JWT_RELAY_STATE_DURATION, claims);
+                    SecureRandomUtils.generateRandomUUID().toString(),
+                    logoutRequest.getID(), JWT_RELAY_STATE_DURATION, claims);
             requestTO.setRelayState(relayState.getLeft());
 
             // 4. sign and encode AuthnRequest

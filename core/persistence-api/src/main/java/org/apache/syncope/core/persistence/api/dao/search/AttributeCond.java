@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.core.persistence.api.dao.search;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 /**
  * Search condition to be applied when comparing attribute values.
  */
@@ -82,5 +86,42 @@ public class AttributeCond extends AbstractSearchCond {
     @Override
     public final boolean isValid() {
         return type != null && schema != null && (type == Type.ISNULL || type == Type.ISNOTNULL || expression != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(type).
+                append(schema).
+                append(expression).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AttributeCond other = (AttributeCond) obj;
+        return new EqualsBuilder().
+                append(type, other.type).
+                append(schema, other.schema).
+                append(expression, other.expression).
+                build();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).
+                append(type).
+                append(schema).
+                append(expression).
+                build();
     }
 }

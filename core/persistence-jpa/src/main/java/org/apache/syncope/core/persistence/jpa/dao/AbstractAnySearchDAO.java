@@ -32,7 +32,6 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -57,6 +56,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -64,7 +64,6 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.ReflectionUtils;
 
 public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO {
 
@@ -89,6 +88,9 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
 
     @Autowired
     protected PlainSchemaDAO schemaDAO;
+
+    @Autowired
+    protected EntityFactory entityFactory;
 
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
@@ -175,22 +177,23 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     }
 
     protected Triple<PlainSchema, PlainAttrValue, AnyCond> check(final AnyCond cond, final AnyTypeKind kind) {
-        AnyCond condClone = SerializationUtils.clone(cond);
+        AnyCond computed = new AnyCond(cond.getType());
+        computed.setSchema(cond.getSchema());
+        computed.setExpression(cond.getExpression());
 
-        AnyUtils attrUtils = anyUtilsFactory.getInstance(kind);
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(kind);
 
-        // Keeps track of difference between entity's getKey() and JPA @Id fields
-        if ("key".equals(condClone.getSchema())) {
-            condClone.setSchema("id");
-        }
-
-        Field anyField = ReflectionUtils.findField(attrUtils.anyClass(), condClone.getSchema());
+        Field anyField = anyUtils.getField(computed.getSchema());
         if (anyField == null) {
-            LOG.warn("Ignoring invalid schema '{}'", condClone.getSchema());
+            LOG.warn("Ignoring invalid field '{}'", computed.getSchema());
             throw new IllegalArgumentException();
         }
+        // Keeps track of difference between entity's getKey() and JPA @Id fields
+        if ("key".equals(computed.getSchema())) {
+            computed.setSchema("id");
+        }
 
-        PlainSchema schema = new JPAPlainSchema();
+        PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
         schema.setKey(anyField.getName());
         for (AttrSchemaType attrSchemaType : AttrSchemaType.values()) {
             if (anyField.getType().isAssignableFrom(attrSchemaType.getType())) {
@@ -224,26 +227,26 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             }
 
             if (relMethod != null && String.class.isAssignableFrom(relMethod.getReturnType())) {
-                condClone.setSchema(condClone.getSchema() + "_id");
+                computed.setSchema(computed.getSchema() + "_id");
                 schema.setType(AttrSchemaType.String);
             }
         }
 
-        PlainAttrValue attrValue = attrUtils.newPlainAttrValue();
-        if (condClone.getType() != AttributeCond.Type.LIKE
-                && condClone.getType() != AttributeCond.Type.ILIKE
-                && condClone.getType() != AttributeCond.Type.ISNULL
-                && condClone.getType() != AttributeCond.Type.ISNOTNULL) {
+        PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+        if (computed.getType() != AttributeCond.Type.LIKE
+                && computed.getType() != AttributeCond.Type.ILIKE
+                && computed.getType() != AttributeCond.Type.ISNULL
+                && computed.getType() != AttributeCond.Type.ISNOTNULL) {
 
             try {
-                ((JPAPlainSchema) schema).validator().validate(condClone.getExpression(), attrValue);
+                ((JPAPlainSchema) schema).validator().validate(computed.getExpression(), attrValue);
             } catch (ValidationException e) {
-                LOG.error("Could not validate expression '" + condClone.getExpression() + "'", e);
+                LOG.error("Could not validate expression '" + computed.getExpression() + "'", e);
                 throw new IllegalArgumentException();
             }
         }
 
-        return Triple.of(schema, attrValue, condClone);
+        return Triple.of(schema, attrValue, computed);
     }
 
     protected String check(final MembershipCond cond) {

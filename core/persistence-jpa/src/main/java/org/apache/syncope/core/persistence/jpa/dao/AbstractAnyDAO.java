@@ -199,7 +199,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
         PlainSchema schema = plainSchemaDAO().find(schemaKey);
         if (schema == null) {
-            LOG.error("Invalid schema name '{}'", schemaKey);
+            LOG.error("Invalid schema '{}'", schemaKey);
             return Collections.<A>emptyList();
         }
 
@@ -237,7 +237,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
         PlainSchema schema = plainSchemaDAO().find(schemaKey);
         if (schema == null) {
-            LOG.error("Invalid schema name '{}'", schemaKey);
+            LOG.error("Invalid schema '{}'", schemaKey);
             return null;
         }
         if (!schema.isUniqueConstraint()) {
@@ -248,7 +248,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         List<A> result = findByPlainAttrValue(schemaKey, attrUniqueValue, ignoreCaseMatch);
         return result.isEmpty()
                 ? null
-                : result.iterator().next();
+                : result.get(0);
     }
 
     /**
@@ -277,13 +277,13 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     private Set<String> getWhereClause(final String expression, final String value, final boolean ignoreCaseMatch) {
         Parser parser = new Parser(new StringReader(expression));
 
-        // Schema names
+        // Schema keys
         List<String> identifiers = new ArrayList<>();
 
         // Literals
         List<String> literals = new ArrayList<>();
 
-        // Get schema names and literals
+        // Get schema keys and literals
         for (Token token = parser.getNextToken(); token != null && StringUtils.isNotBlank(token.toString());
                 token = parser.getNextToken()) {
 
@@ -297,16 +297,16 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         }
 
         // Sort literals in order to process later literals included into others
-        Collections.sort(literals, (final String t, final String t1) -> {
-            if (t == null && t1 == null) {
+        Collections.sort(literals, (l1, l2) -> {
+            if (l1 == null && l2 == null) {
                 return 0;
-            } else if (t != null && t1 == null) {
+            } else if (l1 != null && l2 == null) {
                 return -1;
-            } else if (t == null && t1 != null) {
+            } else if (l1 == null && l2 != null) {
                 return 1;
-            } else if (t.length() == t1.length()) {
+            } else if (l1.length() == l2.length()) {
                 return 0;
-            } else if (t.length() > t1.length()) {
+            } else if (l1.length() > l2.length()) {
                 return -1;
             } else {
                 return 1;
@@ -343,7 +343,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
                     bld.append("(");
 
-                    // set schema name
+                    // set schema key
                     bld.append("s.id = '").append(identifiers.get(i)).append("'");
 
                     bld.append(" AND ");
@@ -396,7 +396,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     public List<A> findByDerAttrValue(final String schemaKey, final String value, final boolean ignoreCaseMatch) {
         DerSchema schema = derSchemaDAO().find(schemaKey);
         if (schema == null) {
-            LOG.error("Invalid schema name '{}'", schemaKey);
+            LOG.error("Invalid schema '{}'", schemaKey);
             return Collections.<A>emptyList();
         }
 
@@ -551,5 +551,4 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
                 });
         return result;
     }
-
 }

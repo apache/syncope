@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 
@@ -136,8 +137,63 @@ public class IntAttrName {
     }
 
     @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(anyTypeKind).
+                append(field).
+                append(schemaType).
+                append(schemaName).
+                append(enclosingGroup).
+                append(relatedUser).
+                append(relatedAnyObject).
+                append(membershipOfGroup).
+                append(privilegesOfApplication).
+                append(relationshipType).
+                append(relationshipAnyType).
+                build();
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final IntAttrName other = (IntAttrName) obj;
+        return new EqualsBuilder().
+                append(anyTypeKind, other.anyTypeKind).
+                append(field, other.field).
+                append(schemaType, other.schemaType).
+                append(schemaName, other.schemaName).
+                append(enclosingGroup, other.enclosingGroup).
+                append(relatedUser, other.relatedUser).
+                append(relatedAnyObject, other.relatedAnyObject).
+                append(membershipOfGroup, other.membershipOfGroup).
+                append(privilegesOfApplication, other.privilegesOfApplication).
+                append(relationshipType, other.relationshipType).
+                append(relationshipAnyType, other.relationshipAnyType).
+                build();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).
+                append(anyTypeKind).
+                append(field).
+                append(schemaType).
+                append(schemaName).
+                append(enclosingGroup).
+                append(relatedUser).
+                append(relatedAnyObject).
+                append(membershipOfGroup).
+                append(privilegesOfApplication).
+                append(relationshipType).
+                append(relationshipAnyType).
+                build();
+    }
 }

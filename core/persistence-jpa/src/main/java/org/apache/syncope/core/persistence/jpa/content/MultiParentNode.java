@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 class MultiParentNode<T> {
 
@@ -94,12 +95,43 @@ class MultiParentNode<T> {
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(object).
+                append(children).
+                append(level).
+                append(exploited).
+                build();
     }
 
     @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        @SuppressWarnings("unchecked")
+        final MultiParentNode<T> other = (MultiParentNode<T>) obj;
+        return new EqualsBuilder().
+                append(object, other.object).
+                append(children, other.children).
+                append(level, other.level).
+                append(exploited, other.exploited).
+                build();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).
+                append(object).
+                append(children).
+                append(level).
+                append(exploited).
+                build();
     }
 }

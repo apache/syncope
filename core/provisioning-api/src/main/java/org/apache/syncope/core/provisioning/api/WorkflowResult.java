@@ -22,8 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class WorkflowResult<T> {
 
@@ -66,17 +65,40 @@ public class WorkflowResult<T> {
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(result).
+                append(propByRes).
+                append(performedTasks).
+                build();
     }
 
     @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        @SuppressWarnings("unchecked")
+        final WorkflowResult<T> other = (WorkflowResult<T>) obj;
+        return new EqualsBuilder().
+                append(result, other.result).
+                append(propByRes, other.propByRes).
+                append(performedTasks, other.performedTasks).
+                build();
     }
 
     @Override
     public String toString() {
-        return ReflectionToStringBuilder.toString(this, ToStringStyle.JSON_STYLE);
+        return new ToStringBuilder(this).
+                append(result).
+                append(propByRes).
+                append(performedTasks).
+                build();
     }
 }

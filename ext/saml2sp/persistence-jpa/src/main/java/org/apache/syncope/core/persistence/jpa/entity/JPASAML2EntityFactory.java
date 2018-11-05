@@ -23,6 +23,7 @@ import org.apache.syncope.core.persistence.api.entity.SAML2EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdPItem;
 import org.apache.syncope.core.persistence.api.entity.SAML2UserTemplate;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -41,6 +42,10 @@ public class JPASAML2EntityFactory implements SAML2EntityFactory {
             result = (E) new JPASAML2UserTemplate();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
+        }
+
+        if (result instanceof AbstractGeneratedKeyEntity) {
+            ((AbstractGeneratedKeyEntity) result).setKey(SecureRandomUtils.generateRandomUUID().toString());
         }
 
         return result;

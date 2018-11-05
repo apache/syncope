@@ -39,22 +39,22 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
     A find(String key);
 
-    List<A> findByPlainAttrValue(String schemaName, PlainAttrValue attrValue, boolean ignoreCaseMatch);
+    List<A> findByPlainAttrValue(String schema, PlainAttrValue attrValue, boolean ignoreCaseMatch);
 
-    A findByPlainAttrUniqueValue(String schemaName, PlainAttrValue attrUniqueValue, boolean ignoreCaseMatch);
+    A findByPlainAttrUniqueValue(String schema, PlainAttrValue attrUniqueValue, boolean ignoreCaseMatch);
 
     /**
      * Find any objects by derived attribute value. This method could fail if one or more string literals contained
-     * into the derived attribute value provided derive from identifier (schema name) replacement. When you are going to
+     * into the derived attribute value provided derive from identifier (schema key) replacement. When you are going to
      * specify a derived attribute expression you must be quite sure that string literals used to build the expression
-     * cannot be found into the attribute values used to replace attribute schema names used as identifiers.
+     * cannot be found into the attribute values used to replace attribute schema keys used as identifiers.
      *
-     * @param schemaName derived schema name
+     * @param schema derived schema
      * @param value derived attribute value
      * @param ignoreCaseMatch whether comparison for string values should take case into account or not
      * @return list of any objects
      */
-    List<A> findByDerAttrValue(String schemaName, String value, boolean ignoreCaseMatch);
+    List<A> findByDerAttrValue(String schema, String value, boolean ignoreCaseMatch);
 
     List<A> findByResource(ExternalResource resource);
 

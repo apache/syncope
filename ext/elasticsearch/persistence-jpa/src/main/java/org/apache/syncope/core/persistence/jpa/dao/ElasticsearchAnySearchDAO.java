@@ -63,7 +63,6 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * Search engine implementation for users, groups and any objects, based on Elasticsearch.
@@ -143,7 +142,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             final AnyTypeKind kind,
             final List<OrderByClause> orderBy) {
 
-        AnyUtils attrUtils = anyUtilsFactory.getInstance(kind);
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(kind);
 
         orderBy.forEach(clause -> {
             String sortName = null;
@@ -151,7 +150,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             // Manage difference among external key attribute and internal JPA @Id
             String fieldName = "key".equals(clause.getField()) ? "id" : clause.getField();
 
-            Field anyField = ReflectionUtils.findField(attrUtils.anyClass(), fieldName);
+            Field anyField = anyUtils.getField(fieldName);
             if (anyField == null) {
                 PlainSchema schema = schemaDAO.find(fieldName);
                 if (schema != null) {

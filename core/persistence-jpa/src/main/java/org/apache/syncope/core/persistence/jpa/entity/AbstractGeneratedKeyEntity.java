@@ -19,8 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
@@ -30,7 +28,6 @@ public abstract class AbstractGeneratedKeyEntity extends AbstractEntity {
     private static final long serialVersionUID = 4705587655441599524L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "uuid")
     @Column(length = 36)
     private String id;
 
@@ -39,4 +36,7 @@ public abstract class AbstractGeneratedKeyEntity extends AbstractEntity {
         return id;
     }
 
+    public void setKey(final String key) {
+        this.id = key;
+    }
 }

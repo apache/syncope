@@ -23,6 +23,7 @@ import org.apache.syncope.core.persistence.api.entity.OIDCEntityFactory;
 import org.apache.syncope.core.persistence.api.entity.OIDCProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCProviderItem;
 import org.apache.syncope.core.persistence.api.entity.OIDCUserTemplate;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -43,7 +44,10 @@ public class JPAOIDCEntityFactory implements OIDCEntityFactory {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }
 
+        if (result instanceof AbstractGeneratedKeyEntity) {
+            ((AbstractGeneratedKeyEntity) result).setKey(SecureRandomUtils.generateRandomUUID().toString());
+        }
+
         return result;
     }
-
 }

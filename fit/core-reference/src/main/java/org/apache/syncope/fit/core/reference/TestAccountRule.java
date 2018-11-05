@@ -47,5 +47,4 @@ public class TestAccountRule implements AccountRule {
             throw new AccountPolicyException("Username not containing " + this.conf.getMustContainSubstring());
         }
     }
-
 }

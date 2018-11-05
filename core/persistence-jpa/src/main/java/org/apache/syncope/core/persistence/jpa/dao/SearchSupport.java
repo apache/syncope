@@ -23,9 +23,9 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 
-class SearchSupport {
+public class SearchSupport {
 
-    static class SearchView {
+    public static class SearchView {
 
         protected String alias;
 
@@ -37,13 +37,29 @@ class SearchSupport {
         }
 
         @Override
-        public boolean equals(final Object obj) {
-            return EqualsBuilder.reflectionEquals(this, obj);
+        public int hashCode() {
+            return new HashCodeBuilder().
+                    append(alias).
+                    append(name).
+                    build();
         }
 
         @Override
-        public int hashCode() {
-            return HashCodeBuilder.reflectionHashCode(this);
+        public boolean equals(final Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final SearchView other = (SearchView) obj;
+            return new EqualsBuilder().
+                    append(alias, other.alias).
+                    append(name, other.name).
+                    build();
         }
     }
 
@@ -51,7 +67,7 @@ class SearchSupport {
 
     protected boolean nonMandatorySchemas = false;
 
-    SearchSupport(final AnyTypeKind anyTypeKind) {
+    public SearchSupport(final AnyTypeKind anyTypeKind) {
         this.anyTypeKind = anyTypeKind;
     }
 
@@ -88,7 +104,7 @@ class SearchSupport {
     }
 
     public SearchView field() {
-        String result = "";
+        String result;
 
         switch (anyTypeKind) {
             case ANY_OBJECT:
@@ -106,10 +122,6 @@ class SearchSupport {
         }
 
         return new SearchView("sv", result);
-    }
-
-    public SearchView attr() {
-        return new SearchView("sva", field().name + "_attr");
     }
 
     public SearchView relationship() {
@@ -147,10 +159,6 @@ class SearchSupport {
         return new SearchView("svdrealm", JPADynRealmDAO.DYNMEMB_TABLE);
     }
 
-    public SearchView nullAttr() {
-        return new SearchView("svna", field().name + "_null_attr");
-    }
-
     public SearchView resource() {
         return new SearchView("svr", field().name + "_resource");
     }
@@ -159,11 +167,14 @@ class SearchSupport {
         return new SearchView("svrr", field().name + "_group_res");
     }
 
-    public SearchView uniqueAttr() {
-        return new SearchView("svua", field().name + "_unique_attr");
-    }
-
     public SearchView entitlements() {
         return new SearchView("sve", field().name + "_entitlements");
+    }
+
+    SearchViewSupport asSearchViewSupport() {
+        if (this instanceof SearchViewSupport) {
+            return (SearchViewSupport) this;
+        }
+        throw new IllegalArgumentException("Not an " + SearchViewSupport.class + " instance");
     }
 }

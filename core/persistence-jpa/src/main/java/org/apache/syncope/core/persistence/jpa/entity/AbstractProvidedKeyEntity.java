@@ -39,5 +39,4 @@ public abstract class AbstractProvidedKeyEntity extends AbstractEntity implement
     public void setKey(final String key) {
         this.id = key;
     }
-
 }

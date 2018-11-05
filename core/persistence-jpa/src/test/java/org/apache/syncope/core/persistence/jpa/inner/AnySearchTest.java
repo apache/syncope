@@ -368,7 +368,7 @@ public class AnySearchTest extends AbstractTest {
         usernameLeafCond.setExpression("%ini");
 
         AnyCond idRightCond = new AnyCond(AnyCond.Type.LT);
-        idRightCond.setSchema("id");
+        idRightCond.setSchema("key");
         idRightCond.setExpression("2");
 
         SearchCond searchCondition = SearchCond.getAndCond(
@@ -389,7 +389,7 @@ public class AnySearchTest extends AbstractTest {
         groupNameLeafCond.setExpression("root");
 
         AnyCond idRightCond = new AnyCond(AnyCond.Type.EQ);
-        idRightCond.setSchema("id");
+        idRightCond.setSchema("key");
         idRightCond.setExpression("37d15e4c-cdc1-460b-a591-8505c8133806");
 
         SearchCond searchCondition = SearchCond.getAndCond(
@@ -448,7 +448,7 @@ public class AnySearchTest extends AbstractTest {
     @Test
     public void searchByKey() {
         AnyCond idLeafCond = new AnyCond(AnyCond.Type.EQ);
-        idLeafCond.setSchema("id");
+        idLeafCond.setSchema("key");
         idLeafCond.setExpression("74cd8ece-715a-44a4-a736-e17b46c4e7e6");
 
         SearchCond searchCondition = SearchCond.getLeafCond(idLeafCond);
@@ -605,7 +605,7 @@ public class AnySearchTest extends AbstractTest {
     @Test
     public void issue242() {
         AnyCond cond = new AnyCond(AttributeCond.Type.LIKE);
-        cond.setSchema("id");
+        cond.setSchema("key");
         cond.setExpression("test%");
 
         SearchCond searchCondition = SearchCond.getLeafCond(cond);

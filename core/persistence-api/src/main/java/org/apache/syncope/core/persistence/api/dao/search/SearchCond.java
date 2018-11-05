@@ -19,6 +19,9 @@
 package org.apache.syncope.core.persistence.api.dao.search;
 
 import java.util.List;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class SearchCond extends AbstractSearchCond {
 
@@ -391,5 +394,78 @@ public class SearchCond extends AbstractSearchCond {
         }
 
         return isValid;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(type).
+                append(anyTypeCond).
+                append(anyCond).
+                append(attributeCond).
+                append(relationshipCond).
+                append(relationshipTypeCond).
+                append(membershipCond).
+                append(roleCond).
+                append(privilegeCond).
+                append(dynRealmCond).
+                append(resourceCond).
+                append(assignableCond).
+                append(memberCond).
+                append(leftSearchCond).
+                append(rightSearchCond).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SearchCond other = (SearchCond) obj;
+        return new EqualsBuilder().
+                append(type, other.type).
+                append(anyTypeCond, other.anyTypeCond).
+                append(anyCond, other.anyCond).
+                append(attributeCond, other.attributeCond).
+                append(relationshipCond, other.relationshipCond).
+                append(relationshipTypeCond, other.relationshipTypeCond).
+                append(membershipCond, other.membershipCond).
+                append(roleCond, other.roleCond).
+                append(privilegeCond, other.privilegeCond).
+                append(dynRealmCond, other.dynRealmCond).
+                append(resourceCond, other.resourceCond).
+                append(assignableCond, other.assignableCond).
+                append(memberCond, other.memberCond).
+                append(leftSearchCond, other.leftSearchCond).
+                append(rightSearchCond, other.rightSearchCond).
+                build();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).
+                append(type).
+                append(anyTypeCond).
+                append(anyCond).
+                append(attributeCond).
+                append(relationshipCond).
+                append(relationshipTypeCond).
+                append(membershipCond).
+                append(roleCond).
+                append(privilegeCond).
+                append(dynRealmCond).
+                append(resourceCond).
+                append(assignableCond).
+                append(memberCond).
+                append(leftSearchCond).
+                append(rightSearchCond).
+                build();
     }
 }

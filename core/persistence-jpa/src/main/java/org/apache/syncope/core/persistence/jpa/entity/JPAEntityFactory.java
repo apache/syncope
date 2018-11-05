@@ -142,6 +142,7 @@ import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
 @Component
 public class JPAEntityFactory implements EntityFactory {
@@ -303,6 +304,10 @@ public class JPAEntityFactory implements EntityFactory {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }
 
+        if (result instanceof AbstractGeneratedKeyEntity) {
+            ((AbstractGeneratedKeyEntity) result).setKey(SecureRandomUtils.generateRandomUUID().toString());
+        }
+
         return result;
     }
 
@@ -310,5 +315,4 @@ public class JPAEntityFactory implements EntityFactory {
     public ConnPoolConf newConnPoolConf() {
         return new JPAConnPoolConf();
     }
-
 }

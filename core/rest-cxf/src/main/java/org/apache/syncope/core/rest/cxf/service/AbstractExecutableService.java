@@ -34,6 +34,7 @@ import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.service.ExecutableService;
 import org.apache.syncope.core.logic.AbstractExecutableLogic;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
 public abstract class AbstractExecutableService extends AbstractServiceImpl implements ExecutableService {
 
@@ -68,7 +69,7 @@ public abstract class AbstractExecutableService extends AbstractServiceImpl impl
                 query.getEndedBefore(),
                 query.getEndedAfter());
 
-        String boundary = "deleteExecutions_" + GENERATOR.generate().toString();
+        String boundary = "deleteExecutions_" + SecureRandomUtils.generateRandomUUID().toString();
         return Response.ok(BatchPayloadGenerator.generate(
                 batchResponseItems, SyncopeConstants.DOUBLE_DASH + boundary)).
                 type(RESTHeaders.multipartMixedWith(boundary)).

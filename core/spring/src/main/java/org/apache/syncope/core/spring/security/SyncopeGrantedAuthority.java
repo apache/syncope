@@ -27,8 +27,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -70,18 +69,36 @@ public class SyncopeGrantedAuthority implements GrantedAuthority {
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(entitlement).
+                append(realms).
+                build();
     }
 
     @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SyncopeGrantedAuthority other = (SyncopeGrantedAuthority) obj;
+        return new EqualsBuilder().
+                append(entitlement, other.entitlement).
+                append(realms, other.realms).
+                build();
     }
 
     @Override
     public String toString() {
-        return ReflectionToStringBuilder.toString(this, ToStringStyle.JSON_STYLE);
+        return new ToStringBuilder(this).
+                append(entitlement).
+                append(realms).
+                build();
     }
-
 }
