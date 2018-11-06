@@ -100,7 +100,7 @@ public class PlainSchemaITCase extends AbstractITCase {
     }
 
     @Test
-    public void createREnumWithoutEnumeration() {
+    public void createEnumWithNoValues() {
         PlainSchemaTO schemaTO = new PlainSchemaTO();
         schemaTO.setKey("enumcheck");
         schemaTO.setType(AttrSchemaType.Enum);
@@ -151,7 +151,7 @@ public class PlainSchemaITCase extends AbstractITCase {
     }
 
     @Test
-    public void testBinaryValidation() throws IOException {
+    public void binaryValidation() throws IOException {
         // pdf - with validator
         PlainSchemaTO schemaTOpdf = new PlainSchemaTO();
         schemaTOpdf.setKey("BinaryPDF");

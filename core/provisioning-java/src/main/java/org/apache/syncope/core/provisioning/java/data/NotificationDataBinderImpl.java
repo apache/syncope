@@ -29,7 +29,6 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Notification;
-import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
@@ -47,8 +46,6 @@ import org.springframework.stereotype.Component;
 public class NotificationDataBinderImpl implements NotificationDataBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(NotificationDataBinder.class);
-
-    private static final String[] IGNORE_PROPERTIES = { "key", "template", "abouts", "recipientsProvider" };
 
     @Autowired
     private MailTemplateDAO mailTemplateDAO;
@@ -70,8 +67,15 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
         NotificationTO notificationTO = new NotificationTO();
         notificationTO.setKey(notification.getKey());
         notificationTO.setTemplate(notification.getTemplate().getKey());
-
-        BeanUtils.copyProperties(notification, notificationTO, IGNORE_PROPERTIES);
+        notificationTO.getEvents().addAll(notification.getEvents());
+        notificationTO.setRecipientsFIQL(notification.getRecipientsFIQL());
+        notificationTO.getStaticRecipients().addAll(notification.getStaticRecipients());
+        notificationTO.setRecipientAttrName(notification.getRecipientAttrName());
+        notificationTO.setSelfAsRecipient(notification.isSelfAsRecipient());
+        notificationTO.setSender(notification.getSender());
+        notificationTO.setSubject(notification.getSubject());
+        notificationTO.setTraceLevel(notification.getTraceLevel());
+        notificationTO.setActive(notification.isActive());
 
         notification.getAbouts().forEach(about -> {
             notificationTO.getAbouts().put(about.getAnyType().getKey(), about.get());
@@ -93,7 +97,20 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
 
     @Override
     public void update(final Notification notification, final NotificationTO notificationTO) {
-        BeanUtils.copyProperties(notificationTO, notification, IGNORE_PROPERTIES);
+        notification.setRecipientsFIQL(notificationTO.getRecipientsFIQL());
+
+        notification.getStaticRecipients().clear();
+        notification.getStaticRecipients().addAll(notificationTO.getStaticRecipients());
+
+        notification.setRecipientAttrName(notificationTO.getRecipientAttrName());
+        notification.setSelfAsRecipient(notificationTO.isSelfAsRecipient());
+        notification.setSender(notificationTO.getSender());
+        notification.setSubject(notificationTO.getSubject());
+        notification.setTraceLevel(notificationTO.getTraceLevel());
+        notification.setActive(notificationTO.isActive());
+
+        notification.getEvents().clear();
+        notification.getEvents().addAll(notificationTO.getEvents());
 
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 

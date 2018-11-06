@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.camel.data;
 
 import org.apache.syncope.common.lib.to.CamelRouteTO;
-import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
 import org.apache.syncope.core.provisioning.api.data.CamelRouteDataBinder;
@@ -35,7 +34,10 @@ public class CamelRouteDataBinderImpl implements CamelRouteDataBinder {
     @Override
     public CamelRouteTO getRouteTO(final CamelRoute route) {
         CamelRouteTO routeTO = new CamelRouteTO();
-        BeanUtils.copyProperties(route, routeTO);
+        routeTO.setKey(route.getKey());
+        routeTO.setAnyTypeKind(route.getAnyTypeKind());
+        routeTO.setContent(route.getContent());
+
         return routeTO;
     }
 
@@ -44,5 +46,4 @@ public class CamelRouteDataBinderImpl implements CamelRouteDataBinder {
         route.setContent(routeTO.getContent());
         routeDAO.save(route);
     }
-
 }

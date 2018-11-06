@@ -38,22 +38,14 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMapping;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class JPAVirSchemaDAO extends AbstractDAO<VirSchema> implements VirSchemaDAO {
 
+    @Autowired
     private ExternalResourceDAO resourceDAO;
-
-    private ExternalResourceDAO resourceDAO() {
-        synchronized (this) {
-            if (resourceDAO == null) {
-                resourceDAO = ApplicationContextProvider.getApplicationContext().getBean(ExternalResourceDAO.class);
-            }
-        }
-        return resourceDAO;
-    }
 
     @Override
     public VirSchema find(final String key) {
@@ -137,7 +129,7 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema> implements VirSchema
 
         schema.getLabels().forEach(label -> label.setSchema(null));
 
-        resourceDAO().deleteMapping(key);
+        resourceDAO.deleteMapping(key);
 
         if (schema.getAnyTypeClass() != null) {
             schema.getAnyTypeClass().getVirSchemas().remove(schema);

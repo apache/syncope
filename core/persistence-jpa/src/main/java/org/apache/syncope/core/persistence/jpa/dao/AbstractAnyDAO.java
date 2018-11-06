@@ -58,7 +58,6 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Propagation;
@@ -69,40 +68,16 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     @Autowired
     protected ApplicationEventPublisher publisher;
 
+    @Autowired
     private PlainSchemaDAO plainSchemaDAO;
 
+    @Autowired
     private DerSchemaDAO derSchemaDAO;
 
-    private DynRealmDAO dynRealmDAO;
+    @Autowired
+    protected DynRealmDAO dynRealmDAO;
 
     private AnyUtils anyUtils;
-
-    private PlainSchemaDAO plainSchemaDAO() {
-        synchronized (this) {
-            if (plainSchemaDAO == null) {
-                plainSchemaDAO = ApplicationContextProvider.getApplicationContext().getBean(PlainSchemaDAO.class);
-            }
-        }
-        return plainSchemaDAO;
-    }
-
-    private DerSchemaDAO derSchemaDAO() {
-        synchronized (this) {
-            if (derSchemaDAO == null) {
-                derSchemaDAO = ApplicationContextProvider.getApplicationContext().getBean(DerSchemaDAO.class);
-            }
-        }
-        return derSchemaDAO;
-    }
-
-    protected DynRealmDAO dynRealmDAO() {
-        synchronized (this) {
-            if (dynRealmDAO == null) {
-                dynRealmDAO = ApplicationContextProvider.getApplicationContext().getBean(DynRealmDAO.class);
-            }
-        }
-        return dynRealmDAO;
-    }
 
     protected abstract AnyUtils init();
 
@@ -197,7 +172,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
             final PlainAttrValue attrValue,
             final boolean ignoreCaseMatch) {
 
-        PlainSchema schema = plainSchemaDAO().find(schemaKey);
+        PlainSchema schema = plainSchemaDAO.find(schemaKey);
         if (schema == null) {
             LOG.error("Invalid schema '{}'", schemaKey);
             return Collections.<A>emptyList();
@@ -235,7 +210,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
             final PlainAttrValue attrUniqueValue,
             final boolean ignoreCaseMatch) {
 
-        PlainSchema schema = plainSchemaDAO().find(schemaKey);
+        PlainSchema schema = plainSchemaDAO.find(schemaKey);
         if (schema == null) {
             LOG.error("Invalid schema '{}'", schemaKey);
             return null;
@@ -334,7 +309,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         for (int i = 0; i < identifiers.size(); i++) {
             if (!used.contains(identifiers.get(i))) {
                 // verify schema existence and get schema type
-                PlainSchema schema = plainSchemaDAO().find(identifiers.get(i));
+                PlainSchema schema = plainSchemaDAO.find(identifiers.get(i));
                 if (schema == null) {
                     LOG.error("Invalid schema '{}', ignoring", identifiers.get(i));
                 } else {
@@ -394,7 +369,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
     @Override
     public List<A> findByDerAttrValue(final String schemaKey, final String value, final boolean ignoreCaseMatch) {
-        DerSchema schema = derSchemaDAO().find(schemaKey);
+        DerSchema schema = derSchemaDAO.find(schemaKey);
         if (schema == null) {
             LOG.error("Invalid schema '{}'", schemaKey);
             return Collections.<A>emptyList();
@@ -541,7 +516,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
                 ? (String) ((Object[]) resultKey)[0]
                 : ((String) resultKey)).
                 forEachOrdered((actualKey) -> {
-                    DynRealm dynRealm = dynRealmDAO().find(actualKey.toString());
+                    DynRealm dynRealm = dynRealmDAO.find(actualKey.toString());
                     if (dynRealm == null) {
                         LOG.error("Could not find dynRealm with id {}, even though returned by the native query",
                                 actualKey);

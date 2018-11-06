@@ -89,10 +89,9 @@ public class NotificationITCase extends AbstractITCase {
 
     @Test
     public void update() {
-        NotificationTO notificationTO = notificationService.read(
-                "9e2b911c-25de-4c77-bcea-b86ed9451050");
-        notificationTO.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().inGroups(
-                "bf825fe1-7320-4a54-bd64-143b5c18ab97").query());
+        NotificationTO notificationTO = notificationService.read("9e2b911c-25de-4c77-bcea-b86ed9451050");
+        notificationTO.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().
+                inGroups("bf825fe1-7320-4a54-bd64-143b5c18ab97").query());
 
         notificationService.update(notificationTO);
         NotificationTO actual = notificationService.read(notificationTO.getKey());

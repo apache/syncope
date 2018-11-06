@@ -22,7 +22,6 @@ import org.apache.syncope.core.provisioning.api.data.SecurityQuestionDataBinder;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
-import org.apache.syncope.core.spring.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,8 +34,8 @@ public class SecurityQuestionDataBinderImpl implements SecurityQuestionDataBinde
     @Override
     public SecurityQuestionTO getSecurityQuestionTO(final SecurityQuestion securityQuestion) {
         SecurityQuestionTO securityQuestionTO = new SecurityQuestionTO();
-
-        BeanUtils.copyProperties(securityQuestion, securityQuestionTO);
+        securityQuestionTO.setKey(securityQuestion.getKey());
+        securityQuestionTO.setContent(securityQuestion.getContent());
 
         return securityQuestionTO;
     }
@@ -50,6 +49,6 @@ public class SecurityQuestionDataBinderImpl implements SecurityQuestionDataBinde
 
     @Override
     public void update(final SecurityQuestion securityQuestion, final SecurityQuestionTO securityQuestionTO) {
-        BeanUtils.copyProperties(securityQuestionTO, securityQuestion, "key");
+        securityQuestion.setContent(securityQuestionTO.getContent());
     }
 }

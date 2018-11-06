@@ -43,7 +43,6 @@ import org.apache.syncope.core.provisioning.api.utils.policy.AccountPolicyExcept
 import org.apache.syncope.core.provisioning.api.utils.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
@@ -88,33 +87,17 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Autowired
     private AccessTokenDAO accessTokenDAO;
 
+    @Autowired
+    private RealmDAO realmDAO;
+
+    @Autowired
+    private GroupDAO groupDAO;
+
     @Resource(name = "adminUser")
     private String adminUser;
 
     @Resource(name = "anonymousUser")
     private String anonymousUser;
-
-    private RealmDAO realmDAO;
-
-    private GroupDAO groupDAO;
-
-    private RealmDAO realmDAO() {
-        synchronized (this) {
-            if (realmDAO == null) {
-                realmDAO = ApplicationContextProvider.getApplicationContext().getBean(RealmDAO.class);
-            }
-        }
-        return realmDAO;
-    }
-
-    private GroupDAO groupDAO() {
-        synchronized (this) {
-            if (groupDAO == null) {
-                groupDAO = ApplicationContextProvider.getApplicationContext().getBean(GroupDAO.class);
-            }
-        }
-        return groupDAO;
-    }
 
     @Override
     protected AnyUtils init() {
@@ -244,7 +227,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         }
 
         // add realm policies
-        for (Realm realm : realmDAO().findAncestors(user.getRealm())) {
+        for (Realm realm : realmDAO.findAncestors(user.getRealm())) {
             policy = realm.getPasswordPolicy();
             if (policy != null) {
                 policies.add(policy);
@@ -274,7 +257,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 forEachOrdered(policy -> policies.add(policy));
 
         // add realm policies
-        realmDAO().findAncestors(user.getRealm()).stream().
+        realmDAO.findAncestors(user.getRealm()).stream().
                 map(realm -> realm.getAccountPolicy()).
                 filter(policy -> policy != null).
                 forEachOrdered(policy -> policies.add(policy));
@@ -401,8 +384,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged, AuthContextUtils.getDomain()));
 
         roleDAO.refreshDynMemberships(merged);
-        Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO().refreshDynMemberships(merged);
-        dynRealmDAO().refreshDynMemberships(merged);
+        Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO.refreshDynMemberships(merged);
+        dynRealmDAO.refreshDynMemberships(merged);
 
         return Pair.of(merged, dynGroupMembs);
     }
@@ -420,8 +403,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Override
     public void delete(final User user) {
         roleDAO.removeDynMemberships(user.getKey());
-        groupDAO().removeDynMemberships(user);
-        dynRealmDAO().removeDynMemberships(user.getKey());
+        groupDAO.removeDynMemberships(user);
+        dynRealmDAO.removeDynMemberships(user.getKey());
 
         AccessToken accessToken = accessTokenDAO.findByOwner(user.getUsername());
         if (accessToken != null) {
@@ -480,7 +463,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 ? (String) ((Object[]) resultKey)[0]
                 : ((String) resultKey)).
                 forEachOrdered(actualKey -> {
-                    Group group = groupDAO().find(actualKey.toString());
+                    Group group = groupDAO.find(actualKey.toString());
                     if (group == null) {
                         LOG.error("Could not find group with id {}, even though returned by the native query",
                                 actualKey);

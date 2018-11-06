@@ -47,24 +47,16 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
     @Autowired
     private ApplicationEventPublisher publisher;
 
+    @Autowired
     private AnySearchDAO searchDAO;
 
     private AnySearchDAO jpaAnySearchDAO;
 
-    private AnySearchDAO searchDAO() {
-        synchronized (this) {
-            if (searchDAO == null) {
-                searchDAO = ApplicationContextProvider.getApplicationContext().getBean(AnySearchDAO.class);
-            }
-        }
-        return searchDAO;
-    }
-
     private AnySearchDAO jpaAnySearchDAO() {
         synchronized (this) {
             if (jpaAnySearchDAO == null) {
-                if (AopUtils.getTargetClass(searchDAO()).equals(JPAAnySearchDAO.class)) {
-                    jpaAnySearchDAO = searchDAO();
+                if (AopUtils.getTargetClass(searchDAO).equals(JPAAnySearchDAO.class)) {
+                    jpaAnySearchDAO = searchDAO;
                 } else {
                     jpaAnySearchDAO = (AnySearchDAO) ApplicationContextProvider.getBeanFactory().
                             createBean(JPAAnySearchDAO.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);

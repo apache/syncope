@@ -54,7 +54,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
@@ -78,11 +77,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @Transactional(rollbackFor = { Throwable.class })
 public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDataBinder {
-
-    private static final String[] IGNORE_PROPERTIES = {
-        "type", "realm", "auxClasses", "roles", "dynRoles", "relationships", "memberships", "dynMemberships",
-        "plainAttrs", "derAttrs", "virAttrs", "resources", "securityQuestion", "securityAnswer"
-    };
 
     @Autowired
     private RoleDAO roleDAO;
@@ -567,9 +561,22 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     @Override
     public UserTO getUserTO(final User user, final boolean details) {
         UserTO userTO = new UserTO();
-
-        BeanUtils.copyProperties(user, userTO, IGNORE_PROPERTIES);
+        userTO.setKey(user.getKey());
+        userTO.setUsername(user.getUsername());
+        userTO.setPassword(user.getPassword());
+        userTO.setType(user.getType().getKey());
+        userTO.setCreationDate(user.getCreationDate());
+        userTO.setCreator(user.getCreator());
+        userTO.setLastChangeDate(user.getLastChangeDate());
+        userTO.setLastModifier(user.getLastModifier());
+        userTO.setStatus(user.getStatus());
         userTO.setSuspended(BooleanUtils.isTrue(user.isSuspended()));
+        userTO.setChangePwdDate(user.getChangePwdDate());
+        userTO.setFailedLogins(user.getFailedLogins());
+        userTO.setLastLoginDate(user.getLastLoginDate());
+        userTO.setMustChangePassword(user.isMustChangePassword());
+        userTO.setToken(user.getToken());
+        userTO.setTokenExpireTime(user.getTokenExpireTime());
 
         if (user.getSecurityQuestion() != null) {
             userTO.setSecurityQuestion(user.getSecurityQuestion().getKey());
