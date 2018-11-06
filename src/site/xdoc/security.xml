@@ -34,6 +34,98 @@ under the License.
 
       <p>If you want to report a vulnerability, please follow <a href="http://www.apache.org/security/">the procedure</a>.</p>
 
+      <subsection name="CVE-2018-17186: XXE on BPMN definitions">	
+        <p>An administrator with workflow definition entitlements can use DTD to perform malicious operations, including
+          but not limited to file read, file write, and code execution.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>Medium</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>Releases prior to 2.0.11</li>
+            <li>Releases prior to 2.1.2</li>
+          </ul>
+        </p>
+        <p>The unsupported Releases 1.2.x may be also affected.</p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>2.0.X users should upgrade to 2.0.11</li>
+            <li>2.1.X users should upgrade to 2.1.2</li>
+          </ul>          
+        </p>
+
+        <p>
+          <b>Mitigation</b>
+        </p>
+        <p>Do not assign workflow definition entitlements to any administrator.</p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 2.0.11</li>
+            <li>Release 2.1.2</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-17186">full CVE advisory</a>.</p>
+      </subsection>
+
+      <subsection name="CVE-2018-17184: Stored XSS">	
+        <p>A malicious user with enough administration entitlements can inject html-like elements containing JavaScript
+          statements into Connector names, Report names, AnyTypeClass keys and Policy descriptions.<br/>
+          When another user with enough administration entitlements edits one of the Entities above via Admin Console,
+          the injected JavaScript code is executed.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>Important</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>Releases prior to 2.0.11</li>
+            <li>Releases prior to 2.1.2</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>2.0.X users should upgrade to 2.0.11</li>
+            <li>2.1.X users should upgrade to 2.1.2</li>
+          </ul>          
+        </p>
+        
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 2.0.11</li>
+            <li>Release 2.1.2</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-17184">full CVE advisory</a>.</p>
+      </subsection>
+
       <subsection name="CVE-2018-1322: Information disclosure via FIQL and ORDER BY sorting">	
         <p>An administrator with user search entitlements can recover sensitive security values using the
           <code>fiql</code> and <code>orderby</code> parameters.</p>
