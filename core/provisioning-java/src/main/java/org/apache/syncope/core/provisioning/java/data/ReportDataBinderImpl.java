@@ -31,7 +31,6 @@ import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
-import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -51,10 +50,6 @@ public class ReportDataBinderImpl implements ReportDataBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReportDataBinder.class);
 
-    private static final String[] IGNORE_REPORT_PROPERTIES = { "key", "template", "reportlets", "executions" };
-
-    private static final String[] IGNORE_REPORT_EXECUTION_PROPERTIES = { "key", "report", "execResult" };
-
     @Autowired
     private ReportTemplateDAO reportTemplateDAO;
 
@@ -69,7 +64,9 @@ public class ReportDataBinderImpl implements ReportDataBinder {
 
     @Override
     public void getReport(final Report report, final ReportTO reportTO) {
-        BeanUtils.copyProperties(reportTO, report, IGNORE_REPORT_PROPERTIES);
+        report.setName(reportTO.getName());
+        report.setCronExpression(reportTO.getCronExpression());
+        report.setActive(reportTO.isActive());
 
         ReportTemplate template = reportTemplateDAO.find(reportTO.getTemplate());
         if (template == null) {
@@ -96,8 +93,9 @@ public class ReportDataBinderImpl implements ReportDataBinder {
         ReportTO reportTO = new ReportTO();
         reportTO.setKey(report.getKey());
         reportTO.setTemplate(report.getTemplate().getKey());
-
-        BeanUtils.copyProperties(report, reportTO, IGNORE_REPORT_PROPERTIES);
+        reportTO.setName(report.getName());
+        reportTO.setCronExpression(report.getCronExpression());
+        reportTO.setActive(report.isActive());
 
         reportTO.getReportlets().addAll(
                 report.getReportlets().stream().map(Entity::getKey).collect(Collectors.toList()));
@@ -142,13 +140,13 @@ public class ReportDataBinderImpl implements ReportDataBinder {
     public ExecTO getExecTO(final ReportExec execution) {
         ExecTO execTO = new ExecTO();
         execTO.setKey(execution.getKey());
-        BeanUtils.copyProperties(execution, execTO, IGNORE_REPORT_EXECUTION_PROPERTIES);
-        if (execution.getKey() != null) {
-            execTO.setKey(execution.getKey());
-        }
         execTO.setJobType(JobType.REPORT);
         execTO.setRefKey(execution.getReport().getKey());
         execTO.setRefDesc(buildRefDesc(execution.getReport()));
+        execTO.setStatus(execution.getStatus());
+        execTO.setMessage(execution.getMessage());
+        execTO.setStart(execution.getStart());
+        execTO.setEnd(execution.getEnd());
 
         return execTO;
     }

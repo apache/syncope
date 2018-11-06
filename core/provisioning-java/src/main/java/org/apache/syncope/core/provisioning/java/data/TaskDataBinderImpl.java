@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.commons.lang3.StringUtils;
@@ -50,7 +51,6 @@ import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
-import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -80,12 +80,6 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
 
-    private static final String[] IGNORE_TASK_PROPERTIES = {
-        "destinationRealm", "templates", "filters", "executions", "resource", "matchingRule", "unmatchingRule",
-        "notification", "jobDelegate", "actions" };
-
-    private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = { "key", "task" };
-
     @Autowired
     private RealmDAO realmDAO;
 
@@ -113,10 +107,10 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     @Autowired
     private TaskUtilsFactory taskUtilsFactory;
 
-    private void fill(final ProvisioningTask task, final ProvisioningTaskTO taskTO) {
-        if (task instanceof PushTask && taskTO instanceof PushTaskTO) {
-            PushTask pushTask = (PushTask) task;
-            PushTaskTO pushTaskTO = (PushTaskTO) taskTO;
+    private void fill(final ProvisioningTask provisioningTask, final ProvisioningTaskTO provisioningTaskTO) {
+        if (provisioningTask instanceof PushTask && provisioningTaskTO instanceof PushTaskTO) {
+            PushTask pushTask = (PushTask) provisioningTask;
+            PushTaskTO pushTaskTO = (PushTaskTO) provisioningTaskTO;
 
             Implementation jobDelegate = pushTaskTO.getJobDelegate() == null
                     ? implementationDAO.find(ImplementationType.TASKJOB_DELEGATE).stream().
@@ -158,9 +152,9 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             // remove all filters not contained in the TO
             pushTask.getFilters().
                     removeIf(anyFilter -> !pushTaskTO.getFilters().containsKey(anyFilter.getAnyType().getKey()));
-        } else if (task instanceof PullTask && taskTO instanceof PullTaskTO) {
-            PullTask pullTask = (PullTask) task;
-            PullTaskTO pullTaskTO = (PullTaskTO) taskTO;
+        } else if (provisioningTask instanceof PullTask && provisioningTaskTO instanceof PullTaskTO) {
+            PullTask pullTask = (PullTask) provisioningTask;
+            PullTaskTO pullTaskTO = (PullTaskTO) provisioningTaskTO;
 
             Implementation jobDelegate = pullTaskTO.getJobDelegate() == null
                     ? implementationDAO.find(ImplementationType.TASKJOB_DELEGATE).stream().
@@ -224,21 +218,21 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         }
 
         // 3. fill the remaining fields
-        task.setPerformCreate(taskTO.isPerformCreate());
-        task.setPerformUpdate(taskTO.isPerformUpdate());
-        task.setPerformDelete(taskTO.isPerformDelete());
-        task.setSyncStatus(taskTO.isSyncStatus());
+        provisioningTask.setPerformCreate(provisioningTaskTO.isPerformCreate());
+        provisioningTask.setPerformUpdate(provisioningTaskTO.isPerformUpdate());
+        provisioningTask.setPerformDelete(provisioningTaskTO.isPerformDelete());
+        provisioningTask.setSyncStatus(provisioningTaskTO.isSyncStatus());
 
-        taskTO.getActions().forEach(action -> {
+        provisioningTaskTO.getActions().forEach(action -> {
             Implementation implementation = implementationDAO.find(action);
             if (implementation == null) {
                 LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", action);
             } else {
-                task.add(implementation);
+                provisioningTask.add(implementation);
             }
         });
         // remove all implementations not contained in the TO
-        task.getActions().removeIf(implementation -> !taskTO.getActions().contains(implementation.getKey()));
+        provisioningTask.getActions().removeIf(impl -> !provisioningTaskTO.getActions().contains(impl.getKey()));
     }
 
     @Override
@@ -313,11 +307,11 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     @Override
     public ExecTO getExecTO(final TaskExec execution) {
         ExecTO execTO = new ExecTO();
-        BeanUtils.copyProperties(execution, execTO, IGNORE_TASK_EXECUTION_PROPERTIES);
-
-        if (execution.getKey() != null) {
-            execTO.setKey(execution.getKey());
-        }
+        execTO.setKey(execution.getKey());
+        execTO.setStatus(execution.getStatus());
+        execTO.setMessage(execution.getMessage());
+        execTO.setStart(execution.getStart());
+        execTO.setEnd(execution.getEnd());
 
         if (execution.getTask() != null && execution.getTask().getKey() != null) {
             execTO.setJobType(JobType.TASK);
@@ -328,26 +322,47 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         return execTO;
     }
 
-    private void setExecTime(final SchedTaskTO taskTO, final Task task) {
-        taskTO.setLastExec(taskTO.getStart());
+    private void fill(final SchedTaskTO schedTaskTO, final SchedTask schedTask) {
+        schedTaskTO.setName(schedTask.getName());
+        schedTaskTO.setDescription(schedTask.getDescription());
+        schedTaskTO.setStart(schedTask.getStartAt());
+        schedTaskTO.setCronExpression(schedTask.getCronExpression());
+        schedTaskTO.setActive(schedTask.isActive());
 
-        String triggerName = JobNamer.getTriggerName(JobNamer.getJobKey(task).getName());
+        schedTaskTO.setLastExec(schedTaskTO.getStart());
+
+        String triggerName = JobNamer.getTriggerName(JobNamer.getJobKey(schedTask).getName());
         try {
             Trigger trigger = scheduler.getScheduler().getTrigger(new TriggerKey(triggerName, Scheduler.DEFAULT_GROUP));
 
             if (trigger != null) {
-                taskTO.setLastExec(trigger.getPreviousFireTime());
-                taskTO.setNextExec(trigger.getNextFireTime());
+                schedTaskTO.setLastExec(trigger.getPreviousFireTime());
+                schedTaskTO.setNextExec(trigger.getNextFireTime());
             }
         } catch (SchedulerException e) {
             LOG.warn("While trying to get to " + triggerName, e);
+        }
+
+        if (schedTaskTO instanceof ProvisioningTaskTO && schedTask instanceof ProvisioningTask) {
+            ProvisioningTaskTO provisioningTaskTO = (ProvisioningTaskTO) schedTaskTO;
+            ProvisioningTask provisioningTask = (ProvisioningTask) schedTask;
+
+            provisioningTaskTO.setResource(provisioningTask.getResource().getKey());
+
+            provisioningTaskTO.getActions().addAll(
+                    provisioningTask.getActions().stream().map(Entity::getKey).collect(Collectors.toList()));
+
+            provisioningTaskTO.setPerformCreate(provisioningTask.isPerformCreate());
+            provisioningTaskTO.setPerformUpdate(provisioningTask.isPerformUpdate());
+            provisioningTaskTO.setPerformDelete(provisioningTask.isPerformDelete());
+            provisioningTaskTO.setSyncStatus(provisioningTask.isSyncStatus());
         }
     }
 
     @Override
     public <T extends TaskTO> T getTaskTO(final Task task, final TaskUtils taskUtils, final boolean details) {
         T taskTO = taskUtils.newTaskTO();
-        BeanUtils.copyProperties(task, taskTO, IGNORE_TASK_PROPERTIES);
+        taskTO.setKey(task.getKey());
 
         TaskExec latestExec = taskExecDAO.findLatestStarted(task);
         if (latestExec == null) {
@@ -360,8 +375,8 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
         if (details) {
             task.getExecs().stream().
-                    filter(execution -> execution != null).
-                    forEachOrdered(execution -> taskTO.getExecutions().add(getExecTO(execution)));
+                    filter(Objects::nonNull).
+                    forEach(execution -> taskTO.getExecutions().add(getExecTO(execution)));
         }
 
         switch (taskUtils.getType()) {
@@ -369,17 +384,22 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                 PropagationTask propagationTask = (PropagationTask) task;
                 PropagationTaskTO propagationTaskTO = (PropagationTaskTO) taskTO;
 
-                propagationTaskTO.setAnyTypeKind(propagationTask.getAnyTypeKind());
-                propagationTaskTO.setEntityKey(propagationTask.getEntityKey());
-                propagationTaskTO.setResource(propagationTask.getResource().getKey());
+                propagationTaskTO.setOperation(propagationTask.getOperation());
+                propagationTaskTO.setConnObjectKey(propagationTask.getConnObjectKey());
+                propagationTaskTO.setOldConnObjectKey(propagationTask.getOldConnObjectKey());
                 propagationTaskTO.setAttributes(propagationTask.getSerializedAttributes());
+                propagationTaskTO.setResource(propagationTask.getResource().getKey());
+                propagationTaskTO.setObjectClassName(propagationTask.getObjectClassName());
+                propagationTaskTO.setAnyTypeKind(propagationTask.getAnyTypeKind());
+                propagationTaskTO.setAnyType(propagationTask.getAnyType());
+                propagationTaskTO.setEntityKey(propagationTask.getEntityKey());
                 break;
 
             case SCHEDULED:
                 SchedTask schedTask = (SchedTask) task;
                 SchedTaskTO schedTaskTO = (SchedTaskTO) taskTO;
 
-                setExecTime(schedTaskTO, task);
+                fill(schedTaskTO, schedTask);
 
                 if (schedTask.getJobDelegate() != null) {
                     schedTaskTO.setJobDelegate(schedTask.getJobDelegate().getKey());
@@ -390,21 +410,18 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                 PullTask pullTask = (PullTask) task;
                 PullTaskTO pullTaskTO = (PullTaskTO) taskTO;
 
-                setExecTime(pullTaskTO, task);
+                fill(pullTaskTO, pullTask);
 
                 pullTaskTO.setDestinationRealm(pullTask.getDestinatioRealm().getFullPath());
-                pullTaskTO.setResource(pullTask.getResource().getKey());
                 pullTaskTO.setMatchingRule(pullTask.getMatchingRule() == null
                         ? MatchingRule.UPDATE : pullTask.getMatchingRule());
                 pullTaskTO.setUnmatchingRule(pullTask.getUnmatchingRule() == null
                         ? UnmatchingRule.PROVISION : pullTask.getUnmatchingRule());
+                pullTaskTO.setPullMode(pullTask.getPullMode());
 
                 if (pullTask.getReconFilterBuilder() != null) {
                     pullTaskTO.setReconFilterBuilder(pullTask.getReconFilterBuilder().getKey());
                 }
-
-                pullTaskTO.getActions().addAll(
-                        pullTask.getActions().stream().map(Entity::getKey).collect(Collectors.toList()));
 
                 pullTask.getTemplates().forEach(template -> {
                     pullTaskTO.getTemplates().put(template.getAnyType().getKey(), template.get());
@@ -417,17 +434,13 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                 PushTask pushTask = (PushTask) task;
                 PushTaskTO pushTaskTO = (PushTaskTO) taskTO;
 
-                setExecTime(pushTaskTO, task);
+                fill(pushTaskTO, pushTask);
 
                 pushTaskTO.setSourceRealm(pushTask.getSourceRealm().getFullPath());
-                pushTaskTO.setResource(pushTask.getResource().getKey());
                 pushTaskTO.setMatchingRule(pushTask.getMatchingRule() == null
                         ? MatchingRule.LINK : pushTask.getMatchingRule());
                 pushTaskTO.setUnmatchingRule(pushTask.getUnmatchingRule() == null
                         ? UnmatchingRule.ASSIGN : pushTask.getUnmatchingRule());
-
-                pushTaskTO.getActions().addAll(
-                        pushTask.getActions().stream().map(Entity::getKey).collect(Collectors.toList()));
 
                 pushTask.getFilters().forEach(filter -> {
                     pushTaskTO.getFilters().put(filter.getAnyType().getKey(), filter.getFIQLCond());
@@ -441,9 +454,16 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                 notificationTaskTO.setNotification(notificationTask.getNotification().getKey());
                 notificationTaskTO.setAnyTypeKind(notificationTask.getAnyTypeKind());
                 notificationTaskTO.setEntityKey(notificationTask.getEntityKey());
+                notificationTaskTO.setSender(notificationTask.getSender());
+                notificationTaskTO.getRecipients().addAll(notificationTask.getRecipients());
+                notificationTaskTO.setSubject(notificationTask.getSubject());
+                notificationTaskTO.setHtmlBody(notificationTask.getHtmlBody());
+                notificationTaskTO.setTextBody(notificationTask.getTextBody());
+                notificationTaskTO.setExecuted(notificationTask.isExecuted());
                 if (notificationTask.isExecuted() && StringUtils.isBlank(taskTO.getLatestExecStatus())) {
                     taskTO.setLatestExecStatus("[EXECUTED]");
                 }
+                notificationTaskTO.setTraceLevel(notificationTask.getTraceLevel());
                 break;
 
             default:

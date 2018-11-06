@@ -33,7 +33,6 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -61,8 +60,6 @@ import org.springframework.stereotype.Component;
 public class SchemaDataBinderImpl implements SchemaDataBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(SchemaDataBinder.class);
-
-    private static final String[] IGNORE_PROPERTIES = { "anyTypeClass", "provision", "resource", "validator" };
 
     @Autowired
     private AnyTypeClassDAO anyTypeClassDAO;
@@ -119,7 +116,19 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
             throw sce;
         }
 
-        BeanUtils.copyProperties(schemaTO, schema, IGNORE_PROPERTIES);
+        schema.setKey(schemaTO.getKey());
+        schema.setType(schemaTO.getType());
+        schema.setCipherAlgorithm(schemaTO.getCipherAlgorithm());
+        schema.setConversionPattern(schemaTO.getConversionPattern());
+        schema.setEnumerationKeys(schemaTO.getEnumerationKeys());
+        schema.setEnumerationValues(schemaTO.getEnumerationValues());
+        schema.setMandatoryCondition(schemaTO.getMandatoryCondition());
+        schema.setMimeType(schemaTO.getMimeType());
+        schema.setMultivalue(schemaTO.isMultivalue());
+        schema.setReadonly(schemaTO.isReadonly());
+        schema.setSecretKey(schemaTO.getSecretKey());
+        schema.setUniqueConstraint(schemaTO.isUniqueConstraint());
+
         labels(schemaTO, schema);
 
         if (schemaTO.getValidator() == null) {
@@ -201,8 +210,19 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         }
 
         PlainSchemaTO schemaTO = new PlainSchemaTO();
+        schemaTO.setKey(schema.getKey());
+        schemaTO.setType(schema.getType());
+        schemaTO.setCipherAlgorithm(schema.getCipherAlgorithm());
+        schemaTO.setConversionPattern(schema.getConversionPattern());
+        schemaTO.setEnumerationKeys(schema.getEnumerationKeys());
+        schemaTO.setEnumerationValues(schema.getEnumerationValues());
+        schemaTO.setMandatoryCondition(schema.getMandatoryCondition());
+        schemaTO.setMimeType(schema.getMimeType());
+        schemaTO.setMultivalue(schema.isMultivalue());
+        schemaTO.setReadonly(schema.isReadonly());
+        schemaTO.setSecretKey(schema.getSecretKey());
+        schemaTO.setUniqueConstraint(schema.isUniqueConstraint());
 
-        BeanUtils.copyProperties(schema, schemaTO, IGNORE_PROPERTIES);
         labels(schema, schemaTO);
 
         schemaTO.setAnyTypeClass(schema.getAnyTypeClass() == null ? null : schema.getAnyTypeClass().getKey());
@@ -234,7 +254,9 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
             throw scce;
         }
 
-        BeanUtils.copyProperties(schemaTO, schema, IGNORE_PROPERTIES);
+        schema.setKey(schemaTO.getKey());
+        schema.setExpression(schemaTO.getExpression());
+
         labels(schemaTO, schema);
 
         DerSchema merged = derSchemaDAO.save(schema);
@@ -277,8 +299,9 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         }
 
         DerSchemaTO schemaTO = new DerSchemaTO();
+        schemaTO.setKey(schema.getKey());
+        schemaTO.setExpression(schema.getExpression());
 
-        BeanUtils.copyProperties(schema, schemaTO, IGNORE_PROPERTIES);
         labels(schema, schemaTO);
 
         schemaTO.setAnyTypeClass(schema.getAnyTypeClass() == null ? null : schema.getAnyTypeClass().getKey());
@@ -288,7 +311,10 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
     // --------------- VIRTUAL -----------------
     private VirSchema fill(final VirSchema schema, final VirSchemaTO schemaTO) {
-        BeanUtils.copyProperties(schemaTO, schema, IGNORE_PROPERTIES);
+        schema.setKey(schemaTO.getKey());
+        schema.setExtAttrName(schemaTO.getExtAttrName());
+        schema.setReadonly(schema.isReadonly());
+
         labels(schemaTO, schema);
 
         if (schemaTO.getAnyTypeClass() != null
@@ -350,8 +376,10 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         }
 
         VirSchemaTO schemaTO = new VirSchemaTO();
+        schemaTO.setKey(schema.getKey());
+        schemaTO.setExtAttrName(schema.getExtAttrName());
+        schemaTO.setReadonly(schema.isReadonly());
 
-        BeanUtils.copyProperties(schema, schemaTO, IGNORE_PROPERTIES);
         labels(schema, schemaTO);
 
         schemaTO.setAnyTypeClass(schema.getAnyTypeClass() == null ? null : schema.getAnyTypeClass().getKey());

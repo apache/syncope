@@ -42,7 +42,6 @@ import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.SAML2IdPDataBinder;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
-import org.apache.syncope.core.spring.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,8 +51,6 @@ import org.springframework.stereotype.Component;
 public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(SAML2IdPDataBinder.class);
-
-    private static final String[] ITEM_IGNORE_PROPERTIES = { "key", "purpose" };
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
@@ -135,7 +132,13 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
                         }
 
                         SAML2IdPItem item = entityFactory.newEntity(SAML2IdPItem.class);
-                        BeanUtils.copyProperties(itemTO, item, ITEM_IGNORE_PROPERTIES);
+                        item.setIntAttrName(itemTO.getIntAttrName());
+                        item.setExtAttrName(itemTO.getExtAttrName());
+                        item.setMandatoryCondition(itemTO.getMandatoryCondition());
+                        item.setConnObjectKey(itemTO.isConnObjectKey());
+                        item.setPassword(itemTO.isPassword());
+                        item.setPropagationJEXLTransformer(itemTO.getPropagationJEXLTransformer());
+                        item.setPullJEXLTransformer(itemTO.getPullJEXLTransformer());
                         item.setIdP(idp);
                         item.setPurpose(MappingPurpose.NONE);
                         if (item.isConnObjectKey()) {
@@ -217,7 +220,13 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         idp.getItems().forEach(item -> {
             ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());
-            BeanUtils.copyProperties(item, itemTO, ITEM_IGNORE_PROPERTIES);
+            itemTO.setIntAttrName(item.getIntAttrName());
+            itemTO.setExtAttrName(item.getExtAttrName());
+            itemTO.setMandatoryCondition(item.getMandatoryCondition());
+            itemTO.setConnObjectKey(item.isConnObjectKey());
+            itemTO.setPassword(item.isPassword());
+            itemTO.setPropagationJEXLTransformer(item.getPropagationJEXLTransformer());
+            itemTO.setPullJEXLTransformer(item.getPullJEXLTransformer());
             itemTO.setPurpose(MappingPurpose.NONE);
 
             if (itemTO.isConnObjectKey()) {

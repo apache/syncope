@@ -51,7 +51,6 @@ import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.flowable.common.engine.api.FlowableException;
@@ -68,6 +67,7 @@ import org.flowable.task.api.TaskQuery;
 import org.flowable.task.api.history.HistoricTaskInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,8 +76,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class FlowableUserRequestHandler implements UserRequestHandler {
 
     protected static final Logger LOG = LoggerFactory.getLogger(UserRequestHandler.class);
-
-    protected static final String[] PROPERTY_IGNORE_PROPS = { "type" };
 
     @Autowired
     protected WorkflowTaskManager wfTaskManager;
@@ -308,7 +306,11 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     protected UserRequestForm getForm(final Task task, final TaskFormData fd) {
         UserRequestForm formTO =
                 getForm(task.getProcessInstanceId(), task.getId(), fd.getFormKey(), fd.getFormProperties());
-        BeanUtils.copyProperties(task, formTO);
+        formTO.setCreateTime(task.getCreateTime());
+        formTO.setDueDate(task.getDueDate());
+        formTO.setExecutionId(task.getExecutionId());
+        formTO.setFormKey(task.getFormKey());
+        formTO.setOwner(task.getOwner());
 
         return formTO;
     }
@@ -322,7 +324,11 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
         UserRequestForm formTO = getHistoricFormTO(
                 task.getProcessInstanceId(), task.getId(), task.getFormKey(), props);
-        BeanUtils.copyProperties(task, formTO);
+        formTO.setCreateTime(task.getCreateTime());
+        formTO.setDueDate(task.getDueDate());
+        formTO.setExecutionId(task.getExecutionId());
+        formTO.setFormKey(task.getFormKey());
+        formTO.setOwner(task.getOwner());
 
         HistoricActivityInstance historicActivityInstance = engine.getHistoryService().
                 createHistoricActivityInstanceQuery().
@@ -408,7 +414,12 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
         formTO.getProperties().addAll(props.stream().map(fProp -> {
             UserRequestFormProperty propertyTO = new UserRequestFormProperty();
-            BeanUtils.copyProperties(fProp, propertyTO, PROPERTY_IGNORE_PROPS);
+            propertyTO.setId(fProp.getId());
+            propertyTO.setName(fProp.getName());
+            propertyTO.setReadable(fProp.isReadable());
+            propertyTO.setRequired(fProp.isRequired());
+            propertyTO.setWritable(fProp.isWritable());
+            propertyTO.setValue(fProp.getValue());
             propertyTO.setType(fromFlowableFormType(fProp.getType()));
             switch (propertyTO.getType()) {
                 case Date:

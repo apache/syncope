@@ -86,46 +86,22 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Autowired
     private PlainAttrDAO plainAttrDAO;
 
+    @Autowired
     private UserDAO userDAO;
 
+    @Autowired
     private AnyObjectDAO anyObjectDAO;
 
+    @Autowired
     private AnySearchDAO searchDAO;
 
     private AnySearchDAO jpaAnySearchDAO;
 
-    private UserDAO userDAO() {
-        synchronized (this) {
-            if (userDAO == null) {
-                userDAO = ApplicationContextProvider.getApplicationContext().getBean(UserDAO.class);
-            }
-        }
-        return userDAO;
-    }
-
-    private AnyObjectDAO anyObjectDAO() {
-        synchronized (this) {
-            if (anyObjectDAO == null) {
-                anyObjectDAO = ApplicationContextProvider.getApplicationContext().getBean(AnyObjectDAO.class);
-            }
-        }
-        return anyObjectDAO;
-    }
-
-    private AnySearchDAO searchDAO() {
-        synchronized (this) {
-            if (searchDAO == null) {
-                searchDAO = ApplicationContextProvider.getApplicationContext().getBean(AnySearchDAO.class);
-            }
-        }
-        return searchDAO;
-    }
-
     private AnySearchDAO jpaAnySearchDAO() {
         synchronized (this) {
             if (jpaAnySearchDAO == null) {
-                if (AopUtils.getTargetClass(searchDAO()).equals(JPAAnySearchDAO.class)) {
-                    jpaAnySearchDAO = searchDAO();
+                if (AopUtils.getTargetClass(searchDAO).equals(JPAAnySearchDAO.class)) {
+                    jpaAnySearchDAO = searchDAO;
                 } else {
                     jpaAnySearchDAO = (AnySearchDAO) ApplicationContextProvider.getBeanFactory().
                             createBean(JPAAnySearchDAO.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
@@ -210,16 +186,16 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Transactional(readOnly = true)
     @Override
     public List<Group> findOwnedByUser(final String userKey) {
-        User owner = userDAO().find(userKey);
+        User owner = userDAO.find(userKey);
         if (owner == null) {
             return Collections.<Group>emptyList();
         }
 
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(JPAGroup.class.getSimpleName()).
                 append(" e WHERE e.userOwner=:owner ");
-        for (String groupKey : userDAO().findAllGroupKeys(owner)) {
+        userDAO.findAllGroupKeys(owner).forEach(groupKey -> {
             queryString.append("OR e.groupOwner.id='").append(groupKey).append("' ");
-        }
+        });
 
         TypedQuery<Group> query = entityManager().createQuery(queryString.toString(), Group.class);
         query.setParameter("owner", owner);
@@ -289,10 +265,10 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         clearUDynMembers(merged);
         if (merged.getUDynMembership() != null) {
             SearchCond cond = buildDynMembershipCond(merged.getUDynMembership().getFIQLCond(), merged.getRealm());
-            int count = searchDAO().count(
+            int count = searchDAO.count(
                     Collections.<String>singleton(merged.getRealm().getFullPath()), cond, AnyTypeKind.USER);
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                List<User> matching = searchDAO().search(
+                List<User> matching = searchDAO.search(
                         Collections.<String>singleton(merged.getRealm().getFullPath()),
                         cond,
                         page,
@@ -313,10 +289,10 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         clearADynMembers(merged);
         merged.getADynMemberships().stream().forEach(memb -> {
             SearchCond cond = buildDynMembershipCond(memb.getFIQLCond(), merged.getRealm());
-            int count = searchDAO().count(
+            int count = searchDAO.count(
                     Collections.<String>singleton(merged.getRealm().getFullPath()), cond, AnyTypeKind.ANY_OBJECT);
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                List<AnyObject> matching = searchDAO().search(
+                List<AnyObject> matching = searchDAO.search(
                         Collections.<String>singleton(merged.getRealm().getFullPath()),
                         cond,
                         page,
@@ -337,14 +313,14 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             }
         });
 
-        dynRealmDAO().refreshDynMemberships(merged);
+        dynRealmDAO.refreshDynMemberships(merged);
 
         return merged;
     }
 
     @Override
     public void delete(final Group group) {
-        dynRealmDAO().removeDynMemberships(group.getKey());
+        dynRealmDAO.removeDynMemberships(group.getKey());
 
         findAMemberships(group).forEach(membership -> {
             AnyObject leftEnd = membership.getLeftEnd();
@@ -357,7 +333,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                 return attr;
             }).forEachOrdered(attr -> plainAttrDAO.delete(attr));
 
-            anyObjectDAO().save(leftEnd);
+            anyObjectDAO.save(leftEnd);
             publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, leftEnd, AuthContextUtils.getDomain()));
         });
 
@@ -372,7 +348,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                 return attr;
             }).forEachOrdered(attr -> plainAttrDAO.delete(attr));
 
-            userDAO().save(leftEnd);
+            userDAO.save(leftEnd);
             publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, leftEnd, AuthContextUtils.getDomain()));
         });
 
@@ -506,7 +482,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Override
     public Set<String> removeDynMemberships(final AnyObject anyObject) {
-        List<Group> dynGroups = anyObjectDAO().findDynGroups(anyObject.getKey());
+        List<Group> dynGroups = anyObjectDAO.findDynGroups(anyObject.getKey());
 
         Query delete = entityManager().createNativeQuery("DELETE FROM " + ADYNMEMB_TABLE + " WHERE any_id=?");
         delete.setParameter(1, anyObject.getKey());
@@ -591,7 +567,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Override
     public Set<String> removeDynMemberships(final User user) {
-        List<Group> dynGroups = userDAO().findDynGroups(user.getKey());
+        List<Group> dynGroups = userDAO.findDynGroups(user.getKey());
 
         Query delete = entityManager().createNativeQuery("DELETE FROM " + UDYNMEMB_TABLE + " WHERE any_id=?");
         delete.setParameter(1, user.getKey());

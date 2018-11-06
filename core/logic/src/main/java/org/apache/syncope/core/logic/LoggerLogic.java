@@ -55,7 +55,6 @@ import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Logger;
-import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -116,7 +115,8 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
     private List<LoggerTO> list(final LoggerType type) {
         return loggerDAO.findAll(type).stream().map(logger -> {
             LoggerTO loggerTO = new LoggerTO();
-            BeanUtils.copyProperties(logger, loggerTO);
+            loggerTO.setKey(logger.getKey());
+            loggerTO.setLevel(logger.getLevel());
             return loggerTO;
         }).collect(Collectors.toList());
     }
@@ -230,7 +230,8 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         ctx.updateLoggers();
 
         LoggerTO result = new LoggerTO();
-        BeanUtils.copyProperties(syncopeLogger, result);
+        result.setKey(syncopeLogger.getKey());
+        result.setLevel(syncopeLogger.getLevel());
 
         return result;
     }
@@ -262,7 +263,8 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         }
 
         LoggerTO loggerToDelete = new LoggerTO();
-        BeanUtils.copyProperties(syncopeLogger, loggerToDelete);
+        loggerToDelete.setKey(syncopeLogger.getKey());
+        loggerToDelete.setLevel(syncopeLogger.getLevel());
 
         // remove SyncopeLogger from local storage, so that LoggerLoader won't load this next time
         loggerDAO.delete(syncopeLogger);

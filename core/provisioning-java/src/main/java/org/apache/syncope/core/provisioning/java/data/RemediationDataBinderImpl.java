@@ -21,20 +21,19 @@ package org.apache.syncope.core.provisioning.java.data;
 import org.apache.syncope.common.lib.to.RemediationTO;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.provisioning.api.data.RemediationDataBinder;
-import org.apache.syncope.core.spring.BeanUtils;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RemediationDataBinderImpl implements RemediationDataBinder {
 
-    private static final String[] IGNORE_PROPERTIES = {
-        "anyType", "payload", "anyTOPayload", "anyPatchPayload", "keyPayload", "pullTask" };
-
     @Override
     public RemediationTO getRemediationTO(final Remediation remediation) {
         RemediationTO remediationTO = new RemediationTO();
-
-        BeanUtils.copyProperties(remediation, remediationTO);
+        remediationTO.setKey(remediation.getKey());
+        remediationTO.setOperation(remediation.getOperation());
+        remediationTO.setError(remediation.getError());
+        remediationTO.setInstant(remediation.getInstant());
+        remediationTO.setRemoteName(remediation.getRemoteName());
 
         switch (remediation.getOperation()) {
             case CREATE:
@@ -63,5 +62,4 @@ public class RemediationDataBinderImpl implements RemediationDataBinder {
 
         return remediationTO;
     }
-
 }

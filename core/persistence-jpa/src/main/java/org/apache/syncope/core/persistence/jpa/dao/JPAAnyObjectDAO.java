@@ -55,7 +55,7 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,27 +63,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObjectDAO {
 
+    @Autowired
     private UserDAO userDAO;
 
+    @Autowired
     private GroupDAO groupDAO;
-
-    private UserDAO userDAO() {
-        synchronized (this) {
-            if (userDAO == null) {
-                userDAO = ApplicationContextProvider.getApplicationContext().getBean(UserDAO.class);
-            }
-        }
-        return userDAO;
-    }
-
-    private GroupDAO groupDAO() {
-        synchronized (this) {
-            if (groupDAO == null) {
-                groupDAO = ApplicationContextProvider.getApplicationContext().getBean(GroupDAO.class);
-            }
-        }
-        return groupDAO;
-    }
 
     @Override
     protected AnyUtils init() {
@@ -211,8 +195,8 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         AnyObject merged = super.save(anyObject);
         publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged, AuthContextUtils.getDomain()));
 
-        Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO().refreshDynMemberships(merged);
-        dynRealmDAO().refreshDynMemberships(merged);
+        Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO.refreshDynMemberships(merged);
+        dynRealmDAO.refreshDynMemberships(merged);
 
         return Pair.of(merged, dynGroupMembs);
     }
@@ -247,8 +231,8 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
 
     @Override
     public void delete(final AnyObject anyObject) {
-        groupDAO().removeDynMemberships(anyObject);
-        dynRealmDAO().removeDynMemberships(anyObject.getKey());
+        groupDAO.removeDynMemberships(anyObject);
+        dynRealmDAO.removeDynMemberships(anyObject.getKey());
 
         findARelationships(anyObject).forEach(relationship -> {
             relationship.getLeftEnd().getRelationships().remove(relationship);
@@ -258,7 +242,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         });
         findURelationships(anyObject).forEach(relationship -> {
             relationship.getLeftEnd().getRelationships().remove(relationship);
-            userDAO().save(relationship.getLeftEnd());
+            userDAO.save(relationship.getLeftEnd());
 
             entityManager().remove(relationship);
         });
@@ -281,7 +265,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
                 ? (String) ((Object[]) resultKey)[0]
                 : ((String) resultKey)).
                 forEachOrdered(actualKey -> {
-                    Group group = groupDAO().find(actualKey.toString());
+                    Group group = groupDAO.find(actualKey.toString());
                     if (group == null) {
                         LOG.error("Could not find group with id {}, even though returned by the native query",
                                 actualKey);

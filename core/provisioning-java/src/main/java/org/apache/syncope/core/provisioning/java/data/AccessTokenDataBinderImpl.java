@@ -34,7 +34,6 @@ import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
-import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureProvider;
@@ -176,7 +175,10 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
     @Override
     public AccessTokenTO getAccessTokenTO(final AccessToken accessToken) {
         AccessTokenTO accessTokenTO = new AccessTokenTO();
-        BeanUtils.copyProperties(accessToken, accessTokenTO);
+        accessTokenTO.setKey(accessToken.getKey());
+        accessTokenTO.setBody(accessToken.getBody());
+        accessTokenTO.setExpiryTime(accessToken.getExpiryTime());
+        accessTokenTO.setOwner(accessToken.getOwner());
 
         return accessTokenTO;
     }

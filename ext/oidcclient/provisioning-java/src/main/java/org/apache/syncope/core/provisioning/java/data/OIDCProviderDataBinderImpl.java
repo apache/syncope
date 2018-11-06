@@ -41,7 +41,6 @@ import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.OIDCProviderDataBinder;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
-import org.apache.syncope.core.spring.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,7 +134,13 @@ public class OIDCProviderDataBinderImpl implements OIDCProviderDataBinder {
                         }
 
                         OIDCProviderItem item = entityFactory.newEntity(OIDCProviderItem.class);
-                        BeanUtils.copyProperties(itemTO, item, ITEM_IGNORE_PROPERTIES);
+                        item.setIntAttrName(itemTO.getIntAttrName());
+                        item.setExtAttrName(itemTO.getExtAttrName());
+                        item.setMandatoryCondition(itemTO.getMandatoryCondition());
+                        item.setConnObjectKey(itemTO.isConnObjectKey());
+                        item.setPassword(itemTO.isPassword());
+                        item.setPropagationJEXLTransformer(itemTO.getPropagationJEXLTransformer());
+                        item.setPullJEXLTransformer(itemTO.getPullJEXLTransformer());
                         item.setOP(op);
                         item.setPurpose(MappingPurpose.NONE);
                         if (item.isConnObjectKey()) {
@@ -219,7 +224,13 @@ public class OIDCProviderDataBinderImpl implements OIDCProviderDataBinder {
         op.getItems().forEach(item -> {
             ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());
-            BeanUtils.copyProperties(item, itemTO, ITEM_IGNORE_PROPERTIES);
+            itemTO.setIntAttrName(item.getIntAttrName());
+            itemTO.setExtAttrName(item.getExtAttrName());
+            itemTO.setMandatoryCondition(item.getMandatoryCondition());
+            itemTO.setConnObjectKey(item.isConnObjectKey());
+            itemTO.setPassword(item.isPassword());
+            itemTO.setPropagationJEXLTransformer(item.getPropagationJEXLTransformer());
+            itemTO.setPullJEXLTransformer(item.getPullJEXLTransformer());
             itemTO.setPurpose(MappingPurpose.NONE);
 
             if (itemTO.isConnObjectKey()) {

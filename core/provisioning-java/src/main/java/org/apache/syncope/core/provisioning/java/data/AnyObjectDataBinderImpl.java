@@ -40,7 +40,6 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -63,11 +62,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = { Throwable.class })
 public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements AnyObjectDataBinder {
 
-    private static final String[] IGNORE_PROPERTIES = {
-        "type", "realm", "auxClasses", "relationships", "memberships", "dynMemberships",
-        "plainAttrs", "derAttrs", "virAttrs", "resources"
-    };
-
     @Autowired
     private AnyTypeDAO anyTypeDAO;
 
@@ -80,9 +74,14 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
     @Override
     public AnyObjectTO getAnyObjectTO(final AnyObject anyObject, final boolean details) {
         AnyObjectTO anyObjectTO = new AnyObjectTO();
+        anyObjectTO.setKey(anyObject.getKey());
+        anyObjectTO.setName(anyObject.getName());
         anyObjectTO.setType(anyObject.getType().getKey());
-
-        BeanUtils.copyProperties(anyObject, anyObjectTO, IGNORE_PROPERTIES);
+        anyObjectTO.setCreationDate(anyObject.getCreationDate());
+        anyObjectTO.setCreator(anyObject.getCreator());
+        anyObjectTO.setLastChangeDate(anyObject.getLastChangeDate());
+        anyObjectTO.setLastModifier(anyObject.getLastModifier());
+        anyObjectTO.setStatus(anyObject.getStatus());
 
         Map<VirSchema, List<String>> virAttrValues = details
                 ? virAttrHandler.getValues(anyObject)
@@ -471,5 +470,4 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         return propByRes;
     }
-
 }

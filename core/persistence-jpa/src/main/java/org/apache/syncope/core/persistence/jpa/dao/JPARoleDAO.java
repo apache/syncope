@@ -34,7 +34,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -49,16 +48,8 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
     @Autowired
     private ApplicationEventPublisher publisher;
 
+    @Autowired
     private AnySearchDAO searchDAO;
-
-    private AnySearchDAO searchDAO() {
-        synchronized (this) {
-            if (searchDAO == null) {
-                searchDAO = ApplicationContextProvider.getApplicationContext().getBean(AnySearchDAO.class);
-            }
-        }
-        return searchDAO;
-    }
 
     @Override
     public int count() {
@@ -108,7 +99,7 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
         // refresh dynamic memberships
         clearDynMembers(merged);
         if (merged.getDynMembership() != null) {
-            List<User> matching = searchDAO().search(
+            List<User> matching = searchDAO.search(
                     SearchCondConverter.convert(merged.getDynMembership().getFIQLCond()), AnyTypeKind.USER);
 
             matching.forEach((user) -> {
@@ -187,7 +178,7 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
             delete.setParameter(2, user.getKey());
             delete.executeUpdate();
 
-            if (searchDAO().matches(user, SearchCondConverter.convert(role.getDynMembership().getFIQLCond()))) {
+            if (searchDAO.matches(user, SearchCondConverter.convert(role.getDynMembership().getFIQLCond()))) {
                 Query insert = entityManager().createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
                 insert.setParameter(1, user.getKey());
                 insert.setParameter(2, role.getKey());

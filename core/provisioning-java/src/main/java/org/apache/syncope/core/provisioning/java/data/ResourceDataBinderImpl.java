@@ -51,7 +51,6 @@ import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
-import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceHistoryConfDAO;
@@ -85,8 +84,6 @@ import org.springframework.stereotype.Component;
 public class ResourceDataBinderImpl implements ResourceDataBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(ResourceDataBinder.class);
-
-    private static final String[] ITEM_IGNORE_PROPERTIES = { "key", "mapping", "transformers" };
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
@@ -337,7 +334,14 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         }
 
                         OrgUnitItem item = entityFactory.newEntity(OrgUnitItem.class);
-                        BeanUtils.copyProperties(itemTO, item, ITEM_IGNORE_PROPERTIES);
+                        item.setIntAttrName(itemTO.getIntAttrName());
+                        item.setExtAttrName(itemTO.getExtAttrName());
+                        item.setPurpose(itemTO.getPurpose());
+                        item.setMandatoryCondition(itemTO.getMandatoryCondition());
+                        item.setConnObjectKey(itemTO.isConnObjectKey());
+                        item.setPassword(itemTO.isPassword());
+                        item.setPropagationJEXLTransformer(itemTO.getPropagationJEXLTransformer());
+                        item.setPullJEXLTransformer(itemTO.getPullJEXLTransformer());
                         item.setOrgUnit(orgUnit);
                         if (item.isConnObjectKey()) {
                             orgUnit.setConnObjectKeyItem(item);
@@ -476,7 +480,14 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         }
 
                         MappingItem item = entityFactory.newEntity(MappingItem.class);
-                        BeanUtils.copyProperties(itemTO, item, ITEM_IGNORE_PROPERTIES);
+                        item.setIntAttrName(itemTO.getIntAttrName());
+                        item.setExtAttrName(itemTO.getExtAttrName());
+                        item.setPurpose(itemTO.getPurpose());
+                        item.setMandatoryCondition(itemTO.getMandatoryCondition());
+                        item.setConnObjectKey(itemTO.isConnObjectKey());
+                        item.setPassword(itemTO.isPassword());
+                        item.setPropagationJEXLTransformer(itemTO.getPropagationJEXLTransformer());
+                        item.setPullJEXLTransformer(itemTO.getPullJEXLTransformer());
                         item.setMapping(mapping);
 
                         if (item.isConnObjectKey()) {
@@ -581,7 +592,14 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         items.forEach(item -> {
             ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());
-            BeanUtils.copyProperties(item, itemTO, ITEM_IGNORE_PROPERTIES);
+            itemTO.setIntAttrName(item.getIntAttrName());
+            itemTO.setExtAttrName(item.getExtAttrName());
+            itemTO.setPurpose(item.getPurpose());
+            itemTO.setMandatoryCondition(item.getMandatoryCondition());
+            itemTO.setConnObjectKey(item.isConnObjectKey());
+            itemTO.setPassword(item.isPassword());
+            itemTO.setPropagationJEXLTransformer(item.getPropagationJEXLTransformer());
+            itemTO.setPullJEXLTransformer(item.getPullJEXLTransformer());
 
             if (itemTO.isConnObjectKey()) {
                 containerTO.setConnObjectKeyItem(itemTO);
@@ -635,7 +653,14 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
                 ItemTO itemTO = new ItemTO();
                 itemTO.setKey(linkingMappingItem.getKey());
-                BeanUtils.copyProperties(linkingMappingItem, itemTO, ITEM_IGNORE_PROPERTIES);
+                itemTO.setIntAttrName(linkingMappingItem.getIntAttrName());
+                itemTO.setExtAttrName(linkingMappingItem.getExtAttrName());
+                itemTO.setPurpose(linkingMappingItem.getPurpose());
+                itemTO.setMandatoryCondition(linkingMappingItem.getMandatoryCondition());
+                itemTO.setConnObjectKey(linkingMappingItem.isConnObjectKey());
+                itemTO.setPassword(linkingMappingItem.isPassword());
+                itemTO.setPropagationJEXLTransformer(linkingMappingItem.getPropagationJEXLTransformer());
+                itemTO.setPullJEXLTransformer(linkingMappingItem.getPullJEXLTransformer());
 
                 provisionTO.getMapping().getLinkingItems().add(itemTO);
             });

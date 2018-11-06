@@ -52,7 +52,6 @@ import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResour
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMapping;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
 import org.apache.syncope.core.provisioning.api.ConnectorRegistry;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,94 +64,29 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
     @Autowired
     private ConnectorRegistry connRegistry;
 
+    @Autowired
     private TaskDAO taskDAO;
 
+    @Autowired
     private AnyObjectDAO anyObjectDAO;
 
+    @Autowired
     private UserDAO userDAO;
 
+    @Autowired
     private GroupDAO groupDAO;
 
+    @Autowired
     private PolicyDAO policyDAO;
 
+    @Autowired
     private VirSchemaDAO virSchemaDAO;
 
+    @Autowired
     private RealmDAO realmDAO;
 
+    @Autowired
     private ExternalResourceHistoryConfDAO externalResourceHistoryConfDAO;
-
-    private TaskDAO taskDAO() {
-        synchronized (this) {
-            if (taskDAO == null) {
-                taskDAO = ApplicationContextProvider.getApplicationContext().getBean(TaskDAO.class);
-            }
-        }
-        return taskDAO;
-    }
-
-    private AnyObjectDAO anyObjectDAO() {
-        synchronized (this) {
-            if (anyObjectDAO == null) {
-                anyObjectDAO = ApplicationContextProvider.getApplicationContext().getBean(AnyObjectDAO.class);
-            }
-        }
-        return anyObjectDAO;
-    }
-
-    private UserDAO userDAO() {
-        synchronized (this) {
-            if (userDAO == null) {
-                userDAO = ApplicationContextProvider.getApplicationContext().getBean(UserDAO.class);
-            }
-        }
-        return userDAO;
-    }
-
-    private GroupDAO groupDAO() {
-        synchronized (this) {
-            if (groupDAO == null) {
-                groupDAO = ApplicationContextProvider.getApplicationContext().getBean(GroupDAO.class);
-            }
-        }
-        return groupDAO;
-    }
-
-    private PolicyDAO policyDAO() {
-        synchronized (this) {
-            if (policyDAO == null) {
-                policyDAO = ApplicationContextProvider.getApplicationContext().getBean(PolicyDAO.class);
-            }
-        }
-        return policyDAO;
-    }
-
-    private VirSchemaDAO virSchemaDAO() {
-        synchronized (this) {
-            if (virSchemaDAO == null) {
-                virSchemaDAO = ApplicationContextProvider.getApplicationContext().getBean(VirSchemaDAO.class);
-            }
-        }
-        return virSchemaDAO;
-    }
-
-    private RealmDAO realmDAO() {
-        synchronized (this) {
-            if (realmDAO == null) {
-                realmDAO = ApplicationContextProvider.getApplicationContext().getBean(RealmDAO.class);
-            }
-        }
-        return realmDAO;
-    }
-
-    private ExternalResourceHistoryConfDAO externalResourceHistoryConfDAO() {
-        synchronized (this) {
-            if (externalResourceHistoryConfDAO == null) {
-                externalResourceHistoryConfDAO = ApplicationContextProvider.getApplicationContext().
-                        getBean(ExternalResourceHistoryConfDAO.class);
-            }
-        }
-        return externalResourceHistoryConfDAO;
-    }
 
     @Override
     public int count() {
@@ -302,19 +236,19 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
             return;
         }
 
-        taskDAO().deleteAll(resource, TaskType.PROPAGATION);
-        taskDAO().deleteAll(resource, TaskType.PULL);
-        taskDAO().deleteAll(resource, TaskType.PUSH);
+        taskDAO.deleteAll(resource, TaskType.PROPAGATION);
+        taskDAO.deleteAll(resource, TaskType.PULL);
+        taskDAO.deleteAll(resource, TaskType.PUSH);
 
-        realmDAO().findByResource(resource).
+        realmDAO.findByResource(resource).
                 forEach(realm -> realm.getResources().remove(resource));
-        anyObjectDAO().findByResource(resource).
+        anyObjectDAO.findByResource(resource).
                 forEach(anyObject -> anyObject.getResources().remove(resource));
-        userDAO().findByResource(resource).
+        userDAO.findByResource(resource).
                 forEach(user -> user.getResources().remove(resource));
-        groupDAO().findByResource(resource).
+        groupDAO.findByResource(resource).
                 forEach(group -> group.getResources().remove(resource));
-        policyDAO().findByResource(resource).
+        policyDAO.findByResource(resource).
                 forEach(policy -> policy.getResources().remove(resource));
 
         resource.getProvisions().stream().
@@ -327,10 +261,10 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
                     provision.setMapping(null);
                     provision.setResource(null);
                 }).
-                forEach(provision -> virSchemaDAO().findByProvision(provision).
-                forEach(schema -> virSchemaDAO().delete(schema.getKey())));
+                forEach(provision -> virSchemaDAO.findByProvision(provision).
+                forEach(schema -> virSchemaDAO.delete(schema.getKey())));
 
-        externalResourceHistoryConfDAO().deleteByEntity(resource);
+        externalResourceHistoryConfDAO.deleteByEntity(resource);
 
         if (resource.getConnector() != null && resource.getConnector().getResources() != null
                 && !resource.getConnector().getResources().isEmpty()) {

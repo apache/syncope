@@ -48,7 +48,6 @@ import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
-import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +55,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
-
-    private static final String[] IGNORE_PROPERTIES = { "key", "poolConf", "location", "adminRealm", "conf" };
 
     @Autowired
     private ConnIdBundleManager connIdBundleManager;
@@ -103,7 +100,13 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
         ConnInstance connInstance = entityFactory.newEntity(ConnInstance.class);
 
-        BeanUtils.copyProperties(connInstanceTO, connInstance, IGNORE_PROPERTIES);
+        connInstance.setBundleName(connInstanceTO.getBundleName());
+        connInstance.setConnectorName(connInstanceTO.getConnectorName());
+        connInstance.setVersion(connInstanceTO.getVersion());
+        connInstance.setDisplayName(connInstanceTO.getDisplayName());
+        connInstance.setConnRequestTimeout(connInstanceTO.getConnRequestTimeout());
+        connInstance.getCapabilities().addAll(connInstanceTO.getCapabilities());
+
         if (connInstanceTO.getAdminRealm() != null) {
             connInstance.setAdminRealm(realmDAO.findByFullPath(connInstanceTO.getAdminRealm()));
         }
@@ -242,13 +245,18 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
     @Override
     public ConnInstanceTO getConnInstanceTO(final ConnInstance connInstance) {
-        ConnInstanceTO connInstanceTO = new ConnInstanceTO();
-
         Pair<URI, ConnectorInfo> info = connIdBundleManager.getConnectorInfo(connInstance);
-        BeanUtils.copyProperties(connInstance, connInstanceTO, IGNORE_PROPERTIES);
+
+        ConnInstanceTO connInstanceTO = new ConnInstanceTO();
         connInstanceTO.setKey(connInstance.getKey());
+        connInstanceTO.setBundleName(connInstance.getBundleName());
+        connInstanceTO.setConnectorName(connInstance.getConnectorName());
+        connInstanceTO.setVersion(connInstance.getVersion());
+        connInstanceTO.setDisplayName(connInstance.getDisplayName());
+        connInstanceTO.setConnRequestTimeout(connInstance.getConnRequestTimeout());
         connInstanceTO.setAdminRealm(connInstance.getAdminRealm().getFullPath());
         connInstanceTO.setLocation(info.getLeft().toASCIIString());
+        connInstanceTO.getCapabilities().addAll(connInstance.getCapabilities());
         connInstanceTO.getConf().addAll(connInstance.getConf());
         // refresh stored properties in the given connInstance with direct information from underlying connector
         ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(info.getRight());
@@ -273,7 +281,11 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
                 || connInstance.getPoolConf().getMinIdle() != null)) {
 
             ConnPoolConfTO poolConf = new ConnPoolConfTO();
-            BeanUtils.copyProperties(connInstance.getPoolConf(), poolConf);
+            poolConf.setMaxIdle(connInstance.getPoolConf().getMaxIdle());
+            poolConf.setMaxObjects(connInstance.getPoolConf().getMaxObjects());
+            poolConf.setMaxWait(connInstance.getPoolConf().getMaxWait());
+            poolConf.setMinEvictableIdleTimeMillis(connInstance.getPoolConf().getMinEvictableIdleTimeMillis());
+            poolConf.setMinIdle(connInstance.getPoolConf().getMinIdle());
             connInstanceTO.setPoolConf(poolConf);
         }
 

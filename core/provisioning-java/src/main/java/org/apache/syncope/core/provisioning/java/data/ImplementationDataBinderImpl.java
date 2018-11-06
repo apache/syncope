@@ -41,15 +41,14 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
+import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.apache.syncope.core.spring.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider;
 
 @Component
 public class ImplementationDataBinderImpl implements ImplementationDataBinder {
@@ -80,7 +79,10 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
             throw sce;
         }
 
-        BeanUtils.copyProperties(implementationTO, implementation);
+        implementation.setKey(implementationTO.getKey());
+        implementation.setEngine(implementationTO.getEngine());
+        implementation.setType(implementationTO.getType());
+        implementation.setBody(implementationTO.getBody());
 
         if (implementation.getEngine() == ImplementationEngine.JAVA) {
             Class<?> base = null;
@@ -191,7 +193,11 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
     @Override
     public ImplementationTO getImplementationTO(final Implementation implementation) {
         ImplementationTO implementationTO = new ImplementationTO();
-        BeanUtils.copyProperties(implementation, implementationTO);
+        implementationTO.setKey(implementation.getKey());
+        implementationTO.setEngine(implementation.getEngine());
+        implementationTO.setType(implementation.getType());
+        implementationTO.setBody(implementation.getBody());
+
         return implementationTO;
     }
 }
