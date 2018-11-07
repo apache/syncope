@@ -29,13 +29,14 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
 @XmlRootElement(name = "notification")
 @XmlType
-public class NotificationTO extends AbstractBaseBean implements EntityTO {
+public class NotificationTO implements EntityTO {
 
     private static final long serialVersionUID = -6145117115632592612L;
 
@@ -166,5 +167,53 @@ public class NotificationTO extends AbstractBaseBean implements EntityTO {
 
     public void setActive(final boolean active) {
         this.active = active;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                append(events).
+                append(abouts).
+                append(recipientsFIQL).
+                append(staticRecipients).
+                append(recipientAttrName).
+                append(selfAsRecipient).
+                append(recipientsProvider).
+                append(sender).
+                append(subject).
+                append(template).
+                append(traceLevel).
+                append(active).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final NotificationTO other = (NotificationTO) obj;
+        return new EqualsBuilder().
+                append(key, other.key).
+                append(events, other.events).
+                append(abouts, other.abouts).
+                append(recipientsFIQL, other.recipientsFIQL).
+                append(staticRecipients, other.staticRecipients).
+                append(recipientAttrName, other.recipientAttrName).
+                append(selfAsRecipient, other.selfAsRecipient).
+                append(recipientsProvider, other.recipientsProvider).
+                append(sender, other.sender).
+                append(subject, other.subject).
+                append(template, other.template).
+                append(traceLevel, other.traceLevel).
+                append(active, other.active).
+                build();
     }
 }

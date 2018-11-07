@@ -20,6 +20,8 @@ package org.apache.syncope.common.lib.patch;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 
 @XmlRootElement(name = "relationshipPatch")
@@ -51,4 +53,29 @@ public class RelationshipPatch extends AbstractPatch {
         this.relationshipTO = relationshipTO;
     }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(relationshipTO).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final RelationshipPatch other = (RelationshipPatch) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(relationshipTO, other.relationshipTO).
+                build();
+    }
 }

@@ -25,12 +25,11 @@ import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
 @XmlRootElement(name = "dynRealm")
 @XmlType
-public class DynRealmTO extends AbstractBaseBean implements EntityTO {
+public class DynRealmTO implements EntityTO {
 
     private static final long serialVersionUID = 4560822655754800031L;
 

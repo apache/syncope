@@ -20,6 +20,8 @@ package org.apache.syncope.common.lib.to;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.JobType;
 
 @XmlRootElement(name = "exec")
@@ -88,5 +90,41 @@ public class ExecTO extends AbstractStartEndBean implements EntityTO {
 
     public void setStatus(final String status) {
         this.status = status;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(key).
+                append(jobType).
+                append(refKey).
+                append(refDesc).
+                append(status).
+                append(message).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ExecTO other = (ExecTO) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(key, other.key).
+                append(jobType, other.jobType).
+                append(refKey, other.refKey).
+                append(refDesc, other.refDesc).
+                append(status, other.status).
+                append(message, other.message).
+                build();
     }
 }

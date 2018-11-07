@@ -19,7 +19,7 @@
 package org.apache.syncope.common.lib.to;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlRootElement(name = "reconStatus")
 @XmlType
-public class ReconStatus extends AbstractBaseBean {
+public class ReconStatus implements Serializable {
 
     private static final long serialVersionUID = -8516345256596521490L;
 

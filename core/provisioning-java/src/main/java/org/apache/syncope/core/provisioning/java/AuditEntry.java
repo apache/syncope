@@ -20,13 +20,13 @@ package org.apache.syncope.core.provisioning.java;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 
-public class AuditEntry extends AbstractBaseBean {
+public class AuditEntry implements Serializable {
 
     private static final long serialVersionUID = -2299082316063743582L;
 

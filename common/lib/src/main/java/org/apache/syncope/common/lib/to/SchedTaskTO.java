@@ -26,6 +26,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "schedTask")
 @XmlType
@@ -125,5 +127,45 @@ public class SchedTaskTO extends TaskTO {
 
     public void setActive(final boolean active) {
         this.active = active;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(startAt).
+                append(cronExpression).
+                append(jobDelegate).
+                append(name).
+                append(description).
+                append(lastExec).
+                append(nextExec).
+                append(active).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SchedTaskTO other = (SchedTaskTO) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(startAt, other.startAt).
+                append(cronExpression, other.cronExpression).
+                append(jobDelegate, other.jobDelegate).
+                append(name, other.name).
+                append(description, other.description).
+                append(lastExec, other.lastExec).
+                append(nextExec, other.nextExec).
+                append(active, other.active).
+                build();
     }
 }

@@ -19,18 +19,18 @@
 package org.apache.syncope.common.lib.log;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.AuditElements;
 
 @XmlRootElement(name = "eventCategory")
 @XmlType
-public class EventCategory extends AbstractBaseBean {
+public class EventCategory implements Serializable {
 
     private static final long serialVersionUID = -4340060002701633401L;
 

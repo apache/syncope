@@ -19,18 +19,18 @@
 package org.apache.syncope.common.lib.info;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.ImplementationType;
 
 @XmlRootElement(name = "javaImplInfo")
 @XmlType
-public class JavaImplInfo extends AbstractBaseBean {
+public class JavaImplInfo implements Serializable {
 
     private static final long serialVersionUID = 4036793959111794959L;
 
@@ -52,5 +52,4 @@ public class JavaImplInfo extends AbstractBaseBean {
     public Set<String> getClasses() {
         return classes;
     }
-
 }

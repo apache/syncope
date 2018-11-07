@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -27,11 +28,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "membership")
 @XmlType
-public class MembershipTO extends AbstractBaseBean implements AttributableTO {
+public class MembershipTO implements Serializable, AttributableTO {
 
     private static final long serialVersionUID = 5992828670273935861L;
 
@@ -121,5 +123,37 @@ public class MembershipTO extends AbstractBaseBean implements AttributableTO {
     @Override
     public Optional<AttrTO> getVirAttr(final String schema) {
         return virAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(groupKey).
+                append(groupName).
+                append(plainAttrs).
+                append(derAttrs).
+                append(virAttrs).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final MembershipTO other = (MembershipTO) obj;
+        return new EqualsBuilder().
+                append(groupKey, other.groupKey).
+                append(groupName, other.groupName).
+                append(plainAttrs, other.plainAttrs).
+                append(derAttrs, other.derAttrs).
+                append(virAttrs, other.virAttrs).
+                build();
     }
 }

@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlType
 @XmlSeeAlso({ AbstractReplacePatchItem.class, LongPatchItem.class, StringPatchItem.class })
@@ -51,4 +53,30 @@ public abstract class AbstractPatchItem<T> extends AbstractPatch {
         this.value = value;
     }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(value).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        @SuppressWarnings("unchecked")
+        final AbstractPatchItem<T> other = (AbstractPatchItem<T>) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(value, other.value).
+                build();
+    }
 }

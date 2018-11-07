@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,10 +29,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "attribute")
 @XmlType
-public class AttrTO extends AbstractBaseBean {
+public class AttrTO implements Serializable {
 
     private static final long serialVersionUID = 4941691338796323623L;
 
@@ -101,5 +103,31 @@ public class AttrTO extends AbstractBaseBean {
     @JsonProperty(value = "values", required = true)
     public List<String> getValues() {
         return values;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(schema).
+                append(values).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AttrTO other = (AttrTO) obj;
+        return new EqualsBuilder().
+                append(schema, other.schema).
+                append(values, other.values).
+                build();
     }
 }

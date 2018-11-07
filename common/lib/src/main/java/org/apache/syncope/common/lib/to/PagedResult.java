@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,11 +28,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "pagedResult")
 @XmlType
-public class PagedResult<T extends AbstractBaseBean> extends AbstractBaseBean {
+public class PagedResult<T extends Serializable> implements Serializable {
 
     private static final long serialVersionUID = 3472875885259250934L;
 
@@ -95,4 +97,38 @@ public class PagedResult<T extends AbstractBaseBean> extends AbstractBaseBean {
         this.totalCount = totalCount;
     }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(prev).
+                append(next).
+                append(result).
+                append(page).
+                append(size).
+                append(totalCount).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        @SuppressWarnings("unchecked")
+        final PagedResult<T> other = (PagedResult<T>) obj;
+        return new EqualsBuilder().
+                append(prev, other.prev).
+                append(next, other.next).
+                append(result, other.result).
+                append(page, other.page).
+                append(size, other.size).
+                append(totalCount, other.totalCount).
+                build();
+    }
 }

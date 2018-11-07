@@ -33,6 +33,5 @@ public class BooleanReplacePatchItem extends AbstractReplacePatchItem<Boolean> {
         protected BooleanReplacePatchItem newInstance() {
             return new BooleanReplacePatchItem();
         }
-
     }
 }

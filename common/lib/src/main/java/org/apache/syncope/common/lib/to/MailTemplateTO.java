@@ -21,11 +21,10 @@ package org.apache.syncope.common.lib.to;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "mailTemplate")
 @XmlType
-public class MailTemplateTO extends AbstractBaseBean implements EntityTO {
+public class MailTemplateTO implements EntityTO {
 
     private static final long serialVersionUID = 8389755049666062735L;
 

@@ -18,15 +18,17 @@
  */
 package org.apache.syncope.common.lib.log;
 
+import java.io.Serializable;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 
 @XmlRootElement(name = "logger")
 @XmlType
-public class LoggerTO extends AbstractBaseBean {
+public class LoggerTO implements Serializable {
 
     private static final long serialVersionUID = -7794833835668648505L;
 
@@ -49,5 +51,31 @@ public class LoggerTO extends AbstractBaseBean {
     @PathParam("key")
     public void setKey(final String key) {
         this.key = key;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                append(level).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final LoggerTO other = (LoggerTO) obj;
+        return new EqualsBuilder().
+                append(key, other.key).
+                append(level, other.level).
+                build();
     }
 }

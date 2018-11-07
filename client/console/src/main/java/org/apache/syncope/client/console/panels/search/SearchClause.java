@@ -21,8 +21,7 @@ package org.apache.syncope.client.console.panels.search;
 import java.io.Serializable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public final class SearchClause implements Serializable {
 
@@ -116,17 +115,45 @@ public final class SearchClause implements Serializable {
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(operator).
+                append(type).
+                append(property).
+                append(comparator).
+                append(value).
+                build();
     }
 
     @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SearchClause other = (SearchClause) obj;
+        return new EqualsBuilder().
+                append(operator, other.operator).
+                append(type, other.type).
+                append(property, other.property).
+                append(comparator, other.comparator).
+                append(value, other.value).
+                build();
     }
 
     @Override
     public String toString() {
-        return ReflectionToStringBuilder.toString(this, ToStringStyle.JSON_STYLE);
+        return new ToStringBuilder(this).
+                append(operator).
+                append(type).
+                append(property).
+                append(comparator).
+                append(value).
+                build();
     }
 }

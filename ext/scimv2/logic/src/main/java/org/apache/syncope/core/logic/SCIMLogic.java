@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.UriBuilder;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.scim.SCIMConf;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.ext.scimv2.api.data.AuthenticationScheme;
@@ -47,7 +47,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SCIMLogic extends AbstractLogic<AbstractBaseBean> {
+public class SCIMLogic extends AbstractLogic<EntityTO> {
 
     private static final String SCHEMAS_JSON = "schemas.json";
 
@@ -191,10 +191,9 @@ public class SCIMLogic extends AbstractLogic<AbstractBaseBean> {
     }
 
     @Override
-    protected AbstractBaseBean resolveReference(final Method method, final Object... args)
+    protected EntityTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
         throw new UnresolvedReferenceException();
     }
-
 }

@@ -32,7 +32,8 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
 @XmlRootElement(name = "schema")
@@ -41,7 +42,7 @@ import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "@class")
 @JsonPropertyOrder(value = { "@class", "key" })
 @Schema(subTypes = { PlainSchemaTO.class, DerSchemaTO.class, VirSchemaTO.class }, discriminatorProperty = "@class")
-public abstract class SchemaTO extends AbstractBaseBean implements EntityTO {
+public abstract class SchemaTO implements EntityTO {
 
     private static final long serialVersionUID = 4088388951694301759L;
 
@@ -90,5 +91,35 @@ public abstract class SchemaTO extends AbstractBaseBean implements EntityTO {
     @JsonProperty
     public Map<Locale, String> getLabels() {
         return labels;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(discriminator).
+                append(key).
+                append(anyTypeClass).
+                append(labels).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SchemaTO other = (SchemaTO) obj;
+        return new EqualsBuilder().
+                append(discriminator, other.discriminator).
+                append(key, other.key).
+                append(anyTypeClass, other.anyTypeClass).
+                append(labels, other.labels).
+                build();
     }
 }

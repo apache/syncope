@@ -25,12 +25,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 
 @XmlRootElement(name = "item")
 @XmlType
-public class ItemTO extends AbstractBaseBean implements EntityTO {
+public class ItemTO implements EntityTO {
 
     private static final long serialVersionUID = 2983498836767176862L;
 

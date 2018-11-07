@@ -18,13 +18,15 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "relationship")
 @XmlType
-public class RelationshipTO extends AbstractBaseBean {
+public class RelationshipTO implements Serializable {
 
     private static final long serialVersionUID = 360672942026613929L;
 
@@ -93,5 +95,35 @@ public class RelationshipTO extends AbstractBaseBean {
 
     public void setOtherEndName(final String otherEndName) {
         this.otherEndName = otherEndName;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(type).
+                append(otherEndType).
+                append(otherEndKey).
+                append(otherEndName).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final RelationshipTO other = (RelationshipTO) obj;
+        return new EqualsBuilder().
+                append(type, other.type).
+                append(otherEndType, other.otherEndType).
+                append(otherEndKey, other.otherEndKey).
+                append(otherEndName, other.otherEndName).
+                build();
     }
 }

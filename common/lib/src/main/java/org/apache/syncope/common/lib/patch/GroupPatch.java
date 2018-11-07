@@ -31,6 +31,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 
@@ -117,4 +119,39 @@ public class GroupPatch extends AnyPatch {
                 && name == null && userOwner == null && groupOwner == null;
     }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(name).
+                append(userOwner).
+                append(groupOwner).
+                append(udynMembershipCond).
+                append(adynMembershipConds).
+                append(typeExtensions).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final GroupPatch other = (GroupPatch) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(name, other.name).
+                append(userOwner, other.userOwner).
+                append(groupOwner, other.groupOwner).
+                append(udynMembershipCond, other.udynMembershipCond).
+                append(adynMembershipConds, other.adynMembershipConds).
+                append(typeExtensions, other.typeExtensions).
+                build();
+    }
 }

@@ -19,18 +19,18 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 
 @XmlRootElement(name = "connectorBundle")
 @XmlType
-public class ConnBundleTO extends AbstractBaseBean {
+public class ConnBundleTO implements Serializable {
 
     private static final long serialVersionUID = 7215115961910138005L;
 

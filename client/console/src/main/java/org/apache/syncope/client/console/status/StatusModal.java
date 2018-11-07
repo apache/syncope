@@ -25,11 +25,11 @@ import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.panel.Panel;
 
-public abstract class StatusModal<T extends AbstractBaseBean> extends Panel implements ModalPanel {
+public abstract class StatusModal<T extends EntityTO> extends Panel implements ModalPanel {
 
     private static final long serialVersionUID = 1066124171682570080L;
 

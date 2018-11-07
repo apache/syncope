@@ -19,18 +19,18 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 
 @XmlRootElement(name = "error")
 @XmlType
-public class ErrorTO extends AbstractBaseBean {
+public class ErrorTO implements Serializable {
 
     private static final long serialVersionUID = 2435764161719225927L;
 

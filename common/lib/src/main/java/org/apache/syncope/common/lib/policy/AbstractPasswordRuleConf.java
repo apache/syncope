@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.common.lib.policy;
 
+import java.io.Serializable;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlType
 @XmlSeeAlso({ DefaultPasswordRuleConf.class })
-public abstract class AbstractPasswordRuleConf extends AbstractBaseBean implements PasswordRuleConf {
+public abstract class AbstractPasswordRuleConf implements Serializable, PasswordRuleConf {
 
     private static final long serialVersionUID = -5814018872387142339L;
 

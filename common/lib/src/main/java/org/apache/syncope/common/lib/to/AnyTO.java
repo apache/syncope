@@ -33,6 +33,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlType
 @XmlSeeAlso({ UserTO.class, GroupTO.class, AnyObjectTO.class })
@@ -175,4 +177,47 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
         return resources;
     }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(key).
+                append(type).
+                append(realm).
+                append(dynRealms).
+                append(status).
+                append(auxClasses).
+                append(plainAttrs).
+                append(derAttrs).
+                append(virAttrs).
+                append(resources).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AnyTO other = (AnyTO) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(key, other.key).
+                append(type, other.type).
+                append(realm, other.realm).
+                append(dynRealms, other.dynRealms).
+                append(status, other.status).
+                append(auxClasses, other.auxClasses).
+                append(plainAttrs, other.plainAttrs).
+                append(derAttrs, other.derAttrs).
+                append(virAttrs, other.virAttrs).
+                append(resources, other.resources).
+                build();
+    }
 }

@@ -24,6 +24,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 
@@ -146,5 +148,47 @@ public class PropagationTaskTO extends TaskTO {
 
     public void setEntityKey(final String entityKey) {
         this.entityKey = entityKey;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(operation).
+                append(connObjectKey).
+                append(oldConnObjectKey).
+                append(attributes).
+                append(resource).
+                append(objectClassName).
+                append(anyTypeKind).
+                append(anyType).
+                append(entityKey).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PropagationTaskTO other = (PropagationTaskTO) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(operation, other.operation).
+                append(connObjectKey, other.connObjectKey).
+                append(oldConnObjectKey, other.oldConnObjectKey).
+                append(attributes, other.attributes).
+                append(resource, other.resource).
+                append(objectClassName, other.objectClassName).
+                append(anyTypeKind, other.anyTypeKind).
+                append(anyType, other.anyType).
+                append(entityKey, other.entityKey).
+                build();
     }
 }

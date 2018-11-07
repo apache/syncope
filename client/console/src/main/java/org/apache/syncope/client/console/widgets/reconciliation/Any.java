@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.client.console.widgets.reconciliation;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
-public class Any extends AbstractBaseBean {
+public class Any implements Serializable {
 
     private static final long serialVersionUID = 2421645848049271898L;
 

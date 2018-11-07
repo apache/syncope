@@ -26,6 +26,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "userPatch")
 @XmlType
@@ -123,5 +125,44 @@ public class UserPatch extends AnyPatch {
         return super.isEmpty()
                 && username == null && password == null && securityQuestion == null && securityAnswer == null
                 && mustChangePassword == null && relationships.isEmpty() && memberships.isEmpty() && roles.isEmpty();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(username).
+                append(password).
+                append(securityQuestion).
+                append(securityAnswer).
+                append(mustChangePassword).
+                append(relationships).
+                append(memberships).
+                append(roles).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final UserPatch other = (UserPatch) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(username, other.username).
+                append(securityQuestion, other.securityQuestion).
+                append(securityAnswer, other.securityAnswer).
+                append(mustChangePassword, other.mustChangePassword).
+                append(relationships, other.relationships).
+                append(memberships, other.memberships).
+                append(roles, other.roles).
+                build();
     }
 }

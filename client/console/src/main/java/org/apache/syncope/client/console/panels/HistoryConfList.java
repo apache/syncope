@@ -20,10 +20,10 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ResourceHistoryConfTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -38,7 +38,7 @@ public class HistoryConfList<T extends Serializable> extends Panel implements Mo
             final BaseModal<?> baseModal,
             final String entityKey,
             final PageReference pageReference,
-            final AbstractBaseBean modelObj) {
+            final EntityTO modelObj) {
 
         super(BaseModal.CONTENT_ID);
 

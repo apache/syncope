@@ -20,16 +20,18 @@ package org.apache.syncope.common.lib.types;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.log.EventCategory;
 import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 
-public class AuditLoggerName extends AbstractBaseBean {
+public class AuditLoggerName implements Serializable {
 
     private static final long serialVersionUID = -647989486671786839L;
 
@@ -91,6 +93,38 @@ public class AuditLoggerName extends AbstractBaseBean {
     public String toLoggerName() {
         return new StringBuilder().append(LoggerType.AUDIT.getPrefix()).append('.').
                 append(buildEvent(type, category, subcategory, event, result)).toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(type).
+                append(category).
+                append(subcategory).
+                append(event).
+                append(result).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AuditLoggerName other = (AuditLoggerName) obj;
+        return new EqualsBuilder().
+                append(type, other.type).
+                append(category, other.category).
+                append(subcategory, other.subcategory).
+                append(event, other.event).
+                append(result, other.result).
+                build();
     }
 
     public static AuditLoggerName fromLoggerName(final String loggerName)

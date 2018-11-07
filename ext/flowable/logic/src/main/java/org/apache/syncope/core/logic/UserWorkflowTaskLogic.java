@@ -22,9 +22,9 @@ import java.lang.reflect.Method;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.to.WorkflowTask;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
@@ -41,7 +41,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserWorkflowTaskLogic extends AbstractTransactionalLogic<UserRequestForm> {
+public class UserWorkflowTaskLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @Autowired
     private WorkflowTaskManager wfTaskManager;
@@ -83,7 +83,7 @@ public class UserWorkflowTaskLogic extends AbstractTransactionalLogic<UserReques
     }
 
     @Override
-    protected UserRequestForm resolveReference(final Method method, final Object... args)
+    protected EntityTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
         throw new UnresolvedReferenceException();

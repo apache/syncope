@@ -23,13 +23,12 @@ import java.util.Date;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 
 @XmlRootElement(name = "remediation")
 @XmlType
-public class RemediationTO extends AbstractBaseBean implements EntityTO {
+public class RemediationTO implements EntityTO {
 
     private static final long serialVersionUID = 3983540425142284975L;
 
@@ -160,5 +159,4 @@ public class RemediationTO extends AbstractBaseBean implements EntityTO {
     public void setRemoteName(final String remoteName) {
         this.remoteName = remoteName;
     }
-
 }

@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.ExecStatus;
 
 /**
@@ -28,7 +30,7 @@ import org.apache.syncope.common.lib.types.ExecStatus;
  */
 @XmlRootElement(name = "propagationStatus")
 @XmlType
-public class PropagationStatus extends AbstractBaseBean {
+public class PropagationStatus implements Serializable {
 
     private static final long serialVersionUID = 3921498450222857690L;
 
@@ -95,5 +97,37 @@ public class PropagationStatus extends AbstractBaseBean {
 
     public void setFailureReason(final String failureReason) {
         this.failureReason = failureReason;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(beforeObj).
+                append(afterObj).
+                append(resource).
+                append(status).
+                append(failureReason).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PropagationStatus other = (PropagationStatus) obj;
+        return new EqualsBuilder().
+                append(beforeObj, other.beforeObj).
+                append(afterObj, other.afterObj).
+                append(resource, other.resource).
+                append(status, other.status).
+                append(failureReason, other.failureReason).
+                build();
     }
 }

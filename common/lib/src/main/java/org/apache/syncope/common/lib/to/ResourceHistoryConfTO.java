@@ -36,5 +36,4 @@ public class ResourceHistoryConfTO extends AbstractHistoryConf {
     public void setResourceTO(final ResourceTO resourceTO) {
         this.resourceTO = resourceTO;
     }
-
 }

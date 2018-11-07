@@ -28,6 +28,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "passwordPatch")
 @XmlType
@@ -94,4 +96,31 @@ public class PasswordPatch extends StringReplacePatchItem {
         return resources;
     }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(onSyncope).
+                append(resources).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PasswordPatch other = (PasswordPatch) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(onSyncope, other.onSyncope).
+                append(resources, other.resources).
+                build();
+    }
 }

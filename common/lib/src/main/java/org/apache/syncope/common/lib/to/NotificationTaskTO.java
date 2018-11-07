@@ -27,6 +27,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
@@ -152,5 +154,49 @@ public class NotificationTaskTO extends TaskTO {
 
     public void setTraceLevel(final TraceLevel traceLevel) {
         this.traceLevel = traceLevel;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(notification).
+                append(anyTypeKind).
+                append(entityKey).
+                append(recipients).
+                append(sender).
+                append(subject).
+                append(textBody).
+                append(htmlBody).
+                append(executed).
+                append(traceLevel).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final NotificationTaskTO other = (NotificationTaskTO) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(notification, other.notification).
+                append(anyTypeKind, other.anyTypeKind).
+                append(entityKey, other.entityKey).
+                append(recipients, other.recipients).
+                append(sender, other.sender).
+                append(subject, other.subject).
+                append(textBody, other.textBody).
+                append(htmlBody, other.htmlBody).
+                append(executed, other.executed).
+                append(traceLevel, other.traceLevel).
+                build();
     }
 }

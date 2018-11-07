@@ -33,6 +33,5 @@ public class StringPatchItem extends AbstractPatchItem<String> {
         protected StringPatchItem newInstance() {
             return new StringPatchItem();
         }
-
     }
 }

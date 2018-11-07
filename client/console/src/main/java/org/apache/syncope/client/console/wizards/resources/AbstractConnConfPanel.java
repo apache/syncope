@@ -24,7 +24,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.markup.html.list.ConnConfPropertyListView;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -36,7 +36,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.ResourceModel;
 
-public abstract class AbstractConnConfPanel<T extends AbstractBaseBean> extends WizardStep implements ICondition {
+public abstract class AbstractConnConfPanel<T extends EntityTO> extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = -2025535531121434050L;
 

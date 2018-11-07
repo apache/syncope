@@ -21,6 +21,8 @@ package org.apache.syncope.common.lib.patch;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.to.AttrTO;
 
 @XmlRootElement(name = "attrPatch")
@@ -56,5 +58,31 @@ public class AttrPatch extends AbstractPatch {
     @JsonIgnore
     public boolean isEmpty() {
         return attrTO == null || attrTO.getValues().isEmpty();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(attrTO).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AttrPatch other = (AttrPatch) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(attrTO, other.attrTO).
+                build();
     }
 }

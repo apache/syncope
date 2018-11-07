@@ -28,11 +28,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "role")
 @XmlType
-public class RoleTO extends AbstractBaseBean implements EntityTO {
+public class RoleTO implements EntityTO {
 
     private static final long serialVersionUID = 4560822655754800031L;
 

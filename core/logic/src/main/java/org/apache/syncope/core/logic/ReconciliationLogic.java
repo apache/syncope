@@ -24,11 +24,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.collections.IteratorChain;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
@@ -64,7 +64,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ReconciliationLogic extends AbstractTransactionalLogic<AbstractBaseBean> {
+public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
@@ -237,7 +237,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<AbstractBase
     }
 
     @Override
-    protected AbstractBaseBean resolveReference(final Method method, final Object... os)
+    protected EntityTO resolveReference(final Method method, final Object... os)
             throws UnresolvedReferenceException {
 
         throw new UnresolvedReferenceException();

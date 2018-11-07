@@ -23,6 +23,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "derSchema")
 @XmlType
@@ -47,5 +49,31 @@ public class DerSchemaTO extends SchemaTO {
 
     public void setExpression(final String expression) {
         this.expression = expression;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(expression).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final DerSchemaTO other = (DerSchemaTO) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(expression, other.expression).
+                build();
     }
 }

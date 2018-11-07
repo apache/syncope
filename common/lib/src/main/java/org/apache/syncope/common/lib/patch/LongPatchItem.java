@@ -33,6 +33,5 @@ public class LongPatchItem extends AbstractPatchItem<Long> {
         protected LongPatchItem newInstance() {
             return new LongPatchItem();
         }
-
     }
 }

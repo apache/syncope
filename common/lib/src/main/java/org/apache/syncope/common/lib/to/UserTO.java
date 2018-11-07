@@ -31,7 +31,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.commons.lang3.builder.ToStringExclude;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "user")
@@ -41,7 +42,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private static final long serialVersionUID = 7791304495192615740L;
 
-    @ToStringExclude
     private String password;
 
     private final List<String> roles = new ArrayList<>();
@@ -270,5 +270,61 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
     @Override
     public List<MembershipTO> getDynMemberships() {
         return dynMemberships;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(username).
+                append(roles).
+                append(dynRoles).
+                append(privileges).
+                append(token).
+                append(tokenExpireTime).
+                append(lastLoginDate).
+                append(changePwdDate).
+                append(failedLogins).
+                append(securityQuestion).
+                append(securityAnswer).
+                append(suspended).
+                append(mustChangePassword).
+                append(relationships).
+                append(memberships).
+                append(dynMemberships).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final UserTO other = (UserTO) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(username, other.username).
+                append(roles, other.roles).
+                append(dynRoles, other.dynRoles).
+                append(privileges, other.privileges).
+                append(token, other.token).
+                append(tokenExpireTime, other.tokenExpireTime).
+                append(lastLoginDate, other.lastLoginDate).
+                append(changePwdDate, other.changePwdDate).
+                append(failedLogins, other.failedLogins).
+                append(securityQuestion, other.securityQuestion).
+                append(securityAnswer, other.securityAnswer).
+                append(suspended, other.suspended).
+                append(mustChangePassword, other.mustChangePassword).
+                append(relationships, other.relationships).
+                append(memberships, other.memberships).
+                append(dynMemberships, other.dynMemberships).
+                build();
     }
 }

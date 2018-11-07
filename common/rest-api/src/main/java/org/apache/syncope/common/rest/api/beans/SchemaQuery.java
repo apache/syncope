@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,10 +26,9 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.SchemaType;
 
-public class SchemaQuery extends AbstractBaseBean {
+public class SchemaQuery implements Serializable {
 
     private static final long serialVersionUID = -1863334226169614417L;
 

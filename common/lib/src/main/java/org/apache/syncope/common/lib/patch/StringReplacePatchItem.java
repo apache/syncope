@@ -35,6 +35,5 @@ public class StringReplacePatchItem extends AbstractReplacePatchItem<String> {
         protected StringReplacePatchItem newInstance() {
             return new StringReplacePatchItem();
         }
-
     }
 }

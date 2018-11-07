@@ -44,5 +44,4 @@ public abstract class AbstractReplacePatchItem<T> extends AbstractPatchItem<T> {
     public void setOperation(final PatchOperation operation) {
         // fixed
     }
-
 }

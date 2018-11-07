@@ -25,11 +25,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "provision")
 @XmlType
-public class ProvisionTO extends AbstractBaseBean implements EntityTO {
+public class ProvisionTO implements EntityTO {
 
     private static final long serialVersionUID = 8298910216218007927L;
 

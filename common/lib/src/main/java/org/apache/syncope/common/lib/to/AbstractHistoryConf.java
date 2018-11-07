@@ -23,12 +23,11 @@ import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "abstractHistoryConf")
 @XmlType
 @XmlSeeAlso({ ConnInstanceHistoryConfTO.class, ResourceHistoryConfTO.class })
-public abstract class AbstractHistoryConf extends AbstractBaseBean implements EntityTO {
+public abstract class AbstractHistoryConf implements EntityTO {
 
     private static final long serialVersionUID = -8001640160293506651L;
 
@@ -68,5 +67,4 @@ public abstract class AbstractHistoryConf extends AbstractBaseBean implements En
                 ? null
                 : new Date(creation.getTime());
     }
-
 }

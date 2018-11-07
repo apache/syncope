@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "workflowTask")
 @XmlType
-public class WorkflowTask extends AbstractBaseBean {
+public class WorkflowTask implements Serializable {
 
     private static final long serialVersionUID = -3095016727396210808L;
 

@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.info;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,12 +30,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.ImplementationType;
 
 @XmlRootElement(name = "platformInfo")
 @XmlType
-public class PlatformInfo extends AbstractBaseBean {
+public class PlatformInfo implements Serializable {
 
     private static final long serialVersionUID = -7941853999417673827L;
 

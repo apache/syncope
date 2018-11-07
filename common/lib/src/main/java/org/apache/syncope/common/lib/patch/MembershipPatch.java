@@ -25,6 +25,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.to.AttrTO;
 
 @XmlRootElement(name = "membershipPatch")
@@ -72,5 +74,35 @@ public class MembershipPatch extends AbstractPatch {
     @JsonProperty("virAttrs")
     public Set<AttrTO> getVirAttrs() {
         return virAttrs;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(group).
+                append(plainAttrs).
+                append(virAttrs).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final MembershipPatch other = (MembershipPatch) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(group, other.group).
+                append(plainAttrs, other.plainAttrs).
+                append(virAttrs, other.virAttrs).
+                build();
     }
 }

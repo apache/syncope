@@ -19,7 +19,7 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @param <T> transfer object used for input / output
  */
-abstract class AbstractLogic<T extends AbstractBaseBean> {
+abstract class AbstractLogic<T extends EntityTO> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractLogic.class);
 

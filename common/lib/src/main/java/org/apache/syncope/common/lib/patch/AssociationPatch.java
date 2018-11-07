@@ -22,6 +22,8 @@ import java.util.Collection;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 
 @XmlRootElement(name = "associationPatch")
@@ -103,5 +105,33 @@ public class AssociationPatch extends PasswordPatch {
     @PathParam("action")
     public void setAction(final ResourceAssociationAction action) {
         this.action = action;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(key).
+                append(action).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AssociationPatch other = (AssociationPatch) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(key, other.key).
+                append(action, other.action).
+                build();
     }
 }

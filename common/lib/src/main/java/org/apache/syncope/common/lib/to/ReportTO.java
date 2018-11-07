@@ -27,6 +27,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "report")
 @XmlType
@@ -135,4 +137,47 @@ public class ReportTO extends AbstractStartEndBean implements EntityTO {
         this.template = template;
     }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(key).
+                append(name).
+                append(reportlets).
+                append(cronExpression).
+                append(executions).
+                append(latestExecStatus).
+                append(lastExec).
+                append(nextExec).
+                append(active).
+                append(template).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ReportTO other = (ReportTO) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(key, other.key).
+                append(name, other.name).
+                append(reportlets, other.reportlets).
+                append(cronExpression, other.cronExpression).
+                append(executions, other.executions).
+                append(latestExecStatus, other.latestExecStatus).
+                append(lastExec, other.lastExec).
+                append(nextExec, other.nextExec).
+                append(active, other.active).
+                append(template, other.template).
+                build();
+    }
 }

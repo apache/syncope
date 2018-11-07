@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.common.lib.policy;
 
+import java.io.Serializable;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlType
 @XmlSeeAlso({ DefaultAccountRuleConf.class })
-public abstract class AbstractAccountRuleConf extends AbstractBaseBean implements AccountRuleConf {
+public abstract class AbstractAccountRuleConf implements Serializable, AccountRuleConf {
 
     private static final long serialVersionUID = -4080475005967851092L;
 

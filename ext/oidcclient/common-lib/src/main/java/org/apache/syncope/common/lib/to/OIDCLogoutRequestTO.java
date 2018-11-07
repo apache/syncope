@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "oidcLogoutRequest")
 @XmlType
-public class OIDCLogoutRequestTO extends AbstractBaseBean {
+public class OIDCLogoutRequestTO implements Serializable {
 
     private static final long serialVersionUID = -4708360216757961537L;
 
@@ -37,5 +37,4 @@ public class OIDCLogoutRequestTO extends AbstractBaseBean {
     public void setEndSessionEndpoint(final String endSessionEndpoint) {
         this.endSessionEndpoint = endSessionEndpoint;
     }
-
 }

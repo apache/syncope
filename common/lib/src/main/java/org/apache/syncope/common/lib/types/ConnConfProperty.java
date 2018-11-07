@@ -19,6 +19,7 @@
 package org.apache.syncope.common.lib.types;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
@@ -26,11 +27,12 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement
 @XmlType
-public class ConnConfProperty extends AbstractBaseBean implements Comparable<ConnConfProperty> {
+public class ConnConfProperty implements Serializable, Comparable<ConnConfProperty> {
 
     private static final long serialVersionUID = -8391413960221862238L;
 
@@ -66,5 +68,33 @@ public class ConnConfProperty extends AbstractBaseBean implements Comparable<Con
     @Override
     public int compareTo(final ConnConfProperty connConfProperty) {
         return ObjectUtils.compare(this.getSchema(), connConfProperty.getSchema());
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(schema).
+                append(values).
+                append(overridable).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ConnConfProperty other = (ConnConfProperty) obj;
+        return new EqualsBuilder().
+                append(schema, other.schema).
+                append(values, other.values).
+                append(overridable, other.overridable).
+                build();
     }
 }

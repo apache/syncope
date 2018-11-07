@@ -26,8 +26,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
@@ -276,6 +275,14 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
 
     @Override
     public String toString() {
-        return ReflectionToStringBuilder.toString(this, ToStringStyle.JSON_STYLE);
+        return new ToStringBuilder(this).
+                append(getKey()).
+                append(stringValue).
+                append(dateValue).
+                append(booleanValue).
+                append(longValue).
+                append(doubleValue).
+                append(binaryValue).
+                build();
     }
 }

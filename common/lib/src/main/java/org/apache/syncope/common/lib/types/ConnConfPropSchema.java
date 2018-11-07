@@ -19,18 +19,19 @@
 package org.apache.syncope.common.lib.types;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement
 @XmlType
-public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<ConnConfPropSchema> {
+public class ConnConfPropSchema implements Serializable, Comparable<ConnConfPropSchema> {
 
     private static final long serialVersionUID = -1976365781005801296L;
 
@@ -124,13 +125,13 @@ public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<C
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 53 * hash + Objects.hashCode(this.name);
-        hash = 53 * hash + Objects.hashCode(this.type);
-        hash = 53 * hash + (this.required ? 1 : 0);
-        hash = 53 * hash + this.order;
-        hash = 53 * hash + (this.confidential ? 1 : 0);
-        return hash;
+        return new HashCodeBuilder().
+                append(name).
+                append(type).
+                append(required).
+                append(order).
+                append(confidential).
+                build();
     }
 
     @Override
@@ -145,19 +146,12 @@ public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<C
             return false;
         }
         final ConnConfPropSchema other = (ConnConfPropSchema) obj;
-        if (this.required != other.required) {
-            return false;
-        }
-        if (this.order != other.order) {
-            return false;
-        }
-        if (this.confidential != other.confidential) {
-            return false;
-        }
-        if (!Objects.equals(this.name, other.name)) {
-            return false;
-        }
-        return Objects.equals(this.type, other.type);
+        return new EqualsBuilder().
+                append(name, other.name).
+                append(type, other.type).
+                append(required, other.required).
+                append(order, other.order).
+                append(confidential, other.confidential).
+                build();
     }
-
 }
