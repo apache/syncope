@@ -21,6 +21,7 @@ package org.apache.syncope.common.rest.api;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.LoggerLevel;
@@ -33,24 +34,22 @@ public final class LoggerWrapper {
 
     public static List<AuditLoggerName> wrap(final Collection<LoggerTO> logger) {
         List<AuditLoggerName> result = new ArrayList<>();
-        for (LoggerTO loggerTO : logger) {
+        logger.forEach(loggerTO -> {
             try {
                 result.add(AuditLoggerName.fromLoggerName(loggerTO.getKey()));
             } catch (Exception ignore) {
                 // ignore
             }
-        }
+        });
         return result;
     }
 
     public static List<LoggerTO> unwrap(final Collection<AuditLoggerName> auditNames) {
-        List<LoggerTO> result = new ArrayList<>();
-        for (AuditLoggerName name : auditNames) {
+        return auditNames.stream().map(name -> {
             LoggerTO loggerTO = new LoggerTO();
             loggerTO.setKey(name.toLoggerName());
             loggerTO.setLevel(LoggerLevel.DEBUG);
-            result.add(loggerTO);
-        }
-        return result;
+            return loggerTO;
+        }).collect(Collectors.toList());
     }
 }

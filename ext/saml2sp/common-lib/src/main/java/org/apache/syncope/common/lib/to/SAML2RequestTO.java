@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 
 @XmlRootElement(name = "saml2request")
 @XmlType
-public class SAML2RequestTO extends AbstractBaseBean {
+public class SAML2RequestTO implements Serializable {
 
     private static final long serialVersionUID = -2454209295007372086L;
 

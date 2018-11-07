@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.client.console.widgets.reconciliation;
 
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import java.io.Serializable;
 
-public class Missing extends AbstractBaseBean {
+public class Missing implements Serializable {
 
     private static final long serialVersionUID = -4779715117027316991L;
 
@@ -40,5 +40,4 @@ public class Missing extends AbstractBaseBean {
     public String getConnObjectKeyValue() {
         return connObjectKeyValue;
     }
-
 }

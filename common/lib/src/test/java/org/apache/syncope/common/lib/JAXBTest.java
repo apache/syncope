@@ -49,7 +49,7 @@ public class JAXBTest {
             Marshaller marshaller = context.createMarshaller();
             marshaller.marshal(new UserTO(), new StringWriter());
             marshaller.marshal(new UserPatch(), new StringWriter());
-        } catch (Exception e) {
+        } catch (JAXBException e) {
             fail(ExceptionUtils.getStackTrace(e));
         }
     }

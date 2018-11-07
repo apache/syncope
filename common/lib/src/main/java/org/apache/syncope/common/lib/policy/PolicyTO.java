@@ -31,7 +31,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.to.EntityTO;
 
 @XmlRootElement(name = "policy")
@@ -42,7 +41,7 @@ import org.apache.syncope.common.lib.to.EntityTO;
 @Schema(
         subTypes = { AccountPolicyTO.class, PasswordPolicyTO.class, PullPolicyTO.class },
         discriminatorProperty = "@class")
-public abstract class PolicyTO extends AbstractBaseBean implements EntityTO {
+public abstract class PolicyTO implements EntityTO {
 
     private static final long serialVersionUID = -2903888572649721035L;
 

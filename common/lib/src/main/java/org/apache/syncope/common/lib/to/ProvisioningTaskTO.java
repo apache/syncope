@@ -27,6 +27,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 
@@ -118,5 +120,45 @@ public abstract class ProvisioningTaskTO extends SchedTaskTO {
 
     public void setMatchingRule(final MatchingRule matchigRule) {
         this.matchingRule = matchigRule;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(resource).
+                append(performCreate).
+                append(performUpdate).
+                append(performDelete).
+                append(syncStatus).
+                append(unmatchingRule).
+                append(matchingRule).
+                append(actions).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ProvisioningTaskTO other = (ProvisioningTaskTO) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(resource, other.resource).
+                append(performCreate, other.performCreate).
+                append(performUpdate, other.performUpdate).
+                append(performDelete, other.performDelete).
+                append(syncStatus, other.syncStatus).
+                append(unmatchingRule, other.unmatchingRule).
+                append(matchingRule, other.matchingRule).
+                append(actions, other.actions).
+                build();
     }
 }

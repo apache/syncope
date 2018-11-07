@@ -19,6 +19,7 @@
 package org.apache.syncope.common.lib.patch;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,12 +29,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 
 @XmlRootElement(name = "deassociationPatch")
 @XmlType
-public class DeassociationPatch extends AbstractBaseBean {
+public class DeassociationPatch implements Serializable {
 
     private static final long serialVersionUID = 6295778399633883767L;
 

@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.logic;
 
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.core.logic.init.SAML2SPLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class AbstractSAML2Logic<T extends AbstractBaseBean> extends AbstractTransactionalLogic<T> {
+public abstract class AbstractSAML2Logic<T extends EntityTO> extends AbstractTransactionalLogic<T> {
 
     @Autowired
     protected SAML2SPLoader loader;

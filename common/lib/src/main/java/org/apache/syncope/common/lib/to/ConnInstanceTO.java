@@ -30,13 +30,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 
 @XmlRootElement(name = "connInstance")
 @XmlType
-public class ConnInstanceTO extends AbstractBaseBean implements EntityTO {
+public class ConnInstanceTO implements EntityTO {
 
     private static final long serialVersionUID = 2707778645445168671L;
 

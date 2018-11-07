@@ -21,7 +21,7 @@ package org.apache.syncope.core.logic;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
@@ -42,7 +42,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
-abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTransactionalLogic<T> {
+abstract class AbstractJobLogic<T extends EntityTO> extends AbstractTransactionalLogic<T> {
 
     @Autowired
     protected JobManager jobManager;

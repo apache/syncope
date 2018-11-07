@@ -42,12 +42,28 @@ public class BatchPayloadLine {
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(lineNumber).
+                append(content).
+                build();
     }
 
     @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final BatchPayloadLine other = (BatchPayloadLine) obj;
+        return new EqualsBuilder().
+                append(lineNumber, other.lineNumber).
+                append(content, other.content).
+                build();
     }
 }

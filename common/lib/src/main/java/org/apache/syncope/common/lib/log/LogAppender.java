@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.common.lib.log;
 
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import java.io.Serializable;
 
-public class LogAppender extends AbstractBaseBean {
+public class LogAppender implements Serializable {
 
     private static final long serialVersionUID = 5975199884460548302L;
 
@@ -33,5 +33,4 @@ public class LogAppender extends AbstractBaseBean {
     public void setName(final String name) {
         this.name = name;
     }
-
 }

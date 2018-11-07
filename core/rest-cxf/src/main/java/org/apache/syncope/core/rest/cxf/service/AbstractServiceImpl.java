@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MultivaluedMap;
@@ -35,7 +35,6 @@ import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
 import org.apache.cxf.jaxrs.ext.search.SearchContext;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -217,7 +216,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
      * @param totalCount total result size (not considering pagination)
      * @return paged result
      */
-    protected <T extends AbstractBaseBean> PagedResult<T> buildPagedResult(
+    protected <T extends Serializable> PagedResult<T> buildPagedResult(
             final List<T> list, final int page, final int size, final int totalCount) {
 
         PagedResult<T> result = new PagedResult<>();
@@ -229,9 +228,9 @@ abstract class AbstractServiceImpl implements JAXRSService {
 
         UriBuilder builder = uriInfo.getAbsolutePathBuilder();
         MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
-        for (Map.Entry<String, List<String>> queryParam : queryParams.entrySet()) {
-            builder.queryParam(queryParam.getKey(), queryParam.getValue().toArray());
-        }
+        queryParams.forEach((key, value) -> {
+            builder.queryParam(key, value.toArray());
+        });
 
         if (result.getPage() > 1) {
             result.setPrev(builder.

@@ -19,17 +19,17 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "mapping")
 @XmlType
-public class MappingTO extends AbstractBaseBean implements ItemContainerTO {
+public class MappingTO implements ItemContainerTO, Serializable {
 
     private static final long serialVersionUID = 8447688036282611118L;
 

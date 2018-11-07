@@ -21,14 +21,14 @@ package org.apache.syncope.core.logic;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 
-public abstract class AbstractExecutableLogic<T extends AbstractBaseBean> extends AbstractJobLogic<T> {
+public abstract class AbstractExecutableLogic<T extends EntityTO> extends AbstractJobLogic<T> {
 
     public abstract ExecTO execute(String key, Date startAt, boolean dryRun);
 

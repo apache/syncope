@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.logic;
 
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -27,5 +27,5 @@ import org.springframework.transaction.annotation.Transactional;
  * @param <T> transfer object used for input / output
  */
 @Transactional(rollbackFor = { Throwable.class })
-abstract class AbstractTransactionalLogic<T extends AbstractBaseBean> extends AbstractLogic<T> {
+abstract class AbstractTransactionalLogic<T extends EntityTO> extends AbstractLogic<T> {
 }

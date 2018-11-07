@@ -29,6 +29,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "anyObject")
 @XmlType
@@ -98,5 +100,37 @@ public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
     @Override
     public List<MembershipTO> getDynMemberships() {
         return dynMemberships;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(name).
+                append(relationships).
+                append(memberships).
+                append(dynMemberships).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AnyObjectTO other = (AnyObjectTO) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(name, other.name).
+                append(relationships, other.relationships).
+                append(memberships, other.memberships).
+                append(dynMemberships, other.dynMemberships).
+                build();
     }
 }

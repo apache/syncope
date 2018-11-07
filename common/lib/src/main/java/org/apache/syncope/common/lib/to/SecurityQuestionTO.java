@@ -21,11 +21,12 @@ package org.apache.syncope.common.lib.to;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "securityQuestion")
 @XmlType
-public class SecurityQuestionTO extends AbstractBaseBean implements EntityTO {
+public class SecurityQuestionTO implements EntityTO {
 
     private static final long serialVersionUID = 5969810939993556530L;
 
@@ -52,4 +53,29 @@ public class SecurityQuestionTO extends AbstractBaseBean implements EntityTO {
         this.content = content;
     }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                append(content).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SecurityQuestionTO other = (SecurityQuestionTO) obj;
+        return new EqualsBuilder().
+                append(key, other.key).
+                append(content, other.content).
+                build();
+    }
 }

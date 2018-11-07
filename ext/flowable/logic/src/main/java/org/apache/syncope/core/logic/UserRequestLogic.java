@@ -24,6 +24,7 @@ import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -49,7 +50,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class UserRequestLogic extends AbstractTransactionalLogic<UserRequestForm> {
+public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @Autowired
     protected BpmnProcessManager bpmnProcessManager;
@@ -205,7 +206,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<UserRequestForm
     }
 
     @Override
-    protected UserRequestForm resolveReference(final Method method, final Object... args)
+    protected EntityTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
         throw new UnresolvedReferenceException();

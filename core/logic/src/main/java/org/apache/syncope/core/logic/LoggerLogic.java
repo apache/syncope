@@ -36,6 +36,7 @@ import org.apache.syncope.common.lib.log.EventCategory;
 import org.apache.syncope.common.lib.log.LogAppender;
 import org.apache.syncope.common.lib.log.LogStatement;
 import org.apache.syncope.common.lib.log.LoggerTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -72,7 +73,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.SystemPropertyUtils;
 
 @Component
-public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
+public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @Autowired
     private LoggerLoader loggerLoader;
@@ -404,7 +405,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
     }
 
     @Override
-    protected LoggerTO resolveReference(final Method method, final Object... args)
+    protected EntityTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
         throw new UnresolvedReferenceException();

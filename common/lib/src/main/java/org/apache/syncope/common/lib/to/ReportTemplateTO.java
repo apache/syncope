@@ -21,11 +21,10 @@ package org.apache.syncope.common.lib.to;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "reportTemplate")
 @XmlType
-public class ReportTemplateTO extends AbstractBaseBean implements EntityTO {
+public class ReportTemplateTO implements EntityTO {
 
     private static final long serialVersionUID = 7776679004906244896L;
 

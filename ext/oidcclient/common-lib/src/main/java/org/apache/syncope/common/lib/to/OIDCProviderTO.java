@@ -28,11 +28,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "oidcprovider")
 @XmlType
-public class OIDCProviderTO extends AbstractBaseBean implements EntityTO, ItemContainerTO {
+public class OIDCProviderTO implements EntityTO, ItemContainerTO {
 
     private static final long serialVersionUID = -1229802774546135794L;
 

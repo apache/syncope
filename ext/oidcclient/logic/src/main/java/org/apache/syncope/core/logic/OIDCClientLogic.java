@@ -44,9 +44,9 @@ import org.apache.cxf.rs.security.oidc.common.IdToken;
 import org.apache.cxf.rs.security.oidc.common.UserInfo;
 import org.apache.cxf.rs.security.oidc.rp.IdTokenReader;
 import org.apache.cxf.rs.security.oidc.rp.UserInfoClient;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.OIDCLoginRequestTO;
 import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
 import org.apache.syncope.common.lib.to.OIDCLogoutRequestTO;
@@ -71,7 +71,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OIDCClientLogic extends AbstractTransactionalLogic<AbstractBaseBean> {
+public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
 
     private static final String JWT_CLAIM_OP_ENTITYID = "OP_ENTITYID";
 
@@ -437,7 +437,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<AbstractBaseBean
     }
 
     @Override
-    protected AbstractBaseBean resolveReference(
+    protected EntityTO resolveReference(
             final Method method, final Object... args) throws UnresolvedReferenceException {
 
         throw new UnresolvedReferenceException();

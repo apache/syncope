@@ -19,18 +19,20 @@
 package org.apache.syncope.common.lib.info;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
 @XmlRootElement(name = "numbersInfo")
 @XmlType
-public class NumbersInfo extends AbstractBaseBean {
+public class NumbersInfo implements Serializable {
 
     private static final long serialVersionUID = 7691187370598649583L;
 
@@ -63,7 +65,6 @@ public class NumbersInfo extends AbstractBaseBean {
             }
             return score;
         }
-
     }
 
     private int totalUsers;
@@ -194,4 +195,53 @@ public class NumbersInfo extends AbstractBaseBean {
         return confCompleteness;
     }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(totalUsers).
+                append(usersByRealm).
+                append(usersByStatus).
+                append(totalGroups).
+                append(groupsByRealm).
+                append(anyType1).
+                append(totalAny1).
+                append(any1ByRealm).
+                append(anyType2).
+                append(totalAny2).
+                append(any2ByRealm).
+                append(totalResources).
+                append(totalRoles).
+                append(confCompleteness).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final NumbersInfo other = (NumbersInfo) obj;
+        return new EqualsBuilder().
+                append(totalUsers, other.totalUsers).
+                append(totalGroups, other.totalGroups).
+                append(totalResources, other.totalResources).
+                append(totalRoles, other.totalRoles).
+                append(anyType1, other.anyType1).
+                append(anyType2, other.anyType2).
+                append(usersByRealm, other.usersByRealm).
+                append(usersByStatus, other.usersByStatus).
+                append(groupsByRealm, other.groupsByRealm).
+                append(totalAny1, other.totalAny1).
+                append(any1ByRealm, other.any1ByRealm).
+                append(totalAny2, other.totalAny2).
+                append(any2ByRealm, other.any2ByRealm).
+                append(confCompleteness, other.confCompleteness).
+                build();
+    }
 }

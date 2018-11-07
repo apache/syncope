@@ -19,6 +19,7 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,11 +27,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "pagedConnObjectResult")
 @XmlType
-public class PagedConnObjectTOResult extends AbstractBaseBean {
+public class PagedConnObjectTOResult implements Serializable {
 
     private static final long serialVersionUID = -2832908019064402976L;
 
@@ -117,4 +119,35 @@ public class PagedConnObjectTOResult extends AbstractBaseBean {
         return result;
     }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(next).
+                append(result).
+                append(pagedResultsCookie).
+                append(remainingPagedResults).
+                append(allResultsReturned).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PagedConnObjectTOResult other = (PagedConnObjectTOResult) obj;
+        return new EqualsBuilder().
+                append(next, other.next).
+                append(result, other.result).
+                append(pagedResultsCookie, other.pagedResultsCookie).
+                append(remainingPagedResults, other.remainingPagedResults).
+                append(allResultsReturned, other.allResultsReturned).
+                build();
+    }
 }

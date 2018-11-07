@@ -31,6 +31,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "task")
 @XmlType
@@ -88,5 +90,37 @@ public abstract class TaskTO extends AbstractStartEndBean implements EntityTO {
     @JsonProperty("executions")
     public List<ExecTO> getExecutions() {
         return executions;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(key).
+                append(discriminator).
+                append(executions).
+                append(latestExecStatus).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final TaskTO other = (TaskTO) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(key, other.key).
+                append(discriminator, other.discriminator).
+                append(executions, other.executions).
+                append(latestExecStatus, other.latestExecStatus).
+                build();
     }
 }

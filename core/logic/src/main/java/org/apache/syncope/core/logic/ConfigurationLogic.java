@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
@@ -41,7 +42,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class ConfigurationLogic extends AbstractTransactionalLogic<AttrTO> {
+public class ConfigurationLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @Autowired
     private ConfDAO confDAO;
@@ -125,7 +126,7 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<AttrTO> {
     }
 
     @Override
-    protected AttrTO resolveReference(final Method method, final Object... args)
+    protected EntityTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
         throw new UnresolvedReferenceException();

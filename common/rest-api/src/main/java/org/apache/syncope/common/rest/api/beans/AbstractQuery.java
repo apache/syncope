@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import java.io.Serializable;
 import javax.validation.constraints.Min;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
-public abstract class AbstractQuery extends AbstractBaseBean {
+public abstract class AbstractQuery implements Serializable {
 
     private static final long serialVersionUID = -371488230250055359L;
 

@@ -18,14 +18,16 @@
  */
 package org.apache.syncope.common.lib.patch;
 
+import java.io.Serializable;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.PatchOperation;
 
 @XmlType
 @XmlSeeAlso({ AbstractPatchItem.class, AttrPatch.class, MembershipPatch.class, RelationshipPatch.class })
-public abstract class AbstractPatch extends AbstractBaseBean {
+public abstract class AbstractPatch implements Serializable {
 
     private static final long serialVersionUID = -4729181508529829580L;
 
@@ -66,4 +68,27 @@ public abstract class AbstractPatch extends AbstractBaseBean {
         this.operation = operation;
     }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(operation).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AbstractPatch other = (AbstractPatch) obj;
+        return new EqualsBuilder().
+                append(operation, other.operation).
+                build();
+    }
 }

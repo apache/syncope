@@ -18,18 +18,19 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Date;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Abstract wrapper for common system information.
  */
 @XmlType
-public class AbstractAnnotatedBean extends AbstractBaseBean {
+public abstract class AbstractAnnotatedBean implements EntityTO {
 
     private static final long serialVersionUID = -930797879027642457L;
 
@@ -122,6 +123,35 @@ public class AbstractAnnotatedBean extends AbstractBaseBean {
         return etagDate == null
                 ? StringUtils.EMPTY
                 : String.valueOf(etagDate.getTime());
+    }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(creator).
+                append(creationDate).
+                append(lastModifier).
+                append(lastChangeDate).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AbstractAnnotatedBean other = (AbstractAnnotatedBean) obj;
+        return new EqualsBuilder().
+                append(creator, other.creator).
+                append(creationDate, other.creationDate).
+                append(lastModifier, other.lastModifier).
+                append(lastChangeDate, other.lastChangeDate).
+                build();
     }
 }

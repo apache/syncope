@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "virSchema")
 @Schema(allOf = { SchemaTO.class })
@@ -77,4 +79,35 @@ public class VirSchemaTO extends SchemaTO {
         this.extAttrName = extAttrName;
     }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(readonly).
+                append(resource).
+                append(anyType).
+                append(extAttrName).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final VirSchemaTO other = (VirSchemaTO) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(readonly, other.readonly).
+                append(resource, other.resource).
+                append(anyType, other.anyType).
+                append(extAttrName, other.extAttrName).
+                build();
+    }
 }

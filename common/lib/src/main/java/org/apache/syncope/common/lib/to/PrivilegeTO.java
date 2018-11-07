@@ -21,11 +21,10 @@ package org.apache.syncope.common.lib.to;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "privilege")
 @XmlType
-public class PrivilegeTO extends AbstractBaseBean implements EntityTO {
+public class PrivilegeTO implements EntityTO {
 
     private static final long serialVersionUID = 5461846770586031758L;
 

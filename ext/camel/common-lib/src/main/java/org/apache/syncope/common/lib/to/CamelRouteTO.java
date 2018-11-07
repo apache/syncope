@@ -21,12 +21,11 @@ package org.apache.syncope.common.lib.to;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "camelRoute")
 @XmlType
-public class CamelRouteTO extends AbstractBaseBean implements EntityTO {
+public class CamelRouteTO implements EntityTO {
 
     private static final long serialVersionUID = 6431992877435181674L;
 

@@ -26,12 +26,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 
 @XmlRootElement(name = "saml2idp")
 @XmlType
-public class SAML2IdPTO extends AbstractBaseBean implements EntityTO, ItemContainerTO {
+public class SAML2IdPTO implements EntityTO, ItemContainerTO {
 
     private static final long serialVersionUID = 4426527052873779881L;
 

@@ -21,8 +21,7 @@ package org.apache.syncope.client.console.commons.status;
 import java.io.Serializable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -98,17 +97,48 @@ public class StatusBean implements Serializable {
     }
 
     @Override
-    public String toString() {
-        return ReflectionToStringBuilder.toString(this, ToStringStyle.JSON_STYLE);
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                append(name).
+                append(resource).
+                append(connObjectLink).
+                append(status).
+                append(linked).
+                build();
     }
 
     @Override
     public boolean equals(final Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final StatusBean other = (StatusBean) obj;
+        return new EqualsBuilder().
+                append(key, other.key).
+                append(name, other.name).
+                append(resource, other.resource).
+                append(connObjectLink, other.connObjectLink).
+                append(status, other.status).
+                append(linked, other.linked).
+                build();
     }
 
     @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
+    public String toString() {
+        return new ToStringBuilder(this).
+                append(key).
+                append(name).
+                append(resource).
+                append(connObjectLink).
+                append(status).
+                append(linked).
+                build();
     }
 }

@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
@@ -28,12 +29,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.jaxb.XmlEntityTOAdapter;
 
 @XmlRootElement(name = "provisioningResult")
 @XmlType
-public class ProvisioningResult<E extends EntityTO> extends AbstractBaseBean {
+public class ProvisioningResult<E extends EntityTO> implements Serializable {
 
     private static final long serialVersionUID = 351317476398082746L;
 
@@ -49,8 +51,8 @@ public class ProvisioningResult<E extends EntityTO> extends AbstractBaseBean {
         return entity;
     }
 
-    public void setEntity(final E any) {
-        this.entity = any;
+    public void setEntity(final E entity) {
+        this.entity = entity;
     }
 
     @XmlElementWrapper(name = "propagationStatuses")
@@ -60,4 +62,28 @@ public class ProvisioningResult<E extends EntityTO> extends AbstractBaseBean {
         return propagationStatuses;
     }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(entity).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        @SuppressWarnings("unchecked")
+        final ProvisioningResult<E> other = (ProvisioningResult<E>) obj;
+        return new EqualsBuilder().
+                append(entity, other.entity).
+                build();
+    }
 }

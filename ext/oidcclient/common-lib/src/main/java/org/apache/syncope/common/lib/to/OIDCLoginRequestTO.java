@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "oidcLoginRequest")
 @XmlType
-public class OIDCLoginRequestTO extends AbstractBaseBean {
+public class OIDCLoginRequestTO implements Serializable {
 
     private static final long serialVersionUID = -3509031322459942441L;
 

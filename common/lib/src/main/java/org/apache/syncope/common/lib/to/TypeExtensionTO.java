@@ -19,17 +19,19 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "typeExtension")
 @XmlType
-public class TypeExtensionTO extends AbstractBaseBean {
+public class TypeExtensionTO implements Serializable {
 
     private static final long serialVersionUID = -5422809645030924811L;
 
@@ -52,4 +54,29 @@ public class TypeExtensionTO extends AbstractBaseBean {
         return auxClasses;
     }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(anyType).
+                append(auxClasses).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final TypeExtensionTO other = (TypeExtensionTO) obj;
+        return new EqualsBuilder().
+                append(anyType, other.anyType).
+                append(auxClasses, other.auxClasses).
+                build();
+    }
 }

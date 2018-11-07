@@ -20,8 +20,7 @@ package org.apache.syncope.core.provisioning.api.pushpull;
 
 import java.util.Collection;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
@@ -107,7 +106,15 @@ public class ProvisioningReport {
 
     @Override
     public String toString() {
-        return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
+        return new ToStringBuilder(this).
+                append(message).
+                append(status).
+                append(anyType).
+                append(operation).
+                append(key).
+                append(name).
+                append(uidValue).
+                build();
     }
 
     /**

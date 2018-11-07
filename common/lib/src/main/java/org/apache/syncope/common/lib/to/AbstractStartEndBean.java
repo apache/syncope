@@ -19,12 +19,14 @@
 package org.apache.syncope.common.lib.to;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.io.Serializable;
 import java.util.Date;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlType
-public class AbstractStartEndBean extends AbstractBaseBean {
+public class AbstractStartEndBean implements Serializable {
 
     private static final long serialVersionUID = 2399577415544539917L;
 
@@ -56,5 +58,31 @@ public class AbstractStartEndBean extends AbstractBaseBean {
         this.end = end == null
                 ? null
                 : new Date(end.getTime());
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(start).
+                append(end).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AbstractStartEndBean other = (AbstractStartEndBean) obj;
+        return new EqualsBuilder().
+                append(start, other.start).
+                append(end, other.end).
+                build();
     }
 }

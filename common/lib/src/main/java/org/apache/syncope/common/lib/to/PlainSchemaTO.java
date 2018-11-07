@@ -25,6 +25,8 @@ import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 
@@ -165,4 +167,51 @@ public class PlainSchemaTO extends SchemaTO {
         this.mimeType = mimeType;
     }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(type).
+                append(mandatoryCondition).
+                append(multivalue).
+                append(uniqueConstraint).
+                append(readonly).
+                append(conversionPattern).
+                append(validator).
+                append(enumerationKeys).
+                append(enumerationValues).
+                append(secretKey).
+                append(cipherAlgorithm).
+                append(mimeType).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PlainSchemaTO other = (PlainSchemaTO) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(type, other.type).
+                append(mandatoryCondition, other.mandatoryCondition).
+                append(multivalue, other.multivalue).
+                append(uniqueConstraint, other.uniqueConstraint).
+                append(readonly, other.readonly).
+                append(conversionPattern, other.conversionPattern).
+                append(validator, other.validator).
+                append(enumerationKeys, other.enumerationKeys).
+                append(enumerationValues, other.enumerationValues).
+                append(secretKey, other.secretKey).
+                append(cipherAlgorithm, other.cipherAlgorithm).
+                append(mimeType, other.mimeType).
+                build();
+    }
 }

@@ -19,23 +19,23 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "camelMetrics")
 @XmlType
-public class CamelMetrics extends AbstractBaseBean {
+public class CamelMetrics implements Serializable {
 
     private static final long serialVersionUID = -391404198406614231L;
 
     @XmlRootElement(name = "meanRate")
     @XmlType
-    public static class MeanRate extends AbstractBaseBean {
+    public static class MeanRate implements Serializable {
 
         private static final long serialVersionUID = -233921226510124154L;
 

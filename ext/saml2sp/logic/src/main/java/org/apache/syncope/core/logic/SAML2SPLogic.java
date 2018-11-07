@@ -34,9 +34,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
 import org.apache.cxf.rs.security.saml.sso.SSOValidatorResponse;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.SAML2RequestTO;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.lib.to.SAML2ReceivedResponseTO;
@@ -108,7 +108,7 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.util.ResourceUtils;
 
 @Component
-public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
+public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
 
     private static final String IDP_INITIATED_RELAY_STATE = "idpInitiated";
 
@@ -700,7 +700,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
     }
 
     @Override
-    protected AbstractBaseBean resolveReference(
+    protected EntityTO resolveReference(
             final Method method, final Object... args) throws UnresolvedReferenceException {
 
         throw new UnresolvedReferenceException();

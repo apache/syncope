@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +27,6 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerLevel;
@@ -42,7 +42,7 @@ import org.apache.wicket.model.util.ListModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractLogsPanel<T extends AbstractBaseBean> extends Panel {
+public abstract class AbstractLogsPanel<T extends Serializable> extends Panel {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractLogsPanel.class);
 
