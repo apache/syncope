@@ -31,13 +31,13 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements PlainSchemaDAO {
+
+    @Autowired
+    private AnyUtilsFactory anyUtilsFactory;
 
     @Autowired
     private PlainAttrDAO plainAttrDAO;
@@ -94,7 +94,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
     @Override
     public <T extends PlainAttr<?>> List<T> findAttrs(final PlainSchema schema, final Class<T> reference) {
         TypedQuery<T> query = entityManager().createQuery(
-                "SELECT e FROM " + ((JPAPlainAttrDAO) plainAttrDAO).getEntityReference(reference).getSimpleName()
+                "SELECT e FROM " + JPAPlainAttrDAO.getEntityReference(reference).getSimpleName()
                 + " e WHERE e.schema=:schema", reference);
         query.setParameter("schema", schema);
 
@@ -106,6 +106,16 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
         return entityManager().merge(schema);
     }
 
+    protected void deleteAttrs(final PlainSchema schema) {
+        for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
+            AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeKind);
+
+            findAttrs(schema, anyUtils.plainAttrClass()).forEach(attr -> {
+                plainAttrDAO.delete(attr);
+            });
+        }
+    }
+
     @Override
     public void delete(final String key) {
         PlainSchema schema = find(key);
@@ -115,16 +125,9 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
 
         schema.getLabels().forEach(label -> label.setSchema(null));
 
-        AnyUtilsFactory anyUtilsFactory = new JPAAnyUtilsFactory();
-        for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
-            AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeKind);
+        deleteAttrs(schema);
 
-            findAttrs(schema, anyUtils.plainAttrClass()).forEach(attr -> {
-                plainAttrDAO.delete(attr.getKey(), anyUtils.plainAttrClass());
-            });
-
-            resourceDAO.deleteMapping(key);
-        }
+        resourceDAO.deleteMapping(key);
 
         if (schema.getAnyTypeClass() != null) {
             schema.getAnyTypeClass().getPlainSchemas().remove(schema);

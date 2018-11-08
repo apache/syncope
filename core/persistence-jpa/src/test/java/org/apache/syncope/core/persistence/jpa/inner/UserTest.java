@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.inner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -36,6 +37,8 @@ import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.provisioning.api.utils.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
+import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +57,23 @@ public class UserTest extends AbstractTest {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
+
+    @Test
+    public void find() {
+        User user = userDAO.find("823074dc-d280-436d-a7dd-07399fae48ec");
+        assertNotNull(user);
+        assertEquals("puccini", user.getUsername());
+        assertFalse(user.isSuspended());
+        assertFalse(user.isMustChangePassword());
+        assertEquals("active", user.getStatus());
+        assertEquals(CipherAlgorithm.SHA1, user.getCipherAlgorithm());
+        assertEquals("e4c28e7a-9dbf-4ee7-9441-93812a0d4a28", user.getRealm().getKey());
+        assertNull(user.getSecurityQuestion());
+        assertNull(user.getSecurityAnswer());
+        assertEquals("admin", user.getCreator());
+        assertEquals("Giacomo", user.getPlainAttr("firstname").get().getValuesAsStrings().get(0));
+        assertEquals("Puccini", user.getPlainAttr("surname").get().getValuesAsStrings().get(0));
+    }
 
     @Test
     public void findAll() {
@@ -110,8 +130,8 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void findByPlainAttrValue() {
-        UPlainAttrValue fullnameValue = entityFactory.newEntity(UPlainAttrValue.class);
+    public void findByPlainAttrUniqueValue() {
+        UPlainAttrUniqueValue fullnameValue = entityFactory.newEntity(UPlainAttrUniqueValue.class);
         fullnameValue.setStringValue("Gioacchino Rossini");
 
         List<User> list = userDAO.findByPlainAttrValue("fullname", fullnameValue, false);
@@ -149,6 +169,13 @@ public class UserTest extends AbstractTest {
         assertNotNull(user);
         user = userDAO.findByUsername("user6");
         assertNull(user);
+    }
+
+    @Test
+    public void findMembership() {
+        UMembership memb = userDAO.findMembership("3d5e91f6-305e-45f9-ad30-4897d3d43bd9");
+        assertNotNull(memb);
+        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", memb.getLeftEnd().getKey());
     }
 
     @Test

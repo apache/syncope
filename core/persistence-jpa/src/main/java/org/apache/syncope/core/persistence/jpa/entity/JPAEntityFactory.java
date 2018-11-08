@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPASecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
@@ -122,7 +123,6 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrUniqueVa
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
@@ -141,10 +141,10 @@ import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResour
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.jpa.dao.JPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
-@Component
 public class JPAEntityFactory implements EntityFactory {
 
     @SuppressWarnings("unchecked")
@@ -314,5 +314,30 @@ public class JPAEntityFactory implements EntityFactory {
     @Override
     public ConnPoolConf newConnPoolConf() {
         return new JPAConnPoolConf();
+    }
+
+    @Override
+    public Class<? extends User> userClass() {
+        return JPAUser.class;
+    }
+
+    @Override
+    public Class<? extends Group> groupClass() {
+        return JPAGroup.class;
+    }
+
+    @Override
+    public Class<? extends AnyObject> anyObjectClass() {
+        return JPAAnyObject.class;
+    }
+
+    @Override
+    public Class<? extends Conf> confClass() {
+        return JPAConf.class;
+    }
+
+    @Override
+    public Class<? extends AnySearchDAO> anySearchDAOClass() {
+        return JPAAnySearchDAO.class;
     }
 }

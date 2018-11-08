@@ -82,11 +82,11 @@ public class JPARelationshipTypeDAO extends AbstractDAO<RelationshipType> implem
             if (relationship instanceof URelationship) {
                 ((URelationship) relationship).getLeftEnd().getRelationships().remove((URelationship) relationship);
             } else if (relationship instanceof UMembership) {
-                ((UMembership) relationship).getLeftEnd().getMemberships().remove((UMembership) relationship);
+                ((UMembership) relationship).getLeftEnd().remove((UMembership) relationship);
             } else if (relationship instanceof ARelationship) {
                 ((ARelationship) relationship).getLeftEnd().getRelationships().remove((ARelationship) relationship);
             } else if (relationship instanceof AMembership) {
-                ((AMembership) relationship).getLeftEnd().getMemberships().remove((AMembership) relationship);
+                ((AMembership) relationship).getLeftEnd().remove((AMembership) relationship);
             }
             relationship.setLeftEnd(null);
             return relationship;
@@ -94,5 +94,4 @@ public class JPARelationshipTypeDAO extends AbstractDAO<RelationshipType> implem
 
         entityManager().remove(type);
     }
-
 }

@@ -32,8 +32,6 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
@@ -68,12 +66,6 @@ public class UserTest extends AbstractTest {
     private PlainSchemaDAO plainSchemaDAO;
 
     @Autowired
-    private PlainAttrDAO plainAttrDAO;
-
-    @Autowired
-    private PlainAttrValueDAO plainAttrValueDAO;
-
-    @Autowired
     private DerSchemaDAO derSchemaDAO;
 
     @Test
@@ -86,8 +78,8 @@ public class UserTest extends AbstractTest {
         userDAO.flush();
 
         assertNull(userDAO.findByUsername("bellini"));
-        assertNull(plainAttrDAO.find(UUID.randomUUID().toString(), UPlainAttr.class));
-        assertNull(plainAttrValueDAO.find(UUID.randomUUID().toString(), UPlainAttrValue.class));
+        assertNull(findPlainAttr(UUID.randomUUID().toString(), UPlainAttr.class));
+        assertNull(findPlainAttrValue(UUID.randomUUID().toString(), UPlainAttrValue.class));
         assertNotNull(plainSchemaDAO.find("loginDate"));
 
         memberships = groupDAO.findUMemberships(groupDAO.findByName("managingDirector"));
@@ -103,7 +95,7 @@ public class UserTest extends AbstractTest {
                 "bf825fe1-7320-4a54-bd64-143b5c18ab97",
                 user.getMemberships().get(0).getRightEnd().getKey());
 
-        user.getMemberships().remove(0);
+        user.remove(user.getMemberships().get(0));
 
         UMembership newM = entityFactory.newEntity(UMembership.class);
         newM.setLeftEnd(user);
@@ -202,7 +194,7 @@ public class UserTest extends AbstractTest {
         user = userDAO.findByUsername("vivaldi");
         assertEquals(1, user.getMemberships().size());
 
-        final UMembership newM = user.getMembership(groupDAO.findByName("additional").getKey()).get();
+        UMembership newM = user.getMembership(groupDAO.findByName("additional").getKey()).get();
         assertEquals(1, user.getPlainAttrs(newM).size());
 
         assertNull(user.getPlainAttr("obscure").get().getMembership());

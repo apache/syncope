@@ -175,6 +175,12 @@ public class JPAAnyObject
     }
 
     @Override
+    public boolean remove(final AMembership membership) {
+        checkType(membership, JPAAMembership.class);
+        return this.memberships.remove((JPAAMembership) membership);
+    }
+
+    @Override
     public List<? extends AMembership> getMemberships() {
         return memberships;
     }

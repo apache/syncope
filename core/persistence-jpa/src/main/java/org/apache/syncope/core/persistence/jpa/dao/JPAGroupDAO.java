@@ -54,6 +54,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
@@ -61,7 +62,6 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
@@ -73,15 +73,16 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@Repository
 public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     public static final String UDYNMEMB_TABLE = "UDynGroupMembers";
 
     public static final String ADYNMEMB_TABLE = "ADynGroupMembers";
+
+    @Autowired
+    private EntityFactory entityFactory;
 
     @Autowired
     private PlainAttrDAO plainAttrDAO;
@@ -100,11 +101,11 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     private AnySearchDAO jpaAnySearchDAO() {
         synchronized (this) {
             if (jpaAnySearchDAO == null) {
-                if (AopUtils.getTargetClass(searchDAO).equals(JPAAnySearchDAO.class)) {
+                if (AopUtils.getTargetClass(searchDAO).equals(entityFactory.anySearchDAOClass())) {
                     jpaAnySearchDAO = searchDAO;
                 } else {
-                    jpaAnySearchDAO = (AnySearchDAO) ApplicationContextProvider.getBeanFactory().
-                            createBean(JPAAnySearchDAO.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+                    jpaAnySearchDAO = (AnySearchDAO) ApplicationContextProvider.getBeanFactory().createBean(
+                            entityFactory.anySearchDAOClass(), AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
                 }
             }
         }
@@ -113,7 +114,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Override
     protected AnyUtils init() {
-        return new JPAAnyUtilsFactory().getInstance(AnyTypeKind.GROUP);
+        return anyUtilsFactory.getInstance(AnyTypeKind.GROUP);
     }
 
     @Transactional(readOnly = true)
@@ -131,14 +132,14 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public int count() {
         Query query = entityManager().createQuery(
-                "SELECT COUNT(e) FROM  " + JPAGroup.class.getSimpleName() + " e");
+                "SELECT COUNT(e) FROM  " + anyUtils().anyClass().getSimpleName() + " e");
         return ((Number) query.getSingleResult()).intValue();
     }
 
     @Override
     public Map<String, Integer> countByRealm() {
         Query query = entityManager().createQuery(
-                "SELECT e.realm, COUNT(e) FROM  " + JPAGroup.class.getSimpleName() + " e GROUP BY e.realm");
+                "SELECT e.realm, COUNT(e) FROM  " + anyUtils().anyClass().getSimpleName() + " e GROUP BY e.realm");
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -170,7 +171,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public Group findByName(final String name) {
         TypedQuery<Group> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAGroup.class.getSimpleName() + " e WHERE e.name = :name", Group.class);
+                "SELECT e FROM " + anyUtils().anyClass().getSimpleName() + " e WHERE e.name = :name", Group.class);
         query.setParameter("name", name);
 
         Group result = null;
@@ -191,7 +192,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             return Collections.<Group>emptyList();
         }
 
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(JPAGroup.class.getSimpleName()).
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(anyUtils().anyClass().getSimpleName()).
                 append(" e WHERE e.userOwner=:owner ");
         userDAO.findAllGroupKeys(owner).forEach(groupKey -> {
             queryString.append("OR e.groupOwner.id='").append(groupKey).append("' ");
@@ -212,7 +213,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         }
 
         TypedQuery<Group> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAGroup.class.getSimpleName() + " e WHERE e.groupOwner=:owner", Group.class);
+                "SELECT e FROM " + anyUtils().anyClass().getSimpleName() + " e WHERE e.groupOwner=:owner", Group.class);
         query.setParameter("owner", owner);
 
         return query.getResultList();
@@ -241,7 +242,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public List<Group> findAll(final int page, final int itemsPerPage) {
         TypedQuery<Group> query = entityManager().createQuery(
-                "SELECT e FROM  " + JPAGroup.class.getSimpleName() + " e ORDER BY e.id", Group.class);
+                "SELECT e FROM  " + anyUtils().anyClass().getSimpleName() + " e ORDER BY e.id", Group.class);
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
         query.setMaxResults(itemsPerPage);
 
@@ -324,7 +325,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
         findAMemberships(group).forEach(membership -> {
             AnyObject leftEnd = membership.getLeftEnd();
-            leftEnd.getMemberships().remove(membership);
+            leftEnd.remove(membership);
             membership.setRightEnd(null);
             leftEnd.getPlainAttrs(membership).stream().map(attr -> {
                 leftEnd.remove(attr);
@@ -339,7 +340,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
         findUMemberships(group).forEach(membership -> {
             User leftEnd = membership.getLeftEnd();
-            leftEnd.getMemberships().remove(membership);
+            leftEnd.remove(membership);
             membership.setRightEnd(null);
             leftEnd.getPlainAttrs(membership).stream().map(attr -> {
                 leftEnd.remove(attr);

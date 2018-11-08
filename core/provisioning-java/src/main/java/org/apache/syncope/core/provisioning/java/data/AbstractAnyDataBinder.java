@@ -296,14 +296,10 @@ abstract class AbstractAnyDataBinder {
                             && !patch.getAttrTO().getValues().isEmpty()
                             && !patch.getAttrTO().getValues().get(0).equals(attr.getUniqueValue().getValueAsString())) {
 
-                        plainAttrValueDAO.delete(attr.getUniqueValue().getKey(), anyUtils.plainAttrUniqueValueClass());
+                        plainAttrValueDAO.deleteAll(attr, anyUtils);
                     }
                 } else {
-                    Collection<String> valuesToBeRemoved = attr.getValues().stream().
-                            map(value -> value.getKey()).collect(Collectors.toSet());
-                    valuesToBeRemoved.forEach(attrValueKey -> {
-                        plainAttrValueDAO.delete(attrValueKey, anyUtils.plainAttrValueClass());
-                    });
+                    plainAttrValueDAO.deleteAll(attr, anyUtils);
                 }
 
                 // 1.2 add values
@@ -324,7 +320,7 @@ abstract class AbstractAnyDataBinder {
             case DELETE:
             default:
                 any.remove(attr);
-                plainAttrDAO.delete(attr.getKey(), anyUtils.plainAttrClass());
+                plainAttrDAO.delete(attr);
         }
 
         resources.stream().

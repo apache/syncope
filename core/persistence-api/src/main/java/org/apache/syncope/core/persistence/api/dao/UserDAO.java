@@ -27,6 +27,7 @@ import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface UserDAO extends AnyDAO<User> {
@@ -40,6 +41,8 @@ public interface UserDAO extends AnyDAO<User> {
     User findByToken(String token);
 
     List<User> findBySecurityQuestion(SecurityQuestion securityQuestion);
+
+    UMembership findMembership(String key);
 
     List<Role> findDynRoles(String key);
 

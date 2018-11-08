@@ -141,16 +141,16 @@ public class JPAAnyUtils implements AnyUtils {
 
         switch (anyTypeKind) {
             case GROUP:
-                result = entityFactory.newEntity(Group.class).getClass();
+                result = entityFactory.groupClass();
                 break;
 
             case ANY_OBJECT:
-                result = entityFactory.newEntity(AnyObject.class).getClass();
+                result = entityFactory.anyObjectClass();
                 break;
 
             case USER:
             default:
-                result = entityFactory.newEntity(User.class).getClass();
+                result = entityFactory.userClass();
         }
 
         return result;

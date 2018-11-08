@@ -37,7 +37,6 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -74,9 +73,6 @@ public class PlainSchemaTest extends AbstractTest {
     private DerSchemaDAO derSchemaDAO;
 
     @Autowired
-    private PlainAttrDAO plainAttrDAO;
-
-    @Autowired
     private ExternalResourceDAO resourceDAO;
 
     @BeforeAll
@@ -110,7 +106,7 @@ public class PlainSchemaTest extends AbstractTest {
             plainSchemaDAO.flush();
             fail("This should not happen");
         } catch (Exception e) {
-            assertTrue(e instanceof EntityExistsException);
+            assertTrue(e instanceof EntityExistsException || e.getCause() instanceof EntityExistsException);
         }
     }
 
@@ -173,8 +169,8 @@ public class PlainSchemaTest extends AbstractTest {
         }
         assertTrue(mapItems.isEmpty());
 
-        assertNull(plainAttrDAO.find("01f22fbd-b672-40af-b528-686d9b27ebc4", UPlainAttr.class));
-        assertNull(plainAttrDAO.find(UUID.randomUUID().toString(), UPlainAttr.class));
+        assertNull(findPlainAttr("01f22fbd-b672-40af-b528-686d9b27ebc4", UPlainAttr.class));
+        assertNull(findPlainAttr(UUID.randomUUID().toString(), UPlainAttr.class));
         assertFalse(userDAO.findByUsername("rossini").getPlainAttr("fullname").isPresent());
         assertFalse(userDAO.findByUsername("vivaldi").getPlainAttr("fullname").isPresent());
     }

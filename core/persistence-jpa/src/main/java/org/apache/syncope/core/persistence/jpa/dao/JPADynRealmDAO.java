@@ -27,6 +27,7 @@ import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.jpa.entity.JPADynRealm;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
@@ -48,6 +49,9 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
     private ApplicationEventPublisher publisher;
 
     @Autowired
+    private EntityFactory entityFactory;
+
+    @Autowired
     private AnySearchDAO searchDAO;
 
     private AnySearchDAO jpaAnySearchDAO;
@@ -55,11 +59,11 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
     private AnySearchDAO jpaAnySearchDAO() {
         synchronized (this) {
             if (jpaAnySearchDAO == null) {
-                if (AopUtils.getTargetClass(searchDAO).equals(JPAAnySearchDAO.class)) {
+                if (AopUtils.getTargetClass(searchDAO).equals(entityFactory.anySearchDAOClass())) {
                     jpaAnySearchDAO = searchDAO;
                 } else {
-                    jpaAnySearchDAO = (AnySearchDAO) ApplicationContextProvider.getBeanFactory().
-                            createBean(JPAAnySearchDAO.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+                    jpaAnySearchDAO = (AnySearchDAO) ApplicationContextProvider.getBeanFactory().createBean(
+                            entityFactory.anySearchDAOClass(), AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
                 }
             }
         }

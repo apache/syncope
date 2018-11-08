@@ -223,7 +223,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     private StringBuilder buildSelect(final OrderBySupport obs) {
-        StringBuilder select = new StringBuilder("SELECT u.any_id");
+        StringBuilder select = new StringBuilder("SELECT DISTINCT u.any_id");
 
         obs.items.forEach(item -> {
             select.append(',').append(item.select);

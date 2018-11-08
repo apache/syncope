@@ -47,6 +47,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
@@ -66,13 +67,16 @@ import org.springframework.transaction.annotation.Transactional;
 public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> implements AnyDAO<A> {
 
     @Autowired
+    protected AnyUtilsFactory anyUtilsFactory;
+
+    @Autowired
     protected ApplicationEventPublisher publisher;
 
     @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
+    protected PlainSchemaDAO plainSchemaDAO;
 
     @Autowired
-    private DerSchemaDAO derSchemaDAO;
+    protected DerSchemaDAO derSchemaDAO;
 
     @Autowired
     protected DynRealmDAO dynRealmDAO;

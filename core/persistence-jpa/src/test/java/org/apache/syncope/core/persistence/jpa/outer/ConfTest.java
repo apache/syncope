@@ -24,9 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrValue;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,12 +43,12 @@ public class ConfTest extends AbstractTest {
     private PlainSchemaDAO plainSchemaDAO;
 
     private void add(final CPlainAttr newAttr, final String value) {
-        JPACPlainAttrValue attrValue;
+        PlainAttrValue attrValue;
         if (newAttr.getSchema().isUniqueConstraint()) {
-            attrValue = new JPACPlainAttrValue();
+            attrValue = entityFactory.newEntity(CPlainAttrUniqueValue.class);
             ((PlainAttrUniqueValue) attrValue).setSchema(newAttr.getSchema());
         } else {
-            attrValue = new JPACPlainAttrValue();
+            attrValue = entityFactory.newEntity(CPlainAttrValue.class);
         }
         newAttr.add(value, attrValue);
     }
@@ -68,5 +70,4 @@ public class ConfTest extends AbstractTest {
         CPlainAttr actual = confDAO.find("token.expireTime").get();
         assertEquals(expireTime, actual);
     }
-
 }

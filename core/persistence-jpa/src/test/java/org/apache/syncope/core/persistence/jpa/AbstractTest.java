@@ -23,6 +23,10 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrValueDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -45,5 +49,13 @@ public abstract class AbstractTest {
         }
 
         return entityManager;
+    }
+
+    protected <T extends PlainAttr<?>> T findPlainAttr(final String key, final Class<T> reference) {
+        return reference.cast(entityManager().find(JPAPlainAttrDAO.getEntityReference(reference), key));
+    }
+
+    protected <T extends PlainAttrValue> T findPlainAttrValue(final String key, final Class<T> reference) {
+        return reference.cast(entityManager().find(JPAPlainAttrValueDAO.getEntityReference(reference), key));
     }
 }
