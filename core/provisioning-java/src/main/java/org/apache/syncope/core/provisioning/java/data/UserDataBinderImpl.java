@@ -412,7 +412,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         userPatch.getMemberships().stream().
                 filter(membPatch -> membPatch.getGroup() != null).forEachOrdered((membPatch) -> {
             user.getMembership(membPatch.getGroup()).ifPresent(membership -> {
-                user.getMemberships().remove(membership);
+                user.remove(membership);
                 membership.setLeftEnd(null);
                 user.getPlainAttrs(membership).forEach(attr -> {
                     user.remove(attr);

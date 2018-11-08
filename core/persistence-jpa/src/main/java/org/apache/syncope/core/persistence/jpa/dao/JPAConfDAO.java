@@ -22,9 +22,10 @@ import java.util.Optional;
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
-import org.apache.syncope.core.persistence.jpa.entity.conf.JPAConf;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,11 +34,14 @@ public class JPAConfDAO extends AbstractDAO<Conf> implements ConfDAO {
 
     private static final String KEY = "cd64d66f-6fff-4008-b966-a06b1cc1436d";
 
+    @Autowired
+    private EntityFactory entityFactory;
+
     @Override
     public Conf get() {
-        Conf instance = entityManager().find(JPAConf.class, KEY);
+        Conf instance = entityManager().find(entityFactory.confClass(), KEY);
         if (instance == null) {
-            instance = new JPAConf();
+            instance = entityFactory.newEntity(Conf.class);
             instance.setKey(KEY);
 
             instance = entityManager().merge(instance);

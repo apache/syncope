@@ -22,9 +22,11 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 
 public interface PlainAttrDAO extends DAO<PlainAttr<?>> {
 
-    <T extends PlainAttr<?>> T find(String key, Class<T> reference);
-
-    <T extends PlainAttr<?>> void delete(String key, Class<T> reference);
-
+    /**
+     * Deletes the given plain attribute and removes it from its owner.
+     *
+     * @param <T> actual plain attr class
+     * @param attr plain attribute
+     */
     <T extends PlainAttr<?>> void delete(T attr);
 }

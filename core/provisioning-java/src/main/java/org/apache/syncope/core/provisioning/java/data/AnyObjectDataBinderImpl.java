@@ -339,7 +339,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         anyObjectPatch.getMemberships().stream().
                 filter((membPatch) -> (membPatch.getGroup() != null)).forEachOrdered(membPatch -> {
             anyObject.getMembership(membPatch.getGroup()).ifPresent(membership -> {
-                anyObject.getMemberships().remove(membership);
+                anyObject.remove(membership);
                 membership.setLeftEnd(null);
                 anyObject.getPlainAttrs(membership).forEach(attr -> {
                     anyObject.remove(attr);

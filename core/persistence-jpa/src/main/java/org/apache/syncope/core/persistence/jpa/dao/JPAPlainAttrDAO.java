@@ -30,12 +30,10 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public class JPAPlainAttrDAO extends AbstractDAO<PlainAttr<?>> implements PlainAttrDAO {
 
-    public <T extends PlainAttr<?>> Class<? extends AbstractPlainAttr<?>> getEntityReference(
+    public static <T extends PlainAttr<?>> Class<? extends AbstractPlainAttr<?>> getEntityReference(
             final Class<T> reference) {
 
         return CPlainAttr.class.isAssignableFrom(reference)
@@ -47,21 +45,6 @@ public class JPAPlainAttrDAO extends AbstractDAO<PlainAttr<?>> implements PlainA
                 : UPlainAttr.class.isAssignableFrom(reference)
                 ? JPAUPlainAttr.class
                 : null;
-    }
-
-    @Override
-    public <T extends PlainAttr<?>> T find(final String key, final Class<T> reference) {
-        return reference.cast(entityManager().find(getEntityReference(reference), key));
-    }
-
-    @Override
-    public <T extends PlainAttr<?>> void delete(final String key, final Class<T> reference) {
-        T attribute = find(key, reference);
-        if (attribute == null) {
-            return;
-        }
-
-        delete(attribute);
     }
 
     @Override

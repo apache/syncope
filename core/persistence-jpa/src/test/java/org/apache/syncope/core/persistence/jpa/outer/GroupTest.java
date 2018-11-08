@@ -38,8 +38,6 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntit
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -82,12 +80,6 @@ public class GroupTest extends AbstractTest {
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
-
-    @Autowired
-    private PlainAttrDAO plainAttrDAO;
-
-    @Autowired
-    private PlainAttrValueDAO plainAttrValueDAO;
 
     @Autowired
     private AnyTypeClassDAO anyTypeClassDAO;
@@ -169,10 +161,8 @@ public class GroupTest extends AbstractTest {
 
         assertNull(groupDAO.find("b1f7c12d-ec83-441f-a50e-1691daaedf3b"));
         assertEquals(userDAO.findAllGroups(userDAO.findByUsername("verdi")).size(), 2);
-        assertNull(plainAttrDAO.find(
-                "f82fc61f-8e74-4a4b-9f9e-b8a41f38aad9", GPlainAttr.class));
-        assertNull(plainAttrValueDAO.find(
-                "49f35879-2510-4f11-a901-24152f753538", GPlainAttrValue.class));
+        assertNull(findPlainAttr("f82fc61f-8e74-4a4b-9f9e-b8a41f38aad9", GPlainAttr.class));
+        assertNull(findPlainAttrValue("49f35879-2510-4f11-a901-24152f753538", GPlainAttrValue.class));
         assertNotNull(plainSchemaDAO.find("icon"));
     }
 

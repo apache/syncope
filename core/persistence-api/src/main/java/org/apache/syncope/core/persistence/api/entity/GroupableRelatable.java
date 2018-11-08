@@ -83,6 +83,8 @@ public interface GroupableRelatable<
 
     boolean add(M membership);
 
+    boolean remove(M membership);
+
     Optional<? extends M> getMembership(String groupKey);
 
     List<? extends M> getMemberships();
@@ -96,5 +98,4 @@ public interface GroupableRelatable<
     Collection<? extends REL> getRelationships(RelationshipType relationshipType);
 
     List<? extends REL> getRelationships();
-
 }

@@ -164,7 +164,7 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     @Override
     public boolean remove(final GPlainAttr attr) {
         checkType(attr, JPAGPlainAttr.class);
-        return plainAttrs.remove((JPAGPlainAttr) attr);
+        return getPlainAttrs().remove((JPAGPlainAttr) attr);
     }
 
     @Override
@@ -236,5 +236,4 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     public List<? extends TypeExtension> getTypeExtensions() {
         return typeExtensions;
     }
-
 }

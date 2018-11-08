@@ -25,32 +25,31 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 public class PlainAttrValidator extends AbstractValidator<PlainAttrCheck, PlainAttr<?>> {
 
     @Override
-    public boolean isValid(final PlainAttr<?> object, final ConstraintValidatorContext context) {
-        boolean isValid;
+    public boolean isValid(final PlainAttr<?> attr, final ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
 
-        if (object == null) {
+        boolean isValid;
+        if (attr == null) {
             isValid = true;
         } else {
-            if (object.getSchema().isUniqueConstraint()) {
-                isValid = object.getValues().isEmpty() && object.getUniqueValue() != null;
+            if (attr.getSchema().isUniqueConstraint()) {
+                isValid = attr.getValues().isEmpty() && attr.getUniqueValue() != null;
             } else {
-                isValid = !object.getValues().isEmpty() && object.getUniqueValue() == null;
+                isValid = !attr.getValues().isEmpty() && attr.getUniqueValue() == null;
 
-                if (!object.getSchema().isMultivalue()) {
-                    isValid &= object.getValues().size() == 1;
+                if (!attr.getSchema().isMultivalue()) {
+                    isValid &= attr.getValues().size() == 1;
                 }
             }
 
             if (!isValid) {
-                LOG.error("Invalid values for attribute " + object + ": " + "schema=" + object.getSchema().getKey()
-                        + ", values={}", object.getValuesAsStrings());
-
-                context.disableDefaultConstraintViolation();
+                LOG.error("Invalid values for attribute " + attr + ": "
+                        + "schema=" + attr.getSchema().getKey() + ", values={}", attr.getValuesAsStrings());
 
                 context.buildConstraintViolationWithTemplate(
                         getTemplate(EntityViolationType.InvalidValueList,
-                                "Invalid values " + object.getValuesAsStrings())).
-                        addPropertyNode(object.getSchema().getKey()).addConstraintViolation();
+                                "Invalid values " + attr.getValuesAsStrings())).
+                        addPropertyNode(attr.getSchema().getKey()).addConstraintViolation();
             }
         }
 

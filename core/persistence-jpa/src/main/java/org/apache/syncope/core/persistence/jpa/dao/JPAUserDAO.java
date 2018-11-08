@@ -61,19 +61,18 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@Repository
 public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     private static final Pattern USERNAME_PATTERN =
@@ -101,7 +100,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Override
     protected AnyUtils init() {
-        return new JPAAnyUtilsFactory().getInstance(AnyTypeKind.USER);
+        return anyUtilsFactory.getInstance(AnyTypeKind.USER);
     }
 
     @Transactional(readOnly = true)
@@ -119,14 +118,14 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Override
     public int count() {
         Query query = entityManager().createQuery(
-                "SELECT COUNT(e) FROM  " + JPAUser.class.getSimpleName() + " e");
+                "SELECT COUNT(e) FROM  " + anyUtils().anyClass().getSimpleName() + " e");
         return ((Number) query.getSingleResult()).intValue();
     }
 
     @Override
     public Map<String, Integer> countByRealm() {
         Query query = entityManager().createQuery(
-                "SELECT e.realm, COUNT(e) FROM  " + JPAUser.class.getSimpleName() + " e GROUP BY e.realm");
+                "SELECT e.realm, COUNT(e) FROM  " + anyUtils().anyClass().getSimpleName() + " e GROUP BY e.realm");
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -138,7 +137,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Override
     public Map<String, Integer> countByStatus() {
         Query query = entityManager().createQuery(
-                "SELECT e.status, COUNT(e) FROM  " + JPAUser.class.getSimpleName() + " e GROUP BY e.status");
+                "SELECT e.status, COUNT(e) FROM  " + anyUtils().anyClass().getSimpleName() + " e GROUP BY e.status");
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -174,7 +173,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Override
     public User findByUsername(final String username) {
-        TypedQuery<User> query = entityManager().createQuery("SELECT e FROM " + JPAUser.class.getSimpleName()
+        TypedQuery<User> query = entityManager().createQuery(
+                "SELECT e FROM " + anyUtils().anyClass().getSimpleName()
                 + " e WHERE e.username = :username", User.class);
         query.setParameter("username", username);
 
@@ -190,7 +190,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Override
     public User findByToken(final String token) {
-        TypedQuery<User> query = entityManager().createQuery("SELECT e FROM " + JPAUser.class.getSimpleName()
+        TypedQuery<User> query = entityManager().createQuery(
+                "SELECT e FROM " + anyUtils().anyClass().getSimpleName()
                 + " e WHERE e.token LIKE :token", User.class);
         query.setParameter("token", token);
 
@@ -206,11 +207,17 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Override
     public List<User> findBySecurityQuestion(final SecurityQuestion securityQuestion) {
-        TypedQuery<User> query = entityManager().createQuery("SELECT e FROM " + JPAUser.class.getSimpleName()
+        TypedQuery<User> query = entityManager().createQuery(
+                "SELECT e FROM " + anyUtils().anyClass().getSimpleName()
                 + " e WHERE e.securityQuestion = :securityQuestion", User.class);
         query.setParameter("securityQuestion", securityQuestion);
 
         return query.getResultList();
+    }
+
+    @Override
+    public UMembership findMembership(final String key) {
+        return entityManager().find(JPAUMembership.class, key);
     }
 
     private List<PasswordPolicy> getPasswordPolicies(final User user) {
@@ -240,7 +247,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Override
     public List<User> findAll(final int page, final int itemsPerPage) {
         TypedQuery<User> query = entityManager().createQuery(
-                "SELECT e FROM  " + JPAUser.class.getSimpleName() + " e ORDER BY e.id", User.class);
+                "SELECT e FROM  " + anyUtils().anyClass().getSimpleName() + " e ORDER BY e.id", User.class);
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
         query.setMaxResults(itemsPerPage);
 

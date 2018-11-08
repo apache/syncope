@@ -44,23 +44,22 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@Repository
 public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObjectDAO {
 
     @Autowired
@@ -71,7 +70,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
 
     @Override
     protected AnyUtils init() {
-        return new JPAAnyUtilsFactory().getInstance(AnyTypeKind.ANY_OBJECT);
+        return anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
     }
 
     @Transactional(readOnly = true)
@@ -89,7 +88,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Override
     public Map<AnyType, Integer> countByType() {
         Query query = entityManager().createQuery(
-                "SELECT e.type, COUNT(e) AS countByType FROM  " + JPAAnyObject.class.getSimpleName() + " e "
+                "SELECT e.type, COUNT(e) AS countByType FROM  " + anyUtils().anyClass().getSimpleName() + " e "
                 + "GROUP BY e.type ORDER BY countByType DESC");
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -105,7 +104,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Override
     public Map<String, Integer> countByRealm(final AnyType anyType) {
         Query query = entityManager().createQuery(
-                "SELECT e.realm, COUNT(e) FROM  " + JPAAnyObject.class.getSimpleName() + " e "
+                "SELECT e.realm, COUNT(e) FROM  " + anyUtils().anyClass().getSimpleName() + " e "
                 + "WHERE e.type=:type GROUP BY e.realm");
         query.setParameter("type", anyType);
 
@@ -138,7 +137,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Override
     public AnyObject findByName(final String name) {
         TypedQuery<AnyObject> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAAnyObject.class.getSimpleName() + " e WHERE e.name = :name", AnyObject.class);
+                "SELECT e FROM " + anyUtils().anyClass().getSimpleName() + " e WHERE e.name = :name", AnyObject.class);
         query.setParameter("name", name);
 
         AnyObject result = null;
@@ -149,6 +148,11 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         }
 
         return result;
+    }
+
+    @Override
+    public AMembership findMembership(final String key) {
+        return entityManager().find(JPAAMembership.class, key);
     }
 
     @Override
@@ -177,14 +181,14 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Override
     public int count() {
         Query query = entityManager().createQuery(
-                "SELECT COUNT(e) FROM  " + JPAAnyObject.class.getSimpleName() + " e");
+                "SELECT COUNT(e) FROM  " + anyUtils().anyClass().getSimpleName() + " e");
         return ((Number) query.getSingleResult()).intValue();
     }
 
     @Override
     public List<AnyObject> findAll(final int page, final int itemsPerPage) {
         TypedQuery<AnyObject> query = entityManager().createQuery(
-                "SELECT e FROM  " + JPAAnyObject.class.getSimpleName() + " e ORDER BY e.id", AnyObject.class);
+                "SELECT e FROM  " + anyUtils().anyClass().getSimpleName() + " e ORDER BY e.id", AnyObject.class);
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
         query.setMaxResults(itemsPerPage);
 
@@ -308,5 +312,4 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     public Collection<String> findAllResourceKeys(final String key) {
         return findAllResources(authFind(key)).stream().map(resource -> resource.getKey()).collect(Collectors.toList());
     }
-
 }

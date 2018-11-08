@@ -27,56 +27,55 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 public class PlainAttrValueValidator extends AbstractValidator<PlainAttrValueCheck, PlainAttrValue> {
 
     @Override
-    public boolean isValid(final PlainAttrValue object, final ConstraintValidatorContext context) {
-        boolean isValid;
+    public boolean isValid(final PlainAttrValue value, final ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
 
-        if (object == null) {
+        boolean isValid;
+        if (value == null) {
             isValid = true;
         } else {
             int nonNullVales = 0;
-            if (object.getBooleanValue() != null) {
+            if (value.getBooleanValue() != null) {
                 nonNullVales++;
             }
-            if (object.getDateValue() != null) {
+            if (value.getDateValue() != null) {
                 nonNullVales++;
             }
-            if (object.getDoubleValue() != null) {
+            if (value.getDoubleValue() != null) {
                 nonNullVales++;
             }
-            if (object.getLongValue() != null) {
+            if (value.getLongValue() != null) {
                 nonNullVales++;
             }
-            if (object.getBinaryValue() != null) {
+            if (value.getBinaryValue() != null) {
                 nonNullVales++;
             }
-            if (object.getStringValue() != null) {
+            if (value.getStringValue() != null) {
                 nonNullVales++;
             }
             isValid = nonNullVales == 1;
 
             if (!isValid) {
-                LOG.error("More than one non-null value for " + object);
+                LOG.error("More than one non-null value for " + value);
 
-                context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
                         getTemplate(EntityViolationType.MoreThanOneNonNull, "More than one non-null value found")).
-                        addPropertyNode(object.getClass().getSimpleName().replaceAll("\\n", " ")).
+                        addPropertyNode(value.getClass().getSimpleName().replaceAll("\\n", " ")).
                         addConstraintViolation();
 
-            } else if (object instanceof PlainAttrUniqueValue) {
-                PlainSchema uniqueValueSchema = ((PlainAttrUniqueValue) object).getSchema();
-                PlainSchema attrSchema = object.getAttr().getSchema();
+            } else if (value instanceof PlainAttrUniqueValue) {
+                PlainSchema uniqueValueSchema = ((PlainAttrUniqueValue) value).getSchema();
+                PlainSchema attrSchema = value.getAttr().getSchema();
 
                 isValid = uniqueValueSchema.equals(attrSchema);
 
                 if (!isValid) {
-                    LOG.error("Unique value schema for " + object.getClass().getSimpleName() + "[" + object.getKey()
-                            + "]" + " is " + uniqueValueSchema + ", while owning attribute schema is " + attrSchema);
+                    LOG.error("Unique value schema for " + value + " is " + uniqueValueSchema
+                            + ", while owning attribute's schema is " + attrSchema);
 
-                    context.disableDefaultConstraintViolation();
                     context.buildConstraintViolationWithTemplate(getTemplate(EntityViolationType.InvalidPlainAttr,
                             "Unique value schema is " + uniqueValueSchema
-                            + ", while owning attribute schema is " + attrSchema)).addPropertyNode("schema").
+                            + ", while owning attribute's schema is " + attrSchema)).addPropertyNode("schema").
                             addConstraintViolation();
                 }
             }

@@ -37,6 +37,7 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,6 +74,7 @@ public class PlainSchemaTest extends AbstractTest {
         assertFalse(schema.getLabel(Locale.KOREAN).isPresent());
     }
 
+    @Tag("plainAttrTable")
     @Test
     public void findAttrs() {
         PlainSchema schema = plainSchemaDAO.find("icon");

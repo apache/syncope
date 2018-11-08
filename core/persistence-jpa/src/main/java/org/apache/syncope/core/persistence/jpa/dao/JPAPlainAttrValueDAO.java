@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.List;
-import javax.persistence.TypedQuery;
+import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrValue;
@@ -40,13 +41,11 @@ import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueV
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public class JPAPlainAttrValueDAO extends AbstractDAO<PlainAttrValue> implements PlainAttrValueDAO {
 
     @SuppressWarnings("unchecked")
-    private <T extends PlainAttrValue> Class<? extends AbstractPlainAttrValue> getEntityReference(
+    public static <T extends PlainAttrValue> Class<? extends AbstractPlainAttrValue> getEntityReference(
             final Class<T> reference) {
 
         return AbstractPlainAttrValue.class.isAssignableFrom(reference)
@@ -71,37 +70,19 @@ public class JPAPlainAttrValueDAO extends AbstractDAO<PlainAttrValue> implements
     }
 
     @Override
-    public <T extends PlainAttrValue> T find(final String key, final Class<T> reference) {
-        return reference.cast(entityManager().find(getEntityReference(reference), key));
-    }
-
-    @Override
-    public <T extends PlainAttrValue> List<T> findAll(final Class<T> reference) {
-        TypedQuery<T> query = entityManager().createQuery(
-                "SELECT e FROM " + getEntityReference(reference).getSimpleName() + " e", reference);
-        return query.getResultList();
-    }
-
-    @Override
-    public <T extends PlainAttrValue> T save(final T attributeValue) {
-        return entityManager().merge(attributeValue);
-    }
-
-    @Override
-    public <T extends PlainAttrValue> void delete(final String key, final Class<T> reference) {
-        T attrValue = find(key, reference);
-        if (attrValue == null) {
-            return;
+    public void deleteAll(final PlainAttr<?> attr, final AnyUtils anyUtils) {
+        if (attr.getUniqueValue() == null) {
+            attr.getValues().stream().map(Entity::getKey).collect(Collectors.toSet()).forEach(attrValueKey -> {
+                PlainAttrValue attrValue = anyUtils.plainAttrValueClass().cast(
+                        entityManager().find(getEntityReference(anyUtils.plainAttrValueClass()), attrValueKey));
+                if (attrValue != null) {
+                    entityManager().remove(attrValue);
+                    attr.getValues().remove(attrValue);
+                }
+            });
+        } else {
+            entityManager().remove(attr.getUniqueValue());
+            attr.setUniqueValue(null);
         }
-
-        if (attrValue.getAttr() != null) {
-            if (attrValue instanceof PlainAttrUniqueValue) {
-                attrValue.getAttr().setUniqueValue(null);
-            } else {
-                attrValue.getAttr().getValues().remove(attrValue);
-            }
-        }
-
-        entityManager().remove(attrValue);
     }
 }

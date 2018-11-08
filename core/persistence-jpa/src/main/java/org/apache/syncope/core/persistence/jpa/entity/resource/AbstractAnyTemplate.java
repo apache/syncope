@@ -25,9 +25,10 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 
 @MappedSuperclass
 public abstract class AbstractAnyTemplate extends AbstractGeneratedKeyEntity implements AnyTemplate {
@@ -56,7 +57,8 @@ public abstract class AbstractAnyTemplate extends AbstractGeneratedKeyEntity imp
         return template == null
                 ? anyType == null
                         ? null
-                        : new JPAAnyUtilsFactory().getInstance(anyType.getKind()).newAnyTO()
+                        : ApplicationContextProvider.getApplicationContext().getBean(AnyUtilsFactory.class).
+                                getInstance(anyType.getKind()).newAnyTO()
                 : anyType == null
                         ? null
                         : POJOHelper.deserialize(template, anyType.getKind().getTOClass());
@@ -70,5 +72,4 @@ public abstract class AbstractAnyTemplate extends AbstractGeneratedKeyEntity imp
             this.template = POJOHelper.serialize(template);
         }
     }
-
 }

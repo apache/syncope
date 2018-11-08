@@ -22,13 +22,14 @@ import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 
 @SuppressWarnings("rawtypes")
 public class AnyValidator extends AbstractValidator<AnyCheck, Any> {
@@ -57,8 +58,9 @@ public class AnyValidator extends AbstractValidator<AnyCheck, Any> {
         context.disableDefaultConstraintViolation();
 
         if (!(any instanceof Conf)) {
-            AllowedSchemas<PlainSchema> allowedPlainSchemas = new JPAAnyUtilsFactory().
-                    getInstance(any.getType().getKind()).dao().findAllowedSchemas(any, PlainSchema.class);
+            AllowedSchemas<PlainSchema> allowedPlainSchemas =
+                    ApplicationContextProvider.getApplicationContext().getBean(AnyUtilsFactory.class).
+                            getInstance(any.getType().getKind()).dao().findAllowedSchemas(any, PlainSchema.class);
 
             for (PlainAttr<?> attr : ((Any<?>) any).getPlainAttrs()) {
                 if (attr != null && !allowedPlainSchemas.forSelfContains(attr.getSchema().getKey())) {

@@ -18,18 +18,23 @@
  */
 package org.apache.syncope.core.persistence.jpa.outer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+@Tag("plainAttrTable")
 @Transactional("Master")
 public class PlainAttrTest extends AbstractTest {
 
@@ -40,30 +45,31 @@ public class PlainAttrTest extends AbstractTest {
     private PlainAttrValueDAO plainAttrValueDAO;
 
     @Test
-    public void deleteAttribute() {
-        plainAttrDAO.delete("35f407a2-d254-4890-9e45-5a7dd8c8df7d", UPlainAttr.class);
+    public void deleteAttr() {
+        plainAttrDAO.delete(findPlainAttr("35f407a2-d254-4890-9e45-5a7dd8c8df7d", UPlainAttr.class));
 
         plainAttrDAO.flush();
 
-        assertNull(plainAttrDAO.find("35f407a2-d254-4890-9e45-5a7dd8c8df7d", UPlainAttr.class));
-        assertNull(
-                plainAttrValueDAO.find("0c67225a-030a-4c56-b337-17cf7a311f0f", UPlainAttrValue.class));
+        assertNull(findPlainAttr("35f407a2-d254-4890-9e45-5a7dd8c8df7d", UPlainAttr.class));
+        assertNull(findPlainAttrValue("0c67225a-030a-4c56-b337-17cf7a311f0f", UPlainAttrValue.class));
     }
 
     @Test
-    public void deleteAttributeValue() {
-        UPlainAttrValue value = plainAttrValueDAO.find(
-                "7034de3b-3687-4db5-8454-363468f1a9de", UPlainAttrValue.class);
-        int attributeValueNumber = value.getAttr().getValues().size();
+    public void deleteAllAttValues() {
+        UPlainAttrValue value = findPlainAttrValue("7034de3b-3687-4db5-8454-363468f1a9de", UPlainAttrValue.class);
+        assertNotNull(value);
 
-        plainAttrValueDAO.delete(value.getKey(), UPlainAttrValue.class);
+        plainAttrValueDAO.deleteAll(value.getAttr(), anyUtilsFactory.getInstance(AnyTypeKind.USER));
 
-        plainAttrValueDAO.flush();
+        value = findPlainAttrValue("7034de3b-3687-4db5-8454-363468f1a9de", UPlainAttrValue.class);
+        assertNull(value);
 
-        assertNull(plainAttrValueDAO.find(value.getKey(), UPlainAttrValue.class));
-
-        UPlainAttr attribute = plainAttrDAO.find(
-                "9d0d9e40-1b18-488e-9482-37dab82163c9", UPlainAttr.class);
-        assertEquals(attribute.getValues().size(), attributeValueNumber - 1);
+        // by removing all values, the related attribute is not valid any more
+        try {
+            plainAttrValueDAO.flush();
+            fail();
+        } catch (InvalidEntityException e) {
+            assertNotNull(e);
+        }
     }
 }

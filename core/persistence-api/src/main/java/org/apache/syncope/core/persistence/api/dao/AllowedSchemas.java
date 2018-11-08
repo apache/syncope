@@ -99,6 +99,5 @@ public class AllowedSchemas<S extends Schema> {
         public boolean test(final S object) {
             return object.getKey().equals(schema);
         }
-
     }
 }

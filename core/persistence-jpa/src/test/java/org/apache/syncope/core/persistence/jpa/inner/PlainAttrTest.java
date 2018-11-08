@@ -41,6 +41,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,17 +58,19 @@ public class PlainAttrTest extends AbstractTest {
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
 
+    @Tag("plainAttrTable")
     @Test
     public void findByKey() {
-        UPlainAttr attribute = plainAttrDAO.find("01f22fbd-b672-40af-b528-686d9b27ebc4", UPlainAttr.class);
+        UPlainAttr attribute = findPlainAttr("01f22fbd-b672-40af-b528-686d9b27ebc4", UPlainAttr.class);
         assertNotNull(attribute);
-        attribute = plainAttrDAO.find("9d0d9e40-1b18-488e-9482-37dab82163c9", UPlainAttr.class);
+        attribute = findPlainAttr("9d0d9e40-1b18-488e-9482-37dab82163c9", UPlainAttr.class);
         assertNotNull(attribute);
     }
 
+    @Tag("plainAttrTable")
     @Test
     public void read() {
-        UPlainAttr attribute = plainAttrDAO.find("01f22fbd-b672-40af-b528-686d9b27ebc4", UPlainAttr.class);
+        UPlainAttr attribute = findPlainAttr("01f22fbd-b672-40af-b528-686d9b27ebc4", UPlainAttr.class);
         assertNotNull(attribute);
         assertTrue(attribute.getValues().isEmpty());
         assertNotNull(attribute.getUniqueValue());
@@ -136,7 +139,36 @@ public class PlainAttrTest extends AbstractTest {
     }
 
     @Test
-    public void validateAndSave() {
+    public void invalidValueList() {
+        User user = userDAO.find("1417acbe-cbf6-4277-9372-e75e04f97000");
+
+        PlainSchema emailSchema = plainSchemaDAO.find("email");
+        assertNotNull(emailSchema);
+
+        PlainSchema fullnameSchema = plainSchemaDAO.find("fullname");
+        assertNotNull(fullnameSchema);
+
+        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
+        attr.setOwner(user);
+        attr.setSchema(emailSchema);
+
+        user.add(attr);
+
+        InvalidEntityException iee = null;
+        try {
+            userDAO.save(user);
+            fail("This should not happen");
+        } catch (InvalidEntityException e) {
+            iee = e;
+        }
+        assertNotNull(iee);
+        // for attr because no values are set
+        assertTrue(iee.hasViolation(EntityViolationType.InvalidValueList));
+    }
+
+    @Tag("plainAttrTable")
+    @Test
+    public void invalidPlainAttr() {
         User user = userDAO.find("1417acbe-cbf6-4277-9372-e75e04f97000");
 
         PlainSchema emailSchema = plainSchemaDAO.find("email");
@@ -166,9 +198,9 @@ public class PlainAttrTest extends AbstractTest {
             iee = e;
         }
         assertNotNull(iee);
-        // for attribute
+        // for attr because no values are set
         assertTrue(iee.hasViolation(EntityViolationType.InvalidValueList));
-        // for uauv
+        // for uauv because uauv.schema and uauv.attr.schema are different
         assertTrue(iee.hasViolation(EntityViolationType.InvalidPlainAttr));
     }
 
@@ -222,13 +254,13 @@ public class PlainAttrTest extends AbstractTest {
         assertTrue(Arrays.equals(bytes, photo.getValues().get(0).getBinaryValue()));
     }
 
+    @Tag("plainAttrTable")
     @Test
     public void delete() {
-        UPlainAttr attribute = plainAttrDAO.find(
-                "9d0d9e40-1b18-488e-9482-37dab82163c9", UPlainAttr.class);
+        UPlainAttr attribute = findPlainAttr("9d0d9e40-1b18-488e-9482-37dab82163c9", UPlainAttr.class);
         String attrSchemaName = attribute.getSchema().getKey();
 
-        plainAttrDAO.delete(attribute.getKey(), UPlainAttr.class);
+        plainAttrDAO.delete(attribute);
 
         PlainSchema schema = plainSchemaDAO.find(attrSchemaName);
         assertNotNull(schema);

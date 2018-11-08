@@ -59,12 +59,12 @@ public class JPAConf extends AbstractProvidedKeyEntity implements Conf {
     @Override
     public boolean remove(final CPlainAttr attr) {
         checkType(attr, JPACPlainAttr.class);
-        return plainAttrs.remove((JPACPlainAttr) attr);
+        return getPlainAttrs().remove((JPACPlainAttr) attr);
     }
 
     @Override
     public Optional<? extends CPlainAttr> getPlainAttr(final String plainSchema) {
-        return plainAttrs.stream().filter(plainAttr
+        return getPlainAttrs().stream().filter(plainAttr
                 -> plainAttr != null && plainAttr.getSchema() != null
                 && plainSchema.equals(plainAttr.getSchema().getKey())).findFirst();
     }

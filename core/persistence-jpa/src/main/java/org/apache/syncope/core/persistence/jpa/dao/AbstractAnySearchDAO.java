@@ -353,17 +353,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             return Collections.<T>emptyList();
         }
 
-        List<OrderByClause> effectiveOrderBy;
-        if (orderBy.isEmpty()) {
-            OrderByClause keyClause = new OrderByClause();
-            keyClause.setField("key");
-            keyClause.setDirection(OrderByClause.Direction.ASC);
-            effectiveOrderBy = Collections.singletonList(keyClause);
-        } else {
-            effectiveOrderBy = orderBy;
-        }
-
-        return doSearch(adminRealms, cond, page, itemsPerPage, effectiveOrderBy, kind);
+        return doSearch(adminRealms, cond, page, itemsPerPage, orderBy, kind);
     }
 
     @Override

@@ -454,6 +454,12 @@ public class JPAUser
     }
 
     @Override
+    public boolean remove(final UMembership membership) {
+        checkType(membership, JPAUMembership.class);
+        return this.memberships.remove((JPAUMembership) membership);
+    }
+
+    @Override
     public List<? extends UMembership> getMemberships() {
         return memberships;
     }
