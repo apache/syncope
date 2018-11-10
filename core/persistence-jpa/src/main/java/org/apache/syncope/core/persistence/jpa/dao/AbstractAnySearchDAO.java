@@ -136,12 +136,6 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         return search(SyncopeConstants.FULL_ADMIN_REALMS, cond, -1, -1, orderBy, kind);
     }
 
-    protected List<OrderByClause> filterOrderBy(final List<OrderByClause> orderBy) {
-        return orderBy.stream().
-                filter(clause -> !ArrayUtils.contains(ORDER_BY_NOT_ALLOWED, clause.getField())).
-                collect(Collectors.toList());
-    }
-
     protected abstract <T extends Any<?>> List<T> doSearch(
             Set<String> adminRealms,
             SearchCond searchCondition,
@@ -353,7 +347,19 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             return Collections.<T>emptyList();
         }
 
-        return doSearch(adminRealms, cond, page, itemsPerPage, orderBy, kind);
+        List<OrderByClause> effectiveOrderBy;
+        if (orderBy.isEmpty()) {
+            OrderByClause keyClause = new OrderByClause();
+            keyClause.setField(kind == AnyTypeKind.USER ? "username" : "name");
+            keyClause.setDirection(OrderByClause.Direction.ASC);
+            effectiveOrderBy = Collections.singletonList(keyClause);
+        } else {
+            effectiveOrderBy = orderBy.stream().
+                    filter(clause -> !ArrayUtils.contains(ORDER_BY_NOT_ALLOWED, clause.getField())).
+                    collect(Collectors.toList());;
+        }
+
+        return doSearch(adminRealms, cond, page, itemsPerPage, effectiveOrderBy, kind);
     }
 
     @Override

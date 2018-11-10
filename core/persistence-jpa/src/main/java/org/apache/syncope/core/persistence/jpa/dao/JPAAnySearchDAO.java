@@ -326,7 +326,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         OrderBySupport obs = new OrderBySupport();
 
-        filterOrderBy(orderBy).forEach(clause -> {
+        orderBy.forEach(clause -> {
             OrderBySupport.Item item = new OrderBySupport.Item();
 
             if (anyUtils.getField(clause.getField()) == null) {
