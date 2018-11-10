@@ -356,7 +356,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         } else {
             effectiveOrderBy = orderBy.stream().
                     filter(clause -> !ArrayUtils.contains(ORDER_BY_NOT_ALLOWED, clause.getField())).
-                    collect(Collectors.toList());;
+                    collect(Collectors.toList());
         }
 
         return doSearch(adminRealms, cond, page, itemsPerPage, effectiveOrderBy, kind);
