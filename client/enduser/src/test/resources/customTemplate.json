@@ -27,7 +27,25 @@
                         "css/passwordReset.css",
                         "css/templates/dark/editUser.css"
                       ]
-                    }            
+                    },
+            "must_change_password":
+                    {
+                      "templateUrl": "views/templates/mustChangePasswordTemplate.html",
+                      "css": [
+                        "css/editUser.css",
+                        "css/passwordReset.css",
+                        "css/templates/dark/editUser.css"
+                      ]
+                    },
+            "confirm_password_reset":
+                    {
+                      "templateUrl": "views/templates/confirmPasswordResetTemplate.html",
+                      "css": [
+                        "css/editUser.css",
+                        "css/passwordReset.css",
+                        "css/templates/dark/editUser.css"
+                      ]
+                    }
           },
 
   "generalAssets": 
