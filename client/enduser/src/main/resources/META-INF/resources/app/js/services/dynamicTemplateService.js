@@ -45,17 +45,17 @@ angular.module('SyncopeEnduserApp')
             };
 
             dynTemplateService.getContent = function () {
-              return $http
-                      .get(dynTemplateUrl)
-                      .then(function (response) {
+              return $http.
+                      get(dynTemplateUrl).
+                      then(function (response) {
                         return response.data;
                       }, error);
             };
 
             dynTemplateService.getGeneralAssetsContent = function (types) {
-              return $http
-                      .get(dynTemplateUrl)
-                      .then(function (response) {
+              return $http.
+                      get(dynTemplateUrl).
+                      then(function (response) {
                         return loadAssets("generalAssets", response.data, types);
                       }, error);
             };

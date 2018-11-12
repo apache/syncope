@@ -24,6 +24,22 @@
                         "css/editUser.css",
                         "css/passwordReset.css"
                       ]
+                    },
+            "must_change_password":
+                    {
+                      "templateUrl": "views/templates/mustChangePasswordTemplate.html",
+                      "css": [
+                        "css/editUser.css",
+                        "css/passwordReset.css"
+                      ]
+                    },
+            "confirm_password_reset":
+                    {
+                      "templateUrl": "views/templates/confirmPasswordResetTemplate.html",
+                      "css": [
+                        "css/editUser.css",
+                        "css/passwordReset.css"
+                      ]
                     }
           },
 

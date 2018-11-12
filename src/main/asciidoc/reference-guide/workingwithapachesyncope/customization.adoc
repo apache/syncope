@@ -889,6 +889,22 @@ The `customTemplate.json` default content is:
                         "css/editUser.css",
                         "css/passwordReset.css"
                       ]
+                    },
+            "must_change_password":
+                    {
+                      "templateUrl": "views/templates/mustChangePasswordTemplate.html",
+                      "css": [
+                        "css/editUser.css",
+                        "css/passwordReset.css"
+                      ]
+                    },
+            "confirm_password_reset":
+                    {
+                      "templateUrl": "views/templates/confirmPasswordResetTemplate.html",
+                      "css": [
+                        "css/editUser.css",
+                        "css/passwordReset.css"
+                      ]
                     }
           },
 
@@ -1010,7 +1026,17 @@ The structure of the template sections is defined by `templateUrl` property, for
         "password_reset":
                 {
                   "templateUrl": "views/templates/passwordresetTemplate.html",
-                },          
+                },
+
+        "must_change_password":
+                {
+                  "templateUrl": "views/templates/mustChangePasswordTemplate.html",
+                },
+
+        "confirm_password_reset":
+                {
+                  "templateUrl": "views/templates/confirmPasswordResetTemplate.html",
+                }
         },
 ```
 
