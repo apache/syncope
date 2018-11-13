@@ -550,17 +550,21 @@ SyncopeClientFactoryBean clientFactory = new SyncopeClientFactoryBean().
 ----
 
 You might also select a specific <<domains,domain>> - other than `Master`, choose to exchange XML payloads - rather
-than JSON (default), or to select 
-https://en.wikipedia.org/wiki/HTTP_compression[HTTP compression^] (more options in the
+than JSON (default), to select 
+https://en.wikipedia.org/wiki/HTTP_compression[HTTP compression^] or to set the
+https://cxf.apache.org/javadoc/latest/org/apache/cxf/configuration/jsse/TLSClientParameters.html[TLS client configuration^]
+(more options in the
 http://syncope.apache.org/apidocs/2.1/org/apache/syncope/client/lib/SyncopeClientFactoryBean.html[Javadoc^]):
 
 [source,java]
 ----
+TLSClientParameters tlsClientParameters = ...;
 SyncopeClientFactoryBean clientFactory = new SyncopeClientFactoryBean().
               setAddress("http://localhost:9080/syncope/rest/").
               setDomain("Two").
               setContentType(SyncopeClientFactoryBean.ContentType.XML).
-              setUseCompression(true);
+              setUseCompression(true).
+              setTlsClientParameters(tlsClientParameters);
 ----
 
 At this point an instance of `SyncopeClient` can be obtained by passing the login credentials via:
