@@ -103,6 +103,15 @@ Some examples are included by default, see the table below.
 [cols="1,2"]
 |===
 
+|
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/ADMembershipPullActions.java[ADMembershipPullActions^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_0_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/ADMembershipPullActions.java[ADMembershipPullActions^]
+endif::[]
+| If a User is associated with a Group in AD, keep the corresponding User as a member of the corresponding Group in Syncope.
+
 | 
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/LDAPMembershipPullActions.java[LDAPMembershipPullActions^]

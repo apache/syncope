@@ -132,7 +132,7 @@ endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/tree/2_0_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/LDAPMembershipPropagationActions.java[LDAPMembershipPropagationActions^]
 endif::[]
-| If a User is associated with a Group in Syncope, keep the corresponding User as a member of the corresponding Group in LDAP.
+| If a User is associated with a Group in Syncope, keep the corresponding User as a member of the corresponding Group in LDAP or AD.
 
 | 
 ifeval::["{snapshotOrRelease}" == "release"]
