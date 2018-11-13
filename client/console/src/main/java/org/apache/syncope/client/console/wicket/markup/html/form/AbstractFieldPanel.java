@@ -118,4 +118,8 @@ public abstract class AbstractFieldPanel<T> extends Panel {
     }
 
     public abstract AbstractFieldPanel<T> setModelObject(T object);
+
+    public String getName() {
+        return this.name;
+    }
 }
