@@ -206,7 +206,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
 
     public PageReference getPageReference() {
         // SYNCOPE-1213
-        // default implementation does not requier to pass page reference, override this method of want otherwise
+        // default implementation does not require to pass page reference, override this method of want otherwise
         return null;
     }
 
