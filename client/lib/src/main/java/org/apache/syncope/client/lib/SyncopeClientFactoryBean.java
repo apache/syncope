@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.Marshaller;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
@@ -83,6 +84,8 @@ public class SyncopeClientFactoryBean {
     private String domain;
 
     private boolean useCompression;
+
+    private TLSClientParameters tlsClientParameters;
 
     private JAXRSClientFactoryBean restClientFactoryBean;
 
@@ -227,6 +230,19 @@ public class SyncopeClientFactoryBean {
         return useCompression;
     }
 
+    /**
+     * Sets the client TLS configuration.
+     *
+     * @param tlsClientParameters client TLS configuration
+     */
+    public void setTlsClientParameters(final TLSClientParameters tlsClientParameters) {
+        this.tlsClientParameters = tlsClientParameters;
+    }
+
+    public TLSClientParameters getTlsClientParameters() {
+        return tlsClientParameters;
+    }
+
     public JAXRSClientFactoryBean getRestClientFactoryBean() {
         return restClientFactoryBean == null
                 ? defaultRestClientFactoryBean()
@@ -286,6 +302,7 @@ public class SyncopeClientFactoryBean {
                 getRestClientFactoryBean(),
                 getExceptionMapper(),
                 handler,
-                useCompression);
+                useCompression,
+                tlsClientParameters);
     }
 }

@@ -31,12 +31,14 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
+import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
@@ -65,12 +67,15 @@ public class SyncopeClient {
 
     private final boolean useCompression;
 
+    private final TLSClientParameters tlsClientParameters;
+
     public SyncopeClient(
             final MediaType mediaType,
             final JAXRSClientFactoryBean restClientFactory,
             final RestClientExceptionMapper exceptionMapper,
             final AuthenticationHandler handler,
-            final boolean useCompression) {
+            final boolean useCompression,
+            final TLSClientParameters tlsClientParameters) {
 
         this.mediaType = mediaType;
         this.restClientFactory = restClientFactory;
@@ -78,6 +83,7 @@ public class SyncopeClient {
             this.restClientFactory.setHeaders(new HashMap<String, String>());
         }
         this.exceptionMapper = exceptionMapper;
+        this.tlsClientParameters = tlsClientParameters;
         init(handler);
         this.useCompression = useCompression;
     }
@@ -238,6 +244,10 @@ public class SyncopeClient {
             if (useCompression) {
                 config.getInInterceptors().add(new GZIPInInterceptor());
                 config.getOutInterceptors().add(new GZIPOutInterceptor());
+            }
+            if (tlsClientParameters != null) {
+                HTTPConduit httpConduit = (HTTPConduit) config.getConduit();
+                httpConduit.setTlsClientParameters(tlsClientParameters);
             }
 
             return serviceInstance;
