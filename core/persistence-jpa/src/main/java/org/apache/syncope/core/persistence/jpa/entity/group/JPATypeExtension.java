@@ -45,8 +45,7 @@ public class JPATypeExtension extends AbstractGeneratedKeyEntity implements Type
 
     public static final String TABLE = "TypeExtension";
 
-    @ManyToOne
-    private JPAGroup group;
+    private Group group;
 
     @ManyToOne
     private JPAAnyType anyType;

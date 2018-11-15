@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.EntityExistsException;
 import javax.persistence.PersistenceException;
 import javax.persistence.RollbackException;
@@ -75,13 +76,15 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
     @Autowired
     private Environment env;
 
+    private static final String UNIQUE_MSG_KEY = "UniqueConstraintViolation";
+
     private static final Map<String, String> EXCEPTION_CODE_MAP = new HashMap<String, String>() {
 
         private static final long serialVersionUID = -7688359318035249200L;
 
         {
-            put("23000", "UniqueConstraintViolation");
-            put("23505", "UniqueConstraintViolation");
+            put("23000", UNIQUE_MSG_KEY);
+            put("23505", UNIQUE_MSG_KEY);
         }
     };
 
@@ -107,9 +110,9 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
                 || ex instanceof PersistenceException && ex.getCause() instanceof EntityExistsException) {
 
             builder = builder(ClientExceptionType.EntityExists,
-                    getJPAMessage(ex instanceof PersistenceException ? ex.getCause() : ex));
+                    getPersistenceErrorMessage(ex instanceof PersistenceException ? ex.getCause() : ex));
         } else if (ex instanceof DataIntegrityViolationException || ex instanceof JpaSystemException) {
-            builder = builder(ClientExceptionType.DataIntegrityViolation, getJPAMessage(ex));
+            builder = builder(ClientExceptionType.DataIntegrityViolation, getPersistenceErrorMessage(ex));
         } else if (ex instanceof ConnectorException) {
             builder = builder(ClientExceptionType.ConnectorException, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof NotFoundException) {
@@ -159,10 +162,10 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         error.setStatus(ex.getType().getResponseStatus().getStatusCode());
         error.setType(ex.getType());
 
-        for (String element : ex.getElements()) {
+        ex.getElements().forEach(element -> {
             builder.header(RESTHeaders.ERROR_INFO, ex.getType().getInfoHeaderValue(element));
             error.getElements().add(element);
-        }
+        });
 
         return builder.entity(error);
     }
@@ -175,20 +178,20 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
 
         List<ErrorTO> errors = new ArrayList<>();
-        for (SyncopeClientException sce : ex.getExceptions()) {
+        ex.getExceptions().stream().map(sce -> {
             builder.header(RESTHeaders.ERROR_CODE, sce.getType().name());
 
             ErrorTO error = new ErrorTO();
             error.setStatus(sce.getType().getResponseStatus().getStatusCode());
             error.setType(sce.getType());
 
-            for (String element : sce.getElements()) {
+            sce.getElements().forEach(element -> {
                 builder.header(RESTHeaders.ERROR_INFO, sce.getType().getInfoHeaderValue(element));
                 error.getElements().add(element);
-            }
+            });
 
-            errors.add(error);
-        }
+            return error;
+        }).collect(Collectors.toList());
 
         return builder.entity(errors);
     }
@@ -292,25 +295,28 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
     private ResponseBuilder builder(final Response response) {
         ResponseBuilder builder = JAXRSUtils.toResponseBuilder(response.getStatus());
         builder.entity(response.getEntity());
-        for (Map.Entry<String, List<Object>> entry : response.getMetadata().entrySet()) {
-            if (!HttpHeaders.CONTENT_TYPE.equals(entry.getKey())) {
-                for (Object value : entry.getValue()) {
-                    builder.header(entry.getKey(), value);
-                }
+        response.getMetadata().forEach((key, value) -> {
+            if (!HttpHeaders.CONTENT_TYPE.equals(key)) {
+                value.forEach(headerValue -> {
+                    builder.header(key, headerValue);
+                });
             }
-        }
+        });
 
         return builder;
     }
 
-    private String getJPAMessage(final Throwable ex) {
+    private String getPersistenceErrorMessage(final Throwable ex) {
         Throwable throwable = ExceptionUtils.getRootCause(ex);
+
         String message = null;
         if (throwable instanceof SQLException) {
             String messageKey = EXCEPTION_CODE_MAP.get(((SQLException) throwable).getSQLState());
             if (messageKey != null) {
                 message = env.getProperty("errMessage." + messageKey);
             }
+        } else if (throwable instanceof EntityExistsException || throwable instanceof DuplicateException) {
+            message = env.getProperty("errMessage." + UNIQUE_MSG_KEY);
         }
 
         return message == null

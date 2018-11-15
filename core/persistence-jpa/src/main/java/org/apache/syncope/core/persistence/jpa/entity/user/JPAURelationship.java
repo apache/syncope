@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
@@ -45,13 +44,9 @@ public class JPAURelationship extends AbstractGeneratedKeyEntity implements URel
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private JPARelationshipType type;
 
-    @ManyToOne
-    @Column(name = "user_id")
-    private JPAUser leftEnd;
+    private User leftEnd;
 
-    @ManyToOne
-    @Column(name = "anyObject_id")
-    private JPAAnyObject rightEnd;
+    private AnyObject rightEnd;
 
     @Override
     public RelationshipType getType() {
@@ -68,7 +63,7 @@ public class JPAURelationship extends AbstractGeneratedKeyEntity implements URel
     }
 
     @Override
-    public JPAUser getLeftEnd() {
+    public User getLeftEnd() {
         return leftEnd;
     }
 
@@ -88,5 +83,4 @@ public class JPAURelationship extends AbstractGeneratedKeyEntity implements URel
         checkType(rightEnd, JPAAnyObject.class);
         this.rightEnd = (JPAAnyObject) rightEnd;
     }
-
 }

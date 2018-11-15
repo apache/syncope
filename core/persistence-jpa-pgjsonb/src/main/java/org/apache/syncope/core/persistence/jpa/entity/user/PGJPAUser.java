@@ -20,12 +20,16 @@ package org.apache.syncope.core.persistence.jpa.entity.user;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import org.apache.syncope.core.persistence.api.entity.Membership;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.PGPlainAttr;
@@ -77,14 +81,34 @@ public class PGJPAUser extends JPAUser implements PGJPAAny<User>, User {
     public boolean remove(final UPlainAttr attr) {
         return plainAttrList.removeIf(pgattr
                 -> pgattr.getSchemaKey().equals(attr.getSchema().getKey())
-                && attr.getOwner().getKey().equals(getKey())
-                && attr.getMembership() == null
-                ? true
-                : pgattr.getMembership() != null && pgattr.getMembershipKey().equals(attr.getMembership().getKey()));
+                && Objects.equals(pgattr.getMembershipKey(), ((PGUPlainAttr) attr).getMembershipKey()));
     }
 
     @Override
     protected List<? extends UPlainAttr> internalGetPlainAttrs() {
         return plainAttrList;
+    }
+
+    @Override
+    public Optional<? extends UPlainAttr> getPlainAttr(final String plainSchema) {
+        return plainAttrList.stream().
+                filter(pgattr -> pgattr.getSchemaKey() != null && pgattr.getSchemaKey().equals(plainSchema)
+                && pgattr.getMembershipKey() == null).
+                findFirst();
+    }
+
+    @Override
+    public Optional<? extends UPlainAttr> getPlainAttr(final String plainSchema, final Membership<?> membership) {
+        return plainAttrList.stream().
+                filter(pgattr -> pgattr.getSchemaKey() != null && pgattr.getSchemaKey().equals(plainSchema)
+                && pgattr.getMembershipKey() != null && pgattr.getMembershipKey().equals(membership.getKey())).
+                findFirst();
+    }
+
+    @Override
+    public boolean remove(final UMembership membership) {
+        plainAttrList.removeIf(pgattr
+                -> pgattr.getMembershipKey() != null && pgattr.getMembershipKey().equals(membership.getKey()));
+        return super.remove(membership);
     }
 }

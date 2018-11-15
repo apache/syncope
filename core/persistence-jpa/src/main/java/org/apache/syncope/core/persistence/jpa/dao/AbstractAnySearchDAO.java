@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.persistence.Entity;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -56,6 +55,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -145,7 +145,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             AnyTypeKind kind);
 
     protected Pair<PlainSchema, PlainAttrValue> check(final AttributeCond cond, final AnyTypeKind kind) {
-        AnyUtils attrUtils = anyUtilsFactory.getInstance(kind);
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(kind);
 
         PlainSchema schema = schemaDAO.find(cond.getSchema());
         if (schema == null) {
@@ -153,7 +153,9 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             throw new IllegalArgumentException();
         }
 
-        PlainAttrValue attrValue = attrUtils.newPlainAttrValue();
+        PlainAttrValue attrValue = schema.isUniqueConstraint()
+                ? anyUtils.newPlainAttrUniqueValue()
+                : anyUtils.newPlainAttrValue();
         try {
             if (cond.getType() != AttributeCond.Type.LIKE
                     && cond.getType() != AttributeCond.Type.ILIKE
@@ -212,7 +214,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         }
 
         // Deal with any fields representing relationships to other entities
-        if (anyField.getType().getAnnotation(Entity.class) != null) {
+        if (Entity.class.isAssignableFrom(anyField.getType())) {
             Method relMethod = null;
             try {
                 relMethod = ClassUtils.getPublicMethod(anyField.getType(), "getKey", new Class<?>[0]);
@@ -310,7 +312,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         raw.stream().map(anyKey -> anyKey instanceof Object[]
                 ? (String) ((Object[]) anyKey)[0]
                 : ((String) anyKey)).
-                forEachOrdered((actualKey) -> {
+                forEachOrdered(actualKey -> {
                     @SuppressWarnings("unchecked")
                     T any = kind == AnyTypeKind.USER
                             ? (T) userDAO.find(actualKey)

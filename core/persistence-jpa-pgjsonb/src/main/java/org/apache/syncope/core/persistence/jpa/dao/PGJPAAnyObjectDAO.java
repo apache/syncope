@@ -24,7 +24,6 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.PGJPAAnyObject;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.springframework.transaction.annotation.Transactional;
 
 public class PGJPAAnyObjectDAO extends JPAAnyObjectDAO {
 
@@ -35,12 +34,6 @@ public class PGJPAAnyObjectDAO extends JPAAnyObjectDAO {
             anyDAO = ApplicationContextProvider.getApplicationContext().getBean(PGAnyDAO.class);
         }
         return anyDAO;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public AnyObject find(final String key) {
-        return entityManager().find(PGJPAAnyObject.class, key);
     }
 
     @Override

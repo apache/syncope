@@ -29,7 +29,6 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -68,11 +67,9 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     @NotNull
     private String name;
 
-    @ManyToOne
-    private JPAUser userOwner;
+    protected User userOwner;
 
-    @ManyToOne
-    private JPAGroup groupOwner;
+    protected Group groupOwner;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
     @Valid
@@ -145,7 +142,7 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     }
 
     @Override
-    public JPAGroup getGroupOwner() {
+    public Group getGroupOwner() {
         return groupOwner;
     }
 

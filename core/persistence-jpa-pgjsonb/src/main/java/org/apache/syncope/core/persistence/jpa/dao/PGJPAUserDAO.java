@@ -26,7 +26,6 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.PGJPAUser;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.springframework.transaction.annotation.Transactional;
 
 public class PGJPAUserDAO extends JPAUserDAO {
 
@@ -37,12 +36,6 @@ public class PGJPAUserDAO extends JPAUserDAO {
             anyDAO = ApplicationContextProvider.getApplicationContext().getBean(PGAnyDAO.class);
         }
         return anyDAO;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public User find(final String key) {
-        return entityManager().find(PGJPAUser.class, key);
     }
 
     @Override

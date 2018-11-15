@@ -591,6 +591,157 @@ under the License.
     </profile>
   
     <profile>
+      <id>pgjsonb-it</id>
+
+      <properties>
+        <jdbcdriver.groupId>org.postgresql</jdbcdriver.groupId>
+        <jdbcdriver.artifactId>postgresql</jdbcdriver.artifactId>
+      </properties>
+
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.syncope.core</groupId>
+          <artifactId>syncope-core-persistence-jpa-pgjsonb</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+    
+        <dependency>
+          <groupId>org.postgresql</groupId>
+          <artifactId>postgresql</artifactId>
+          <version>${jdbc.postgresql.version}</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <configuration>
+              <packagingExcludes>WEB-INF/classes/domains/Two*</packagingExcludes>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>remove-domain-Two</id>
+                <phase>prepare-package</phase>
+                <configuration>
+                  <target>
+                    <delete>
+                      <fileset dir="${project.build.directory}/classes/domains" includes="Two*"/>
+                    </delete>
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>postgres:${docker.postgresql.version}</name>
+                  <run>
+                    <env>
+                      <POSTGRES_DB>syncope</POSTGRES_DB>
+                      <POSTGRES_USER>syncope</POSTGRES_USER>
+                      <POSTGRES_PASSWORD>syncope</POSTGRES_PASSWORD>
+                    </env>
+                    <ports>
+                      <port>5432:5432</port>
+                    </ports>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-postgres</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-postgres</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+            <excludes>
+              <exclude>provisioning.properties</exclude>
+              <exclude>indexes.xml</exclude>
+              <exclude>views.xml</exclude>
+            </excludes>
+          </resource>
+          <resource>
+            <directory>src/main/resources/pgjsonb</directory>
+            <filtering>true</filtering>
+          </resource>
+          <resource>
+            <directory>${basedir}/../../core/persistence-jpa-pgjsonb/src/test/resources/domains</directory>
+            <targetPath>${project.build.directory}/classes/domains</targetPath>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
+        <testResources>
+          <testResource>
+            <directory>src/main/resources/pgjsonb</directory>
+            <includes>
+              <include>indexes.xml</include>
+              <include>views.xml</include>
+            </includes>            
+          </testResource>
+        </testResources>
+      </build>
+    </profile>
+
+    <profile>
       <id>postgres-it</id>
 
       <properties>
@@ -617,18 +768,12 @@ under the License.
             <configuration>
               <images>
                 <image>
-                  <name>crunchydata/crunchy-postgres:centos7-10.5-2.1.0</name>
+                  <name>postgres:${docker.postgresql.version}</name>
                   <run>
                     <env>
-                      <PG_ROOT_PASSWORD>postgres</PG_ROOT_PASSWORD>
-                      <PG_MODE>primary</PG_MODE>
-                      <PG_PRIMARY_USER>postgres</PG_PRIMARY_USER>
-                      <PG_PRIMARY_PASSWORD>postgres</PG_PRIMARY_PASSWORD>
-                      <PG_PRIMARY_HOST>localhost</PG_PRIMARY_HOST>
-                      <PG_PRIMARY_PORT>5432</PG_PRIMARY_PORT>
-                      <PG_DATABASE>syncope</PG_DATABASE>
-                      <PG_USER>syncope</PG_USER>
-                      <PG_PASSWORD>syncope</PG_PASSWORD>
+                      <POSTGRES_DB>syncope</POSTGRES_DB>
+                      <POSTGRES_USER>syncope</POSTGRES_USER>
+                      <POSTGRES_PASSWORD>syncope</POSTGRES_PASSWORD>
                     </env>
                     <ports>
                       <port>5432:5432</port>

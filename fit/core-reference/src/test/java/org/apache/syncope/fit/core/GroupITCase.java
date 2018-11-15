@@ -249,20 +249,20 @@ public class GroupITCase extends AbstractITCase {
                 "PRINTER",
                 "(($groups==7;cool==ss);$resources==ws-target-resource-2);$type==PRINTER");
 
-        GroupTO updated = createGroup(original).getEntity();
+        GroupTO created = createGroup(original).getEntity();
 
-        updated.getPlainAttrs().add(new AttrTO.Builder().schema("icon").build());
-        updated.getPlainAttrs().add(new AttrTO.Builder().schema("show").build());
-        updated.getPlainAttrs().add(new AttrTO.Builder().schema("rderived_sx").value("sx").build());
-        updated.getPlainAttrs().add(new AttrTO.Builder().schema("rderived_dx").value("dx").build());
-        updated.getPlainAttrs().add(new AttrTO.Builder().schema("title").value("mr").build());
+        created.getPlainAttrs().add(new AttrTO.Builder().schema("icon").build());
+        created.getPlainAttrs().add(new AttrTO.Builder().schema("show").build());
+        created.getPlainAttrs().add(new AttrTO.Builder().schema("rderived_sx").value("sx").build());
+        created.getPlainAttrs().add(new AttrTO.Builder().schema("rderived_dx").value("dx").build());
+        created.getPlainAttrs().add(new AttrTO.Builder().schema("title").value("mr").build());
 
-        original = groupService.read(updated.getKey());
+        original = groupService.read(created.getKey());
 
-        GroupPatch patch = AnyOperations.diff(updated, original, true);
-        GroupTO group = updateGroup(patch).getEntity();
+        GroupPatch patch = AnyOperations.diff(created, original, true);
+        GroupTO updated = updateGroup(patch).getEntity();
 
-        Map<String, AttrTO> attrs = EntityTOUtils.buildAttrMap(group.getPlainAttrs());
+        Map<String, AttrTO> attrs = EntityTOUtils.buildAttrMap(updated.getPlainAttrs());
         assertFalse(attrs.containsKey("icon"));
         assertFalse(attrs.containsKey("show"));
         assertEquals(Collections.singletonList("sx"), attrs.get("rderived_sx").getValues());

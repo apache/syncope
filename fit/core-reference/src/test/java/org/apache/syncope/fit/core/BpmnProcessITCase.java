@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.FlowableDetector;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class BpmnProcessITCase extends AbstractITCase {
@@ -49,9 +50,13 @@ public class BpmnProcessITCase extends AbstractITCase {
         assertNotNull(userWorkflowKey);
     }
 
+    @BeforeEach
+    public void check() {
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+    }
+
     @Test
     public void exportUserWorkflowProcess() throws IOException {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
         Response response = bpmnProcessService.get(userWorkflowKey);
         assertTrue(response.getMediaType().toString().
                 startsWith(clientFactory.getContentType().getMediaType().toString()));
@@ -63,7 +68,6 @@ public class BpmnProcessITCase extends AbstractITCase {
 
     @Test
     public void updateUserWorkflowProcess() throws IOException {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
         Response response = bpmnProcessService.get(userWorkflowKey);
         String definition = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
 

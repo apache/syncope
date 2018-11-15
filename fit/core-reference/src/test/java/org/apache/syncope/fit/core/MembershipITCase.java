@@ -153,7 +153,8 @@ public class MembershipITCase extends AbstractITCase {
             assertTrue(user.getMemberships().isEmpty());
         } finally {
             if (user.getKey() != null) {
-                userService.delete(user.getKey());
+                System.out.println("ZZZZZZZZZZZZZZZZZ " + user.getKey());
+//                userService.delete(user.getKey());
             }
         }
     }

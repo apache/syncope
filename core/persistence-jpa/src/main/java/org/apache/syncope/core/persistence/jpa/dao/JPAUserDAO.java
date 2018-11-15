@@ -362,6 +362,9 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 propagateSuspension |= policy.isPropagateSuspension();
             }
         } catch (Exception e) {
+            if (e instanceof InvalidEntityException) {
+                throw (InvalidEntityException) e;
+            }
             LOG.error("Invalid username for {}", user, e);
             throw new InvalidEntityException(User.class, EntityViolationType.InvalidUsername, e.getMessage());
         }
