@@ -932,12 +932,12 @@ public class UserITCase extends AbstractITCase {
 
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
-        UserTO actual = createUser(userTO).getEntity();
-        assertNotNull(actual);
-        assertNotNull(actual.getDerAttr("csvuserid"));
+        userTO = createUser(userTO).getEntity();
+        assertNotNull(userTO);
+        assertNotNull(userTO.getDerAttr("csvuserid"));
 
         ConnObjectTO connObjectTO =
-                resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
+                resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
         assertEquals("sx-dx", connObjectTO.getAttr("THEIRGROUP").get().getValues().get(0));
     }

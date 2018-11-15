@@ -75,9 +75,7 @@ public class PGJPAGroup extends JPAGroup implements PGJPAAny<Group>, Group {
 
     @Override
     public boolean remove(final GPlainAttr attr) {
-        return plainAttrList.removeIf(pgattr
-                -> pgattr.getSchemaKey().equals(attr.getSchema().getKey())
-                && attr.getOwner().getKey().equals(getKey()));
+        return plainAttrList.removeIf(pgattr -> pgattr.getSchemaKey().equals(attr.getSchema().getKey()));
     }
 
     @Override

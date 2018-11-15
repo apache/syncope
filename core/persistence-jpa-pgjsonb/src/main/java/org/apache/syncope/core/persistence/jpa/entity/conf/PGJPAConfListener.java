@@ -21,6 +21,8 @@ package org.apache.syncope.core.persistence.jpa.entity.conf;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
@@ -38,12 +40,18 @@ public class PGJPAConfListener extends PGJPAEntityListener<Conf> {
 
     @PostLoad
     public void read(final PGJPAConf conf) {
-        super.read(conf);
+        super.json2list(conf, false);
     }
 
     @PrePersist
     @PreUpdate
     public void save(final PGJPAConf conf) {
-        super.save(conf);
+        super.list2json(conf);
+    }
+
+    @PostPersist
+    @PostUpdate
+    public void readAfterSave(final PGJPAConf conf) {
+        super.json2list(conf, true);
     }
 }

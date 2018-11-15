@@ -21,6 +21,8 @@ package org.apache.syncope.core.persistence.jpa.entity.anyobject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -38,12 +40,18 @@ public class PGJPAAnyObjectListener extends PGJPAEntityListener<AnyObject> {
 
     @PostLoad
     public void read(final PGJPAAnyObject anyObject) {
-        super.read(anyObject);
+        super.json2list(anyObject, false);
     }
 
     @PrePersist
     @PreUpdate
     public void save(final PGJPAAnyObject anyObject) {
-        super.save(anyObject);
+        super.list2json(anyObject);
+    }
+
+    @PostPersist
+    @PostUpdate
+    public void readAfterSave(final PGJPAAnyObject anyObject) {
+        super.json2list(anyObject, true);
     }
 }

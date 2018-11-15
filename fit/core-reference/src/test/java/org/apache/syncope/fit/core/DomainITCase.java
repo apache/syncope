@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.security.AccessControlException;
 import java.util.List;
@@ -37,12 +38,14 @@ public class DomainITCase extends AbstractITCase {
 
     @Test
     public void list() {
+        assumeFalse(domainService.list().isEmpty());
+
         List<DomainTO> domains = domainService.list();
         assertNotNull(domains);
         assertFalse(domains.isEmpty());
-        for (DomainTO domain : domains) {
+        domains.forEach(domain -> {
             assertNotNull(domain);
-        }
+        });
     }
 
     @Test
@@ -70,6 +73,8 @@ public class DomainITCase extends AbstractITCase {
 
     @Test
     public void update() {
+        assumeFalse(domainService.list().isEmpty());
+
         DomainTO two = domainService.read("Two");
         assertNotNull(two);
 
@@ -99,6 +104,8 @@ public class DomainITCase extends AbstractITCase {
 
     @Test
     public void delete() {
+        assumeFalse(domainService.list().isEmpty());
+
         DomainTO two = domainService.read("Two");
         assertNotNull(two);
 

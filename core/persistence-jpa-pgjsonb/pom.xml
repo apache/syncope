@@ -187,18 +187,12 @@ under the License.
             <configuration>
               <images>
                 <image>
-                  <name>crunchydata/crunchy-postgres:centos7-10.5-2.1.0</name>
+                  <name>postgres:${docker.postgresql.version}</name>
                   <run>
                     <env>
-                      <PG_ROOT_PASSWORD>postgres</PG_ROOT_PASSWORD>
-                      <PG_MODE>primary</PG_MODE>
-                      <PG_PRIMARY_USER>postgres</PG_PRIMARY_USER>
-                      <PG_PRIMARY_PASSWORD>postgres</PG_PRIMARY_PASSWORD>
-                      <PG_PRIMARY_HOST>localhost</PG_PRIMARY_HOST>
-                      <PG_PRIMARY_PORT>5432</PG_PRIMARY_PORT>
-                      <PG_DATABASE>syncope</PG_DATABASE>
-                      <PG_USER>syncope</PG_USER>
-                      <PG_PASSWORD>syncope</PG_PASSWORD>
+                      <POSTGRES_DB>syncope</POSTGRES_DB>
+                      <POSTGRES_USER>syncope</POSTGRES_USER>
+                      <POSTGRES_PASSWORD>syncope</POSTGRES_PASSWORD>
                     </env>
                     <ports>
                       <port>5432:5432</port>

@@ -22,18 +22,12 @@ version: '3.3'
 
 services:
    db:
-     image: crunchydata/crunchy-postgres:centos7-10.3-1.8.2
+     image: postgres:latest
      restart: always
      environment:
-       PG_ROOT_PASSWORD: postgres
-       PG_MODE: primary
-       PG_PRIMARY_USER: postgres
-       PG_PRIMARY_PASSWORD: postgres
-       PG_PRIMARY_HOST: localhost
-       PG_PRIMARY_PORT: 5432
-       PG_DATABASE: syncope
-       PG_USER: syncope
-       PG_PASSWORD: syncope
+       POSTGRES_DB: syncope
+       POSTGRES_USER: syncope
+       POSTGRES_PASSWORD: syncope
 
    syncope1:
      depends_on:

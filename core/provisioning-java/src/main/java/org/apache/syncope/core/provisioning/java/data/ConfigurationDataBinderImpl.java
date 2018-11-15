@@ -86,7 +86,7 @@ public class ConfigurationDataBinderImpl extends AbstractAnyDataBinder implement
             }
         }
 
-        for (String value : valuesProvided) {
+        valuesProvided.forEach(value -> {
             if (value == null || value.isEmpty()) {
                 LOG.debug("Null value for {}, ignoring", schema.getKey());
             } else {
@@ -106,7 +106,7 @@ public class ConfigurationDataBinderImpl extends AbstractAnyDataBinder implement
                     invalidValues.getElements().add(schema.getKey() + ": " + value + " - " + e.getMessage());
                 }
             }
-        }
+        });
     }
 
     @Override
@@ -127,5 +127,4 @@ public class ConfigurationDataBinderImpl extends AbstractAnyDataBinder implement
             return attr;
         }
     }
-
 }

@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.fit.core;
 
-import org.apache.syncope.fit.CamelDetector;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -35,14 +33,18 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class CamelRouteITCase extends AbstractITCase {
 
+    @BeforeEach
+    public void check() {
+        assumeTrue(syncopeService.platform().getUserProvisioningManager().contains("Camel"));
+    }
+
     @Test
     public void userRoutes() {
-        assumeTrue(CamelDetector.isCamelEnabledForUsers(syncopeService));
-
         List<CamelRouteTO> userRoutes = camelRouteService.list(AnyTypeKind.USER);
         assertNotNull(userRoutes);
         assertEquals(16, userRoutes.size());
@@ -51,8 +53,6 @@ public class CamelRouteITCase extends AbstractITCase {
 
     @Test
     public void groupRoutes() {
-        assumeTrue(CamelDetector.isCamelEnabledForGroups(syncopeService));
-
         List<CamelRouteTO> groupRoutes = camelRouteService.list(AnyTypeKind.GROUP);
         assertNotNull(groupRoutes);
         assertEquals(8, groupRoutes.size());
@@ -69,8 +69,6 @@ public class CamelRouteITCase extends AbstractITCase {
 
     @Test
     public void update() {
-        assumeTrue(CamelDetector.isCamelEnabledForUsers(syncopeService));
-
         CamelRouteTO oldRoute = camelRouteService.read(AnyTypeKind.USER, "createUser");
         assertNotNull(oldRoute);
         String routeContent = "<route id=\"createUser\">\n"
@@ -103,8 +101,6 @@ public class CamelRouteITCase extends AbstractITCase {
 
     @Test
     public void scriptingUpdate() {
-        assumeTrue(CamelDetector.isCamelEnabledForUsers(syncopeService));
-
         CamelRouteTO oldRoute = camelRouteService.read(AnyTypeKind.USER, "createUser");
         // updating route content including new attribute management
 
@@ -169,8 +165,6 @@ public class CamelRouteITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE931() {
-        assumeTrue(CamelDetector.isCamelEnabledForUsers(syncopeService));
-
         CamelRouteTO oldRoute = camelRouteService.read(AnyTypeKind.USER, "createUser");
         assertNotNull(oldRoute);
         String routeContent = "<route id=\"createUser\">\n"
@@ -211,5 +205,4 @@ public class CamelRouteITCase extends AbstractITCase {
             doUpdate(AnyTypeKind.USER, oldRoute.getKey(), oldRoute.getContent());
         }
     }
-
 }

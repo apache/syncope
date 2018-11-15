@@ -799,15 +799,20 @@ public class UserIssuesITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE420() throws IOException {
-        ImplementationTO logicActions = new ImplementationTO();
-        logicActions.setKey("DoubleValueLogicActions");
-        logicActions.setEngine(ImplementationEngine.GROOVY);
-        logicActions.setType(ImplementationType.LOGIC_ACTIONS);
-        logicActions.setBody(org.apache.commons.io.IOUtils.toString(
-                getClass().getResourceAsStream("/DoubleValueLogicActions.groovy"), StandardCharsets.UTF_8));
-        Response response = implementationService.create(logicActions);
-        logicActions = implementationService.read(
-                logicActions.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+        ImplementationTO logicActions;
+        try {
+            logicActions = implementationService.read(ImplementationType.LOGIC_ACTIONS, "DoubleValueLogicActions");
+        } catch (SyncopeClientException e) {
+            logicActions = new ImplementationTO();
+            logicActions.setKey("DoubleValueLogicActions");
+            logicActions.setEngine(ImplementationEngine.GROOVY);
+            logicActions.setType(ImplementationType.LOGIC_ACTIONS);
+            logicActions.setBody(org.apache.commons.io.IOUtils.toString(
+                    getClass().getResourceAsStream("/DoubleValueLogicActions.groovy"), StandardCharsets.UTF_8));
+            Response response = implementationService.create(logicActions);
+            logicActions = implementationService.read(
+                    logicActions.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+        }
         assertNotNull(logicActions);
 
         RealmTO realm = realmService.list("/even/two").iterator().next();

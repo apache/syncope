@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.DomainDAO;
 import org.apache.syncope.core.persistence.api.entity.Domain;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +40,7 @@ public class DomainTest extends AbstractTest {
     @Autowired
     private DomainDAO domainDAO;
 
+    @Tag("multitenancy")
     @Test
     public void find() {
         Domain two = domainDAO.find("Two");
@@ -48,14 +50,15 @@ public class DomainTest extends AbstractTest {
         assertNull(domainDAO.find("none"));
     }
 
+    @Tag("multitenancy")
     @Test
     public void findAll() {
         List<Domain> list = domainDAO.findAll();
         assertNotNull(list);
         assertFalse(list.isEmpty());
-        for (Domain domain : list) {
+        list.forEach(domain -> {
             assertNotNull(domain);
-        }
+        });
     }
 
     @Test

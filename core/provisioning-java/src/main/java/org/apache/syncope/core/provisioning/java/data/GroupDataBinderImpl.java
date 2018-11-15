@@ -305,6 +305,8 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             throw scce;
         }
 
+        // Re-merge any pending change from above
+        groupDAO.save(group);
         return propByRes;
     }
 

@@ -363,18 +363,12 @@ version: '3.3'
 
 services:
    db: // <1>
-     image: crunchydata/crunchy-postgres:centos7-10.3-1.8.2
+     image: postgres:latest
      restart: always
      environment:
-       PG_ROOT_PASSWORD: postgres
-       PG_MODE: primary
-       PG_PRIMARY_USER: postgres
-       PG_PRIMARY_PASSWORD: postgres
-       PG_PRIMARY_HOST: localhost
-       PG_PRIMARY_PORT: 5432
-       PG_DATABASE: syncope
-       PG_USER: syncope
-       PG_PASSWORD: syncope
+       POSTGRES_DB: syncope
+       POSTGRES_USER: syncope
+       POSTGRES_PASSWORD: syncope
 
    syncope: // <2>
      depends_on:
@@ -417,7 +411,7 @@ services:
        CORE_PORT: 8080
        DOMAIN: Master
 ----
-<1> Database container for usage as internal storage, based on PostgreSQL 10.3
+<1> Database container for usage as internal storage, based on latest PostgreSQL image available
 <2> Apache Syncope Core, single instance, port `18080` exposed
 <3> Apache Syncope Admin UI, port `28080` exposed
 <4> Apache Syncope Enduser UI, port `38080` exposed, working with `Master` domain

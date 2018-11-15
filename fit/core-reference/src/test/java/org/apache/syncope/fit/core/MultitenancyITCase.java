@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.util.List;
 import java.util.Locale;
@@ -71,21 +72,29 @@ import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class MultitenancyITCase extends AbstractITCase {
 
     @BeforeAll
     public static void restSetup() {
-        clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("Two");
+        if (!domainService.list().isEmpty()) {
+            clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("Two");
 
-        String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
-        if (StringUtils.isNotBlank(envContentType)) {
-            clientFactory.setContentType(envContentType);
+            String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
+            if (StringUtils.isNotBlank(envContentType)) {
+                clientFactory.setContentType(envContentType);
+            }
+            LOG.info("Performing IT with content type {}", clientFactory.getContentType().getMediaType());
+
+            adminClient = clientFactory.create(ADMIN_UNAME, "password2");
         }
-        LOG.info("Performing IT with content type {}", clientFactory.getContentType().getMediaType());
+    }
 
-        adminClient = clientFactory.create(ADMIN_UNAME, "password2");
+    @BeforeEach
+    public void multitenancyCheck() {
+        assumeFalse(domainService.list().isEmpty());
     }
 
     @Test

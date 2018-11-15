@@ -21,6 +21,8 @@ package org.apache.syncope.core.persistence.jpa.entity.group;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -38,12 +40,18 @@ public class PGJPAGroupListener extends PGJPAEntityListener<Group> {
 
     @PostLoad
     public void read(final PGJPAGroup group) {
-        super.read(group);
+        super.json2list(group, false);
     }
 
     @PrePersist
     @PreUpdate
     public void save(final PGJPAGroup group) {
-        super.save(group);
+        super.list2json(group);
+    }
+
+    @PostPersist
+    @PostUpdate
+    public void readAfterSave(final PGJPAGroup group) {
+        super.json2list(group, true);
     }
 }

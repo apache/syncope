@@ -21,6 +21,8 @@ package org.apache.syncope.core.persistence.jpa.entity.user;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -38,12 +40,18 @@ public class PGJPAUserListener extends PGJPAEntityListener<User> {
 
     @PostLoad
     public void read(final PGJPAUser user) {
-        super.read(user);
+        super.json2list(user, false);
     }
 
     @PrePersist
     @PreUpdate
     public void save(final PGJPAUser user) {
-        super.save(user);
+        super.list2json(user);
+    }
+
+    @PostPersist
+    @PostUpdate
+    public void readAfterSave(final PGJPAUser user) {
+        super.json2list(user, true);
     }
 }

@@ -26,10 +26,8 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@Repository
 public class JPAConfDAO extends AbstractDAO<Conf> implements ConfDAO {
 
     private static final String KEY = "cd64d66f-6fff-4008-b966-a06b1cc1436d";

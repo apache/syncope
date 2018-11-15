@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.api.attrvalue.validation;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.ValidationException;
@@ -45,8 +44,10 @@ public class InvalidEntityException extends ValidationException {
      * @param entityViolationType type of violation found
      * @param message message to be associated to the violation
      */
-    public InvalidEntityException(final Class<?> entityClass,
-            final EntityViolationType entityViolationType, final String message) {
+    public InvalidEntityException(
+            final Class<?> entityClass,
+            final EntityViolationType entityViolationType,
+            final String message) {
 
         super();
 
@@ -64,14 +65,15 @@ public class InvalidEntityException extends ValidationException {
      * @param entityClassSimpleName simple class name of invalid entity
      * @param violations as returned by bean validation
      */
-    public InvalidEntityException(final String entityClassSimpleName,
+    public InvalidEntityException(
+            final String entityClassSimpleName,
             final Set<ConstraintViolation<Object>> violations) {
 
         super();
 
         this.entityClassSimpleName = entityClassSimpleName;
 
-        violations.forEach((violation) -> {
+        violations.forEach(violation -> {
             int firstComma = violation.getMessageTemplate().indexOf(';');
 
             final String key = violation.getMessageTemplate().substring(
@@ -80,7 +82,6 @@ public class InvalidEntityException extends ValidationException {
             final String message = violation.getMessageTemplate().substring(firstComma > 0 ? firstComma + 1 : 0);
 
             EntityViolationType entityViolationType;
-
             try {
                 entityViolationType = EntityViolationType.valueOf(key.trim());
             } catch (IllegalArgumentException e) {
@@ -115,9 +116,9 @@ public class InvalidEntityException extends ValidationException {
     public String getMessage() {
         StringBuilder sb = new StringBuilder();
 
-        for (Entry<Class<?>, Set<EntityViolationType>> entry : violations.entrySet()) {
-            sb.append(entry.getKey().getSimpleName()).append(' ').append(entry.getValue().toString()).append(", ");
-        }
+        violations.forEach((key, value) -> {
+            sb.append(key.getSimpleName()).append(' ').append(value.toString()).append(", ");
+        });
         sb.delete(sb.lastIndexOf(", "), sb.length());
 
         return sb.toString();

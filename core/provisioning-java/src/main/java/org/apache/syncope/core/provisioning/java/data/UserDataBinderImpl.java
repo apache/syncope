@@ -554,6 +554,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             throw scce;
         }
 
+        // Re-merge any pending change from above
+        userDAO.save(user);
         return propByRes;
     }
 

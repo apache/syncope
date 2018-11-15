@@ -468,6 +468,8 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             throw scce;
         }
 
+        // Re-merge any pending change from above
+        anyObjectDAO.save(anyObject);
         return propByRes;
     }
 }

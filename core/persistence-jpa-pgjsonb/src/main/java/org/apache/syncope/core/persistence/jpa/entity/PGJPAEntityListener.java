@@ -27,7 +27,10 @@ public abstract class PGJPAEntityListener<A extends Any<?>> {
     protected abstract List<? extends PGPlainAttr<A>> getValues(String plainAttrsJSON);
 
     @SuppressWarnings("unchecked")
-    protected void read(final PGJPAAny<A> entity) {
+    protected void json2list(final PGJPAAny<A> entity, final boolean clearFirst) {
+        if (clearFirst) {
+            entity.getPlainAttrList().clear();
+        }
         if (entity.getPlainAttrsJSON() != null) {
             getValues(entity.getPlainAttrsJSON()).stream().filter(attr -> attr.getSchema() != null).
                     map(attr -> {
@@ -41,7 +44,7 @@ public abstract class PGJPAEntityListener<A extends Any<?>> {
         }
     }
 
-    protected void save(final PGJPAAny<A> entity) {
+    protected void list2json(final PGJPAAny<A> entity) {
         entity.setPlainAttrsJSON(entity.getPlainAttrList().isEmpty()
                 ? "[{}]"
                 : POJOHelper.serialize(entity.getPlainAttrList()));

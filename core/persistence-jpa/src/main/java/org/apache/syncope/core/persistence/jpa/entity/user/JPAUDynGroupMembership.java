@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
 import javax.persistence.Entity;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
@@ -35,8 +34,7 @@ public class JPAUDynGroupMembership extends AbstractDynMembership<User> implemen
 
     public static final String TABLE = "UDynGroupMembership";
 
-    @OneToOne
-    private JPAGroup group;
+    private Group group;
 
     @Override
     public Group getGroup() {
@@ -44,9 +42,8 @@ public class JPAUDynGroupMembership extends AbstractDynMembership<User> implemen
     }
 
     @Override
-    public void setGroup(final Group role) {
-        checkType(role, JPAGroup.class);
-        this.group = (JPAGroup) role;
+    public void setGroup(final Group group) {
+        checkType(group, JPAGroup.class);
+        this.group = (JPAGroup) group;
     }
-
 }

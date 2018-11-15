@@ -18,8 +18,6 @@ specific language governing permissions and limitations
 under the License.
 -->
 <dataset>
-  <SyncopeDomain id="Two" adminCipherAlgorithm="SHA" adminPwd="2AA60A8FF7FCD473D321E0146AFD9E26DF395147"/>  
-  
   <SyncopeSchema id="password.cipher.algorithm"/>
   <PlainSchema id="password.cipher.algorithm" type="String"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>

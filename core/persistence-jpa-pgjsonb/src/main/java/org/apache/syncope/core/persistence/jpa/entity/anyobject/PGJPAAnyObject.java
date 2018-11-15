@@ -20,12 +20,15 @@ package org.apache.syncope.core.persistence.jpa.entity.anyobject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -78,10 +81,7 @@ public class PGJPAAnyObject extends JPAAnyObject implements PGJPAAny<AnyObject>,
     public boolean remove(final APlainAttr attr) {
         return plainAttrList.removeIf(pgattr
                 -> pgattr.getSchemaKey().equals(attr.getSchema().getKey())
-                && attr.getOwner().getKey().equals(getKey())
-                && attr.getMembership() == null
-                ? true
-                : pgattr.getMembership() != null && pgattr.getMembershipKey().equals(attr.getMembership().getKey()));
+                && Objects.equals(pgattr.getMembershipKey(), ((PGAPlainAttr) attr).getMembershipKey()));
     }
 
     @Override
@@ -90,8 +90,25 @@ public class PGJPAAnyObject extends JPAAnyObject implements PGJPAAny<AnyObject>,
     }
 
     @Override
+    public Optional<? extends APlainAttr> getPlainAttr(final String plainSchema) {
+        return plainAttrList.stream().
+                filter(pgattr -> pgattr.getSchemaKey() != null && pgattr.getSchemaKey().equals(plainSchema)
+                && pgattr.getMembershipKey() == null).
+                findFirst();
+    }
+
+    @Override
+    public Optional<? extends APlainAttr> getPlainAttr(final String plainSchema, final Membership<?> membership) {
+        return plainAttrList.stream().
+                filter(pgattr -> pgattr.getSchemaKey() != null && pgattr.getSchemaKey().equals(plainSchema)
+                && pgattr.getMembershipKey() != null && pgattr.getMembershipKey().equals(membership.getKey())).
+                findFirst();
+    }
+
+    @Override
     public boolean remove(final AMembership membership) {
-        plainAttrList.removeIf(attr -> attr.getMembership().getKey().equals(membership.getKey()));
+        plainAttrList.removeIf(pgattr
+                -> pgattr.getMembershipKey() != null && pgattr.getMembershipKey().equals(membership.getKey()));
         return super.remove(membership);
     }
 }

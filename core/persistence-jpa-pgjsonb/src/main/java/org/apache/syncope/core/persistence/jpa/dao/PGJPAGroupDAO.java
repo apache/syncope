@@ -22,9 +22,8 @@ import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.PGAnyDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.jpa.entity.group.PGJPAGroup;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.springframework.transaction.annotation.Transactional;
 
 public class PGJPAGroupDAO extends JPAGroupDAO {
 
@@ -37,12 +36,6 @@ public class PGJPAGroupDAO extends JPAGroupDAO {
         return anyDAO;
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public Group find(final String key) {
-        return entityManager().find(PGJPAGroup.class, key);
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public List<Group> findByPlainAttrValue(
@@ -50,7 +43,7 @@ public class PGJPAGroupDAO extends JPAGroupDAO {
             final PlainAttrValue attrValue,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO().findByPlainAttrValue(PGJPAGroup.TABLE, anyUtils(), schemaKey, attrValue, ignoreCaseMatch);
+        return anyDAO().findByPlainAttrValue(JPAGroup.TABLE, anyUtils(), schemaKey, attrValue, ignoreCaseMatch);
     }
 
     @Override
@@ -59,7 +52,7 @@ public class PGJPAGroupDAO extends JPAGroupDAO {
             final PlainAttrValue attrUniqueValue,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO().findByPlainAttrUniqueValue(PGJPAGroup.TABLE, anyUtils(),
+        return anyDAO().findByPlainAttrUniqueValue(JPAGroup.TABLE, anyUtils(),
                 schemaKey, attrUniqueValue, ignoreCaseMatch);
     }
 
@@ -70,12 +63,12 @@ public class PGJPAGroupDAO extends JPAGroupDAO {
             final String value,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO().findByDerAttrValue(PGJPAGroup.TABLE, anyUtils(), schemaKey, value, ignoreCaseMatch);
+        return anyDAO().findByDerAttrValue(JPAGroup.TABLE, anyUtils(), schemaKey, value, ignoreCaseMatch);
     }
 
     @Override
     public Group save(final Group group) {
-        anyDAO().checkBeforeSave(PGJPAGroup.TABLE, anyUtils(), group);
+        anyDAO().checkBeforeSave(JPAGroup.TABLE, anyUtils(), group);
         return super.save(group);
     }
 }
