@@ -27,14 +27,14 @@ updated.
 [NOTE]
 Apache Syncope {docVersion} is verified with PostgreSQL server >= 10.3 and JDBC driver >= {postgresqlJDBC}.
 
-In `provisioning.properties`:
+In `provisioning.properties`, replace as follows:
 
 ....
 quartz.jobstore=org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
 quartz.sql=tables_postgres.sql
 ....
 
-In `domains/Master.properties` (for the `Master` domain):
+In `domains/Master.properties` (for the `Master` domain), replace as follows:
 
 ....
 Master.driverClassName=org.postgresql.Driver
@@ -59,12 +59,83 @@ https://github.com/apache/syncope/tree/2_1_X/fit/core-reference/src/main/resourc
 endif::[]
 and save it under `core/src/main/resources/`.
 
+===== PostgreSQL (JSONB)
+
+[NOTE]
+With the configurations reported below, Apache Syncope will leverage the
+https://www.postgresql.org/docs/current/datatype-json.html[JSONB^] column type for attribute storage.
+
+[NOTE]
+Apache Syncope {docVersion} is verified with PostgreSQL server >= 10.3 and JDBC driver >= {postgresqlJDBC}.
+
+In `persistence.properties`, replace as follows:
+
+....
+entity.factory=org.apache.syncope.core.persistence.jpa.entity.PGJPAEntityFactory
+plainSchema.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAPlainSchemaDAO
+plainAttr.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAPlainAttrDAO
+plainAttrValue.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAPlainAttrValueDAO
+any.search.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAAnySearchDAO
+user.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAUserDAO
+group.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAGroupDAO
+anyObject.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAAnyObjectDAO
+conf.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAConfDAO
+....
+
+In `provisioning.properties`, replace as follows:
+
+....
+quartz.jobstore=org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+quartz.sql=tables_postgres.sql
+....
+
+In `domains/Master.properties` (for the `Master` domain), replace as follows:
+
+....
+Master.driverClassName=org.postgresql.Driver
+Master.url=jdbc:postgresql://localhost:5432/syncope?stringtype=unspecified
+Master.schema=
+Master.username=syncope
+Master.password=syncope
+Master.databasePlatform=org.apache.openjpa.jdbc.sql.PostgresDictionary
+Master.orm=META-INF/spring-orm-pgjsonb.xml
+....
+
+[WARNING]
+This assumes that you have a PostgreSQL instance running on localhost, listening on its default port 5432 with a
+database `syncope` fully accessible by user `syncope` with password `syncope`.
+
+Download
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/fit/core-reference/src/main/resources/pgjsonb/indexes.xml[indexes.xml^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/2_1_X/fit/core-reference/src/main/resources/pgjsonb/indexes.xml[indexes.xml^]
+endif::[]
+and
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/fit/core-reference/src/main/resources/pgjsonb/views.xml[views.xml^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/2_1_X/fit/core-reference/src/main/resources/pgjsonb/views.xml[views.xml^]
+endif::[]
+then save both under `core/src/main/resources/`.
+
+Download
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion/core/persistence-jpa-pgjsonb/src/test/resources/domains/MasterContent.xml[MasterContent.xml^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa-pgjsonb/src/test/resources/domains/MasterContent.xml[MasterContent.xml^]
+endif::[]
+and save it under `core/src/test/resources/`.
+
 ===== MySQL
 
 [NOTE]
 Apache Syncope {docVersion} is verified with MySQL server >= 5.7 and JDBC driver >= {mysqlJDBC}.
 
-In `provisioning.properties`:
+In `provisioning.properties`, replace as follows:
 
 ....
 quartz.jobstore=org.quartz.impl.jdbcjobstore.StdJDBCDelegate
@@ -75,7 +146,7 @@ quartz.sql=tables_mysql_innodb.sql
 This assumes that the InnoDB engine is enabled in your MySQL instance - if this is not the case, then change the value
 for `quartz.sql` to `tables_mysql.sql`.
 
-In `domains/Master.properties` (for the `Master` domain):
+In `domains/Master.properties` (for the `Master` domain), replace as follows:
 
 ....
 Master.driverClassName=com.mysql.jdbc.Driver
@@ -104,7 +175,7 @@ This assumes that you have a MySQL instance running on localhost, listening on i
 [NOTE]
 Apache Syncope {docVersion} is verified with MariaDB server >= 10.3.7 and JDBC driver >= {mariadbJDBC}.
 
-In `provisioning.properties`:
+In `provisioning.properties`, replace as follows:
 
 ....
 quartz.jobstore=org.quartz.impl.jdbcjobstore.StdJDBCDelegate
@@ -115,7 +186,7 @@ quartz.sql=tables_mariadb.sql
 This assumes that the InnoDB engine is enabled in your MariaDB instance - if this is not the case, then change the value
 for `quartz.sql` to `tables_mariadb.sql`.
 
-In `domains/Master.properties` (for the `Master` domain):
+In `domains/Master.properties` (for the `Master` domain), replace as follows:
 
 ....
 Master.driverClassName=org.mariadb.jdbc.Driver
@@ -139,14 +210,14 @@ This assumes that you have a MariaDB instance running on localhost, listening on
 [NOTE]
 Apache Syncope {docVersion} is verified with Oracle database >= 11g and JDBC driver >= ojdbc8 12.2.0.1.
 
-In `provisioning.properties`:
+In `provisioning.properties`, replace as follows:
 
 ....
 quartz.jobstore=org.quartz.impl.jdbcjobstore.oracle.OracleDelegate
 quartz.sql=tables_oracle.sql
 ....
 
-In `domains/Master.properties` (for the `Master` domain):
+In `domains/Master.properties` (for the `Master` domain), replace as follows:
 
 ....
 Master.driverClassName=oracle.jdbc.OracleDriver
@@ -168,14 +239,14 @@ This assumes that you have an Oracle instance running on localhost, listening on
 [NOTE]
 Apache Syncope {docVersion} is verified with MS SQL server >= 2017 and JDBC driver >= {sqlserverJDBC}8.
 
-In `provisioning.properties`:
+In `provisioning.properties`, replace as follows:
 
 ....
 quartz.jobstore=org.quartz.impl.jdbcjobstore.MSSQLDelegate
 quartz.sql=tables_sqlServer.sql
 ....
 
-In `domains/Master.properties` (for the `Master` domain):
+In `domains/Master.properties` (for the `Master` domain), replace as follows:
 
 ....
 Master.driverClassName=com.microsoft.sqlserver.jdbc.SQLServerDriver
