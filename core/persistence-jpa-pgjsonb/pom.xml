@@ -92,7 +92,7 @@ under the License.
           </dependency>
         </dependencies>
         <configuration>
-          <persistenceXmlFile>src/main/resources/persistence-enhance.xml</persistenceXmlFile> 
+          <persistenceXmlFile>${project.basedir}/src/main/resources/persistence-enhance.xml</persistenceXmlFile> 
           <includes>org/apache/syncope/core/persistence/jpa/entity/**/*.class</includes>
           <connectionDriverName>org.springframework.jdbc.datasource.DriverManagerDataSource</connectionDriverName>
           <connectionProperties>
