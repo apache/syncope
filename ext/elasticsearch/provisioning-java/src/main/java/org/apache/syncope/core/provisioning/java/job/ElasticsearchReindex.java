@@ -32,10 +32,10 @@ import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -72,11 +72,11 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                         exists(new IndicesExistsRequest(AuthContextUtils.getDomain().toLowerCase())).
                         get();
                 if (existsIndexResponse.isExists()) {
-                    DeleteIndexResponse deleteIndexResponse = client.admin().indices().
+                    AcknowledgedResponse acknowledgedResponse = client.admin().indices().
                             delete(new DeleteIndexRequest(AuthContextUtils.getDomain().toLowerCase())).
                             get();
                     LOG.debug("Successfully removed {}: {}",
-                            AuthContextUtils.getDomain().toLowerCase(), deleteIndexResponse);
+                            AuthContextUtils.getDomain().toLowerCase(), acknowledgedResponse);
                 }
 
                 XContentBuilder settings = XContentFactory.jsonBuilder().
