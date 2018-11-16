@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +29,6 @@ import javax.validation.ValidationException;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -55,7 +53,6 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -70,6 +67,8 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     private static final String[] ORDER_BY_NOT_ALLOWED = {
         "serialVersionUID", "password", "securityQuestion", "securityAnswer", "token", "tokenExpireTime"
     };
+
+    protected static final String[] RELATIONSHIP_FIELDS = new String[] { "realm", "userOwner", "groupOwner" };
 
     @Autowired
     protected RealmDAO realmDAO;
@@ -214,18 +213,9 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         }
 
         // Deal with any fields representing relationships to other entities
-        if (Entity.class.isAssignableFrom(anyField.getType())) {
-            Method relMethod = null;
-            try {
-                relMethod = ClassUtils.getPublicMethod(anyField.getType(), "getKey", new Class<?>[0]);
-            } catch (Exception e) {
-                LOG.error("Could not find {}#getKey", anyField.getType(), e);
-            }
-
-            if (relMethod != null && String.class.isAssignableFrom(relMethod.getReturnType())) {
-                computed.setSchema(computed.getSchema() + "_id");
-                schema.setType(AttrSchemaType.String);
-            }
+        if (ArrayUtils.contains(RELATIONSHIP_FIELDS, computed.getSchema())) {
+            computed.setSchema(computed.getSchema() + "_id");
+            schema.setType(AttrSchemaType.String);
         }
 
         PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
