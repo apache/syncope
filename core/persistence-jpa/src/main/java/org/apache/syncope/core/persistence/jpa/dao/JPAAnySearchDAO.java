@@ -65,8 +65,6 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
     protected static final String EMPTY_QUERY = "SELECT any_id FROM user_search WHERE 1=2";
 
-    protected static final String[] RELATIONSHIP_FIELDS = new String[] { "realm", "userOwner", "groupOwner" };
-
     private Pair<String, Set<String>> getAdminRealmsFilter(
             final Set<String> adminRealms,
             final SearchSupport svs,
