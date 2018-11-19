@@ -68,6 +68,17 @@ https://www.postgresql.org/docs/current/datatype-json.html[JSONB^] column type f
 [NOTE]
 Apache Syncope {docVersion} is verified with PostgreSQL server >= 10.3 and JDBC driver >= {postgresqlJDBC}.
 
+Add the following dependency to `core/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.core</groupId>
+  <artifactId>syncope-core-persistence-jpa-pgjsonb</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+----
+
 In `persistence.properties`, replace as follows:
 
 ....

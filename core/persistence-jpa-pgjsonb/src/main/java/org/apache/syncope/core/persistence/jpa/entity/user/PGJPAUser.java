@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -87,6 +88,13 @@ public class PGJPAUser extends JPAUser implements PGJPAAny<User>, User {
     @Override
     protected List<? extends UPlainAttr> internalGetPlainAttrs() {
         return plainAttrList;
+    }
+
+    @Override
+    public List<? extends UPlainAttr> getPlainAttrs() {
+        return plainAttrList.stream().
+                filter(pgattr -> pgattr.getMembershipKey() == null).
+                collect(Collectors.toList());
     }
 
     @Override

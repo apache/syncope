@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -87,6 +88,13 @@ public class PGJPAAnyObject extends JPAAnyObject implements PGJPAAny<AnyObject>,
     @Override
     protected List<? extends APlainAttr> internalGetPlainAttrs() {
         return plainAttrList;
+    }
+
+    @Override
+    public List<? extends APlainAttr> getPlainAttrs() {
+        return plainAttrList.stream().
+                filter(pgattr -> pgattr.getMembershipKey() == null).
+                collect(Collectors.toList());
     }
 
     @Override
