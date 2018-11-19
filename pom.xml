@@ -462,7 +462,7 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>1.0.2</chartjs.version>
     
-    <wicket.version>8.1.0</wicket.version>
+    <wicket.version>8.2.0</wicket.version>
     <wicket-jqueryui.version>8.1.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>2.0.4</wicket-bootstrap.version>
 
@@ -1205,11 +1205,6 @@ under the License.
       <dependency>
         <groupId>org.apache.wicket</groupId>
         <artifactId>wicket-extensions</artifactId>
-        <version>${wicket.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.wicketstuff</groupId>
-        <artifactId>wicket-datetime</artifactId>
         <version>${wicket.version}</version>
       </dependency>
       <dependency>

@@ -27,9 +27,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.servlet.SessionTrackingMode;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -42,14 +39,11 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.Application;
-import org.apache.wicket.Component;
 import org.apache.wicket.Session;
 import org.apache.wicket.ThreadContext;
-import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
 import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 import org.apache.wicket.protocol.ws.api.message.TextMessage;
-import org.apache.wicket.util.cookies.CookieUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
@@ -102,35 +96,6 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
         } catch (SyncopeClientException e) {
             // ignore exception
         }
-    }
-
-    @Override
-    protected CharSequence getSessionId(final Component component) {
-        String sessionId = "";
-        WebApplication application = (WebApplication) component.getApplication();
-        Set<SessionTrackingMode> effectiveSessionTrackingModes = application.getServletContext().
-                getEffectiveSessionTrackingModes();
-        Object containerRequest = component.getRequest().getContainerRequest();
-        if (effectiveSessionTrackingModes.size() == 1
-                && SessionTrackingMode.URL.equals(effectiveSessionTrackingModes.iterator().next())) {
-
-            sessionId = component.getSession().getId();
-        } else if (containerRequest instanceof HttpServletRequest) {
-            CookieUtils cookieUtils = new CookieUtils();
-            String jsessionCookieName = null;
-            if (application.getServletContext().getSessionCookieConfig() != null) {
-                jsessionCookieName = application.getServletContext().getSessionCookieConfig().getName();
-            }
-            if (jsessionCookieName == null) {
-                jsessionCookieName = "JSESSIONID";
-            }
-            Cookie jsessionid = cookieUtils.getCookie(jsessionCookieName);
-            HttpServletRequest httpServletRequest = (HttpServletRequest) containerRequest;
-            if (jsessionid == null || !httpServletRequest.isRequestedSessionIdValid()) {
-                sessionId = component.getSession().getId();
-            }
-        }
-        return sessionId;
     }
 
     @Override
