@@ -448,11 +448,10 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
                 ? (String) ((Object[]) resultKey)[0]
                 : ((String) resultKey)).
-                forEachOrdered(actualKey -> {
-                    Role role = roleDAO.find(actualKey.toString());
+                forEachOrdered(roleKey -> {
+                    Role role = roleDAO.find(roleKey.toString());
                     if (role == null) {
-                        LOG.error("Could not find role with id {}, even though returned by the native query",
-                                actualKey);
+                        LOG.error("Could not find role {}, even though returned by the native query", roleKey);
                     } else if (!result.contains(role)) {
                         result.add(role);
                     }
@@ -472,11 +471,10 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
                 ? (String) ((Object[]) resultKey)[0]
                 : ((String) resultKey)).
-                forEachOrdered(actualKey -> {
-                    Group group = groupDAO.find(actualKey.toString());
+                forEach(groupKey -> {
+                    Group group = groupDAO.find(groupKey.toString());
                     if (group == null) {
-                        LOG.error("Could not find group with id {}, even though returned by the native query",
-                                actualKey);
+                        LOG.error("Could not find group {}, even though returned by the native query", groupKey);
                     } else if (!result.contains(group)) {
                         result.add(group);
                     }
