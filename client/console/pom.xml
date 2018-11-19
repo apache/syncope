@@ -59,10 +59,6 @@ under the License.
       <artifactId>wicket-extensions</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.wicketstuff</groupId>
-      <artifactId>wicket-datetime</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket-auth-roles</artifactId>
     </dependency>
