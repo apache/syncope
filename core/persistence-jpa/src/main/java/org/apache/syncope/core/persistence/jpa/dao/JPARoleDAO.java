@@ -20,7 +20,9 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -142,6 +144,7 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<String> findDynMembers(final Role role) {
         if (role.getDynMembership() == null) {
             return Collections.emptyList();
@@ -151,13 +154,10 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
         query.setParameter(1, role.getKey());
 
         List<String> result = new ArrayList<>();
-        for (Object key : query.getResultList()) {
-            String actualKey = key instanceof Object[]
-                    ? (String) ((Object[]) key)[0]
-                    : ((String) key);
-
-            result.add(actualKey);
-        }
+        query.getResultList().stream().map(key -> key instanceof Object[]
+                ? (String) ((Object[]) key)[0]
+                : ((String) key)).
+                forEach(user -> result.add((String) user));
         return result;
     }
 
@@ -170,20 +170,39 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
 
     @Transactional
     @Override
+    @SuppressWarnings("unchecked")
     public void refreshDynMemberships(final User user) {
-        findAll().stream().filter(role -> role.getDynMembership() != null).forEach(role -> {
+        Query query = entityManager().createNativeQuery(
+                "SELECT role_id FROM " + DYNMEMB_TABLE + " WHERE any_id=?");
+        query.setParameter(1, user.getKey());
+
+        Set<String> before = new HashSet<>();
+        query.getResultList().stream().
+                map(resultKey -> resultKey instanceof Object[]
+                ? (String) ((Object[]) resultKey)[0]
+                : ((String) resultKey)).
+                forEach(role -> before.add((String) role));
+
+        Set<String> after = new HashSet<>();
+        findAll().stream().
+                filter(role -> role.getDynMembership() != null
+                && searchDAO.matches(user, SearchCondConverter.convert(role.getDynMembership().getFIQLCond()))
+                && !before.contains(role.getKey())).
+                forEach(role -> {
+                    Query insert = entityManager().createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
+                    insert.setParameter(1, user.getKey());
+                    insert.setParameter(2, role.getKey());
+                    insert.executeUpdate();
+
+                    after.add(role.getKey());
+                });
+
+        before.stream().filter(role -> !after.contains(role)).forEach(role -> {
             Query delete = entityManager().createNativeQuery(
                     "DELETE FROM " + DYNMEMB_TABLE + " WHERE role_id=? AND any_id=?");
-            delete.setParameter(1, role.getKey());
+            delete.setParameter(1, role);
             delete.setParameter(2, user.getKey());
             delete.executeUpdate();
-
-            if (searchDAO.matches(user, SearchCondConverter.convert(role.getDynMembership().getFIQLCond()))) {
-                Query insert = entityManager().createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
-                insert.setParameter(1, user.getKey());
-                insert.setParameter(2, role.getKey());
-                insert.executeUpdate();
-            }
         });
     }
 

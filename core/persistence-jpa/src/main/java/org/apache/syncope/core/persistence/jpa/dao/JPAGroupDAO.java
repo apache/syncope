@@ -288,7 +288,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             }
         }
         clearADynMembers(merged);
-        merged.getADynMemberships().stream().forEach(memb -> {
+        merged.getADynMemberships().forEach(memb -> {
             SearchCond cond = buildDynMembershipCond(memb.getFIQLCond(), merged.getRealm());
             int count = searchDAO.count(
                     Collections.<String>singleton(merged.getRealm().getFullPath()), cond, AnyTypeKind.ANY_OBJECT);
@@ -327,12 +327,12 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             AnyObject leftEnd = membership.getLeftEnd();
             leftEnd.remove(membership);
             membership.setRightEnd(null);
-            leftEnd.getPlainAttrs(membership).stream().map(attr -> {
+            leftEnd.getPlainAttrs(membership).forEach(attr -> {
                 leftEnd.remove(attr);
                 attr.setOwner(null);
                 attr.setMembership(null);
-                return attr;
-            }).forEachOrdered(attr -> plainAttrDAO.delete(attr));
+                plainAttrDAO.delete(attr);
+            });
 
             anyObjectDAO.save(leftEnd);
             publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, leftEnd, AuthContextUtils.getDomain()));
@@ -342,12 +342,13 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             User leftEnd = membership.getLeftEnd();
             leftEnd.remove(membership);
             membership.setRightEnd(null);
-            leftEnd.getPlainAttrs(membership).stream().map(attr -> {
+            leftEnd.getPlainAttrs(membership).forEach(attr -> {
                 leftEnd.remove(attr);
                 attr.setOwner(null);
                 attr.setMembership(null);
-                return attr;
-            }).forEachOrdered(attr -> plainAttrDAO.delete(attr));
+
+                plainAttrDAO.delete(attr);
+            });
 
             userDAO.save(leftEnd);
             publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, leftEnd, AuthContextUtils.getDomain()));
@@ -375,17 +376,20 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @SuppressWarnings("unchecked")
     public List<String> findADynMembers(final Group group) {
         List<String> result = new ArrayList<>();
-        group.getADynMemberships().stream().map(memb -> {
+
+        group.getADynMemberships().forEach(memb -> {
             Query query = entityManager().createNativeQuery(
                     "SELECT any_id FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND anyType_id=?");
             query.setParameter(1, group.getKey());
             query.setParameter(2, memb.getAnyType().getKey());
-            return query;
-        }).forEachOrdered((query) -> {
+
             query.getResultList().stream().map(key -> key instanceof Object[]
                     ? (String) ((Object[]) key)[0]
                     : ((String) key)).
-                    forEachOrdered(actualKey -> result.add(actualKey.toString()));
+                    filter(anyObject -> !result.contains((String) anyObject)).
+                    forEach(anyObject -> {
+                        result.add((String) anyObject);
+                    });
         });
 
         return result;
@@ -448,35 +452,47 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Transactional
     @Override
+    @SuppressWarnings("unchecked")
     public Pair<Set<String>, Set<String>> refreshDynMemberships(final AnyObject anyObject) {
+        Query query = entityManager().createNativeQuery(
+                "SELECT group_id FROM " + JPAGroupDAO.ADYNMEMB_TABLE + " WHERE any_id=?");
+        query.setParameter(1, anyObject.getKey());
+
         Set<String> before = new HashSet<>();
+        query.getResultList().stream().
+                map(resultKey -> resultKey instanceof Object[]
+                ? (String) ((Object[]) resultKey)[0]
+                : ((String) resultKey)).
+                forEach(group -> before.add((String) group));
+
         Set<String> after = new HashSet<>();
-        findWithADynMemberships(anyObject.getType()).stream().map(memb -> {
+        findWithADynMemberships(anyObject.getType()).stream().
+                filter(membCond -> jpaAnySearchDAO().matches(
+                anyObject,
+                buildDynMembershipCond(membCond.getFIQLCond(), membCond.getGroup().getRealm()))).
+                forEach(membCond -> {
+                    if (!before.contains(membCond.getGroup().getKey())) {
+                        Query insert = entityManager().createNativeQuery(
+                                "INSERT INTO " + ADYNMEMB_TABLE + " VALUES(?, ?, ?)");
+                        insert.setParameter(1, anyObject.getType().getKey());
+                        insert.setParameter(2, anyObject.getKey());
+                        insert.setParameter(3, membCond.getGroup().getKey());
+                        insert.executeUpdate();
+                    }
+
+                    after.add(membCond.getGroup().getKey());
+
+                    publisher.publishEvent(
+                            new AnyCreatedUpdatedEvent<>(this, membCond.getGroup(), AuthContextUtils.getDomain()));
+                });
+
+        before.stream().filter(group -> !after.contains(group)).forEach(group -> {
             Query delete = entityManager().createNativeQuery(
                     "DELETE FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
-            delete.setParameter(1, memb.getGroup().getKey());
+            delete.setParameter(1, group);
             delete.setParameter(2, anyObject.getKey());
-
-            if (delete.executeUpdate() > 0) {
-                before.add(memb.getGroup().getKey());
-            }
-
-            if (jpaAnySearchDAO().matches(
-                    anyObject,
-                    buildDynMembershipCond(memb.getFIQLCond(), memb.getGroup().getRealm()))) {
-
-                Query insert = entityManager().createNativeQuery(
-                        "INSERT INTO " + ADYNMEMB_TABLE + " VALUES(?, ?, ?)");
-                insert.setParameter(1, anyObject.getType().getKey());
-                insert.setParameter(2, anyObject.getKey());
-                insert.setParameter(3, memb.getGroup().getKey());
-                insert.executeUpdate();
-
-                after.add(memb.getGroup().getKey());
-            }
-            return memb;
-        }).forEachOrdered(memb -> publisher.publishEvent(
-                new AnyCreatedUpdatedEvent<>(this, memb.getGroup(), AuthContextUtils.getDomain())));
+            delete.executeUpdate();
+        });
 
         return Pair.of(before, after);
     }
@@ -513,7 +529,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         List<String> result = new ArrayList<>();
         query.getResultList().stream().map(key -> key instanceof Object[]
                 ? (String) ((Object[]) key)[0]
-                : ((String) key)).forEachOrdered(actualKey -> result.add(actualKey.toString()));
+                : ((String) key)).
+                forEach(user -> result.add((String) user));
         return result;
     }
 
@@ -534,34 +551,46 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Transactional
     @Override
+    @SuppressWarnings("unchecked")
     public Pair<Set<String>, Set<String>> refreshDynMemberships(final User user) {
+        Query query = entityManager().createNativeQuery(
+                "SELECT group_id FROM " + JPAGroupDAO.UDYNMEMB_TABLE + " WHERE any_id=?");
+        query.setParameter(1, user.getKey());
+
         Set<String> before = new HashSet<>();
+        query.getResultList().stream().
+                map(resultKey -> resultKey instanceof Object[]
+                ? (String) ((Object[]) resultKey)[0]
+                : ((String) resultKey)).
+                forEach(group -> before.add((String) group));
+
         Set<String> after = new HashSet<>();
-        findWithUDynMemberships().stream().map(memb -> {
+        findWithUDynMemberships().stream().
+                filter(membCond -> jpaAnySearchDAO().matches(
+                user,
+                buildDynMembershipCond(membCond.getFIQLCond(), membCond.getGroup().getRealm()))).
+                forEach(membCond -> {
+                    if (!before.contains(membCond.getGroup().getKey())) {
+                        Query insert = entityManager().createNativeQuery(
+                                "INSERT INTO " + UDYNMEMB_TABLE + " VALUES(?, ?)");
+                        insert.setParameter(1, user.getKey());
+                        insert.setParameter(2, membCond.getGroup().getKey());
+                        insert.executeUpdate();
+                    }
+
+                    after.add(membCond.getGroup().getKey());
+
+                    publisher.publishEvent(
+                            new AnyCreatedUpdatedEvent<>(this, membCond.getGroup(), AuthContextUtils.getDomain()));
+                });
+
+        before.stream().filter(group -> !after.contains(group)).forEach(group -> {
             Query delete = entityManager().createNativeQuery(
                     "DELETE FROM " + UDYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
-            delete.setParameter(1, memb.getGroup().getKey());
+            delete.setParameter(1, group);
             delete.setParameter(2, user.getKey());
-
-            if (delete.executeUpdate() > 0) {
-                before.add(memb.getGroup().getKey());
-            }
-
-            if (jpaAnySearchDAO().matches(
-                    user,
-                    buildDynMembershipCond(memb.getFIQLCond(), memb.getGroup().getRealm()))) {
-
-                Query insert = entityManager().createNativeQuery(
-                        "INSERT INTO " + UDYNMEMB_TABLE + " VALUES(?, ?)");
-                insert.setParameter(1, user.getKey());
-                insert.setParameter(2, memb.getGroup().getKey());
-                insert.executeUpdate();
-
-                after.add(memb.getGroup().getKey());
-            }
-            return memb;
-        }).forEachOrdered(memb -> publisher.publishEvent(
-                new AnyCreatedUpdatedEvent<>(this, memb.getGroup(), AuthContextUtils.getDomain())));
+            delete.executeUpdate();
+        });
 
         return Pair.of(before, after);
     }

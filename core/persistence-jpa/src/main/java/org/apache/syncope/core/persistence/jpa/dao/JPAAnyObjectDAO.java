@@ -268,11 +268,10 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
                 ? (String) ((Object[]) resultKey)[0]
                 : ((String) resultKey)).
-                forEachOrdered(actualKey -> {
-                    Group group = groupDAO.find(actualKey.toString());
+                forEach(groupKey -> {
+                    Group group = groupDAO.find(groupKey.toString());
                     if (group == null) {
-                        LOG.error("Could not find group with id {}, even though returned by the native query",
-                                actualKey);
+                        LOG.error("Could not find group {}, even though returned by the native query", groupKey);
                     } else if (!result.contains(group)) {
                         result.add(group);
                     }
