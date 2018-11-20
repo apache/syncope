@@ -65,7 +65,7 @@ An event is identified by the following five coordinates:
 ** `PUSH`
 ** `CUSTOM`
 . category - the possible values depend on the selected type: for `LOGIC` the <<logic>> components available,
-for `TASK` the various <<tasks-custom>> Tasks configured, for `PROPAGATION`, `PULL` and `PUSH` the defined Any Types
+for `TASK` the various <<tasks-custom, Custom Tasks>> configured, for `PROPAGATION`, `PULL` and `PUSH` the defined Any Types
 . subcategory - completes category with external resource name, when selecting `PROPAGATION`, `PULL` or `PUSH`
 . event type - the final identification of the event; depends on the other coordinates
 . success or failure - whether the current event shall be considered in case of success or failure

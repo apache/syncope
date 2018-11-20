@@ -40,11 +40,8 @@ import org.apache.syncope.common.lib.report.ReconciliationReportletConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.report.StaticReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf;
-import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
-import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.logic.TaskLogic;
+import org.apache.syncope.core.logic.init.ElasticsearchInit;
 import org.apache.syncope.core.provisioning.java.job.report.AuditReportlet;
 import org.apache.syncope.core.provisioning.java.job.report.GroupReportlet;
 import org.apache.syncope.core.provisioning.java.job.report.ReconciliationReportlet;
@@ -54,13 +51,10 @@ import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.AlwaysTrueValidator;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BasicValidator;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValidator;
@@ -87,8 +81,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Static implementation providing information about the integration test environment.
  */
 public class ITImplementationLookup implements ImplementationLookup {
-
-    private static final String ES_REINDEX = "org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex";
 
     private static final Set<Class<?>> JWTSSOPROVIDER_CLASSES = new HashSet<>(
             Arrays.asList(SyncopeJWTSSOProvider.class, CustomJWTSSOProvider.class));
@@ -243,16 +235,10 @@ public class ITImplementationLookup implements ImplementationLookup {
     private AnySearchDAO anySearchDAO;
 
     @Autowired
-    private ImplementationDAO implementationDAO;
-
-    @Autowired
-    private EntityFactory entityFactory;
-
-    @Autowired
     private DomainsHolder domainsHolder;
 
     @Autowired
-    private TaskLogic taskLogic;
+    private ElasticsearchInit elasticsearchInit;
 
     @Override
     public Integer getPriority() {
@@ -265,25 +251,7 @@ public class ITImplementationLookup implements ImplementationLookup {
         if (AopUtils.getTargetClass(anySearchDAO).getName().contains("Elasticsearch")) {
             for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
                 AuthContextUtils.execWithAuthContext(entry.getKey(), () -> {
-                    Implementation reindex = implementationDAO.find(ImplementationType.TASKJOB_DELEGATE).
-                            stream().
-                            filter(impl -> impl.getEngine() == ImplementationEngine.JAVA
-                            && ES_REINDEX.equals(impl.getBody())).
-                            findAny().orElse(null);
-                    if (reindex == null) {
-                        reindex = entityFactory.newEntity(Implementation.class);
-                        reindex.setEngine(ImplementationEngine.JAVA);
-                        reindex.setType(ImplementationType.TASKJOB_DELEGATE);
-                        reindex.setBody(ES_REINDEX);
-                        reindex = implementationDAO.save(reindex);
-                    }
-
-                    SchedTaskTO task = new SchedTaskTO();
-                    task.setJobDelegate(reindex.getKey());
-                    task.setName("Elasticsearch Reindex");
-                    task = taskLogic.createSchedTask(TaskType.SCHEDULED, task);
-
-                    taskLogic.execute(task.getKey(), null, false);
+                    elasticsearchInit.init();
 
                     return null;
                 });

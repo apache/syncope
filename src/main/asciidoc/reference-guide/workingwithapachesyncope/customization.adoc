@@ -487,6 +487,13 @@ classpath*:/provisioning*Context.xml
 classpath*:/workflow*Context.xml
 ....
 
+It is also required to initialize the Elasticsearch indexes.
+
+Add a new Java <<implementations,implementation>> for `TASKJOB_DELEGATE` and use 
+`org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex` as class.
+
+Then, create a new <<tasks-custom, Custom task>>, select the implementation just created as job delegate and execute it.
+
 [discrete]
 ===== Enable the <<SCIM>> extension
 

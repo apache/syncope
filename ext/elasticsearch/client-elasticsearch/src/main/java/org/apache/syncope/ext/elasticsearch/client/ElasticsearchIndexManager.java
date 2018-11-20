@@ -22,7 +22,6 @@ import java.io.IOException;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
@@ -48,7 +47,8 @@ public class ElasticsearchIndexManager {
 
     @TransactionalEventListener
     public void after(final AnyCreatedUpdatedEvent<Any<?>> event) throws IOException {
-        GetResponse getResponse = client.prepareGet(AuthContextUtils.getDomain().toLowerCase(),
+        GetResponse getResponse = client.prepareGet(
+                elasticsearchUtils.getContextDomainName(event.getAny().getType().getKind()),
                 event.getAny().getType().getKind().name(),
                 event.getAny().getKey()).
                 get();
@@ -56,7 +56,7 @@ public class ElasticsearchIndexManager {
             LOG.debug("About to update index for {}", event.getAny());
 
             UpdateResponse response = client.prepareUpdate(
-                    AuthContextUtils.getDomain().toLowerCase(),
+                    elasticsearchUtils.getContextDomainName(event.getAny().getType().getKind()),
                     event.getAny().getType().getKind().name(),
                     event.getAny().getKey()).
                     setRetryOnConflict(elasticsearchUtils.getRetryOnConflict()).
@@ -67,7 +67,7 @@ public class ElasticsearchIndexManager {
             LOG.debug("About to create index for {}", event.getAny());
 
             IndexResponse response = client.prepareIndex(
-                    AuthContextUtils.getDomain().toLowerCase(),
+                    elasticsearchUtils.getContextDomainName(event.getAny().getType().getKind()),
                     event.getAny().getType().getKind().name(),
                     event.getAny().getKey()).
                     setSource(elasticsearchUtils.builder(event.getAny())).
@@ -82,7 +82,7 @@ public class ElasticsearchIndexManager {
         LOG.debug("About to delete index for {}[{}]", event.getAnyTypeKind(), event.getAnyKey());
 
         DeleteResponse response = client.prepareDelete(
-                AuthContextUtils.getDomain().toLowerCase(),
+                elasticsearchUtils.getContextDomainName(event.getAnyTypeKind()),
                 event.getAnyTypeKind().name(),
                 event.getAnyKey()).
                 get();

@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -33,6 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -181,5 +183,14 @@ public class ElasticsearchUtils {
         builder = builder.endObject();
 
         return builder;
+    }
+
+    public String getContextDomainName(final AnyTypeKind kind) {
+        return AuthContextUtils.getDomain().toLowerCase()
+                + (kind.equals(AnyTypeKind.USER)
+                ? "_user"
+                : (kind.equals(AnyTypeKind.GROUP)
+                ? "_group"
+                : "_anyobject"));
     }
 }
