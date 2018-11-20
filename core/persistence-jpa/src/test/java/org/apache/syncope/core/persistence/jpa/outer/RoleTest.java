@@ -124,7 +124,7 @@ public class RoleTest extends AbstractTest {
         Role actual = roleDAO.saveAndRefreshDynMemberships(role);
         assertNotNull(actual);
 
-        roleDAO.flush();
+        entityManager().flush();
 
         // 2. verify that dynamic membership is there
         actual = roleDAO.find(actual.getKey());
@@ -149,7 +149,7 @@ public class RoleTest extends AbstractTest {
         // 4. delete the new user and verify that dynamic membership was updated
         userDAO.delete(newUserKey);
 
-        userDAO.flush();
+        entityManager().flush();
 
         actual = roleDAO.find(actual.getKey());
         members = roleDAO.findDynMembers(actual);
@@ -161,7 +161,7 @@ public class RoleTest extends AbstractTest {
 
         roleDAO.delete(actual);
 
-        roleDAO.flush();
+        entityManager().flush();
 
         assertNull(entityManager().find(JPADynRoleMembership.class, dynMembershipKey));
 
@@ -194,7 +194,7 @@ public class RoleTest extends AbstractTest {
         // 2. remove role
         roleDAO.delete(role);
 
-        userDAO.flush();
+        entityManager().flush();
 
         // 3. verify that role was removed from user
         user = userDAO.find(user.getKey());

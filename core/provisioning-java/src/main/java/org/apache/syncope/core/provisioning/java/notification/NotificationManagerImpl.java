@@ -445,8 +445,6 @@ public class NotificationManagerImpl implements NotificationManager {
         task.add(execution);
         task.setExecuted(true);
         taskDAO.save(task);
-        // this flush call is needed to generate a value for the execution key
-        taskDAO.flush();
         return execution;
     }
 

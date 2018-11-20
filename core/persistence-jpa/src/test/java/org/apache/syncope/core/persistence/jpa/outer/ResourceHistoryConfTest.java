@@ -58,7 +58,7 @@ public class ResourceHistoryConfTest extends AbstractTest {
         ldapHistory = resourceHistoryConfDAO.save(ldapHistory);
         assertNotNull(ldapHistory.getKey());
 
-        resourceHistoryConfDAO.flush();
+        entityManager().flush();
 
         List<ExternalResourceHistoryConf> history = resourceHistoryConfDAO.findByEntity(ldapResource);
         assertEquals(1, history.size());
@@ -66,7 +66,7 @@ public class ResourceHistoryConfTest extends AbstractTest {
 
         resourceHistoryConfDAO.delete(ldapHistory.getKey());
 
-        resourceHistoryConfDAO.flush();
+        entityManager().flush();
 
         assertNull(resourceHistoryConfDAO.find(ldapHistory.getKey()));
         assertTrue(resourceHistoryConfDAO.findByEntity(ldapResource).isEmpty());

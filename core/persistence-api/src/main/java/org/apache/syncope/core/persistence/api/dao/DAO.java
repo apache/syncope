@@ -26,7 +26,5 @@ public interface DAO<E extends Entity> {
 
     void detach(E entity);
 
-    void flush();
-
     void clear();
 }

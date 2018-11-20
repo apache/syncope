@@ -702,7 +702,7 @@ public class AnySearchTest extends AbstractTest {
         anyObject.add(membership);
         anyObjectDAO.save(anyObject);
 
-        anyObjectDAO.flush();
+        entityManager().flush();
 
         MembershipCond groupCond = new MembershipCond();
         groupCond.setGroup("citizen");

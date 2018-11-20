@@ -58,7 +58,7 @@ public class ConnInstanceHistoryConfTest extends AbstractTest {
         ldapHistory = connInstanceHistoryConfDAO.save(ldapHistory);
         assertNotNull(ldapHistory.getKey());
 
-        connInstanceHistoryConfDAO.flush();
+        entityManager().flush();
 
         List<ConnInstanceHistoryConf> history = connInstanceHistoryConfDAO.findByEntity(ldapConnector);
         assertEquals(1, history.size());
@@ -66,7 +66,7 @@ public class ConnInstanceHistoryConfTest extends AbstractTest {
 
         connInstanceHistoryConfDAO.delete(ldapHistory.getKey());
 
-        connInstanceHistoryConfDAO.flush();
+        entityManager().flush();
 
         assertNull(connInstanceHistoryConfDAO.find(ldapHistory.getKey()));
         assertTrue(connInstanceHistoryConfDAO.findByEntity(ldapConnector).isEmpty());

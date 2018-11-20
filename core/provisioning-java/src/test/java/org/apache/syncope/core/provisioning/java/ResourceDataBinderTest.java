@@ -129,7 +129,7 @@ public class ResourceDataBinderTest extends AbstractTest {
         assertNotNull(resource.getProvision(anyTypeDAO.findUser()).get().getMapping());
         assertEquals(1, resource.getProvision(anyTypeDAO.findUser()).get().getMapping().getItems().size());
 
-        resourceDAO.flush();
+        entityManager().flush();
 
         ExternalResource actual = resourceDAO.find("resource-issue42");
         assertNotNull(actual);

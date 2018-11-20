@@ -55,11 +55,6 @@ public abstract class AbstractDAO<E extends Entity> implements DAO<E> {
     }
 
     @Override
-    public void flush() {
-        entityManager().flush();
-    }
-
-    @Override
     public void clear() {
         entityManager().clear();
     }

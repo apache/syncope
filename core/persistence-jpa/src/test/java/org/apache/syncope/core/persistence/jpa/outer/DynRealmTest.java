@@ -63,7 +63,7 @@ public class DynRealmTest extends AbstractTest {
         memb.setDynRealm(dynRealm);
         memb.setAnyType(anyTypeDAO.findUser());
         memb.setFIQLCond("cool==true");
-        
+
         dynRealm.add(memb);
         memb.setDynRealm(dynRealm);
 
@@ -79,7 +79,7 @@ public class DynRealmTest extends AbstractTest {
         DynRealm actual = dynRealmDAO.saveAndRefreshDynMemberships(dynRealm);
         assertNotNull(actual);
 
-        dynRealmDAO.flush();
+        entityManager().flush();
 
         DynRealmCond dynRealmCond = new DynRealmCond();
         dynRealmCond.setDynRealm(actual.getKey());

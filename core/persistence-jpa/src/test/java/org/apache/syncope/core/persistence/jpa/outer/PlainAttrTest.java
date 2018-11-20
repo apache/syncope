@@ -48,7 +48,7 @@ public class PlainAttrTest extends AbstractTest {
     public void deleteAttr() {
         plainAttrDAO.delete(findPlainAttr("35f407a2-d254-4890-9e45-5a7dd8c8df7d", UPlainAttr.class));
 
-        plainAttrDAO.flush();
+        entityManager().flush();
 
         assertNull(findPlainAttr("35f407a2-d254-4890-9e45-5a7dd8c8df7d", UPlainAttr.class));
         assertNull(findPlainAttrValue("0c67225a-030a-4c56-b337-17cf7a311f0f", UPlainAttrValue.class));
@@ -66,7 +66,7 @@ public class PlainAttrTest extends AbstractTest {
 
         // by removing all values, the related attribute is not valid any more
         try {
-            plainAttrValueDAO.flush();
+            entityManager().flush();
             fail();
         } catch (InvalidEntityException e) {
             assertNotNull(e);

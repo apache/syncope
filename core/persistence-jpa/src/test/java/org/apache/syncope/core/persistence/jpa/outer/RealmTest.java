@@ -63,7 +63,7 @@ public class RealmTest extends AbstractTest {
 
         realmDAO.delete(realm);
 
-        realmDAO.flush();
+        entityManager().flush();
 
         role = roleDAO.find("User reviewer");
         assertEquals(beforeSize - 1, role.getRealms().size());

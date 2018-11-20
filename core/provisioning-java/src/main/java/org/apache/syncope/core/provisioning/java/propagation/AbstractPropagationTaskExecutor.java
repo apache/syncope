@@ -500,8 +500,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 task.add(execution);
 
                 taskDAO.save(task);
-                // needed to generate a value for the execution key
-                taskDAO.flush();
             }
 
             if (reporter != null) {

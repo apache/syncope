@@ -103,7 +103,7 @@ public class PlainSchemaTest extends AbstractTest {
         plainSchemaDAO.save(schema);
 
         try {
-            plainSchemaDAO.flush();
+            entityManager().flush();
             fail("This should not happen");
         } catch (Exception e) {
             assertTrue(e instanceof EntityExistsException || e.getCause() instanceof EntityExistsException);
@@ -146,7 +146,7 @@ public class PlainSchemaTest extends AbstractTest {
         // delete user schema fullname
         plainSchemaDAO.delete("fullname");
 
-        plainSchemaDAO.flush();
+        entityManager().flush();
 
         // check for schema deletion
         schema = plainSchemaDAO.find("fullname");
@@ -205,7 +205,7 @@ public class PlainSchemaTest extends AbstractTest {
         // delete user schema fullname
         plainSchemaDAO.delete("surname");
 
-        plainSchemaDAO.flush();
+        entityManager().flush();
 
         // check for schema deletion
         schema = plainSchemaDAO.find("surname");
@@ -224,7 +224,7 @@ public class PlainSchemaTest extends AbstractTest {
         plainSchemaDAO.delete("firstname");
         assertNull(plainSchemaDAO.find("firstname"));
 
-        plainSchemaDAO.flush();
+        entityManager().flush();
 
         assertEquals(5, resourceDAO.find("resource-db-pull").
                 getProvision(anyTypeDAO.findUser()).get().getMapping().getItems().size());

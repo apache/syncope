@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
+import javax.persistence.EntityManager;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @SpringJUnitConfig(locations = {
@@ -27,4 +31,15 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
     "classpath:provisioningTest.xml"
 })
 public abstract class AbstractTest {
+
+    protected EntityManager entityManager() {
+        EntityManager entityManager = EntityManagerFactoryUtils.getTransactionalEntityManager(
+                EntityManagerFactoryUtils.findEntityManagerFactory(
+                        ApplicationContextProvider.getBeanFactory(), AuthContextUtils.getDomain()));
+        if (entityManager == null) {
+            throw new IllegalStateException("Could not find EntityManager for domain " + AuthContextUtils.getDomain());
+        }
+
+        return entityManager;
+    }
 }
