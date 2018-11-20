@@ -48,7 +48,7 @@ public class AccessTokenTest extends AbstractTest {
         accessToken = accessTokenDAO.save(accessToken);
         assertNotNull(accessToken);
 
-        accessTokenDAO.flush();
+        entityManager().flush();
 
         accessToken = accessTokenDAO.findByOwner("bellini");
         assertNotNull(accessToken);
@@ -56,7 +56,7 @@ public class AccessTokenTest extends AbstractTest {
 
         accessTokenDAO.deleteExpired();
 
-        accessTokenDAO.flush();
+        entityManager().flush();
 
         accessToken = accessTokenDAO.findByOwner("bellini");
         assertNull(accessToken);

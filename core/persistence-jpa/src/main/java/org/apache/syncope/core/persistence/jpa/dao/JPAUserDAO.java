@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.persistence.NoResultException;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -321,6 +322,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                     user.getPasswordHistory().remove(i);
                 }
             }
+        } catch (PersistenceException | InvalidEntityException e) {
+            throw e;
         } catch (Exception e) {
             LOG.error("Invalid password for {}", user, e);
             throw new InvalidEntityException(User.class, EntityViolationType.InvalidPassword, e.getMessage());
@@ -361,10 +364,9 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                         && user.getFailedLogins() > policy.getMaxAuthenticationAttempts() && !user.isSuspended();
                 propagateSuspension |= policy.isPropagateSuspension();
             }
+        } catch (PersistenceException | InvalidEntityException e) {
+            throw e;
         } catch (Exception e) {
-            if (e instanceof InvalidEntityException) {
-                throw (InvalidEntityException) e;
-            }
             LOG.error("Invalid username for {}", user, e);
             throw new InvalidEntityException(User.class, EntityViolationType.InvalidUsername, e.getMessage());
         }
@@ -376,9 +378,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         // 1. save clear password value before save
         String clearPwd = user.getClearPassword();
 
-        // 2. save and flush to trigger entity validation        
+        // 2. save
         User merged = super.save(user);
-        entityManager().flush();
 
         // 3. set back the sole clear password value
         JPAUser.class.cast(merged).setClearPassword(clearPwd);

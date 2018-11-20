@@ -135,7 +135,7 @@ public class GroupTest extends AbstractTest {
 
         groupDAO.save(group);
 
-        groupDAO.flush();
+        entityManager().flush();
 
         group = groupDAO.findByName("new");
         assertNotNull(group);
@@ -150,14 +150,14 @@ public class GroupTest extends AbstractTest {
         group.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM));
 
         groupDAO.save(group);
-        groupDAO.flush();
+        entityManager().flush();
     }
 
     @Test
     public void delete() {
         groupDAO.delete("b1f7c12d-ec83-441f-a50e-1691daaedf3b");
 
-        groupDAO.flush();
+        entityManager().flush();
 
         assertNull(groupDAO.find("b1f7c12d-ec83-441f-a50e-1691daaedf3b"));
         assertEquals(userDAO.findAllGroups(userDAO.findByUsername("verdi")).size(), 2);
@@ -223,7 +223,7 @@ public class GroupTest extends AbstractTest {
         Group actual = groupDAO.saveAndRefreshDynMemberships(group);
         assertNotNull(actual);
 
-        groupDAO.flush();
+        entityManager().flush();
 
         // 2. verify that dynamic membership is there
         actual = groupDAO.find(actual.getKey());
@@ -247,7 +247,7 @@ public class GroupTest extends AbstractTest {
         // 4. delete the new user and verify that dynamic membership was updated
         userDAO.delete(newUserKey);
 
-        userDAO.flush();
+        entityManager().flush();
 
         actual = groupDAO.find(actual.getKey());
         members = groupDAO.findUDynMembers(actual);
@@ -259,7 +259,7 @@ public class GroupTest extends AbstractTest {
 
         groupDAO.delete(actual);
 
-        groupDAO.flush();
+        entityManager().flush();
 
         assertNull(entityManager().find(JPAUDynGroupMembership.class, dynMembershipKey));
 
@@ -325,7 +325,7 @@ public class GroupTest extends AbstractTest {
         Group actual = groupDAO.saveAndRefreshDynMemberships(group);
         assertNotNull(actual);
 
-        groupDAO.flush();
+        entityManager().flush();
 
         // 2. verify that dynamic membership is there
         actual = groupDAO.find(actual.getKey());
@@ -351,7 +351,7 @@ public class GroupTest extends AbstractTest {
         // 4. delete the new any object and verify that dynamic membership was updated
         anyObjectDAO.delete(newAnyObjectKey);
 
-        anyObjectDAO.flush();
+        entityManager().flush();
 
         actual = groupDAO.find(actual.getKey());
         members = groupDAO.findADynMembers(actual).stream().filter(object
@@ -364,12 +364,11 @@ public class GroupTest extends AbstractTest {
 
         groupDAO.delete(actual);
 
-        groupDAO.flush();
+        entityManager().flush();
 
         assertNull(entityManager().find(JPAADynGroupMembership.class, dynMembershipKey));
 
         dynGroupMemberships = findDynGroups(anyObject);
         assertTrue(dynGroupMemberships.isEmpty());
     }
-
 }

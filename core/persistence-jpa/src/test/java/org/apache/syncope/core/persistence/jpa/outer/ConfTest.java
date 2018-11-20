@@ -65,7 +65,7 @@ public class ConfTest extends AbstractTest {
         add(attr, String.valueOf(value));
 
         confDAO.save(expireTime);
-        confDAO.flush();
+        entityManager().flush();
 
         CPlainAttr actual = confDAO.find("token.expireTime").get();
         assertEquals(expireTime, actual);

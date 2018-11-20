@@ -47,11 +47,11 @@ public class SecurityQuestionTest extends AbstractTest {
         user.setSecurityAnswer("Rossi");
         userDAO.save(user);
 
-        userDAO.flush();
+        entityManager().flush();
 
         securityQuestionDAO.delete("887028ea-66fc-41e7-b397-620d7ea6dfbb");
 
-        userDAO.flush();
+        entityManager().flush();
 
         user = userDAO.findByUsername("bellini");
 

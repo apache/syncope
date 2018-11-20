@@ -73,7 +73,7 @@ public class ReportTest extends AbstractTest {
             report.setTemplate(reportTemplateDAO.find("sample"));
 
             reportDAO.save(report);
-            reportDAO.flush();
+            entityManager().flush();
         });
     }
 
@@ -92,7 +92,7 @@ public class ReportTest extends AbstractTest {
         report.add(reportExec);
         reportDAO.save(report);
 
-        reportDAO.flush();
+        entityManager().flush();
 
         report = reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
         assertNotNull(report);
@@ -103,7 +103,7 @@ public class ReportTest extends AbstractTest {
     public void deleteReport() {
         reportDAO.delete("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
 
-        reportDAO.flush();
+        entityManager().flush();
 
         assertNull(reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b"));
         assertNull(reportExecDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b"));
@@ -116,7 +116,7 @@ public class ReportTest extends AbstractTest {
 
         reportExecDAO.delete("c13f39c5-0d35-4bff-ba79-3cd5de940369");
 
-        reportExecDAO.flush();
+        entityManager().flush();
 
         assertNull(reportExecDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b"));
 

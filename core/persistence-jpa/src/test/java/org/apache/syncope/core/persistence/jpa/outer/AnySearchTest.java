@@ -61,7 +61,7 @@ public class AnySearchTest extends AbstractTest {
         for (Group group : groupDAO.findAll(1, 100)) {
             groupDAO.delete(group.getKey());
         }
-        groupDAO.flush();
+        entityManager().flush();
 
         AttributeCond coolLeafCond = new AttributeCond(AttributeCond.Type.EQ);
         coolLeafCond.setSchema("cool");
@@ -96,7 +96,7 @@ public class AnySearchTest extends AbstractTest {
         role = roleDAO.saveAndRefreshDynMemberships(role);
         assertNotNull(role);
 
-        roleDAO.flush();
+        entityManager().flush();
 
         // 2. search user by this dynamic role
         RoleCond roleCond = new RoleCond();

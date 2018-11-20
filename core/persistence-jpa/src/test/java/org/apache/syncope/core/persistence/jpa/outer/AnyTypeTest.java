@@ -55,7 +55,7 @@ public class AnyTypeTest extends AbstractTest {
         group.add(other);
         anyTypeDAO.save(group);
 
-        anyTypeDAO.flush();
+        entityManager().flush();
 
         user = anyTypeDAO.findUser();
         assertTrue(user.getClasses().contains(other));
@@ -67,7 +67,7 @@ public class AnyTypeTest extends AbstractTest {
 
         anyTypeClassDAO.delete("other");
 
-        anyTypeDAO.flush();
+        entityManager().flush();
 
         user = anyTypeDAO.findUser();
         assertEquals(userClassesBefore, user.getClasses().size() + 1);
@@ -75,5 +75,4 @@ public class AnyTypeTest extends AbstractTest {
         group = anyTypeDAO.findGroup();
         assertEquals(groupClassesBefore, group.getClasses().size() + 1);
     }
-
 }

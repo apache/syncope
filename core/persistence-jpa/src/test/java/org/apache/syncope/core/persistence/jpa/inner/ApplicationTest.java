@@ -97,7 +97,7 @@ public class ApplicationTest extends AbstractTest {
 
         applicationDAO.save(application);
 
-        applicationDAO.flush();
+        entityManager().flush();
 
         application = applicationDAO.find(application.getKey());
         assertNotNull(application);
@@ -107,7 +107,7 @@ public class ApplicationTest extends AbstractTest {
         // 3. delete application
         applicationDAO.delete(application);
 
-        applicationDAO.flush();
+        entityManager().flush();
 
         assertNull(applicationDAO.find(application.getKey()));
         assertNull(applicationDAO.findPrivilege(privilege1Key));

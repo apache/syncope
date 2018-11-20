@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import java.util.UUID;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -56,7 +55,7 @@ public class ConnInstanceTest extends AbstractTest {
 
         connInstanceDAO.delete(connInstance.getKey());
 
-        connInstanceDAO.flush();
+        entityManager().flush();
 
         ConnInstance actual = connInstanceDAO.find("fcf9f2b0-f7d6-42c9-84a6-61b28255a42b");
         assertNull(actual);

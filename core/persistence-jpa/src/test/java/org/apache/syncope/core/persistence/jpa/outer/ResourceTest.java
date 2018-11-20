@@ -157,7 +157,7 @@ public class ResourceTest extends AbstractTest {
         assertNotNull(actual);
         assertNotNull(actual.getProvision(anyTypeDAO.findUser()).get().getMapping());
 
-        resourceDAO.flush();
+        entityManager().flush();
         resourceDAO.detach(actual);
         connInstanceDAO.detach(connector);
 
@@ -167,7 +167,7 @@ public class ResourceTest extends AbstractTest {
 
         user.add(actual);
 
-        resourceDAO.flush();
+        entityManager().flush();
 
         // retrieve resource
         resource = resourceDAO.find(actual.getKey());
@@ -224,7 +224,7 @@ public class ResourceTest extends AbstractTest {
         resourceDAO.delete(resource.getKey());
 
         // close the transaction
-        resourceDAO.flush();
+        entityManager().flush();
 
         // resource must be removed
         ExternalResource actual = resourceDAO.find("resource-testdb");
@@ -272,7 +272,7 @@ public class ResourceTest extends AbstractTest {
         ldap.getProvisions().remove(groupProvision);
 
         resourceDAO.save(ldap);
-        resourceDAO.flush();
+        entityManager().flush();
 
         itemKeys.forEach(itemKey -> assertNull(entityManager().find(JPAMappingItem.class, itemKey)));
     }
@@ -290,7 +290,7 @@ public class ResourceTest extends AbstractTest {
         resource.setOrgUnit(null);
 
         resourceDAO.save(resource);
-        resourceDAO.flush();
+        entityManager().flush();
 
         resource = resourceDAO.find("resource-ldap-orgunit");
         assertNull(resource.getOrgUnit());
@@ -312,7 +312,7 @@ public class ResourceTest extends AbstractTest {
         csv.getProvision(anyTypeDAO.findUser()).get().getMapping().add(newMapItem);
 
         resourceDAO.save(csv);
-        resourceDAO.flush();
+        entityManager().flush();
 
         csv = resourceDAO.find("resource-csv");
         assertNotNull(csv);

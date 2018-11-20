@@ -120,7 +120,7 @@ public class RemediationTest extends AbstractTest {
 
         taskDAO.delete(remediation.getPullTask());
 
-        remediationDAO.flush();
+        entityManager().flush();
 
         remediation = remediationDAO.find(remediation.getKey());
         assertNull(remediation.getPullTask());

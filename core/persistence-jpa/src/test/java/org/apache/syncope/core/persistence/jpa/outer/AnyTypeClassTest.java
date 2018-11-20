@@ -49,7 +49,7 @@ public class AnyTypeClassTest extends AbstractTest {
 
         plainSchemaDAO.save(newSchema);
 
-        plainSchemaDAO.flush();
+        entityManager().flush();
 
         newSchema = plainSchemaDAO.find(newSchema.getKey());
         assertNotNull(newSchema);
@@ -60,7 +60,7 @@ public class AnyTypeClassTest extends AbstractTest {
 
         anyTypeClassDAO.save(newClass);
 
-        anyTypeClassDAO.flush();
+        entityManager().flush();
 
         newClass = anyTypeClassDAO.find(newClass.getKey());
         assertNotNull(newClass);
@@ -84,7 +84,7 @@ public class AnyTypeClassTest extends AbstractTest {
 
         plainSchemaDAO.delete("surname");
 
-        anyTypeClassDAO.flush();
+        entityManager().flush();
 
         minimalUser = anyTypeClassDAO.find("minimal user");
         assertNotNull(minimalUser);

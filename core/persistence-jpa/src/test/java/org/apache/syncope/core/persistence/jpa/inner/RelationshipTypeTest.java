@@ -99,7 +99,7 @@ public class RelationshipTypeTest extends AbstractTest {
 
         relationshipTypeDAO.delete("neighborhood");
 
-        relationshipTypeDAO.flush();
+        entityManager().flush();
 
         anyObject = anyObjectDAO.find("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
         assertNotNull(anyObject);

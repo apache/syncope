@@ -59,7 +59,7 @@ public class VirSchemaTest extends AbstractTest {
         virSchema.setProvision(provision);
 
         virSchemaDAO.save(virSchema);
-        virSchemaDAO.flush();
+        entityManager().flush();
 
         virSchema = virSchemaDAO.find("vSchema");
         assertNotNull(virSchema);

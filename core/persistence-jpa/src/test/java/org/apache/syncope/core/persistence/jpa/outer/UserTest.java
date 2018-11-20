@@ -75,7 +75,7 @@ public class UserTest extends AbstractTest {
 
         userDAO.delete("c9b2dec2-00a7-4855-97c0-d854842b4b24");
 
-        userDAO.flush();
+        entityManager().flush();
 
         assertNull(userDAO.findByUsername("bellini"));
         assertNull(findPlainAttr(UUID.randomUUID().toString(), UPlainAttr.class));
@@ -104,7 +104,7 @@ public class UserTest extends AbstractTest {
 
         userDAO.save(user);
 
-        userDAO.flush();
+        entityManager().flush();
 
         user = userDAO.findByUsername("bellini");
         assertEquals(1, user.getMemberships().size());
@@ -126,7 +126,7 @@ public class UserTest extends AbstractTest {
 
         userDAO.save(user);
 
-        userDAO.flush();
+        entityManager().flush();
 
         user = userDAO.findByUsername("bellini");
         assertEquals(1, user.getRelationships().size());
@@ -136,10 +136,10 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void membershipWithAttrs() {
+    public void membershipWithAttrNotAllowed() {
         User user = userDAO.findByUsername("vivaldi");
         assertNotNull(user);
-        assertTrue(user.getMemberships().isEmpty());
+        user.getMemberships().clear();
 
         // add 'obscure' to user (no membership): works because 'obscure' is from 'other', default class for USER
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
@@ -168,15 +168,24 @@ public class UserTest extends AbstractTest {
         } catch (InvalidEntityException e) {
             assertNotNull(e);
         }
+        entityManager().flush();
+    }
 
-        // replace 'artDirector' with 'additional', which defines type extension with class 'other' and 'csv':
-        // now it works
-        membership = user.getMembership(groupDAO.findByName("artDirector").getKey()).get();
-        user.remove(user.getPlainAttr("obscure", membership).get());
-        user.getMemberships().remove(membership);
-        membership.setLeftEnd(null);
+    @Test
+    public void membershipWithAttr() {
+        User user = userDAO.findByUsername("vivaldi");
+        assertNotNull(user);
+        user.getMemberships().clear();
 
-        membership = entityFactory.newEntity(UMembership.class);
+        // add 'obscure' (no membership): works because 'obscure' is from 'other', default class for USER
+        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
+        attr.setOwner(user);
+        attr.setSchema(plainSchemaDAO.find("obscure"));
+        attr.add("testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        user.add(attr);
+
+        // add 'obscure' (via 'additional' membership): that group defines type extension with classes 'other' and 'csv'
+        UMembership membership = entityFactory.newEntity(UMembership.class);
         membership.setLeftEnd(user);
         membership.setRightEnd(groupDAO.findByName("additional"));
         user.add(membership);
@@ -189,7 +198,7 @@ public class UserTest extends AbstractTest {
         user.add(attr);
 
         userDAO.save(user);
-        userDAO.flush();
+        entityManager().flush();
 
         user = userDAO.findByUsername("vivaldi");
         assertEquals(1, user.getMemberships().size());
@@ -215,7 +224,7 @@ public class UserTest extends AbstractTest {
         prefix.setExpression("'k' + firstname");
 
         derSchemaDAO.save(prefix);
-        derSchemaDAO.flush();
+        entityManager().flush();
 
         // create derived attribute (literal as suffix)
         DerSchema suffix = entityFactory.newEntity(DerSchema.class);
@@ -223,7 +232,7 @@ public class UserTest extends AbstractTest {
         suffix.setExpression("firstname + 'k'");
 
         derSchemaDAO.save(suffix);
-        derSchemaDAO.flush();
+        entityManager().flush();
 
         // add derived attributes to user
         User owner = userDAO.findByUsername("vivaldi");
@@ -255,7 +264,7 @@ public class UserTest extends AbstractTest {
 
         userDAO.save(user);
 
-        userDAO.flush();
+        entityManager().flush();
 
         user = userDAO.findByUsername("rossini");
         Date afterwards = user.getLastChangeDate();
