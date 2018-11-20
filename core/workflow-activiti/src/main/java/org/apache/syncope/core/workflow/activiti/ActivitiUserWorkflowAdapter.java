@@ -154,6 +154,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 throw (ParsingValidationException) e.getCause().getCause();
             } else if (e.getCause().getCause() instanceof InvalidEntityException) {
                 throw (InvalidEntityException) e.getCause().getCause();
+            } else if (e.getCause().getCause().getClass().getName().contains("persistence")) {
+                throw (RuntimeException) e.getCause().getCause();
             }
         }
 
