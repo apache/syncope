@@ -478,7 +478,7 @@ with
 
 ....
 classpath*:/coreContext.xml
-classpath*:/elasticsearchClientContext.xml
+classpath:/elasticsearchClientContext.xml
 classpath*:/securityContext.xml
 classpath*:/logicContext.xml
 classpath*:/restCXFContext.xml
@@ -486,6 +486,11 @@ classpath*:/persistenceContext.xml
 classpath*:/provisioning*Context.xml
 classpath*:/workflow*Context.xml
 ....
+
+It is also required to initialize the Elasticsearch indexes.
+
+Create a new <<tasks-custom, Custom task>>, specify the 
+`org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex` as job delegate and execute it.
 
 [discrete]
 ===== Enable the <<SCIM>> extension
