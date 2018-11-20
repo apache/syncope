@@ -52,7 +52,6 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
@@ -119,8 +118,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
         Pair<DisMaxQueryBuilder, Set<String>> filter = adminRealmsFilter(adminRealms);
 
-        return client.prepareSearch(AuthContextUtils.getDomain().toLowerCase()).
-                setTypes(kind.name()).
+        return client.prepareSearch(elasticsearchUtils.getContextDomainName(kind)).
                 setSearchType(SearchType.QUERY_THEN_FETCH).
                 setQuery(SyncopeConstants.FULL_ADMIN_REALMS.equals(adminRealms)
                         ? getQueryBuilder(cond, kind)
