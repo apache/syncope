@@ -478,7 +478,7 @@ with
 
 ....
 classpath*:/coreContext.xml
-classpath*:/elasticsearchClientContext.xml
+classpath:/elasticsearchClientContext.xml
 classpath*:/securityContext.xml
 classpath*:/logicContext.xml
 classpath*:/restCXFContext.xml
