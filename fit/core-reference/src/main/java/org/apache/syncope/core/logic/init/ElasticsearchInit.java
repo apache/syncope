@@ -33,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class ElasticsearchInit {
 
+    private static final String ES_REINDEX = "org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex";
+
     @Autowired
     private ImplementationDAO implementationDAO;
 
@@ -41,8 +43,6 @@ public class ElasticsearchInit {
 
     @Autowired
     private TaskLogic taskLogic;
-
-    private static final String ES_REINDEX = "org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex";
 
     @Transactional
     public void init() {
@@ -67,5 +67,4 @@ public class ElasticsearchInit {
 
         taskLogic.execute(task.getKey(), null, false);
     }
-
 }

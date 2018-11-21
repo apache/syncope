@@ -487,12 +487,14 @@ classpath*:/provisioning*Context.xml
 classpath*:/workflow*Context.xml
 ....
 
-It is also required to initialize the Elasticsearch indexes.
+It is also required to initialize the Elasticsearch indexes: add a new Java <<implementations,implementation>> for
+`TASKJOB_DELEGATE` and use `org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex` as class. +
+Then, create a new <<tasks-custom, custom task>>, select the implementation just created as job delegate and execute it.
 
-Add a new Java <<implementations,implementation>> for `TASKJOB_DELEGATE` and use 
-`org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex` as class.
-
-Then, create a new <<tasks-custom, Custom task>>, select the implementation just created as job delegate and execute it.
+[TIP]
+The `org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex` custom task created above is not meant for
+scheduled execution; rather, it can be run every time you want to blank and re-create the Elasticsearch indexes
+starting from Syncope's users, groups and any objects.
 
 [discrete]
 ===== Enable the <<SCIM>> extension

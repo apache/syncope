@@ -186,11 +186,6 @@ public class ElasticsearchUtils {
     }
 
     public String getContextDomainName(final AnyTypeKind kind) {
-        return AuthContextUtils.getDomain().toLowerCase()
-                + (kind.equals(AnyTypeKind.USER)
-                ? "_user"
-                : (kind.equals(AnyTypeKind.GROUP)
-                ? "_group"
-                : "_anyobject"));
+        return AuthContextUtils.getDomain().toLowerCase() + "_" + kind.name().toLowerCase();
     }
 }
