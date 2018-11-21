@@ -252,7 +252,6 @@ public class ITImplementationLookup implements ImplementationLookup {
             for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
                 AuthContextUtils.execWithAuthContext(entry.getKey(), () -> {
                     elasticsearchInit.init();
-
                     return null;
                 });
             }
