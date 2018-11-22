@@ -410,24 +410,26 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                         ((MultiFieldPanel) panel).setReadOnly(schemas.get(attrTO.getSchema()).isReadonly());
                     }
                     item.add(panel);
-                    Optional<AttrTO> previousPlainAttr = previousObject.getPlainAttr(attrTO.getSchema());
 
+                    Optional<AttrTO> previousPlainAttr = previousObject == null
+                            ? Optional.empty()
+                            : previousObject.getPlainAttr(attrTO.getSchema());
                     if (previousObject != null
-                            && ((!previousPlainAttr.isPresent() && !isEmptyOrBlank(attrTO.getValues()))
+                            && ((!previousPlainAttr.isPresent() && isNotEmptyOrBlank(attrTO.getValues()))
                             || (previousPlainAttr.isPresent() && !ListUtils.isEqualList(
                             ListUtils.select(previousPlainAttr.get().getValues(),
                                     object -> StringUtils.isNotEmpty(object)),
                             ListUtils.select(attrTO.getValues(), object -> StringUtils.isNotEmpty(object)))))) {
 
-                        List<String> oldValues = !previousPlainAttr.isPresent()
-                                ? Collections.<String>emptyList()
-                                : previousPlainAttr.get().getValues();
+                        List<String> oldValues = previousPlainAttr.isPresent()
+                                ? previousPlainAttr.get().getValues()
+                                : Collections.<String>emptyList();
                         panel.showExternAction(new LabelInfo("externalAction", oldValues));
                     }
                 }
 
-                protected boolean isEmptyOrBlank(final List<String> values) {
-                    return values.stream().allMatch(value -> StringUtils.isBlank(value));
+                protected boolean isNotEmptyOrBlank(final List<String> values) {
+                    return values.stream().anyMatch(value -> StringUtils.isNotBlank(value));
                 }
             });
         }
