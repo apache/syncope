@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -409,19 +410,24 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                         ((MultiFieldPanel) panel).setReadOnly(schemas.get(attrTO.getSchema()).isReadonly());
                     }
                     item.add(panel);
+                    Optional<AttrTO> previousPlainAttr = previousObject.getPlainAttr(attrTO.getSchema());
 
                     if (previousObject != null
-                            && (previousObject.getPlainAttr(attrTO.getSchema()) == null
-                            || !ListUtils.isEqualList(
-                                    ListUtils.select(previousObject.getPlainAttr(attrTO.getSchema()).get().getValues(),
-                                            object -> StringUtils.isNotEmpty(object)),
-                                    ListUtils.select(attrTO.getValues(), object -> StringUtils.isNotEmpty(object))))) {
+                            && ((!previousPlainAttr.isPresent() && !isEmptyOrBlank(attrTO.getValues()))
+                            || (previousPlainAttr.isPresent() && !ListUtils.isEqualList(
+                            ListUtils.select(previousPlainAttr.get().getValues(),
+                                    object -> StringUtils.isNotEmpty(object)),
+                            ListUtils.select(attrTO.getValues(), object -> StringUtils.isNotEmpty(object)))))) {
 
-                        List<String> oldValues = previousObject.getPlainAttr(attrTO.getSchema()) == null
+                        List<String> oldValues = !previousPlainAttr.isPresent()
                                 ? Collections.<String>emptyList()
-                                : previousObject.getPlainAttr(attrTO.getSchema()).get().getValues();
+                                : previousPlainAttr.get().getValues();
                         panel.showExternAction(new LabelInfo("externalAction", oldValues));
                     }
+                }
+
+                protected boolean isEmptyOrBlank(final List<String> values) {
+                    return values.stream().allMatch(value -> StringUtils.isBlank(value));
                 }
             });
         }
