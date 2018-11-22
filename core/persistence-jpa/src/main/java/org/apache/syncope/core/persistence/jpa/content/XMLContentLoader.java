@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -101,6 +102,7 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
             throws IOException, ParserConfigurationException, SAXException {
 
         SAXParserFactory factory = SAXParserFactory.newInstance();
+        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
         try (InputStream in = contentXML.getResource().getInputStream()) {
             SAXParser parser = factory.newSAXParser();
             parser.parse(in, new ContentLoaderHandler(dataSource, ROOT_ELEMENT, true));
