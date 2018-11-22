@@ -19,14 +19,14 @@
 package org.apache.syncope.common.lib.to;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.io.Serializable;
 import java.util.Date;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.BaseBean;
 
 @XmlType
-public class AbstractStartEndBean implements Serializable {
+public class AbstractStartEndBean extends BaseBean {
 
     private static final long serialVersionUID = 2399577415544539917L;
 

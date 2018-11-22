@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +34,7 @@ import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
 import org.apache.cxf.jaxrs.ext.search.SearchContext;
+import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -216,7 +216,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
      * @param totalCount total result size (not considering pagination)
      * @return paged result
      */
-    protected <T extends Serializable> PagedResult<T> buildPagedResult(
+    protected <T extends BaseBean> PagedResult<T> buildPagedResult(
             final List<T> list, final int page, final int size, final int totalCount) {
 
         PagedResult<T> result = new PagedResult<>();

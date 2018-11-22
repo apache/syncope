@@ -20,7 +20,6 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,11 +28,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.patch.UserPatch;
 
 @XmlRootElement(name = "userRequestForm")
 @XmlType
-public class UserRequestForm implements Serializable {
+public class UserRequestForm extends BaseBean {
 
     private static final long serialVersionUID = -7044543391316529128L;
 
