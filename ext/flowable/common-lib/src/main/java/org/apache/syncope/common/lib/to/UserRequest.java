@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import java.io.Serializable;
 import java.util.Date;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.BaseBean;
 
 @XmlRootElement(name = "userRequest")
 @XmlType
-public class UserRequest implements Serializable {
+public class UserRequest extends BaseBean {
 
     private static final long serialVersionUID = -8430826310789942133L;
 

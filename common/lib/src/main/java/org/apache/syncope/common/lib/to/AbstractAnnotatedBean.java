@@ -25,12 +25,13 @@ import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.BaseBean;
 
 /**
  * Abstract wrapper for common system information.
  */
 @XmlType
-public abstract class AbstractAnnotatedBean implements EntityTO {
+public abstract class AbstractAnnotatedBean extends BaseBean implements EntityTO {
 
     private static final long serialVersionUID = -930797879027642457L;
 
