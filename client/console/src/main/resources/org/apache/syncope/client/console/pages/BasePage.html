@@ -34,6 +34,10 @@ under the License.
     <link href="css/AdminLTE_skins/skin-green-light.css" rel="stylesheet" type="text/css"/>
     <link href="css/syncopeConsole.css" rel="stylesheet" type="text/css"/>
 
+    <!-- accessibility -->
+    <link href="css/accessibility.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="js/accessibility.js"></script>
+
     <script type="text/javascript" src="webjars/bootbox/${bootbox.version}/bootbox.js"></script>
     <script type="text/javascript" src="webjars/jQuery-slimScroll/${jquery-slimscroll.version}/jquery.slimscroll.min.js"></script>
     <script type="text/javascript">
@@ -41,7 +45,7 @@ under the License.
       var proceed = false;
       // configure AdminLTE
       $.AdminLTE.options['enableBSToppltip'] = false;
-    </script>
+    </script>    
   </head>
   <body class="skin-green-light hold-transition sidebar-mini" wicket:id="body">
 
@@ -216,6 +220,32 @@ under the License.
 
                 <div class="menu-info">
                   <h4 class="control-sidebar-subheading">Download</h4>
+                </div>
+              </a>
+            </li>
+          </ul>
+          <!-- /.control-sidebar-menu -->
+
+          <h3 class="control-sidebar-heading">Accessibility</h3>
+          <ul class="control-sidebar-menu">
+            <li>
+              <a id="change_contrast" href="#" aria-label="Toggle high contrast colors mode">
+                <i class="menu-icon fa fa-adjust bg-gray"></i>
+
+                <div class="menu-info">
+                  <h4 class="control-sidebar-subheading">Toggle high contrast mode</h4>
+                  <p>Enable / disable high contrast mode</p>
+                </div>
+              </a>
+            </li>
+
+            <li>
+              <a id="change_fontSize" href="#" aria-label="Toggle font size increment">
+                <i class="menu-icon fa fa-font bg-gray"></i>
+
+                <div class="menu-info">
+                  <h4 class="control-sidebar-subheading">Change font size</h4>
+                  <p>Increase / reset font size</p>
                 </div>
               </a>
             </li>
