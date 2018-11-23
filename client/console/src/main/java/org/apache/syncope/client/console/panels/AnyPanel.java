@@ -127,7 +127,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                     @Override
                     protected void onComponentTag(final ComponentTag tag) {
                         super.onComponentTag(tag);
-                        tag.put("style", "color: #337ab7 !important");
+                        tag.put("style", "color: #337ab7");
                     }
 
                     @Override
