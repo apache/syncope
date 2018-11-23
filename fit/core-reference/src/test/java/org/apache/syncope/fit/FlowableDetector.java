@@ -23,6 +23,6 @@ import org.apache.syncope.common.rest.api.service.SyncopeService;
 public class FlowableDetector {
 
     public static boolean isFlowableEnabledForUserWorkflow(final SyncopeService syncopeService) {
-        return syncopeService.platform().getUserWorkflowAdapter().contains("Flowable");
+        return syncopeService.platform().getWorkflowInfo().getUserWorkflowAdapter().contains("Flowable");
     }
 }

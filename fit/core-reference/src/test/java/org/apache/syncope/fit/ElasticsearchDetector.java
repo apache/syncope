@@ -23,7 +23,6 @@ import org.apache.syncope.common.rest.api.service.SyncopeService;
 public class ElasticsearchDetector {
 
     public static boolean isElasticSearchEnabled(final SyncopeService syncopeService) {
-        return syncopeService.platform().getAnySearchDAO().contains("Elasticsearch");
+        return syncopeService.platform().getPersistenceInfo().getAnySearchDAO().contains("Elasticsearch");
     }
-
 }

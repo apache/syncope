@@ -40,7 +40,7 @@ public class CamelRouteITCase extends AbstractITCase {
 
     @BeforeEach
     public void check() {
-        assumeTrue(syncopeService.platform().getUserProvisioningManager().contains("Camel"));
+        assumeTrue(syncopeService.platform().getProvisioningInfo().getUserProvisioningManager().contains("Camel"));
     }
 
     @Test
