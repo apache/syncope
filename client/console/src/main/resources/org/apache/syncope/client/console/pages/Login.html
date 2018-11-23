@@ -33,10 +33,27 @@ under the License.
 
     <link href="css/login.css" rel="stylesheet" type="text/css" />
     <link href="css/syncopeConsole.css" rel="stylesheet" type="text/css" />
+
+    <!-- accessibility -->
+    <link href="css/accessibility.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="js/accessibility.js"></script>
   </head>
-  <body>
+
+  <body class="login-body">
+    <div id="accessibility">
+      <div id="change_contrast" class="btn-accessibility">
+        <i aria-label="Toggle high contrast colors mode" tabindex="0" accesskey="H"
+           class="fa fa-adjust">
+        </i>
+      </div>
+      <div id="change_fontSize" class="btn-accessibility">
+        <i aria-label="Toggle font size increment" tabindex="1" accesskey="F"
+           class="fa fa-font">
+        </i>
+      </div>
+    </div>
     <div class="container">
-      <div class="card card-container">
+      <div class="login-card card card-container">
         <img class="login-logo" src="img/logo-green.png" />
 
         <span wicket:id="feedback" role="alert"/>
