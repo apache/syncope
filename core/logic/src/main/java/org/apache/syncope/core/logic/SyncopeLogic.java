@@ -57,6 +57,9 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
@@ -70,6 +73,7 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
@@ -186,6 +190,18 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
     private PasswordGenerator passwordGenerator;
 
     @Autowired
+    private EntityFactory entityFactory;
+
+    @Autowired
+    private PlainSchemaDAO plainSchemaDAO;
+
+    @Autowired
+    private PlainAttrDAO plainAttrDAO;
+
+    @Autowired
+    private PlainAttrValueDAO plainAttrValueDAO;
+
+    @Autowired
     private AnySearchDAO anySearchDAO;
 
     @Autowired
@@ -216,17 +232,44 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                             map(URI::toASCIIString).collect(Collectors.toList()));
                 }
 
-                PLATFORM_INFO.setPropagationTaskExecutor(AopUtils.getTargetClass(propagationTaskExecutor).getName());
-                PLATFORM_INFO.setAnyObjectWorkflowAdapter(AopUtils.getTargetClass(awfAdapter).getName());
-                PLATFORM_INFO.setUserWorkflowAdapter(AopUtils.getTargetClass(uwfAdapter).getName());
-                PLATFORM_INFO.setGroupWorkflowAdapter(AopUtils.getTargetClass(gwfAdapter).getName());
+                PLATFORM_INFO.getWorkflowInfo().
+                        setAnyObjectWorkflowAdapter(AopUtils.getTargetClass(awfAdapter).getName());
+                PLATFORM_INFO.getWorkflowInfo().
+                        setUserWorkflowAdapter(AopUtils.getTargetClass(uwfAdapter).getName());
+                PLATFORM_INFO.getWorkflowInfo().
+                        setGroupWorkflowAdapter(AopUtils.getTargetClass(gwfAdapter).getName());
 
-                PLATFORM_INFO.setAnyObjectProvisioningManager(AopUtils.getTargetClass(aProvisioningManager).getName());
-                PLATFORM_INFO.setUserProvisioningManager(AopUtils.getTargetClass(uProvisioningManager).getName());
-                PLATFORM_INFO.setGroupProvisioningManager(AopUtils.getTargetClass(gProvisioningManager).getName());
-                PLATFORM_INFO.setVirAttrCache(AopUtils.getTargetClass(virAttrCache).getName());
+                PLATFORM_INFO.getProvisioningInfo().
+                        setAnyObjectProvisioningManager(AopUtils.getTargetClass(aProvisioningManager).getName());
+                PLATFORM_INFO.getProvisioningInfo().
+                        setUserProvisioningManager(AopUtils.getTargetClass(uProvisioningManager).getName());
+                PLATFORM_INFO.getProvisioningInfo().
+                        setGroupProvisioningManager(AopUtils.getTargetClass(gProvisioningManager).getName());
+                PLATFORM_INFO.getProvisioningInfo().
+                        setPropagationTaskExecutor(AopUtils.getTargetClass(propagationTaskExecutor).getName());
+                PLATFORM_INFO.getProvisioningInfo().
+                        setVirAttrCache(AopUtils.getTargetClass(virAttrCache).getName());
+
                 PLATFORM_INFO.setPasswordGenerator(AopUtils.getTargetClass(passwordGenerator).getName());
-                PLATFORM_INFO.setAnySearchDAO(AopUtils.getTargetClass(anySearchDAO).getName());
+
+                PLATFORM_INFO.getPersistenceInfo().
+                        setEntityFactory(AopUtils.getTargetClass(entityFactory).getName());
+                PLATFORM_INFO.getPersistenceInfo().
+                        setPlainSchemaDAO(AopUtils.getTargetClass(plainSchemaDAO).getName());
+                PLATFORM_INFO.getPersistenceInfo().
+                        setPlainAttrDAO(AopUtils.getTargetClass(plainAttrDAO).getName());
+                PLATFORM_INFO.getPersistenceInfo().
+                        setPlainAttrValueDAO(AopUtils.getTargetClass(plainAttrValueDAO).getName());
+                PLATFORM_INFO.getPersistenceInfo().
+                        setAnySearchDAO(AopUtils.getTargetClass(anySearchDAO).getName());
+                PLATFORM_INFO.getPersistenceInfo().
+                        setUserDAO(AopUtils.getTargetClass(userDAO).getName());
+                PLATFORM_INFO.getPersistenceInfo().
+                        setGroupDAO(AopUtils.getTargetClass(groupDAO).getName());
+                PLATFORM_INFO.getPersistenceInfo().
+                        setAnyObjectDAO(AopUtils.getTargetClass(anyObjectDAO).getName());
+                PLATFORM_INFO.getPersistenceInfo().
+                        setConfDAO(AopUtils.getTargetClass(confDAO).getName());
 
                 Arrays.stream(ImplementationType.values()).
                         forEach(type -> {

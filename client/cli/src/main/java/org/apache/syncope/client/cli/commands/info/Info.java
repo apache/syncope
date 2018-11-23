@@ -73,9 +73,9 @@ public class Info {
     public void provisioningManager() {
         try {
             infoResultManager.printProvisioningManager(
-                    platformInfo.getAnyObjectProvisioningManager(),
-                    platformInfo.getUserProvisioningManager(),
-                    platformInfo.getGroupProvisioningManager());
+                    platformInfo.getProvisioningInfo().getAnyObjectProvisioningManager(),
+                    platformInfo.getProvisioningInfo().getUserProvisioningManager(),
+                    platformInfo.getProvisioningInfo().getGroupProvisioningManager());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -234,7 +234,7 @@ public class Info {
 
     public void virAttrCache() {
         try {
-            infoResultManager.printVirtualAttributeCacheClass(platformInfo.getVirAttrCache());
+            infoResultManager.printVirtualAttributeCacheClass(platformInfo.getProvisioningInfo().getVirAttrCache());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());

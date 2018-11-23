@@ -38,9 +38,206 @@ public class PlatformInfo implements Serializable {
 
     private static final long serialVersionUID = -7941853999417673827L;
 
+    @XmlRootElement(name = "provisioningInfo")
+    @XmlType
+    public class ProvisioningInfo implements Serializable {
+
+        private static final long serialVersionUID = 533340357732839568L;
+
+        private String propagationTaskExecutor;
+
+        private String virAttrCache;
+
+        private String anyObjectProvisioningManager;
+
+        private String userProvisioningManager;
+
+        private String groupProvisioningManager;
+
+        public String getPropagationTaskExecutor() {
+            return propagationTaskExecutor;
+        }
+
+        public void setPropagationTaskExecutor(final String propagationTaskExecutor) {
+            this.propagationTaskExecutor = propagationTaskExecutor;
+        }
+
+        public String getVirAttrCache() {
+            return virAttrCache;
+        }
+
+        public void setVirAttrCache(final String virAttrCache) {
+            this.virAttrCache = virAttrCache;
+        }
+
+        public String getAnyObjectProvisioningManager() {
+            return anyObjectProvisioningManager;
+        }
+
+        public void setAnyObjectProvisioningManager(final String anyObjectProvisioningManager) {
+            this.anyObjectProvisioningManager = anyObjectProvisioningManager;
+        }
+
+        public String getUserProvisioningManager() {
+            return userProvisioningManager;
+        }
+
+        public void setUserProvisioningManager(final String userProvisioningManager) {
+            this.userProvisioningManager = userProvisioningManager;
+        }
+
+        public String getGroupProvisioningManager() {
+            return groupProvisioningManager;
+        }
+
+        public void setGroupProvisioningManager(final String groupProvisioningManager) {
+            this.groupProvisioningManager = groupProvisioningManager;
+        }
+    }
+
+    @XmlRootElement(name = "workflowInfo")
+    @XmlType
+    public class WorkflowInfo implements Serializable {
+
+        private static final long serialVersionUID = 6736937721099195324L;
+
+        private String anyObjectWorkflowAdapter;
+
+        private String userWorkflowAdapter;
+
+        private String groupWorkflowAdapter;
+
+        public String getAnyObjectWorkflowAdapter() {
+            return anyObjectWorkflowAdapter;
+        }
+
+        public void setAnyObjectWorkflowAdapter(final String anyObjectWorkflowAdapter) {
+            this.anyObjectWorkflowAdapter = anyObjectWorkflowAdapter;
+        }
+
+        public String getUserWorkflowAdapter() {
+            return userWorkflowAdapter;
+        }
+
+        public void setUserWorkflowAdapter(final String userWorkflowAdapter) {
+            this.userWorkflowAdapter = userWorkflowAdapter;
+        }
+
+        public String getGroupWorkflowAdapter() {
+            return groupWorkflowAdapter;
+        }
+
+        public void setGroupWorkflowAdapter(final String groupWorkflowAdapter) {
+            this.groupWorkflowAdapter = groupWorkflowAdapter;
+        }
+    }
+
+    @XmlRootElement(name = "persistenceInfo")
+    @XmlType
+    public class PersistenceInfo implements Serializable {
+
+        private static final long serialVersionUID = 2902980556801069487L;
+
+        private String entityFactory;
+
+        private String plainSchemaDAO;
+
+        private String plainAttrDAO;
+
+        private String plainAttrValueDAO;
+
+        private String anySearchDAO;
+
+        private String userDAO;
+
+        private String groupDAO;
+
+        private String anyObjectDAO;
+
+        private String confDAO;
+
+        public String getEntityFactory() {
+            return entityFactory;
+        }
+
+        public void setEntityFactory(final String entityFactory) {
+            this.entityFactory = entityFactory;
+        }
+
+        public String getPlainSchemaDAO() {
+            return plainSchemaDAO;
+        }
+
+        public void setPlainSchemaDAO(final String plainSchemaDAO) {
+            this.plainSchemaDAO = plainSchemaDAO;
+        }
+
+        public String getPlainAttrDAO() {
+            return plainAttrDAO;
+        }
+
+        public void setPlainAttrDAO(final String plainAttrDAO) {
+            this.plainAttrDAO = plainAttrDAO;
+        }
+
+        public String getPlainAttrValueDAO() {
+            return plainAttrValueDAO;
+        }
+
+        public void setPlainAttrValueDAO(final String plainAttrValueDAO) {
+            this.plainAttrValueDAO = plainAttrValueDAO;
+        }
+
+        public String getAnySearchDAO() {
+            return anySearchDAO;
+        }
+
+        public void setAnySearchDAO(final String anySearchDAO) {
+            this.anySearchDAO = anySearchDAO;
+        }
+
+        public String getUserDAO() {
+            return userDAO;
+        }
+
+        public void setUserDAO(final String userDAO) {
+            this.userDAO = userDAO;
+        }
+
+        public String getGroupDAO() {
+            return groupDAO;
+        }
+
+        public void setGroupDAO(final String groupDAO) {
+            this.groupDAO = groupDAO;
+        }
+
+        public String getAnyObjectDAO() {
+            return anyObjectDAO;
+        }
+
+        public void setAnyObjectDAO(final String anyObjectDAO) {
+            this.anyObjectDAO = anyObjectDAO;
+        }
+
+        public String getConfDAO() {
+            return confDAO;
+        }
+
+        public void setConfDAO(final String confDAO) {
+            this.confDAO = confDAO;
+        }
+    }
+
     private String version;
 
     private String buildNumber;
+
+    private final ProvisioningInfo provisioningInfo = new ProvisioningInfo();
+
+    private final WorkflowInfo workflowInfo = new WorkflowInfo();
+
+    private final PersistenceInfo persistenceInfo = new PersistenceInfo();
 
     private boolean selfRegAllowed;
 
@@ -50,25 +247,7 @@ public class PlatformInfo implements Serializable {
 
     private final Set<String> connIdLocations = new HashSet<>();
 
-    private String propagationTaskExecutor;
-
-    private String anyObjectWorkflowAdapter;
-
-    private String userWorkflowAdapter;
-
-    private String groupWorkflowAdapter;
-
-    private String anyObjectProvisioningManager;
-
-    private String userProvisioningManager;
-
-    private String groupProvisioningManager;
-
-    private String virAttrCache;
-
     private String passwordGenerator;
-
-    private String anySearchDAO;
 
     private final List<String> anyTypes = new ArrayList<>();
 
@@ -90,6 +269,18 @@ public class PlatformInfo implements Serializable {
         return buildNumber;
     }
 
+    public ProvisioningInfo getProvisioningInfo() {
+        return provisioningInfo;
+    }
+
+    public WorkflowInfo getWorkflowInfo() {
+        return workflowInfo;
+    }
+
+    public PersistenceInfo getPersistenceInfo() {
+        return persistenceInfo;
+    }
+
     public boolean isSelfRegAllowed() {
         return selfRegAllowed;
     }
@@ -109,52 +300,12 @@ public class PlatformInfo implements Serializable {
         return connIdLocations;
     }
 
-    public String getPropagationTaskExecutor() {
-        return propagationTaskExecutor;
-    }
-
-    public String getAnyObjectWorkflowAdapter() {
-        return anyObjectWorkflowAdapter;
-    }
-
-    public String getUserWorkflowAdapter() {
-        return userWorkflowAdapter;
-    }
-
-    public String getGroupWorkflowAdapter() {
-        return groupWorkflowAdapter;
-    }
-
-    public String getAnyObjectProvisioningManager() {
-        return anyObjectProvisioningManager;
-    }
-
-    public String getUserProvisioningManager() {
-        return userProvisioningManager;
-    }
-
-    public String getGroupProvisioningManager() {
-        return groupProvisioningManager;
-    }
-
-    public String getVirAttrCache() {
-        return virAttrCache;
-    }
-
     public String getPasswordGenerator() {
         return passwordGenerator;
     }
 
     public void setPasswordGenerator(final String passwordGenerator) {
         this.passwordGenerator = passwordGenerator;
-    }
-
-    public String getAnySearchDAO() {
-        return anySearchDAO;
-    }
-
-    public void setAnySearchDAO(final String anySearchDAO) {
-        this.anySearchDAO = anySearchDAO;
     }
 
     @XmlElementWrapper(name = "anyTypes")
@@ -222,37 +373,5 @@ public class PlatformInfo implements Serializable {
 
     public void setPwdResetRequiringSecurityQuestions(final boolean pwdResetRequiringSecurityQuestions) {
         this.pwdResetRequiringSecurityQuestions = pwdResetRequiringSecurityQuestions;
-    }
-
-    public void setPropagationTaskExecutor(final String propagationTaskExecutor) {
-        this.propagationTaskExecutor = propagationTaskExecutor;
-    }
-
-    public void setAnyObjectWorkflowAdapter(final String anyObjectWorkflowAdapter) {
-        this.anyObjectWorkflowAdapter = anyObjectWorkflowAdapter;
-    }
-
-    public void setUserWorkflowAdapter(final String userWorkflowAdapter) {
-        this.userWorkflowAdapter = userWorkflowAdapter;
-    }
-
-    public void setGroupWorkflowAdapter(final String groupWorkflowAdapter) {
-        this.groupWorkflowAdapter = groupWorkflowAdapter;
-    }
-
-    public void setAnyObjectProvisioningManager(final String anyObjectProvisioningManager) {
-        this.anyObjectProvisioningManager = anyObjectProvisioningManager;
-    }
-
-    public void setUserProvisioningManager(final String userProvisioningManager) {
-        this.userProvisioningManager = userProvisioningManager;
-    }
-
-    public void setGroupProvisioningManager(final String groupProvisioningManager) {
-        this.groupProvisioningManager = groupProvisioningManager;
-    }
-
-    public void setVirAttrCache(final String virAttrCache) {
-        this.virAttrCache = virAttrCache;
     }
 }
