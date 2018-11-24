@@ -601,7 +601,7 @@ under the License.
       <dependencies>
         <dependency>
           <groupId>org.apache.syncope.core</groupId>
-          <artifactId>syncope-core-persistence-jpa-pgjsonb</artifactId>
+          <artifactId>syncope-core-persistence-jpa-json</artifactId>
           <version>${project.version}</version>
         </dependency>
     
@@ -724,15 +724,16 @@ under the License.
             <filtering>true</filtering>
           </resource>
           <resource>
-            <directory>${basedir}/../../core/persistence-jpa-pgjsonb/src/test/resources/domains</directory>
+            <directory>${basedir}/../../core/persistence-jpa-json/src/test/resources/pgjsonb/domains</directory>
             <targetPath>${project.build.directory}/classes/domains</targetPath>
             <filtering>true</filtering>
           </resource>
         </resources>
         <testResources>
           <testResource>
-            <directory>src/main/resources/pgjsonb</directory>
+            <directory>${basedir}/../../core/persistence-jpa-json/src/main/resources/pgjsonb</directory>
             <includes>
+              <include>persistence.properties</include>
               <include>indexes.xml</include>
               <include>views.xml</include>
             </includes>            

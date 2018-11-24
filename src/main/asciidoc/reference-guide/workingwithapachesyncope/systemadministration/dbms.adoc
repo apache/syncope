@@ -74,7 +74,7 @@ Add the following dependency to `core/pom.xml`:
 ----
 <dependency>
   <groupId>org.apache.syncope.core</groupId>
-  <artifactId>syncope-core-persistence-jpa-pgjsonb</artifactId>
+  <artifactId>syncope-core-persistence-jpa-json</artifactId>
   <version>${syncope.version}</version>
 </dependency>
 ----
@@ -82,15 +82,15 @@ Add the following dependency to `core/pom.xml`:
 In `persistence.properties`, replace as follows:
 
 ....
-entity.factory=org.apache.syncope.core.persistence.jpa.entity.PGJPAEntityFactory
-plainSchema.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAPlainSchemaDAO
-plainAttr.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAPlainAttrDAO
-plainAttrValue.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAPlainAttrValueDAO
-any.search.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAAnySearchDAO
-user.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAUserDAO
-group.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAGroupDAO
-anyObject.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAAnyObjectDAO
-conf.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAConfDAO
+entity.factory=org.apache.syncope.core.persistence.jpa.entity.PGJPAJSONEntityFactory
+plainSchema.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONPlainSchemaDAO
+plainAttr.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONPlainAttrDAO
+plainAttrValue.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONPlainAttrValueDAO
+any.search.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAJSONAnySearchDAO
+user.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONUserDAO
+group.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONGroupDAO
+anyObject.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONAnyObjectDAO
+conf.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONConfDAO
 ....
 
 In `provisioning.properties`, replace as follows:

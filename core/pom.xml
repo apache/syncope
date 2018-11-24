@@ -79,7 +79,7 @@ under the License.
   <modules>
     <module>persistence-api</module>
     <module>persistence-jpa</module>
-    <module>persistence-jpa-pgjsonb</module>
+    <module>persistence-jpa-json</module>
     <module>spring</module>
     <module>provisioning-api</module>
     <module>provisioning-java</module>
