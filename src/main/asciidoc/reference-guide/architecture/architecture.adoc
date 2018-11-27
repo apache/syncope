@@ -36,6 +36,7 @@ The communication between Admin UI and Core is exclusively REST-based.
 
 More details are available in the dedicated <<admin-console,usage>> section.
 
+[[admin-console-accessibility]]
 ==== Accessibility
 
 The Admin Console UI is accessible to the visually impaired.
@@ -92,6 +93,7 @@ The End-user UI is the web-based application for self-registration, self-service
 
 The communication between End-user UI and Core is exclusively REST-based.
 
+[[enduser-accessibility]]
 ==== Accessibility
 
 The End-user UI is accessible to the visually impaired.
