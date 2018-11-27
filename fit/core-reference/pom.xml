@@ -978,7 +978,7 @@ under the License.
             <configuration>
               <images>
                 <image>
-                  <name>mariadb:10.3.7</name>
+                  <name>mariadb:${docker.mariadb.version}</name>
                   <run>
                     <env>
                       <MYSQL_ROOT_PASSWORD>password</MYSQL_ROOT_PASSWORD>
@@ -989,6 +989,10 @@ under the License.
                     <ports>
                       <port>3306:3306</port>
                     </ports>
+                    <wait>
+                      <log>MySQL init process done. Ready for start up.</log>
+                      <time>30000</time>
+                    </wait>
                   </run>
                 </image>
               </images>

@@ -393,7 +393,7 @@ under the License.
 
     <jackson.version>2.9.7</jackson.version>
 
-    <spring.version>5.1.2.RELEASE</spring.version>
+    <spring.version>5.1.3.RELEASE</spring.version>
     <spring-security.version>5.1.1.RELEASE</spring-security.version>
 
     <openjpa.version>3.0.0</openjpa.version>
@@ -518,10 +518,11 @@ under the License.
     <protractor.version>5.4.0</protractor.version>    
 
     <docker.postgresql.version>11.1</docker.postgresql.version>
+    <docker.mariadb.version>10.4</docker.mariadb.version>
 
     <jdbc.postgresql.version>42.2.5</jdbc.postgresql.version>
     <jdbc.mysql.version>5.1.47</jdbc.mysql.version>
-    <jdbc.mariadb.version>2.2.6</jdbc.mariadb.version>
+    <jdbc.mariadb.version>2.3.0</jdbc.mariadb.version>
     <jdbc.mssql.version>6.4.0.jre</jdbc.mssql.version>
 
     <adminUser>admin</adminUser>
