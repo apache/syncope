@@ -119,8 +119,8 @@ under the License.
       <artifactId>kendo-ui-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.webjars.bowergithub.angular</groupId>
-      <artifactId>bower-angular-aria</artifactId>
+      <groupId>org.webjars.bower</groupId>
+      <artifactId>angular-aria</artifactId>
     </dependency>  
 
     <!--Bootstrap-->

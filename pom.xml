@@ -1592,8 +1592,8 @@ under the License.
         <version>${angular-translate.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.webjars.bowergithub.angular</groupId>
-        <artifactId>bower-angular-aria</artifactId>
+        <groupId>org.webjars.bower</groupId>
+        <artifactId>angular-aria</artifactId>
         <version>${angular.version}</version>
       </dependency>  
 
