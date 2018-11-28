@@ -29,7 +29,9 @@ public final class ConnectionParams {
     public static final class Builder {
 
         private String scheme;
+
         private String host;
+
         private String port;
 
         private String username;
@@ -43,10 +45,12 @@ public final class ConnectionParams {
             this.scheme = value;
             return this;
         }
+
         public Builder host(final String value) {
             this.host = value;
             return this;
         }
+
         public Builder port(final String value) {
             this.port = value;
             return this;

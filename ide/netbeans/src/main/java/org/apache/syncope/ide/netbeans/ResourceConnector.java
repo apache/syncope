@@ -33,7 +33,7 @@ public final class ResourceConnector {
 
     private static ReportTemplateManagerService REPORT_TEMPLATE_MANAGER_SERVICE;
 
-     private static ImplementationManagerService IMPLEMENTATION_MANAGER_SERVICE;
+    private static ImplementationManagerService IMPLEMENTATION_MANAGER_SERVICE;
 
     private static final Object MAIL_TEMPLATE_MONITOR = new Object();
 
@@ -76,7 +76,7 @@ public final class ResourceConnector {
         }
         return IMPLEMENTATION_MANAGER_SERVICE;
     }
-    
+
     public static ConnectionParams getConnectionParams() {
         Preferences prefs = NbPreferences.forModule(ResourceExplorerTopComponent.class);
         return ConnectionParams.builder()
