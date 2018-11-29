@@ -673,8 +673,8 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                     sortedQuery = sortedQuery.orderByTaskDueDate();
                     break;
 
-                case "owner":
-                    sortedQuery = sortedQuery.orderByTaskOwner();
+                case "assignee":
+                    sortedQuery = sortedQuery.orderByTaskAssignee();
                     break;
 
                 default:
