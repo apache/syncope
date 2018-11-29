@@ -51,9 +51,13 @@ import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.Model;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.engine.task.IdentityLink;
+import org.activiti.engine.task.IdentityLinkType;
 import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -766,12 +770,44 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             }
         }
 
+        boolean hasAssignees = IterableUtils.matchesAny(engine.getTaskService().getIdentityLinksForTask(taskId),
+                new Predicate<IdentityLink>() {
+
+            @Override
+            public boolean evaluate(final IdentityLink identityLink) {
+                return IdentityLinkType.ASSIGNEE.equals(identityLink.getType());
+            }
+        });
+        if (hasAssignees) {
+            try {
+                engine.getTaskService().unclaim(taskId);
+            } catch (ActivitiException e) {
+                throw new WorkflowException("While unclaiming task " + taskId, e);
+            }
+        }
+
         Task task;
         try {
-            engine.getTaskService().setOwner(taskId, authUser);
+            engine.getTaskService().claim(taskId, authUser);
             task = engine.getTaskService().createTaskQuery().taskId(taskId).singleResult();
         } catch (ActivitiException e) {
             throw new WorkflowException("While reading task " + taskId, e);
+        }
+
+        return getFormTO(task, checked.getValue());
+    }
+
+    @Override
+    public WorkflowFormTO unclaimForm(final String taskId) {
+        String authUser = AuthContextUtils.getUsername();
+        Pair<Task, TaskFormData> checked = checkTask(taskId, authUser);
+
+        Task task;
+        try {
+            engine.getTaskService().unclaim(taskId);
+            task = engine.getTaskService().createTaskQuery().taskId(taskId).singleResult();
+        } catch (ActivitiException e) {
+            throw new WorkflowException("While unclaiming task " + taskId, e);
         }
 
         return getFormTO(task, checked.getValue());
@@ -793,9 +829,9 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         String authUser = AuthContextUtils.getUsername();
         Pair<Task, TaskFormData> checked = checkTask(form.getTaskId(), authUser);
 
-        if (!checked.getKey().getOwner().equals(authUser)) {
+        if (!checked.getKey().getAssignee().equals(authUser)) {
             throw new WorkflowException(new IllegalArgumentException("Task " + form.getTaskId() + " assigned to "
-                    + checked.getKey().getOwner() + " but submitted by " + authUser));
+                    + checked.getKey().getAssignee() + " but submitted by " + authUser));
         }
 
         User user = userDAO.findByWorkflowId(checked.getKey().getProcessInstanceId());

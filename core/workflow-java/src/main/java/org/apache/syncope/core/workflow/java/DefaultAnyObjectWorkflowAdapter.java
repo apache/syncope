@@ -91,6 +91,11 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
     }
 
     @Override
+    public WorkflowFormTO unclaimForm(final String taskId) {
+        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
+    }
+
+    @Override
     public WorkflowResult<AnyObjectPatch> submitForm(final WorkflowFormTO form) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }

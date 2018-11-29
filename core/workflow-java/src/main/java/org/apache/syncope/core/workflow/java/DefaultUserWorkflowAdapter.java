@@ -179,6 +179,11 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
+    public WorkflowFormTO unclaimForm(final String taskId) {
+        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
+    }
+
+    @Override
     public WorkflowResult<UserPatch> submitForm(final WorkflowFormTO form) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }

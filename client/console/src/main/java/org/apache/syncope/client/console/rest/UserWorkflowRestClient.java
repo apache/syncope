@@ -49,6 +49,10 @@ public class UserWorkflowRestClient extends BaseRestClient {
         return getService(UserWorkflowService.class).claimForm(taskKey);
     }
 
+    public WorkflowFormTO unclaimForm(final String taskKey) {
+        return getService(UserWorkflowService.class).unclaimForm(taskKey);
+    }
+
     public void submitForm(final WorkflowFormTO form) {
         getService(UserWorkflowService.class).submitForm(form);
     }

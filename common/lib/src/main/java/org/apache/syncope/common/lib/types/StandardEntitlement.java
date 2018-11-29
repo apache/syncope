@@ -208,6 +208,8 @@ public final class StandardEntitlement {
 
     public static final String WORKFLOW_FORM_CLAIM = "WORKFLOW_FORM_CLAIM";
 
+    public static final String WORKFLOW_FORM_UNCLAIM = "WORKFLOW_FORM_UNCLAIM";
+
     public static final String WORKFLOW_FORM_SUBMIT = "WORKFLOW_FORM_SUBMIT";
 
     public static final String MAIL_TEMPLATE_LIST = "MAIL_TEMPLATE_LIST";

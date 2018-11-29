@@ -42,6 +42,11 @@ public class UserWorkflowServiceImpl extends AbstractServiceImpl implements User
     }
 
     @Override
+    public WorkflowFormTO unclaimForm(final String taskId) {
+        return logic.unclaimForm(taskId);
+    }
+
+    @Override
     public UserTO executeTask(final String taskId, final UserTO userTO) {
         return logic.executeWorkflowTask(userTO, taskId);
     }

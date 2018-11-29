@@ -126,7 +126,7 @@ public class ApprovalDirectoryPanel
         columns.add(new DatePropertyColumn<WorkflowFormTO>(
                 new ResourceModel("dueDate"), "dueDate", "dueDate"));
         columns.add(new PropertyColumn<WorkflowFormTO, String>(
-                new ResourceModel("owner"), "owner", "owner"));
+                new ResourceModel("assignee"), "assignee", "assignee"));
 
         return columns;
     }
@@ -146,7 +146,29 @@ public class ApprovalDirectoryPanel
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 target.add(container);
             }
+
         }, ActionLink.ActionType.CLAIM, StandardEntitlement.WORKFLOW_FORM_CLAIM);
+
+        panel.add(new ActionLink<WorkflowFormTO>() {
+
+            private static final long serialVersionUID = -8250444429732720947L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final WorkflowFormTO ignore) {
+                unclaimForm(model.getObject().getTaskId());
+                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                ApprovalDirectoryPanel.this.getTogglePanel().close(target);
+                target.add(container);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+
+            @Override
+            protected boolean statusCondition(final WorkflowFormTO modelObject) {
+                return SyncopeConsoleSession.get().getSelfTO().getUsername().
+                        equals(model.getObject().getAssignee());
+            }
+
+        }, ActionLink.ActionType.UNCLAIM, StandardEntitlement.WORKFLOW_FORM_UNCLAIM);
 
         panel.add(new ActionLink<WorkflowFormTO>() {
 
@@ -182,7 +204,7 @@ public class ApprovalDirectoryPanel
             @Override
             protected boolean statusCondition(final WorkflowFormTO modelObject) {
                 return SyncopeConsoleSession.get().getSelfTO().getUsername().
-                        equals(model.getObject().getOwner());
+                        equals(model.getObject().getAssignee());
             }
 
         }, ActionLink.ActionType.MANAGE_APPROVAL, StandardEntitlement.WORKFLOW_FORM_READ);
@@ -234,7 +256,7 @@ public class ApprovalDirectoryPanel
             @Override
             protected boolean statusCondition(final WorkflowFormTO modelObject) {
                 return SyncopeConsoleSession.get().getSelfTO().getUsername().
-                        equals(model.getObject().getOwner());
+                        equals(model.getObject().getAssignee());
             }
 
         }, ActionLink.ActionType.EDIT_APPROVAL, StandardEntitlement.WORKFLOW_FORM_SUBMIT);
@@ -297,6 +319,14 @@ public class ApprovalDirectoryPanel
     private void claimForm(final String taskId) {
         try {
             restClient.claimForm(taskId);
+        } catch (SyncopeClientException scee) {
+            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + scee.getMessage());
+        }
+    }
+
+    private void unclaimForm(final String taskId) {
+        try {
+            restClient.unclaimForm(taskId);
         } catch (SyncopeClientException scee) {
             SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + scee.getMessage());
         }

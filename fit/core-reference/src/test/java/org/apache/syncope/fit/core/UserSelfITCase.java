@@ -103,7 +103,7 @@ public class UserSelfITCase extends AbstractITCase {
     public void createAndApprove() {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
-        // self-create user with membership: goes 'createApproval' with resources and membership but no propagation
+        // 1. self-create user with membership: goes 'createApproval' with resources and membership but no propagation
         UserTO userTO = UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org");
         userTO.getMemberships().add(
                 new MembershipTO.Builder().group("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
@@ -126,10 +126,61 @@ public class UserSelfITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
 
-        // now approve and verify that propagation has happened
+        // 2. approve and verify that propagation has happened
         WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getKey());
         form = userWorkflowService.claimForm(form.getTaskId());
         form.getProperty("approveCreate").setValue(Boolean.TRUE.toString());
+        userTO = userWorkflowService.submitForm(form);
+        assertNotNull(userTO);
+        assertEquals("active", userTO.getStatus());
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey()));
+    }
+
+    @Test
+    public void createAndUnclaim() {
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+
+        // 1. self-create user with membership: goes 'createApproval' with resources and membership but no propagation
+        UserTO userTO = UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org");
+        userTO.getMemberships().add(
+                new MembershipTO.Builder().group("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
+        userTO.getResources().add(RESOURCE_NAME_TESTDB);
+
+        SyncopeClient anonClient = clientFactory.create();
+        userTO = anonClient.getService(UserSelfService.class).
+                create(userTO, true).
+                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                }).getEntity();
+        assertNotNull(userTO);
+        assertEquals("createApproval", userTO.getStatus());
+        assertFalse(userTO.getMemberships().isEmpty());
+        assertFalse(userTO.getResources().isEmpty());
+
+        try {
+            resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey());
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.NotFound, e.getType());
+        }
+
+        // 2. unclaim and verify that propagation has NOT happened
+        WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getKey());
+        form = userWorkflowService.unclaimForm(form.getTaskId());
+        assertNull(form.getAssignee());
+        assertNotNull(userTO);
+        assertNotEquals("active", userTO.getStatus());
+        try {
+            resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey());
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
+
+        // 3. approve and verify that propagation has happened
+        form = userWorkflowService.getFormForUser(userTO.getKey());
+        form = userWorkflowService.claimForm(form.getTaskId());
+        form.getProperty("approveCreate").setValue(Boolean.TRUE.toString());
+        assertNotNull(form.getAssignee());
         userTO = userWorkflowService.submitForm(form);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());

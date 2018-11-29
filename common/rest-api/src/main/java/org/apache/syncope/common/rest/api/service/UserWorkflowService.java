@@ -41,7 +41,8 @@ import org.apache.syncope.common.rest.api.beans.WorkflowFormQuery;
  * REST operations related to user workflow.
  */
 @Api(tags = "UserWorkflow", authorizations = {
-    @Authorization(value = "BasicAuthentication"),
+    @Authorization(value = "BasicAuthentication")
+    ,
     @Authorization(value = "Bearer") })
 @Path("userworkflow")
 public interface UserWorkflowService extends JAXRSService {
@@ -78,6 +79,17 @@ public interface UserWorkflowService extends JAXRSService {
     @Path("forms/{taskId}/claim")
     @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
     WorkflowFormTO claimForm(@NotNull @PathParam("taskId") String taskId);
+
+    /**
+     * Unclaims the form for the given task id.
+     *
+     * @param taskId workflow task id
+     * @return the workflow form for the given task id
+     */
+    @POST
+    @Path("forms/{taskId}/unclaim")
+    @Produces({ MediaType.APPLICATION_JSON, SyncopeConstants.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    WorkflowFormTO unclaimForm(@NotNull @PathParam("taskId") String taskId);
 
     /**
      * Submits a workflow form.

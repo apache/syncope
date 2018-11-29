@@ -93,7 +93,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(form.getUsername());
         assertEquals(userTO.getUsername(), form.getUsername());
         assertNotNull(form.getTaskId());
-        assertNull(form.getOwner());
+        assertNull(form.getAssignee());
 
         // 3. claim task as rossini, with role "User manager" granting entitlement to claim forms but not in group 7,
         // designated for approval in workflow definition: fail
@@ -122,7 +122,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);
         assertNotNull(form.getTaskId());
-        assertNotNull(form.getOwner());
+        assertNotNull(form.getAssignee());
 
         // 5. reject user
         form.getProperty("approveCreate").setValue(Boolean.FALSE.toString());
@@ -196,7 +196,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(form.getUserTO());
         assertEquals(updatedUsername, form.getUserTO().getUsername());
         assertNull(form.getUserPatch());
-        assertNull(form.getOwner());
+        assertNull(form.getAssignee());
 
         // 4. claim task (as admin)
         form = userWorkflowService.claimForm(form.getTaskId());
@@ -205,7 +205,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(form.getUserTO());
         assertEquals(updatedUsername, form.getUserTO().getUsername());
         assertNull(form.getUserPatch());
-        assertNotNull(form.getOwner());
+        assertNotNull(form.getAssignee());
 
         // 5. approve user (and verify that propagation occurred)
         form.getProperty("approveCreate").setValue(Boolean.TRUE.toString());
@@ -220,6 +220,117 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertEquals(userTO.getUsername(), username);
 
         // 6. update user
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().value("anotherPassword123").build());
+
+        userTO = updateUser(userPatch).getEntity();
+        assertNotNull(userTO);
+    }
+
+    @Test
+    public void createAndUnclaim() {
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+
+        // read forms *before* any operation
+        PagedResult<WorkflowFormTO> forms =
+                userWorkflowService.getForms(new WorkflowFormQuery.Builder().page(1).size(1000).build());
+        int preForms = forms.getTotalCount();
+
+        UserTO userTO = UserITCase.getUniqueSampleTO("createWithUnclaim@syncope.apache.org");
+        userTO.getResources().add(RESOURCE_NAME_TESTDB);
+
+        // User with group 0cbcabd2-4410-4b6b-8f05-a052b451d18f are defined in workflow as subject to approval
+        userTO.getMemberships().add(
+                new MembershipTO.Builder().group("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
+
+        // 1. create user and verify that no propagation occurred)
+        ProvisioningResult<UserTO> result = createUser(userTO);
+        assertNotNull(result);
+        userTO = result.getEntity();
+        assertEquals(1, userTO.getMemberships().size());
+        assertEquals("0cbcabd2-4410-4b6b-8f05-a052b451d18f", userTO.getMemberships().get(0).getGroupKey());
+        assertEquals("createApproval", userTO.getStatus());
+        assertEquals(Collections.singleton(RESOURCE_NAME_TESTDB), userTO.getResources());
+
+        assertTrue(result.getPropagationStatuses().isEmpty());
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+
+        Exception exception = null;
+        try {
+            jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
+                    new String[] { userTO.getUsername() }, Integer.class);
+        } catch (EmptyResultDataAccessException e) {
+            exception = e;
+        }
+        assertNotNull(exception);
+
+        // 2. request if there is any pending form for user just created
+        forms = userWorkflowService.getForms(new WorkflowFormQuery.Builder().page(1).size(1000).build());
+        assertEquals(preForms + 1, forms.getTotalCount());
+
+        // 3. as admin, request for changes: still pending approval
+        String updatedUsername = "changed-" + UUID.randomUUID().toString();
+        userTO.setUsername(updatedUsername);
+        userWorkflowService.executeTask("default", userTO);
+
+        WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getKey());
+        assertNotNull(form);
+        assertNotNull(form.getTaskId());
+        assertNotNull(form.getUserTO());
+        assertEquals(updatedUsername, form.getUserTO().getUsername());
+        assertNull(form.getUserPatch());
+        assertNull(form.getAssignee());
+
+        // 4. claim task (as admin)
+        form = userWorkflowService.claimForm(form.getTaskId());
+        assertNotNull(form);
+        assertNotNull(form.getTaskId());
+        assertNotNull(form.getUserTO());
+        assertEquals(updatedUsername, form.getUserTO().getUsername());
+        assertNull(form.getUserPatch());
+        assertNotNull(form.getAssignee());
+
+        // 5. UNclaim task (as admin) and verify there is NO assignee now
+        form = userWorkflowService.unclaimForm(form.getTaskId());
+        assertNotNull(form);
+        assertNotNull(form.getTaskId());
+        assertNotNull(form.getUserTO());
+        assertNull(form.getAssignee());
+
+        // 6. verify that propagation still did NOT occur
+        exception = null;
+        try {
+            jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
+                    new String[] { userTO.getUsername() }, Integer.class);
+        } catch (EmptyResultDataAccessException e) {
+            exception = e;
+        }
+        assertNotNull(exception);
+        
+        // 7. claim task again (as admin)
+        form = userWorkflowService.claimForm(form.getTaskId());
+        assertNotNull(form);
+        assertNotNull(form.getTaskId());
+        assertNotNull(form.getUserTO());
+        assertEquals(updatedUsername, form.getUserTO().getUsername());
+        assertNull(form.getUserPatch());
+        assertNotNull(form.getAssignee());
+
+        // 8. approve user (and verify that propagation occurred)
+        form.getProperty("approveCreate").setValue(Boolean.TRUE.toString());
+        userTO = userWorkflowService.submitForm(form);
+        assertNotNull(userTO);
+        assertEquals(updatedUsername, userTO.getUsername());
+        assertEquals("active", userTO.getStatus());
+        assertEquals(Collections.singleton(RESOURCE_NAME_TESTDB), userTO.getResources());
+
+        String username = queryForObject(
+                jdbcTemplate, 50, "SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
+        assertEquals(userTO.getUsername(), username);
+
+        // 9. update user
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
         userPatch.setPassword(new PasswordPatch.Builder().value("anotherPassword123").build());
@@ -257,7 +368,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         WorkflowFormTO form = userWorkflowService.getFormForUser(created.getKey());
         assertNotNull(form);
         assertNotNull(form.getTaskId());
-        assertNull(form.getOwner());
+        assertNull(form.getAssignee());
         assertNotNull(form.getUserTO());
         assertNotNull(form.getUserPatch());
         assertEquals(patch, form.getUserPatch());
@@ -359,7 +470,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);
         assertNotNull(form.getTaskId());
-        assertNotNull(form.getOwner());
+        assertNotNull(form.getAssignee());
 
         // 4. second claim task by admin
         form = userWorkflowService.claimForm(form.getTaskId());

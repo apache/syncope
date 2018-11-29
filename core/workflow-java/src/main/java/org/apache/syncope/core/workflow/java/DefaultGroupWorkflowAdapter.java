@@ -89,6 +89,11 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
     public WorkflowFormTO claimForm(final String taskId) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
+    
+    @Override
+    public WorkflowFormTO unclaimForm(final String taskId) {
+        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
+    }
 
     @Override
     public WorkflowResult<GroupPatch> submitForm(final WorkflowFormTO form) {

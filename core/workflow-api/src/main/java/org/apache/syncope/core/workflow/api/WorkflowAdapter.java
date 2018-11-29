@@ -65,6 +65,14 @@ public interface WorkflowAdapter {
     WorkflowFormTO claimForm(String taskId);
 
     /**
+     * Unclaim a form for a given object.
+     *
+     * @param taskId Workflow task to which the form is associated
+     * @return updated form
+     */
+    WorkflowFormTO unclaimForm(String taskId);
+
+    /**
      * Submit a form.
      *
      * @param form to be submitted

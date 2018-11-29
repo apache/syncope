@@ -60,9 +60,13 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
     private UserDAO userDAO;
 
     @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_FORM_CLAIM + "')")
-
     public WorkflowFormTO claimForm(final String taskId) {
         return uwfAdapter.claimForm(taskId);
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_FORM_UNCLAIM + "')")
+    public WorkflowFormTO unclaimForm(final String taskId) {
+        return uwfAdapter.unclaimForm(taskId);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
