@@ -41,8 +41,7 @@ import org.apache.syncope.common.rest.api.beans.WorkflowFormQuery;
  * REST operations related to user workflow.
  */
 @Api(tags = "UserWorkflow", authorizations = {
-    @Authorization(value = "BasicAuthentication")
-    ,
+    @Authorization(value = "BasicAuthentication"),
     @Authorization(value = "Bearer") })
 @Path("userworkflow")
 public interface UserWorkflowService extends JAXRSService {
