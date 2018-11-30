@@ -62,6 +62,7 @@ import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntity;
 import org.flowable.engine.impl.persistence.entity.HistoricFormPropertyEntity;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.identitylink.api.IdentityLinkType;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskQuery;
 import org.flowable.task.api.history.HistoricTaskInstance;
@@ -310,7 +311,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         formTO.setDueDate(task.getDueDate());
         formTO.setExecutionId(task.getExecutionId());
         formTO.setFormKey(task.getFormKey());
-        formTO.setOwner(task.getOwner());
+        formTO.setAssignee(task.getAssignee());
 
         return formTO;
     }
@@ -328,7 +329,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         formTO.setDueDate(task.getDueDate());
         formTO.setExecutionId(task.getExecutionId());
         formTO.setFormKey(task.getFormKey());
-        formTO.setOwner(task.getOwner());
+        formTO.setAssignee(task.getAssignee());
 
         HistoricActivityInstance historicActivityInstance = engine.getHistoryService().
                 createHistoricActivityInstanceQuery().
@@ -509,8 +510,8 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                     query.orderByTaskDueDate();
                     break;
 
-                case "owner":
-                    query.orderByTaskOwner();
+                case "assignee":
+                    query.orderByTaskAssignee();
                     break;
 
                 default:
@@ -570,12 +571,39 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
             }
         }
 
+        boolean hasAssignees =
+                engine.getTaskService().getIdentityLinksForTask(taskId).stream().anyMatch(identityLink -> {
+                    return IdentityLinkType.ASSIGNEE.equals(identityLink.getType());
+                });
+        if (hasAssignees) {
+            try {
+                engine.getTaskService().unclaim(taskId);
+            } catch (FlowableException e) {
+                throw new WorkflowException("While unclaiming task " + taskId, e);
+            }
+        }
+
         Task task;
         try {
-            engine.getTaskService().setOwner(taskId, authUser);
+            engine.getTaskService().claim(taskId, authUser);
             task = FlowableRuntimeUtils.createTaskQuery(engine, true).taskId(taskId).singleResult();
         } catch (FlowableException e) {
             throw new WorkflowException("While reading task " + taskId, e);
+        }
+
+        return FlowableUserRequestHandler.this.getForm(task, parsed.getRight());
+    }
+
+    @Override
+    public UserRequestForm unclaimForm(final String taskId) {
+        Pair<Task, TaskFormData> parsed = parseTask(taskId);
+
+        Task task;
+        try {
+            engine.getTaskService().unclaim(taskId);
+            task = FlowableRuntimeUtils.createTaskQuery(engine, true).taskId(taskId).singleResult();
+        } catch (FlowableException e) {
+            throw new WorkflowException("While unclaiming task " + taskId, e);
         }
 
         return FlowableUserRequestHandler.this.getForm(task, parsed.getRight());
@@ -596,9 +624,9 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         Pair<Task, TaskFormData> parsed = parseTask(form.getTaskId());
 
         String authUser = AuthContextUtils.getUsername();
-        if (!parsed.getLeft().getOwner().equals(authUser)) {
+        if (!parsed.getLeft().getAssignee().equals(authUser)) {
             throw new WorkflowException(new IllegalArgumentException("Task " + form.getTaskId() + " assigned to "
-                    + parsed.getLeft().getOwner() + " but submitted by " + authUser));
+                    + parsed.getLeft().getAssignee() + " but submitted by " + authUser));
         }
 
         String procInstId = parsed.getLeft().getProcessInstanceId();

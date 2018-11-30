@@ -68,6 +68,11 @@ public class UserRequestServiceImpl extends AbstractServiceImpl implements UserR
     public UserRequestForm claimForm(final String taskId) {
         return logic.claimForm(taskId);
     }
+    
+    @Override
+    public UserRequestForm unclaimForm(final String taskId) {
+        return logic.unclaimForm(taskId);
+    }
 
     @Override
     public PagedResult<UserRequestForm> getForms(final UserRequestFormQuery query) {

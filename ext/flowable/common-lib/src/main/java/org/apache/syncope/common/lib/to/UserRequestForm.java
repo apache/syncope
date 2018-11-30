@@ -51,7 +51,7 @@ public class UserRequestForm extends BaseBean {
 
     private Date dueDate;
 
-    private String owner;
+    private String assignee;
 
     private UserTO userTO;
 
@@ -129,12 +129,12 @@ public class UserRequestForm extends BaseBean {
         }
     }
 
-    public String getOwner() {
-        return owner;
+    public String getAssignee() {
+        return assignee;
     }
 
-    public void setOwner(final String owner) {
-        this.owner = owner;
+    public void setAssignee(final String assignee) {
+        this.assignee = assignee;
     }
 
     public UserTO getUserTO() {

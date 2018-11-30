@@ -106,7 +106,7 @@ public class UserSelfITCase extends AbstractITCase {
     public void createAndApprove() {
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
-        // self-create user with membership: goes 'createApproval' with resources and membership but no propagation
+        // 1. self-create user with membership: goes 'createApproval' with resources and membership but no propagation
         UserTO userTO = UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org");
         userTO.getMemberships().add(
                 new MembershipTO.Builder().group("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
@@ -129,8 +129,58 @@ public class UserSelfITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
 
-        // now approve and verify that propagation has happened
+        // 2. now approve and verify that propagation has happened
         UserRequestForm form = userRequestService.getForms(
+                new UserRequestFormQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
+        form = userRequestService.claimForm(form.getTaskId());
+        form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
+        userTO = userRequestService.submitForm(form);
+        assertNotNull(userTO);
+        assertEquals("active", userTO.getStatus());
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey()));
+    }
+
+    @Test
+    public void createAndUnclaim() {
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+
+        // 1. self-create user with membership: goes 'createApproval' with resources and membership but no propagation
+        UserTO userTO = UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org");
+        userTO.getMemberships().add(
+                new MembershipTO.Builder().group("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
+        userTO.getResources().add(RESOURCE_NAME_TESTDB);
+        SyncopeClient anonClient = clientFactory.create();
+        userTO = anonClient.getService(UserSelfService.class).
+                create(userTO, true).
+                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                }).getEntity();
+        assertNotNull(userTO);
+        assertEquals("createApproval", userTO.getStatus());
+        assertFalse(userTO.getMemberships().isEmpty());
+        assertFalse(userTO.getResources().isEmpty());
+        try {
+            resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey());
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.NotFound, e.getType());
+        }
+
+        // 2. unclaim and verify that propagation has NOT happened
+        UserRequestForm form = userRequestService.getForms(
+                new UserRequestFormQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
+        form = userRequestService.unclaimForm(form.getTaskId());
+        assertNull(form.getAssignee());
+        assertNotNull(userTO);
+        assertNotEquals("active", userTO.getStatus());
+        try {
+            resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey());
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
+
+        // 3. approve and verify that propagation has happened
+        form = userRequestService.getForms(
                 new UserRequestFormQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
         form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
@@ -428,7 +478,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertNotNull(form.getUsername());
         assertEquals(userTO.getUsername(), form.getUsername());
         assertNotNull(form.getTaskId());
-        assertNull(form.getOwner());
+        assertNull(form.getAssignee());
 
         // 3. claim task as rossini, with role "User manager" granting entitlement to claim forms but not in
         // groupForWorkflowApproval, designated for approval in workflow definition: fail
@@ -457,7 +507,7 @@ public class UserSelfITCase extends AbstractITCase {
         form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);
         assertNotNull(form.getTaskId());
-        assertNotNull(form.getOwner());
+        assertNotNull(form.getAssignee());
 
         // 5. reject user
         form.getProperty("approveCreate").get().setValue(Boolean.FALSE.toString());
@@ -533,7 +583,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertNotNull(form.getUserTO());
         assertEquals(updatedUsername, form.getUserTO().getUsername());
         assertNull(form.getUserPatch());
-        assertNull(form.getOwner());
+        assertNull(form.getAssignee());
 
         // 4. claim task (as admin)
         form = userRequestService.claimForm(form.getTaskId());
@@ -542,7 +592,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertNotNull(form.getUserTO());
         assertEquals(updatedUsername, form.getUserTO().getUsername());
         assertNull(form.getUserPatch());
-        assertNotNull(form.getOwner());
+        assertNotNull(form.getAssignee());
 
         // 5. approve user (and verify that propagation occurred)
         form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
@@ -595,7 +645,7 @@ public class UserSelfITCase extends AbstractITCase {
                 new UserRequestFormQuery.Builder().user(created.getKey()).build()).getResult().get(0);
         assertNotNull(form);
         assertNotNull(form.getTaskId());
-        assertNull(form.getOwner());
+        assertNull(form.getAssignee());
         assertNotNull(form.getUserTO());
         assertNotNull(form.getUserPatch());
         assertEquals(patch, form.getUserPatch());
@@ -684,7 +734,7 @@ public class UserSelfITCase extends AbstractITCase {
         form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);
         assertNotNull(form.getTaskId());
-        assertNotNull(form.getOwner());
+        assertNotNull(form.getAssignee());
 
         // 4. second claim task by admin
         form = userRequestService.claimForm(form.getTaskId());

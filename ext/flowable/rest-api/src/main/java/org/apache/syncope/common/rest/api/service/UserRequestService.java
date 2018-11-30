@@ -47,7 +47,8 @@ import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
  */
 @Tag(name = "Flowable")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication"),
+    @SecurityRequirement(name = "BasicAuthentication")
+    ,
     @SecurityRequirement(name = "Bearer") })
 @Path("flowable/userRequests")
 public interface UserRequestService extends JAXRSService {
@@ -112,6 +113,17 @@ public interface UserRequestService extends JAXRSService {
     @Path("forms/{taskId}/claim")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     UserRequestForm claimForm(@NotNull @PathParam("taskId") String taskId);
+
+    /**
+     * Cancels request to manage the form for the given task id.
+     *
+     * @param taskId workflow task id
+     * @return the workflow form for the given task id
+     */
+    @POST
+    @Path("forms/{taskId}/unclaim")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    UserRequestForm unclaimForm(@NotNull @PathParam("taskId") String taskId);
 
     /**
      * Submits a user request form.

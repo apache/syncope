@@ -132,7 +132,7 @@ public class UserRequestFormDirectoryPanel
         columns.add(new DatePropertyColumn<>(
                 new ResourceModel("dueDate"), "dueDate", "dueDate"));
         columns.add(new PropertyColumn<>(
-                new ResourceModel("owner"), "owner", "owner"));
+                new ResourceModel("assignee"), "assignee", "assignee"));
 
         return columns;
     }
@@ -152,7 +152,29 @@ public class UserRequestFormDirectoryPanel
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 target.add(container);
             }
+
         }, ActionLink.ActionType.CLAIM, FlowableEntitlement.USER_REQUEST_FORM_CLAIM);
+
+        panel.add(new ActionLink<UserRequestForm>() {
+
+            private static final long serialVersionUID = -4496313424398213416L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final UserRequestForm ignore) {
+                unclaimForm(model.getObject().getTaskId());
+                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                UserRequestFormDirectoryPanel.this.getTogglePanel().close(target);
+                target.add(container);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+
+            @Override
+            protected boolean statusCondition(final UserRequestForm modelObject) {
+                return SyncopeConsoleSession.get().getSelfTO().getUsername().
+                        equals(model.getObject().getAssignee());
+            }
+
+        }, ActionLink.ActionType.UNCLAIM, FlowableEntitlement.USER_REQUEST_FORM_UNCLAIM);
 
         panel.add(new ActionLink<UserRequestForm>() {
 
@@ -188,7 +210,7 @@ public class UserRequestFormDirectoryPanel
             @Override
             protected boolean statusCondition(final UserRequestForm modelObject) {
                 return SyncopeConsoleSession.get().getSelfTO().getUsername().
-                        equals(model.getObject().getOwner());
+                        equals(model.getObject().getAssignee());
             }
 
         }, ActionLink.ActionType.MANAGE_APPROVAL, FlowableEntitlement.USER_REQUEST_FORM_SUBMIT);
@@ -237,7 +259,7 @@ public class UserRequestFormDirectoryPanel
             @Override
             protected boolean statusCondition(final UserRequestForm modelObject) {
                 return SyncopeConsoleSession.get().getSelfTO().getUsername().
-                        equals(model.getObject().getOwner());
+                        equals(model.getObject().getAssignee());
             }
 
         }, ActionLink.ActionType.EDIT_APPROVAL, FlowableEntitlement.USER_REQUEST_FORM_SUBMIT);
@@ -300,6 +322,14 @@ public class UserRequestFormDirectoryPanel
     private void claimForm(final String taskId) {
         try {
             restClient.claimForm(taskId);
+        } catch (SyncopeClientException scee) {
+            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + scee.getMessage());
+        }
+    }
+
+    private void unclaimForm(final String taskId) {
+        try {
+            restClient.unclaimForm(taskId);
         } catch (SyncopeClientException scee) {
             SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + scee.getMessage());
         }
