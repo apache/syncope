@@ -42,6 +42,8 @@ public final class FlowableEntitlement {
 
     public static final String USER_REQUEST_FORM_CLAIM = "USER_REQUEST_FORM_CLAIM";
 
+    public static final String USER_REQUEST_FORM_UNCLAIM = "USER_REQUEST_FORM_UNCLAIM";
+
     public static final String USER_REQUEST_FORM_SUBMIT = "USER_REQUEST_FORM_SUBMIT";
 
     public static final String USER_REQUEST_START = "USER_REQUEST_START";

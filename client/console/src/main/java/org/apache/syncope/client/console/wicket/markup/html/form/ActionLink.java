@@ -68,6 +68,7 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         REQUEST_PASSWORD_RESET("update"),
         DRYRUN("execute"),
         CLAIM("claim"),
+        UNCLAIM("unclaim"),
         SELECT("read"),
         CLOSE("read"),
         EXPORT("read"),

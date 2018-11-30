@@ -73,6 +73,10 @@ public class UserRequestRestClient extends BaseRestClient {
         return getService(UserRequestService.class).claimForm(taskKey);
     }
 
+    public UserRequestForm unclaimForm(final String taskKey) {
+        return getService(UserRequestService.class).unclaimForm(taskKey);
+    }
+
     public void submitForm(final UserRequestForm form) {
         getService(UserRequestService.class).submitForm(form);
     }

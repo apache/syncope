@@ -103,6 +103,14 @@ public interface UserRequestHandler {
      * @return updated form
      */
     UserRequestForm claimForm(String taskId);
+    
+    /**
+     * Unclaim a form for a given object.
+     *
+     * @param taskId Workflow task to which the form is associated
+     * @return updated form
+     */
+    UserRequestForm unclaimForm(String taskId);
 
     /**
      * Submit a form.

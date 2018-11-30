@@ -144,6 +144,15 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
+    public UserRequestForm unclaimForm(final String taskId) {
+        UserRequestForm form = userRequestHandler.unclaimForm(taskId);
+        securityChecks(form.getUsername(),
+                FlowableEntitlement.USER_REQUEST_FORM_UNCLAIM,
+                "Unclaiming form " + taskId + " not allowed");
+        return form;
+    }
+
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public Pair<Integer, List<UserRequestForm>> getForms(
             final String userKey,
