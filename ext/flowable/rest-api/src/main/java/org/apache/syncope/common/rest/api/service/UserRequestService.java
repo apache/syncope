@@ -47,8 +47,7 @@ import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
  */
 @Tag(name = "Flowable")
 @SecurityRequirements({
-    @SecurityRequirement(name = "BasicAuthentication")
-    ,
+    @SecurityRequirement(name = "BasicAuthentication"),
     @SecurityRequirement(name = "Bearer") })
 @Path("flowable/userRequests")
 public interface UserRequestService extends JAXRSService {
