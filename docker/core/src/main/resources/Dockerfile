@@ -25,6 +25,7 @@ COPY *.jar /tmp/
 COPY *.deb /tmp/
 
 COPY provisioning.properties.* /etc/apache-syncope/
+COPY views.xml.* /etc/apache-syncope/
 COPY *.properties /etc/apache-syncope/
 COPY Master.properties.* /etc/apache-syncope/domains/
 
