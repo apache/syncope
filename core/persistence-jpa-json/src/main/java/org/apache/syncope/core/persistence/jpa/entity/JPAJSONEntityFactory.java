@@ -140,6 +140,7 @@ public abstract class JPAJSONEntityFactory extends JPAEntityFactory implements I
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        beanFactory.createBean(jpaJSONAnyDAOClass(), AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+        beanFactory.registerSingleton("jpaJSONAnyDAO",
+                beanFactory.createBean(jpaJSONAnyDAOClass(), AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false));
     }
 }

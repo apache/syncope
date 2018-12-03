@@ -172,6 +172,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
             StringBuilder queryString = queryInfo.getLeft();
 
+            LOG.debug("Query: {}, parameters: {}", queryString, parameters);
+
             // 2. take into account realms and ordering
             OrderBySupport obs = parseOrderBy(kind, svs, orderBy);
             if (queryString.charAt(0) == '(') {
@@ -184,6 +186,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             queryString.
                     append(filter.getLeft()).
                     append(buildOrderBy(obs));
+
+            LOG.debug("Query with auth and order by statements: {}, parameters: {}", queryString, parameters);
 
             // 3. prepare the search query
             Query query = entityManager().createNativeQuery(queryString.toString());
@@ -326,6 +330,36 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return orderBy;
     }
 
+    protected String key(final AttrSchemaType schemaType) {
+        String key;
+        switch (schemaType) {
+            case Boolean:
+                key = "booleanValue";
+                break;
+
+            case Date:
+                key = "dateValue";
+                break;
+
+            case Double:
+                key = "doubleValue";
+                break;
+
+            case Long:
+                key = "longValue";
+                break;
+
+            case Binary:
+                key = "binaryValue";
+                break;
+
+            default:
+                key = "stringValue";
+        }
+
+        return key;
+    }
+
     protected void parseOrderByForPlainSchema(
             final SearchSupport svs,
             final OrderBySupport obs,
@@ -342,7 +376,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
             item.select = new StringBuilder().
                     append(svs.asSearchViewSupport().uniqueAttr().alias).append('.').
-                    append(svs.fieldName(schema.getType())).
+                    append(key(schema.getType())).
                     append(" AS ").append(fieldName).toString();
             item.where = new StringBuilder().
                     append(svs.asSearchViewSupport().uniqueAttr().alias).
@@ -352,7 +386,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             obs.views.add(svs.asSearchViewSupport().attr());
 
             item.select = new StringBuilder().
-                    append(svs.asSearchViewSupport().attr().alias).append('.').append(svs.fieldName(schema.getType())).
+                    append(svs.asSearchViewSupport().attr().alias).append('.').append(key(schema.getType())).
                     append(" AS ").append(fieldName).toString();
             item.where = new StringBuilder().
                     append(svs.asSearchViewSupport().attr().alias).
@@ -844,7 +878,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             // activate ignoreCase only for EQ and LIKE operators
             boolean ignoreCase = AttributeCond.Type.ILIKE == cond.getType() || AttributeCond.Type.IEQ == cond.getType();
 
-            String column = (cond instanceof AnyCond) ? cond.getSchema() : svs.fieldName(schema.getType());
+            String column = (cond instanceof AnyCond) ? cond.getSchema() : key(schema.getType());
             if ((schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) && ignoreCase) {
                 column = "LOWER (" + column + ")";
             }
