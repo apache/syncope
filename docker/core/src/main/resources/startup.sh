@@ -18,11 +18,13 @@
 # under the License.
 
 cd /etc/apache-syncope
-rm provisioning.properties
+rm -f provisioning.properties
 ln -s provisioning.properties.$DBMS provisioning.properties
+rm -f views.xml
+ln -s views.xml.$DBMS views.xml
 
 cd domains
-rm Master.properties
+rm -f Master.properties
 ln -s Master.properties.$DBMS Master.properties
 
 /etc/init.d/tomcat8 start
