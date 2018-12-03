@@ -160,19 +160,19 @@ under the License.
         <filtering>true</filtering>
       </resource>
       <resource>
-        <directory>${basedir}/../../core/workflow-flowable/src/main/resources</directory>
+        <directory>${basedir}/../../core/provisioning-java/src/main/resources</directory>
         <includes>
-          <include>workflow.properties</include>
-          <include>userWorkflow.bpmn20.xml</include>
+          <include>mail.properties</include>
+          <include>connid.properties</include>
         </includes>
         <targetPath>${project.build.directory}/etc</targetPath>
         <filtering>true</filtering>
       </resource>
       <resource>
-        <directory>${basedir}/../../core/provisioning-java/src/main/resources</directory>
+        <directory>${basedir}/../../ext/flowable/flowable-bpmn/src/main/resources</directory>
         <includes>
-          <include>mail.properties</include>
-          <include>connid.properties</include>
+          <include>workflow.properties</include>
+          <include>userWorkflow.bpmn20.xml</include>
         </includes>
         <targetPath>${project.build.directory}/etc</targetPath>
         <filtering>true</filtering>
