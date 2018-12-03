@@ -1360,6 +1360,16 @@ under the License.
         <groupId>de.agilecoders.wicket</groupId>
         <artifactId>wicket-bootstrap-core</artifactId>
         <version>${wicket-bootstrap.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-request</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-util</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>de.agilecoders.wicket</groupId>
