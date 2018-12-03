@@ -227,81 +227,137 @@ under the License.
             <filtering>true</filtering>
           </testResource>
           <testResource>
-            <directory>src/test/resources/pgjsonb</directory>
-            <filtering>true</filtering>
-          </testResource>
-          <testResource>
             <directory>src/main/resources</directory>
-            <filtering>true</filtering>
-          </testResource>
-          <testResource>
-            <directory>src/main/resources/pgjsonb</directory>
             <filtering>true</filtering>
             <excludes>
               <exclude>domains/MasterContent.xml</exclude>
             </excludes>
+          </testResource>
+          <testResource>
+            <directory>src/main/resources/pgjsonb</directory>
+            <filtering>true</filtering>
           </testResource>
         </testResources>
       </build>
     </profile>
     
     <profile>
-      <id>sqlgen</id>
+      <id>mysql</id>
       
-      <properties>
-        <skipTests>true</skipTests>
-      </properties>
-      
+      <dependencies>
+        <dependency>
+          <groupId>mysql</groupId>
+          <artifactId>mysql-connector-java</artifactId>
+          <version>${jdbc.mysql.version}</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+
       <build>
         <defaultGoal>clean verify</defaultGoal>
         
         <plugins>
           <plugin>
-            <groupId>org.apache.openjpa</groupId>
-            <artifactId>openjpa-maven-plugin</artifactId>
-            <inherited>true</inherited>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>sqlgen</id>
-                <phase>process-classes</phase>
+                <id>add-test-source</id>
+                <phase>generate-test-sources</phase>
                 <goals>
-                  <goal>sql</goal>
+                  <goal>add-test-source</goal>
                 </goals>
+                <configuration>
+                  <sources>
+                    <source>${basedir}/../persistence-jpa/src/test/java</source>
+                  </sources>
+                </configuration>
               </execution>
             </executions>
-          </plugin>          
-        </plugins>
-      </build>
-    </profile>
-    
-    <profile>
-      <id>schemagen</id>
+          </plugin>
       
-      <properties>
-        <skipTests>true</skipTests>
-      </properties>
-      
-      <build>
-        <defaultGoal>clean verify</defaultGoal>
-        
-        <plugins>
           <plugin>
-            <groupId>org.apache.openjpa</groupId>
-            <artifactId>openjpa-maven-plugin</artifactId>
-            <inherited>true</inherited>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <includes>
+                <include>**/*Test.java</include>
+              </includes>
+              <excludedGroups>multitenancy,plainAttrTable</excludedGroups>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>mysql/mysql-server:${docker.mysql.version}</name>
+                  <run>
+                    <cmd>--skip-log-bin --server-id=1</cmd>
+                    <env>
+                      <MYSQL_ROOT_PASSWORD>password</MYSQL_ROOT_PASSWORD>
+                      <MYSQL_DATABASE>syncope</MYSQL_DATABASE>
+                      <MYSQL_USER>syncope</MYSQL_USER>
+                      <MYSQL_PASSWORD>syncope</MYSQL_PASSWORD>
+                    </env>
+                    <ports>
+                      <port>3306:3306</port>
+                    </ports>
+                    <wait>
+                      <log>MySQL init process done. Ready for start up.</log>
+                      <time>30000</time>
+                    </wait>
+                  </run>
+                </image>
+              </images>
+            </configuration>
             <executions>
               <execution>
-                <id>schemagen</id>
-                <phase>process-classes</phase>
+                <id>start-mysql</id>
+                <phase>pre-integration-test</phase>
                 <goals>
-                  <goal>schema</goal>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-mysql</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
                 </goals>
               </execution>
             </executions>
-          </plugin>          
+          </plugin>
         </plugins>
+        
+        <testResources>
+          <testResource>
+            <directory>src/test/resources</directory>
+            <filtering>true</filtering>
+          </testResource>
+          <testResource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+            <excludes>
+              <exclude>domains/MasterContent.xml</exclude>
+            </excludes>
+          </testResource>
+          <testResource>
+            <directory>src/main/resources/myjson</directory>
+            <filtering>true</filtering>
+          </testResource>
+        </testResources>
       </build>
     </profile>
   </profiles>
-
 </project>

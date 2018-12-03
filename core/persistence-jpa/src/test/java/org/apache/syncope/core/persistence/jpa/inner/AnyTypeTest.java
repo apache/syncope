@@ -90,6 +90,7 @@ public class AnyTypeTest extends AbstractTest {
             newType.setKey("new type");
             newType.setKind(AnyTypeKind.USER);
             anyTypeDAO.save(newType);
+            entityManager().flush();
         });
     }
 
@@ -100,6 +101,7 @@ public class AnyTypeTest extends AbstractTest {
             newType.setKey("group");
             newType.setKind(AnyTypeKind.ANY_OBJECT);
             anyTypeDAO.save(newType);
+            entityManager().flush();
         });
     }
 

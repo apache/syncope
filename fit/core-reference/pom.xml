@@ -724,7 +724,7 @@ under the License.
             <filtering>true</filtering>
           </resource>
           <resource>
-            <directory>${basedir}/../../core/persistence-jpa-json/src/test/resources/pgjsonb/domains</directory>
+            <directory>${basedir}/../../core/persistence-jpa-json/src/test/resources/domains</directory>
             <targetPath>${project.build.directory}/classes/domains</targetPath>
             <filtering>true</filtering>
           </resource>
@@ -851,7 +851,165 @@ under the License.
         </testResources>
       </build>
     </profile>
+
+    <profile>
+      <id>myjson-it</id>
+
+      <properties>
+        <jdbcdriver.groupId>mysql</jdbcdriver.groupId>
+        <jdbcdriver.artifactId>mysql-connector-java</jdbcdriver.artifactId>
+      </properties>
+
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.syncope.core</groupId>
+          <artifactId>syncope-core-persistence-jpa-json</artifactId>
+          <version>${project.version}</version>
+        </dependency>
     
+        <dependency>
+          <groupId>mysql</groupId>
+          <artifactId>mysql-connector-java</artifactId>
+          <version>${jdbc.mysql.version}</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <configuration>
+              <packagingExcludes>WEB-INF/classes/domains/Two*</packagingExcludes>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>remove-domain-Two</id>
+                <phase>prepare-package</phase>
+                <configuration>
+                  <target>
+                    <delete>
+                      <fileset dir="${project.build.directory}/classes/domains" includes="Two*"/>
+                    </delete>
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>mysql/mysql-server:${docker.mysql.version}</name>
+                  <run>
+                    <cmd>--skip-log-bin --server-id=1</cmd>
+                    <env>
+                      <MYSQL_ROOT_PASSWORD>password</MYSQL_ROOT_PASSWORD>
+                      <MYSQL_DATABASE>syncope</MYSQL_DATABASE>
+                      <MYSQL_USER>syncope</MYSQL_USER>
+                      <MYSQL_PASSWORD>syncope</MYSQL_PASSWORD>
+                    </env>
+                    <ports>
+                      <port>3306:3306</port>
+                    </ports>
+                    <wait>
+                      <log>MySQL init process done. Ready for start up.</log>
+                      <time>30000</time>
+                    </wait>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-mysql</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-mysql</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+            <excludes>
+              <exclude>provisioning.properties</exclude>
+              <exclude>indexes.xml</exclude>
+              <exclude>views.xml</exclude>
+            </excludes>
+          </resource>
+          <resource>
+            <directory>src/main/resources/myjson</directory>
+            <filtering>true</filtering>
+          </resource>
+          <resource>
+            <directory>${basedir}/../../core/persistence-jpa-json/src/test/resources/domains</directory>
+            <targetPath>${project.build.directory}/classes/domains</targetPath>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
+        <testResources>
+          <testResource>
+            <directory>${basedir}/../../core/persistence-jpa-json/src/main/resources/myjson</directory>
+            <includes>
+              <include>persistence.properties</include>
+              <include>indexes.xml</include>
+              <include>views.xml</include>
+            </includes>            
+          </testResource>
+        </testResources>
+      </build>
+    </profile>
+
     <profile>
       <id>mysql-it</id>
 
@@ -879,9 +1037,11 @@ under the License.
             <configuration>
               <images>
                 <image>
-                  <name>mysql/mysql-server:5.7</name>
+                  <name>mysql/mysql-server:${docker.mysql.version}</name>
                   <run>
+                    <cmd>--skip-log-bin --server-id=1</cmd>
                     <env>
+                      <MYSQL_ROOT_PASSWORD>password</MYSQL_ROOT_PASSWORD>
                       <MYSQL_DATABASE>syncope</MYSQL_DATABASE>
                       <MYSQL_USER>syncope</MYSQL_USER>
                       <MYSQL_PASSWORD>syncope</MYSQL_PASSWORD>
@@ -889,6 +1049,10 @@ under the License.
                     <ports>
                       <port>3306:3306</port>
                     </ports>
+                    <wait>
+                      <log>MySQL init process done. Ready for start up.</log>
+                      <time>30000</time>
+                    </wait>
                   </run>
                 </image>
               </images>

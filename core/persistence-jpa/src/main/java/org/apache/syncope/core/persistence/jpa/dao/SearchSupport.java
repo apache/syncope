@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
@@ -72,38 +71,6 @@ public class SearchSupport {
 
     public SearchSupport(final AnyTypeKind anyTypeKind) {
         this.anyTypeKind = anyTypeKind;
-    }
-
-    public String fieldName(final AttrSchemaType attrSchemaType) {
-        String result;
-
-        switch (attrSchemaType) {
-            case Boolean:
-                result = "booleanvalue";
-                break;
-
-            case Date:
-                result = "datevalue";
-                break;
-
-            case Double:
-                result = "doublevalue";
-                break;
-
-            case Long:
-                result = "longvalue";
-                break;
-
-            case String:
-            case Enum:
-                result = "stringvalue";
-                break;
-
-            default:
-                result = null;
-        }
-
-        return result;
     }
 
     public SearchView table() {
