@@ -31,7 +31,7 @@ public class AjaxDateFieldPanel extends DateFieldPanel {
     public AjaxDateFieldPanel(final String id, final String name, final IModel<Date> model, final String datePattern) {
         super(id, name, model, datePattern);
 
-        field = new AjaxDatePicker("field", model, SyncopeConsoleSession.get().getDateFormat().getLocale());
+        field = new AjaxDatePicker("field", model, SyncopeConsoleSession.get().getLocale(), datePattern);
         add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
     }
 
