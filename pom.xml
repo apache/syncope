@@ -469,7 +469,7 @@ under the License.
     
     <wicket.version>7.11.0</wicket.version>
     <wicket-jqueryui.version>7.10.2</wicket-jqueryui.version>
-    <wicket-bootstrap.version>0.10.17</wicket-bootstrap.version>
+    <wicket-bootstrap.version>0.10.18</wicket-bootstrap.version>
 
     <angular.version>1.7.5</angular.version>
     <angular-resource.version>1.7.0</angular-resource.version>
@@ -1360,16 +1360,6 @@ under the License.
         <groupId>de.agilecoders.wicket</groupId>
         <artifactId>wicket-bootstrap-core</artifactId>
         <version>${wicket-bootstrap.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-request</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-util</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>de.agilecoders.wicket</groupId>
