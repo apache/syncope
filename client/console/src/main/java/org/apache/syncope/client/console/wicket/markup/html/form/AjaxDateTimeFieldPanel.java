@@ -29,10 +29,13 @@ public class AjaxDateTimeFieldPanel extends DateFieldPanel {
     private static final long serialVersionUID = -428975732068281726L;
 
     public AjaxDateTimeFieldPanel(
-            final String id, final String name, final IModel<Date> model, final String datePattern) {
-        super(id, name, model, datePattern);
+            final String id, final String name, final IModel<Date> model, final String dateTimePattern) {
 
-        field = new AjaxDateTimePicker("field", model, SyncopeConsoleSession.get().getDateFormat().getLocale());
+        super(id, name, model, dateTimePattern);
+
+        // dateTimePattern should be spit into separate date and time pattern strings in order to be passed to the
+        // AjaxDateTimePicker constructor, but there is no safe way to do that - ignoring
+        field = new AjaxDateTimePicker("field", model, SyncopeConsoleSession.get().getLocale());
         add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
     }
 
