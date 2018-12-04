@@ -127,6 +127,6 @@ public class DateFieldPanel extends FieldPanel<Date> {
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
         response.render(JavaScriptHeaderItem.forReference(
-                new KendoCultureResourceReference(SyncopeConsoleSession.get().getDateFormat().getLocale())));
+                new KendoCultureResourceReference(SyncopeConsoleSession.get().getLocale())));
     }
 }

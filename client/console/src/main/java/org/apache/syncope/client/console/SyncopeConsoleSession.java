@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -338,7 +337,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     }
 
     public FastDateFormat getDateFormat() {
-        Locale locale = getLocale() == null ? Locale.ENGLISH : getLocale();
-        return FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
+        return FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, getLocale());
     }
 }
