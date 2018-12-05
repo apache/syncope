@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.syncope.client.console.layout.AbstractAnyFormLayout;
 import org.apache.syncope.client.console.layout.AnyForm;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
@@ -29,8 +27,8 @@ import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
@@ -175,10 +173,37 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
         }
     }
 
-    protected Set<AttrTO> cleanEmptyPlainAttrs(final Set<AttrTO> plainAttrs) {
-        Set<AttrTO> newPlainAttrs = new HashSet<>(plainAttrs);
-        plainAttrs.clear();
-        plainAttrs.removeIf(attr -> attr.getValues().isEmpty());
-        return newPlainAttrs;
+    protected void fixPlainAndVirAttrs(final AnyTO updated, final AnyTO original) {
+        // re-add to the updated object any missing plain or virtual attribute (compared to original): this to cope with
+        // form layout, which might have not included some plain or virtual attributes
+        original.getPlainAttrs().stream().
+                filter(attr -> updated.getPlainAttr(attr.getSchema()).isPresent()).
+                forEach(attr -> updated.getPlainAttrs().add(attr));
+        original.getVirAttrs().stream().
+                filter(attr -> updated.getVirAttr(attr.getSchema()).isPresent()).
+                forEach(attr -> updated.getVirAttrs().add(attr));
+        if (updated instanceof GroupableRelatableTO && original instanceof GroupableRelatableTO) {
+            GroupableRelatableTO.class.cast(original).getMemberships().forEach(oMemb -> {
+                GroupableRelatableTO.class.cast(updated).getMembership(oMemb.getGroupKey()).ifPresent(uMemb -> {
+                    oMemb.getPlainAttrs().stream().
+                            filter(attr -> uMemb.getPlainAttr(attr.getSchema()).isPresent()).
+                            forEach(attr -> uMemb.getPlainAttrs().add(attr));
+                    oMemb.getVirAttrs().stream().
+                            filter(attr -> uMemb.getVirAttr(attr.getSchema()).isPresent()).
+                            forEach(attr -> uMemb.getVirAttrs().add(attr));
+                });
+            });
+        }
+
+        // remove from the updated object any plain or virtual attribute without values, thus triggering for removal in
+        // the generated patch
+        updated.getPlainAttrs().removeIf(attr -> attr.getValues().isEmpty());
+        updated.getVirAttrs().removeIf(attr -> attr.getValues().isEmpty());
+        if (updated instanceof GroupableRelatableTO) {
+            GroupableRelatableTO.class.cast(updated).getMemberships().forEach(memb -> {
+                memb.getPlainAttrs().removeIf(attr -> attr.getValues().isEmpty());
+                memb.getVirAttrs().removeIf(attr -> attr.getValues().isEmpty());
+            });
+        }
     }
 }
