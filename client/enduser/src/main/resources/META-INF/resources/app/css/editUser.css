@@ -179,7 +179,7 @@ span.k-datetimepicker{
   width: 170%;
 }
 
-#date{
+#date, #date-property{
   position: relative;
   display: table; 
   border-collapse: separate;
@@ -307,6 +307,14 @@ div[role="tablist"] {
 .schema-type #date{
   margin-top: 35px;
   margin-bottom: 2px;
+}
+
+.schema-type #date-property {
+    margin-bottom: 2px;
+}
+
+.property-label{
+  margin-top: 15px
 }
 
 .multivalue input{
@@ -636,7 +644,7 @@ div[role="tablist"] {
     width:100px;
   }
 
-  #date{
+  #date, #date-property{
     position: relative;
     display: table; 
     border-collapse: separate;
@@ -686,7 +694,7 @@ div[role="tablist"] {
     margin-top: 0px
   }
 
-  #date{
+  #date, #date-property{
     position: relative;
     display: table; 
     border-collapse: separate;

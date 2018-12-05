@@ -44,6 +44,7 @@ under the License.
     <module>rest-cxf</module>
     <module>flowable-bpmn</module>
     <module>client-console</module>
+    <module>syncope-ext-flowable-client-enduser</module>
   </modules>
 
 </project>

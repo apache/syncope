@@ -1,0 +1,76 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+        
+  http://www.apache.org/licenses/LICENSE-2.0
+    
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<div ng-repeat="request in requests.result">
+  <uib-accordion ng-if="requests.result.length">
+    <div uib-accordion-group heading="{{request.bpmnProcess| translate}}" class="breadcrumb-header panel panel-default">
+      <table class="table">
+        <thead> 
+          <tr> 
+            <th>{{'EXECUTION_ID'| translate}}</th> 
+            <th>{{'START_TIME'| translate}}</th>
+          </tr> 
+        </thead>
+
+        <tbody> 
+          <tr>
+            <td>{{request.executionId}}</td> 
+            <td>{{formatDate(request.startTime)}}</td> 
+          </tr>
+        </tbody>
+      </table>
+      <div style="text-align: right">
+        <a id="cancelRequest" class="btn btn-secondary btn-default" ng-click="cancel(request)">
+          <i class="fa fa-trash" aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+  </uib-accordion>
+</div>
+<div class="row">
+  <div class="col-md-9" style="text-align: center">
+    <!-- pager -->
+    <ul ng-if="totalPages > 1" class="pagination">
+      <li ng-class="{disabled:query.page === 1}">
+        <a ng-click="reloadPage(1, query.size)">First</a>
+      </li>
+      <li ng-class="{disabled:query.page === 1}">
+        <a ng-click="reloadPage(query.page - 1, query.size)">Previous</a>
+      </li>
+      <li ng-repeat="page in pages" ng-class="{active:query.page === page}">
+        <a ng-click="reloadPage(page, query.size)">{{page}}</a>
+      </li>                
+      <li ng-class="{disabled:query.page === totalPages}">
+        <a ng-click="reloadPage(query.page + 1, query.size)">Next</a>
+      </li>
+      <li ng-class="{disabled:query.page === totalPages}">
+        <a ng-click="reloadPage(totalPages, query.size)">Last</a>
+      </li>
+    </ul>
+  </div>
+  <div ng-if="totalPages > 1" class="form-group col-md-3 pagination-size" style="text-align: left">
+    <select class="form-control" name="sizeSelect" id="sizeSelect"
+            ng-options="option.value for option in availableSizes track by option.id"
+            ng-model="selectedSize" ng-change="reloadPage(query.page, selectedSize.value)"></select>
+  </div>
+</div>
+<div class="row" style="text-align: right">
+  <button class="btn btn-default btn-sm" type="button" ng-click="openComponentModal()">
+    <i class="fa fa-plus" title="Start requests"></i>
+  </button>
+</div>

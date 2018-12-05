@@ -45,6 +45,8 @@
   "derivedSchemas": "DerivedSchemas",
   "virtualSchemas": "VirtualSchemas",
   "resources": "Risorse",
+  "userRequests": "Richieste",
+  "userRequestForms": "Form",
   "finish": "Fine",
   "RESOURCES_PLACEHOLDER": "Clicca per selezionare risorse...",
   "NEWUSER": "Nuovo utente",
@@ -54,5 +56,10 @@
   "PASSWORD_UPDATED": "Password resettata con successo",
   "GOBACKHOME": "Clicca su questo link per tornare alla home page",
   "CONFIRM_REMOVE": "Questa azione rimuoverà il valore corrente. Continuare?",
+  "SELECT_PROCESS": "Selezionare uno (o più) processi per far partire una richiesta(e)",
+  "PAGE_SIZE": "Elementi per pagina",
+  "EXECUTION_ID": "Id Esecuzione",
+  "START_TIME": "Effettuata il",
+  "START": "Start",
   "own": "Propri"
 }

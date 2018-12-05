@@ -1,0 +1,92 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+        
+  http://www.apache.org/licenses/LICENSE-2.0
+    
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<div ng-switch="property.type" class="schema-type">
+  <input ng-switch-when="String" class="form-control" type="text"
+         ng-model="property.value"
+         ng-required="{{property.required}}" validate="true"
+         ng-disabled="!property.writable"
+         name="{{property.name}}"/>
+
+  <div ng-switch-when="Boolean">
+    <input type="checkbox"
+           ng-true-value="'true'"
+           ng-false-value="'false'" 
+           ng-model="property.value"
+           ng-required="{{property.required}}" validate="true"
+           ng-disabled="!property.writable"
+           ng-init="initAttribute()"
+           name="{{property.name}}"/>
+  </div>
+
+  <input ng-switch-when="Long" class="form-control"
+         type="number"
+         ng-model="property.value"
+         ng-required="{{property.required}}" validate="true"
+         ng-disabled="!property.writable"
+         ng-init="initAttribute()"
+         name="{{property.name}}"/>
+
+  <div ng-switch-when="Date" id="date-property">
+    <input type="text" class="dateTimePicker"
+           kendo-date-time-picker
+           ng-show="!isDateOnly"
+           ng-model="extendedDate"
+           ng-required="{{property.required}}" close-text="Close"
+           ng-init="initAttribute()"
+           ng-change="bindDateToModel(selectedDate, extendedDate)"
+           ng-disabled="!property.writable"
+           k-ng-model="selectedDate"
+           data-k-format="languageFormat"
+           />
+    <input type="text" class="datePicker"
+           kendo-date-picker
+           ng-show="isDateOnly"
+           ng-model="extendedDate"
+           ng-required="{{property.required}}" close-text="Close"
+           ng-init="initAttribute()"
+           ng-change="bindDateToModel(selectedDate, extendedDate)"
+           ng-disabled="!property.writable"
+           k-ng-model="selectedDate"
+           data-k-format="languageFormat"
+           />
+  </div>  
+
+  <div ng-switch-when="Enum" 
+       ng-init="initAttribute()">
+    <select class="form-control custom-select"
+  ng-model="property.value"
+  ng-required="{{property.required}}"
+  ng-disabled="!property.writable">
+      <option ng-repeat="key in enumKeys" value="{{key}}">
+        {{"empty" === key ? "" : property.enumValues[key]}}
+      </option>
+    </select>
+  </div>
+  <div ng-switch-when="Dropdown" 
+       ng-init="initAttribute()">
+    <select class="form-control custom-select"
+            ng-model="property.value"
+            ng-required="{{property.required}}"
+            ng-disabled="!property.writable">
+      <option ng-repeat="key in dropdownKeys" value="{{key}}">
+        {{"empty" === key ? "" : property.dropdownValues[key]}}
+      </option>
+    </select>
+  </div>
+</div>

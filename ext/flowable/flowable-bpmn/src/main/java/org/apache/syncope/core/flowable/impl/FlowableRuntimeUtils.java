@@ -209,7 +209,9 @@ public final class FlowableRuntimeUtils {
     }
 
     public static void throwException(final FlowableException e, final String defaultMessage) {
-        if (e.getCause() instanceof SyncopeClientException) {
+        if (e.getCause() == null) {
+            throw new WorkflowException(defaultMessage, e);
+        } else if (e.getCause() instanceof SyncopeClientException) {
             throw (SyncopeClientException) e.getCause();
         } else if (e.getCause() instanceof ParsingValidationException) {
             throw (ParsingValidationException) e.getCause();

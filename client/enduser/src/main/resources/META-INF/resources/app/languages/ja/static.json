@@ -54,6 +54,13 @@
   "PASSWORD_UPDATED": "正常にパスワードをリセットしました",
   "GOBACKHOME": "このリンクをクリックするとホームページに戻ります",
   "CONFIRM_REMOVE": "これにより現在の値を削除します。続行しますか?",
+  "SELECT_PROCESS": "プロセスを1つ（または複数）選択して、要求を開始します。",
+  "PAGE_SIZE": "ページサイズ",
+  "EXECUTION_ID": "実行ID",
+  "START_TIME": "始まる時間",
+  "START": "開始",
+  "userRequests": "リクエスト",
+  "userRequestForms": "フォーム",
   "own": "自分"
 }
 

@@ -26,8 +26,6 @@ import java.util.TreeSet;
 
 public final class FlowableEntitlement {
 
-    public static final String BPMN_PROCESS_LIST = "BPMN_PROCESS_LIST";
-
     public static final String BPMN_PROCESS_GET = "BPMN_PROCESS_GET";
 
     public static final String BPMN_PROCESS_SET = "BPMN_PROCESS_SET";
