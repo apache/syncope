@@ -338,15 +338,6 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         initUserSchemas();
         // initialize available resources
         initResources();
-        // initialize user requests
-//        if (!$scope.createMode && $scope.wizard.userRequests) {
-//          console.debug("About to init user requests data");
-//          initBpmnProcesses();
-//          // this call will ever get the first 10 User Requests
-//          initUserRequests();
-//          // this call will ever get the first 10 User Requests Forms
-//          initUserRequestsForms();
-//        }
       };
 
       var readUser = function () {

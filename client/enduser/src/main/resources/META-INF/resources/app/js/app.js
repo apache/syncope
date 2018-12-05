@@ -226,6 +226,7 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
                   }]
               }
             })
+            /* <Extensions> */
             .state('update.userRequests', {
               url: '/user-requests',
               templateUrl: 'views/user-requests.html',
@@ -246,6 +247,7 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
                   }]
               }
             })
+            /* </Extensions> */
             .state('update.finish', {
               url: '/finish',
               templateUrl: 'views/user-form-finish.html',
@@ -447,12 +449,18 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
                     $rootScope.dynTemplate = response;
 
                     /*
-                     * Wizard steps from JSON
+                     * Wizard steps from JSON, if some extensions are enabled add steps dynamically
                      */
                     $scope.wizard = response.wizard.steps;
                     $scope.creationWizard = $scope.clone($scope.wizard);
-                    delete $scope.creationWizard['userRequests'];
-                    delete $scope.creationWizard['userRequestForms'];
+                    /* <Extensions> */
+                    $scope.wizard.userRequests = {
+                      "url": "/user-requests"
+                    };
+                    $scope.wizard.userRequestForms = {
+                      "url": "/user-request-forms"
+                    };
+                    /* </Extensions> */
                     $scope.wizardFirstStep = response.wizard.firstStep;
 
                     callback($rootScope.dynTemplate);
@@ -575,7 +583,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       /* 
        * Date formatters
        */
-      
+
       // from timestamp
       $rootScope.formatDate = function (timestamp) {
         return new Date(timestamp).toLocaleString();

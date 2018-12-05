@@ -64,7 +64,7 @@ describe('syncope enduser user create', function () {
     }
     //finish: breadcrumb should be clickable, testing navigation
     for (var i = 0; i < 5; i++) {
-      element.all(by.repeater('(key, value) in wizard')).get(i).click();
+      element.all(by.repeater('(key, value) in (createMode ? creationWizard : wizard)')).get(i).click();
       browser.wait(element(by.id('finish')).isPresent());
       element.all(by.id('finish')).last().click();
     }
