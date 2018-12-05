@@ -372,7 +372,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:1:panel:field:timepicker", "12:00 AM");
 
         formTester.setValue("view:plainSchemas:tabs:0:body:"
-                + "content:schemas:8:panel:multiValueContainer:innerForm:content:view:0:panel:field", "1/19/17");
+                + "content:schemas:8:panel:multiValueContainer:innerForm:content:view:0:panel:field", "2017-01-19");
 
         formTester.submit("buttons:finish");
 
