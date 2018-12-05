@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
-import static org.apache.syncope.client.enduser.resources.BaseResource.LOG;
-import static org.apache.syncope.client.enduser.resources.BaseResource.MAPPER;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import javax.servlet.http.HttpServletRequest;
