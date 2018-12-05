@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.layout.AbstractAnyFormLayout;
@@ -33,6 +31,8 @@ import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.GroupableRelatableTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
@@ -177,16 +177,70 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
         }
     }
 
-    protected Set<AttrTO> cleanEmptyPlainAttrs(final Set<AttrTO> plainAttrs) {
-        Set<AttrTO> newPlainAttrs = new HashSet<>(plainAttrs);
-        plainAttrs.clear();
-        CollectionUtils.filterInverse(newPlainAttrs, new Predicate<AttrTO>() {
+    protected void fixPlainAndVirAttrs(final AnyTO updated, final AnyTO original) {
+        // re-add to the updated object any missing plain or virtual attribute (compared to original): this to cope with
+        // form layout, which might have not included some plain or virtual attributes
+        for (AttrTO attr : original.getPlainAttrs()) {
+            if (updated.getPlainAttr(attr.getSchema()) == null) {
+                updated.getPlainAttrs().add(attr);
+            }
+        }
+        for (AttrTO attr : original.getVirAttrs()) {
+            if (updated.getVirAttr(attr.getSchema()) == null) {
+                updated.getVirAttrs().add(attr);
+            }
+        }
+        if (updated instanceof GroupableRelatableTO && original instanceof GroupableRelatableTO) {
+            for (MembershipTO oMemb : GroupableRelatableTO.class.cast(original).getMemberships()) {
+                MembershipTO uMemb = GroupableRelatableTO.class.cast(updated).getMembership(oMemb.getGroupKey());
+                if (uMemb != null) {
+                    for (AttrTO attr : oMemb.getPlainAttrs()) {
+                        if (uMemb.getPlainAttr(attr.getSchema()) == null) {
+                            uMemb.getPlainAttrs().add(attr);
+                        }
+                    }
+                    for (AttrTO attr : oMemb.getVirAttrs()) {
+                        if (uMemb.getVirAttr(attr.getSchema()) == null) {
+                            uMemb.getVirAttrs().add(attr);
+                        }
+                    }
+                }
+            }
+        }
+
+        // remove from the updated object any plain or virtual attribute without values, thus triggering for removal in
+        // the generated patch
+        CollectionUtils.filterInverse(updated.getPlainAttrs(), new Predicate<AttrTO>() {
 
             @Override
             public boolean evaluate(final AttrTO attr) {
                 return attr.getValues().isEmpty();
             }
         });
-        return newPlainAttrs;
+        CollectionUtils.filterInverse(updated.getVirAttrs(), new Predicate<AttrTO>() {
+
+            @Override
+            public boolean evaluate(final AttrTO attr) {
+                return attr.getValues().isEmpty();
+            }
+        });
+        if (updated instanceof GroupableRelatableTO) {
+            for (MembershipTO memb : GroupableRelatableTO.class.cast(updated).getMemberships()) {
+                CollectionUtils.filterInverse(memb.getPlainAttrs(), new Predicate<AttrTO>() {
+
+                    @Override
+                    public boolean evaluate(final AttrTO attr) {
+                        return attr.getValues().isEmpty();
+                    }
+                });
+                CollectionUtils.filterInverse(memb.getVirAttrs(), new Predicate<AttrTO>() {
+
+                    @Override
+                    public boolean evaluate(final AttrTO attr) {
+                        return attr.getValues().isEmpty();
+                    }
+                });
+            }
+        }
     }
 }
