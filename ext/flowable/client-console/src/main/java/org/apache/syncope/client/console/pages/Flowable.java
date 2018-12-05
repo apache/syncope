@@ -29,7 +29,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 @ExtPage(label = "Flowable", icon = "fa-briefcase",
-        listEntitlement = FlowableEntitlement.BPMN_PROCESS_LIST, priority = 200)
+        listEntitlement = FlowableEntitlement.BPMN_PROCESS_GET, priority = 200)
 public class Flowable extends BaseExtPage {
 
     private static final long serialVersionUID = -8781434495150074529L;
@@ -49,7 +49,7 @@ public class Flowable extends BaseExtPage {
 
         }.disableCheckBoxes().build("bpmnProcessesPanel");
         bpmnProcessesPanel.setOutputMarkupPlaceholderTag(true);
-        MetaDataRoleAuthorizationStrategy.authorize(bpmnProcessesPanel, ENABLE, FlowableEntitlement.BPMN_PROCESS_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(bpmnProcessesPanel, ENABLE, FlowableEntitlement.BPMN_PROCESS_GET);
 
         content.add(bpmnProcessesPanel);
     }

@@ -74,6 +74,12 @@
               "resources": {
                 "url": "/resources"
               },
+              "userRequests": {
+                "url": "/user-requests"
+              },
+              "userRequestForms": {
+                "url": "/user-request-forms"
+              },
               "finish": {
                 "url": "/finish"
               }

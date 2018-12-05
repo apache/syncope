@@ -36,7 +36,7 @@ public class BpmnProcessLogic extends AbstractTransactionalLogic<BpmnProcess> {
     @Autowired
     private BpmnProcessManager bpmnProcessManager;
 
-    @PreAuthorize("hasRole('" + FlowableEntitlement.BPMN_PROCESS_LIST + "')")
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<BpmnProcess> list() {
         return bpmnProcessManager.getProcesses();

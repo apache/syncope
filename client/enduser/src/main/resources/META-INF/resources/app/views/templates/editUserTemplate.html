@@ -40,7 +40,7 @@ under the License.
                 <i class="fa fa-power-off" style="color:red"></i>
               </a>
               <!-- add class breadcrumb-disabled-link to buttons to prevent click -->              
-              <a ng-repeat="(key, value) in wizard" ui-sref-active="active" ui-sref=".{{key}}" 
+              <a ng-repeat="(key, value) in (createMode ? creationWizard : wizard)" ui-sref-active="active" ui-sref=".{{key}}" 
                  class="btn btn-secondary btn-default breadcrumb-btn-elem" 
                  ng-class="createMode && !endReached ? 'disable-link' : ''">{{key| translate}}</a>       
             </div>

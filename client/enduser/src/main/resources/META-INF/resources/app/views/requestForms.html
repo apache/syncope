@@ -1,0 +1,61 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+        
+  http://www.apache.org/licenses/LICENSE-2.0
+    
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<div ng-repeat="form in forms.result">
+  <uib-accordion ng-if="forms.result.length">
+    <div  uib-accordion-group heading="{{form.bpmnProcess| translate}}" class="breadcrumb-header panel panel-default">
+      <div id="attribute" class="form-group" ng-repeat="property in form.properties">
+        <label class="property-label" for="property.name">{{property.name}}
+          <span ng-if="property.required">*</span>
+        </label>
+        <form-property property="property"></form-property>
+        <validation-message name="{{property.name}}"/>
+      </div>
+      <div style="text-align: right">
+        <button class="btn btn-secondary btn-default" type="button" ng-click="submit(form)">{{ 'SUBMIT' | translate}}</button>
+      </div>
+    </div>
+  </uib-accordion>
+</div>
+<div class="row">
+  <div class="col-md-9" style="text-align: center">
+    <!-- pager -->
+    <ul ng-if="totalPages > 1" class="pagination">
+      <li ng-class="{disabled:query.page === 1}">
+        <a ng-click="reloadPage(1, query.size)">First</a>
+      </li>
+      <li ng-class="{disabled:query.page === 1}">
+        <a ng-click="reloadPage(query.page - 1, query.size)">Previous</a>
+      </li>
+      <li ng-repeat="page in pages" ng-class="{active:query.page === page}">
+        <a ng-click="reloadPage(page, query.size)">{{page}}</a>
+      </li>                
+      <li ng-class="{disabled:query.page === totalPages}">
+        <a ng-click="reloadPage(query.page + 1, query.size)">Next</a>
+      </li>
+      <li ng-class="{disabled:query.page === totalPages}">
+        <a ng-click="reloadPage(totalPages, query.size)">Last</a>
+      </li>
+    </ul>
+  </div>
+  <div ng-if="totalPages > 1" class="form-group col-md-3 pagination-size-sm" style="text-align: left">
+    <select class="form-control" name="sizeSelect" id="sizeSelect"
+            ng-options="option.value for option in availableSizes track by option.id"
+            ng-model="selectedSize" ng-change="reloadPage(query.page, selectedSize.value)"></select>
+  </div>
+</div>

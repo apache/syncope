@@ -97,4 +97,14 @@ under the License.
   background-color: #fff;
   border-color: #ccc;
 }
+
+.pagination-size {
+  margin: 20px 0;
+  width: 20%;
+}
+
+.pagination-size-sm {
+  margin: 20px 0;
+  width: 12%;
+}
 /* Useless with Bootstrap > 3 --> */

@@ -34,7 +34,10 @@ body {
 .suggestions,
 .k-notification-wrap,
 .btn-secondary,
- .card-body #attribute .fa {
+div[role="tablist"] .card-header a,
+div[role="tablist"] .card-collapse,
+ul.pagination,
+.card-body #attribute .fa {
   font-size: 20px;
 }
 

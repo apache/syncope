@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +35,8 @@ public abstract class BaseResource extends AbstractResource {
 
     protected static final Logger LOG = LoggerFactory.getLogger(BaseResource.class);
 
-    protected static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final ObjectMapper MAPPER = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     protected final boolean xsrfCheck(final HttpServletRequest request) {
         final String requestXSRFHeader = request.getHeader(SyncopeEnduserConstants.XSRF_HEADER_NAME);

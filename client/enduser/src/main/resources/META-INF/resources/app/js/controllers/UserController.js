@@ -23,10 +23,11 @@
 
 angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', "$state",
   'UserSelfService', 'SchemaService', 'RealmService', 'ResourceService', 'SecurityQuestionService',
-  'GroupService', 'AnyService', 'UserUtil', 'GenericUtil', 'ValidationExecutor', '$translate', '$filter',
+  'GroupService', 'AnyService', 'BpmnProcessService', 'UserRequestsService', 'UserUtil', 'GenericUtil',
+  'ValidationExecutor', '$translate', '$filter',
   function ($scope, $rootScope, $location, $state, UserSelfService, SchemaService, RealmService,
-          ResourceService, SecurityQuestionService, GroupService, AnyService, UserUtil, GenericUtil, ValidationExecutor,
-          $translate, $filter) {
+          ResourceService, SecurityQuestionService, GroupService, AnyService, BpmnProcessService, UserRequestsService,
+          UserUtil, GenericUtil, ValidationExecutor, $translate, $filter) {
 
     $scope.user = {};
     $scope.confirmPassword = {
@@ -37,6 +38,9 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
     $scope.availableRealms = [];
     $scope.availableSecurityQuestions = [];
+    $scope.bpmnProcesses = [];
+    $scope.userRequests = [];
+    $scope.userRequestsForms = [];
 
     $scope.initialSecurityQuestion = '';
     $scope.captchaInput = {
@@ -334,6 +338,15 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         initUserSchemas();
         // initialize available resources
         initResources();
+        // initialize user requests
+//        if (!$scope.createMode && $scope.wizard.userRequests) {
+//          console.debug("About to init user requests data");
+//          initBpmnProcesses();
+//          // this call will ever get the first 10 User Requests
+//          initUserRequests();
+//          // this call will ever get the first 10 User Requests Forms
+//          initUserRequestsForms();
+//        }
       };
 
       var readUser = function () {
