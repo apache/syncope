@@ -311,7 +311,7 @@ becomes:
 ====
 
 [discrete]
-===== Select the <<flowable-user-workflow-adapter>>
+===== Enable the <<flowable-user-workflow-adapter>>
 
 Add the following dependency to `core/pom.xml`:
 
@@ -325,28 +325,6 @@ Add the following dependency to `core/pom.xml`:
 ----
 
 Copy `core/src/main/resources/all/workflow.properties` to `core/src/main/resources/workflow.properties`.
-
-Add the following dependency to `console/pom.xml`:
-
-[source,xml,subs="verbatim,attributes"]
-----
-<dependency>
-  <groupId>org.apache.syncope.ext.flowable</groupId>
-  <artifactId>syncope-ext-flowable-client-console</artifactId>
-  <version>${syncope.version}</version>
-</dependency>
-----
-
-Add the following dependency to `enduser/pom.xml`:
-
-[source,xml,subs="verbatim,attributes"]
-----
-<dependency>
-  <groupId>org.apache.syncope.ext.flowable</groupId>
-  <artifactId>syncope-ext-flowable-client-enduser</artifactId>
-  <version>${syncope.version}</version>
-</dependency>
-----
 
 [discrete]
 ===== Enable the <<apache-camel-provisioning-manager>>
@@ -569,6 +547,20 @@ implementations, their package *must* be rooted under `org.apache.syncope.client
 available at runtime.
 
 [discrete]
+===== Enable the <<flowable-user-workflow-adapter>>
+
+Add the following dependency to `console/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.ext.flowable</groupId>
+  <artifactId>syncope-ext-flowable-client-console</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+----
+
+[discrete]
 ===== Enable the <<apache-camel-provisioning-manager>>
 
 Add the following dependency to `console/pom.xml`:
@@ -637,6 +629,20 @@ generated under the local project's `enduser/src/main/webapp/app/` directory and
 
 The files in use by the Apache Wicket-based backend are still subject to the general
 <<override-behavior,override behavior>>, instead.
+
+[discrete]
+===== Enable the <<flowable-user-workflow-adapter>>
+
+Add the following dependency to `enduser/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.ext.flowable</groupId>
+  <artifactId>syncope-ext-flowable-client-enduser</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+----
 
 [discrete]
 ===== Enable the <<saml-2-0-service-provider>> extension
