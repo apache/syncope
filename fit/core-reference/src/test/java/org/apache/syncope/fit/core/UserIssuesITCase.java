@@ -1296,7 +1296,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertEquals(2, result.getPropagationStatuses().size());
         userTO = result.getEntity();
 
-        // 3. request to propagate passwod only to db
+        // 3. request to propagate password only to db
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
         userPatch.setPassword(new PasswordPatch.Builder().
