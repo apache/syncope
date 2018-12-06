@@ -337,6 +337,17 @@ Add the following dependency to `console/pom.xml`:
 </dependency>
 ----
 
+Add the following dependency to `enduser/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.ext.flowable</groupId>
+  <artifactId>syncope-ext-flowable-client-enduser</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+----
+
 [discrete]
 ===== Enable the <<apache-camel-provisioning-manager>>
 
