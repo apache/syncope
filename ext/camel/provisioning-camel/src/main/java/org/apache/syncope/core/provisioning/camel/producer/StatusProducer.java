@@ -21,13 +21,11 @@ package org.apache.syncope.core.provisioning.camel.producer;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.StatusPatchType;
@@ -36,6 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 
 public class StatusProducer extends AbstractProducer {
@@ -92,7 +91,7 @@ public class StatusProducer extends AbstractProducer {
 
             PropagationByResource propByRes = new PropagationByResource();
             propByRes.addAll(ResourceOperation.UPDATE, statusPatch.getResources());
-            List<PropagationTaskTO> tasks = getPropagationManager().getUpdateTasks(
+            List<PropagationTaskInfo> taskInfos = getPropagationManager().getUpdateTasks(
                     AnyTypeKind.USER,
                     statusPatch.getKey(),
                     false,
@@ -100,9 +99,9 @@ public class StatusProducer extends AbstractProducer {
                     propByRes,
                     null,
                     null);
-            PropagationReporter propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
+            PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
 
-            exchange.getOut().setBody(Pair.of(updated.getResult(), propagationReporter.getStatuses()));
+            exchange.getOut().setBody(Pair.of(updated.getResult(), reporter.getStatuses()));
         }
     }
 }

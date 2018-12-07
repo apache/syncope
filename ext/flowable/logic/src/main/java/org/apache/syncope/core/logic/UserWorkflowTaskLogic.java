@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowTask;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
@@ -36,6 +35,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.flowable.api.WorkflowTaskManager;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -72,12 +72,12 @@ public class UserWorkflowTaskLogic extends AbstractTransactionalLogic<EntityTO> 
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(updated.getResult());
 
-        List<PropagationTaskTO> tasks = propagationManager.getUserUpdateTasks(
+        List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(
                 new WorkflowResult<>(
                         Pair.<UserPatch, Boolean>of(userPatch, null),
                         updated.getPropByRes(), updated.getPerformedTasks()));
 
-        taskExecutor.execute(tasks, false);
+        taskExecutor.execute(taskInfos, false);
 
         return binder.getUserTO(updated.getResult());
     }

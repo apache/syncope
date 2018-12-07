@@ -44,28 +44,28 @@ public interface PropagationTaskExecutor {
     /**
      * Execute the given PropagationTask and returns the generated {@link TaskExec}.
      *
-     * @param task to be executed
+     * @param taskInfo to be executed
      * @return the generated TaskExec
      */
-    TaskExec execute(PropagationTaskTO task);
+    TaskExec execute(PropagationTaskInfo taskInfo);
 
     /**
      * Execute the given PropagationTask and returns the generated {@link TaskExec}.
      *
-     * @param task to be executed
+     * @param taskInfo to be executed
      * @param reporter to report propagation execution status
      * @return the generated TaskExec
      */
-    TaskExec execute(PropagationTaskTO task, PropagationReporter reporter);
+    TaskExec execute(PropagationTaskInfo taskInfo, PropagationReporter reporter);
 
     /**
      * Execute a collection of PropagationTask objects.
      * The process is interrupted as soon as the result of the communication with a resource with non-null priority is
      * in error.
      *
-     * @param tasks to be execute, in given order
+     * @param taskInfos to be execute, in given order
      * @param nullPriorityAsync asynchronously executes tasks related to resources with no priority
      * @return reporter to report propagation execution status
      */
-    PropagationReporter execute(Collection<PropagationTaskTO> tasks, boolean nullPriorityAsync);
+    PropagationReporter execute(Collection<PropagationTaskInfo> taskInfos, boolean nullPriorityAsync);
 }

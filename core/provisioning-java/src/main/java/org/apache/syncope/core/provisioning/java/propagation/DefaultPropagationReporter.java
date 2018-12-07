@@ -24,10 +24,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.to.PropagationStatus;
-import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.slf4j.Logger;
@@ -47,14 +47,14 @@ public class DefaultPropagationReporter implements PropagationReporter {
 
     @Override
     public void onSuccessOrNonPriorityResourceFailures(
-            final PropagationTaskTO taskTO,
+            final PropagationTaskInfo taskInfo,
             final ExecStatus executionStatus,
             final String failureReason,
             final ConnectorObject beforeObj,
             final ConnectorObject afterObj) {
 
         PropagationStatus status = new PropagationStatus();
-        status.setResource(taskTO.getResource());
+        status.setResource(taskInfo.getResource());
         status.setStatus(executionStatus);
         status.setFailureReason(failureReason);
 
@@ -70,10 +70,13 @@ public class DefaultPropagationReporter implements PropagationReporter {
     }
 
     @Override
-    public void onPriorityResourceFailure(final String failingResource, final Collection<PropagationTaskTO> tasks) {
+    public void onPriorityResourceFailure(
+            final String failingResource,
+            final Collection<PropagationTaskInfo> taskInfos) {
+
         LOG.debug("Propagation error: {} priority resource failed to propagate", failingResource);
 
-        Optional<PropagationTaskTO> propagationTask = tasks.stream().
+        Optional<PropagationTaskInfo> propagationTask = taskInfos.stream().
                 filter(task -> task.getResource().equals(failingResource)).findFirst();
 
         if (propagationTask.isPresent()) {

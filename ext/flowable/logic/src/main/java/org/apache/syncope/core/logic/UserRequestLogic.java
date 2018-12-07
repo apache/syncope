@@ -25,7 +25,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
@@ -42,6 +41,7 @@ import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.flowable.api.UserRequestHandler;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -195,13 +195,13 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
         // propByRes can be made empty by the workflow definition if no propagation should occur 
         // (for example, with rejected users)
         if (wfResult.getPropByRes() != null && !wfResult.getPropByRes().isEmpty()) {
-            List<PropagationTaskTO> tasks = propagationManager.getUserUpdateTasks(
+            List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(
                     new WorkflowResult<>(
                             Pair.of(wfResult.getResult(), Boolean.TRUE),
                             wfResult.getPropByRes(),
                             wfResult.getPerformedTasks()));
 
-            taskExecutor.execute(tasks, false);
+            taskExecutor.execute(taskInfos, false);
         }
 
         UserTO userTO;

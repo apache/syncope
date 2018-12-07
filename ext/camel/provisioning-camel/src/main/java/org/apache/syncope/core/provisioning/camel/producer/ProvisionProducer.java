@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.camel.producer;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -28,13 +27,13 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 
 public class ProvisionProducer extends AbstractProducer {
 
@@ -70,10 +69,10 @@ public class ProvisionProducer extends AbstractProducer {
             WorkflowResult<Pair<UserPatch, Boolean>> wfResult = new WorkflowResult<>(
                     ImmutablePair.of(userPatch, (Boolean) null), propByRes, "update");
 
-            List<PropagationTaskTO> tasks = getPropagationManager().getUserUpdateTasks(wfResult, changePwd, null);
-            PropagationReporter propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
+            List<PropagationTaskInfo> taskInfos = getPropagationManager().getUserUpdateTasks(wfResult, changePwd, null);
+            PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
 
-            exchange.getOut().setBody(propagationReporter.getStatuses());
+            exchange.getOut().setBody(reporter.getStatuses());
         } else {
             PropagationByResource propByRes = new PropagationByResource();
             propByRes.addAll(ResourceOperation.UPDATE, resources);
@@ -83,7 +82,7 @@ public class ProvisionProducer extends AbstractProducer {
                 anyTypeKind = getAnyTypeKind();
             }
 
-            List<PropagationTaskTO> tasks = getPropagationManager().getUpdateTasks(
+            List<PropagationTaskInfo> taskInfos = getPropagationManager().getUpdateTasks(
                     anyTypeKind,
                     key,
                     false,
@@ -91,10 +90,9 @@ public class ProvisionProducer extends AbstractProducer {
                     propByRes,
                     null,
                     null);
-            PropagationReporter propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
+            PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
 
-            exchange.getOut().setBody(propagationReporter.getStatuses());
+            exchange.getOut().setBody(reporter.getStatuses());
         }
     }
-
 }
