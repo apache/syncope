@@ -19,13 +19,13 @@
 package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.util.Collection;
-import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskCallable;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +48,7 @@ public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
 
     protected final Collection<? extends GrantedAuthority> authorities;
 
-    protected PropagationTaskTO taskTO;
+    protected PropagationTaskInfo taskInfo;
 
     protected PropagationReporter reporter;
 
@@ -60,8 +60,8 @@ public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
     }
 
     @Override
-    public void setTaskTO(final PropagationTaskTO taskTO) {
-        this.taskTO = taskTO;
+    public void setTaskInfo(final PropagationTaskInfo taskInfo) {
+        this.taskInfo = taskInfo;
     }
 
     @Override
@@ -77,11 +77,11 @@ public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
         auth.setDetails(new SyncopeAuthenticationDetails(domain));
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        LOG.debug("Execution started for {}", taskTO);
+        LOG.debug("Execution started for {}", taskInfo);
 
-        TaskExec execution = taskExecutor.execute(taskTO, reporter);
+        TaskExec execution = taskExecutor.execute(taskInfo, reporter);
 
-        LOG.debug("Execution completed for {}, {}", taskTO, execution);
+        LOG.debug("Execution completed for {}, {}", taskInfo, execution);
 
         return execution;
     }

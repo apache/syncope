@@ -20,17 +20,16 @@ package org.apache.syncope.core.provisioning.camel.producer;
 
 import java.util.List;
 import java.util.Set;
-
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 
 public class UpdateProducer extends AbstractProducer {
 
@@ -50,23 +49,21 @@ public class UpdateProducer extends AbstractProducer {
                 WorkflowResult<Pair<UserPatch, Boolean>> updated =
                         (WorkflowResult<Pair<UserPatch, Boolean>>) exchange.getIn().getBody();
 
-                List<PropagationTaskTO> tasks;
+                List<PropagationTaskInfo> taskInfos;
                 if (isPull()) {
                     boolean passwordNotNull = updated.getResult().getKey().getPassword() != null;
-                    tasks = getPropagationManager().getUserUpdateTasks(updated, passwordNotNull, excludedResources);
+                    taskInfos = getPropagationManager().getUserUpdateTasks(updated, passwordNotNull, excludedResources);
                 } else {
-                    tasks = getPropagationManager().getUserUpdateTasks(updated);
+                    taskInfos = getPropagationManager().getUserUpdateTasks(updated);
                 }
-                PropagationReporter propagationReporter =
-                        getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
+                PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
 
-                exchange.getOut().setBody(Pair.of(
-                        updated.getResult().getLeft(), propagationReporter.getStatuses()));
+                exchange.getOut().setBody(Pair.of(updated.getResult().getLeft(), reporter.getStatuses()));
             } else if (actual instanceof AnyPatch) {
                 WorkflowResult<? extends AnyPatch> updated =
                         (WorkflowResult<? extends AnyPatch>) exchange.getIn().getBody();
 
-                List<PropagationTaskTO> tasks = getPropagationManager().getUpdateTasks(
+                List<PropagationTaskInfo> taskInfos = getPropagationManager().getUpdateTasks(
                         actual instanceof AnyObjectPatch ? AnyTypeKind.ANY_OBJECT : AnyTypeKind.GROUP,
                         updated.getResult().getKey(),
                         false,
@@ -74,12 +71,10 @@ public class UpdateProducer extends AbstractProducer {
                         updated.getPropByRes(),
                         ((AnyPatch) actual).getVirAttrs(),
                         excludedResources);
-                PropagationReporter propagationReporter =
-                        getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
+                PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
 
-                exchange.getOut().setBody(Pair.of(updated.getResult(), propagationReporter.getStatuses()));
+                exchange.getOut().setBody(Pair.of(updated.getResult(), reporter.getStatuses()));
             }
         }
     }
-
 }

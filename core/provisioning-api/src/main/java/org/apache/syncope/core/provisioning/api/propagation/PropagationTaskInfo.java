@@ -18,12 +18,28 @@
  */
 package org.apache.syncope.core.provisioning.api.propagation;
 
-import java.util.concurrent.Callable;
-import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import java.util.Optional;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
 
-public interface PropagationTaskCallable extends Callable<TaskExec> {
+public class PropagationTaskInfo extends PropagationTaskTO {
 
-    void setTaskInfo(PropagationTaskInfo taskInfo);
+    private static final long serialVersionUID = -2879861567335503099L;
 
-    void setReporter(PropagationReporter reporter);
+    /**
+     * Object on External Resource before propagation takes place.
+     *
+     * null: beforeObj was not attempted to read
+     * not null, but not present: beforeObj was attempted to read, but not found
+     * not null and present: beforeObj value is available
+     */
+    private Optional<ConnectorObject> beforeObj;
+
+    public Optional<ConnectorObject> getBeforeObj() {
+        return beforeObj;
+    }
+
+    public void setBeforeObj(final Optional<ConnectorObject> beforeObj) {
+        this.beforeObj = beforeObj;
+    }
 }

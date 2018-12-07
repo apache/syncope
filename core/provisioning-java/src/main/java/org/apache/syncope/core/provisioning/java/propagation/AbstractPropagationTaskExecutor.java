@@ -33,7 +33,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.collections.IteratorChain;
 import org.apache.syncope.common.lib.to.ExecTO;
-import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ExecStatus;
@@ -69,6 +68,7 @@ import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
@@ -346,29 +346,29 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     @Override
-    public TaskExec execute(final PropagationTaskTO task) {
-        return execute(task, null);
+    public TaskExec execute(final PropagationTaskInfo taskInfo) {
+        return execute(taskInfo, null);
     }
 
     @Override
-    public TaskExec execute(final PropagationTaskTO taskTO, final PropagationReporter reporter) {
+    public TaskExec execute(final PropagationTaskInfo taskInfo, final PropagationReporter reporter) {
         PropagationTask task;
-        if (taskTO.getKey() == null) {
+        if (taskInfo.getKey() == null) {
             task = entityFactory.newEntity(PropagationTask.class);
-            task.setResource(resourceDAO.find(taskTO.getResource()));
-            task.setObjectClassName(taskTO.getObjectClassName());
-            task.setAnyTypeKind(taskTO.getAnyTypeKind());
-            task.setAnyType(taskTO.getAnyType());
-            task.setEntityKey(taskTO.getEntityKey());
-            task.setOperation(taskTO.getOperation());
-            task.setConnObjectKey(taskTO.getConnObjectKey());
-            task.setOldConnObjectKey(taskTO.getOldConnObjectKey());
+            task.setResource(resourceDAO.find(taskInfo.getResource()));
+            task.setObjectClassName(taskInfo.getObjectClassName());
+            task.setAnyTypeKind(taskInfo.getAnyTypeKind());
+            task.setAnyType(taskInfo.getAnyType());
+            task.setEntityKey(taskInfo.getEntityKey());
+            task.setOperation(taskInfo.getOperation());
+            task.setConnObjectKey(taskInfo.getConnObjectKey());
+            task.setOldConnObjectKey(taskInfo.getOldConnObjectKey());
         } else {
-            task = taskDAO.find(taskTO.getKey());
+            task = taskDAO.find(taskInfo.getKey());
         }
         Set<Attribute> attributes = new HashSet<>();
-        if (StringUtils.isNotBlank(taskTO.getAttributes())) {
-            attributes.addAll(Arrays.asList(POJOHelper.deserialize(taskTO.getAttributes(), Attribute[].class)));
+        if (StringUtils.isNotBlank(taskInfo.getAttributes())) {
+            attributes.addAll(Arrays.asList(POJOHelper.deserialize(taskInfo.getAttributes(), Attribute[].class)));
         }
         task.setAttributes(attributes);
 
@@ -400,12 +400,16 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             orgUnit = task.getResource().getOrgUnit();
             connector = connFactory.getConnector(task.getResource());
 
-            // Try to read remote object BEFORE any actual operation
-            beforeObj = provision == null && orgUnit == null
-                    ? null
-                    : orgUnit == null
-                            ? getRemoteObject(task, connector, provision, false)
-                            : getRemoteObject(task, connector, orgUnit, false);
+            if (taskInfo.getBeforeObj() == null) {
+                // Try to read remote object BEFORE any actual operation
+                beforeObj = provision == null && orgUnit == null
+                        ? null
+                        : orgUnit == null
+                                ? getRemoteObject(task, connector, provision, false)
+                                : getRemoteObject(task, connector, orgUnit, false);
+            } else if (taskInfo.getBeforeObj().isPresent()) {
+                beforeObj = taskInfo.getBeforeObj().get();
+            }
 
             for (PropagationActions action : actions) {
                 action.before(task, beforeObj);
@@ -503,7 +507,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             }
 
             if (reporter != null) {
-                reporter.onSuccessOrNonPriorityResourceFailures(taskTO,
+                reporter.onSuccessOrNonPriorityResourceFailures(taskInfo,
                         ExecStatus.valueOf(execution.getStatus()),
                         failureReason,
                         beforeObj,
@@ -533,7 +537,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     result,
                     beforeObj,
                     new Object[] { execTO, afterObj },
-                    taskTO);
+                    taskInfo);
 
             auditManager.audit(
                     AuthContextUtils.getUsername(),
@@ -544,23 +548,26 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     result,
                     beforeObj,
                     new Object[] { execTO, afterObj },
-                    taskTO);
+                    taskInfo);
         }
 
         return execution;
     }
 
     protected abstract void doExecute(
-            Collection<PropagationTaskTO> tasks, PropagationReporter reporter, boolean nullPriorityAsync);
+            Collection<PropagationTaskInfo> taskInfos, PropagationReporter reporter, boolean nullPriorityAsync);
 
     @Override
-    public PropagationReporter execute(final Collection<PropagationTaskTO> tasks, final boolean nullPriorityAsync) {
+    public PropagationReporter execute(
+            final Collection<PropagationTaskInfo> taskInfos,
+            final boolean nullPriorityAsync) {
+
         PropagationReporter reporter = new DefaultPropagationReporter();
         try {
-            doExecute(tasks, reporter, nullPriorityAsync);
+            doExecute(taskInfos, reporter, nullPriorityAsync);
         } catch (PropagationException e) {
             LOG.error("Error propagation priority resource", e);
-            reporter.onPriorityResourceFailure(e.getResourceName(), tasks);
+            reporter.onPriorityResourceFailure(e.getResourceName(), taskInfos);
         }
 
         return reporter;
