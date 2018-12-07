@@ -19,11 +19,9 @@
 package org.apache.syncope.core.provisioning.camel.producer;
 
 import java.util.List;
-
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -31,6 +29,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 
 public class DeprovisionProducer extends AbstractProducer {
 
@@ -62,39 +61,39 @@ public class DeprovisionProducer extends AbstractProducer {
 
         if (null != getAnyTypeKind()) {
             PropagationByResource propByRes = new PropagationByResource();
-            List<PropagationTaskTO> tasks;
+            List<PropagationTaskInfo> taskInfos;
             PropagationReporter propagationReporter;
             switch (getAnyTypeKind()) {
                 case USER:
                     propByRes.set(ResourceOperation.DELETE, resources);
-                    tasks = getPropagationManager().getDeleteTasks(
+                    taskInfos = getPropagationManager().getDeleteTasks(
                             AnyTypeKind.USER,
                             key,
                             propByRes,
                             CollectionUtils.removeAll(userDAO.findAllResourceKeys(key), resources));
-                    propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
+                    propagationReporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
                     exchange.getOut().setBody(propagationReporter.getStatuses());
                     break;
 
                 case GROUP:
                     propByRes.addAll(ResourceOperation.DELETE, resources);
-                    tasks = getPropagationManager().getDeleteTasks(
+                    taskInfos = getPropagationManager().getDeleteTasks(
                             AnyTypeKind.GROUP,
                             key,
                             propByRes,
                             CollectionUtils.removeAll(groupDAO.findAllResourceKeys(key), resources));
-                    propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
+                    propagationReporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
                     exchange.getOut().setBody(propagationReporter.getStatuses());
                     break;
 
                 case ANY_OBJECT:
                     propByRes.addAll(ResourceOperation.DELETE, resources);
-                    tasks = getPropagationManager().getDeleteTasks(
+                    taskInfos = getPropagationManager().getDeleteTasks(
                             AnyTypeKind.ANY_OBJECT,
                             key,
                             propByRes,
                             CollectionUtils.removeAll(anyObjectDAO.findAllResourceKeys(key), resources));
-                    propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
+                    propagationReporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
                     exchange.getOut().setBody(propagationReporter.getStatuses());
                     break;
 
@@ -103,5 +102,4 @@ public class DeprovisionProducer extends AbstractProducer {
             }
         }
     }
-
 }

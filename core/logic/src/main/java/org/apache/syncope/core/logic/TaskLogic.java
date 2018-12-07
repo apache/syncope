@@ -58,6 +58,7 @@ import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
@@ -234,7 +235,20 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         ExecTO result = null;
         switch (taskUtil.getType()) {
             case PROPAGATION:
-                TaskExec propExec = taskExecutor.execute(binder.<PropagationTaskTO>getTaskTO(task, taskUtil, false));
+                PropagationTaskTO taskTO = binder.<PropagationTaskTO>getTaskTO(task, taskUtil, false);
+                PropagationTaskInfo taskInfo = new PropagationTaskInfo();
+                taskInfo.setKey(taskTO.getKey());
+                taskInfo.setOperation(taskTO.getOperation());
+                taskInfo.setConnObjectKey(taskTO.getConnObjectKey());
+                taskInfo.setOldConnObjectKey(taskTO.getOldConnObjectKey());
+                taskInfo.setAttributes(taskTO.getAttributes());
+                taskInfo.setResource(taskTO.getResource());
+                taskInfo.setObjectClassName(taskTO.getObjectClassName());
+                taskInfo.setAnyTypeKind(taskTO.getAnyTypeKind());
+                taskInfo.setAnyType(taskTO.getAnyType());
+                taskInfo.setEntityKey(taskTO.getEntityKey());
+
+                TaskExec propExec = taskExecutor.execute(taskInfo);
                 result = binder.getExecTO(propExec);
                 break;
 

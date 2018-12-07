@@ -53,12 +53,14 @@ import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationReporter;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -114,31 +116,45 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.add(ResourceOperation.UPDATE, profile.getTask().getResource().getKey());
 
-        PropagationReporter reporter = taskExecutor.execute(propagationManager.getUpdateTasks(
+        List<PropagationTaskInfo> taskInfos = propagationManager.getUpdateTasks(
                 any.getType().getKind(),
                 any.getKey(),
                 changepwd,
                 enable,
                 propByRes,
                 null,
-                noPropResources),
-                false);
-        reportPropagation(result, reporter);
+                noPropResources);
+        if (!taskInfos.isEmpty()) {
+            taskInfos.get(0).setRead(true);
+            taskInfos.get(0).setBeforeObj(beforeObj);
+            PropagationReporter reporter = new DefaultPropagationReporter();
+            taskExecutor.execute(taskInfos.get(0), reporter);
+            reportPropagation(result, reporter);
+        }
     }
 
-    protected void deprovision(final Any<?> any, final ProvisioningReport result) {
+    protected void deprovision(final Any<?> any, final ConnectorObject beforeObj, final ProvisioningReport result) {
         AnyTO before = getAnyTO(any.getKey());
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
-        PropagationReporter reporter = taskExecutor.execute(propagationManager.getDeleteTasks(
+        PropagationByResource propByRes = new PropagationByResource();
+        propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
+        propByRes.addOldConnObjectKey(profile.getTask().getResource().getKey(), beforeObj.getUid().getUidValue());
+
+        List<PropagationTaskInfo> taskInfos = propagationManager.getDeleteTasks(
                 any.getType().getKind(),
                 any.getKey(),
-                null,
-                noPropResources),
-                false);
-        reportPropagation(result, reporter);
+                propByRes,
+                noPropResources);
+        if (!taskInfos.isEmpty()) {
+            taskInfos.get(0).setRead(true);
+            taskInfos.get(0).setBeforeObj(beforeObj);
+            PropagationReporter reporter = new DefaultPropagationReporter();
+            taskExecutor.execute(taskInfos.get(0), reporter);
+            reportPropagation(result, reporter);
+        }
     }
 
     protected void provision(final Any<?> any, final Boolean enable, final ProvisioningReport result) {
@@ -150,15 +166,20 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
-        PropagationReporter reporter = taskExecutor.execute(propagationManager.getCreateTasks(
+        List<PropagationTaskInfo> taskInfos = propagationManager.getCreateTasks(
                 any.getType().getKind(),
                 any.getKey(),
                 enable,
                 propByRes,
                 before.getVirAttrs(),
-                noPropResources),
-                false);
-        reportPropagation(result, reporter);
+                noPropResources);
+        if (!taskInfos.isEmpty()) {
+            taskInfos.get(0).setRead(true);
+            taskInfos.get(0).setBeforeObj(null);
+            PropagationReporter reporter = new DefaultPropagationReporter();
+            taskExecutor.execute(taskInfos.get(0), reporter);
+            reportPropagation(result, reporter);
+        }
     }
 
     protected void link(final Any<?> any, final boolean unlink, final ProvisioningReport result) {
@@ -172,7 +193,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         result.setStatus(ProvisioningReport.Status.SUCCESS);
     }
 
-    protected void unassign(final Any<?> any, final ProvisioningReport result) {
+    protected void unassign(final Any<?> any, final ConnectorObject beforeObj, final ProvisioningReport result) {
         AnyPatch patch = getAnyUtils().newAnyPatch(any.getKey());
         patch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.DELETE).
@@ -180,7 +201,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
         update(patch);
 
-        deprovision(any, result);
+        deprovision(any, beforeObj, result);
     }
 
     protected void assign(final Any<?> any, final Boolean enabled, final ProvisioningReport result) {
@@ -390,7 +411,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                                 LOG.debug("PushTask not configured for delete");
                                 result.setStatus(ProvisioningReport.Status.IGNORE);
                             } else {
-                                deprovision(any, result);
+                                deprovision(any, beforeObj, result);
                             }
                             break;
 
@@ -403,7 +424,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                                 LOG.debug("PushTask not configured for delete");
                                 result.setStatus(ProvisioningReport.Status.IGNORE);
                             } else {
-                                unassign(any, result);
+                                unassign(any, beforeObj, result);
                             }
                             break;
 
@@ -451,21 +472,27 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 if (result.getStatus() == null) {
                     result.setStatus(ProvisioningReport.Status.SUCCESS);
                 }
-                resultStatus = AuditElements.Result.SUCCESS;
-                if (connObjectKey != null && connObjecKeyValue != null) {
-                    output = getRemoteObject(
-                            provision.getObjectClass(),
-                            connObjectKey.getExtAttrName(),
-                            connObjecKeyValue,
-                            provision.getMapping().getItems().iterator());
+
+                if (notificationsAvailable || auditRequested) {
+                    resultStatus = AuditElements.Result.SUCCESS;
+                    if (connObjectKey != null && connObjecKeyValue != null) {
+                        output = getRemoteObject(
+                                provision.getObjectClass(),
+                                connObjectKey.getExtAttrName(),
+                                connObjecKeyValue,
+                                provision.getMapping().getItems().iterator());
+                    }
                 }
             } catch (IgnoreProvisionException e) {
                 throw e;
             } catch (Exception e) {
                 result.setStatus(ProvisioningReport.Status.FAILURE);
                 result.setMessage(ExceptionUtils.getRootCauseMessage(e));
-                resultStatus = AuditElements.Result.FAILURE;
-                output = e;
+
+                if (notificationsAvailable || auditRequested) {
+                    resultStatus = AuditElements.Result.FAILURE;
+                    output = e;
+                }
 
                 LOG.warn("Error pushing {} towards {}", any, profile.getTask().getResource(), e);
 

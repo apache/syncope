@@ -22,16 +22,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
-import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 
 public class DeleteProducer extends AbstractProducer {
 
@@ -58,7 +57,7 @@ public class DeleteProducer extends AbstractProducer {
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 
         if (null != getAnyTypeKind()) {
-            List<PropagationTaskTO> tasks;
+            List<PropagationTaskInfo> taskInfos;
             PropagationReporter propagationReporter;
             switch (getAnyTypeKind()) {
                 case USER:
@@ -69,23 +68,23 @@ public class DeleteProducer extends AbstractProducer {
                     // information could only be available after uwfAdapter.delete(), which
                     // will also effectively remove user from db, thus making virtually
                     // impossible by NotificationManager to fetch required user information
-                    tasks = getPropagationManager().getDeleteTasks(
+                    taskInfos = getPropagationManager().getDeleteTasks(
                             AnyTypeKind.USER,
                             key,
                             propByRes,
                             excludedResources);
-                    propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
+                    propagationReporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
                     exchange.setProperty("statuses", propagationReporter.getStatuses());
                     break;
 
                 case GROUP:
-                    tasks = new ArrayList<>();
+                    taskInfos = new ArrayList<>();
                     // Generate propagation tasks for deleting users from group resources, if they are on those
                     // resources only because of the reason being deleted (see SYNCOPE-357)
                     for (Map.Entry<String, PropagationByResource> entry
                             : groupDataBinder.findUsersWithTransitiveResources(key).entrySet()) {
 
-                        tasks.addAll(getPropagationManager().getDeleteTasks(
+                        taskInfos.addAll(getPropagationManager().getDeleteTasks(
                                 AnyTypeKind.USER,
                                 entry.getKey(),
                                 entry.getValue(),
@@ -94,28 +93,28 @@ public class DeleteProducer extends AbstractProducer {
                     for (Map.Entry<String, PropagationByResource> entry
                             : groupDataBinder.findAnyObjectsWithTransitiveResources(key).entrySet()) {
 
-                        tasks.addAll(getPropagationManager().getDeleteTasks(
+                        taskInfos.addAll(getPropagationManager().getDeleteTasks(
                                 AnyTypeKind.ANY_OBJECT,
                                 entry.getKey(),
                                 entry.getValue(),
                                 excludedResources));
                     }       // Generate propagation tasks for deleting this group from resources
-                    tasks.addAll(getPropagationManager().getDeleteTasks(
+                    taskInfos.addAll(getPropagationManager().getDeleteTasks(
                             AnyTypeKind.GROUP,
                             key,
                             null,
                             null));
-                    propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
+                    propagationReporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
                     exchange.setProperty("statuses", propagationReporter.getStatuses());
                     break;
 
                 case ANY_OBJECT:
-                    tasks = getPropagationManager().getDeleteTasks(
+                    taskInfos = getPropagationManager().getDeleteTasks(
                             AnyTypeKind.ANY_OBJECT,
                             key,
                             null,
                             excludedResources);
-                    propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
+                    propagationReporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
                     exchange.setProperty("statuses", propagationReporter.getStatuses());
                     break;
 
@@ -124,5 +123,4 @@ public class DeleteProducer extends AbstractProducer {
             }
         }
     }
-
 }

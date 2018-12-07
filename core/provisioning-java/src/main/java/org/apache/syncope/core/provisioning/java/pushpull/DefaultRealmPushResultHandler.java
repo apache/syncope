@@ -41,11 +41,13 @@ import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPushResultHandler;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
+import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationReporter;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -98,28 +100,38 @@ public class DefaultRealmPushResultHandler
         }
     }
 
-    private Realm update(final RealmTO realmTO, final ProvisioningReport result) {
+    private Realm update(final RealmTO realmTO, final ConnectorObject beforeObj, final ProvisioningReport result) {
         Realm realm = realmDAO.findByFullPath(realmTO.getFullPath());
         PropagationByResource propByRes = binder.update(realm, realmTO);
         realm = realmDAO.save(realm);
 
-        PropagationReporter reporter = taskExecutor.execute(
-                propagationManager.createTasks(realm, propByRes, null), false);
-        reportPropagation(result, reporter);
+        List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
+        if (!taskInfos.isEmpty()) {
+            taskInfos.get(0).setRead(true);
+            taskInfos.get(0).setBeforeObj(beforeObj);
+            PropagationReporter reporter = new DefaultPropagationReporter();
+            taskExecutor.execute(taskInfos.get(0), reporter);
+            reportPropagation(result, reporter);
+        }
 
         return realm;
     }
 
-    private void deprovision(final Realm realm, final ProvisioningReport result) {
+    private void deprovision(final Realm realm, final ConnectorObject beforeObj, final ProvisioningReport result) {
         List<String> noPropResources = new ArrayList<>(realm.getResourceKeys());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(ResourceOperation.DELETE, realm.getResourceKeys());
 
-        PropagationReporter reporter = taskExecutor.execute(
-                propagationManager.createTasks(realm, propByRes, noPropResources), false);
-        reportPropagation(result, reporter);
+        List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, noPropResources);
+        if (!taskInfos.isEmpty()) {
+            taskInfos.get(0).setRead(true);
+            taskInfos.get(0).setBeforeObj(beforeObj);
+            PropagationReporter reporter = new DefaultPropagationReporter();
+            taskExecutor.execute(taskInfos.get(0), reporter);
+            reportPropagation(result, reporter);
+        }
     }
 
     private void provision(final Realm realm, final ProvisioningReport result) {
@@ -142,21 +154,21 @@ public class DefaultRealmPushResultHandler
             realmTO.getResources().add(profile.getTask().getResource().getKey());
         }
 
-        update(realmTO, result);
+        update(realmTO, null, result);
     }
 
-    private void unassign(final Realm realm, final ProvisioningReport result) {
+    private void unassign(final Realm realm, final ConnectorObject beforeObj, final ProvisioningReport result) {
         RealmTO realmTO = binder.getRealmTO(realm, true);
         realmTO.getResources().remove(profile.getTask().getResource().getKey());
 
-        deprovision(update(realmTO, result), result);
+        deprovision(update(realmTO, beforeObj, result), beforeObj, result);
     }
 
     private void assign(final Realm realm, final ProvisioningReport result) {
         RealmTO realmTO = binder.getRealmTO(realm, true);
         realmTO.getResources().add(profile.getTask().getResource().getKey());
 
-        provision(update(realmTO, result), result);
+        provision(update(realmTO, null, result), result);
     }
 
     protected ConnectorObject getRemoteObject(
@@ -300,7 +312,7 @@ public class DefaultRealmPushResultHandler
                                 LOG.debug("PushTask not configured for update");
                                 result.setStatus(ProvisioningReport.Status.IGNORE);
                             } else {
-                                update(binder.getRealmTO(realm, true), result);
+                                update(binder.getRealmTO(realm, true), beforeObj, result);
                             }
 
                             break;
@@ -314,7 +326,7 @@ public class DefaultRealmPushResultHandler
                                 LOG.debug("PushTask not configured for delete");
                                 result.setStatus(ProvisioningReport.Status.IGNORE);
                             } else {
-                                deprovision(realm, result);
+                                deprovision(realm, beforeObj, result);
                             }
 
                             break;
@@ -328,7 +340,7 @@ public class DefaultRealmPushResultHandler
                                 LOG.debug("PushTask not configured for delete");
                                 result.setStatus(ProvisioningReport.Status.IGNORE);
                             } else {
-                                unassign(realm, result);
+                                unassign(realm, beforeObj, result);
                             }
 
                             break;
@@ -378,21 +390,27 @@ public class DefaultRealmPushResultHandler
                 if (result.getStatus() == null) {
                     result.setStatus(ProvisioningReport.Status.SUCCESS);
                 }
-                resultStatus = AuditElements.Result.SUCCESS;
-                if (connObjectKey != null && connObjecKeyValue != null) {
-                    output = getRemoteObject(
-                            orgUnit.getObjectClass(),
-                            connObjectKey.getExtAttrName(),
-                            connObjecKeyValue,
-                            orgUnit.getItems().iterator());
+
+                if (notificationsAvailable || auditRequested) {
+                    resultStatus = AuditElements.Result.SUCCESS;
+                    if (connObjectKey != null && connObjecKeyValue != null) {
+                        output = getRemoteObject(
+                                orgUnit.getObjectClass(),
+                                connObjectKey.getExtAttrName(),
+                                connObjecKeyValue,
+                                orgUnit.getItems().iterator());
+                    }
                 }
             } catch (IgnoreProvisionException e) {
                 throw e;
             } catch (Exception e) {
                 result.setStatus(ProvisioningReport.Status.FAILURE);
                 result.setMessage(ExceptionUtils.getRootCauseMessage(e));
-                resultStatus = AuditElements.Result.FAILURE;
-                output = e;
+
+                if (notificationsAvailable || auditRequested) {
+                    resultStatus = AuditElements.Result.FAILURE;
+                    output = e;
+                }
 
                 LOG.warn("Error pushing {} towards {}", realm, profile.getTask().getResource(), e);
 

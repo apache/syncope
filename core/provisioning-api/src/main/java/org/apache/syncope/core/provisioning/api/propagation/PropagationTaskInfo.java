@@ -18,12 +18,30 @@
  */
 package org.apache.syncope.core.provisioning.api.propagation;
 
-import java.util.concurrent.Callable;
-import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
 
-public interface PropagationTaskCallable extends Callable<TaskExec> {
+public class PropagationTaskInfo extends PropagationTaskTO {
 
-    void setTaskInfo(PropagationTaskInfo taskInfo);
+    private static final long serialVersionUID = -2879861567335503099L;
 
-    void setReporter(PropagationReporter reporter);
+    private boolean read;
+
+    private ConnectorObject beforeObj;
+
+    public boolean isRead() {
+        return read;
+    }
+
+    public void setRead(final boolean read) {
+        this.read = read;
+    }
+
+    public ConnectorObject getBeforeObj() {
+        return beforeObj;
+    }
+
+    public void setBeforeObj(final ConnectorObject beforeObj) {
+        this.beforeObj = beforeObj;
+    }
 }
