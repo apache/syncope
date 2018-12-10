@@ -176,8 +176,6 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                     append(filter.getLeft()).
                     append(buildOrderBy(obs));
 
-            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA " + queryString.toString());
-            
             // 3. prepare the search query
             Query query = entityManager().createNativeQuery(queryString.toString());
 
