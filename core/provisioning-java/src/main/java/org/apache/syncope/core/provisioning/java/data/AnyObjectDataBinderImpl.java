@@ -54,6 +54,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -341,9 +342,16 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             anyObject.getMembership(membPatch.getGroup()).ifPresent(membership -> {
                 anyObject.remove(membership);
                 membership.setLeftEnd(null);
+                Set<String> membAttrKeys = new HashSet<>();
                 anyObject.getPlainAttrs(membership).forEach(attr -> {
                     anyObject.remove(attr);
                     attr.setOwner(null);
+                    attr.setMembership(null);
+                    membAttrKeys.add(attr.getKey());
+                    plainAttrValueDAO.deleteAll(attr, anyUtils);
+                });
+                membAttrKeys.forEach(attrKey -> {
+                    plainAttrDAO.delete(attrKey, anyUtils.plainAttrClass());
                 });
 
                 if (membPatch.getOperation() == PatchOperation.DELETE) {
