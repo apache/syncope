@@ -176,6 +176,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                     append(filter.getLeft()).
                     append(buildOrderBy(obs));
 
+            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA " + queryString.toString());
+            
             // 3. prepare the search query
             Query query = entityManager().createNativeQuery(queryString.toString());
 
@@ -796,15 +798,17 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ");
         switch (cond.getType()) {
             case ISNOTNULL:
-                query.append(svs.field().name).
-                        append(" WHERE any_id NOT IN (SELECT any_id FROM ").
-                        append(svs.nullAttr().name).
-                        append(" WHERE schema_id='").append(checked.getLeft().getKey()).append("')");
+                query.append(svs.attr().name).append(" WHERE schema_id=").
+                        append("'").append(checked.getLeft().getKey()).append("'");
                 break;
 
             case ISNULL:
-                query.append(svs.nullAttr().name).
-                        append(" WHERE schema_id='").append(checked.getLeft().getKey()).append("'");
+                query.append(svs.field().name).
+                        append(" WHERE any_id NOT IN ").
+                        append("(").
+                        append("SELECT DISTINCT any_id FROM ").append(svs.attr().name).append(" WHERE schema_id=").
+                        append("'").append(checked.getLeft().getKey()).append("'").
+                        append(")");
                 break;
 
             default:
