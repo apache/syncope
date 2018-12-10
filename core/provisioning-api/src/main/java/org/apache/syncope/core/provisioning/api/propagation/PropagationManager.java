@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.api.propagation;
 import java.util.Collection;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -98,7 +98,7 @@ public interface PropagationManager {
      * @return list of propagation tasks
      */
     List<PropagationTaskInfo> getUserUpdateTasks(
-            WorkflowResult<Pair<UserPatch, Boolean>> wfResult,
+            WorkflowResult<Pair<UserUR, Boolean>> wfResult,
             boolean changePwd,
             Collection<String> noPropResourceKeys);
 
@@ -109,7 +109,7 @@ public interface PropagationManager {
      * @param wfResult user to be propagated (and info associated), as per result from workflow
      * @return list of propagation tasks
      */
-    List<PropagationTaskInfo> getUserUpdateTasks(WorkflowResult<Pair<UserPatch, Boolean>> wfResult);
+    List<PropagationTaskInfo> getUserUpdateTasks(WorkflowResult<Pair<UserUR, Boolean>> wfResult);
 
     /**
      * Create the delete tasks for the any object from each resource associated, unless in {@code noPropResourceKeys}.

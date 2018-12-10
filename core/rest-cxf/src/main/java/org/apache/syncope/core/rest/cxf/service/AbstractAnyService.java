@@ -29,10 +29,10 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.patch.AssociationPatch;
-import org.apache.syncope.common.lib.patch.AttrPatch;
-import org.apache.syncope.common.lib.patch.DeassociationPatch;
+import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.ResourceAR;
+import org.apache.syncope.common.lib.request.AttrPatch;
+import org.apache.syncope.common.lib.request.ResourceDR;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -55,15 +55,15 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
-public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
+public abstract class AbstractAnyService<TO extends AnyTO, UR extends AnyUR>
         extends AbstractServiceImpl
         implements AnyService<TO> {
 
     protected abstract AnyDAO<?> getAnyDAO();
 
-    protected abstract AbstractAnyLogic<TO, P> getAnyLogic();
+    protected abstract AbstractAnyLogic<TO, UR> getAnyLogic();
 
-    protected abstract P newPatch(String key);
+    protected abstract UR newUpdateReq(String key);
 
     @Override
     public Set<AttrTO> read(final String key, final SchemaType schemaType) {
@@ -149,12 +149,12 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         return lastChange;
     }
 
-    protected Response doUpdate(final P anyPatch) {
-        anyPatch.setKey(getActualKey(getAnyDAO(), anyPatch.getKey()));
-        Date etagDate = findLastChange(anyPatch.getKey());
+    protected Response doUpdate(final UR updateReq) {
+        updateReq.setKey(getActualKey(getAnyDAO(), updateReq.getKey()));
+        Date etagDate = findLastChange(updateReq.getKey());
         checkETag(String.valueOf(etagDate.getTime()));
 
-        ProvisioningResult<TO> updated = getAnyLogic().update(anyPatch, isNullPriorityAsync());
+        ProvisioningResult<TO> updated = getAnyLogic().update(updateReq, isNullPriorityAsync());
         return modificationResponse(updated);
     }
 
@@ -165,22 +165,22 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
             throw new NotFoundException("Must specify schema");
         }
 
-        P patch = newPatch(key);
+        UR updateReq = newUpdateReq(key);
 
         switch (schemaType) {
             case VIRTUAL:
-                patch.getVirAttrs().add(attrTO);
+                updateReq.getVirAttrs().add(attrTO);
                 break;
 
             case PLAIN:
-                patch.getPlainAttrs().add(new AttrPatch.Builder().operation(operation).attrTO(attrTO).build());
+                updateReq.getPlainAttrs().add(new AttrPatch.Builder().operation(operation).attrTO(attrTO).build());
                 break;
 
             case DERIVED:
             default:
         }
 
-        doUpdate(patch);
+        doUpdate(updateReq);
     }
 
     @Override
@@ -211,23 +211,23 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     @Override
-    public Response deassociate(final DeassociationPatch patch) {
-        Date etagDate = findLastChange(patch.getKey());
+    public Response deassociate(final ResourceDR req) {
+        Date etagDate = findLastChange(req.getKey());
         checkETag(String.valueOf(etagDate.getTime()));
 
         ProvisioningResult<TO> updated;
-        switch (patch.getAction()) {
+        switch (req.getAction()) {
             case UNLINK:
                 updated = new ProvisioningResult<>();
-                updated.setEntity(getAnyLogic().unlink(patch.getKey(), patch.getResources()));
+                updated.setEntity(getAnyLogic().unlink(req.getKey(), req.getResources()));
                 break;
 
             case UNASSIGN:
-                updated = getAnyLogic().unassign(patch.getKey(), patch.getResources(), isNullPriorityAsync());
+                updated = getAnyLogic().unassign(req.getKey(), req.getResources(), isNullPriorityAsync());
                 break;
 
             case DEPROVISION:
-                updated = getAnyLogic().deprovision(patch.getKey(), patch.getResources(), isNullPriorityAsync());
+                updated = getAnyLogic().deprovision(req.getKey(), req.getResources(), isNullPriorityAsync());
                 break;
 
             default:
@@ -235,8 +235,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         }
 
         List<BatchResponseItem> batchResponseItems;
-        if (patch.getAction() == ResourceDeassociationAction.UNLINK) {
-            batchResponseItems = patch.getResources().stream().map(resource -> {
+        if (req.getAction() == ResourceDeassociationAction.UNLINK) {
+            batchResponseItems = req.getResources().stream().map(resource -> {
                 BatchResponseItem item = new BatchResponseItem();
 
                 item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(resource));
@@ -288,34 +288,34 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     @Override
-    public Response associate(final AssociationPatch patch) {
-        Date etagDate = findLastChange(patch.getKey());
+    public Response associate(final ResourceAR req) {
+        Date etagDate = findLastChange(req.getKey());
         checkETag(String.valueOf(etagDate.getTime()));
 
         ProvisioningResult<TO> updated;
-        switch (patch.getAction()) {
+        switch (req.getAction()) {
             case LINK:
                 updated = new ProvisioningResult<>();
                 updated.setEntity(getAnyLogic().link(
-                        patch.getKey(),
-                        patch.getResources()));
+                        req.getKey(),
+                        req.getResources()));
                 break;
 
             case ASSIGN:
                 updated = getAnyLogic().assign(
-                        patch.getKey(),
-                        patch.getResources(),
-                        patch.getValue() != null,
-                        patch.getValue(),
+                        req.getKey(),
+                        req.getResources(),
+                        req.getValue() != null,
+                        req.getValue(),
                         isNullPriorityAsync());
                 break;
 
             case PROVISION:
                 updated = getAnyLogic().provision(
-                        patch.getKey(),
-                        patch.getResources(),
-                        patch.getValue() != null,
-                        patch.getValue(),
+                        req.getKey(),
+                        req.getResources(),
+                        req.getValue() != null,
+                        req.getValue(),
                         isNullPriorityAsync());
                 break;
 
@@ -324,8 +324,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         }
 
         List<BatchResponseItem> batchResponseItems;
-        if (patch.getAction() == ResourceAssociationAction.LINK) {
-            batchResponseItems = patch.getResources().stream().map(resource -> {
+        if (req.getAction() == ResourceAssociationAction.LINK) {
+            batchResponseItems = req.getResources().stream().map(resource -> {
                 BatchResponseItem item = new BatchResponseItem();
 
                 item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(resource));

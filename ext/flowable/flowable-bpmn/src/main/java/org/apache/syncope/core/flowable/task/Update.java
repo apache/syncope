@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.flowable.task;
 
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -39,15 +39,15 @@ public class Update extends FlowableServiceTask {
 
     @Override
     protected void doExecute(final DelegateExecution execution) {
-        UserPatch userPatch = execution.getVariable(FlowableRuntimeUtils.USER_PATCH, UserPatch.class);
-        if (userPatch == null || userPatch.isEmpty()) {
-            LOG.warn("No actual update is to be performed: null patch");
+        UserUR req = execution.getVariable(FlowableRuntimeUtils.USER_UR, UserUR.class);
+        if (req == null || req.isEmpty()) {
+            LOG.warn("No actual update is to be performed: empty or null request");
         } else {
             User user = execution.getVariable(FlowableRuntimeUtils.USER, User.class);
 
             user = userDAO.save(user);
 
-            PropagationByResource propByRes = dataBinder.update(user, userPatch);
+            PropagationByResource propByRes = dataBinder.update(user, req);
 
             // report updated user and propagation by resource as result
             execution.setVariable(FlowableRuntimeUtils.USER, user);

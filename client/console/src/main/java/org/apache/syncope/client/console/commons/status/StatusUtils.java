@@ -30,7 +30,7 @@ import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.LabelPanel;
 import org.apache.syncope.client.console.rest.ReconciliationRestClient;
-import org.apache.syncope.common.lib.patch.StatusPatch;
+import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -122,8 +122,8 @@ public final class StatusUtils implements Serializable {
                 : null;
     }
 
-    public static StatusPatch.Builder statusPatch(final Collection<StatusBean> statuses) {
-        StatusPatch.Builder builder = new StatusPatch.Builder();
+    public static StatusR.Builder statusR(final Collection<StatusBean> statuses) {
+        StatusR.Builder builder = new StatusR.Builder();
         builder.onSyncope(false);
         statuses.forEach(status -> {
             if (Constants.SYNCOPE.equalsIgnoreCase(status.getResource())) {

@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.lib.to.UserTO;
 
@@ -32,7 +32,7 @@ public interface SAML2IdPActions {
         return input;
     }
 
-    default UserPatch beforeUpdate(UserPatch input, SAML2LoginResponseTO loginResponse) {
+    default UserUR beforeUpdate(UserUR input, SAML2LoginResponseTO loginResponse) {
         return input;
     }
 

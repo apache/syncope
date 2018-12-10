@@ -30,7 +30,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.info.NumbersInfo;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -45,10 +45,10 @@ public class JAXBTest {
     @Test
     public void marshal() {
         try {
-            JAXBContext context = JAXBContext.newInstance(UserTO.class, UserPatch.class, UserReportletConf.class);
+            JAXBContext context = JAXBContext.newInstance(UserTO.class, UserUR.class, UserReportletConf.class);
             Marshaller marshaller = context.createMarshaller();
             marshaller.marshal(new UserTO(), new StringWriter());
-            marshaller.marshal(new UserPatch(), new StringWriter());
+            marshaller.marshal(new UserUR(), new StringWriter());
         } catch (JAXBException e) {
             fail(ExceptionUtils.getStackTrace(e));
         }

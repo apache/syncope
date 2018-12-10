@@ -20,9 +20,8 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.Date;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.AnyOperations;
-import org.apache.syncope.common.lib.patch.StatusPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -34,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserServiceImpl extends AbstractAnyService<UserTO, UserPatch> implements UserService {
+public class UserServiceImpl extends AbstractAnyService<UserTO, UserUR> implements UserService {
 
     @Autowired
     private UserDAO userDAO;
@@ -48,15 +47,13 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserPatch> imple
     }
 
     @Override
-    protected AbstractAnyLogic<UserTO, UserPatch> getAnyLogic() {
+    protected AbstractAnyLogic<UserTO, UserUR> getAnyLogic() {
         return logic;
     }
 
     @Override
-    protected UserPatch newPatch(final String key) {
-        UserPatch patch = new UserPatch();
-        patch.setKey(key);
-        return patch;
+    protected UserUR newUpdateReq(final String key) {
+        return new UserUR.Builder().key(key).build();
     }
 
     @Override
@@ -66,28 +63,16 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserPatch> imple
     }
 
     @Override
-    public Response update(final UserTO userTO) {
-        userTO.setKey(getActualKey(getAnyDAO(), userTO.getKey()));
-        UserTO before = logic.read(userTO.getKey());
-
-        checkETag(before.getETagValue());
-
-        ProvisioningResult<UserTO> updated =
-                logic.update(AnyOperations.diff(userTO, before, false), isNullPriorityAsync());
-        return modificationResponse(updated);
+    public Response update(final UserUR updateReq) {
+        return doUpdate(updateReq);
     }
 
     @Override
-    public Response update(final UserPatch userPatch) {
-        return doUpdate(userPatch);
-    }
-
-    @Override
-    public Response status(final StatusPatch statusPatch) {
-        Date etagDate = findLastChange(statusPatch.getKey());
+    public Response status(final StatusR statusR) {
+        Date etagDate = findLastChange(statusR.getKey());
         checkETag(String.valueOf(etagDate.getTime()));
 
-        ProvisioningResult<UserTO> updated = logic.status(statusPatch, isNullPriorityAsync());
+        ProvisioningResult<UserTO> updated = logic.status(statusR, isNullPriorityAsync());
         return modificationResponse(updated);
     }
 }

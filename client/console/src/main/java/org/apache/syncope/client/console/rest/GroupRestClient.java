@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.rest;
 import java.util.List;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ProvisionAction;
@@ -48,10 +48,10 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
         });
     }
 
-    public ProvisioningResult<GroupTO> update(final String etag, final GroupPatch patch) {
+    public ProvisioningResult<GroupTO> update(final String etag, final GroupUR updateReq) {
         ProvisioningResult<GroupTO> result;
         synchronized (this) {
-            result = getService(etag, GroupService.class).update(patch).
+            result = getService(etag, GroupService.class).update(updateReq).
                     readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
                     });
             resetClient(getAnyServiceClass());

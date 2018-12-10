@@ -19,7 +19,7 @@
 package org.apache.syncope.core.flowable.task;
 
 import org.apache.syncope.common.lib.AnyOperations;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -45,11 +45,11 @@ public class AutoActivate extends FlowableServiceTask {
         if (userTO != null && userTO.getKey() != null && user.getKey() != null) {
             user = userDAO.save(user);
 
-            UserPatch userPatch = AnyOperations.diff(userTO, dataBinder.getUserTO(user, true), false);
+            UserUR req = AnyOperations.diff(userTO, dataBinder.getUserTO(user, true), false);
             // don't mess with password, as the cleartext values was already properly saved
-            userPatch.setPassword(null);
+            req.setPassword(null);
 
-            dataBinder.update(user, userPatch);
+            dataBinder.update(user, req);
 
             execution.setVariable(FlowableRuntimeUtils.USER, user);
         }

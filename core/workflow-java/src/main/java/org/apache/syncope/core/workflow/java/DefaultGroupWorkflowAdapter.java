@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.workflow.java;
 
-import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -43,9 +43,9 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<GroupPatch> doUpdate(final Group group, final GroupPatch groupPatch) {
-        PropagationByResource propByRes = dataBinder.update(group, groupPatch);
-        return new WorkflowResult<>(groupPatch, propByRes, "update");
+    protected WorkflowResult<GroupUR> doUpdate(final Group group, final GroupUR groupUR) {
+        PropagationByResource propByRes = dataBinder.update(group, groupUR);
+        return new WorkflowResult<>(groupUR, propByRes, "update");
     }
 
     @Override

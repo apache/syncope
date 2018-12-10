@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.patch;
+package org.apache.syncope.common.lib.request;
 
 import java.util.Collection;
 import javax.ws.rs.PathParam;
@@ -26,27 +26,30 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 
-@XmlRootElement(name = "associationPatch")
+/**
+ * Resource Association Request.
+ */
+@XmlRootElement(name = "resourceAR")
 @XmlType
-public class AssociationPatch extends PasswordPatch {
+public class ResourceAR extends PasswordPatch {
 
     private static final long serialVersionUID = 6295778399633883767L;
 
     public static class Builder extends PasswordPatch.Builder {
 
         @Override
-        protected AssociationPatch newInstance() {
-            return new AssociationPatch();
+        protected ResourceAR newInstance() {
+            return new ResourceAR();
         }
 
         @Override
-        protected AssociationPatch getInstance() {
-            return (AssociationPatch) super.getInstance();
+        protected ResourceAR getInstance() {
+            return (ResourceAR) super.getInstance();
         }
 
         @Override
-        public AssociationPatch build() {
-            return (AssociationPatch) super.build();
+        public ResourceAR build() {
+            return (ResourceAR) super.build();
         }
 
         @Override
@@ -127,7 +130,7 @@ public class AssociationPatch extends PasswordPatch {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final AssociationPatch other = (AssociationPatch) obj;
+        final ResourceAR other = (ResourceAR) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(key, other.key).

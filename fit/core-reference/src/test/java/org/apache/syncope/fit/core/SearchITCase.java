@@ -28,10 +28,10 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
-import org.apache.syncope.common.lib.patch.AttrPatch;
-import org.apache.syncope.common.lib.patch.MembershipPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.request.AttrPatch;
+import org.apache.syncope.common.lib.request.MembershipPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -485,11 +485,11 @@ public class SearchITCase extends AbstractITCase {
                     new MembershipTO.Builder().group("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
             serviceKey = createAnyObject(anyObjectTO).getEntity().getKey();
 
-            AnyObjectPatch anyObjectPatch = new AnyObjectPatch();
-            anyObjectPatch.setKey("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
-            anyObjectPatch.getMemberships().add(
+            AnyObjectUR anyObjectUR = new AnyObjectUR();
+            anyObjectUR.setKey("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
+            anyObjectUR.getMemberships().add(
                     new MembershipPatch.Builder().group("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
-            updateAnyObject(anyObjectPatch);
+            updateAnyObject(anyObjectUR);
 
             PagedResult<AnyObjectTO> matching = anyObjectService.search(new AnyQuery.Builder().fiql(
                     SyncopeClient.getAnyObjectSearchConditionBuilder(service.getKey()).
@@ -517,10 +517,10 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE1223() {
-        UserPatch patch = new UserPatch();
-        patch.setKey("vivaldi");
-        patch.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("ctype", "ou=sample,o=isp")).build());
-        userService.update(patch);
+        UserUR req = new UserUR();
+        req.setKey("vivaldi");
+        req.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("ctype", "ou=sample,o=isp")).build());
+        userService.update(req);
 
         try {
             PagedResult<UserTO> users = userService.search(new AnyQuery.Builder().fiql(
@@ -529,9 +529,9 @@ public class SearchITCase extends AbstractITCase {
             assertEquals(1, users.getTotalCount());
             assertEquals("vivaldi", users.getResult().get(0).getUsername());
         } finally {
-            patch.getPlainAttrs().clear();
-            patch.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("ctype", "F")).build());
-            userService.update(patch);
+            req.getPlainAttrs().clear();
+            req.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("ctype", "F")).build());
+            userService.update(req);
         }
     }
 

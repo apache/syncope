@@ -48,9 +48,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.patch.DeassociationPatch;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.ResourceDR;
+import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -539,7 +539,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                                     is("location").equalTo("pull*").query()).build());
             assertTrue(matchingPrinters.getSize() > 0);
             for (AnyObjectTO printer : matchingPrinters.getResult()) {
-                anyObjectService.deassociate(new DeassociationPatch.Builder().key(printer.getKey()).
+                anyObjectService.deassociate(new ResourceDR.Builder().key(printer.getKey()).
                         action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_DBSCRIPTED).build());
                 anyObjectService.delete(printer.getKey());
             }
@@ -767,7 +767,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals(AnyTypeKind.USER.name(), remediation.get().getAnyType());
             assertEquals(ResourceOperation.CREATE, remediation.get().getOperation());
             assertNotNull(remediation.get().getAnyTOPayload());
-            assertNull(remediation.get().getAnyPatchPayload());
+            assertNull(remediation.get().getAnyURPayload());
             assertNull(remediation.get().getKeyPayload());
             assertTrue(remediation.get().getError().contains("RequiredValuesMissing [userId]"));
 
@@ -954,11 +954,11 @@ public class PullTaskITCase extends AbstractTaskITCase {
         userTO = createUser(userTO).getEntity();
 
         // change email in order to unmatch the second user
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.getPlainAttrs().add(attrAddReplacePatch("email", "s258@apache.org"));
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.getPlainAttrs().add(attrAddReplacePatch("email", "s258@apache.org"));
 
-        userService.update(userPatch);
+        userService.update(userUR);
 
         execProvisioningTask(taskService, TaskType.PULL, task.getKey(), 50, false);
 
@@ -1127,10 +1127,10 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 2. request to change password only on Syncope and not on LDAP
             String newCleanPassword = "new-security123";
-            UserPatch userPatch = new UserPatch();
-            userPatch.setKey(user.getKey());
-            userPatch.setPassword(new PasswordPatch.Builder().value(newCleanPassword).build());
-            user = updateUser(userPatch).getEntity();
+            UserUR userUR = new UserUR();
+            userUR.setKey(user.getKey());
+            userUR.setPassword(new PasswordPatch.Builder().value(newCleanPassword).build());
+            user = updateUser(userUR).getEntity();
 
             // 3. Check that the Syncope user now has the changed password
             Pair<Map<String, Set<String>>, UserTO> self =

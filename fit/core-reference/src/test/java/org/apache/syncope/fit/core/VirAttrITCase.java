@@ -33,10 +33,10 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.StatusPatch;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.StringPatchItem;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -56,7 +56,7 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.lib.types.StatusPatchType;
+import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.fit.AbstractITCase;
@@ -89,12 +89,12 @@ public class VirAttrITCase extends AbstractITCase {
         assertNotNull(userTO);
         assertEquals("virtualvalue", userTO.getVirAttr("virtualdata").get().getValues().get(0));
 
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.getVirAttrs().add(attrTO("virtualdata", "virtualupdated"));
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.getVirAttrs().add(attrTO("virtualdata", "virtualupdated"));
 
         // 3. update virtual attribute
-        userTO = updateUser(userPatch).getEntity();
+        userTO = updateUser(userUR).getEntity();
         assertNotNull(userTO);
 
         // 4. check for virtual attribute value
@@ -148,11 +148,11 @@ public class VirAttrITCase extends AbstractITCase {
         // ----------------------------------
         // update user virtual attribute and check virtual attribute value update propagation
         // ----------------------------------
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.getVirAttrs().add(attrTO(virSchema.getKey(), "virtualvalue2"));
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.getVirAttrs().add(attrTO(virSchema.getKey(), "virtualvalue2"));
 
-        result = updateUser(userPatch);
+        result = updateUser(userUR);
         assertNotNull(result);
         assertFalse(result.getPropagationStatuses().isEmpty());
         assertEquals(RESOURCE_NAME_WS2, result.getPropagationStatuses().get(0).getResource());
@@ -166,18 +166,17 @@ public class VirAttrITCase extends AbstractITCase {
         // ----------------------------------
         // suspend/reactivate user and check virtual attribute value (unchanged)
         // ----------------------------------
-        StatusPatch statusPatch = new StatusPatch.Builder().key(userTO.getKey()).
-                type(StatusPatchType.SUSPEND).build();
-        userTO = userService.status(statusPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        StatusR statusR = new StatusR.Builder().key(userTO.getKey()).type(StatusRType.SUSPEND).build();
+        userTO = userService.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertEquals("suspended", userTO.getStatus());
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
         assertEquals("virtualvalue2", connObjectTO.getAttr("COMPANYNAME").get().getValues().get(0));
 
-        statusPatch = new StatusPatch.Builder().key(userTO.getKey()).
-                type(StatusPatchType.REACTIVATE).build();
-        userTO = userService.status(statusPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        statusR = new StatusR.Builder().key(userTO.getKey()).
+                type(StatusRType.REACTIVATE).build();
+        userTO = userService.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertEquals("active", userTO.getStatus());
 
@@ -188,11 +187,11 @@ public class VirAttrITCase extends AbstractITCase {
         // ----------------------------------
         // update user attribute and check virtual attribute value (unchanged)
         // ----------------------------------
-        userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.getPlainAttrs().add(attrAddReplacePatch("surname", "Surname2"));
+        userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.getPlainAttrs().add(attrAddReplacePatch("surname", "Surname2"));
 
-        result = updateUser(userPatch);
+        result = updateUser(userUR);
         assertNotNull(result);
         assertFalse(result.getPropagationStatuses().isEmpty());
         assertEquals(RESOURCE_NAME_WS2, result.getPropagationStatuses().get(0).getResource());
@@ -246,12 +245,12 @@ public class VirAttrITCase extends AbstractITCase {
         actual = userService.read(actual.getKey());
         assertEquals("virattrcache", actual.getVirAttr("virtualdata").get().getValues().get(0));
 
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(actual.getKey());
-        userPatch.getVirAttrs().add(attrTO("virtualdata", "virtualupdated"));
+        UserUR userUR = new UserUR();
+        userUR.setKey(actual.getKey());
+        userUR.getVirAttrs().add(attrTO("virtualdata", "virtualupdated"));
 
         // 5. update virtual attribute
-        actual = updateUser(userPatch).getEntity();
+        actual = updateUser(userUR).getEntity();
         assertNotNull(actual);
 
         // 6. check for virtual attribute value
@@ -317,23 +316,23 @@ public class VirAttrITCase extends AbstractITCase {
 
             // update user
             UserTO toBeUpdated = userService.read(userTO.getKey());
-            UserPatch userPatch = new UserPatch();
-            userPatch.setKey(toBeUpdated.getKey());
-            userPatch.setPassword(new PasswordPatch.Builder().value("password234").build());
+            UserUR userUR = new UserUR();
+            userUR.setKey(toBeUpdated.getKey());
+            userUR.setPassword(new PasswordPatch.Builder().value("password234").build());
             // assign new resource to user
-            userPatch.getResources().add(new StringPatchItem.Builder().
+            userUR.getResources().add(new StringPatchItem.Builder().
                     operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS2).build());
             // modify virtual attribute
-            userPatch.getVirAttrs().add(attrTO(virSchema.getKey(), "test@testoneone.com"));
+            userUR.getVirAttrs().add(attrTO(virSchema.getKey(), "test@testoneone.com"));
 
             // check Syncope change password
-            userPatch.setPassword(new PasswordPatch.Builder().
+            userUR.setPassword(new PasswordPatch.Builder().
                     value("password234").
                     onSyncope(true).
                     resource(RESOURCE_NAME_WS2).
                     build());
 
-            ProvisioningResult<UserTO> result = updateUser(userPatch);
+            ProvisioningResult<UserTO> result = updateUser(userUR);
             assertNotNull(result);
             toBeUpdated = result.getEntity();
             assertTrue(toBeUpdated.getVirAttrs().iterator().next().getValues().contains("test@testoneone.com"));
@@ -421,11 +420,11 @@ public class VirAttrITCase extends AbstractITCase {
         assertEquals("virattrcache", userTO.getVirAttr("virtualdata").get().getValues().get(0));
 
         // force cache update by adding a resource which has virtualdata mapped for propagation
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.getResources().add(new StringPatchItem.Builder().
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS2).build());
-        userTO = updateUser(userPatch).getEntity();
+        userTO = updateUser(userUR).getEntity();
         assertNotNull(userTO);
 
         userTO = userService.read(userTO.getKey());
@@ -604,12 +603,12 @@ public class VirAttrITCase extends AbstractITCase {
         assertEquals("syncope501@apache.org", userTO.getVirAttr("virtualdata").get().getValues().get(0));
 
         // 2. update virtual attribute
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
         // change virtual attribute value
-        userPatch.getVirAttrs().add(attrTO("virtualdata", "syncope501_updated@apache.org"));
+        userUR.getVirAttrs().add(attrTO("virtualdata", "syncope501_updated@apache.org"));
 
-        userTO = updateUser(userPatch).getEntity();
+        userTO = updateUser(userUR).getEntity();
         assertNotNull(userTO);
 
         // 3. check that user virtual attribute has really been updated 
@@ -679,16 +678,16 @@ public class VirAttrITCase extends AbstractITCase {
             assertTrue(userTO.getVirAttrs().iterator().next().getValues().contains("test@issue691.dom2.org"));
 
             // update user
-            UserPatch userPatch = new UserPatch();
-            userPatch.setKey(userTO.getKey());
+            UserUR userUR = new UserUR();
+            userUR.setKey(userTO.getKey());
             // modify virtual attribute
-            userPatch.getVirAttrs().add(
+            userUR.getVirAttrs().add(
                     new AttrTO.Builder().schema(virSchema.getKey()).
                             value("test@issue691.dom3.org").
                             value("test@issue691.dom4.org").
                             build());
 
-            UserTO updated = updateUser(userPatch).getEntity();
+            UserTO updated = updateUser(userUR).getEntity();
             assertNotNull(updated);
             assertEquals(2, updated.getVirAttrs().iterator().next().getValues().size());
             assertTrue(updated.getVirAttrs().iterator().next().getValues().contains("test@issue691.dom3.org"));

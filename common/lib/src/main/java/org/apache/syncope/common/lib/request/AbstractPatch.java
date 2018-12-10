@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.patch;
+package org.apache.syncope.common.lib.request;
 
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlSeeAlso;

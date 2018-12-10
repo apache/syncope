@@ -16,10 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.patch;
+package org.apache.syncope.common.lib.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
@@ -29,12 +31,55 @@ import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-@XmlRootElement(name = "anyObjectPatch")
+@XmlRootElement(name = "anyObjectUR")
 @XmlType
-@Schema(allOf = { AnyPatch.class })
-public class AnyObjectPatch extends AnyPatch {
+@Schema(allOf = { AnyUR.class })
+public class AnyObjectUR extends AnyUR {
 
     private static final long serialVersionUID = -1644118942622556097L;
+
+    public static class Builder extends AnyUR.Builder<AnyObjectUR, Builder> {
+
+        @Override
+        protected AnyObjectUR newInstance() {
+            return new AnyObjectUR();
+        }
+
+        public Builder name(final StringReplacePatchItem name) {
+            getInstance().setName(name);
+            return this;
+        }
+
+        public Builder relationship(final RelationshipPatch relationship) {
+            getInstance().getRelationships().add(relationship);
+            return this;
+        }
+
+        public Builder relationships(final RelationshipPatch... relationships) {
+            getInstance().getRelationships().addAll(Arrays.asList(relationships));
+            return this;
+        }
+
+        public Builder relationships(final Collection<RelationshipPatch> relationships) {
+            getInstance().getRelationships().addAll(relationships);
+            return this;
+        }
+
+        public Builder membership(final MembershipPatch membership) {
+            getInstance().getMemberships().add(membership);
+            return this;
+        }
+
+        public Builder memberships(final MembershipPatch... memberships) {
+            getInstance().getMemberships().addAll(Arrays.asList(memberships));
+            return this;
+        }
+
+        public Builder memberships(final Collection<MembershipPatch> memberships) {
+            getInstance().getMemberships().addAll(memberships);
+            return this;
+        }
+    }
 
     private StringReplacePatchItem name;
 
@@ -43,7 +88,7 @@ public class AnyObjectPatch extends AnyPatch {
     private final Set<MembershipPatch> memberships = new HashSet<>();
 
     @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.patch.AnyObjectPatch")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.request.AnyObjectUR")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
@@ -97,7 +142,7 @@ public class AnyObjectPatch extends AnyPatch {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final AnyObjectPatch other = (AnyObjectPatch) obj;
+        final AnyObjectUR other = (AnyObjectUR) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(name, other.name).

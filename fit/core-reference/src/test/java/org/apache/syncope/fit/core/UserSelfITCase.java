@@ -40,12 +40,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
-import org.apache.syncope.common.lib.patch.MembershipPatch;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
-import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
+import org.apache.syncope.common.lib.request.MembershipPatch;
+import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.StringPatchItem;
+import org.apache.syncope.common.lib.request.StringReplacePatchItem;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -224,12 +224,12 @@ public class UserSelfITCase extends AbstractITCase {
         assertFalse(created.getUsername().endsWith("XX"));
 
         // 2. self-update (username) - works
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(created.getKey());
-        userPatch.setUsername(new StringReplacePatchItem.Builder().value(created.getUsername() + "XX").build());
+        UserUR userUR = new UserUR();
+        userUR.setKey(created.getKey());
+        userUR.setUsername(new StringReplacePatchItem.Builder().value(created.getUsername() + "XX").build());
 
         SyncopeClient authClient = clientFactory.create(created.getUsername(), "password123");
-        UserTO updated = authClient.getService(UserSelfService.class).update(userPatch).
+        UserTO updated = authClient.getService(UserSelfService.class).update(userUR).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
         assertNotNull(updated);
@@ -248,20 +248,20 @@ public class UserSelfITCase extends AbstractITCase {
         assertFalse(created.getUsername().endsWith("XX"));
 
         // 2. self-update (username + memberships + resource) - works but needs approval
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(created.getKey());
-        userPatch.setUsername(new StringReplacePatchItem.Builder().value(created.getUsername() + "XX").build());
-        userPatch.getMemberships().add(new MembershipPatch.Builder().
+        UserUR userUR = new UserUR();
+        userUR.setKey(created.getKey());
+        userUR.setUsername(new StringReplacePatchItem.Builder().value(created.getUsername() + "XX").build());
+        userUR.getMemberships().add(new MembershipPatch.Builder().
                 operation(PatchOperation.ADD_REPLACE).
                 group("bf825fe1-7320-4a54-bd64-143b5c18ab97").
                 build());
-        userPatch.getResources().add(new StringPatchItem.Builder().
+        userUR.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_TESTDB).build());
-        userPatch.setPassword(new PasswordPatch.Builder().
+        userUR.setPassword(new PasswordPatch.Builder().
                 value("newPassword123").onSyncope(false).resource(RESOURCE_NAME_TESTDB).build());
 
         SyncopeClient authClient = clientFactory.create(created.getUsername(), "password123");
-        UserTO updated = authClient.getService(UserSelfService.class).update(userPatch).
+        UserTO updated = authClient.getService(UserSelfService.class).update(userUR).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
         assertNotNull(updated);
@@ -420,10 +420,10 @@ public class UserSelfITCase extends AbstractITCase {
     @Test
     public void mustChangePassword() {
         // PRE: reset vivaldi's password
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee");
-        userPatch.setPassword(new PasswordPatch.Builder().value("password321").build());
-        userService.update(userPatch);
+        UserUR userUR = new UserUR();
+        userUR.setKey("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee");
+        userUR.setPassword(new PasswordPatch.Builder().value("password321").build());
+        userService.update(userUR);
 
         // 0. access as vivaldi -> succeed
         SyncopeClient vivaldiClient = clientFactory.create("vivaldi", "password321");
@@ -431,10 +431,10 @@ public class UserSelfITCase extends AbstractITCase {
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
 
         // 1. update user vivaldi requiring password update
-        userPatch = new UserPatch();
-        userPatch.setKey("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee");
-        userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(true).build());
-        UserTO vivaldi = updateUser(userPatch).getEntity();
+        userUR = new UserUR();
+        userUR.setKey("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee");
+        userUR.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(true).build());
+        UserTO vivaldi = updateUser(userUR).getEntity();
         assertTrue(vivaldi.isMustChangePassword());
 
         // 2. attempt to access -> fail
@@ -484,11 +484,11 @@ public class UserSelfITCase extends AbstractITCase {
         // groupForWorkflowApproval, designated for approval in workflow definition: fail
         UserTO rossini = userService.read("1417acbe-cbf6-4277-9372-e75e04f97000");
         if (!rossini.getRoles().contains("User manager")) {
-            UserPatch userPatch = new UserPatch();
-            userPatch.setKey("1417acbe-cbf6-4277-9372-e75e04f97000");
-            userPatch.getRoles().add(new StringPatchItem.Builder().
+            UserUR userUR = new UserUR();
+            userUR.setKey("1417acbe-cbf6-4277-9372-e75e04f97000");
+            userUR.getRoles().add(new StringPatchItem.Builder().
                     operation(PatchOperation.ADD_REPLACE).value("User manager").build());
-            rossini = updateUser(userPatch).getEntity();
+            rossini = updateUser(userUR).getEntity();
         }
         assertTrue(rossini.getRoles().contains("User manager"));
 
@@ -571,10 +571,10 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 3. as admin, update user: still pending approval
         String updatedUsername = "changed-" + UUID.randomUUID().toString();
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.setUsername(new StringReplacePatchItem.Builder().value(updatedUsername).build());
-        updateUser(userPatch);
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.setUsername(new StringReplacePatchItem.Builder().value(updatedUsername).build());
+        updateUser(userUR);
 
         UserRequestForm form = userRequestService.getForms(
                 new UserRequestFormQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
@@ -582,7 +582,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertNotNull(form.getTaskId());
         assertNotNull(form.getUserTO());
         assertEquals(updatedUsername, form.getUserTO().getUsername());
-        assertNull(form.getUserPatch());
+        assertNull(form.getUserUR());
         assertNull(form.getAssignee());
 
         // 4. claim task (as admin)
@@ -591,7 +591,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertNotNull(form.getTaskId());
         assertNotNull(form.getUserTO());
         assertEquals(updatedUsername, form.getUserTO().getUsername());
-        assertNull(form.getUserPatch());
+        assertNull(form.getUserUR());
         assertNotNull(form.getAssignee());
 
         // 5. approve user (and verify that propagation occurred)
@@ -607,11 +607,11 @@ public class UserSelfITCase extends AbstractITCase {
         assertEquals(userTO.getUsername(), username);
 
         // 6. update user
-        userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().value("anotherPassword123").build());
+        userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.setPassword(new PasswordPatch.Builder().value("anotherPassword123").build());
 
-        userTO = updateUser(userPatch).getEntity();
+        userTO = updateUser(userUR).getEntity();
         assertNotNull(userTO);
     }
 
@@ -629,12 +629,12 @@ public class UserSelfITCase extends AbstractITCase {
         assertEquals("/", created.getRealm());
         assertEquals(0, created.getMemberships().size());
 
-        UserPatch patch = new UserPatch();
-        patch.setKey(created.getKey());
-        patch.getMemberships().add(new MembershipPatch.Builder().group("b1f7c12d-ec83-441f-a50e-1691daaedf3b").build());
+        UserUR req = new UserUR();
+        req.setKey(created.getKey());
+        req.getMemberships().add(new MembershipPatch.Builder().group("b1f7c12d-ec83-441f-a50e-1691daaedf3b").build());
 
         SyncopeClient client = clientFactory.create(created.getUsername(), "password123");
-        Response response = client.getService(UserSelfService.class).update(patch);
+        Response response = client.getService(UserSelfService.class).update(req);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals("updateApproval", userService.read(created.getKey()).getStatus());
 
@@ -647,11 +647,11 @@ public class UserSelfITCase extends AbstractITCase {
         assertNotNull(form.getTaskId());
         assertNull(form.getAssignee());
         assertNotNull(form.getUserTO());
-        assertNotNull(form.getUserPatch());
-        assertEquals(patch, form.getUserPatch());
+        assertNotNull(form.getUserUR());
+        assertEquals(req, form.getUserUR());
 
         // as admin, update user: still pending approval
-        UserPatch adminPatch = new UserPatch();
+        UserUR adminPatch = new UserUR();
         adminPatch.setKey(created.getKey());
         adminPatch.setRealm(new StringReplacePatchItem.Builder().value("/even/two").build());
 
@@ -663,7 +663,7 @@ public class UserSelfITCase extends AbstractITCase {
         // the patch is not updated in the approval form
         form = userRequestService.getForms(
                 new UserRequestFormQuery.Builder().user(created.getKey()).build()).getResult().get(0);
-        assertEquals(patch, form.getUserPatch());
+        assertEquals(req, form.getUserUR());
 
         // approve the user
         form = userRequestService.claimForm(form.getTaskId());

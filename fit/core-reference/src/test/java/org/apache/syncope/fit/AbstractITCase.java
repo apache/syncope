@@ -47,10 +47,10 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
-import org.apache.syncope.common.lib.patch.AttrPatch;
-import org.apache.syncope.common.lib.patch.GroupPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.request.AttrPatch;
+import org.apache.syncope.common.lib.request.GroupUR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -460,8 +460,8 @@ public abstract class AbstractITCase {
         });
     }
 
-    protected ProvisioningResult<UserTO> updateUser(final UserPatch userPatch) {
-        return userService.update(userPatch).
+    protected ProvisioningResult<UserTO> updateUser(final UserUR req) {
+        return userService.update(req).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 });
     }
@@ -484,8 +484,8 @@ public abstract class AbstractITCase {
         });
     }
 
-    protected ProvisioningResult<AnyObjectTO> updateAnyObject(final AnyObjectPatch anyObjectPatch) {
-        return anyObjectService.update(anyObjectPatch).
+    protected ProvisioningResult<AnyObjectTO> updateAnyObject(final AnyObjectUR req) {
+        return anyObjectService.update(req).
                 readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
                 });
     }
@@ -508,8 +508,8 @@ public abstract class AbstractITCase {
         });
     }
 
-    protected ProvisioningResult<GroupTO> updateGroup(final GroupPatch groupPatch) {
-        return groupService.update(groupPatch).
+    protected ProvisioningResult<GroupTO> updateGroup(final GroupUR req) {
+        return groupService.update(req).
                 readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
                 });
     }

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.patch;
+package org.apache.syncope.common.lib.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
@@ -31,18 +31,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 
-@XmlRootElement(name = "deassociationPatch")
+/**
+ * Resource De-association Request.
+ */
+@XmlRootElement(name = "resourceDR")
 @XmlType
-public class DeassociationPatch implements Serializable {
+public class ResourceDR implements Serializable {
 
     private static final long serialVersionUID = 6295778399633883767L;
 
     public static class Builder {
 
-        private final DeassociationPatch instance;
+        private final ResourceDR instance;
 
         public Builder() {
-            this.instance = new DeassociationPatch();
+            this.instance = new ResourceDR();
         }
 
         public Builder key(final String key) {
@@ -74,7 +77,7 @@ public class DeassociationPatch implements Serializable {
             return this;
         }
 
-        public DeassociationPatch build() {
+        public ResourceDR build() {
             return instance;
         }
     }

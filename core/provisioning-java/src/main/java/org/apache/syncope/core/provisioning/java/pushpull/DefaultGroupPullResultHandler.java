@@ -23,9 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.patch.AttrPatch;
-import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.AttrPatch;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -73,8 +73,8 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
     }
 
     @Override
-    protected WorkflowResult<? extends AnyPatch> update(final AnyPatch patch) {
-        return gwfAdapter.update((GroupPatch) patch);
+    protected WorkflowResult<? extends AnyUR> update(final AnyUR req) {
+        return gwfAdapter.update((GroupUR) req);
     }
 
     @Override
@@ -91,19 +91,19 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
     }
 
     @Override
-    protected AnyPatch doUpdate(
+    protected AnyUR doUpdate(
             final AnyTO before,
-            final AnyPatch anyPatch,
+            final AnyUR req,
             final SyncDelta delta,
             final ProvisioningReport result) {
 
-        GroupPatch groupPatch = GroupPatch.class.cast(anyPatch);
+        GroupUR groupUR = GroupUR.class.cast(req);
 
-        Pair<GroupPatch, List<PropagationStatus>> updated = groupProvisioningManager.update(
-                groupPatch, Collections.singleton(profile.getTask().getResource().getKey()), true);
+        Pair<GroupUR, List<PropagationStatus>> updated = groupProvisioningManager.update(
+                groupUR, Collections.singleton(profile.getTask().getResource().getKey()), true);
 
         String groupOwner = null;
-        for (AttrPatch attrPatch : groupPatch.getPlainAttrs()) {
+        for (AttrPatch attrPatch : groupUR.getPlainAttrs()) {
             if (attrPatch.getOperation() == PatchOperation.ADD_REPLACE && attrPatch.getAttrTO() != null
                     && attrPatch.getAttrTO().getSchema().isEmpty() && !attrPatch.getAttrTO().getValues().isEmpty()) {
 
@@ -114,7 +114,7 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
             groupOwnerMap.put(updated.getLeft().getKey(), groupOwner);
         }
 
-        return anyPatch;
+        return req;
     }
 
 }

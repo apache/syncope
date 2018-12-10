@@ -1,3 +1,4 @@
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -17,8 +18,8 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
-import org.apache.syncope.common.lib.patch.AnyPatch
-import org.apache.syncope.common.lib.patch.AttrPatch
+import org.apache.syncope.common.lib.request.AnyUR
+import org.apache.syncope.common.lib.request.AttrPatch
 import org.apache.syncope.common.lib.to.AnyTO
 import org.apache.syncope.common.lib.to.AttrTO
 import org.apache.syncope.core.provisioning.api.LogicActions
@@ -52,7 +53,7 @@ class DoubleValueLogicActions implements LogicActions {
   }
 
   @Override
-  <M extends AnyPatch> M beforeUpdate(final M input) {
+  <R extends AnyUR> R beforeUpdate(final R input) {
     for (AttrPatch patch : input.getPlainAttrs()) {
       if (NAME.equals(patch.getAttrTO().getSchema())) {
         List<String> values = new ArrayList<String>(patch.getAttrTO().getValues().size());

@@ -19,8 +19,8 @@
 package org.apache.syncope.fit.core.reference;
 
 import java.util.Optional;
-import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.patch.AttrPatch;
+import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -69,14 +69,14 @@ public class TestPullActions implements PullActions {
     }
 
     @Override
-    public <M extends AnyPatch> void beforeUpdate(
+    public <M extends AnyUR> void beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final EntityTO entityTO,
-            final M anyPatch) throws JobExecutionException {
+            final M anyUR) throws JobExecutionException {
 
         AttrPatch fullnamePatch = null;
-        for (AttrPatch attrPatch : anyPatch.getPlainAttrs()) {
+        for (AttrPatch attrPatch : anyUR.getPlainAttrs()) {
             if ("fullname".equals(attrPatch.getAttrTO().getSchema())) {
                 fullnamePatch = attrPatch;
             }

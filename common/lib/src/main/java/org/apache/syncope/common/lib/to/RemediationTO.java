@@ -24,7 +24,7 @@ import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.BaseBean;
-import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 
 @XmlRootElement(name = "remediation")
@@ -41,7 +41,7 @@ public class RemediationTO extends BaseBean implements EntityTO {
 
     private AnyTO anyTOPayload;
 
-    private AnyPatch anyPatchPayload;
+    private AnyUR anyURPayload;
 
     private String keyPayload;
 
@@ -94,12 +94,12 @@ public class RemediationTO extends BaseBean implements EntityTO {
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    public AnyPatch getAnyPatchPayload() {
-        return anyPatchPayload;
+    public AnyUR getAnyURPayload() {
+        return anyURPayload;
     }
 
-    public void setAnyPatchPayload(final AnyPatch anyPatchPayload) {
-        this.anyPatchPayload = anyPatchPayload;
+    public void setAnyURPayload(final AnyUR anyURPayload) {
+        this.anyURPayload = anyURPayload;
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)

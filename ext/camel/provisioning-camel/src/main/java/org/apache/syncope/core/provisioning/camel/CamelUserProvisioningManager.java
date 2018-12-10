@@ -28,8 +28,8 @@ import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.PollingConsumer;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.StatusPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -90,13 +90,13 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<UserPatch, List<PropagationStatus>> update(final UserPatch userPatch, final boolean nullPriorityAsync) {
+    public Pair<UserUR, List<PropagationStatus>> update(final UserUR userUR, final boolean nullPriorityAsync) {
         PollingConsumer pollingConsumer = getConsumer("direct:updatePort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("nullPriorityAsync", nullPriorityAsync);
 
-        sendMessage("direct:updateUser", userPatch, props);
+        sendMessage("direct:updateUser", userUR, props);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -108,10 +108,10 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public Pair<UserPatch, List<PropagationStatus>> update(
-            final UserPatch anyPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+    public Pair<UserUR, List<PropagationStatus>> update(
+            final UserUR userUR, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
-        return update(anyPatch, new ProvisioningReport(), null, excludedResources, nullPriorityAsync);
+        return update(userUR, new ProvisioningReport(), null, excludedResources, nullPriorityAsync);
     }
 
     @Override
@@ -143,10 +143,10 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public String unlink(final UserPatch userPatch) {
+    public String unlink(final UserUR userUR) {
         PollingConsumer pollingConsumer = getConsumer("direct:unlinkPort");
 
-        sendMessage("direct:unlinkUser", userPatch);
+        sendMessage("direct:unlinkUser", userUR);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -154,27 +154,25 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return exchange.getIn().getBody(UserPatch.class).getKey();
+        return exchange.getIn().getBody(UserUR.class).getKey();
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<String, List<PropagationStatus>> activate(
-            final StatusPatch statusPatch, final boolean nullPriorityAsync) {
-
+    public Pair<String, List<PropagationStatus>> activate(final StatusR statusR, final boolean nullPriorityAsync) {
         PollingConsumer pollingConsumer = getConsumer("direct:statusPort");
 
         Map<String, Object> props = new HashMap<>();
-        props.put("token", statusPatch.getToken());
-        props.put("key", statusPatch.getKey());
-        props.put("statusPatch", statusPatch);
+        props.put("token", statusR.getToken());
+        props.put("key", statusR.getKey());
+        props.put("statusR", statusR);
         props.put("nullPriorityAsync", nullPriorityAsync);
 
-        if (statusPatch.isOnSyncope()) {
-            sendMessage("direct:activateUser", statusPatch.getKey(), props);
+        if (statusR.isOnSyncope()) {
+            sendMessage("direct:activateUser", statusR.getKey(), props);
         } else {
             WorkflowResult<String> updated =
-                    new WorkflowResult<>(statusPatch.getKey(), null, statusPatch.getType().name().toLowerCase());
+                    new WorkflowResult<>(statusR.getKey(), null, statusR.getType().name().toLowerCase());
             sendMessage("direct:userStatusPropagation", updated, props);
         }
 
@@ -189,21 +187,19 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<String, List<PropagationStatus>> reactivate(
-            final StatusPatch statusPatch, final boolean nullPriorityAsync) {
-
+    public Pair<String, List<PropagationStatus>> reactivate(final StatusR statusR, final boolean nullPriorityAsync) {
         PollingConsumer pollingConsumer = getConsumer("direct:statusPort");
 
         Map<String, Object> props = new HashMap<>();
-        props.put("key", statusPatch.getKey());
-        props.put("statusPatch", statusPatch);
+        props.put("key", statusR.getKey());
+        props.put("statusR", statusR);
         props.put("nullPriorityAsync", nullPriorityAsync);
 
-        if (statusPatch.isOnSyncope()) {
-            sendMessage("direct:reactivateUser", statusPatch.getKey(), props);
+        if (statusR.isOnSyncope()) {
+            sendMessage("direct:reactivateUser", statusR.getKey(), props);
         } else {
             WorkflowResult<String> updated =
-                    new WorkflowResult<>(statusPatch.getKey(), null, statusPatch.getType().name().toLowerCase());
+                    new WorkflowResult<>(statusR.getKey(), null, statusR.getType().name().toLowerCase());
             sendMessage("direct:userStatusPropagation", updated, props);
         }
 
@@ -218,21 +214,19 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<String, List<PropagationStatus>> suspend(
-            final StatusPatch statusPatch, final boolean nullPriorityAsync) {
-
+    public Pair<String, List<PropagationStatus>> suspend(final StatusR statusR, final boolean nullPriorityAsync) {
         PollingConsumer pollingConsumer = getConsumer("direct:statusPort");
 
         Map<String, Object> props = new HashMap<>();
-        props.put("key", statusPatch.getKey());
-        props.put("statusPatch", statusPatch);
+        props.put("key", statusR.getKey());
+        props.put("statusR", statusR);
         props.put("nullPriorityAsync", nullPriorityAsync);
 
-        if (statusPatch.isOnSyncope()) {
-            sendMessage("direct:suspendUser", statusPatch.getKey(), props);
+        if (statusR.isOnSyncope()) {
+            sendMessage("direct:suspendUser", statusR.getKey(), props);
         } else {
             WorkflowResult<String> updated =
-                    new WorkflowResult<>(statusPatch.getKey(), null, statusPatch.getType().name().toLowerCase());
+                    new WorkflowResult<>(statusR.getKey(), null, statusR.getType().name().toLowerCase());
             sendMessage("direct:userStatusPropagation", updated, props);
         }
 
@@ -246,10 +240,10 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public String link(final UserPatch anyPatch) {
+    public String link(final UserUR userUR) {
         PollingConsumer pollingConsumer = getConsumer("direct:linkPort");
 
-        sendMessage("direct:linkUser", anyPatch);
+        sendMessage("direct:linkUser", userUR);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -257,7 +251,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return exchange.getIn().getBody(UserPatch.class).getKey();
+        return exchange.getIn().getBody(UserUR.class).getKey();
     }
 
     @Override
@@ -314,8 +308,8 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<UserPatch, List<PropagationStatus>> update(
-            final UserPatch userPatch,
+    public Pair<UserUR, List<PropagationStatus>> update(
+            final UserUR userUR,
             final ProvisioningReport result,
             final Boolean enabled,
             final Set<String> excludedResources,
@@ -324,13 +318,13 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         PollingConsumer pollingConsumer = getConsumer("direct:updateInPullPort");
 
         Map<String, Object> props = new HashMap<>();
-        props.put("key", userPatch.getKey());
+        props.put("key", userUR.getKey());
         props.put("result", result);
         props.put("enabled", enabled);
         props.put("excludedResources", excludedResources);
         props.put("nullPriorityAsync", nullPriorityAsync);
 
-        sendMessage("direct:updateUserInPull", userPatch, props);
+        sendMessage("direct:updateUserInPull", userUR, props);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -342,8 +336,8 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             result.setStatus(ProvisioningReport.Status.FAILURE);
             result.setMessage("Update failed, trying to pull status anyway (if configured)\n" + ex.getMessage());
 
-            WorkflowResult<Pair<UserPatch, Boolean>> updated = new WorkflowResult<>(
-                    Pair.of(userPatch, false), new PropagationByResource(),
+            WorkflowResult<Pair<UserUR, Boolean>> updated = new WorkflowResult<>(
+                    Pair.of(userUR, false), new PropagationByResource(),
                     new HashSet<>());
             sendMessage("direct:userInPull", updated, props);
             exchange = pollingConsumer.receive();

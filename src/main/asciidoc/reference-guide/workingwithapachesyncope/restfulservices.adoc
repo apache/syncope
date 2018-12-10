@@ -258,8 +258,8 @@ Accept: application/xml
 Content-Length: 628
 Content-Type: application/xml
 ^M
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?><syncope21:group xmlns:syncope21="http://syncope.apache.org/2.1">
-</syncope21:group>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><syncope30:group xmlns:syncope30="http://syncope.apache.org/3.0">
+</syncope30:group>
 --batch_61bfef8d-0a00-41aa-b775-7b6efff37652
 Content-Type: application/http
 Content-Transfer-Encoding: binary
@@ -270,7 +270,7 @@ Content-Length: 362
 Content-Type: application/json
 Prefer: return-no-content
 ^M
-{"@class":"org.apache.syncope.common.lib.patch.UserPatch","key":"24eb15aebatch@syncope.apache.org"}
+{"@class":"org.apache.syncope.common.lib.request.UserUR","key":"24eb15aebatch@syncope.apache.org"}
 --batch_61bfef8d-0a00-41aa-b775-7b6efff37652
 Content-Type: application/http
 Content-Transfer-Encoding: binary
@@ -334,7 +334,7 @@ X-Syncope-Domain: Master
 X-Syncope-Key: 843b2fc3-b8a8-4a8b-bb2f-c3b8a87a8b2e
 ^M
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<syncope21:provisioningResult xmlns:syncope21="http://syncope.apache.org/2.1"></syncope21:provisioningResult>
+<syncope30:provisioningResult xmlns:syncope30="http://syncope.apache.org/3.0"></syncope30:provisioningResult>
 --batch_61bfef8d-0a00-41aa-b775-7b6efff37652
 Content-Type: application/http
 Content-Transfer-Encoding: binary
@@ -712,10 +712,10 @@ Map<String, Set<String>> realm2entitlements = self.getLeft(); // <2>
 [source,java]
 ----
 String key = ...; // <1>
-StatusPatch statusPatch = new StatusPatch();
-statusPatch.setKey(key);
-statusPatch.setType(StatusPatchType.SUSPEND); // <2>
-UserTO userTO = userService.status(statusPatch).
+StatusR statusR = new StatusR();
+statusR.setKey(key);
+statusR.setType(StatusRType.SUSPEND); // <2>
+UserTO userTO = userService.status(statusR).
   readEntity(new GenericType<ProvisioningResult<UserTO>>() {
   }).getEntity(); // <3>
 ----

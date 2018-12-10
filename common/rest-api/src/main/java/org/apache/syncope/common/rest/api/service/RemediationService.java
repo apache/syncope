@@ -41,7 +41,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -137,7 +137,7 @@ public interface RemediationService extends JAXRSService {
      * Perform remediation by updating the provided user, group or any object.
      *
      * @param remediationKey key for remediation to act on
-     * @param anyPatch user, group or any object to update
+     * @param updateReq user, group or any object to update
      * @return Response object featuring the updated object enriched with propagation status information
      */
     @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
@@ -175,7 +175,7 @@ public interface RemediationService extends JAXRSService {
     @Path("{remediationKey}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response remedy(@NotNull @PathParam("remediationKey") String remediationKey, @NotNull AnyPatch anyPatch);
+    Response remedy(@NotNull @PathParam("remediationKey") String remediationKey, @NotNull AnyUR updateReq);
 
     /**
      * Perform remediation by deleting the provided user, group or any object.

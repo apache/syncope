@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
-import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 
 /**
@@ -34,7 +34,7 @@ public interface LogicActions {
         return input;
     }
 
-    default <P extends AnyPatch> P beforeUpdate(P input) {
+    default <P extends AnyUR> P beforeUpdate(P input) {
         return input;
     }
 

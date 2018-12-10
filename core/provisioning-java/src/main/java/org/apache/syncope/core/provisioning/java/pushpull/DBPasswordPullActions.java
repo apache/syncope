@@ -19,9 +19,9 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.Optional;
-import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -73,14 +73,14 @@ public class DBPasswordPullActions implements PullActions {
 
     @Transactional(readOnly = true)
     @Override
-    public <M extends AnyPatch> void beforeUpdate(
+    public <M extends AnyUR> void beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final EntityTO entityTO,
-            final M anyPatch) throws JobExecutionException {
+            final M anyUR) throws JobExecutionException {
 
-        if (anyPatch instanceof UserPatch) {
-            PasswordPatch modPassword = ((UserPatch) anyPatch).getPassword();
+        if (anyUR instanceof UserUR) {
+            PasswordPatch modPassword = ((UserUR) anyUR).getPassword();
             parseEncodedPassword(modPassword == null ? null : modPassword.getValue(), profile.getConnector());
         }
     }

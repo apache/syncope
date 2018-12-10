@@ -22,11 +22,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 
-public interface AnyObjectProvisioningManager extends ProvisioningManager<AnyObjectTO, AnyObjectPatch> {
+public interface AnyObjectProvisioningManager extends ProvisioningManager<AnyObjectTO, AnyObjectUR> {
 
     Pair<String, List<PropagationStatus>> create(
             AnyObjectTO anyObjectTO, Set<String> excludedResources, boolean nullPriorityAsync);

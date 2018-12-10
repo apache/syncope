@@ -45,12 +45,12 @@ import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.patch.AttrPatch;
-import org.apache.syncope.common.lib.patch.MembershipPatch;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
-import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.AttrPatch;
+import org.apache.syncope.common.lib.request.MembershipPatch;
+import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.StringPatchItem;
+import org.apache.syncope.common.lib.request.StringReplacePatchItem;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -112,14 +112,15 @@ public class UserIssuesITCase extends AbstractITCase {
         assertTrue(userTO.getResources().isEmpty());
 
         // 2. update assigning a resource forcing mandatory constraints: must fail with RequiredValuesMissing
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().value("newPassword123").build());
-        userPatch.getResources().add(new StringPatchItem.Builder().
-                operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS2).build());
+        UserUR userUR = new UserUR.Builder().
+                key(userTO.getKey()).
+                password(new PasswordPatch.Builder().value("newPassword123").build()).
+                resource(new StringPatchItem.Builder().
+                        operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS2).build()).
+                build();
 
         try {
-            userTO = updateUser(userPatch).getEntity();
+            userTO = updateUser(userUR).getEntity();
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
@@ -127,25 +128,25 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 3. update assigning a resource NOT forcing mandatory constraints
         // AND priority: must fail with PropagationException
-        userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().value("newPassword123").build());
-        userPatch.getResources().add(new StringPatchItem.Builder().
+        userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.setPassword(new PasswordPatch.Builder().value("newPassword123").build());
+        userUR.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS1).build());
 
-        ProvisioningResult<UserTO> result = updateUser(userPatch);
+        ProvisioningResult<UserTO> result = updateUser(userUR);
         assertNotNull(result.getPropagationStatuses().get(0).getFailureReason());
         userTO = result.getEntity();
 
         // 4. update assigning a resource NOT forcing mandatory constraints
         // BUT not priority: must succeed
-        userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().value("newPassword123456").build());
-        userPatch.getResources().add(new StringPatchItem.Builder().
+        userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.setPassword(new PasswordPatch.Builder().value("newPassword123456").build());
+        userUR.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_CSV).build());
 
-        updateUser(userPatch);
+        updateUser(userUR);
     }
 
     @Test
@@ -162,12 +163,12 @@ public class UserIssuesITCase extends AbstractITCase {
                 jdbcTemplate, 50, "SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
         assertEquals(userTO.getUsername(), username);
 
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.getResources().add(
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.getResources().add(
                 new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(RESOURCE_NAME_TESTDB).build());
 
-        userTO = updateUser(userPatch).getEntity();
+        userTO = updateUser(userUR).getEntity();
         assertTrue(userTO.getResources().isEmpty());
 
         Exception exception = null;
@@ -187,12 +188,12 @@ public class UserIssuesITCase extends AbstractITCase {
         UserTO userTO = createUser(inUserTO).getEntity();
         assertNotNull(userTO);
 
-        UserPatch userPatch = new UserPatch();
+        UserUR userUR = new UserUR();
 
-        userPatch.setKey(userTO.getKey());
-        userPatch.setUsername(new StringReplacePatchItem.Builder().value("1" + userTO.getUsername()).build());
+        userUR.setKey(userTO.getKey());
+        userUR.setUsername(new StringReplacePatchItem.Builder().value("1" + userTO.getUsername()).build());
 
-        userTO = updateUser(userPatch).getEntity();
+        userTO = updateUser(userUR).getEntity();
         assertNotNull(userTO);
         assertEquals("1" + inUserTO.getUsername(), userTO.getUsername());
     }
@@ -206,14 +207,14 @@ public class UserIssuesITCase extends AbstractITCase {
         userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
 
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().onSyncope(false).
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.setPassword(new PasswordPatch.Builder().onSyncope(false).
                 resource(RESOURCE_NAME_TESTDB).value("123password").build());
-        userPatch.getResources().add(new StringPatchItem.Builder().
+        userUR.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_TESTDB).build());
 
-        ProvisioningResult<UserTO> result = updateUser(userPatch);
+        ProvisioningResult<UserTO> result = updateUser(userUR);
         assertNotNull(result);
 
         List<PropagationStatus> propagations = result.getPropagationStatuses();
@@ -285,13 +286,13 @@ public class UserIssuesITCase extends AbstractITCase {
         // -----------------------------------
         // Remove the first membership: de-provisioning shouldn't happen
         // -----------------------------------
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
 
-        userPatch.getMemberships().add(new MembershipPatch.Builder().
+        userUR.getMemberships().add(new MembershipPatch.Builder().
                 operation(PatchOperation.DELETE).group(userTO.getMemberships().get(0).getGroupKey()).build());
 
-        userTO = updateUser(userPatch).getEntity();
+        userTO = updateUser(userUR).getEntity();
         assertNotNull(userTO);
         assertEquals(1, userTO.getMemberships().size());
 
@@ -302,13 +303,13 @@ public class UserIssuesITCase extends AbstractITCase {
         // -----------------------------------
         // Remove the resource assigned directly: de-provisioning shouldn't happen
         // -----------------------------------
-        userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
+        userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
 
-        userPatch.getResources().add(new StringPatchItem.Builder().operation(PatchOperation.DELETE).
+        userUR.getResources().add(new StringPatchItem.Builder().operation(PatchOperation.DELETE).
                 value(userTO.getResources().iterator().next()).build());
 
-        userTO = updateUser(userPatch).getEntity();
+        userTO = updateUser(userUR).getEntity();
         assertNotNull(userTO);
         assertEquals(1, userTO.getMemberships().size());
         assertFalse(userTO.getResources().isEmpty());
@@ -320,13 +321,13 @@ public class UserIssuesITCase extends AbstractITCase {
         // -----------------------------------
         // Remove the first membership: de-provisioning should happen
         // -----------------------------------
-        userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
+        userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
 
-        userPatch.getMemberships().add(new MembershipPatch.Builder().
+        userUR.getMemberships().add(new MembershipPatch.Builder().
                 operation(PatchOperation.DELETE).group(userTO.getMemberships().get(0).getGroupKey()).build());
 
-        userTO = updateUser(userPatch).getEntity();
+        userTO = updateUser(userUR).getEntity();
         assertNotNull(userTO);
         assertTrue(userTO.getMemberships().isEmpty());
         assertTrue(userTO.getResources().isEmpty());
@@ -431,14 +432,14 @@ public class UserIssuesITCase extends AbstractITCase {
         userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
 
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
 
         // this resource has not a mapping for Password
-        userPatch.getResources().add(new StringPatchItem.Builder().
+        userUR.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_UPDATE).build());
 
-        userTO = updateUser(userPatch).getEntity();
+        userTO = updateUser(userUR).getEntity();
         assertNotNull(userTO);
     }
 
@@ -486,12 +487,12 @@ public class UserIssuesITCase extends AbstractITCase {
         String pwdOnTestDb2 = pwdOnTestDb2Attr.getValues().iterator().next();
 
         // 2. request to change password only on testdb (no Syncope, no testdb2)
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().value(getUUIDString()).onSyncope(false).
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.setPassword(new PasswordPatch.Builder().value(getUUIDString()).onSyncope(false).
                 resource(RESOURCE_NAME_TESTDB).build());
 
-        ProvisioningResult<UserTO> result = updateUser(userPatch);
+        ProvisioningResult<UserTO> result = updateUser(userUR);
         userTO = result.getEntity();
 
         // 3a. Chech that only a single propagation took place
@@ -539,13 +540,13 @@ public class UserIssuesITCase extends AbstractITCase {
             assertNotNull(userTO);
 
             // 4. update user, assign a propagation priority resource but don't provide any password
-            UserPatch userPatch = new UserPatch();
-            userPatch.setKey(userTO.getKey());
-            userPatch.getResources().add(new StringPatchItem.Builder().
+            UserUR userUR = new UserUR();
+            userUR.setKey(userTO.getKey());
+            userUR.getResources().add(new StringPatchItem.Builder().
                     operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_LDAP).build());
-            userPatch.setPassword(new PasswordPatch.Builder().onSyncope(false).resource(RESOURCE_NAME_LDAP).build());
+            userUR.setPassword(new PasswordPatch.Builder().onSyncope(false).resource(RESOURCE_NAME_LDAP).build());
 
-            ProvisioningResult<UserTO> result = updateUser(userPatch);
+            ProvisioningResult<UserTO> result = updateUser(userUR);
             assertNotNull(result);
             userTO = result.getEntity();
             assertNotNull(userTO);
@@ -578,13 +579,13 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // 2. update user, assign a propagation priority resource but don't provide any password
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.getResources().add(new StringPatchItem.Builder().
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_LDAP).build());
-        userPatch.setPassword(new PasswordPatch.Builder().onSyncope(false).resource(RESOURCE_NAME_LDAP).build());
+        userUR.setPassword(new PasswordPatch.Builder().onSyncope(false).resource(RESOURCE_NAME_LDAP).build());
 
-        ProvisioningResult<UserTO> result = updateUser(userPatch);
+        ProvisioningResult<UserTO> result = updateUser(userUR);
         assertNotNull(result);
 
         // 3. verify that propagation was successful
@@ -607,10 +608,10 @@ public class UserIssuesITCase extends AbstractITCase {
             "823074dc-d280-436d-a7dd-07399fae48ec" };
 
         for (String userKey : userKeys) {
-            UserPatch userPatch = new UserPatch();
-            userPatch.setKey(userKey);
-            userPatch.getPlainAttrs().add(attrAddReplacePatch("ctype", "a type"));
-            UserTO userTO = updateUser(userPatch).getEntity();
+            UserUR userUR = new UserUR();
+            userUR.setKey(userKey);
+            userUR.getPlainAttrs().add(attrAddReplacePatch("ctype", "a type"));
+            UserTO userTO = updateUser(userUR).getEntity();
             assertEquals("a type", userTO.getPlainAttr("ctype").get().getValues().get(0));
         }
     }
@@ -652,12 +653,12 @@ public class UserIssuesITCase extends AbstractITCase {
                 contains("uid=" + userTO.getUsername() + ",ou=people,o=isp"));
 
         // 4. remove membership
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.getMemberships().add(new MembershipPatch.Builder().operation(PatchOperation.DELETE).
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.getMemberships().add(new MembershipPatch.Builder().operation(PatchOperation.DELETE).
                 group(userTO.getMemberships().get(0).getGroupKey()).build());
 
-        userTO = updateUser(userPatch).getEntity();
+        userTO = updateUser(userUR).getEntity();
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
 
         // 5. read group on resource, check that user DN was removed from uniqueMember
@@ -735,12 +736,12 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // 2. assign resource without specifying a new pwd and check propagation failure
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.getResources().add(new StringPatchItem.Builder().
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_TESTDB).build());
 
-        ProvisioningResult<UserTO> result = updateUser(userPatch);
+        ProvisioningResult<UserTO> result = updateUser(userUR);
         assertNotNull(result);
         userTO = result.getEntity();
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
@@ -749,13 +750,13 @@ public class UserIssuesITCase extends AbstractITCase {
         userTO = result.getEntity();
 
         // 3. request to change password only on testdb
-        userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.setPassword(
+        userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.setPassword(
                 new PasswordPatch.Builder().value(getUUIDString() + "abbcbcbddd123").resource(RESOURCE_NAME_TESTDB).
                         build());
 
-        result = updateUser(userPatch);
+        result = updateUser(userUR);
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
     }
@@ -779,14 +780,14 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 2. update assigning a resource NOT forcing mandatory constraints
         // AND priority: must fail with PropagationException
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().value("newPassword123").build());
-        userPatch.getResources().add(new StringPatchItem.Builder().
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.setPassword(new PasswordPatch.Builder().value("newPassword123").build());
+        userUR.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS1).build());
-        userPatch.getResources().add(new StringPatchItem.Builder().
+        userUR.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_TESTDB).build());
-        ProvisioningResult<UserTO> result = updateUser(userPatch);
+        ProvisioningResult<UserTO> result = updateUser(userUR);
 
         PropagationStatus ws1PropagationStatus = result.getPropagationStatuses().stream().
                 filter(propStatus -> RESOURCE_NAME_WS1.equals(propStatus.getResource())).
@@ -827,11 +828,11 @@ public class UserIssuesITCase extends AbstractITCase {
         userTO = createUser(userTO).getEntity();
         assertEquals("6", userTO.getPlainAttr("makeItDouble").get().getValues().get(0));
 
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.getPlainAttrs().add(attrAddReplacePatch("makeItDouble", "7"));
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.getPlainAttrs().add(attrAddReplacePatch("makeItDouble", "7"));
 
-        userTO = updateUser(userPatch).getEntity();
+        userTO = updateUser(userUR).getEntity();
         assertEquals("14", userTO.getPlainAttr("makeItDouble").get().getValues().get(0));
     }
 
@@ -841,10 +842,10 @@ public class UserIssuesITCase extends AbstractITCase {
         userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
 
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().value("anotherPassword123").build());
-        userTO = userService.update(userPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.setPassword(new PasswordPatch.Builder().value("anotherPassword123").build());
+        userTO = userService.update(userUR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(userTO);
     }
@@ -858,12 +859,12 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // 2. try to update user by subscribing a resource - works but propagation is not even attempted
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.getResources().add(new StringPatchItem.Builder().
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS1).build());
 
-        ProvisioningResult<UserTO> result = updateUser(userPatch);
+        ProvisioningResult<UserTO> result = updateUser(userUR);
         assertNotNull(result);
         userTO = result.getEntity();
         assertEquals(Collections.singleton(RESOURCE_NAME_WS1), userTO.getResources());
@@ -891,12 +892,12 @@ public class UserIssuesITCase extends AbstractITCase {
                 connObject.getAttr(Name.NAME).get().getValues().get(0)));
 
         // 4. update user without any password change request
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.setPassword(new PasswordPatch());
-        userPatch.getPlainAttrs().add(attrAddReplacePatch("surname", "surname2"));
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.setPassword(new PasswordPatch());
+        userUR.getPlainAttrs().add(attrAddReplacePatch("surname", "surname2"));
 
-        userService.update(userPatch);
+        userService.update(userUR);
 
         // 5. try (and succeed again) to perform simple LDAP binding: password has not changed
         assertNotNull(getLdapRemoteObject(
@@ -946,12 +947,12 @@ public class UserIssuesITCase extends AbstractITCase {
         assertEquals(7, mapItems.size());
 
         // 3.  update user and check firstname propagation
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.setPassword(new PasswordPatch());
-        userPatch.getPlainAttrs().add(attrAddReplacePatch("firstname", "firstnameNew"));
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.setPassword(new PasswordPatch());
+        userUR.getPlainAttrs().add(attrAddReplacePatch("firstname", "firstnameNew"));
 
-        result = updateUser(userPatch);
+        result = updateUser(userUR);
         assertNotNull(userTO);
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
@@ -1003,14 +1004,14 @@ public class UserIssuesITCase extends AbstractITCase {
         resourceService.update(resourceTO);
 
         // 3. Add a db resource to the User
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(user.getKey());
-        userPatch.getResources().add(new StringPatchItem.Builder().
+        UserUR userUR = new UserUR();
+        userUR.setKey(user.getKey());
+        userUR.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_TESTDB).build());
 
-        userPatch.setPassword(new PasswordPatch.Builder().onSyncope(false).resource(RESOURCE_NAME_TESTDB).build());
+        userUR.setPassword(new PasswordPatch.Builder().onSyncope(false).resource(RESOURCE_NAME_TESTDB).build());
 
-        user = updateUser(userPatch).getEntity();
+        user = updateUser(userUR).getEntity();
         assertNotNull(user);
         assertEquals(1, user.getResources().size());
 
@@ -1054,14 +1055,14 @@ public class UserIssuesITCase extends AbstractITCase {
         resourceService.update(resourceTO);
 
         // 3. Add a resource to the User
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(user.getKey());
-        userPatch.getResources().add(new StringPatchItem.Builder().
+        UserUR userUR = new UserUR();
+        userUR.setKey(user.getKey());
+        userUR.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_LDAP).build());
 
-        userPatch.setPassword(new PasswordPatch.Builder().onSyncope(false).resource(RESOURCE_NAME_LDAP).build());
+        userUR.setPassword(new PasswordPatch.Builder().onSyncope(false).resource(RESOURCE_NAME_LDAP).build());
 
-        user = updateUser(userPatch).getEntity();
+        user = updateUser(userUR).getEntity();
         assertNotNull(user);
         assertEquals(1, user.getResources().size());
 
@@ -1209,11 +1210,11 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(connObjectTO);
         assertEquals("postalAddress", connObjectTO.getAttr("postalAddress").get().getValues().get(0));
 
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(actual.getKey());
-        userPatch.getPlainAttrs().add(attrAddReplacePatch("postalAddress", "newPostalAddress"));
+        UserUR userUR = new UserUR();
+        userUR.setKey(actual.getKey());
+        userUR.getPlainAttrs().add(attrAddReplacePatch("postalAddress", "newPostalAddress"));
 
-        actual = updateUser(userPatch).getEntity();
+        actual = updateUser(userUR).getEntity();
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
@@ -1294,12 +1295,12 @@ public class UserIssuesITCase extends AbstractITCase {
             assertNotNull(userTO);
 
             // 5. update user with the new group, and don't provide any password
-            UserPatch userPatch = new UserPatch();
-            userPatch.setKey(userTO.getKey());
-            userPatch.getMemberships().add(new MembershipPatch.Builder().operation(PatchOperation.ADD_REPLACE).
+            UserUR userUR = new UserUR();
+            userUR.setKey(userTO.getKey());
+            userUR.getMemberships().add(new MembershipPatch.Builder().operation(PatchOperation.ADD_REPLACE).
                     group(group.getKey()).build());
 
-            ProvisioningResult<UserTO> result = updateUser(userPatch);
+            ProvisioningResult<UserTO> result = updateUser(userUR);
             assertNotNull(result);
 
             // 5. verify that propagation was successful
@@ -1340,12 +1341,12 @@ public class UserIssuesITCase extends AbstractITCase {
         userTO = result.getEntity();
 
         // 3. request to propagate password only to db
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
+        userUR.setPassword(new PasswordPatch.Builder().
                 onSyncope(false).resource(RESOURCE_NAME_TESTDB).value("newpassword123").build());
 
-        result = updateUser(userPatch);
+        result = updateUser(userUR);
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(RESOURCE_NAME_TESTDB, result.getPropagationStatuses().get(0).getResource());
     }
@@ -1419,20 +1420,20 @@ public class UserIssuesITCase extends AbstractITCase {
         userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
 
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
+        UserUR userUR = new UserUR();
+        userUR.setKey(userTO.getKey());
         // resource-ldap has password mapped, resource-db-virattr does not
-        userPatch.setPassword(new PasswordPatch.Builder().
+        userUR.setPassword(new PasswordPatch.Builder().
                 onSyncope(true).
                 resource(RESOURCE_NAME_LDAP).
                 value("new2Password").build());
 
-        userPatch.getResources().add(new StringPatchItem.Builder().
+        userUR.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_LDAP).build());
-        userPatch.getResources().add(new StringPatchItem.Builder().
+        userUR.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_DBVIRATTR).build());
 
-        ProvisioningResult<UserTO> result = updateUser(userPatch);
+        ProvisioningResult<UserTO> result = updateUser(userUR);
         assertNotNull(result);
         assertEquals(2, result.getPropagationStatuses().size());
         assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
@@ -1459,20 +1460,20 @@ public class UserIssuesITCase extends AbstractITCase {
         assertTrue(result.getPropagationStatuses().isEmpty());
 
         // 3. update user to match the dynamic condition: expect propagation to LDAP
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(result.getEntity().getKey());
-        userPatch.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("cool", "true")).build());
+        UserUR userUR = new UserUR();
+        userUR.setKey(result.getEntity().getKey());
+        userUR.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("cool", "true")).build());
 
-        result = updateUser(userPatch);
+        result = updateUser(userUR);
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
 
         // 4. update again user to not match the dynamic condition any more: expect propagation to LDAP
-        userPatch = new UserPatch();
-        userPatch.setKey(result.getEntity().getKey());
-        userPatch.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("cool", "false")).build());
+        userUR = new UserUR();
+        userUR.setKey(result.getEntity().getKey());
+        userUR.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("cool", "false")).build());
 
-        result = updateUser(userPatch);
+        result = updateUser(userUR);
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
     }
@@ -1495,11 +1496,11 @@ public class UserIssuesITCase extends AbstractITCase {
             assertNotNull(userTO);
 
             // 3. attempt to set the same password value: fails
-            UserPatch patch = new UserPatch();
-            patch.setKey(userTO.getKey());
-            patch.setPassword(new PasswordPatch.Builder().onSyncope(true).value("Password123").build());
+            UserUR req = new UserUR();
+            req.setKey(userTO.getKey());
+            req.setPassword(new PasswordPatch.Builder().onSyncope(true).value("Password123").build());
             try {
-                updateUser(patch);
+                updateUser(req);
                 fail("Password update should not work");
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.InvalidUser, e.getType());
@@ -1507,13 +1508,13 @@ public class UserIssuesITCase extends AbstractITCase {
             }
 
             // 4. set another password value: works
-            patch.setPassword(new PasswordPatch.Builder().onSyncope(true).value("Password124").build());
-            userTO = updateUser(patch).getEntity();
+            req.setPassword(new PasswordPatch.Builder().onSyncope(true).value("Password124").build());
+            userTO = updateUser(req).getEntity();
             assertNotNull(userTO);
 
             // 5. set the original password value: works (history length is 1)
-            patch.setPassword(new PasswordPatch.Builder().onSyncope(true).value("Password123").build());
-            userTO = updateUser(patch).getEntity();
+            req.setPassword(new PasswordPatch.Builder().onSyncope(true).value("Password123").build());
+            userTO = updateUser(req).getEntity();
             assertNotNull(userTO);
         } finally {
             // finally revert the cipher algorithm

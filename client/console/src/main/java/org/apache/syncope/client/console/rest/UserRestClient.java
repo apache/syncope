@@ -27,13 +27,13 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.status.Status;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
-import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
-import org.apache.syncope.common.lib.patch.StatusPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
+import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
-import org.apache.syncope.common.lib.types.StatusPatchType;
+import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -57,10 +57,10 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
         });
     }
 
-    public ProvisioningResult<UserTO> update(final String etag, final UserPatch patch) {
+    public ProvisioningResult<UserTO> update(final String etag, final UserUR updateReq) {
         ProvisioningResult<UserTO> result;
         synchronized (this) {
-            result = getService(etag, UserService.class).update(patch).
+            result = getService(etag, UserService.class).update(updateReq).
                     readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                     });
             resetClient(getAnyServiceClass());
@@ -86,20 +86,20 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
     }
 
     public ProvisioningResult<UserTO> mustChangePassword(final String etag, final boolean value, final String key) {
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(key);
-        userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(value).build());
-        return update(etag, userPatch);
+        UserUR userUR = new UserUR();
+        userUR.setKey(key);
+        userUR.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(value).build());
+        return update(etag, userUR);
     }
 
     private Map<String, String> status(
-            final StatusPatchType type, final String etag, final String userKey, final List<StatusBean> statuses) {
+            final StatusRType type, final String etag, final String userKey, final List<StatusBean> statuses) {
 
-        StatusPatch statusPatch = StatusUtils.statusPatch(statuses).key(userKey).type(type).build();
+        StatusR statusR = StatusUtils.statusR(statuses).key(userKey).type(type).build();
 
         Map<String, String> results;
         synchronized (this) {
-            ProvisioningResult<UserTO> provisioningResult = getService(etag, UserService.class).status(statusPatch).
+            ProvisioningResult<UserTO> provisioningResult = getService(etag, UserService.class).status(statusR).
                     readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                     });
 
@@ -126,12 +126,12 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
                     ifPresent(statusBean -> statusBean.setStatus(
                     "suspended".equalsIgnoreCase(provisioningResult.getEntity().getStatus())
                     ? Status.SUSPENDED : Status.ACTIVE));
-            if (statusPatch.isOnSyncope()) {
+            if (statusR.isOnSyncope()) {
                 results.put(Constants.SYNCOPE,
                         ("suspended".equalsIgnoreCase(provisioningResult.getEntity().getStatus())
-                        && type == StatusPatchType.SUSPEND)
+                        && type == StatusRType.SUSPEND)
                         || ("active".equalsIgnoreCase(provisioningResult.getEntity().getStatus())
-                        && type == StatusPatchType.REACTIVATE)
+                        && type == StatusRType.REACTIVATE)
                                 ? ExecStatus.SUCCESS.name()
                                 : ExecStatus.FAILURE.name());
             }
@@ -144,12 +144,12 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
     public Map<String, String> suspend(
             final String etag, final String userKey, final List<StatusBean> statuses) {
 
-        return status(StatusPatchType.SUSPEND, etag, userKey, statuses);
+        return status(StatusRType.SUSPEND, etag, userKey, statuses);
     }
 
     public Map<String, String> reactivate(
             final String etag, final String userKey, final List<StatusBean> statuses) {
 
-        return status(StatusPatchType.REACTIVATE, etag, userKey, statuses);
+        return status(StatusRType.REACTIVATE, etag, userKey, statuses);
     }
 }

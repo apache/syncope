@@ -24,8 +24,8 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.AnyOperations;
-import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
+import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
@@ -103,7 +103,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
     protected abstract AnyTO doCreate(AnyTO anyTO, SyncDelta delta);
 
-    protected abstract AnyPatch doUpdate(AnyTO before, AnyPatch anyPatch, SyncDelta delta, ProvisioningReport result);
+    protected abstract AnyUR doUpdate(AnyTO before, AnyUR req, SyncDelta delta, ProvisioningReport result);
 
     @Override
     public void setPullExecutor(final SyncopePullExecutor executor) {
@@ -345,15 +345,15 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             if (!profile.isDryRun()) {
                 Result resultStatus;
                 Object output;
-                AnyPatch effectivePatch = null;
+                AnyUR effectiveReq = null;
 
                 if (before == null) {
                     resultStatus = Result.FAILURE;
                     output = null;
                 } else {
-                    AnyPatch anyPatch = null;
+                    AnyUR anyUR = null;
                     try {
-                        anyPatch = connObjectUtils.getAnyPatch(
+                        anyUR = connObjectUtils.getAnyUR(
                                 before.getKey(),
                                 delta.getObject(),
                                 before,
@@ -362,11 +362,11 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                                 getAnyUtils());
 
                         for (PullActions action : profile.getActions()) {
-                            action.beforeUpdate(profile, delta, before, anyPatch);
+                            action.beforeUpdate(profile, delta, before, anyUR);
                         }
 
-                        effectivePatch = doUpdate(before, anyPatch, delta, result);
-                        AnyTO updated = AnyOperations.patch(before, effectivePatch);
+                        effectiveReq = doUpdate(before, anyUR, delta, result);
+                        AnyTO updated = AnyOperations.patch(before, effectiveReq);
 
                         for (PullActions action : profile.getActions()) {
                             action.after(profile, delta, updated, result);
@@ -398,7 +398,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                             Remediation entity = entityFactory.newEntity(Remediation.class);
                             entity.setAnyType(provision.getAnyType());
                             entity.setOperation(ResourceOperation.UPDATE);
-                            entity.setPayload(anyPatch);
+                            entity.setPayload(anyUR);
                             entity.setError(result.getMessage());
                             entity.setInstant(new Date());
                             entity.setRemoteName(delta.getObject().getName().getNameValue());
@@ -409,7 +409,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     }
                 }
                 finalize(MatchingRule.toEventName(MatchingRule.UPDATE),
-                        resultStatus, before, output, delta, effectivePatch);
+                        resultStatus, before, output, delta, effectiveReq);
             }
             results.add(result);
         }
@@ -481,17 +481,17 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                                 null),
                                 false);
 
-                        AnyPatch anyPatch = null;
+                        AnyUR anyUR = null;
                         if (unlink) {
-                            anyPatch = getAnyUtils().newAnyPatch(key);
-                            anyPatch.getResources().add(new StringPatchItem.Builder().
+                            anyUR = getAnyUtils().newAnyUR(key);
+                            anyUR.getResources().add(new StringPatchItem.Builder().
                                     operation(PatchOperation.DELETE).
                                     value(profile.getTask().getResource().getKey()).build());
                         }
-                        if (anyPatch == null) {
+                        if (anyUR == null) {
                             output = getAnyTO(key);
                         } else {
-                            output = doUpdate(before, anyPatch, delta, result);
+                            output = doUpdate(before, anyUR, delta, result);
                         }
 
                         for (PullActions action : profile.getActions()) {
@@ -567,7 +567,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             if (!profile.isDryRun()) {
                 Result resultStatus;
                 Object output;
-                AnyPatch effectivePatch = null;
+                AnyUR effectiveReq = null;
 
                 if (before == null) {
                     resultStatus = Result.FAILURE;
@@ -586,13 +586,13 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                             }
                         }
 
-                        AnyPatch anyPatch = getAnyUtils().newAnyPatch(before.getKey());
-                        anyPatch.getResources().add(new StringPatchItem.Builder().
+                        AnyUR anyUR = getAnyUtils().newAnyUR(before.getKey());
+                        anyUR.getResources().add(new StringPatchItem.Builder().
                                 operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
                                 value(profile.getTask().getResource().getKey()).build());
 
-                        effectivePatch = update(anyPatch).getResult();
-                        output = AnyOperations.patch(before, effectivePatch);
+                        effectiveReq = update(anyUR).getResult();
+                        output = AnyOperations.patch(before, effectiveReq);
 
                         for (PullActions action : profile.getActions()) {
                             action.after(profile, delta, AnyTO.class.cast(output), result);
@@ -622,7 +622,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 finalize(unlink
                         ? MatchingRule.toEventName(MatchingRule.UNLINK)
                         : MatchingRule.toEventName(MatchingRule.LINK),
-                        resultStatus, before, output, delta, effectivePatch);
+                        resultStatus, before, output, delta, effectiveReq);
             }
             results.add(result);
         }

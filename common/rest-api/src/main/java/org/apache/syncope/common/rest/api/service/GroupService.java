@@ -34,14 +34,13 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -115,7 +114,7 @@ public interface GroupService extends AnyService<GroupTO> {
     /**
      * Updates group matching the provided key.
      *
-     * @param groupPatch modification to be applied to group matching the provided key
+     * @param updateReq modification to be applied to group matching the provided key
      * @return Response object featuring the updated group enriched with propagation status information
      */
     @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
@@ -153,50 +152,7 @@ public interface GroupService extends AnyService<GroupTO> {
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response update(@NotNull GroupPatch groupPatch);
-
-    /**
-     * Updates group matching the provided key.
-     *
-     * @param groupTO complete update
-     * @return Response object featuring the updated group enriched with propagation status information
-     */
-    @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
-            description = "Allows client to specify a preference for the result to be returned from the server",
-            allowEmptyValue = true, schema =
-            @Schema(defaultValue = "return-content", allowableValues = { "return-content", "return-no-content" }))
-    @Parameter(name = HttpHeaders.IF_MATCH, in = ParameterIn.HEADER,
-            description = "When the provided ETag value does not match the latest modification date of the entity, "
-            + "an error is reported and the requested operation is not performed.",
-            allowEmptyValue = true, schema =
-            @Schema(type = "string"))
-    @Parameter(name = RESTHeaders.NULL_PRIORITY_ASYNC, in = ParameterIn.HEADER,
-            description = "If 'true', instructs the propagation process not to wait for completion when communicating"
-            + " with External Resources with no priority set",
-            allowEmptyValue = true, schema =
-            @Schema(type = "boolean", defaultValue = "false"))
-    @Parameter(name = "key", description = "Group's key", in = ParameterIn.PATH, schema =
-            @Schema(type = "string"))
-    @ApiResponses({
-        @ApiResponse(responseCode = "200",
-                description = "Group successfully updated enriched with propagation status information, as Entity",
-                content =
-                @Content(schema =
-                        @Schema(implementation = ProvisioningResult.class))),
-        @ApiResponse(responseCode = "204",
-                description = "No content if 'Prefer: return-no-content' was specified", headers =
-                @Header(name = RESTHeaders.PREFERENCE_APPLIED, schema =
-                        @Schema(type = "string"),
-                        description = "Allows the server to inform the "
-                        + "client about the fact that a specified preference was applied")),
-        @ApiResponse(responseCode = "412",
-                description = "The ETag value provided via the 'If-Match' header does not match the latest modification"
-                + " date of the entity") })
-    @PUT
-    @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response update(@NotNull GroupTO groupTO);
+    Response update(@NotNull GroupUR updateReq);
 
     /**
      * This method allows a user to read his own groups.

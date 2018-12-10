@@ -30,7 +30,7 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -145,12 +145,12 @@ public class AnyObjectITCase extends AbstractITCase {
 
         assertEquals(1, anyObjectTO.getPlainAttrs().size());
 
-        AnyObjectPatch anyObjectPatch = new AnyObjectPatch();
-        anyObjectPatch.setKey(anyObjectTO.getKey());
+        AnyObjectUR anyObjectUR = new AnyObjectUR();
+        anyObjectUR.setKey(anyObjectTO.getKey());
         String newLocation = "new" + getUUIDString();
-        anyObjectPatch.getPlainAttrs().add(attrAddReplacePatch("location", newLocation));
+        anyObjectUR.getPlainAttrs().add(attrAddReplacePatch("location", newLocation));
 
-        anyObjectTO = updateAnyObject(anyObjectPatch).getEntity();
+        anyObjectTO = updateAnyObject(anyObjectUR).getEntity();
 
         assertEquals(newLocation, anyObjectTO.getPlainAttr("location").get().getValues().get(0));
     }

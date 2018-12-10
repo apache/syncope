@@ -20,8 +20,8 @@ package org.apache.syncope.common.lib;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
-import org.apache.syncope.common.lib.patch.AttrPatch;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
@@ -41,7 +41,7 @@ public class AnyOperationsTest {
         newOne.getPlainAttrs().add(new AttrTO.Builder().schema("plain").value("newValue").build());
         newOne.getPlainAttrs().add(new AttrTO.Builder().schema("encrypted").value("oldValue").build());
 
-        AnyObjectPatch diff = AnyOperations.diff(newOne, oldOne, true);
+        AnyObjectUR diff = AnyOperations.diff(newOne, oldOne, true);
         assertEquals(1, diff.getPlainAttrs().size());
 
         AttrPatch patch = diff.getPlainAttrs().iterator().next();

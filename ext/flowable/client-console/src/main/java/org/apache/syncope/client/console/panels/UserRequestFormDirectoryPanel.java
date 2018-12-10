@@ -45,8 +45,8 @@ import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.UserWizardBuilder;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
@@ -227,19 +227,19 @@ public class UserRequestFormDirectoryPanel
                 UserRequestForm formTO = model.getObject();
                 UserTO newUserTO;
                 UserTO previousUserTO;
-                if (formTO.getUserPatch() == null) {
+                if (formTO.getUserUR() == null) {
                     newUserTO = formTO.getUserTO();
                     previousUserTO = null;
                 } else if (formTO.getUserTO() == null) {
                     // make it stronger by handling possible NPE
                     previousUserTO = new UserTO();
-                    previousUserTO.setKey(formTO.getUserPatch().getKey());
-                    newUserTO = AnyOperations.patch(previousUserTO, formTO.getUserPatch());
+                    previousUserTO.setKey(formTO.getUserUR().getKey());
+                    newUserTO = AnyOperations.patch(previousUserTO, formTO.getUserUR());
                 } else {
                     previousUserTO = formTO.getUserTO();
-                    formTO.getUserTO().setKey(formTO.getUserPatch().getKey());
+                    formTO.getUserTO().setKey(formTO.getUserUR().getKey());
                     formTO.getUserTO().setPassword(null);
-                    newUserTO = AnyOperations.patch(formTO.getUserTO(), formTO.getUserPatch());
+                    newUserTO = AnyOperations.patch(formTO.getUserTO(), formTO.getUserUR());
                 }
 
                 AjaxWizard.EditItemActionEvent<UserTO> editItemActionEvent =
@@ -357,23 +357,23 @@ public class UserRequestFormDirectoryPanel
         protected Serializable onApplyInternal(final AnyWrapper<UserTO> modelObject) {
             UserTO inner = modelObject.getInnerObject();
 
-            UserPatch patch = AnyOperations.diff(inner, formTO.getUserTO(), false);
+            UserUR userUR = AnyOperations.diff(inner, formTO.getUserTO(), false);
 
             if (StringUtils.isNotBlank(inner.getPassword())) {
                 PasswordPatch passwordPatch = new PasswordPatch.Builder().
                         value(inner.getPassword()).onSyncope(true).resources(inner.
                         getResources()).
                         build();
-                patch.setPassword(passwordPatch);
+                userUR.setPassword(passwordPatch);
             }
 
             // update just if it is changed
             ProvisioningResult<UserTO> result;
-            if (patch.isEmpty()) {
+            if (userUR.isEmpty()) {
                 result = new ProvisioningResult<>();
                 result.setEntity(inner);
             } else {
-                result = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
+                result = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), userUR);
                 restClient.getForm(result.getEntity().getKey()).ifPresent(form -> claimForm(form.getTaskId()));
             }
 

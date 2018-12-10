@@ -16,24 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.patch;
+package org.apache.syncope.common.lib.request;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.types.PatchOperation;
 
-@XmlRootElement(name = "stringReplacePatchItem")
+/**
+ * When a field of this type from {@link AnyUR}, {@link AnyObjectUR}, {@link GroupUR} or {@link UserUR} is
+ * {@code null}, no change will be performed; otherwise the result from {@link #getValue()} will replace the current
+ * value of the related field.
+ *
+ * @param <T> {@code String}, {@code Boolean}
+ */
 @XmlType
-@XmlSeeAlso({ PasswordPatch.class })
-public class StringReplacePatchItem extends AbstractReplacePatchItem<String> {
+@XmlSeeAlso({ BooleanReplacePatchItem.class, StringReplacePatchItem.class })
+public abstract class AbstractReplacePatchItem<T> extends AbstractPatchItem<T> {
 
-    private static final long serialVersionUID = -5631052324901928363L;
+    private static final long serialVersionUID = 2027599764019829563L;
 
-    public static class Builder extends AbstractReplacePatchItem.Builder<String, StringReplacePatchItem, Builder> {
+    public AbstractReplacePatchItem() {
+        super();
+        super.setOperation(PatchOperation.ADD_REPLACE);
+    }
 
-        @Override
-        protected StringReplacePatchItem newInstance() {
-            return new StringReplacePatchItem();
-        }
+    @Override
+    public void setOperation(final PatchOperation operation) {
+        // fixed
     }
 }

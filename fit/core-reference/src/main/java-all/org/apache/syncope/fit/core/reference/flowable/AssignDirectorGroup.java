@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.fit.core.reference.flowable;
 
-import org.apache.syncope.common.lib.patch.MembershipPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.MembershipPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.apache.syncope.core.flowable.task.FlowableServiceTask;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -48,12 +48,12 @@ public class AssignDirectorGroup extends FlowableServiceTask {
         if (Boolean.TRUE.equals(secondLevelApprove)) {
             user = userDAO.save(user);
 
-            UserPatch userPatch = new UserPatch();
-            userPatch.setKey(user.getKey());
-            userPatch.getMemberships().add(new MembershipPatch.Builder().
+            UserUR userUR = new UserUR();
+            userUR.setKey(user.getKey());
+            userUR.getMemberships().add(new MembershipPatch.Builder().
                     group("ebf97068-aa4b-4a85-9f01-680e8c4cf227").build());
 
-            PropagationByResource propByRes = dataBinder.update(user, userPatch);
+            PropagationByResource propByRes = dataBinder.update(user, userUR);
 
             // report updated user and propagation by resource as result
             execution.setVariable(FlowableRuntimeUtils.USER, user);

@@ -29,11 +29,11 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.StatusPatch;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
+import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.StringPatchItem;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -65,7 +65,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Spring's Transactional logic at class level.
  */
 @Component
-public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
+public class UserLogic extends AbstractAnyLogic<UserTO, UserUR> {
 
     @Autowired
     protected AnySearchDAO searchDAO;
@@ -167,10 +167,10 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     @PreAuthorize("isAuthenticated() "
             + "and not(hasRole('" + StandardEntitlement.ANONYMOUS + "')) "
             + "and not(hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "'))")
-    public ProvisioningResult<UserTO> selfUpdate(final UserPatch userPatch, final boolean nullPriorityAsync) {
+    public ProvisioningResult<UserTO> selfUpdate(final UserUR userUR, final boolean nullPriorityAsync) {
         UserTO userTO = binder.getAuthenticatedUserTO();
-        userPatch.setKey(userTO.getKey());
-        ProvisioningResult<UserTO> updated = doUpdate(userPatch, true, nullPriorityAsync);
+        userUR.setKey(userTO.getKey());
+        ProvisioningResult<UserTO> updated = doUpdate(userUR, true, nullPriorityAsync);
 
         // Ensures that, if the self update above moves the user into a status from which no authentication
         // is possible, the existing Access Token is clean up to avoid issues with future authentications
@@ -186,16 +186,16 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
     @Override
-    public ProvisioningResult<UserTO> update(final UserPatch userPatch, final boolean nullPriorityAsync) {
-        return doUpdate(userPatch, false, nullPriorityAsync);
+    public ProvisioningResult<UserTO> update(final UserUR userUR, final boolean nullPriorityAsync) {
+        return doUpdate(userUR, false, nullPriorityAsync);
     }
 
     protected ProvisioningResult<UserTO> doUpdate(
-            final UserPatch userPatch, final boolean self, final boolean nullPriorityAsync) {
+            final UserUR userUR, final boolean self, final boolean nullPriorityAsync) {
 
-        UserTO userTO = binder.getUserTO(userPatch.getKey());
+        UserTO userTO = binder.getUserTO(userUR.getKey());
         Set<String> dynRealmsBefore = new HashSet<>(userTO.getDynRealms());
-        Pair<UserPatch, List<LogicActions>> before = beforeUpdate(userPatch, userTO.getRealm());
+        Pair<UserUR, List<LogicActions>> before = beforeUpdate(userUR, userTO.getRealm());
 
         boolean authDynRealms = false;
         if (!self
@@ -209,7 +209,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                     securityChecks(effectiveRealms, before.getLeft().getRealm().getValue(), before.getLeft().getKey());
         }
 
-        Pair<UserPatch, List<PropagationStatus>> updated =
+        Pair<UserUR, List<PropagationStatus>> updated =
                 provisioningManager.update(before.getLeft(), nullPriorityAsync);
 
         return afterUpdate(
@@ -221,22 +221,22 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     }
 
     protected Pair<String, List<PropagationStatus>> setStatusOnWfAdapter(
-            final StatusPatch statusPatch, final boolean nullPriorityAsync) {
+            final StatusR statusR, final boolean nullPriorityAsync) {
 
         Pair<String, List<PropagationStatus>> updated;
 
-        switch (statusPatch.getType()) {
+        switch (statusR.getType()) {
             case SUSPEND:
-                updated = provisioningManager.suspend(statusPatch, nullPriorityAsync);
+                updated = provisioningManager.suspend(statusR, nullPriorityAsync);
                 break;
 
             case REACTIVATE:
-                updated = provisioningManager.reactivate(statusPatch, nullPriorityAsync);
+                updated = provisioningManager.reactivate(statusR, nullPriorityAsync);
                 break;
 
             case ACTIVATE:
             default:
-                updated = provisioningManager.activate(statusPatch, nullPriorityAsync);
+                updated = provisioningManager.activate(statusR, nullPriorityAsync);
                 break;
 
         }
@@ -245,18 +245,18 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
-    public ProvisioningResult<UserTO> status(final StatusPatch statusPatch, final boolean nullPriorityAsync) {
+    public ProvisioningResult<UserTO> status(final StatusR statusR, final boolean nullPriorityAsync) {
         // security checks
-        UserTO toUpdate = binder.getUserTO(statusPatch.getKey());
+        UserTO toUpdate = binder.getUserTO(statusR.getKey());
         Set<String> effectiveRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
                 toUpdate.getRealm());
         securityChecks(effectiveRealms, toUpdate.getRealm(), toUpdate.getKey());
 
-        // ensures the actual user key is effectively on the patch - as the binder.getUserTO(statusPatch.getKey())
+        // ensures the actual user key is effectively on the request - as the binder.getUserTO(statusR.getKey())
         // call above works with username as well
-        statusPatch.setKey(toUpdate.getKey());
-        Pair<String, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusPatch, nullPriorityAsync);
+        statusR.setKey(toUpdate.getKey());
+        Pair<String, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusR, nullPriorityAsync);
 
         return afterUpdate(
                 binder.returnUserTO(binder.getUserTO(updated.getKey())),
@@ -267,9 +267,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     }
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "'))")
-    public ProvisioningResult<UserTO> selfStatus(final StatusPatch statusPatch, final boolean nullPriorityAsync) {
-        statusPatch.setKey(userDAO.findKey(AuthContextUtils.getUsername()));
-        Pair<String, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusPatch, nullPriorityAsync);
+    public ProvisioningResult<UserTO> selfStatus(final StatusR statusR, final boolean nullPriorityAsync) {
+        statusR.setKey(userDAO.findKey(AuthContextUtils.getUsername()));
+        Pair<String, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusR, nullPriorityAsync);
 
         return afterUpdate(
                 binder.returnUserTO(binder.getUserTO(updated.getKey())),
@@ -281,10 +281,10 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "')")
     public ProvisioningResult<UserTO> mustChangePassword(final String password, final boolean nullPriorityAsync) {
-        UserPatch userPatch = new UserPatch();
-        userPatch.setPassword(new PasswordPatch.Builder().value(password).build());
-        userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(false).build());
-        return selfUpdate(userPatch, nullPriorityAsync);
+        UserUR userUR = new UserUR();
+        userUR.setPassword(new PasswordPatch.Builder().value(password).build());
+        userUR.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(false).build());
+        return selfUpdate(userUR, nullPriorityAsync);
     }
 
     @PreAuthorize("isAnonymous() or hasRole('" + StandardEntitlement.ANONYMOUS + "')")
@@ -376,13 +376,13 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
-        UserPatch patch = new UserPatch();
-        patch.setKey(key);
-        patch.getResources().addAll(resources.stream().map(resource
+        UserUR req = new UserUR();
+        req.setKey(key);
+        req.getResources().addAll(resources.stream().map(resource
                 -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build()).
                 collect(Collectors.toList()));
 
-        return binder.returnUserTO(binder.getUserTO(provisioningManager.unlink(patch)));
+        return binder.returnUserTO(binder.getUserTO(provisioningManager.unlink(req)));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
@@ -395,13 +395,13 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
-        UserPatch patch = new UserPatch();
-        patch.setKey(key);
-        patch.getResources().addAll(resources.stream().map(resource
+        UserUR req = new UserUR();
+        req.setKey(key);
+        req.getResources().addAll(resources.stream().map(resource
                 -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
                 collect(Collectors.toList()));
 
-        return binder.returnUserTO(binder.getUserTO(provisioningManager.link(patch)));
+        return binder.returnUserTO(binder.getUserTO(provisioningManager.link(req)));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
@@ -416,13 +416,13 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
-        UserPatch patch = new UserPatch();
-        patch.setKey(key);
-        patch.getResources().addAll(resources.stream().map(resource
+        UserUR req = new UserUR();
+        req.setKey(key);
+        req.getResources().addAll(resources.stream().map(resource
                 -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build()).
                 collect(Collectors.toList()));
 
-        return update(patch, nullPriorityAsync);
+        return update(req, nullPriorityAsync);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
@@ -441,18 +441,18 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
-        UserPatch patch = new UserPatch();
-        patch.setKey(key);
-        patch.getResources().addAll(resources.stream().map(resource
+        UserUR req = new UserUR();
+        req.setKey(key);
+        req.getResources().addAll(resources.stream().map(resource
                 -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
                 collect(Collectors.toList()));
 
         if (changepwd) {
-            patch.setPassword(new PasswordPatch.Builder().
+            req.setPassword(new PasswordPatch.Builder().
                     value(password).onSyncope(false).resources(resources).build());
         }
 
-        return update(patch, nullPriorityAsync);
+        return update(req, nullPriorityAsync);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
@@ -512,10 +512,10 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                     key = (String) args[i];
                 } else if (args[i] instanceof UserTO) {
                     key = ((UserTO) args[i]).getKey();
-                } else if (args[i] instanceof UserPatch) {
-                    key = ((UserPatch) args[i]).getKey();
-                } else if (args[i] instanceof StatusPatch) {
-                    key = ((StatusPatch) args[i]).getKey();
+                } else if (args[i] instanceof UserUR) {
+                    key = ((UserUR) args[i]).getKey();
+                } else if (args[i] instanceof StatusR) {
+                    key = ((StatusR) args[i]).getKey();
                 }
             }
         }

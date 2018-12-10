@@ -39,12 +39,12 @@ import org.apache.syncope.client.lib.BasicAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.patch.DeassociationPatch;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.StatusPatch;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
-import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.ResourceDR;
+import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.StringPatchItem;
+import org.apache.syncope.common.lib.request.StringReplacePatchItem;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
@@ -63,7 +63,7 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.lib.types.StatusPatchType;
+import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
@@ -266,22 +266,22 @@ public class AuthenticationITCase extends AbstractITCase {
             assertEquals("surname", user.getPlainAttr("surname").get().getValues().get(0));
 
             // 5. as delegated, update user attempting to move under realm / -> fail
-            UserPatch userPatch = new UserPatch();
-            userPatch.setKey(user.getKey());
-            userPatch.setRealm(new StringReplacePatchItem.Builder().value("/odd").build());
-            userPatch.getPlainAttrs().add(attrAddReplacePatch("surname", "surname2"));
+            UserUR userUR = new UserUR();
+            userUR.setKey(user.getKey());
+            userUR.setRealm(new StringReplacePatchItem.Builder().value("/odd").build());
+            userUR.getPlainAttrs().add(attrAddReplacePatch("surname", "surname2"));
 
             try {
-                delegatedUserService.update(userPatch);
+                delegatedUserService.update(userUR);
                 fail("This should not happen");
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
             }
 
             // 6. revert realm change -> succeed
-            userPatch.setRealm(null);
+            userUR.setRealm(null);
 
-            response = delegatedUserService.update(userPatch);
+            response = delegatedUserService.update(userUR);
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
             user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
@@ -396,8 +396,8 @@ public class AuthenticationITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        StatusPatch reactivate = new StatusPatch.Builder().key(userTO.getKey()).
-                type(StatusPatchType.REACTIVATE).build();
+        StatusR reactivate = new StatusR.Builder().key(userTO.getKey()).
+                type(StatusRType.REACTIVATE).build();
         userTO = userService.status(reactivate).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(userTO);
@@ -460,11 +460,11 @@ public class AuthenticationITCase extends AbstractITCase {
         role = createRole(role);
 
         UserTO bellini = userService.read("bellini");
-        UserPatch patch = new UserPatch();
-        patch.setKey(bellini.getKey());
-        patch.getRoles().add(new StringPatchItem.Builder().
+        UserUR req = new UserUR();
+        req.setKey(bellini.getKey());
+        req.getRoles().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(role.getKey()).build());
-        bellini = updateUser(patch).getEntity();
+        bellini = updateUser(req).getEntity();
         assertTrue(bellini.getRoles().contains(role.getKey()));
 
         // 5. now the instance of the type above can be created successfully
@@ -523,15 +523,15 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(user);
 
         // 2. unlink the resource from the created user
-        DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(user.getKey()).
+        ResourceDR resourceDR = new ResourceDR.Builder().key(user.getKey()).
                 action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_TESTDB).build();
-        assertNotNull(parseBatchResponse(userService.deassociate(deassociationPatch)));
+        assertNotNull(parseBatchResponse(userService.deassociate(resourceDR)));
 
         // 3. change password on Syncope
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(user.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().value("password234").build());
-        user = updateUser(userPatch).getEntity();
+        UserUR userUR = new UserUR();
+        userUR.setKey(user.getKey());
+        userUR.setPassword(new PasswordPatch.Builder().value("password234").build());
+        user = updateUser(userUR).getEntity();
         assertNotNull(user);
 
         // 4. check that the db resource has still the initial password value

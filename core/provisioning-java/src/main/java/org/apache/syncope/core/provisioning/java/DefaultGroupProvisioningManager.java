@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -110,18 +110,18 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     }
 
     @Override
-    public Pair<GroupPatch, List<PropagationStatus>> update(
-            final GroupPatch groupPatch, final boolean nullPriorityAsync) {
+    public Pair<GroupUR, List<PropagationStatus>> update(
+            final GroupUR groupUR, final boolean nullPriorityAsync) {
 
-        return update(groupPatch, Collections.<String>emptySet(), nullPriorityAsync);
+        return update(groupUR, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
-    public Pair<GroupPatch, List<PropagationStatus>> update(
-            final GroupPatch groupPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+    public Pair<GroupUR, List<PropagationStatus>> update(
+            final GroupUR groupUR, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
-        WorkflowResult<GroupPatch> updated = gwfAdapter.update(groupPatch);
+        WorkflowResult<GroupUR> updated = gwfAdapter.update(groupUR);
 
         List<PropagationTaskInfo> tasks = propagationManager.getUpdateTasks(
                 AnyTypeKind.GROUP,
@@ -129,7 +129,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 false,
                 null,
                 updated.getPropByRes(),
-                groupPatch.getVirAttrs(),
+                groupUR.getVirAttrs(),
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
@@ -182,8 +182,8 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     }
 
     @Override
-    public String unlink(final GroupPatch groupPatch) {
-        return gwfAdapter.update(groupPatch).getResult().getKey();
+    public String unlink(final GroupUR groupUR) {
+        return gwfAdapter.update(groupUR).getResult().getKey();
     }
 
     @Override
@@ -226,7 +226,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     }
 
     @Override
-    public String link(final GroupPatch groupPatch) {
-        return gwfAdapter.update(groupPatch).getResult().getKey();
+    public String link(final GroupUR groupUR) {
+        return gwfAdapter.update(groupUR).getResult().getKey();
     }
 }

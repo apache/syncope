@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -190,7 +190,7 @@ public class PropagationManagerImpl implements PropagationManager {
 
     @Override
     public List<PropagationTaskInfo> getUserUpdateTasks(
-            final WorkflowResult<Pair<UserPatch, Boolean>> wfResult,
+            final WorkflowResult<Pair<UserUR, Boolean>> wfResult,
             final boolean changePwd,
             final Collection<String> noPropResourceKeys) {
 
@@ -207,35 +207,35 @@ public class PropagationManagerImpl implements PropagationManager {
     }
 
     @Override
-    public List<PropagationTaskInfo> getUserUpdateTasks(final WorkflowResult<Pair<UserPatch, Boolean>> wfResult) {
-        UserPatch userPatch = wfResult.getResult().getKey();
+    public List<PropagationTaskInfo> getUserUpdateTasks(final WorkflowResult<Pair<UserUR, Boolean>> wfResult) {
+        UserUR userUR = wfResult.getResult().getLeft();
 
         // Propagate password update only to requested resources
         List<PropagationTaskInfo> tasks = new ArrayList<>();
-        if (userPatch.getPassword() == null) {
+        if (userUR.getPassword() == null) {
             // a. no specific password propagation request: generate propagation tasks for any resource associated
             tasks = getUserUpdateTasks(wfResult, false, null);
         } else {
             // b. generate the propagation task list in two phases: first the ones containing password,
             // the the rest (with no password)
-            WorkflowResult<Pair<UserPatch, Boolean>> pwdWFResult = new WorkflowResult<>(
+            WorkflowResult<Pair<UserUR, Boolean>> pwdWFResult = new WorkflowResult<>(
                     wfResult.getResult(), new PropagationByResource(), wfResult.getPerformedTasks());
 
-            Set<String> pwdResourceNames = new HashSet<>(userPatch.getPassword().getResources());
-            Collection<String> allResourceNames = userDAO.findAllResourceKeys(userPatch.getKey());
+            Set<String> pwdResourceNames = new HashSet<>(userUR.getPassword().getResources());
+            Collection<String> allResourceNames = userDAO.findAllResourceKeys(userUR.getKey());
             pwdResourceNames.retainAll(allResourceNames);
 
             pwdWFResult.getPropByRes().addAll(ResourceOperation.UPDATE, pwdResourceNames);
             if (!pwdWFResult.getPropByRes().isEmpty()) {
                 Set<String> toBeExcluded = new HashSet<>(allResourceNames);
-                toBeExcluded.addAll(userPatch.getResources().stream().
+                toBeExcluded.addAll(userUR.getResources().stream().
                         map(patchItem -> patchItem.getValue()).collect(Collectors.toList()));
                 toBeExcluded.removeAll(pwdResourceNames);
 
                 tasks.addAll(getUserUpdateTasks(pwdWFResult, true, toBeExcluded));
             }
 
-            WorkflowResult<Pair<UserPatch, Boolean>> noPwdWFResult = new WorkflowResult<>(
+            WorkflowResult<Pair<UserUR, Boolean>> noPwdWFResult = new WorkflowResult<>(
                     wfResult.getResult(), new PropagationByResource(), wfResult.getPerformedTasks());
 
             noPwdWFResult.getPropByRes().merge(wfResult.getPropByRes());

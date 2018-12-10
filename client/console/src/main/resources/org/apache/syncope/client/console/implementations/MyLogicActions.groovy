@@ -17,8 +17,8 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
-import org.apache.syncope.common.lib.patch.AnyPatch
-import org.apache.syncope.common.lib.patch.AttrPatch
+import org.apache.syncope.common.lib.request.AnyUR
+import org.apache.syncope.common.lib.request.AttrPatch
 import org.apache.syncope.common.lib.to.AnyTO
 import org.apache.syncope.common.lib.to.AttrTO
 import org.apache.syncope.core.provisioning.api.LogicActions
@@ -32,7 +32,7 @@ class MyLogicActions implements LogicActions {
   }
 
   @Override
-  <M extends AnyPatch> M beforeUpdate(final M input) {
+  <R extends AnyUR> R beforeUpdate(final R input) {
     return input;
   }
 }

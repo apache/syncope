@@ -31,8 +31,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
-import org.apache.syncope.common.lib.patch.AttrPatch;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -239,7 +239,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
     }
 
     @Override
-    public PropagationByResource update(final AnyObject toBeUpdated, final AnyObjectPatch anyObjectPatch) {
+    public PropagationByResource update(final AnyObject toBeUpdated, final AnyObjectUR anyObjectUR) {
         // Re-merge any pending change from workflow tasks
         AnyObject anyObject = anyObjectDAO.save(toBeUpdated);
 
@@ -255,20 +255,20 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         Map<String, String> oldConnObjectKeys = getConnObjectKeys(anyObject, anyUtils);
 
         // realm
-        setRealm(anyObject, anyObjectPatch);
+        setRealm(anyObject, anyObjectUR);
 
         // name
-        if (anyObjectPatch.getName() != null && StringUtils.isNotBlank(anyObjectPatch.getName().getValue())) {
+        if (anyObjectUR.getName() != null && StringUtils.isNotBlank(anyObjectUR.getName().getValue())) {
             propByRes.addAll(ResourceOperation.UPDATE, anyObjectDAO.findAllResourceKeys(anyObject.getKey()));
 
-            anyObject.setName(anyObjectPatch.getName().getValue());
+            anyObject.setName(anyObjectUR.getName().getValue());
         }
 
         // attributes and resources
-        propByRes.merge(fill(anyObject, anyObjectPatch, anyUtils, scce));
+        propByRes.merge(fill(anyObject, anyObjectUR, anyUtils, scce));
 
         // relationships
-        anyObjectPatch.getRelationships().stream().
+        anyObjectUR.getRelationships().stream().
                 filter(patch -> patch.getRelationshipTO() != null).forEachOrdered((patch) -> {
             RelationshipType relationshipType = relationshipTypeDAO.find(patch.getRelationshipTO().getType());
             if (relationshipType == null) {
@@ -336,7 +336,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // memberships
-        anyObjectPatch.getMemberships().stream().
+        anyObjectUR.getMemberships().stream().
                 filter((membPatch) -> (membPatch.getGroup() != null)).forEachOrdered(membPatch -> {
             anyObject.getMembership(membPatch.getGroup()).ifPresent(membership -> {
                 anyObject.remove(membership);

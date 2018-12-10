@@ -16,22 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.patch;
+package org.apache.syncope.common.lib.request;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "stringPatchItem")
+@XmlRootElement(name = "booleanReplacePatchItem")
 @XmlType
-public class LongPatchItem extends AbstractPatchItem<Long> {
+public class BooleanReplacePatchItem extends AbstractReplacePatchItem<Boolean> {
 
-    private static final long serialVersionUID = 7308597905137875993L;
+    private static final long serialVersionUID = 4013349284181583101L;
 
-    public static class Builder extends AbstractPatchItem.Builder<Long, LongPatchItem, Builder> {
+    public static class Builder extends AbstractReplacePatchItem.Builder<Boolean, BooleanReplacePatchItem, Builder> {
 
         @Override
-        protected LongPatchItem newInstance() {
-            return new LongPatchItem();
+        protected BooleanReplacePatchItem newInstance() {
+            return new BooleanReplacePatchItem();
         }
     }
 }

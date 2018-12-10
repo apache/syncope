@@ -99,7 +99,7 @@ try {
     <exclusiveGateway id="activeGw"/>
     <sequenceFlow id="active2UpdateApproval" sourceRef="activeGw" targetRef="updateApproval">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${wfExecutor == user.getUsername() and task == 'update' 
-        and (!userPatch.getMemberships().isEmpty())}]]></conditionExpression>
+        and (!userUR.getMemberships().isEmpty())}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="active2DeleteApproval" sourceRef="activeGw" targetRef="deleteApproval">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${wfExecutor == user.getUsername() and task == 'delete'}]]></conditionExpression>

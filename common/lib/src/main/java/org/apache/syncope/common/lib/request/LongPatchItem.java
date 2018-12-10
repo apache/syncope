@@ -16,15 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.common.lib.request;
 
-import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
-@XmlEnum
-public enum StatusPatchType {
+@XmlRootElement(name = "stringPatchItem")
+@XmlType
+public class LongPatchItem extends AbstractPatchItem<Long> {
 
-    ACTIVATE,
-    SUSPEND,
-    REACTIVATE;
+    private static final long serialVersionUID = 7308597905137875993L;
 
+    public static class Builder extends AbstractPatchItem.Builder<Long, LongPatchItem, Builder> {
+
+        @Override
+        protected LongPatchItem newInstance() {
+            return new LongPatchItem();
+        }
+    }
 }

@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.rest;
 import java.util.List;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
@@ -47,10 +47,10 @@ public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
         });
     }
 
-    public ProvisioningResult<AnyObjectTO> update(final String etag, final AnyObjectPatch patch) {
+    public ProvisioningResult<AnyObjectTO> update(final String etag, final AnyObjectUR updateReq) {
         ProvisioningResult<AnyObjectTO> result;
         synchronized (this) {
-            result = getService(etag, AnyObjectService.class).update(patch).
+            result = getService(etag, AnyObjectService.class).update(updateReq).
                     readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
                     });
             resetClient(getAnyServiceClass());

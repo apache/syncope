@@ -20,8 +20,7 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.AnyOperations;
-import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -35,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupPatch> implements GroupService {
+public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupUR> implements GroupService {
 
     @Autowired
     private GroupDAO groupDAO;
@@ -49,15 +48,13 @@ public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupPatch> im
     }
 
     @Override
-    protected AbstractAnyLogic<GroupTO, GroupPatch> getAnyLogic() {
+    protected AbstractAnyLogic<GroupTO, GroupUR> getAnyLogic() {
         return logic;
     }
 
     @Override
-    protected GroupPatch newPatch(final String key) {
-        GroupPatch patch = new GroupPatch();
-        patch.setKey(key);
-        return patch;
+    protected GroupUR newUpdateReq(final String key) {
+        return new GroupUR.Builder().key(key).build();
     }
 
     @Override
@@ -67,20 +64,8 @@ public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupPatch> im
     }
 
     @Override
-    public Response update(final GroupTO groupTO) {
-        groupTO.setKey(getActualKey(getAnyDAO(), groupTO.getKey()));
-        GroupTO before = logic.read(groupTO.getKey());
-
-        checkETag(before.getETagValue());
-
-        ProvisioningResult<GroupTO> updated =
-                logic.update(AnyOperations.diff(groupTO, before, false), isNullPriorityAsync());
-        return modificationResponse(updated);
-    }
-
-    @Override
-    public Response update(final GroupPatch groupPatch) {
-        return doUpdate(groupPatch);
+    public Response update(final GroupUR updateReq) {
+        return doUpdate(updateReq);
     }
 
     @Override

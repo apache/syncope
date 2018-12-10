@@ -20,7 +20,7 @@ package org.apache.syncope.core.flowable.api;
 
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -118,5 +118,5 @@ public interface UserRequestHandler {
      * @param form to be submitted
      * @return user updated by this form submit
      */
-    WorkflowResult<UserPatch> submitForm(UserRequestForm form);
+    WorkflowResult<UserUR> submitForm(UserRequestForm form);
 }

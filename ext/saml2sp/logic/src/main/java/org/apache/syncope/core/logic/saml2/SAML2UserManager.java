@@ -28,7 +28,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
@@ -289,14 +289,14 @@ public class SAML2UserManager {
 
         fill(idp.getKey(), responseTO, userTO);
 
-        UserPatch userPatch = AnyOperations.diff(userTO, original, true);
+        UserUR userUR = AnyOperations.diff(userTO, original, true);
 
         List<SAML2IdPActions> actions = getActions(idp);
         for (SAML2IdPActions action : actions) {
-            userPatch = action.beforeUpdate(userPatch, responseTO);
+            userUR = action.beforeUpdate(userUR, responseTO);
         }
 
-        Pair<UserPatch, List<PropagationStatus>> updated = provisioningManager.update(userPatch, false);
+        Pair<UserUR, List<PropagationStatus>> updated = provisioningManager.update(userUR, false);
         userTO = binder.getUserTO(updated.getLeft().getKey());
 
         for (SAML2IdPActions action : actions) {

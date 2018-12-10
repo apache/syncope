@@ -24,10 +24,10 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
-import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.patch.GroupPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.GroupUR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -133,7 +133,7 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REMEDIATION_REMEDY + "')")
-    public ProvisioningResult<?> remedy(final String key, final AnyPatch anyPatch, final boolean nullPriorityAsync) {
+    public ProvisioningResult<?> remedy(final String key, final AnyUR anyUR, final boolean nullPriorityAsync) {
         Remediation remediation = remediationDAO.find(key);
         if (remediation == null) {
             LOG.error("Could not find remediation '" + key + "'");
@@ -145,15 +145,15 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
         switch (remediation.getAnyType().getKind()) {
             case USER:
             default:
-                result = userLogic.update((UserPatch) anyPatch, nullPriorityAsync);
+                result = userLogic.update((UserUR) anyUR, nullPriorityAsync);
                 break;
 
             case GROUP:
-                result = groupLogic.update((GroupPatch) anyPatch, nullPriorityAsync);
+                result = groupLogic.update((GroupUR) anyUR, nullPriorityAsync);
                 break;
 
             case ANY_OBJECT:
-                result = anyObjectLogic.update((AnyObjectPatch) anyPatch, nullPriorityAsync);
+                result = anyObjectLogic.update((AnyObjectUR) anyUR, nullPriorityAsync);
         }
 
         remediationDAO.delete(remediation);

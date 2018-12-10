@@ -20,9 +20,8 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -38,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObjectPatch> implements AnyObjectService {
+public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObjectUR> implements AnyObjectService {
 
     @Autowired
     private AnyObjectDAO anyObjectDAO;
@@ -52,15 +51,13 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
     }
 
     @Override
-    protected AbstractAnyLogic<AnyObjectTO, AnyObjectPatch> getAnyLogic() {
+    protected AbstractAnyLogic<AnyObjectTO, AnyObjectUR> getAnyLogic() {
         return logic;
     }
 
     @Override
-    protected AnyObjectPatch newPatch(final String key) {
-        AnyObjectPatch patch = new AnyObjectPatch();
-        patch.setKey(key);
-        return patch;
+    protected AnyObjectUR newUpdateReq(final String key) {
+        return new AnyObjectUR.Builder().key(key).build();
     }
 
     @Override
@@ -70,20 +67,8 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
     }
 
     @Override
-    public Response update(final AnyObjectTO anyObjectTO) {
-        anyObjectTO.setKey(getActualKey(getAnyDAO(), anyObjectTO.getKey()));
-        AnyObjectTO before = logic.read(anyObjectTO.getKey());
-
-        checkETag(before.getETagValue());
-
-        ProvisioningResult<AnyObjectTO> updated =
-                logic.update(AnyOperations.diff(anyObjectTO, before, false), isNullPriorityAsync());
-        return modificationResponse(updated);
-    }
-
-    @Override
-    public Response update(final AnyObjectPatch anyObjectPatch) {
-        return doUpdate(anyObjectPatch);
+    public Response update(final AnyObjectUR updateReq) {
+        return doUpdate(updateReq);
     }
 
     @Override
@@ -98,5 +83,4 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
 
         return super.search(anyQuery);
     }
-
 }

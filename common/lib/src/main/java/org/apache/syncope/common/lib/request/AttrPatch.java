@@ -16,73 +16,55 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.patch;
+package org.apache.syncope.common.lib.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.HashSet;
-import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.to.AttrTO;
 
-@XmlRootElement(name = "membershipPatch")
+@XmlRootElement(name = "attrPatch")
 @XmlType
-public class MembershipPatch extends AbstractPatch {
+public class AttrPatch extends AbstractPatch {
 
-    private static final long serialVersionUID = -6783121761221554433L;
+    private static final long serialVersionUID = 6881634224246176673L;
 
-    public static class Builder extends AbstractPatch.Builder<MembershipPatch, Builder> {
+    public static class Builder extends AbstractPatch.Builder<AttrPatch, Builder> {
 
         @Override
-        protected MembershipPatch newInstance() {
-            return new MembershipPatch();
+        protected AttrPatch newInstance() {
+            return new AttrPatch();
         }
 
-        public Builder group(final String group) {
-            getInstance().setGroup(group);
+        public Builder attrTO(final AttrTO attrTO) {
+            getInstance().setAttrTO(attrTO);
             return this;
         }
+
     }
 
-    private String group;
+    private AttrTO attrTO;
 
-    private final Set<AttrTO> plainAttrs = new HashSet<>();
-
-    private final Set<AttrTO> virAttrs = new HashSet<>();
-
-    public String getGroup() {
-        return group;
+    public AttrTO getAttrTO() {
+        return attrTO;
     }
 
-    public void setGroup(final String group) {
-        this.group = group;
+    public void setAttrTO(final AttrTO attrTO) {
+        this.attrTO = attrTO;
     }
 
-    @XmlElementWrapper(name = "plainAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("plainAttrs")
-    public Set<AttrTO> getPlainAttrs() {
-        return plainAttrs;
-    }
-
-    @XmlElementWrapper(name = "virAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("virAttrs")
-    public Set<AttrTO> getVirAttrs() {
-        return virAttrs;
+    @JsonIgnore
+    public boolean isEmpty() {
+        return attrTO == null || attrTO.getValues().isEmpty();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
-                append(group).
-                append(plainAttrs).
-                append(virAttrs).
+                append(attrTO).
                 build();
     }
 
@@ -97,12 +79,10 @@ public class MembershipPatch extends AbstractPatch {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final MembershipPatch other = (MembershipPatch) obj;
+        final AttrPatch other = (AttrPatch) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
-                append(group, other.group).
-                append(plainAttrs, other.plainAttrs).
-                append(virAttrs, other.virAttrs).
+                append(attrTO, other.attrTO).
                 build();
     }
 }

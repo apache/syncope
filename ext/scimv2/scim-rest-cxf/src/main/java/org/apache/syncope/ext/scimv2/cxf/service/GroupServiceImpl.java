@@ -29,8 +29,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.patch.MembershipPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.MembershipPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -41,7 +41,6 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
-import org.apache.syncope.ext.scimv2.api.data.Member;
 import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
 import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
 import org.apache.syncope.ext.scimv2.api.service.GroupService;
@@ -57,18 +56,18 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
         ProvisioningResult<GroupTO> result = groupLogic().create(binder().toGroupTO(group), false);
 
         // then assign members
-        for (Member member : group.getMembers()) {
-            UserPatch patch = new UserPatch();
-            patch.setKey(member.getValue());
-            patch.getMemberships().add(new MembershipPatch.Builder().
-                    operation(PatchOperation.ADD_REPLACE).group(result.getEntity().getKey()).build());
-
+        group.getMembers().forEach(member -> {
+            UserUR req = new UserUR.Builder().
+                    key(member.getValue()).
+                    membership(new MembershipPatch.Builder().
+                            operation(PatchOperation.ADD_REPLACE).group(result.getEntity().getKey()).build()).
+                    build();
             try {
-                userLogic().update(patch, false);
+                userLogic().update(req, false);
             } catch (Exception e) {
                 LOG.error("While setting membership of {} to {}", result.getEntity().getKey(), member.getValue(), e);
             }
-        }
+        });
 
         return createResponse(
                 result.getEntity().getKey(),
@@ -137,13 +136,13 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
             afterMembers.add(member.getValue());
 
             if (!beforeMembers.contains(member.getValue())) {
-                UserPatch patch = new UserPatch();
-                patch.setKey(member.getValue());
-                patch.getMemberships().add(new MembershipPatch.Builder().
-                        operation(PatchOperation.ADD_REPLACE).group(result.getEntity().getKey()).build());
-
+                UserUR req = new UserUR.Builder().
+                        key(member.getValue()).
+                        membership(new MembershipPatch.Builder().
+                                operation(PatchOperation.ADD_REPLACE).group(result.getEntity().getKey()).build()).
+                        build();
                 try {
-                    userLogic().update(patch, false);
+                    userLogic().update(req, false);
                 } catch (Exception e) {
                     LOG.error("While setting membership of {} to {}",
                             result.getEntity().getKey(), member.getValue(), e);
@@ -152,13 +151,13 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
         });
         // remove unconfirmed members
         beforeMembers.stream().filter(member -> !afterMembers.contains(member)).forEach(user -> {
-            UserPatch patch = new UserPatch();
-            patch.setKey(user);
-            patch.getMemberships().add(new MembershipPatch.Builder().
-                    operation(PatchOperation.DELETE).group(result.getEntity().getKey()).build());
-
+            UserUR req = new UserUR.Builder().
+                    key(user).
+                    membership(new MembershipPatch.Builder().
+                            operation(PatchOperation.DELETE).group(result.getEntity().getKey()).build()).
+                    build();
             try {
-                userLogic().update(patch, false);
+                userLogic().update(req, false);
             } catch (Exception e) {
                 LOG.error("While removing membership of {} from {}", result.getEntity().getKey(), user, e);
             }

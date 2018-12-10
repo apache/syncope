@@ -22,19 +22,19 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.StatusPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 
-public interface UserProvisioningManager extends ProvisioningManager<UserTO, UserPatch> {
+public interface UserProvisioningManager extends ProvisioningManager<UserTO, UserUR> {
 
-    Pair<String, List<PropagationStatus>> activate(StatusPatch statusPatch, boolean nullPriorityAsync);
+    Pair<String, List<PropagationStatus>> activate(StatusR statusR, boolean nullPriorityAsync);
 
-    Pair<String, List<PropagationStatus>> reactivate(StatusPatch statusPatch, boolean nullPriorityAsync);
+    Pair<String, List<PropagationStatus>> reactivate(StatusR statusR, boolean nullPriorityAsync);
 
-    Pair<String, List<PropagationStatus>> suspend(StatusPatch statusPatch, boolean nullPriorityAsync);
+    Pair<String, List<PropagationStatus>> suspend(StatusR statusR, boolean nullPriorityAsync);
 
     void internalSuspend(String key);
 
@@ -48,8 +48,8 @@ public interface UserProvisioningManager extends ProvisioningManager<UserTO, Use
             Set<String> excludedResources,
             boolean nullPriorityAsync);
 
-    Pair<UserPatch, List<PropagationStatus>> update(
-            UserPatch userPatch,
+    Pair<UserUR, List<PropagationStatus>> update(
+            UserUR userUR,
             ProvisioningReport result,
             Boolean enabled,
             Set<String> excludedResources,

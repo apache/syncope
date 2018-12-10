@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
-import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -216,7 +216,7 @@ public class ConnObjectUtils {
     }
 
     /**
-     * Build {@link AnyPatch} out of connector object attributes and schema mapping.
+     * Build {@link AnyUR} out of connector object attributes and schema mapping.
      *
      * @param key any object to be updated
      * @param obj connector object
@@ -229,7 +229,7 @@ public class ConnObjectUtils {
      */
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
-    public <T extends AnyPatch> T getAnyPatch(
+    public <T extends AnyUR> T getAnyUR(
             final String key,
             final ConnectorObject obj,
             final AnyTO original,
@@ -240,7 +240,7 @@ public class ConnObjectUtils {
         AnyTO updated = getAnyTOFromConnObject(obj, pullTask, provision, anyUtils);
         updated.setKey(key);
 
-        T anyPatch = null;
+        T anyUR = null;
         if (null != anyUtils.anyTypeKind()) {
             switch (anyUtils.anyTypeKind()) {
                 case USER:
@@ -263,7 +263,7 @@ public class ConnObjectUtils {
                     updatedUser.setSecurityQuestion(updatedUser.getSecurityQuestion());
                     updatedUser.setMustChangePassword(originalUser.isMustChangePassword());
 
-                    anyPatch = (T) AnyOperations.diff(updatedUser, originalUser, true);
+                    anyUR = (T) AnyOperations.diff(updatedUser, originalUser, true);
                     break;
 
                 case GROUP:
@@ -279,7 +279,7 @@ public class ConnObjectUtils {
                     updatedGroup.getADynMembershipConds().putAll(originalGroup.getADynMembershipConds());
                     updatedGroup.getTypeExtensions().addAll(originalGroup.getTypeExtensions());
 
-                    anyPatch = (T) AnyOperations.diff(updatedGroup, originalGroup, true);
+                    anyUR = (T) AnyOperations.diff(updatedGroup, originalGroup, true);
                     break;
 
                 case ANY_OBJECT:
@@ -290,17 +290,17 @@ public class ConnObjectUtils {
                         updatedAnyObject.setName(originalAnyObject.getName());
                     }
 
-                    anyPatch = (T) AnyOperations.diff(updatedAnyObject, originalAnyObject, true);
+                    anyUR = (T) AnyOperations.diff(updatedAnyObject, originalAnyObject, true);
                     break;
 
                 default:
             }
         }
         // SYNCOPE-1343, remove null or empty values from the patch plain attributes
-        if (anyPatch != null) {
-            AnyOperations.cleanEmptyAttrs(updated, anyPatch);
+        if (anyUR != null) {
+            AnyOperations.cleanEmptyAttrs(updated, anyUR);
         }
-        return anyPatch;
+        return anyUR;
     }
 
     private <T extends AnyTO> T getAnyTOFromConnObject(

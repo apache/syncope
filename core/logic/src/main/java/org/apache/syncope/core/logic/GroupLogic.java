@@ -33,8 +33,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.patch.GroupPatch;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
+import org.apache.syncope.common.lib.request.GroupUR;
+import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
@@ -81,7 +81,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Spring's Transactional logic at class level.
  */
 @Component
-public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
+public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupUR> {
 
     @Resource(name = "adminUser")
     protected String adminUser;
@@ -193,10 +193,10 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_UPDATE + "')")
     @Override
-    public ProvisioningResult<GroupTO> update(final GroupPatch groupPatch, final boolean nullPriorityAsync) {
-        GroupTO groupTO = binder.getGroupTO(groupPatch.getKey());
+    public ProvisioningResult<GroupTO> update(final GroupUR req, final boolean nullPriorityAsync) {
+        GroupTO groupTO = binder.getGroupTO(req.getKey());
         Set<String> dynRealmsBefore = new HashSet<>(groupTO.getDynRealms());
-        Pair<GroupPatch, List<LogicActions>> before = beforeUpdate(groupPatch, groupTO.getRealm());
+        Pair<GroupUR, List<LogicActions>> before = beforeUpdate(req, groupTO.getRealm());
 
         String realm =
                 before.getLeft().getRealm() != null && StringUtils.isNotBlank(before.getLeft().getRealm().getValue())
@@ -207,8 +207,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 realm);
         boolean authDynRealms = securityChecks(effectiveRealms, realm, before.getLeft().getKey());
 
-        Pair<GroupPatch, List<PropagationStatus>> updated =
-                provisioningManager.update(groupPatch, nullPriorityAsync);
+        Pair<GroupUR, List<PropagationStatus>> updated = provisioningManager.update(req, nullPriorityAsync);
 
         return afterUpdate(
                 binder.getGroupTO(updated.getLeft().getKey()),
@@ -255,15 +254,15 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 group.getRealm());
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
 
-        GroupPatch patch = new GroupPatch();
-        patch.setKey(key);
-        patch.getResources().addAll(resources.stream().
+        GroupUR req = new GroupUR();
+        req.setKey(key);
+        req.getResources().addAll(resources.stream().
                 map(resource -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build()).
                 collect(Collectors.toList()));
-        patch.setUDynMembershipCond(group.getUDynMembershipCond());
-        patch.getADynMembershipConds().putAll(group.getADynMembershipConds());
+        req.setUDynMembershipCond(group.getUDynMembershipCond());
+        req.getADynMembershipConds().putAll(group.getADynMembershipConds());
 
-        return binder.getGroupTO(provisioningManager.unlink(patch));
+        return binder.getGroupTO(provisioningManager.unlink(req));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_UPDATE + "')")
@@ -276,15 +275,15 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 group.getRealm());
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
 
-        GroupPatch patch = new GroupPatch();
-        patch.setKey(key);
-        patch.getResources().addAll(resources.stream().map(resource
+        GroupUR req = new GroupUR();
+        req.setKey(key);
+        req.getResources().addAll(resources.stream().map(resource
                 -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
                 collect(Collectors.toList()));
-        patch.getADynMembershipConds().putAll(group.getADynMembershipConds());
-        patch.setUDynMembershipCond(group.getUDynMembershipCond());
+        req.getADynMembershipConds().putAll(group.getADynMembershipConds());
+        req.setUDynMembershipCond(group.getUDynMembershipCond());
 
-        return binder.getGroupTO(provisioningManager.link(patch));
+        return binder.getGroupTO(provisioningManager.link(req));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_UPDATE + "')")
@@ -299,15 +298,15 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 group.getRealm());
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
 
-        GroupPatch patch = new GroupPatch();
-        patch.setKey(key);
-        patch.getResources().addAll(resources.stream().map(resource
+        GroupUR req = new GroupUR();
+        req.setKey(key);
+        req.getResources().addAll(resources.stream().map(resource
                 -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build()).
                 collect(Collectors.toList()));
-        patch.getADynMembershipConds().putAll(group.getADynMembershipConds());
-        patch.setUDynMembershipCond(group.getUDynMembershipCond());
+        req.getADynMembershipConds().putAll(group.getADynMembershipConds());
+        req.setUDynMembershipCond(group.getUDynMembershipCond());
 
-        return update(patch, nullPriorityAsync);
+        return update(req, nullPriorityAsync);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_UPDATE + "')")
@@ -326,15 +325,15 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 group.getRealm());
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
 
-        GroupPatch patch = new GroupPatch();
-        patch.setKey(key);
-        patch.getResources().addAll(resources.stream().map(resource
+        GroupUR req = new GroupUR();
+        req.setKey(key);
+        req.getResources().addAll(resources.stream().map(resource
                 -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
                 collect(Collectors.toList()));
-        patch.getADynMembershipConds().putAll(group.getADynMembershipConds());
-        patch.setUDynMembershipCond(group.getUDynMembershipCond());
+        req.getADynMembershipConds().putAll(group.getADynMembershipConds());
+        req.setUDynMembershipCond(group.getUDynMembershipCond());
 
-        return update(patch, nullPriorityAsync);
+        return update(req, nullPriorityAsync);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_UPDATE + "')")
@@ -451,8 +450,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                     key = (String) args[i];
                 } else if (args[i] instanceof GroupTO) {
                     key = ((GroupTO) args[i]).getKey();
-                } else if (args[i] instanceof GroupPatch) {
-                    key = ((GroupPatch) args[i]).getKey();
+                } else if (args[i] instanceof GroupUR) {
+                    key = ((GroupUR) args[i]).getKey();
                 }
             }
         }

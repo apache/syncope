@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 
-public interface GroupProvisioningManager extends ProvisioningManager<GroupTO, GroupPatch> {
+public interface GroupProvisioningManager extends ProvisioningManager<GroupTO, GroupUR> {
 
     Pair<String, List<PropagationStatus>> create(
             GroupTO groupTO,

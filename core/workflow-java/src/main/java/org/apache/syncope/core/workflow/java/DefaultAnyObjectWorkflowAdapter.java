@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.workflow.java;
 
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -43,9 +43,9 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
     }
 
     @Override
-    protected WorkflowResult<AnyObjectPatch> doUpdate(final AnyObject anyObject, final AnyObjectPatch anyObjectPatch) {
-        PropagationByResource propByRes = dataBinder.update(anyObject, anyObjectPatch);
-        return new WorkflowResult<>(anyObjectPatch, propByRes, "update");
+    protected WorkflowResult<AnyObjectUR> doUpdate(final AnyObject anyObject, final AnyObjectUR anyObjectUR) {
+        PropagationByResource propByRes = dataBinder.update(anyObject, anyObjectUR);
+        return new WorkflowResult<>(anyObjectUR, propByRes, "update");
     }
 
     @Override

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.patch;
+package org.apache.syncope.common.lib.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "passwordPatch")
 @XmlType
-@XmlSeeAlso({ AssociationPatch.class, StatusPatch.class })
+@XmlSeeAlso({ ResourceAR.class, StatusR.class })
 public class PasswordPatch extends StringReplacePatchItem {
 
     private static final long serialVersionUID = 961023537479513071L;

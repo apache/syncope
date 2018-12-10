@@ -40,8 +40,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.patch.AssociationPatch;
-import org.apache.syncope.common.lib.patch.DeassociationPatch;
+import org.apache.syncope.common.lib.request.ResourceAR;
+import org.apache.syncope.common.lib.request.ResourceDR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -190,7 +190,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
     /**
      * Executes resource-related operations on given entity.
      *
-     * @param patch external resources to be used for propagation-related operations
+     * @param req external resources to be used for propagation-related operations
      * @return batch results as Response entity
      */
     @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
@@ -227,12 +227,12 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
     @Path("{key}/deassociate/{action}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces(RESTHeaders.MULTIPART_MIXED)
-    Response deassociate(@NotNull DeassociationPatch patch);
+    Response deassociate(@NotNull ResourceDR req);
 
     /**
      * Executes resource-related operations on given entity.
      *
-     * @param patch external resources to be used for propagation-related operations
+     * @param req external resources to be used for propagation-related operations
      * @return batch results as Response entity
      */
     @Parameter(name = RESTHeaders.PREFER, in = ParameterIn.HEADER,
@@ -269,5 +269,5 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
     @Path("{key}/associate/{action}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces(RESTHeaders.MULTIPART_MIXED)
-    Response associate(@NotNull AssociationPatch patch);
+    Response associate(@NotNull ResourceAR req);
 }

@@ -42,8 +42,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.patch.StatusPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -117,7 +117,7 @@ public interface UserSelfService extends JAXRSService {
     /**
      * Self-updates user.
      *
-     * @param patch modification to be applied to self
+     * @param updateReq modification to be applied to self
      * @return Response object featuring the updated user
      */
     @Operation(security = {
@@ -145,7 +145,7 @@ public interface UserSelfService extends JAXRSService {
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response update(@NotNull UserPatch patch);
+    Response update(@NotNull UserUR updateReq);
 
     /**
      * Self-updates user.
@@ -183,7 +183,7 @@ public interface UserSelfService extends JAXRSService {
     /**
      * Self-perform a status update.
      *
-     * @param statusPatch status update details
+     * @param statusR status update details
      * @return Response object featuring the updated user enriched with propagation status information
      */
     @Operation(security = {
@@ -211,7 +211,7 @@ public interface UserSelfService extends JAXRSService {
     @Path("{key}/status")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response status(@NotNull StatusPatch statusPatch);
+    Response status(@NotNull StatusR statusR);
 
     /**
      * Self-deletes user.

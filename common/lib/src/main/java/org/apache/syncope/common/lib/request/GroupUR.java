@@ -16,12 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.patch;
+package org.apache.syncope.common.lib.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,12 +38,60 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 
-@XmlRootElement(name = "groupPatch")
+@XmlRootElement(name = "groupUR")
 @XmlType
-@Schema(allOf = { AnyPatch.class })
-public class GroupPatch extends AnyPatch {
+@Schema(allOf = { AnyUR.class })
+public class GroupUR extends AnyUR {
 
     private static final long serialVersionUID = -460284378124440077L;
+
+    public static class Builder extends AnyUR.Builder<GroupUR, Builder> {
+
+        @Override
+        protected GroupUR newInstance() {
+            return new GroupUR();
+        }
+
+        public Builder name(final StringReplacePatchItem name) {
+            getInstance().setName(name);
+            return this;
+        }
+
+        public Builder userOwner(final StringReplacePatchItem userOwner) {
+            getInstance().setUserOwner(userOwner);
+            return this;
+        }
+
+        public Builder groupOwner(final StringReplacePatchItem groupOwner) {
+            getInstance().setGroupOwner(groupOwner);
+            return this;
+        }
+
+        public Builder udynMembershipCond(final String udynMembershipCond) {
+            getInstance().setUDynMembershipCond(udynMembershipCond);
+            return this;
+        }
+
+        public Builder adynMembershipCond(final String type, final String fiql) {
+            getInstance().getADynMembershipConds().put(type, fiql);
+            return this;
+        }
+
+        public Builder typeExtension(final TypeExtensionTO typeExtension) {
+            getInstance().getTypeExtensions().add(typeExtension);
+            return this;
+        }
+
+        public Builder typeExtensions(final TypeExtensionTO... typeExtensions) {
+            getInstance().getTypeExtensions().addAll(Arrays.asList(typeExtensions));
+            return this;
+        }
+
+        public Builder typeExtensions(final Collection<TypeExtensionTO> typeExtensions) {
+            getInstance().getTypeExtensions().addAll(typeExtensions);
+            return this;
+        }
+    }
 
     private StringReplacePatchItem name;
 
@@ -57,7 +107,7 @@ public class GroupPatch extends AnyPatch {
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
     @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.patch.GroupPatch")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.request.GroupUR")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
@@ -143,7 +193,7 @@ public class GroupPatch extends AnyPatch {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final GroupPatch other = (GroupPatch) obj;
+        final GroupUR other = (GroupUR) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(name, other.name).

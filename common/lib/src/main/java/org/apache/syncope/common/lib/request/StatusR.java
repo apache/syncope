@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.patch;
+package org.apache.syncope.common.lib.request;
 
 import java.util.Collection;
 import javax.ws.rs.PathParam;
@@ -24,29 +24,29 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.types.StatusPatchType;
+import org.apache.syncope.common.lib.types.StatusRType;
 
-@XmlRootElement(name = "statusPatch")
+@XmlRootElement(name = "statusR")
 @XmlType
-public class StatusPatch extends PasswordPatch {
+public class StatusR extends PasswordPatch {
 
     private static final long serialVersionUID = 99309988426922612L;
 
     public static class Builder extends PasswordPatch.Builder {
 
         @Override
-        protected StatusPatch newInstance() {
-            return new StatusPatch();
+        protected StatusR newInstance() {
+            return new StatusR();
         }
 
         @Override
-        protected StatusPatch getInstance() {
-            return (StatusPatch) super.getInstance();
+        protected StatusR getInstance() {
+            return (StatusR) super.getInstance();
         }
 
         @Override
-        public StatusPatch build() {
-            return (StatusPatch) super.build();
+        public StatusR build() {
+            return (StatusR) super.build();
         }
 
         @Override
@@ -74,7 +74,7 @@ public class StatusPatch extends PasswordPatch {
             return this;
         }
 
-        public Builder type(final StatusPatchType type) {
+        public Builder type(final StatusRType type) {
             getInstance().setType(type);
             return this;
         }
@@ -90,7 +90,7 @@ public class StatusPatch extends PasswordPatch {
      */
     private String key;
 
-    private StatusPatchType type;
+    private StatusRType type;
 
     /**
      * Update token (if required).
@@ -106,11 +106,11 @@ public class StatusPatch extends PasswordPatch {
         this.key = key;
     }
 
-    public StatusPatchType getType() {
+    public StatusRType getType() {
         return type;
     }
 
-    public void setType(final StatusPatchType type) {
+    public void setType(final StatusRType type) {
         this.type = type;
     }
 
@@ -143,7 +143,7 @@ public class StatusPatch extends PasswordPatch {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final StatusPatch other = (StatusPatch) obj;
+        final StatusR other = (StatusR) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(key, other.key).

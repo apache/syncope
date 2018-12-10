@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -129,14 +129,14 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
      */
     @Transactional(readOnly = true)
     @Override
-    public <P extends AnyPatch> void beforeUpdate(
+    public <P extends AnyUR> void beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final EntityTO entity,
-            final P anyPatch) throws JobExecutionException {
+            final P anyUR) throws JobExecutionException {
 
         if (!(entity instanceof GroupTO)) {
-            super.beforeUpdate(profile, delta, entity, anyPatch);
+            super.beforeUpdate(profile, delta, entity, anyUR);
         }
 
         groupDAO.findUMemberships(groupDAO.find(entity.getKey())).forEach(uMembership -> {

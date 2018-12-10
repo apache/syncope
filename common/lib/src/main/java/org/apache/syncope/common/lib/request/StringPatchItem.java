@@ -16,14 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.patch;
+package org.apache.syncope.common.lib.request;
 
-import java.util.Set;
-import org.apache.syncope.common.lib.to.AttrTO;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
-public interface AttributablePatch {
+@XmlRootElement(name = "stringPatchItem")
+@XmlType
+public class StringPatchItem extends AbstractPatchItem<String> {
 
-    Set<AttrPatch> getPlainAttrs();
+    private static final long serialVersionUID = -4956965404796800689L;
 
-    Set<AttrTO> getVirAttrs();
+    public static class Builder extends AbstractPatchItem.Builder<String, StringPatchItem, Builder> {
+
+        @Override
+        protected StringPatchItem newInstance() {
+            return new StringPatchItem();
+        }
+    }
 }

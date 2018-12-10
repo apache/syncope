@@ -27,7 +27,7 @@ import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.PollingConsumer;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
@@ -85,17 +85,15 @@ public class CamelGroupProvisioningManager
     }
 
     @Override
-    public Pair<GroupPatch, List<PropagationStatus>> update(
-            final GroupPatch anyPatch, final boolean nullPriorityAsync) {
-
-        return update(anyPatch, Collections.<String>emptySet(), nullPriorityAsync);
+    public Pair<GroupUR, List<PropagationStatus>> update(final GroupUR groupUR, final boolean nullPriorityAsync) {
+        return update(groupUR, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<GroupPatch, List<PropagationStatus>> update(
-            final GroupPatch anyPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+    public Pair<GroupUR, List<PropagationStatus>> update(
+            final GroupUR groupUR, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:updateGroupPort");
 
@@ -103,7 +101,7 @@ public class CamelGroupProvisioningManager
         props.put("excludedResources", excludedResources);
         props.put("nullPriorityAsync", nullPriorityAsync);
 
-        sendMessage("direct:updateGroup", anyPatch, props);
+        sendMessage("direct:updateGroup", groupUR, props);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -143,10 +141,10 @@ public class CamelGroupProvisioningManager
     }
 
     @Override
-    public String unlink(final GroupPatch groupPatch) {
+    public String unlink(final GroupUR groupUR) {
         PollingConsumer pollingConsumer = getConsumer("direct:unlinkGroupPort");
 
-        sendMessage("direct:unlinkGroup", groupPatch);
+        sendMessage("direct:unlinkGroup", groupUR);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -154,14 +152,14 @@ public class CamelGroupProvisioningManager
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return exchange.getIn().getBody(GroupPatch.class).getKey();
+        return exchange.getIn().getBody(GroupUR.class).getKey();
     }
 
     @Override
-    public String link(final GroupPatch groupPatch) {
+    public String link(final GroupUR groupUR) {
         PollingConsumer pollingConsumer = getConsumer("direct:linkGroupPort");
 
-        sendMessage("direct:linkGroup", groupPatch);
+        sendMessage("direct:linkGroup", groupUR);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -169,7 +167,7 @@ public class CamelGroupProvisioningManager
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return exchange.getIn().getBody(GroupPatch.class).getKey();
+        return exchange.getIn().getBody(GroupUR.class).getKey();
     }
 
     @Override

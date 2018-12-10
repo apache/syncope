@@ -21,7 +21,7 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowTask;
@@ -69,13 +69,11 @@ public class UserWorkflowTaskLogic extends AbstractTransactionalLogic<EntityTO> 
     public UserTO executeNextTask(final WorkflowTaskExecInput workflowTaskExecInput) {
         WorkflowResult<String> updated = wfTaskManager.executeNextTask(workflowTaskExecInput);
 
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(updated.getResult());
+        UserUR userUR = new UserUR.Builder().key(updated.getResult()).build();
 
-        List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(
-                new WorkflowResult<>(
-                        Pair.<UserPatch, Boolean>of(userPatch, null),
-                        updated.getPropByRes(), updated.getPerformedTasks()));
+        List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(new WorkflowResult<>(
+                Pair.<UserUR, Boolean>of(userUR, null),
+                updated.getPropByRes(), updated.getPerformedTasks()));
 
         taskExecutor.execute(taskInfos, false);
 

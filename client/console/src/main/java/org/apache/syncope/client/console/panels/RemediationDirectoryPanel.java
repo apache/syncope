@@ -53,10 +53,10 @@ import org.apache.syncope.client.console.wizards.any.GroupWizardBuilder;
 import org.apache.syncope.client.console.wizards.any.UserWizardBuilder;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
-import org.apache.syncope.common.lib.patch.GroupPatch;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.request.GroupUR;
+import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -190,14 +190,14 @@ public class RemediationDirectoryPanel
                         case "USER":
                             UserTO newUserTO;
                             UserTO previousUserTO;
-                            if (remediationTO.getAnyPatchPayload() == null) {
+                            if (remediationTO.getAnyURPayload() == null) {
                                 newUserTO = (UserTO) remediationTO.getAnyTOPayload();
                                 previousUserTO = null;
                             } else {
                                 previousUserTO = new UserRestClient().
-                                        read(remediationTO.getAnyPatchPayload().getKey());
+                                        read(remediationTO.getAnyURPayload().getKey());
                                 newUserTO = AnyOperations.patch(
-                                        previousUserTO, (UserPatch) remediationTO.getAnyPatchPayload());
+                                        previousUserTO, (UserUR) remediationTO.getAnyURPayload());
                             }
 
                             AjaxWizard.EditItemActionEvent<UserTO> userEvent =
@@ -216,14 +216,14 @@ public class RemediationDirectoryPanel
                         case "GROUP":
                             GroupTO newGroupTO;
                             GroupTO previousGroupTO;
-                            if (remediationTO.getAnyPatchPayload() == null) {
+                            if (remediationTO.getAnyURPayload() == null) {
                                 newGroupTO = (GroupTO) remediationTO.getAnyTOPayload();
                                 previousGroupTO = null;
                             } else {
                                 previousGroupTO = new GroupRestClient().
-                                        read(remediationTO.getAnyPatchPayload().getKey());
+                                        read(remediationTO.getAnyURPayload().getKey());
                                 newGroupTO = AnyOperations.patch(
-                                        previousGroupTO, (GroupPatch) remediationTO.getAnyPatchPayload());
+                                        previousGroupTO, (GroupUR) remediationTO.getAnyURPayload());
                             }
 
                             AjaxWizard.EditItemActionEvent<GroupTO> groupEvent =
@@ -242,14 +242,14 @@ public class RemediationDirectoryPanel
                         default:
                             AnyObjectTO newAnyObjectTO;
                             AnyObjectTO previousAnyObjectTO;
-                            if (remediationTO.getAnyPatchPayload() == null) {
+                            if (remediationTO.getAnyURPayload() == null) {
                                 newAnyObjectTO = (AnyObjectTO) remediationTO.getAnyTOPayload();
                                 previousAnyObjectTO = null;
                             } else {
                                 previousAnyObjectTO = new AnyObjectRestClient().
-                                        read(remediationTO.getAnyPatchPayload().getKey());
+                                        read(remediationTO.getAnyURPayload().getKey());
                                 newAnyObjectTO = AnyOperations.patch(
-                                        previousAnyObjectTO, (AnyObjectPatch) remediationTO.getAnyPatchPayload());
+                                        previousAnyObjectTO, (AnyObjectUR) remediationTO.getAnyURPayload());
                             }
 
                             AjaxWizard.EditItemActionEvent<AnyObjectTO> anyObjectEvent =
@@ -370,24 +370,24 @@ public class RemediationDirectoryPanel
 
             ProvisioningResult<UserTO> result;
 
-            if (remediationTO.getAnyPatchPayload() == null) {
+            if (remediationTO.getAnyURPayload() == null) {
                 result = restClient.remedy(remediationTO.getKey(), inner);
             } else {
-                UserPatch patch = AnyOperations.diff(inner, previousUserTO, false);
+                UserUR req = AnyOperations.diff(inner, previousUserTO, false);
 
                 if (StringUtils.isNotBlank(inner.getPassword())) {
                     PasswordPatch passwordPatch = new PasswordPatch.Builder().
                             value(inner.getPassword()).onSyncope(true).resources(inner.
                             getResources()).
                             build();
-                    patch.setPassword(passwordPatch);
+                    req.setPassword(passwordPatch);
                 }
                 // update just if it is changed
-                if (patch.isEmpty()) {
+                if (req.isEmpty()) {
                     result = new ProvisioningResult<>();
                     result.setEntity(inner);
                 } else {
-                    result = restClient.remedy(remediationTO.getKey(), patch);
+                    result = restClient.remedy(remediationTO.getKey(), req);
                 }
             }
 
@@ -422,17 +422,17 @@ public class RemediationDirectoryPanel
 
             ProvisioningResult<GroupTO> result;
 
-            if (remediationTO.getAnyPatchPayload() == null) {
+            if (remediationTO.getAnyURPayload() == null) {
                 result = restClient.remedy(remediationTO.getKey(), inner);
             } else {
-                GroupPatch patch = AnyOperations.diff(inner, previousGroupTO, false);
+                GroupUR req = AnyOperations.diff(inner, previousGroupTO, false);
 
                 // update just if it is changed
-                if (patch.isEmpty()) {
+                if (req.isEmpty()) {
                     result = new ProvisioningResult<>();
                     result.setEntity(inner);
                 } else {
-                    result = restClient.remedy(remediationTO.getKey(), patch);
+                    result = restClient.remedy(remediationTO.getKey(), req);
                 }
             }
 
@@ -467,17 +467,17 @@ public class RemediationDirectoryPanel
 
             ProvisioningResult<AnyObjectTO> result;
 
-            if (remediationTO.getAnyPatchPayload() == null) {
+            if (remediationTO.getAnyURPayload() == null) {
                 result = restClient.remedy(remediationTO.getKey(), inner);
             } else {
-                AnyObjectPatch patch = AnyOperations.diff(inner, previousAnyObjectTO, false);
+                AnyObjectUR req = AnyOperations.diff(inner, previousAnyObjectTO, false);
 
                 // update just if it is changed
-                if (patch.isEmpty()) {
+                if (req.isEmpty()) {
                     result = new ProvisioningResult<>();
                     result.setEntity(inner);
                 } else {
-                    result = restClient.remedy(remediationTO.getKey(), patch);
+                    result = restClient.remedy(remediationTO.getKey(), req);
                 }
             }
 

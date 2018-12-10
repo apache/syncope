@@ -16,10 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.patch;
+package org.apache.syncope.common.lib.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
@@ -29,12 +31,90 @@ import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-@XmlRootElement(name = "userPatch")
+@XmlRootElement(name = "userUR")
 @XmlType
-@Schema(allOf = { AnyPatch.class })
-public class UserPatch extends AnyPatch {
+@Schema(allOf = { AnyUR.class })
+public class UserUR extends AnyUR {
 
     private static final long serialVersionUID = 2872795537911821448L;
+
+    public static class Builder extends AnyUR.Builder<UserUR, Builder> {
+
+        @Override
+        protected UserUR newInstance() {
+            return new UserUR();
+        }
+
+        public Builder username(final StringReplacePatchItem username) {
+            getInstance().setUsername(username);
+            return this;
+        }
+
+        public Builder password(final PasswordPatch password) {
+            getInstance().setPassword(password);
+            return this;
+        }
+
+        public Builder securityQuestion(final StringReplacePatchItem securityQuestion) {
+            getInstance().setSecurityQuestion(securityQuestion);
+            return this;
+        }
+
+        public Builder securityAnswer(final StringReplacePatchItem securityAnswer) {
+            getInstance().setSecurityAnswer(securityAnswer);
+            return this;
+        }
+
+        public Builder mustChangePassword(final BooleanReplacePatchItem mustChangePassword) {
+            getInstance().setMustChangePassword(mustChangePassword);
+            return this;
+        }
+
+        public Builder relationship(final RelationshipPatch relationship) {
+            getInstance().getRelationships().add(relationship);
+            return this;
+        }
+
+        public Builder relationships(final RelationshipPatch... relationships) {
+            getInstance().getRelationships().addAll(Arrays.asList(relationships));
+            return this;
+        }
+
+        public Builder relationships(final Collection<RelationshipPatch> relationships) {
+            getInstance().getRelationships().addAll(relationships);
+            return this;
+        }
+
+        public Builder membership(final MembershipPatch membership) {
+            getInstance().getMemberships().add(membership);
+            return this;
+        }
+
+        public Builder memberships(final MembershipPatch... memberships) {
+            getInstance().getMemberships().addAll(Arrays.asList(memberships));
+            return this;
+        }
+
+        public Builder memberships(final Collection<MembershipPatch> memberships) {
+            getInstance().getMemberships().addAll(memberships);
+            return this;
+        }
+
+        public Builder role(final StringPatchItem role) {
+            getInstance().getRoles().add(role);
+            return this;
+        }
+
+        public Builder roles(final StringPatchItem... roles) {
+            getInstance().getRoles().addAll(Arrays.asList(roles));
+            return this;
+        }
+
+        public Builder roles(final Collection<StringPatchItem> roles) {
+            getInstance().getRoles().addAll(roles);
+            return this;
+        }
+    }
 
     private StringReplacePatchItem username;
 
@@ -53,7 +133,7 @@ public class UserPatch extends AnyPatch {
     private final Set<StringPatchItem> roles = new HashSet<>();
 
     @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.patch.UserPatch")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.request.UserUR")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
@@ -153,7 +233,7 @@ public class UserPatch extends AnyPatch {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final UserPatch other = (UserPatch) obj;
+        final UserUR other = (UserUR) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(username, other.username).

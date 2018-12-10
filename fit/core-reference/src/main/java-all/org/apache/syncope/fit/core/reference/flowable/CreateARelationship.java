@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.fit.core.reference.flowable;
 
-import org.apache.syncope.common.lib.patch.RelationshipPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.RelationshipPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.apache.syncope.core.flowable.task.FlowableServiceTask;
@@ -51,14 +51,14 @@ public class CreateARelationship extends FlowableServiceTask {
 
             String printer = execution.getVariable("printer", String.class);
 
-            UserPatch userPatch = new UserPatch();
-            userPatch.setKey(user.getKey());
-            userPatch.getRelationships().add(new RelationshipPatch.Builder().
+            UserUR userUR = new UserUR();
+            userUR.setKey(user.getKey());
+            userUR.getRelationships().add(new RelationshipPatch.Builder().
                     relationshipTO(new RelationshipTO.Builder().
                             otherEnd("PRINTER", printer).type("neighborhood").build()).
                     build());
 
-            PropagationByResource propByRes = dataBinder.update(user, userPatch);
+            PropagationByResource propByRes = dataBinder.update(user, userUR);
 
             // report updated user and propagation by resource as result
             execution.setVariable(FlowableRuntimeUtils.USER, user);

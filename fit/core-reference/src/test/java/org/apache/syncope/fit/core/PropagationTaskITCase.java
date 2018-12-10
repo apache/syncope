@@ -32,8 +32,8 @@ import java.util.Optional;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.lib.batch.BatchRequest;
-import org.apache.syncope.common.lib.patch.AttrPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.AttrPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -253,14 +253,14 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
         // generate some PropagationTasks
         for (int i = 0; i < 9; i++) {
-            UserPatch userPatch = new UserPatch();
-            userPatch.setKey(userTO.getKey());
-            userPatch.getPlainAttrs().add(new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).
+            UserUR userUR = new UserUR();
+            userUR.setKey(userTO.getKey());
+            userUR.getPlainAttrs().add(new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).
                     attrTO(new AttrTO.Builder().schema("userId").value(
                             "test" + getUUIDString() + i + "@test.com").build()).
                     build());
 
-            userService.update(userPatch);
+            userService.update(userUR);
         }
 
         // ASC order

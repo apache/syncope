@@ -24,11 +24,11 @@ import java.util.Map.Entry;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.StatusPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.common.lib.types.StatusPatchType;
+import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -58,8 +58,8 @@ public class StatusProducer extends AbstractProducer {
     @Override
     public void process(final Exchange exchange) throws Exception {
         if (getAnyTypeKind() == AnyTypeKind.USER && isPull()) {
-            WorkflowResult<Map.Entry<UserPatch, Boolean>> updated =
-                    (WorkflowResult<Entry<UserPatch, Boolean>>) exchange.getIn().getBody();
+            WorkflowResult<Map.Entry<UserUR, Boolean>> updated =
+                    (WorkflowResult<Entry<UserUR, Boolean>>) exchange.getIn().getBody();
 
             Boolean enabled = exchange.getProperty("enabled", Boolean.class);
             String key = exchange.getProperty("key", String.class);
@@ -86,16 +86,15 @@ public class StatusProducer extends AbstractProducer {
             }
         } else if (getAnyTypeKind() == AnyTypeKind.USER) {
             WorkflowResult<String> updated = (WorkflowResult<String>) exchange.getIn().getBody();
-            StatusPatch statusPatch = exchange.getProperty("statusPatch", StatusPatch.class);
+            StatusR statusR = exchange.getProperty("statusR", StatusR.class);
             Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 
             PropagationByResource propByRes = new PropagationByResource();
-            propByRes.addAll(ResourceOperation.UPDATE, statusPatch.getResources());
-            List<PropagationTaskInfo> taskInfos = getPropagationManager().getUpdateTasks(
-                    AnyTypeKind.USER,
-                    statusPatch.getKey(),
+            propByRes.addAll(ResourceOperation.UPDATE, statusR.getResources());
+            List<PropagationTaskInfo> taskInfos = getPropagationManager().getUpdateTasks(AnyTypeKind.USER,
+                    statusR.getKey(),
                     false,
-                    statusPatch.getType() != StatusPatchType.SUSPEND,
+                    statusR.getType() != StatusRType.SUSPEND,
                     propByRes,
                     null,
                     null);

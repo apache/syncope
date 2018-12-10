@@ -17,7 +17,7 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
-import org.apache.syncope.common.lib.patch.AnyPatch
+import org.apache.syncope.common.lib.request.AnyUR
 import org.apache.syncope.common.lib.to.EntityTO
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException
@@ -85,11 +85,11 @@ class MyPullActions implements PullActions {
   }
 
   @Override
-  <P extends AnyPatch> void beforeUpdate(
+  <R extends AnyUR> void beforeUpdate(
     ProvisioningProfile profile,
     SyncDelta delta,
     EntityTO entity,
-    P anyPatch) throws JobExecutionException {
+    R anyUR) throws JobExecutionException {
 
   }
 

@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.rest;
 import java.util.List;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RemediationTO;
@@ -55,8 +55,8 @@ public class RemediationRestClient extends BaseRestClient {
         });
     }
 
-    public <T extends AnyTO> ProvisioningResult<T> remedy(final String key, final AnyPatch anyPatch) {
-        Response response = getService(RemediationService.class).remedy(key, anyPatch);
+    public <T extends AnyTO> ProvisioningResult<T> remedy(final String key, final AnyUR anyUR) {
+        Response response = getService(RemediationService.class).remedy(key, anyUR);
         return response.readEntity(new GenericType<ProvisioningResult<T>>() {
         });
     }

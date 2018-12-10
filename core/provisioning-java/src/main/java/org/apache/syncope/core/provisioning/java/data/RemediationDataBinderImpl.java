@@ -42,8 +42,8 @@ public class RemediationDataBinderImpl implements RemediationDataBinder {
                 break;
 
             case UPDATE:
-                remediationTO.setAnyPatchPayload(
-                        remediation.getPayloadAsPatch(remediation.getAnyType().getKind().getPatchClass()));
+                remediationTO.setAnyURPayload(
+                        remediation.getPayloadAsUR(remediation.getAnyType().getKind().getURClass()));
                 break;
 
             case DELETE:

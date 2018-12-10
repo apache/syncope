@@ -16,20 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api;
+@XmlSchema(
+        namespace = SyncopeConstants.NS,
+        xmlns = { @XmlNs(prefix = SyncopeConstants.NS_PREFIX,
+                    namespaceURI = SyncopeConstants.NS) })
+package org.apache.syncope.common.lib.request;
 
-import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
-import org.apache.syncope.common.lib.to.UserTO;
-
-public interface OIDCProviderActions {
-
-    UserTO beforeCreate(UserTO input, OIDCLoginResponseTO loginResponse);
-
-    UserTO afterCreate(UserTO input, OIDCLoginResponseTO loginResponse);
-
-    UserUR beforeUpdate(UserUR input, OIDCLoginResponseTO loginResponse);
-
-    UserTO afterUpdate(UserTO input, OIDCLoginResponseTO loginResponse);
-
-}
+import javax.xml.bind.annotation.XmlNs;
+import javax.xml.bind.annotation.XmlSchema;
+import org.apache.syncope.common.lib.SyncopeConstants;

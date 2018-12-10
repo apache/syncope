@@ -32,8 +32,8 @@ import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.PasswordPanel;
 import org.apache.syncope.client.console.wizards.any.StatusPanel;
 import org.apache.syncope.client.console.wizards.any.UserWrapper;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -86,14 +86,12 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
                     }
                 }
 
-                final UserPatch patch = new UserPatch();
-                patch.setKey(inner.getKey());
+                UserUR req = new UserUR.Builder().key(inner.getKey()).
+                        password(new PasswordPatch.Builder().
+                                value(inner.getPassword()).onSyncope(isOnSyncope).resources(resources).build()).
+                        build();
 
-                PasswordPatch passwordPatch = new PasswordPatch.Builder().
-                        value(inner.getPassword()).onSyncope(isOnSyncope).resources(resources).build();
-                patch.setPassword(passwordPatch);
-
-                userRestClient.update(inner.getETagValue(), patch);
+                userRestClient.update(inner.getETagValue(), req);
                 SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 modal.show(false);
                 modal.close(target);

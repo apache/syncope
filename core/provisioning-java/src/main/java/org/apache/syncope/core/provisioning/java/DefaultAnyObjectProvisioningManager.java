@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -88,18 +88,18 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     }
 
     @Override
-    public Pair<AnyObjectPatch, List<PropagationStatus>> update(
-            final AnyObjectPatch anyObjectPatch, final boolean nullPriorityAsync) {
+    public Pair<AnyObjectUR, List<PropagationStatus>> update(
+            final AnyObjectUR anyObjectUR, final boolean nullPriorityAsync) {
 
-        return update(anyObjectPatch, Collections.<String>emptySet(), nullPriorityAsync);
+        return update(anyObjectUR, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
-    public Pair<AnyObjectPatch, List<PropagationStatus>> update(
-            final AnyObjectPatch anyObjectPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+    public Pair<AnyObjectUR, List<PropagationStatus>> update(
+            final AnyObjectUR anyObjectUR, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
-        WorkflowResult<AnyObjectPatch> updated = awfAdapter.update(anyObjectPatch);
+        WorkflowResult<AnyObjectUR> updated = awfAdapter.update(anyObjectUR);
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUpdateTasks(
                 AnyTypeKind.ANY_OBJECT,
@@ -107,7 +107,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 false,
                 null,
                 updated.getPropByRes(),
-                anyObjectPatch.getVirAttrs(),
+                anyObjectUR.getVirAttrs(),
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync);
 
@@ -149,13 +149,13 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     }
 
     @Override
-    public String unlink(final AnyObjectPatch anyObjectPatch) {
-        return awfAdapter.update(anyObjectPatch).getResult().getKey();
+    public String unlink(final AnyObjectUR anyObjectUR) {
+        return awfAdapter.update(anyObjectUR).getResult().getKey();
     }
 
     @Override
-    public String link(final AnyObjectPatch anyObjectPatch) {
-        return awfAdapter.update(anyObjectPatch).getResult().getKey();
+    public String link(final AnyObjectUR anyObjectUR) {
+        return awfAdapter.update(anyObjectUR).getResult().getKey();
     }
 
     @Override

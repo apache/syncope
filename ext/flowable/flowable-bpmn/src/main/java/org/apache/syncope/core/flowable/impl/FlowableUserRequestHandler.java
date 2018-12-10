@@ -29,8 +29,8 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestFormProperty;
@@ -372,8 +372,8 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
         formTO.setUserTO(engine.getRuntimeService().
                 getVariable(procInstId, FlowableRuntimeUtils.USER_TO, UserTO.class));
-        formTO.setUserPatch(engine.getRuntimeService().
-                getVariable(procInstId, FlowableRuntimeUtils.USER_PATCH, UserPatch.class));
+        formTO.setUserUR(engine.getRuntimeService().
+                getVariable(procInstId, FlowableRuntimeUtils.USER_UR, UserUR.class));
 
         formTO.getProperties().addAll(props.stream().map(prop -> {
             UserRequestFormProperty propertyTO = new UserRequestFormProperty();
@@ -410,8 +410,8 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
         formTO.setUserTO(engine.getRuntimeService().
                 getVariable(procInstId, FlowableRuntimeUtils.USER_TO, UserTO.class));
-        formTO.setUserPatch(engine.getRuntimeService().
-                getVariable(procInstId, FlowableRuntimeUtils.USER_PATCH, UserPatch.class));
+        formTO.setUserUR(engine.getRuntimeService().
+                getVariable(procInstId, FlowableRuntimeUtils.USER_UR, UserUR.class));
 
         formTO.getProperties().addAll(props.stream().map(fProp -> {
             UserRequestFormProperty propertyTO = new UserRequestFormProperty();
@@ -620,7 +620,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     }
 
     @Override
-    public WorkflowResult<UserPatch> submitForm(final UserRequestForm form) {
+    public WorkflowResult<UserUR> submitForm(final UserRequestForm form) {
         Pair<Task, TaskFormData> parsed = parseTask(form.getTaskId());
 
         String authUser = AuthContextUtils.getUsername();
@@ -655,7 +655,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
         user = userDAO.save(user);
 
-        UserPatch userPatch = null;
+        UserUR userUR = null;
         String clearPassword = null;
         PropagationByResource propByRes = null;
 
@@ -694,20 +694,19 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                     enabled,
                     propByRes);
 
-            userPatch = engine.getRuntimeService().
-                    getVariable(procInstId, FlowableRuntimeUtils.USER_PATCH, UserPatch.class);
-            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.USER_PATCH);
+            userUR = engine.getRuntimeService().getVariable(procInstId, FlowableRuntimeUtils.USER_UR, UserUR.class);
+            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.USER_UR);
         }
-        if (userPatch == null) {
-            userPatch = new UserPatch();
-            userPatch.setKey(user.getKey());
-            userPatch.setPassword(new PasswordPatch.Builder().onSyncope(true).value(clearPassword).build());
+        if (userUR == null) {
+            userUR = new UserUR();
+            userUR.setKey(user.getKey());
+            userUR.setPassword(new PasswordPatch.Builder().onSyncope(true).value(clearPassword).build());
 
             if (propByRes != null) {
-                userPatch.getPassword().getResources().addAll(propByRes.get(ResourceOperation.CREATE));
+                userUR.getPassword().getResources().addAll(propByRes.get(ResourceOperation.CREATE));
             }
         }
 
-        return new WorkflowResult<>(userPatch, propByRes, postTasks);
+        return new WorkflowResult<>(userUR, propByRes, postTasks);
     }
 }

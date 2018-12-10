@@ -19,8 +19,8 @@
 package org.apache.syncope.core.workflow.java;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -89,9 +89,9 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Pair<UserPatch, Boolean>> doUpdate(final User user, final UserPatch userPatch) {
-        PropagationByResource propByRes = dataBinder.update(user, userPatch);
-        return new WorkflowResult<>(Pair.of(userPatch, !user.isSuspended()), propByRes, "update");
+    protected WorkflowResult<Pair<UserUR, Boolean>> doUpdate(final User user, final UserUR userUR) {
+        PropagationByResource propByRes = dataBinder.update(user, userUR);
+        return new WorkflowResult<>(Pair.of(userUR, !user.isSuspended()), propByRes, "update");
     }
 
     @Override
@@ -119,7 +119,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Pair<UserPatch, Boolean>> doConfirmPasswordReset(
+    protected WorkflowResult<Pair<UserUR, Boolean>> doConfirmPasswordReset(
             final User user, final String token, final String password) {
 
         if (!user.checkToken(token)) {
@@ -128,14 +128,14 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         user.removeToken();
 
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(user.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().
+        UserUR userUR = new UserUR();
+        userUR.setKey(user.getKey());
+        userUR.setPassword(new PasswordPatch.Builder().
                 onSyncope(true).
                 resources(userDAO.findAllResourceKeys(user.getKey())).
                 value(password).build());
 
-        return doUpdate(user, userPatch);
+        return doUpdate(user, userUR);
     }
 
     @Override

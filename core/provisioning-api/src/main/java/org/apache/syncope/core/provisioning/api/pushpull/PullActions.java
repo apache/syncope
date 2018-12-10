@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
-import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
@@ -146,14 +146,14 @@ public interface PullActions extends ProvisioningActions {
      * @param profile profile of the pull being executed.
      * @param delta retrieved pull information
      * @param entity entity
-     * @param anyPatch modification
+     * @param anyUR modification
      * @throws JobExecutionException in case of generic failure.
      */
-    default <P extends AnyPatch> void beforeUpdate(
+    default <P extends AnyUR> void beforeUpdate(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
             EntityTO entity,
-            P anyPatch) throws JobExecutionException {
+            P anyUR) throws JobExecutionException {
     }
 
     /**

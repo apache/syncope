@@ -26,8 +26,8 @@ import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.AnyOperations;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
@@ -83,20 +83,20 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
                     : StringUtils.isNotBlank(inner.getPassword()));
         } else {
             fixPlainAndVirAttrs(inner, getOriginalItem().getInnerObject());
-            UserPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
+            UserUR userUR = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
 
             if (StringUtils.isNotBlank(inner.getPassword())) {
                 PasswordPatch passwordPatch = new PasswordPatch.Builder().
                         value(inner.getPassword()).onSyncope(true).resources(inner.getResources()).build();
-                patch.setPassword(passwordPatch);
+                userUR.setPassword(passwordPatch);
             }
 
             // update just if it is changed
-            if (patch.isEmpty()) {
+            if (userUR.isEmpty()) {
                 result = new ProvisioningResult<>();
                 result.setEntity(inner);
             } else {
-                result = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
+                result = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), userUR);
             }
         }
 

@@ -50,8 +50,8 @@ import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.client.lib.batch.BatchResponse;
-import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.StringReplacePatchItem;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -108,10 +108,10 @@ public class BatchITCase extends AbstractITCase {
         reqItems.add(createGroup);
 
         // 3. update the user above as JSON, request for no user data being returned
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(user.getUsername());
-        userPatch.setRealm(new StringReplacePatchItem.Builder().value("/odd").build());
-        String updateUserPayload = MAPPER.writeValueAsString(userPatch);
+        UserUR userUR = new UserUR();
+        userUR.setKey(user.getUsername());
+        userUR.setRealm(new StringReplacePatchItem.Builder().value("/odd").build());
+        String updateUserPayload = MAPPER.writeValueAsString(userUR);
 
         BatchRequestItem updateUser = new BatchRequestItem();
         updateUser.setMethod(HttpMethod.PATCH);
@@ -288,10 +288,10 @@ public class BatchITCase extends AbstractITCase {
         client = WebClient.client(batchUserService).reset();
         client.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
         client.header(RESTHeaders.PREFER, Preference.RETURN_NO_CONTENT.toString());
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(user.getUsername());
-        userPatch.setRealm(new StringReplacePatchItem.Builder().value("/odd").build());
-        batchUserService.update(userPatch);
+        UserUR userUR = new UserUR();
+        userUR.setKey(user.getUsername());
+        userUR.setRealm(new StringReplacePatchItem.Builder().value("/odd").build());
+        batchUserService.update(userUR);
 
         // 4. generate not found
         batchRequest.getService(ResourceService.class).read(UUID.randomUUID().toString());

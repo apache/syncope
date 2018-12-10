@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -63,8 +63,8 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     }
 
     @Override
-    protected WorkflowResult<? extends AnyPatch> update(final AnyPatch patch) {
-        WorkflowResult<Pair<UserPatch, Boolean>> update = uwfAdapter.update((UserPatch) patch);
+    protected WorkflowResult<? extends AnyUR> update(final AnyUR req) {
+        WorkflowResult<Pair<UserUR, Boolean>> update = uwfAdapter.update((UserUR) req);
         return new WorkflowResult<>(update.getResult().getLeft(), update.getPropByRes(), update.getPerformedTasks());
     }
 
@@ -81,17 +81,17 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     }
 
     @Override
-    protected AnyPatch doUpdate(
+    protected AnyUR doUpdate(
             final AnyTO before,
-            final AnyPatch anyPatch,
+            final AnyUR anyUR,
             final SyncDelta delta,
             final ProvisioningReport result) {
 
-        UserPatch userPatch = UserPatch.class.cast(anyPatch);
+        UserUR userUR = UserUR.class.cast(anyUR);
         Boolean enabled = pullUtils.readEnabled(delta.getObject(), profile.getTask());
 
-        Pair<UserPatch, List<PropagationStatus>> updated = userProvisioningManager.update(
-                userPatch,
+        Pair<UserUR, List<PropagationStatus>> updated = userProvisioningManager.update(
+                userUR,
                 result,
                 enabled,
                 Collections.singleton(profile.getTask().getResource().getKey()),

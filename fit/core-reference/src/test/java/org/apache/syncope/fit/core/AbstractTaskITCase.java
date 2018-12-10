@@ -32,7 +32,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.patch.DeassociationPatch;
+import org.apache.syncope.common.lib.request.ResourceDR;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
@@ -104,14 +104,14 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         groupService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query()).
                 build()).getResult().forEach(group -> {
-                    groupService.deassociate(new DeassociationPatch.Builder().key(group.getKey()).
+                    groupService.deassociate(new ResourceDR.Builder().key(group.getKey()).
                             action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_LDAP).build());
                     groupService.delete(group.getKey());
                 });
         userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").query()).
                 build()).getResult().forEach(user -> {
-                    userService.deassociate(new DeassociationPatch.Builder().key(user.getKey()).
+                    userService.deassociate(new ResourceDR.Builder().key(user.getKey()).
                             action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_LDAP).build());
                     userService.delete(user.getKey());
                 });

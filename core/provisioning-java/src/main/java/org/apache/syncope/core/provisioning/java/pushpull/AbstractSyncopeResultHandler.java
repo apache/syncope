@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
@@ -92,7 +92,7 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
 
     protected abstract AnyTO getAnyTO(String key);
 
-    protected abstract WorkflowResult<? extends AnyPatch> update(AnyPatch patch);
+    protected abstract WorkflowResult<? extends AnyUR> update(AnyUR req);
 
     @Override
     public void setProfile(final ProvisioningProfile<T, A> profile) {

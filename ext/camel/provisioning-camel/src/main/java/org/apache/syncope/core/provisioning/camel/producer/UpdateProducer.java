@@ -23,9 +23,9 @@ import java.util.Set;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
-import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
@@ -45,9 +45,9 @@ public class UpdateProducer extends AbstractProducer {
             Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
             Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 
-            if (actual instanceof UserPatch || isPull()) {
-                WorkflowResult<Pair<UserPatch, Boolean>> updated =
-                        (WorkflowResult<Pair<UserPatch, Boolean>>) exchange.getIn().getBody();
+            if (actual instanceof UserUR || isPull()) {
+                WorkflowResult<Pair<UserUR, Boolean>> updated =
+                        (WorkflowResult<Pair<UserUR, Boolean>>) exchange.getIn().getBody();
 
                 List<PropagationTaskInfo> taskInfos;
                 if (isPull()) {
@@ -59,17 +59,17 @@ public class UpdateProducer extends AbstractProducer {
                 PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
 
                 exchange.getOut().setBody(Pair.of(updated.getResult().getLeft(), reporter.getStatuses()));
-            } else if (actual instanceof AnyPatch) {
-                WorkflowResult<? extends AnyPatch> updated =
-                        (WorkflowResult<? extends AnyPatch>) exchange.getIn().getBody();
+            } else if (actual instanceof AnyUR) {
+                WorkflowResult<? extends AnyUR> updated =
+                        (WorkflowResult<? extends AnyUR>) exchange.getIn().getBody();
 
                 List<PropagationTaskInfo> taskInfos = getPropagationManager().getUpdateTasks(
-                        actual instanceof AnyObjectPatch ? AnyTypeKind.ANY_OBJECT : AnyTypeKind.GROUP,
+                        actual instanceof AnyObjectUR ? AnyTypeKind.ANY_OBJECT : AnyTypeKind.GROUP,
                         updated.getResult().getKey(),
                         false,
                         null,
                         updated.getPropByRes(),
-                        ((AnyPatch) actual).getVirAttrs(),
+                        ((AnyUR) actual).getVirAttrs(),
                         excludedResources);
                 PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
 

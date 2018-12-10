@@ -43,9 +43,9 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.lib.batch.BatchRequest;
-import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
-import org.apache.syncope.common.lib.patch.StatusPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
+import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -56,7 +56,7 @@ import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.lib.types.StatusPatchType;
+import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
@@ -256,12 +256,12 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                     items.forEach(item -> {
                                         UserTO user = (UserTO) item;
 
-                                        UserPatch patch = new UserPatch();
-                                        patch.setKey(user.getKey());
-                                        patch.setMustChangePassword(new BooleanReplacePatchItem.Builder().
+                                        UserUR req = new UserUR();
+                                        req.setKey(user.getKey());
+                                        req.setMustChangePassword(new BooleanReplacePatchItem.Builder().
                                                 value(!user.isMustChangePassword()).build());
 
-                                        batchUserService.update(patch);
+                                        batchUserService.update(req);
                                     });
                                     break;
 
@@ -269,14 +269,14 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                     items.forEach(item -> {
                                         UserTO user = (UserTO) item;
 
-                                        StatusPatch patch = new StatusPatch.Builder().
+                                        StatusR req = new StatusR.Builder().
                                                 key(user.getKey()).
-                                                type(StatusPatchType.SUSPEND).
+                                                type(StatusRType.SUSPEND).
                                                 onSyncope(true).
                                                 resources(user.getResources()).
                                                 build();
 
-                                        batchUserService.status(patch);
+                                        batchUserService.status(req);
                                     });
                                     break;
 
@@ -284,14 +284,14 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                     items.forEach(item -> {
                                         UserTO user = (UserTO) item;
 
-                                        StatusPatch patch = new StatusPatch.Builder().
+                                        StatusR req = new StatusR.Builder().
                                                 key(user.getKey()).
-                                                type(StatusPatchType.REACTIVATE).
+                                                type(StatusRType.REACTIVATE).
                                                 onSyncope(true).
                                                 resources(user.getResources()).
                                                 build();
 
-                                        batchUserService.status(patch);
+                                        batchUserService.status(req);
                                     });
                                     break;
 

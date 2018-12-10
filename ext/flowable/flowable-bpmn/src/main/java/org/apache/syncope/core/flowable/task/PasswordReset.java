@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.flowable.task;
 
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -51,18 +51,18 @@ public class PasswordReset extends FlowableServiceTask {
 
         user.removeToken();
 
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(user.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().
-                onSyncope(true).
-                resources(userDAO.findAllResourceKeys(user.getKey())).
-                value(password).build());
+        UserUR req = new UserUR.Builder().key(user.getKey()).
+                password(new PasswordPatch.Builder().
+                        onSyncope(true).
+                        resources(userDAO.findAllResourceKeys(user.getKey())).
+                        value(password).build()).
+                build();
 
-        PropagationByResource propByRes = dataBinder.update(user, userPatch);
+        PropagationByResource propByRes = dataBinder.update(user, req);
 
         // report updated user and propagation by resource as result
         execution.setVariable(FlowableRuntimeUtils.USER, user);
-        execution.setVariable(FlowableRuntimeUtils.USER_PATCH, userPatch);
+        execution.setVariable(FlowableRuntimeUtils.USER_UR, req);
         execution.setVariable(FlowableRuntimeUtils.PROP_BY_RESOURCE, propByRes);
     }
 }

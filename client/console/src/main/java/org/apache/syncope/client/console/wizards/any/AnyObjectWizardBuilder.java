@@ -25,7 +25,7 @@ import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.AnyOperations;
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.wicket.PageReference;
@@ -73,14 +73,14 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
             result = anyObjectRestClient.create(inner);
         } else {
             fixPlainAndVirAttrs(inner, getOriginalItem().getInnerObject());
-            AnyObjectPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
+            AnyObjectUR req = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
 
             // update just if it is changed
-            if (patch.isEmpty()) {
+            if (req.isEmpty()) {
                 result = new ProvisioningResult<>();
                 result.setEntity(inner);
             } else {
-                result = anyObjectRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
+                result = anyObjectRestClient.update(getOriginalItem().getInnerObject().getETagValue(), req);
             }
         }
 

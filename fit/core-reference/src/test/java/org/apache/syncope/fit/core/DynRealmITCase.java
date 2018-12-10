@@ -28,10 +28,10 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.patch.AttrPatch;
-import org.apache.syncope.common.lib.patch.GroupPatch;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.AttrPatch;
+import org.apache.syncope.common.lib.request.GroupUR;
+import org.apache.syncope.common.lib.request.StringPatchItem;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.DynRealmTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -173,31 +173,31 @@ public class DynRealmITCase extends AbstractITCase {
             assertTrue(matchingUsers.getResult().stream().anyMatch(object -> object.getKey().equals(userKey)));
 
             // USER_UPDATE
-            UserPatch userPatch = new UserPatch();
-            userPatch.setKey(userKey);
-            userPatch.getResources().add(new StringPatchItem.Builder().
+            UserUR userUR = new UserUR();
+            userUR.setKey(userKey);
+            userUR.getResources().add(new StringPatchItem.Builder().
                     value(RESOURCE_NAME_LDAP).operation(PatchOperation.DELETE).build());
             // this will fail because unassigning resource-ldap would result in removing the user from the dynamic realm
             try {
-                delegatedUserService.update(userPatch);
+                delegatedUserService.update(userUR);
                 fail("This should not happen");
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
             }
             // this will succeed instead
-            userPatch.getResources().clear();
-            userPatch.getResources().add(new StringPatchItem.Builder().value(RESOURCE_NAME_NOPROPAGATION).build());
-            user = delegatedUserService.update(userPatch).
+            userUR.getResources().clear();
+            userUR.getResources().add(new StringPatchItem.Builder().value(RESOURCE_NAME_NOPROPAGATION).build());
+            user = delegatedUserService.update(userUR).
                     readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                     }).getEntity();
             assertNotNull(user);
             assertTrue(user.getResources().contains(RESOURCE_NAME_NOPROPAGATION));
 
             // GROUP_UPDATE
-            GroupPatch groupPatch = new GroupPatch();
-            groupPatch.setKey(groupKey);
-            groupPatch.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("icon", "modified")).build());
-            group = delegatedGroupService.update(groupPatch).
+            GroupUR groupUR = new GroupUR();
+            groupUR.setKey(groupKey);
+            groupUR.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("icon", "modified")).build());
+            group = delegatedGroupService.update(groupUR).
                     readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
                     }).getEntity();
             assertNotNull(group);

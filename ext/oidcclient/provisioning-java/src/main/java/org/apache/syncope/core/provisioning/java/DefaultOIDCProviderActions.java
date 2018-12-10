@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.provisioning.api.OIDCProviderActions;
@@ -36,7 +36,7 @@ public class DefaultOIDCProviderActions implements OIDCProviderActions {
     }
 
     @Override
-    public UserPatch beforeUpdate(final UserPatch input, final OIDCLoginResponseTO loginResponse) {
+    public UserUR beforeUpdate(final UserUR input, final OIDCLoginResponseTO loginResponse) {
         return input;
     }
 

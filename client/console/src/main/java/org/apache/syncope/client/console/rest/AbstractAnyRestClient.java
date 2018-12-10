@@ -33,9 +33,9 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.lib.batch.BatchRequest;
-import org.apache.syncope.common.lib.patch.AssociationPatch;
-import org.apache.syncope.common.lib.patch.DeassociationPatch;
-import org.apache.syncope.common.lib.patch.StatusPatch;
+import org.apache.syncope.common.lib.request.ResourceAR;
+import org.apache.syncope.common.lib.request.ResourceDR;
+import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
@@ -92,17 +92,17 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO> extends BaseRestCl
                 client.accept(RESTHeaders.MULTIPART_MIXED);
             }
 
-            StatusPatch statusPatch = StatusUtils.statusPatch(statuses).build();
+            StatusR statusR = StatusUtils.statusR(statuses).build();
 
-            AssociationPatch associationPatch = new AssociationPatch.Builder().key(key).
+            ResourceAR resourceAR = new ResourceAR.Builder().key(key).
                     action(action).
-                    onSyncope(statusPatch.isOnSyncope()).
-                    resources(statusPatch.getResources()).build();
+                    onSyncope(statusR.isOnSyncope()).
+                    resources(statusR.getResources()).build();
             try {
-                List<BatchResponseItem> items = parseBatchResponse(service.associate(associationPatch));
+                List<BatchResponseItem> items = parseBatchResponse(service.associate(resourceAR));
                 for (int i = 0; i < items.size(); i++) {
                     result.put(
-                            associationPatch.getResources().get(i),
+                            resourceAR.getResources().get(i),
                             getStatus(items.get(i).getStatus()));
                 }
             } catch (IOException e) {
@@ -129,14 +129,14 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO> extends BaseRestCl
                 client.accept(RESTHeaders.MULTIPART_MIXED);
             }
 
-            DeassociationPatch deassociationPatch = new DeassociationPatch.Builder().key(key).
+            ResourceDR resourceDR = new ResourceDR.Builder().key(key).
                     action(action).
-                    resources(StatusUtils.statusPatch(statuses).build().getResources()).build();
+                    resources(StatusUtils.statusR(statuses).build().getResources()).build();
             try {
-                List<BatchResponseItem> items = parseBatchResponse(service.deassociate(deassociationPatch));
+                List<BatchResponseItem> items = parseBatchResponse(service.deassociate(resourceDR));
                 for (int i = 0; i < items.size(); i++) {
                     result.put(
-                            deassociationPatch.getResources().get(i),
+                            resourceDR.getResources().get(i),
                             getStatus(items.get(i).getStatus()));
                 }
             } catch (IOException e) {

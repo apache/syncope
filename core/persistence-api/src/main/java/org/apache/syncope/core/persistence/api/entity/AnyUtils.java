@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.lang.reflect.Field;
 import java.util.Set;
-import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
@@ -50,7 +50,7 @@ public interface AnyUtils {
 
     <T extends AnyTO> T newAnyTO();
 
-    <P extends AnyPatch> P newAnyPatch(String key);
+    <P extends AnyUR> P newAnyUR(String key);
 
     <A extends Any<?>> AnyDAO<A> dao();
 

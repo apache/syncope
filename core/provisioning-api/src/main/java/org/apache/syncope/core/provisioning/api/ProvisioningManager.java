@@ -22,25 +22,25 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 
-public interface ProvisioningManager<T extends AnyTO, P extends AnyPatch> {
+public interface ProvisioningManager<T extends AnyTO, R extends AnyUR> {
 
     Pair<String, List<PropagationStatus>> create(T anyTO, boolean nullPriorityAsync);
 
-    Pair<P, List<PropagationStatus>> update(P patch, boolean nullPriorityAsync);
+    Pair<R, List<PropagationStatus>> update(R anyUR, boolean nullPriorityAsync);
 
-    Pair<P, List<PropagationStatus>> update(P patch, Set<String> excludedResources, boolean nullPriorityAsync);
+    Pair<R, List<PropagationStatus>> update(R anyUR, Set<String> excludedResources, boolean nullPriorityAsync);
 
     List<PropagationStatus> delete(String anyKey, boolean nullPriorityAsync);
 
     List<PropagationStatus> delete(String anyKey, Set<String> excludedResources, boolean nullPriorityAsync);
 
-    String unlink(P anyMod);
+    String unlink(R anyUR);
 
-    String link(P anyMod);
+    String link(R anyUR);
 
     List<PropagationStatus> deprovision(String anyKey, Collection<String> resources, boolean nullPriorityAsync);
 

@@ -26,11 +26,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.UUID;
-import org.apache.syncope.common.lib.patch.GroupPatch;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
-import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.GroupUR;
+import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.StringPatchItem;
+import org.apache.syncope.common.lib.request.StringReplacePatchItem;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -43,7 +43,7 @@ public class JSONTest {
 
     @Test
     public void map() throws IOException {
-        GroupPatch prop = new GroupPatch();
+        GroupUR prop = new GroupUR();
         prop.getADynMembershipConds().put("key1", "value1");
         prop.getADynMembershipConds().put("key2", "value2");
 
@@ -52,31 +52,31 @@ public class JSONTest {
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, prop);
 
-        GroupPatch unserializedProp = mapper.readValue(writer.toString(), GroupPatch.class);
+        GroupUR unserializedProp = mapper.readValue(writer.toString(), GroupUR.class);
         assertEquals(prop, unserializedProp);
     }
 
     @Test
     public void patch() throws IOException {
-        UserPatch patch = new UserPatch();
-        patch.setKey(UUID.randomUUID().toString());
-        patch.setUsername(new StringReplacePatchItem.Builder().value("newusername").build());
-        assertNotNull(patch.getUsername().getValue());
-        patch.setPassword(new PasswordPatch.Builder().
+        UserUR req = new UserUR();
+        req.setKey(UUID.randomUUID().toString());
+        req.setUsername(new StringReplacePatchItem.Builder().value("newusername").build());
+        assertNotNull(req.getUsername().getValue());
+        req.setPassword(new PasswordPatch.Builder().
                 onSyncope(false).
                 resource("ext1").resource("ext2").
                 value("newpassword").
                 build());
-        assertNotNull(patch.getPassword().getValue());
-        patch.getRoles().add(new StringPatchItem.Builder().operation(PatchOperation.DELETE).value("role").build());
+        assertNotNull(req.getPassword().getValue());
+        req.getRoles().add(new StringPatchItem.Builder().operation(PatchOperation.DELETE).value("role").build());
 
         ObjectMapper mapper = new ObjectMapper();
 
         StringWriter writer = new StringWriter();
-        mapper.writeValue(writer, patch);
+        mapper.writeValue(writer, req);
 
-        UserPatch actual = mapper.readValue(writer.toString(), UserPatch.class);
-        assertEquals(patch, actual);
+        UserUR actual = mapper.readValue(writer.toString(), UserUR.class);
+        assertEquals(req, actual);
     }
 
     @Test

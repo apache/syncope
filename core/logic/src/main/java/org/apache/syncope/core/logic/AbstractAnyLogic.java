@@ -25,7 +25,7 @@ import java.util.Set;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
@@ -50,7 +50,7 @@ import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> extends AbstractResourceAssociator<TO> {
+public abstract class AbstractAnyLogic<TO extends AnyTO, R extends AnyUR> extends AbstractResourceAssociator<TO> {
 
     @Autowired
     protected UserDAO userDAO;
@@ -117,7 +117,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
         return ImmutablePair.of(any, actions);
     }
 
-    protected Pair<P, List<LogicActions>> beforeUpdate(final P input, final String realmPath) {
+    protected Pair<R, List<LogicActions>> beforeUpdate(final R input, final String realmPath) {
         Realm realm = realmDAO.findByFullPath(realmPath);
         if (realm == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
@@ -125,7 +125,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
             throw sce;
         }
 
-        P mod = input;
+        R mod = input;
 
         List<LogicActions> actions = getActions(realm);
         for (LogicActions action : actions) {
@@ -253,7 +253,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
             String realm,
             boolean details);
 
-    public abstract ProvisioningResult<TO> update(P anyPatch, boolean nullPriorityAsync);
+    public abstract ProvisioningResult<TO> update(R updateReq, boolean nullPriorityAsync);
 
     public abstract ProvisioningResult<TO> delete(String key, boolean nullPriorityAsync);
 }

@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -190,7 +190,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
                     "Submitting forms for user" + form.getUsername() + " not allowed");
         }
 
-        WorkflowResult<UserPatch> wfResult = userRequestHandler.submitForm(form);
+        WorkflowResult<UserUR> wfResult = userRequestHandler.submitForm(form);
 
         // propByRes can be made empty by the workflow definition if no propagation should occur 
         // (for example, with rejected users)

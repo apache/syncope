@@ -22,8 +22,8 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.patch.StatusPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -66,8 +66,8 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     }
 
     @Override
-    public Response update(final UserPatch patch) {
-        ProvisioningResult<UserTO> updated = logic.selfUpdate(patch, isNullPriorityAsync());
+    public Response update(final UserUR updateReq) {
+        ProvisioningResult<UserTO> updated = logic.selfUpdate(updateReq, isNullPriorityAsync());
         return modificationResponse(updated);
     }
 
@@ -78,8 +78,8 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     }
 
     @Override
-    public Response status(final StatusPatch statusPatch) {
-        ProvisioningResult<UserTO> updated = logic.selfStatus(statusPatch, isNullPriorityAsync());
+    public Response status(final StatusR statusR) {
+        ProvisioningResult<UserTO> updated = logic.selfStatus(statusR, isNullPriorityAsync());
         return modificationResponse(updated);
     }
 

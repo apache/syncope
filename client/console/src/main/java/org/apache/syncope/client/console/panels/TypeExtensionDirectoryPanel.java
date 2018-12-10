@@ -37,7 +37,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.any.TypeExtensionWizardBuilder;
-import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.wicket.PageReference;
@@ -85,12 +85,12 @@ public class TypeExtensionDirectoryPanel
 
     @Override
     public void onSubmit(final AjaxRequestTarget target) {
-        GroupPatch patch = new GroupPatch();
-        patch.setKey(groupTO.getKey());
-        patch.getTypeExtensions().addAll(groupTO.getTypeExtensions());
+        GroupUR req = new GroupUR();
+        req.setKey(groupTO.getKey());
+        req.getTypeExtensions().addAll(groupTO.getTypeExtensions());
 
         try {
-            new GroupRestClient().update(groupTO.getETagValue(), patch);
+            new GroupRestClient().update(groupTO.getETagValue(), req);
 
             this.baseModal.show(false);
             this.baseModal.close(target);

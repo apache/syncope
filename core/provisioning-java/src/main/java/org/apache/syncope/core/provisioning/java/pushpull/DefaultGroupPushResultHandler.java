@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import org.apache.syncope.common.lib.patch.GroupPatch;
-import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.request.GroupUR;
+import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -46,7 +46,7 @@ public class DefaultGroupPushResultHandler extends AbstractPushResultHandler imp
     }
 
     @Override
-    protected WorkflowResult<? extends AnyPatch> update(final AnyPatch patch) {
-        return gwfAdapter.update((GroupPatch) patch);
+    protected WorkflowResult<? extends AnyUR> update(final AnyUR req) {
+        return gwfAdapter.update((GroupUR) req);
     }
 }

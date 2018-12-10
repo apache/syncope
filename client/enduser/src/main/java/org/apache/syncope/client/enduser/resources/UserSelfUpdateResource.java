@@ -33,7 +33,7 @@ import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.client.enduser.util.Validation;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.EntityTOUtils;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -151,8 +151,8 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
                     completeUserObject(userTO, selfTO);
                 }
                 // create diff patch
-                UserPatch userPatch = AnyOperations.diff(userTO, selfTO, false);
-                if (userPatch.isEmpty()) {
+                UserUR userUR = AnyOperations.diff(userTO, selfTO, false);
+                if (userUR.isEmpty()) {
                     // nothing to do
                     buildResponse(response,
                             Response.Status.OK.getStatusCode(),
@@ -160,7 +160,7 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
                 } else {
                     // update user by patch
                     Response coreResponse = SyncopeEnduserSession.get().
-                            getService(userTO.getETagValue(), UserSelfService.class).update(userPatch);
+                            getService(userTO.getETagValue(), UserSelfService.class).update(userUR);
 
                     buildResponse(response,
                             coreResponse.getStatus(),

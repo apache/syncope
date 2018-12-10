@@ -28,7 +28,7 @@ import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.AnyOperations;
-import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.wicket.PageReference;
@@ -92,7 +92,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
             result = groupRestClient.create(inner);
         } else {
             fixPlainAndVirAttrs(inner, getOriginalItem().getInnerObject());
-            GroupPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
+            GroupUR groupUR = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
             GroupTO originaObj = getOriginalItem().getInnerObject();
 
             // SYNCOPE-1170
@@ -107,11 +107,11 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
                     || !CollectionUtils.diff(inner.getTypeExtensions(), originaObj.getTypeExtensions()).isEmpty();
 
             // update just if it is changed
-            if (patch.isEmpty() && !othersNotEqualsOrBlanks) {
+            if (groupUR.isEmpty() && !othersNotEqualsOrBlanks) {
                 result = new ProvisioningResult<>();
                 result.setEntity(inner);
             } else {
-                result = groupRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
+                result = groupRestClient.update(getOriginalItem().getInnerObject().getETagValue(), groupUR);
             }
         }
 

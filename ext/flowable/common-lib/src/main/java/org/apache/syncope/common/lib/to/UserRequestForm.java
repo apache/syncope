@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.BaseBean;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 
 @XmlRootElement(name = "userRequestForm")
 @XmlType
@@ -55,7 +55,7 @@ public class UserRequestForm extends BaseBean {
 
     private UserTO userTO;
 
-    private UserPatch userPatch;
+    private UserUR userUR;
 
     private final List<UserRequestFormProperty> properties = new ArrayList<>();
 
@@ -145,12 +145,12 @@ public class UserRequestForm extends BaseBean {
         this.userTO = userTO;
     }
 
-    public UserPatch getUserPatch() {
-        return userPatch;
+    public UserUR getUserUR() {
+        return userUR;
     }
 
-    public void setUserPatch(final UserPatch userPatch) {
-        this.userPatch = userPatch;
+    public void setUserUR(final UserUR userUR) {
+        this.userUR = userUR;
     }
 
     @JsonIgnore

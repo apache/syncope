@@ -19,7 +19,7 @@
 package org.apache.syncope.core.workflow.api;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.common.lib.to.UserTO;
 
@@ -61,10 +61,10 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
     /**
      * Update an user.
      *
-     * @param userPatch modification set to be performed
+     * @param userUR modification set to be performed
      * @return user just updated and propagations to be performed
      */
-    WorkflowResult<Pair<UserPatch, Boolean>> update(UserPatch userPatch);
+    WorkflowResult<Pair<UserUR, Boolean>> update(UserUR userUR);
 
     /**
      * Suspend an user.
@@ -105,7 +105,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param password new password value
      * @return user just updated and propagations to be performed
      */
-    WorkflowResult<Pair<UserPatch, Boolean>> confirmPasswordReset(String userKey, String token, String password);
+    WorkflowResult<Pair<UserUR, Boolean>> confirmPasswordReset(String userKey, String token, String password);
 
     /**
      * Delete an user.

@@ -31,9 +31,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.patch.AttrPatch;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
+import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.AttrPatch;
+import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -137,11 +137,11 @@ abstract class AbstractAnyDataBinder {
     @Autowired
     protected IntAttrNameParser intAttrNameParser;
 
-    protected void setRealm(final Any<?> any, final AnyPatch anyPatch) {
-        if (anyPatch.getRealm() != null && StringUtils.isNotBlank(anyPatch.getRealm().getValue())) {
-            Realm newRealm = realmDAO.findByFullPath(anyPatch.getRealm().getValue());
+    protected void setRealm(final Any<?> any, final AnyUR anyUR) {
+        if (anyUR.getRealm() != null && StringUtils.isNotBlank(anyUR.getRealm().getValue())) {
+            Realm newRealm = realmDAO.findByFullPath(anyUR.getRealm().getValue());
             if (newRealm == null) {
-                LOG.debug("Invalid realm specified: {}, ignoring", anyPatch.getRealm().getValue());
+                LOG.debug("Invalid realm specified: {}, ignoring", anyUR.getRealm().getValue());
             } else {
                 any.setRealm(newRealm);
             }
@@ -343,14 +343,14 @@ abstract class AbstractAnyDataBinder {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected PropagationByResource fill(
             final Any any,
-            final AnyPatch anyPatch,
+            final AnyUR anyUR,
             final AnyUtils anyUtils,
             final SyncopeClientCompositeException scce) {
 
         PropagationByResource propByRes = new PropagationByResource();
 
         // 1. anyTypeClasses
-        for (StringPatchItem patch : anyPatch.getAuxClasses()) {
+        for (StringPatchItem patch : anyUR.getAuxClasses()) {
             AnyTypeClass auxClass = anyTypeClassDAO.find(patch.getValue());
             if (auxClass == null) {
                 LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + " {}, ignoring...", patch.getValue());
@@ -368,7 +368,7 @@ abstract class AbstractAnyDataBinder {
         }
 
         // 2. resources
-        for (StringPatchItem patch : anyPatch.getResources()) {
+        for (StringPatchItem patch : anyUR.getResources()) {
             ExternalResource resource = resourceDAO.find(patch.getValue());
             if (resource == null) {
                 LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + " {}, ignoring...", patch.getValue());
@@ -391,7 +391,7 @@ abstract class AbstractAnyDataBinder {
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // 3. plain attributes
-        anyPatch.getPlainAttrs().stream().
+        anyUR.getPlainAttrs().stream().
                 filter(patch -> patch.getAttrTO() != null).forEach(patch -> {
             PlainSchema schema = getPlainSchema(patch.getAttrTO().getSchema());
             if (schema == null) {

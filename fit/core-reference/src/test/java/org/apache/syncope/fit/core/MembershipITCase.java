@@ -28,10 +28,10 @@ import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.patch.AttrPatch;
-import org.apache.syncope.common.lib.patch.DeassociationPatch;
-import org.apache.syncope.common.lib.patch.MembershipPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.AttrPatch;
+import org.apache.syncope.common.lib.request.ResourceDR;
+import org.apache.syncope.common.lib.request.MembershipPatch;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -110,10 +110,10 @@ public class MembershipITCase extends AbstractITCase {
             assertFalse(membership.getDerAttr("noschema").get().getValues().isEmpty());
 
             // update user - change some values and add new membership attribute
-            UserPatch userPatch = new UserPatch();
-            userPatch.setKey(user.getKey());
+            UserUR userUR = new UserUR();
+            userUR.setKey(user.getKey());
 
-            userPatch.getPlainAttrs().add(new AttrPatch.Builder().
+            userUR.getPlainAttrs().add(new AttrPatch.Builder().
                     attrTO(new AttrTO.Builder().schema("aLong").value("1977").build()).build());
 
             MembershipPatch membershipPatch = new MembershipPatch.Builder().group(membership.getGroupKey()).build();
@@ -121,9 +121,9 @@ public class MembershipITCase extends AbstractITCase {
                     new AttrTO.Builder().schema("aLong").value("1976").build());
             membershipPatch.getPlainAttrs().add(
                     new AttrTO.Builder().schema("ctype").value("membership type").build());
-            userPatch.getMemberships().add(membershipPatch);
+            userUR.getMemberships().add(membershipPatch);
 
-            user = updateUser(userPatch).getEntity();
+            user = updateUser(userUR).getEntity();
 
             // 4. verify that 'aLong' is correctly populated for user
             assertEquals(1, user.getPlainAttr("aLong").get().getValues().size());
@@ -141,14 +141,14 @@ public class MembershipITCase extends AbstractITCase {
             assertEquals("membership type", membership.getPlainAttr("ctype").get().getValues().get(0));
 
             // finally remove membership
-            userPatch = new UserPatch();
-            userPatch.setKey(user.getKey());
+            userUR = new UserUR();
+            userUR.setKey(user.getKey());
 
             membershipPatch = new MembershipPatch.Builder().group(membership.getGroupKey()).
                     operation(PatchOperation.DELETE).build();
-            userPatch.getMemberships().add(membershipPatch);
+            userUR.getMemberships().add(membershipPatch);
 
-            user = updateUser(userPatch).getEntity();
+            user = updateUser(userUR).getEntity();
 
             assertTrue(user.getMemberships().isEmpty());
         } finally {
@@ -259,11 +259,11 @@ public class MembershipITCase extends AbstractITCase {
             assertEquals("5432", idOnResource);
 
             // 3. unlink user from resource, then remove it
-            DeassociationPatch patch = new DeassociationPatch();
-            patch.setKey(user.getKey());
-            patch.setAction(ResourceDeassociationAction.UNLINK);
-            patch.getResources().add(newResource.getKey());
-            assertNotNull(parseBatchResponse(userService.deassociate(patch)));
+            ResourceDR req = new ResourceDR();
+            req.setKey(user.getKey());
+            req.setAction(ResourceDeassociationAction.UNLINK);
+            req.getResources().add(newResource.getKey());
+            assertNotNull(parseBatchResponse(userService.deassociate(req)));
 
             userService.delete(user.getKey());
 

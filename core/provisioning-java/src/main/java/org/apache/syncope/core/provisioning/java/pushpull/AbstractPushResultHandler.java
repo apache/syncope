@@ -25,8 +25,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
+import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
@@ -175,34 +175,34 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     protected void link(final Any<?> any, final boolean unlink, final ProvisioningReport result) {
-        AnyPatch patch = getAnyUtils().newAnyPatch(any.getKey());
-        patch.getResources().add(new StringPatchItem.Builder().
+        AnyUR req = getAnyUtils().newAnyUR(any.getKey());
+        req.getResources().add(new StringPatchItem.Builder().
                 operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
                 value(profile.getTask().getResource().getKey()).build());
 
-        update(patch);
+        update(req);
 
         result.setStatus(ProvisioningReport.Status.SUCCESS);
     }
 
     protected void unassign(final Any<?> any, final ConnectorObject beforeObj, final ProvisioningReport result) {
-        AnyPatch patch = getAnyUtils().newAnyPatch(any.getKey());
-        patch.getResources().add(new StringPatchItem.Builder().
+        AnyUR req = getAnyUtils().newAnyUR(any.getKey());
+        req.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.DELETE).
                 value(profile.getTask().getResource().getKey()).build());
 
-        update(patch);
+        update(req);
 
         deprovision(any, beforeObj, result);
     }
 
     protected void assign(final Any<?> any, final Boolean enabled, final ProvisioningReport result) {
-        AnyPatch patch = getAnyUtils().newAnyPatch(any.getKey());
-        patch.getResources().add(new StringPatchItem.Builder().
+        AnyUR req = getAnyUtils().newAnyUR(any.getKey());
+        req.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).
                 value(profile.getTask().getResource().getKey()).build());
 
-        update(patch);
+        update(req);
 
         provision(any, enabled, result);
     }

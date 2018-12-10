@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
-import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -63,8 +63,8 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
     }
 
     @Override
-    protected WorkflowResult<? extends AnyPatch> update(final AnyPatch patch) {
-        return awfAdapter.update((AnyObjectPatch) patch);
+    protected WorkflowResult<? extends AnyUR> update(final AnyUR req) {
+        return awfAdapter.update((AnyObjectUR) req);
     }
 
     @Override
@@ -78,17 +78,17 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
     }
 
     @Override
-    protected AnyPatch doUpdate(
+    protected AnyUR doUpdate(
             final AnyTO before,
-            final AnyPatch anyPatch,
+            final AnyUR req,
             final SyncDelta delta,
             final ProvisioningReport result) {
 
-        AnyObjectPatch anyObjectPatch = AnyObjectPatch.class.cast(anyPatch);
+        AnyObjectUR anyObjectUR = AnyObjectUR.class.cast(req);
 
-        Pair<AnyObjectPatch, List<PropagationStatus>> updated = anyObjectProvisioningManager.update(
-                anyObjectPatch, Collections.singleton(profile.getTask().getResource().getKey()), true);
+        Pair<AnyObjectUR, List<PropagationStatus>> updated = anyObjectProvisioningManager.update(
+                anyObjectUR, Collections.singleton(profile.getTask().getResource().getKey()), true);
 
-        return anyPatch;
+        return updated.getLeft();
     }
 }

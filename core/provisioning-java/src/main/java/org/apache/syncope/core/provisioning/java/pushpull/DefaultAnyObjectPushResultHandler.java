@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
-import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -46,7 +46,7 @@ public class DefaultAnyObjectPushResultHandler extends AbstractPushResultHandler
     }
 
     @Override
-    protected WorkflowResult<? extends AnyObjectPatch> update(final AnyPatch patch) {
-        return awfAdapter.update((AnyObjectPatch) patch);
+    protected WorkflowResult<? extends AnyObjectUR> update(final AnyUR req) {
+        return awfAdapter.update((AnyObjectUR) req);
     }
 }

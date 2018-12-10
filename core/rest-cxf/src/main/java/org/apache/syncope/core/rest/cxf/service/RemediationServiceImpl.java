@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -102,10 +102,10 @@ public class RemediationServiceImpl extends AbstractServiceImpl implements Remed
     }
 
     @Override
-    public Response remedy(final String remediationKey, final AnyPatch anyPatch) {
-        check(remediationKey, anyPatch.getKey());
+    public Response remedy(final String remediationKey, final AnyUR anyUR) {
+        check(remediationKey, anyUR.getKey());
 
-        ProvisioningResult<?> updated = logic.remedy(remediationKey, anyPatch, isNullPriorityAsync());
+        ProvisioningResult<?> updated = logic.remedy(remediationKey, anyUR, isNullPriorityAsync());
         return modificationResponse(updated);
     }
 

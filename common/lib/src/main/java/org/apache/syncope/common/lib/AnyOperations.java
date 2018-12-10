@@ -27,18 +27,18 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
-import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.patch.AttrPatch;
-import org.apache.syncope.common.lib.patch.GroupPatch;
-import org.apache.syncope.common.lib.patch.MembershipPatch;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.RelationshipPatch;
-import org.apache.syncope.common.lib.patch.AbstractReplacePatchItem;
-import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
-import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.AttrPatch;
+import org.apache.syncope.common.lib.request.GroupUR;
+import org.apache.syncope.common.lib.request.MembershipPatch;
+import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.RelationshipPatch;
+import org.apache.syncope.common.lib.request.AbstractReplacePatchItem;
+import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
+import org.apache.syncope.common.lib.request.StringPatchItem;
+import org.apache.syncope.common.lib.request.StringReplacePatchItem;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -51,7 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Utility class for comparing {@link AnyTO} instances in order to generate {@link AnyPatch} instances.
+ * Utility class for comparing {@link AnyTO} instances in order to generate {@link AnyUR} instances.
  */
 public final class AnyOperations {
 
@@ -75,7 +75,7 @@ public final class AnyOperations {
     }
 
     private static void diff(
-            final AnyTO updated, final AnyTO original, final AnyPatch result, final boolean incremental) {
+            final AnyTO updated, final AnyTO original, final AnyUR result, final boolean incremental) {
 
         // check same key
         if (updated.getKey() == null && original.getKey() != null
@@ -168,12 +168,12 @@ public final class AnyOperations {
      * @param updated updated AnyObjectTO
      * @param original original AnyObjectTO
      * @param incremental perform incremental diff (without removing existing info)
-     * @return AnyObjectPatch containing differences
+     * @return {@link AnyObjectUR} containing differences
      */
-    public static AnyObjectPatch diff(
+    public static AnyObjectUR diff(
             final AnyObjectTO updated, final AnyObjectTO original, final boolean incremental) {
 
-        AnyObjectPatch result = new AnyObjectPatch();
+        AnyObjectUR result = new AnyObjectUR();
 
         diff(updated, original, result, incremental);
 
@@ -251,10 +251,10 @@ public final class AnyOperations {
      * @param updated updated UserTO
      * @param original original UserTO
      * @param incremental perform incremental diff (without removing existing info)
-     * @return UserPatch containing differences
+     * @return {@link UserUR} containing differences
      */
-    public static UserPatch diff(final UserTO updated, final UserTO original, final boolean incremental) {
-        UserPatch result = new UserPatch();
+    public static UserUR diff(final UserTO updated, final UserTO original, final boolean incremental) {
+        UserUR result = new UserUR();
 
         diff(updated, original, result, incremental);
 
@@ -359,10 +359,10 @@ public final class AnyOperations {
      * @param updated updated GroupTO
      * @param original original GroupTO
      * @param incremental perform incremental diff (without removing existing info)
-     * @return GroupPatch containing differences
+     * @return {@link GroupUR} containing differences
      */
-    public static GroupPatch diff(final GroupTO updated, final GroupTO original, final boolean incremental) {
-        GroupPatch result = new GroupPatch();
+    public static GroupUR diff(final GroupTO updated, final GroupTO original, final boolean incremental) {
+        GroupUR result = new GroupUR();
 
         diff(updated, original, result, incremental);
 
@@ -386,7 +386,7 @@ public final class AnyOperations {
     }
 
     @SuppressWarnings("unchecked")
-    public static <TO extends AnyTO, P extends AnyPatch> P diff(
+    public static <TO extends AnyTO, P extends AnyUR> P diff(
             final TO updated, final TO original, final boolean incremental) {
 
         if (updated instanceof UserTO && original instanceof UserTO) {
@@ -416,21 +416,21 @@ public final class AnyOperations {
         return rwattrs.values();
     }
 
-    private static <T extends AnyTO, K extends AnyPatch> void patch(final T to, final K patch, final T result) {
+    private static <T extends AnyTO, K extends AnyUR> void patch(final T to, final K req, final T result) {
         // check same key
-        if (to.getKey() == null || !to.getKey().equals(patch.getKey())) {
+        if (to.getKey() == null || !to.getKey().equals(req.getKey())) {
             throw new IllegalArgumentException(
-                    to.getClass().getSimpleName() + " and " + patch.getClass().getSimpleName()
+                    to.getClass().getSimpleName() + " and " + req.getClass().getSimpleName()
                     + " keys must be the same");
         }
 
         // 0. realm
-        if (patch.getRealm() != null) {
-            result.setRealm(patch.getRealm().getValue());
+        if (req.getRealm() != null) {
+            result.setRealm(req.getRealm().getValue());
         }
 
         // 1. auxiliary classes
-        for (StringPatchItem auxClassPatch : patch.getAuxClasses()) {
+        for (StringPatchItem auxClassPatch : req.getAuxClasses()) {
             switch (auxClassPatch.getOperation()) {
                 case ADD_REPLACE:
                     result.getAuxClasses().add(auxClassPatch.getValue());
@@ -444,14 +444,14 @@ public final class AnyOperations {
 
         // 2. plain attributes
         result.getPlainAttrs().clear();
-        result.getPlainAttrs().addAll(patch(EntityTOUtils.buildAttrMap(to.getPlainAttrs()), patch.getPlainAttrs()));
+        result.getPlainAttrs().addAll(patch(EntityTOUtils.buildAttrMap(to.getPlainAttrs()), req.getPlainAttrs()));
 
         // 3. virtual attributes
         result.getVirAttrs().clear();
-        result.getVirAttrs().addAll(patch.getVirAttrs());
+        result.getVirAttrs().addAll(req.getVirAttrs());
 
         // 4. resources
-        for (StringPatchItem resourcePatch : patch.getResources()) {
+        for (StringPatchItem resourcePatch : req.getResources()) {
             switch (resourcePatch.getOperation()) {
                 case ADD_REPLACE:
                     result.getResources().add(resourcePatch.getValue());
@@ -464,51 +464,51 @@ public final class AnyOperations {
         }
     }
 
-    public static AnyTO patch(final AnyTO anyTO, final AnyPatch anyPatch) {
+    public static AnyTO patch(final AnyTO anyTO, final AnyUR anyUR) {
         if (anyTO instanceof UserTO) {
-            return patch((UserTO) anyTO, (UserPatch) anyPatch);
+            return patch((UserTO) anyTO, (UserUR) anyUR);
         }
         if (anyTO instanceof GroupTO) {
-            return patch((GroupTO) anyTO, (GroupPatch) anyPatch);
+            return patch((GroupTO) anyTO, (GroupUR) anyUR);
         }
         if (anyTO instanceof AnyObjectTO) {
-            return patch((AnyObjectTO) anyTO, (AnyObjectPatch) anyPatch);
+            return patch((AnyObjectTO) anyTO, (AnyObjectUR) anyUR);
         }
         return null;
     }
 
-    public static GroupTO patch(final GroupTO groupTO, final GroupPatch groupPatch) {
+    public static GroupTO patch(final GroupTO groupTO, final GroupUR groupUR) {
         GroupTO result = SerializationUtils.clone(groupTO);
-        patch(groupTO, groupPatch, result);
+        patch(groupTO, groupUR, result);
 
-        if (groupPatch.getName() != null) {
-            result.setName(groupPatch.getName().getValue());
+        if (groupUR.getName() != null) {
+            result.setName(groupUR.getName().getValue());
         }
 
-        if (groupPatch.getUserOwner() != null) {
-            result.setGroupOwner(groupPatch.getUserOwner().getValue());
+        if (groupUR.getUserOwner() != null) {
+            result.setGroupOwner(groupUR.getUserOwner().getValue());
         }
-        if (groupPatch.getGroupOwner() != null) {
-            result.setGroupOwner(groupPatch.getGroupOwner().getValue());
+        if (groupUR.getGroupOwner() != null) {
+            result.setGroupOwner(groupUR.getGroupOwner().getValue());
         }
 
-        result.setUDynMembershipCond(groupPatch.getUDynMembershipCond());
+        result.setUDynMembershipCond(groupUR.getUDynMembershipCond());
         result.getADynMembershipConds().clear();
-        result.getADynMembershipConds().putAll(groupPatch.getADynMembershipConds());
+        result.getADynMembershipConds().putAll(groupUR.getADynMembershipConds());
 
         return result;
     }
 
-    public static AnyObjectTO patch(final AnyObjectTO anyObjectTO, final AnyObjectPatch anyObjectPatch) {
+    public static AnyObjectTO patch(final AnyObjectTO anyObjectTO, final AnyObjectUR anyObjectUR) {
         AnyObjectTO result = SerializationUtils.clone(anyObjectTO);
-        patch(anyObjectTO, anyObjectPatch, result);
+        patch(anyObjectTO, anyObjectUR, result);
 
-        if (anyObjectPatch.getName() != null) {
-            result.setName(anyObjectPatch.getName().getValue());
+        if (anyObjectUR.getName() != null) {
+            result.setName(anyObjectUR.getName().getValue());
         }
 
         // 1. relationships
-        anyObjectPatch.getRelationships().
+        anyObjectUR.getRelationships().
                 forEach(relPatch -> {
                     if (relPatch.getRelationshipTO() == null) {
                         LOG.warn("Invalid {} specified: {}", RelationshipPatch.class.getName(), relPatch);
@@ -521,7 +521,7 @@ public final class AnyOperations {
                 });
 
         // 2. memberships
-        anyObjectPatch.getMemberships().
+        anyObjectUR.getMemberships().
                 forEach(membPatch -> {
                     if (membPatch.getGroup() == null) {
                         LOG.warn("Invalid {} specified: {}", MembershipPatch.class.getName(), membPatch);
@@ -548,22 +548,22 @@ public final class AnyOperations {
         return result;
     }
 
-    public static UserTO patch(final UserTO userTO, final UserPatch userPatch) {
+    public static UserTO patch(final UserTO userTO, final UserUR userUR) {
         UserTO result = SerializationUtils.clone(userTO);
-        patch(userTO, userPatch, result);
+        patch(userTO, userUR, result);
 
         // 1. password
-        if (userPatch.getPassword() != null) {
-            result.setPassword(userPatch.getPassword().getValue());
+        if (userUR.getPassword() != null) {
+            result.setPassword(userUR.getPassword().getValue());
         }
 
         // 2. username
-        if (userPatch.getUsername() != null) {
-            result.setUsername(userPatch.getUsername().getValue());
+        if (userUR.getUsername() != null) {
+            result.setUsername(userUR.getUsername().getValue());
         }
 
         // 3. relationships
-        userPatch.getRelationships().
+        userUR.getRelationships().
                 forEach(relPatch -> {
                     if (relPatch.getRelationshipTO() == null) {
                         LOG.warn("Invalid {} specified: {}", RelationshipPatch.class.getName(), relPatch);
@@ -576,7 +576,7 @@ public final class AnyOperations {
                 });
 
         // 4. memberships
-        userPatch.getMemberships().
+        userUR.getMemberships().
                 forEach(membPatch -> {
                     if (membPatch.getGroup() == null) {
                         LOG.warn("Invalid {} specified: {}", MembershipPatch.class.getName(), membPatch);
@@ -601,7 +601,7 @@ public final class AnyOperations {
                 });
 
         // 5. roles
-        for (StringPatchItem rolePatch : userPatch.getRoles()) {
+        for (StringPatchItem rolePatch : userUR.getRoles()) {
             switch (rolePatch.getOperation()) {
                 case ADD_REPLACE:
                     result.getRoles().add(rolePatch.getValue());
@@ -620,10 +620,10 @@ public final class AnyOperations {
      * Add PLAIN attribute DELETE patch for those attributes of the input AnyTO without values or containing null value
      *
      * @param anyTO User, Group or Any Object to look for attributes with no value
-     * @param patch patch to enrich with DELETE statements
+     * @param anyUR update req to enrich with DELETE statements
      */
-    public static void cleanEmptyAttrs(final AnyTO anyTO, final AnyPatch patch) {
-        patch.getPlainAttrs().addAll(anyTO.getPlainAttrs().stream().
+    public static void cleanEmptyAttrs(final AnyTO anyTO, final AnyUR anyUR) {
+        anyUR.getPlainAttrs().addAll(anyTO.getPlainAttrs().stream().
                 filter(plainAttrTO -> isEmpty(plainAttrTO)).
                 map(plainAttrTO -> new AttrPatch.Builder().
                 operation(PatchOperation.DELETE).
