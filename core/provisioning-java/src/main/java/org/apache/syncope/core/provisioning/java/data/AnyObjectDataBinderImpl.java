@@ -62,6 +62,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -368,9 +369,23 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 if (membership != null) {
                     anyObject.getMemberships().remove(membership);
                     membership.setLeftEnd(null);
+                    Set<String> membAttrKeys = new HashSet<>();
                     for (APlainAttr attr : anyObject.getPlainAttrs(membership)) {
                         anyObject.remove(attr);
                         attr.setOwner(null);
+                        membAttrKeys.add(attr.getKey());
+                        if (attr.getSchema().isUniqueConstraint()) {
+                            plainAttrValueDAO.delete(attr.getUniqueValue().getKey(), anyUtils.plainAttrValueClass());
+                        } else {
+                            Collection<String> valuesToBeRemoved = 
+                                    CollectionUtils.collect(attr.getValues(), EntityUtils.keyTransformer());
+                            for (String attrValueKey : valuesToBeRemoved) {
+                                plainAttrValueDAO.delete(attrValueKey, anyUtils.plainAttrValueClass());
+                            }
+                        }
+                    }
+                    for (String attrKey : membAttrKeys) {
+                        plainAttrDAO.delete(attrKey, anyUtils.plainAttrClass());
                     }
 
                     if (membPatch.getOperation() == PatchOperation.DELETE) {
