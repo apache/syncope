@@ -369,11 +369,10 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 if (membership != null) {
                     anyObject.getMemberships().remove(membership);
                     membership.setLeftEnd(null);
-                    Set<String> membAttrKeys = new HashSet<>();
                     for (APlainAttr attr : anyObject.getPlainAttrs(membership)) {
                         anyObject.remove(attr);
                         attr.setOwner(null);
-                        membAttrKeys.add(attr.getKey());
+                        attr.setMembership(null);
                         if (attr.getSchema().isUniqueConstraint()) {
                             plainAttrValueDAO.delete(attr.getUniqueValue().getKey(), anyUtils.plainAttrValueClass());
                         } else {
@@ -383,9 +382,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                                 plainAttrValueDAO.delete(attrValueKey, anyUtils.plainAttrValueClass());
                             }
                         }
-                    }
-                    for (String attrKey : membAttrKeys) {
-                        plainAttrDAO.delete(attrKey, anyUtils.plainAttrClass());
+                        plainAttrDAO.delete(attr);
                     }
 
                     if (membPatch.getOperation() == PatchOperation.DELETE) {

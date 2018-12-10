@@ -437,12 +437,10 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 if (membership != null) {
                     user.getMemberships().remove(membership);
                     membership.setLeftEnd(null);
-                    Set<String> membAttrKeys = new HashSet<>();
                     for (UPlainAttr attr : user.getPlainAttrs(membership)) {
                         user.remove(attr);
                         attr.setOwner(null);
                         attr.setMembership(null);
-                        membAttrKeys.add(attr.getKey());
                         if (attr.getSchema().isUniqueConstraint()) {
                             plainAttrValueDAO.delete(attr.getUniqueValue().getKey(), anyUtils.plainAttrValueClass());
                         } else {
@@ -452,9 +450,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                                 plainAttrValueDAO.delete(attrValueKey, anyUtils.plainAttrValueClass());
                             }
                         }
-                    }
-                    for (String attrKey : membAttrKeys) {
-                        plainAttrDAO.delete(attrKey, anyUtils.plainAttrClass());
+                        plainAttrDAO.delete(attr);
                     }
 
                     if (membPatch.getOperation() == PatchOperation.DELETE) {
