@@ -414,12 +414,18 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             user.getMembership(membPatch.getGroup()).ifPresent(membership -> {
                 user.remove(membership);
                 membership.setLeftEnd(null);
+                Set<String> membAttrKeys = new HashSet<>();
                 user.getPlainAttrs(membership).forEach(attr -> {
                     user.remove(attr);
                     attr.setOwner(null);
                     attr.setMembership(null);
+                    membAttrKeys.add(attr.getKey());
+                    plainAttrValueDAO.deleteAll(attr, anyUtils);
                 });
-
+                membAttrKeys.forEach(attrKey -> {
+                    plainAttrDAO.delete(attrKey, anyUtils.plainAttrClass());
+                });
+                
                 if (membPatch.getOperation() == PatchOperation.DELETE) {
                     groupDAO.findAllResourceKeys(membership.getRightEnd().getKey()).stream().
                             filter(resource -> reasons.containsKey(resource)).
