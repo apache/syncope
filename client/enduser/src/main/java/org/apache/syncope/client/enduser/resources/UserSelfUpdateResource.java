@@ -75,14 +75,14 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
                 Set<AttrTO> membAttrs = new HashSet<>();
                 userTO.getPlainAttrs().stream().
                         filter(attr -> (attr.getSchema().contains(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR))).
-                        forEachOrdered((attr) -> {
+                        forEach(attr -> {
                             String[] simpleAttrs = attr.getSchema().split(
                                     SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR);
                             MembershipTO membership = userTO.getMemberships().stream().
                                     filter(item -> simpleAttrs[0].equals(item.getGroupName())).
                                     findFirst().orElse(null);
                             if (membership == null) {
-                                membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
+                                membership = new MembershipTO.Builder(null).groupName(simpleAttrs[0]).build();
                                 userTO.getMemberships().add(membership);
                             }
                             AttrTO clone = SerializationUtils.clone(attr);
@@ -97,7 +97,7 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
                         map(plainSchema -> {
                             millisToDate(userTO.getPlainAttrs(), plainSchema);
                             return plainSchema;
-                        }).forEachOrdered(plainSchema -> {
+                        }).forEach(plainSchema -> {
                     userTO.getMemberships().forEach(membership -> {
                         millisToDate(membership.getPlainAttrs(), plainSchema);
                     });
@@ -106,14 +106,14 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
                 membAttrs.clear();
                 userTO.getDerAttrs().stream().
                         filter(attr -> (attr.getSchema().contains(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR))).
-                        forEachOrdered(attr -> {
+                        forEach(attr -> {
                             String[] simpleAttrs = attr.getSchema().split(
                                     SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR);
                             MembershipTO membership = userTO.getMemberships().stream().
                                     filter(item -> simpleAttrs[0].equals(item.getGroupName())).
                                     findFirst().orElse(null);
                             if (membership == null) {
-                                membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
+                                membership = new MembershipTO.Builder(null).groupName(simpleAttrs[0]).build();
                                 userTO.getMemberships().add(membership);
                             }
                             AttrTO clone = SerializationUtils.clone(attr);
@@ -126,14 +126,14 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
                 membAttrs.clear();
                 userTO.getVirAttrs().stream().
                         filter(attr -> (attr.getSchema().contains(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR))).
-                        forEachOrdered((attr) -> {
+                        forEach((attr) -> {
                             String[] simpleAttrs = attr.getSchema().split(
                                     SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR);
                             MembershipTO membership = userTO.getMemberships().stream().
                                     filter(item -> simpleAttrs[0].equals(item.getGroupName())).
                                     findFirst().orElse(null);
                             if (membership == null) {
-                                membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
+                                membership = new MembershipTO.Builder(null).groupName(simpleAttrs[0]).build();
                                 userTO.getMemberships().add(membership);
 
                             }
@@ -212,7 +212,7 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
                 EntityTOUtils.buildAttrMap(userTOAttrs);
         selfTOAttrs.stream().
                 filter(selfTOAttr -> (!userTOAttrsMap.containsKey(selfTOAttr.getSchema()))).
-                forEachOrdered(selfTOAttr -> {
+                forEach(selfTOAttr -> {
                     userTOAttrs.add(selfTOAttr);
                 });
     }

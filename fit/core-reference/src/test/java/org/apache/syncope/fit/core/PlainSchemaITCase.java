@@ -187,10 +187,10 @@ public class PlainSchemaITCase extends AbstractITCase {
         UserUR userUR = new UserUR();
         userUR.setKey(userTO.getKey());
         // validation OK - application/pdf -> application/pdf
-        userUR.getPlainAttrs().add(new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).
-                attrTO(attrTO("BinaryPDF",
-                        Base64.getEncoder().encodeToString(
-                                IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.pdf"))))).
+        userUR.getPlainAttrs().add(new AttrPatch.Builder(attrTO("BinaryPDF",
+                Base64.getEncoder().encodeToString(
+                        IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.pdf"))))).
+                operation(PatchOperation.ADD_REPLACE).
                 build());
 
         updateUser(userUR);
@@ -200,10 +200,10 @@ public class PlainSchemaITCase extends AbstractITCase {
         userUR.setKey(userTO.getKey());
         // validation KO - text/html -> application/pdf
         try {
-            userUR.getPlainAttrs().add(new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).
-                    attrTO(attrTO("BinaryPDF",
-                            Base64.getEncoder().encodeToString(
-                                    IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.html"))))).
+            userUR.getPlainAttrs().add(new AttrPatch.Builder(attrTO("BinaryPDF",
+                    Base64.getEncoder().encodeToString(
+                            IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.html"))))).
+                    operation(PatchOperation.ADD_REPLACE).
                     build());
 
             updateUser(userUR);
@@ -215,10 +215,10 @@ public class PlainSchemaITCase extends AbstractITCase {
         userUR = new UserUR();
         userUR.setKey(userTO.getKey());
         // validation ok - application/json -> application/json
-        userUR.getPlainAttrs().add(new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).
-                attrTO(attrTO("BinaryJSON",
-                        Base64.getEncoder().encodeToString(
-                                IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.json"))))).
+        userUR.getPlainAttrs().add(new AttrPatch.Builder(attrTO("BinaryJSON",
+                Base64.getEncoder().encodeToString(
+                        IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.json"))))).
+                operation(PatchOperation.ADD_REPLACE).
                 build());
 
         updateUser(userUR);
@@ -227,10 +227,10 @@ public class PlainSchemaITCase extends AbstractITCase {
         userUR = new UserUR();
         userUR.setKey(userTO.getKey());
         // no validation - application/xml -> application/json
-        userUR.getPlainAttrs().add(new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).
-                attrTO(attrTO("BinaryJSON2",
-                        Base64.getEncoder().encodeToString(
-                                IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.xml"))))).
+        userUR.getPlainAttrs().add(new AttrPatch.Builder(attrTO("BinaryJSON2",
+                Base64.getEncoder().encodeToString(
+                        IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.xml"))))).
+                operation(PatchOperation.ADD_REPLACE).
                 build());
 
         updateUser(userUR);
@@ -351,8 +351,8 @@ public class PlainSchemaITCase extends AbstractITCase {
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
 
-        UserUR req = new UserUR.Builder().key(userTO.getKey()).
-                membership(new MembershipUR.Builder().group("b1f7c12d-ec83-441f-a50e-1691daaedf3b").build()).build();
+        UserUR req = new UserUR.Builder(userTO.getKey()).
+                membership(new MembershipUR.Builder("b1f7c12d-ec83-441f-a50e-1691daaedf3b").build()).build();
 
         UserTO newUserTO = updateUser(req).getEntity();
         assertNotNull(newUserTO);

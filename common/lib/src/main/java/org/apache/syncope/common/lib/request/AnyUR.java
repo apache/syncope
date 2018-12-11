@@ -51,19 +51,17 @@ public abstract class AnyUR implements Serializable {
 
         protected R instance;
 
+        Builder(final String key) {
+            getInstance().setKey(key);
+        }
+
         protected abstract R newInstance();
 
-        protected R getInstance() {
+        protected final R getInstance() {
             if (instance == null) {
                 instance = newInstance();
             }
             return instance;
-        }
-
-        @SuppressWarnings("unchecked")
-        public B key(final String key) {
-            getInstance().setKey(key);
-            return (B) this;
         }
 
         @SuppressWarnings("unchecked")

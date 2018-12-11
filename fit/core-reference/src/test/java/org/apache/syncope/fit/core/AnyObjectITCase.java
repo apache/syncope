@@ -48,9 +48,7 @@ import org.junit.jupiter.api.Test;
 public class AnyObjectITCase extends AbstractITCase {
 
     public static AnyObjectCR getSample(final String location) {
-        return new AnyObjectCR.Builder("PRINTER").
-                name(location + getUUIDString()).
-                realm(SyncopeConstants.ROOT_REALM).
+        return new AnyObjectCR.Builder(SyncopeConstants.ROOT_REALM, "PRINTER", location + getUUIDString()).
                 plainAttr(attrTO("location", location + getUUIDString())).
                 resource(RESOURCE_NAME_DBSCRIPTED).
                 build();
@@ -77,8 +75,7 @@ public class AnyObjectITCase extends AbstractITCase {
         // 1. create anyObject in realm /odd and attempt to assign group 15, from realm /even => exception
         AnyObjectCR anyObjectCR = getSample("createInvalidMembership");
         anyObjectCR.setRealm("/odd");
-        anyObjectCR.getMemberships().add(
-                new MembershipTO.Builder().group("034740a9-fa10-453b-af37-dc7897e98fb1").build());
+        anyObjectCR.getMemberships().add(new MembershipTO.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").build());
 
         try {
             createAnyObject(anyObjectCR);

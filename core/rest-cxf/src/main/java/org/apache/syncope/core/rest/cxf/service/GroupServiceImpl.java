@@ -55,7 +55,7 @@ public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupCR, Group
 
     @Override
     protected GroupUR newUpdateReq(final String key) {
-        return new GroupUR.Builder().key(key).build();
+        return new GroupUR.Builder(key).build();
     }
 
     @Override

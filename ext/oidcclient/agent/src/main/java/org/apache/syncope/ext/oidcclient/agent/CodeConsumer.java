@@ -66,8 +66,7 @@ public class CodeConsumer extends HttpServlet {
                         authorizationCode,
                         request.getSession().getAttribute(OIDCConstants.OP).toString());
                 if (responseTO.isSelfReg()) {
-                    responseTO.getAttrs().add(
-                            new AttrTO.Builder().schema("username").values(responseTO.getUsername()).build());
+                    responseTO.getAttrs().add(new AttrTO.Builder("username").values(responseTO.getUsername()).build());
                     request.getSession(true).
                             setAttribute(Constants.OIDCCLIENT_USER_ATTRS, MAPPER.writeValueAsString(responseTO.
                                     getAttrs()));

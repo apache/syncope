@@ -53,13 +53,10 @@ public class AnyObjectCR extends AnyCR implements GroupableRelatableTO {
             return new AnyObjectCR();
         }
 
-        public Builder(final String type) {
+        public Builder(final String realm, final String type, final String name) {
+            super(realm);
             getInstance().setType(type);
-        }
-
-        public Builder name(final String name) {
             getInstance().setName(name);
-            return this;
         }
 
         public Builder relationship(final RelationshipTO relationship) {

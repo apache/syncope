@@ -802,7 +802,7 @@ public class MappingManagerImpl implements MappingManager {
                         anyTO.getPlainAttrs().add(attrTO);
                     } else {
                         MembershipTO membership = groupableTO.getMembership(group.getKey()).orElseGet(() -> {
-                            MembershipTO newMemb = new MembershipTO.Builder().group(group.getKey()).build();
+                            MembershipTO newMemb = new MembershipTO.Builder(group.getKey()).build();
                             groupableTO.getMemberships().add(newMemb);
                             return newMemb;
                         });
@@ -818,7 +818,7 @@ public class MappingManagerImpl implements MappingManager {
                         anyTO.getDerAttrs().add(attrTO);
                     } else {
                         MembershipTO membership = groupableTO.getMembership(group.getKey()).orElseGet(() -> {
-                            MembershipTO newMemb = new MembershipTO.Builder().group(group.getKey()).build();
+                            MembershipTO newMemb = new MembershipTO.Builder(group.getKey()).build();
                             groupableTO.getMemberships().add(newMemb);
                             return newMemb;
                         });
@@ -841,7 +841,7 @@ public class MappingManagerImpl implements MappingManager {
                         anyTO.getVirAttrs().add(attrTO);
                     } else {
                         MembershipTO membership = groupableTO.getMembership(group.getKey()).orElseGet(() -> {
-                            MembershipTO newMemb = new MembershipTO.Builder().group(group.getKey()).build();
+                            MembershipTO newMemb = new MembershipTO.Builder(group.getKey()).build();
                             groupableTO.getMemberships().add(newMemb);
                             return newMemb;
                         });

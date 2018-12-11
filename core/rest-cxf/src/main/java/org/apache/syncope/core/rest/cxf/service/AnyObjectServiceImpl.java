@@ -59,7 +59,7 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
 
     @Override
     protected AnyObjectUR newUpdateReq(final String key) {
-        return new AnyObjectUR.Builder().key(key).build();
+        return new AnyObjectUR.Builder(key).build();
     }
 
     @Override

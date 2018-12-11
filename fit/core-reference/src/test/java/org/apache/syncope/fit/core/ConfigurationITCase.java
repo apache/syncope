@@ -53,7 +53,7 @@ public class ConfigurationITCase extends AbstractITCase {
         testKey.setType(AttrSchemaType.String);
         createSchema(SchemaType.PLAIN, testKey);
 
-        AttrTO conf = new AttrTO.Builder().schema(testKey.getKey()).value("testValue").build();
+        AttrTO conf = new AttrTO.Builder(testKey.getKey()).value("testValue").build();
 
         configurationService.set(conf);
 
@@ -69,7 +69,7 @@ public class ConfigurationITCase extends AbstractITCase {
         testKey.setMandatoryCondition("true");
         createSchema(SchemaType.PLAIN, testKey);
 
-        AttrTO conf = new AttrTO.Builder().schema(testKey.getKey()).build();
+        AttrTO conf = new AttrTO.Builder(testKey.getKey()).build();
         try {
             configurationService.set(conf);
             fail("This should not happen");

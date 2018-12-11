@@ -56,8 +56,7 @@ public class AssertionConsumer extends AbstractSAML2SPServlet {
                             request.getInputStream()));
 
             if (responseTO.isSelfReg()) {
-                responseTO.getAttrs().add(
-                        new AttrTO.Builder().schema("username").values(responseTO.getUsername()).build());
+                responseTO.getAttrs().add(new AttrTO.Builder("username").values(responseTO.getUsername()).build());
                 request.getSession(true).
                         setAttribute(Constants.SAML2SP_USER_ATTRS, MAPPER.writeValueAsString(responseTO.getAttrs()));
 

@@ -114,8 +114,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertTrue(userTO.getResources().isEmpty());
 
         // 2. update assigning a resource forcing mandatory constraints: must fail with RequiredValuesMissing
-        UserUR userUR = new UserUR.Builder().
-                key(userTO.getKey()).
+        UserUR userUR = new UserUR.Builder(userTO.getKey()).
                 password(new PasswordPatch.Builder().value("newPassword123").build()).
                 resource(new StringPatchItem.Builder().
                         operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS2).build()).
@@ -269,10 +268,8 @@ public class UserIssuesITCase extends AbstractITCase {
         userCR.getVirAttrs().clear();
         userCR.getAuxClasses().add("csv");
 
-        userCR.getMemberships().add(new MembershipTO.Builder().
-                group("0626100b-a4ba-4e00-9971-86fad52a6216").build());
-        userCR.getMemberships().add(new MembershipTO.Builder().
-                group("ba9ed509-b1f5-48ab-a334-c8530a6422dc").build());
+        userCR.getMemberships().add(new MembershipTO.Builder("0626100b-a4ba-4e00-9971-86fad52a6216").build());
+        userCR.getMemberships().add(new MembershipTO.Builder("ba9ed509-b1f5-48ab-a334-c8530a6422dc").build());
 
         userCR.getResources().add(RESOURCE_NAME_CSV);
 
@@ -288,11 +285,10 @@ public class UserIssuesITCase extends AbstractITCase {
         // -----------------------------------
         // Remove the first membership: de-provisioning shouldn't happen
         // -----------------------------------
-        UserUR userUR = new UserUR();
-        userUR.setKey(userTO.getKey());
-
-        userUR.getMemberships().add(new MembershipUR.Builder().
-                operation(PatchOperation.DELETE).group(userTO.getMemberships().get(0).getGroupKey()).build());
+        UserUR userUR = new UserUR.Builder(userTO.getKey()).
+                membership(new MembershipUR.Builder(userTO.getMemberships().get(0).getGroupKey()).
+                        operation(PatchOperation.DELETE).build()).
+                build();
 
         userTO = updateUser(userUR).getEntity();
         assertNotNull(userTO);
@@ -323,11 +319,10 @@ public class UserIssuesITCase extends AbstractITCase {
         // -----------------------------------
         // Remove the first membership: de-provisioning should happen
         // -----------------------------------
-        userUR = new UserUR();
-        userUR.setKey(userTO.getKey());
-
-        userUR.getMemberships().add(new MembershipUR.Builder().
-                operation(PatchOperation.DELETE).group(userTO.getMemberships().get(0).getGroupKey()).build());
+        userUR = new UserUR.Builder(userTO.getKey()).
+                membership(new MembershipUR.Builder(userTO.getMemberships().get(0).getGroupKey()).
+                        operation(PatchOperation.DELETE).build()).
+                build();
 
         userTO = updateUser(userUR).getEntity();
         assertNotNull(userTO);
@@ -641,7 +636,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 2. create user with LDAP resource and membership of the above group
         UserCR userCR = UserITCase.getUniqueSample("syncope354@syncope.apache.org");
         userCR.getResources().add(RESOURCE_NAME_LDAP);
-        userCR.getMemberships().add(new MembershipTO.Builder().group(groupTO.getKey()).build());
+        userCR.getMemberships().add(new MembershipTO.Builder(groupTO.getKey()).build());
 
         UserTO userTO = createUser(userCR).getEntity();
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
@@ -657,8 +652,8 @@ public class UserIssuesITCase extends AbstractITCase {
         // 4. remove membership
         UserUR userUR = new UserUR();
         userUR.setKey(userTO.getKey());
-        userUR.getMemberships().add(new MembershipUR.Builder().operation(PatchOperation.DELETE).
-                group(userTO.getMemberships().get(0).getGroupKey()).build());
+        userUR.getMemberships().add(new MembershipUR.Builder(userTO.getMemberships().get(0).getGroupKey()).
+                operation(PatchOperation.DELETE).build());
 
         userTO = updateUser(userUR).getEntity();
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
@@ -699,7 +694,7 @@ public class UserIssuesITCase extends AbstractITCase {
         userCR.getPlainAttrs().add(attrTO("obscure", "valueToBeObscured"));
         userCR.getPlainAttrs().add(attrTO("photo", Base64.getEncoder().encodeToString(
                 IOUtils.readBytesFromStream(getClass().getResourceAsStream("/favicon.jpg")))));
-        userCR.getMemberships().add(new MembershipTO.Builder().group(groupTO.getKey()).build());
+        userCR.getMemberships().add(new MembershipTO.Builder(groupTO.getKey()).build());
 
         UserTO userTO = createUser(userCR).getEntity();
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
@@ -1304,8 +1299,8 @@ public class UserIssuesITCase extends AbstractITCase {
             // 5. update user with the new group, and don't provide any password
             UserUR userUR = new UserUR();
             userUR.setKey(userTO.getKey());
-            userUR.getMemberships().add(new MembershipUR.Builder().operation(PatchOperation.ADD_REPLACE).
-                    group(group.getKey()).build());
+            userUR.getMemberships().add(new MembershipUR.Builder(group.getKey()).
+                    operation(PatchOperation.ADD_REPLACE).build());
 
             ProvisioningResult<UserTO> result = updateUser(userUR);
             assertNotNull(result);
@@ -1340,8 +1335,8 @@ public class UserIssuesITCase extends AbstractITCase {
         UserCR userCR = UserITCase.getUniqueSample("syncope710@syncope.apache.org");
         userCR.getResources().clear();
         userCR.getMemberships().clear();
-        userCR.getMemberships().add(new MembershipTO.Builder().group(ldapGroup.getKey()).build());
-        userCR.getMemberships().add(new MembershipTO.Builder().group(dbGroup.getKey()).build());
+        userCR.getMemberships().add(new MembershipTO.Builder(ldapGroup.getKey()).build());
+        userCR.getMemberships().add(new MembershipTO.Builder(dbGroup.getKey()).build());
 
         ProvisioningResult<UserTO> result = createUser(userCR);
         assertEquals(2, result.getPropagationStatuses().size());
@@ -1371,7 +1366,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 2. create user and assign such group
         UserCR userCR = UserITCase.getUniqueSample("syncope881U@apache.org");
         userCR.getMemberships().clear();
-        userCR.getMemberships().add(new MembershipTO.Builder().group(group.getKey()).build());
+        userCR.getMemberships().add(new MembershipTO.Builder(group.getKey()).build());
 
         UserTO user = createUser(userCR).getEntity();
         assertNotNull(user);
@@ -1405,9 +1400,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 2. create user matching the condition above
         UserCR userCR = UserITCase.getUniqueSample("syncope1099U@apache.org");
-        userCR.getPlainAttrs().stream().
-                filter(attr -> "firstname".equals(attr.getSchema())).findFirst().get().
-                getValues().set(0, "issueSYNCOPE1099");
+        userCR.getPlainAttr("firstname").get().getValues().set(0, "issueSYNCOPE1099");
 
         ProvisioningResult<UserTO> created = createUser(userCR);
         assertNotNull(created);
@@ -1471,7 +1464,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 3. update user to match the dynamic condition: expect propagation to LDAP
         UserUR userUR = new UserUR();
         userUR.setKey(result.getEntity().getKey());
-        userUR.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("cool", "true")).build());
+        userUR.getPlainAttrs().add(new AttrPatch.Builder(attrTO("cool", "true")).build());
 
         result = updateUser(userUR);
         assertEquals(1, result.getPropagationStatuses().size());
@@ -1480,7 +1473,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 4. update again user to not match the dynamic condition any more: expect propagation to LDAP
         userUR = new UserUR();
         userUR.setKey(result.getEntity().getKey());
-        userUR.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("cool", "false")).build());
+        userUR.getPlainAttrs().add(new AttrPatch.Builder(attrTO("cool", "false")).build());
 
         result = updateUser(userUR);
         assertEquals(1, result.getPropagationStatuses().size());

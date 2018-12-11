@@ -94,7 +94,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
         WorkflowResult<String> created = gwfAdapter.create(groupCR);
 
         // see ConnObjectUtils#getAnyTOFromConnObject for GroupOwnerSchema
-        groupCR.getPlainAttrs().stream().filter(attr -> StringUtils.EMPTY.equals(attr.getSchema())).findFirst().
+        groupCR.getPlainAttr(StringUtils.EMPTY).
                 ifPresent(groupOwner -> groupOwnerMap.put(created.getResult(), groupOwner.getValues().get(0)));
 
         List<PropagationTaskInfo> tasks = propagationManager.getCreateTasks(

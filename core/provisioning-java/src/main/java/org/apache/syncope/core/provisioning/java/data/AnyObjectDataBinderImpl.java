@@ -121,11 +121,9 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
             // dynamic memberships
             anyObjectTO.getDynMemberships().addAll(
-                    anyObjectDAO.findDynGroups(anyObject.getKey()).stream().map(group -> {
-                        return new MembershipTO.Builder().
-                                group(group.getKey(), group.getName()).
-                                build();
-                    }).collect(Collectors.toList()));
+                    anyObjectDAO.findDynGroups(anyObject.getKey()).stream().
+                            map(group -> new MembershipTO.Builder(group.getKey()).groupName(group.getName()).build()).
+                            collect(Collectors.toList()));
         }
 
         return anyObjectTO;
@@ -387,7 +385,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                                 newAttr.setSchema(schema);
                                 anyObject.add(newAttr);
 
-                                AttrPatch patch = new AttrPatch.Builder().attrTO(attrTO).build();
+                                AttrPatch patch = new AttrPatch.Builder(attrTO).build();
                                 processAttrPatch(
                                         anyObject, patch, schema, newAttr, anyUtils,
                                         resources, propByRes, invalidValues);

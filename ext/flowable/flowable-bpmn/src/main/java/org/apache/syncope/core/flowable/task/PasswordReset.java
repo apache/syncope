@@ -51,7 +51,7 @@ public class PasswordReset extends FlowableServiceTask {
 
         user.removeToken();
 
-        UserUR req = new UserUR.Builder().key(user.getKey()).
+        UserUR req = new UserUR.Builder(user.getKey()).
                 password(new PasswordPatch.Builder().
                         onSyncope(true).
                         resources(userDAO.findAllResourceKeys(user.getKey())).

@@ -47,6 +47,10 @@ public class GroupUR extends AnyUR {
 
     public static class Builder extends AnyUR.Builder<GroupUR, Builder> {
 
+        public Builder(final String key) {
+            super(key);
+        }
+
         @Override
         protected GroupUR newInstance() {
             return new GroupUR();

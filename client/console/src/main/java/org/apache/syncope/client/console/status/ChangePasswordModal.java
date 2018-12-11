@@ -86,7 +86,7 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
                     }
                 }
 
-                UserUR req = new UserUR.Builder().key(inner.getKey()).
+                UserUR req = new UserUR.Builder(inner.getKey()).
                         password(new PasswordPatch.Builder().
                                 value(inner.getPassword()).onSyncope(isOnSyncope).resources(resources).build()).
                         build();

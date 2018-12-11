@@ -164,8 +164,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         UserTO userTemplate = new UserTO();
         userTemplate.getResources().add(RESOURCE_NAME_WS2);
 
-        userTemplate.getMemberships().add(
-                new MembershipTO.Builder().group("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
+        userTemplate.getMemberships().add(new MembershipTO.Builder("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
         task.getTemplates().put(AnyTypeKind.USER.name(), userTemplate);
 
         GroupTO groupTemplate = new GroupTO();
@@ -778,9 +777,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
             AnyCR userCR = remediation.get().getAnyCRPayload();
             userCR.getResources().clear();
 
-            String email = userCR.getPlainAttrs().stream().
-                    filter(attr -> "email".equals(attr.getSchema())).findFirst().get().getValues().get(0);
-            userCR.getPlainAttrs().add(new AttrTO.Builder().schema("userId").value(email).build());
+            String email = userCR.getPlainAttr("email").get().getValues().get(0);
+            userCR.getPlainAttrs().add(new AttrTO.Builder("userId").value(email).build());
 
             remediationService.remedy(remediation.get().getKey(), userCR);
 
@@ -821,8 +819,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         userCR.getResources().add(RESOURCE_NAME_NOPROPAGATION2);
         userCR.getResources().add(RESOURCE_NAME_NOPROPAGATION4);
 
-        userCR.getMemberships().add(
-                new MembershipTO.Builder().group("bf825fe1-7320-4a54-bd64-143b5c18ab97").build());
+        userCR.getMemberships().add(new MembershipTO.Builder("bf825fe1-7320-4a54-bd64-143b5c18ab97").build());
 
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
@@ -837,8 +834,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             //-----------------------------
             UserTO template = new UserTO();
 
-            template.getMemberships().add(
-                    new MembershipTO.Builder().group("b8d38784-57e7-4595-859a-076222644b55").build());
+            template.getMemberships().add(new MembershipTO.Builder("b8d38784-57e7-4595-859a-076222644b55").build());
 
             template.getResources().add(RESOURCE_NAME_NOPROPAGATION4);
             //-----------------------------
@@ -1233,7 +1229,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             UserTO template = new UserTO();
             template.getAuxClasses().add("minimal group");
-            template.getMemberships().add(new MembershipTO.Builder().group(propagationGroup.getKey()).build());
+            template.getMemberships().add(new MembershipTO.Builder(propagationGroup.getKey()).build());
             template.getPlainAttrs().add(attrTO("firstname", "'fixed'"));
             pullTask.getTemplates().put(AnyTypeKind.USER.name(), template);
 

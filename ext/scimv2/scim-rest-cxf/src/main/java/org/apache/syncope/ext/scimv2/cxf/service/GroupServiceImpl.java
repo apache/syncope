@@ -57,10 +57,9 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
 
         // then assign members
         group.getMembers().forEach(member -> {
-            UserUR req = new UserUR.Builder().
-                    key(member.getValue()).
-                    membership(new MembershipUR.Builder().
-                            operation(PatchOperation.ADD_REPLACE).group(result.getEntity().getKey()).build()).
+            UserUR req = new UserUR.Builder(member.getValue()).
+                    membership(new MembershipUR.Builder(result.getEntity().getKey()).
+                            operation(PatchOperation.ADD_REPLACE).build()).
                     build();
             try {
                 userLogic().update(req, false);
@@ -136,10 +135,9 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
             afterMembers.add(member.getValue());
 
             if (!beforeMembers.contains(member.getValue())) {
-                UserUR req = new UserUR.Builder().
-                        key(member.getValue()).
-                        membership(new MembershipUR.Builder().
-                                operation(PatchOperation.ADD_REPLACE).group(result.getEntity().getKey()).build()).
+                UserUR req = new UserUR.Builder(member.getValue()).
+                        membership(new MembershipUR.Builder(result.getEntity().getKey()).
+                                operation(PatchOperation.ADD_REPLACE).build()).
                         build();
                 try {
                     userLogic().update(req, false);
@@ -151,10 +149,9 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
         });
         // remove unconfirmed members
         beforeMembers.stream().filter(member -> !afterMembers.contains(member)).forEach(user -> {
-            UserUR req = new UserUR.Builder().
-                    key(user).
-                    membership(new MembershipUR.Builder().
-                            operation(PatchOperation.DELETE).group(result.getEntity().getKey()).build()).
+            UserUR req = new UserUR.Builder(user).
+                    membership(new MembershipUR.Builder(result.getEntity().getKey()).
+                            operation(PatchOperation.DELETE).build()).
                     build();
             try {
                 userLogic().update(req, false);

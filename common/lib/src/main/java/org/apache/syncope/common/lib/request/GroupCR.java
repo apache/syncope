@@ -47,14 +47,14 @@ public class GroupCR extends AnyCR {
 
     public static class Builder extends AnyCR.Builder<GroupCR, Builder> {
 
+        public Builder(final String realm, final String name) {
+            super(realm);
+            getInstance().setName(name);
+        }
+
         @Override
         protected GroupCR newInstance() {
             return new GroupCR();
-        }
-
-        public Builder name(final String name) {
-            getInstance().setName(name);
-            return this;
         }
 
         public Builder userOwner(final String userOwner) {

@@ -50,8 +50,7 @@ public class AssignDirectorGroup extends FlowableServiceTask {
 
             UserUR userUR = new UserUR();
             userUR.setKey(user.getKey());
-            userUR.getMemberships().add(new MembershipUR.Builder().
-                    group("ebf97068-aa4b-4a85-9f01-680e8c4cf227").build());
+            userUR.getMemberships().add(new MembershipUR.Builder("ebf97068-aa4b-4a85-9f01-680e8c4cf227").build());
 
             PropagationByResource propByRes = dataBinder.update(user, userUR);
 

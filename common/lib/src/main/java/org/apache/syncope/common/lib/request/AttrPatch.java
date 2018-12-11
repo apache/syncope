@@ -33,16 +33,15 @@ public class AttrPatch extends AbstractPatch {
 
     public static class Builder extends AbstractPatch.Builder<AttrPatch, Builder> {
 
+        public Builder(final AttrTO attrTO) {
+            super();
+            getInstance().setAttrTO(attrTO);
+        }
+
         @Override
         protected AttrPatch newInstance() {
             return new AttrPatch();
         }
-
-        public Builder attrTO(final AttrTO attrTO) {
-            getInstance().setAttrTO(attrTO);
-            return this;
-        }
-
     }
 
     private AttrTO attrTO;

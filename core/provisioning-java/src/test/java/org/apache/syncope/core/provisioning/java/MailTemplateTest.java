@@ -99,10 +99,10 @@ public class MailTemplateTest extends AbstractTest {
         String username = "test" + UUID.randomUUID().toString();
         UserTO user = new UserTO();
         user.setUsername(username);
-        user.getPlainAttrs().add(new AttrTO.Builder().schema("firstname").value("John").build());
-        user.getPlainAttrs().add(new AttrTO.Builder().schema("surname").value("Doe").build());
-        user.getPlainAttrs().add(new AttrTO.Builder().schema("email").value("john.doe@syncope.apache.org").build());
-        user.getMemberships().add(new MembershipTO.Builder().group(UUID.randomUUID().toString(), "a group").build());
+        user.getPlainAttrs().add(new AttrTO.Builder("firstname").value("John").build());
+        user.getPlainAttrs().add(new AttrTO.Builder("surname").value("Doe").build());
+        user.getPlainAttrs().add(new AttrTO.Builder("email").value("john.doe@syncope.apache.org").build());
+        user.getMemberships().add(new MembershipTO.Builder(UUID.randomUUID().toString()).groupName("a group").build());
         ctx.put("user", user);
 
         String token = "token " + UUID.randomUUID().toString();

@@ -142,8 +142,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             // 1. create printer on external resource
             AnyObjectCR anyObjectCR = AnyObjectITCase.getSample("propagationJEXLTransformer");
-            String originalLocation = anyObjectCR.getPlainAttrs().stream().
-                    filter(attr -> "location".equals(attr.getSchema())).findFirst().get().getValues().get(0);
+            String originalLocation = anyObjectCR.getPlainAttr("location").get().getValues().get(0);
             assertFalse(originalLocation.endsWith(suffix));
 
             AnyObjectTO anyObjectTO = createAnyObject(anyObjectCR).getEntity();
@@ -258,9 +257,9 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         for (int i = 0; i < 9; i++) {
             UserUR userUR = new UserUR();
             userUR.setKey(userTO.getKey());
-            userUR.getPlainAttrs().add(new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).
-                    attrTO(new AttrTO.Builder().schema("userId").value(
-                            "test" + getUUIDString() + i + "@test.com").build()).
+            userUR.getPlainAttrs().add(new AttrPatch.Builder(new AttrTO.Builder("userId").value(
+                    "test" + getUUIDString() + i + "@test.com").build()).
+                    operation(PatchOperation.ADD_REPLACE).
                     build());
 
             userService.update(userUR);

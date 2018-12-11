@@ -54,7 +54,7 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserCR, UserUR> 
 
     @Override
     protected UserUR newUpdateReq(final String key) {
-        return new UserUR.Builder().key(key).build();
+        return new UserUR.Builder(key).build();
     }
 
     @Override

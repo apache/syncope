@@ -74,10 +74,9 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
                     groups.forEach(group -> {
                         Set<String> before = membershipsBefore.get(user);
                         if (before == null || !before.contains(group)) {
-                            userUR.getMemberships().add(new MembershipUR.Builder().
-                                            operation(PatchOperation.ADD_REPLACE).
-                                            group(group).
-                                            build());
+                            userUR.getMemberships().add(new MembershipUR.Builder(group).
+                                    operation(PatchOperation.ADD_REPLACE).
+                                    build());
                         }
                     });
                 });
@@ -86,7 +85,7 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
                     UserUR userUR = updateReqs.stream().
                             filter(req -> user.equals(req.getKey())).findFirst().
                             orElseGet(() -> {
-                                UserUR req = new UserUR.Builder().key(user).build();
+                                UserUR req = new UserUR.Builder(user).build();
                                 updateReqs.add(req);
                                 return req;
                             });
@@ -94,10 +93,9 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
                     groups.forEach(group -> {
                         Set<String> after = membershipsAfter.get(user);
                         if (after == null || !after.contains(group)) {
-                            userUR.getMemberships().add(new MembershipUR.Builder().
-                                            operation(PatchOperation.DELETE).
-                                            group(group).
-                                            build());
+                            userUR.getMemberships().add(new MembershipUR.Builder(group).
+                                    operation(PatchOperation.DELETE).
+                                    build());
                         }
                     });
                 });

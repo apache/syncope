@@ -40,6 +40,10 @@ public class UserUR extends AnyUR {
 
     public static class Builder extends AnyUR.Builder<UserUR, Builder> {
 
+        public Builder(final String key) {
+            super(key);
+        }
+
         @Override
         protected UserUR newInstance() {
             return new UserUR();

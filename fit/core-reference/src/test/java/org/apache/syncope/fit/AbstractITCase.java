@@ -354,11 +354,11 @@ public abstract class AbstractITCase {
     }
 
     protected static AttrTO attrTO(final String schema, final String value) {
-        return new AttrTO.Builder().schema(schema).value(value).build();
+        return new AttrTO.Builder(schema).value(value).build();
     }
 
     protected static AttrPatch attrAddReplacePatch(final String schema, final String value) {
-        return new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).attrTO(attrTO(schema, value)).build();
+        return new AttrPatch.Builder(attrTO(schema, value)).operation(PatchOperation.ADD_REPLACE).build();
     }
 
     public static <T> T getObject(final URI location, final Class<?> serviceClass, final Class<T> resultClass) {
@@ -439,8 +439,7 @@ public abstract class AbstractITCase {
 
         // 2. create user
         UserCR req = UserITCase.getUniqueSample("notificationtest@syncope.apache.org");
-        req.getMemberships().add(
-                new MembershipTO.Builder().group("bf825fe1-7320-4a54-bd64-143b5c18ab97").build());
+        req.getMemberships().add(new MembershipTO.Builder("bf825fe1-7320-4a54-bd64-143b5c18ab97").build());
 
         UserTO userTO = createUser(req).getEntity();
         assertNotNull(userTO);

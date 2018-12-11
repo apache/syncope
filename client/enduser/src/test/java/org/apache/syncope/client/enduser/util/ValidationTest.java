@@ -36,8 +36,8 @@ import org.springframework.core.io.ClassPathResource;
 
 public class ValidationTest {
 
-    private AttrTO attrTO(String schemaKey, String... values) {
-        return new AttrTO.Builder().schema(schemaKey).values(values).build();
+    private AttrTO attrTO(final String schemaKey, final String... values) {
+        return new AttrTO.Builder(schemaKey).values(values).build();
     }
 
     @Test

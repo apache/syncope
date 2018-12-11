@@ -162,7 +162,7 @@ public class SCIMDataBinder {
         attrs.putAll(EntityTOUtils.buildAttrMap(userTO.getPlainAttrs()));
         attrs.putAll(EntityTOUtils.buildAttrMap(userTO.getDerAttrs()));
         attrs.putAll(EntityTOUtils.buildAttrMap(userTO.getVirAttrs()));
-        attrs.put("username", new AttrTO.Builder().schema("username").value(userTO.getUsername()).build());
+        attrs.put("username", new AttrTO.Builder("username").value(userTO.getUsername()).build());
 
         if (conf.getUserConf() != null) {
             if (output(attributes, excludedAttributes, "name") && conf.getUserConf().getName() != null) {
@@ -433,7 +433,7 @@ public class SCIMDataBinder {
                 confs.stream().
                         filter(object -> value.getType().equals(object.getType().name())).findFirst().
                         ifPresent(conf -> attrs.add(
-                        new AttrTO.Builder().schema(conf.getValue()).value(value.getValue()).build()));
+                        new AttrTO.Builder(conf.getValue()).value(value.getValue()).build()));
             }
         });
     }
@@ -597,7 +597,7 @@ public class SCIMDataBinder {
         }
 
         userTO.getMemberships().addAll(user.getGroups().stream().
-                map(group -> new MembershipTO.Builder().group(group.getValue()).build()).
+                map(group -> new MembershipTO.Builder(group.getValue()).build()).
                 collect(Collectors.toList()));
 
         userTO.getRoles().addAll(user.getRoles().stream().
@@ -609,15 +609,9 @@ public class SCIMDataBinder {
 
     public UserCR toUserCR(final SCIMUser user) {
         UserTO userTO = toUserTO(user);
-
-        return new UserCR.Builder().
-                username(userTO.getUsername()).
-                password(userTO.getPassword()).
-                realm(userTO.getRealm()).
-                plainAttrs(userTO.getPlainAttrs()).
-                memberships(userTO.getMemberships()).
-                roles(userTO.getRoles()).
-                build();
+        UserCR userCR = new UserCR();
+        EntityTOUtils.toAnyCR(userTO, userCR);
+        return userCR;
     }
 
     private void setAttribute(final UserTO userTO, final String schema, final String value) {
@@ -627,7 +621,7 @@ public class SCIMDataBinder {
                 break;
 
             default:
-                userTO.getPlainAttrs().add(new AttrTO.Builder().schema(schema).value(value).build());
+                userTO.getPlainAttrs().add(new AttrTO.Builder(schema).value(value).build());
         }
     }
 
@@ -695,6 +689,6 @@ public class SCIMDataBinder {
             throw new BadRequestException(ErrorType.invalidValue);
         }
 
-        return new GroupCR.Builder().realm(SyncopeConstants.ROOT_REALM).name(group.getDisplayName()).build();
+        return new GroupCR.Builder(SyncopeConstants.ROOT_REALM, group.getDisplayName()).build();
     }
 }

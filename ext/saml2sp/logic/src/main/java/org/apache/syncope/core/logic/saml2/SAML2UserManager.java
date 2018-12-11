@@ -239,7 +239,7 @@ public class SAML2UserManager {
                         if (attr.isPresent()) {
                             attr.get().getValues().clear();
                         } else {
-                            attr = Optional.of(new AttrTO.Builder().schema(intAttrName.getSchemaName()).build());
+                            attr = Optional.of(new AttrTO.Builder(intAttrName.getSchemaName()).build());
                             userTO.getPlainAttrs().add(attr.get());
                         }
                         attr.get().getValues().addAll(values);

@@ -110,7 +110,7 @@ public class UserSelfITCase extends AbstractITCase {
         // 1. self-create user with membership: goes 'createApproval' with resources and membership but no propagation
         UserCR userCR = UserITCase.getUniqueSample("anonymous@syncope.apache.org");
         userCR.getMemberships().add(
-                new MembershipTO.Builder().group("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
+                new MembershipTO.Builder("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
         userCR.getResources().add(RESOURCE_NAME_TESTDB);
 
         SyncopeClient anonClient = clientFactory.create();
@@ -148,7 +148,7 @@ public class UserSelfITCase extends AbstractITCase {
         // 1. self-create user with membership: goes 'createApproval' with resources and membership but no propagation
         UserCR userCR = UserITCase.getUniqueSample("anonymous@syncope.apache.org");
         userCR.getMemberships().add(
-                new MembershipTO.Builder().group("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
+                new MembershipTO.Builder("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
         userCR.getResources().add(RESOURCE_NAME_TESTDB);
         SyncopeClient anonClient = clientFactory.create();
         UserTO userTO = anonClient.getService(UserSelfService.class).
@@ -252,9 +252,8 @@ public class UserSelfITCase extends AbstractITCase {
         UserUR userUR = new UserUR();
         userUR.setKey(created.getKey());
         userUR.setUsername(new StringReplacePatchItem.Builder().value(created.getUsername() + "XX").build());
-        userUR.getMemberships().add(new MembershipUR.Builder().
+        userUR.getMemberships().add(new MembershipUR.Builder("bf825fe1-7320-4a54-bd64-143b5c18ab97").
                 operation(PatchOperation.ADD_REPLACE).
-                group("bf825fe1-7320-4a54-bd64-143b5c18ab97").
                 build());
         userUR.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_TESTDB).build());
@@ -463,7 +462,7 @@ public class UserSelfITCase extends AbstractITCase {
         userCR.getResources().add(RESOURCE_NAME_TESTDB);
 
         // User with group 0cbcabd2-4410-4b6b-8f05-a052b451d18f are defined in workflow as subject to approval
-        userCR.getMemberships().add(new MembershipTO.Builder().group("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
+        userCR.getMemberships().add(new MembershipTO.Builder("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
 
         // 1. create user with group 0cbcabd2-4410-4b6b-8f05-a052b451d18f
         UserTO userTO = createUser(userCR).getEntity();
@@ -542,7 +541,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // User with group 0cbcabd2-4410-4b6b-8f05-a052b451d18f are defined in workflow as subject to approval
         userCR.getMemberships().add(
-                new MembershipTO.Builder().group("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
+                new MembershipTO.Builder("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
 
         // 1. create user and verify that no propagation occurred)
         ProvisioningResult<UserTO> result = createUser(userCR);
@@ -632,7 +631,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         UserUR req = new UserUR();
         req.setKey(created.getKey());
-        req.getMemberships().add(new MembershipUR.Builder().group("b1f7c12d-ec83-441f-a50e-1691daaedf3b").build());
+        req.getMemberships().add(new MembershipUR.Builder("b1f7c12d-ec83-441f-a50e-1691daaedf3b").build());
 
         SyncopeClient client = clientFactory.create(created.getUsername(), "password123");
         Response response = client.getService(UserSelfService.class).update(req);
@@ -707,8 +706,7 @@ public class UserSelfITCase extends AbstractITCase {
         userCR.getMemberships().clear();
 
         // Users with group 0cbcabd2-4410-4b6b-8f05-a052b451d18f are defined in workflow as subject to approval
-        userCR.getMemberships().add(
-                new MembershipTO.Builder().group("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
+        userCR.getMemberships().add(new MembershipTO.Builder("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
 
         // 1. create user with group 9 (and verify that no propagation occurred)
         UserTO userTO = createUser(userCR).getEntity();

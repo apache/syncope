@@ -42,9 +42,8 @@ public class AttrTO implements Serializable {
 
         private final AttrTO instance = new AttrTO();
 
-        public Builder schema(final String schema) {
+        public Builder(final String schema) {
             instance.setSchema(schema);
-            return this;
         }
 
         public Builder value(final String value) {

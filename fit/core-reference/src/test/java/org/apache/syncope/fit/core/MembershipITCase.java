@@ -69,16 +69,16 @@ public class MembershipITCase extends AbstractITCase {
     public void misc() {
         UserCR userCR = UserITCase.getUniqueSample("memb@apache.org");
         userCR.setRealm("/even/two");
-        userCR.getPlainAttrs().add(new AttrTO.Builder().schema("aLong").value("1976").build());
+        userCR.getPlainAttrs().add(new AttrTO.Builder("aLong").value("1976").build());
         userCR.getPlainAttrs().removeIf(attr -> "ctype".equals(attr.getSchema()));
 
         // the group 034740a9-fa10-453b-af37-dc7897e98fb1 has USER type extensions for 'csv' and 'other' 
         // any type classes
-        MembershipTO membership = new MembershipTO.Builder().group("034740a9-fa10-453b-af37-dc7897e98fb1").build();
-        membership.getPlainAttrs().add(new AttrTO.Builder().schema("aLong").value("1977").build());
+        MembershipTO membership = new MembershipTO.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").build();
+        membership.getPlainAttrs().add(new AttrTO.Builder("aLong").value("1977").build());
 
         // 'fullname' is in 'minimal user', so it is not allowed for this membership
-        membership.getPlainAttrs().add(new AttrTO.Builder().schema("fullname").value("discarded").build());
+        membership.getPlainAttrs().add(new AttrTO.Builder("fullname").value("discarded").build());
 
         userCR.getMemberships().add(membership);
 
@@ -116,14 +116,14 @@ public class MembershipITCase extends AbstractITCase {
             UserUR userUR = new UserUR();
             userUR.setKey(userTO.getKey());
 
-            userUR.getPlainAttrs().add(new AttrPatch.Builder().
-                    attrTO(new AttrTO.Builder().schema("aLong").value("1977").build()).build());
+            userUR.getPlainAttrs().
+                    add(new AttrPatch.Builder(new AttrTO.Builder("aLong").value("1977").build()).build());
 
-            MembershipUR membershipPatch = new MembershipUR.Builder().group(membership.getGroupKey()).build();
+            MembershipUR membershipPatch = new MembershipUR.Builder(membership.getGroupKey()).build();
             membershipPatch.getPlainAttrs().add(
-                    new AttrTO.Builder().schema("aLong").value("1976").build());
+                    new AttrTO.Builder("aLong").value("1976").build());
             membershipPatch.getPlainAttrs().add(
-                    new AttrTO.Builder().schema("ctype").value("membership type").build());
+                    new AttrTO.Builder("ctype").value("membership type").build());
             userUR.getMemberships().add(membershipPatch);
 
             userTO = updateUser(userUR).getEntity();
@@ -147,7 +147,7 @@ public class MembershipITCase extends AbstractITCase {
             userUR = new UserUR();
             userUR.setKey(userTO.getKey());
 
-            membershipPatch = new MembershipUR.Builder().group(membership.getGroupKey()).
+            membershipPatch = new MembershipUR.Builder(membership.getGroupKey()).
                     operation(PatchOperation.DELETE).build();
             userUR.getMemberships().add(membershipPatch);
 
@@ -165,10 +165,10 @@ public class MembershipITCase extends AbstractITCase {
     public void deleteUserWithMembership() {
         UserCR userCR = UserITCase.getUniqueSample("memb@apache.org");
         userCR.setRealm("/even/two");
-        userCR.getPlainAttrs().add(new AttrTO.Builder().schema("aLong").value("1976").build());
+        userCR.getPlainAttrs().add(new AttrTO.Builder("aLong").value("1976").build());
 
-        MembershipTO membership = new MembershipTO.Builder().group("034740a9-fa10-453b-af37-dc7897e98fb1").build();
-        membership.getPlainAttrs().add(new AttrTO.Builder().schema("aLong").value("1977").build());
+        MembershipTO membership = new MembershipTO.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").build();
+        membership.getPlainAttrs().add(new AttrTO.Builder("aLong").value("1977").build());
         userCR.getMemberships().add(membership);
 
         UserTO user = createUser(userCR).getEntity();
@@ -193,8 +193,8 @@ public class MembershipITCase extends AbstractITCase {
         // pre: create user with membership to such group
         UserCR userCR = UserITCase.getUniqueSample("typeExt@apache.org");
 
-        MembershipTO membership = new MembershipTO.Builder().group(groupTO.getKey()).build();
-        membership.getPlainAttrs().add(new AttrTO.Builder().schema("aLong").value("1454").build());
+        MembershipTO membership = new MembershipTO.Builder(groupTO.getKey()).build();
+        membership.getPlainAttrs().add(new AttrTO.Builder("aLong").value("1454").build());
         userCR.getMemberships().add(membership);
 
         UserTO user = createUser(userCR).getEntity();
@@ -248,8 +248,8 @@ public class MembershipITCase extends AbstractITCase {
             userCR.getResources().clear();
             userCR.getResources().add(newResource.getKey());
 
-            MembershipTO membership = new MembershipTO.Builder().group("034740a9-fa10-453b-af37-dc7897e98fb1").build();
-            membership.getPlainAttrs().add(new AttrTO.Builder().schema("aLong").value("5432").build());
+            MembershipTO membership = new MembershipTO.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").build();
+            membership.getPlainAttrs().add(new AttrTO.Builder("aLong").value("5432").build());
             userCR.getMemberships().add(membership);
 
             user = createUser(userCR).getEntity();

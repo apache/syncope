@@ -79,8 +79,7 @@ public class VirAttrITCase extends AbstractITCase {
         UserCR userCR = UserITCase.getUniqueSample("issue16@apache.org");
         userCR.getVirAttrs().add(attrTO("virtualdata", "virtualvalue"));
         userCR.getResources().add(RESOURCE_NAME_DBVIRATTR);
-        userCR.getMemberships().add(
-                new MembershipTO.Builder().group("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
+        userCR.getMemberships().add(new MembershipTO.Builder("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
 
         // 1. create user
         UserTO userTO = createUser(userCR).getEntity();
@@ -542,7 +541,7 @@ public class VirAttrITCase extends AbstractITCase {
             userCR.getVirAttrs().clear();
             userCR.getMemberships().clear();
 
-            userCR.getMemberships().add(new MembershipTO.Builder().group(groupTO.getKey()).build());
+            userCR.getMemberships().add(new MembershipTO.Builder(groupTO.getKey()).build());
 
             ProvisioningResult<UserTO> result = createUser(userCR);
             assertEquals(2, result.getPropagationStatuses().size());
@@ -684,7 +683,7 @@ public class VirAttrITCase extends AbstractITCase {
             userUR.setKey(userTO.getKey());
             // modify virtual attribute
             userUR.getVirAttrs().add(
-                    new AttrTO.Builder().schema(virSchema.getKey()).
+                    new AttrTO.Builder(virSchema.getKey()).
                             value("test@issue691.dom3.org").
                             value("test@issue691.dom4.org").
                             build());

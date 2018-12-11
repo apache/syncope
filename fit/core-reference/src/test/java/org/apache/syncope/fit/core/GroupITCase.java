@@ -99,10 +99,7 @@ import org.junit.jupiter.api.Test;
 public class GroupITCase extends AbstractITCase {
 
     public static GroupCR getBasicSample(final String name) {
-        return new GroupCR.Builder().
-                realm(SyncopeConstants.ROOT_REALM).
-                name(name + getUUIDString()).
-                build();
+        return new GroupCR.Builder(SyncopeConstants.ROOT_REALM, name + getUUIDString()).build();
     }
 
     public static GroupCR getSample(final String name) {
@@ -238,9 +235,9 @@ public class GroupITCase extends AbstractITCase {
 
         groupTO.getPlainAttr("show").get().getValues().clear();
 
-        groupUR = new GroupUR.Builder().key(groupTO.getKey()).
-                plainAttr(new AttrPatch.Builder().operation(PatchOperation.DELETE).
-                        attrTO(new AttrTO.Builder().schema("show").build()).build()).build();
+        groupUR = new GroupUR.Builder(groupTO.getKey()).
+                plainAttr(new AttrPatch.Builder(new AttrTO.Builder("show").build()).
+                        operation(PatchOperation.DELETE).build()).build();
 
         groupTO = updateGroup(groupUR).getEntity();
 
@@ -257,11 +254,11 @@ public class GroupITCase extends AbstractITCase {
 
         GroupTO created = createGroup(createReq).getEntity();
 
-        created.getPlainAttrs().add(new AttrTO.Builder().schema("icon").build());
-        created.getPlainAttrs().add(new AttrTO.Builder().schema("show").build());
-        created.getPlainAttrs().add(new AttrTO.Builder().schema("rderived_sx").value("sx").build());
-        created.getPlainAttrs().add(new AttrTO.Builder().schema("rderived_dx").value("dx").build());
-        created.getPlainAttrs().add(new AttrTO.Builder().schema("title").value("mr").build());
+        created.getPlainAttrs().add(new AttrTO.Builder("icon").build());
+        created.getPlainAttrs().add(new AttrTO.Builder("show").build());
+        created.getPlainAttrs().add(new AttrTO.Builder("rderived_sx").value("sx").build());
+        created.getPlainAttrs().add(new AttrTO.Builder("rderived_dx").value("dx").build());
+        created.getPlainAttrs().add(new AttrTO.Builder("title").value("mr").build());
 
         GroupTO original = groupService.read(created.getKey());
 
@@ -696,9 +693,8 @@ public class GroupITCase extends AbstractITCase {
         // verify that the condition is dynamically applied
         AnyObjectUR anyObjectUR = new AnyObjectUR();
         anyObjectUR.setKey(newAny.getKey());
-        anyObjectUR.getPlainAttrs().add(new AttrPatch.Builder().
+        anyObjectUR.getPlainAttrs().add(new AttrPatch.Builder(new AttrTO.Builder("location").build()).
                 operation(PatchOperation.DELETE).
-                attrTO(new AttrTO.Builder().schema("location").build()).
                 build());
         newAny = updateAnyObject(anyObjectUR).getEntity();
         assertFalse(newAny.getPlainAttr("location").isPresent());
@@ -725,7 +721,7 @@ public class GroupITCase extends AbstractITCase {
         printerCR.setRealm(SyncopeConstants.ROOT_REALM);
         printerCR.setName("Printer_" + getUUIDString());
         printerCR.setType("PRINTER");
-        printerCR.getPlainAttrs().add(new AttrTO.Builder().schema("location").value("home").build());
+        printerCR.getPlainAttrs().add(new AttrTO.Builder("location").value("home").build());
         AnyObjectTO printer = createAnyObject(printerCR).getEntity();
 
         group = groupService.read(group.getKey());
@@ -746,7 +742,7 @@ public class GroupITCase extends AbstractITCase {
         printerCR.setRealm(SyncopeConstants.ROOT_REALM);
         printerCR.setName("Printer_" + getUUIDString());
         printerCR.setType("PRINTER");
-        printerCR.getMemberships().add(new MembershipTO.Builder().group(group.getKey()).build());
+        printerCR.getMemberships().add(new MembershipTO.Builder(group.getKey()).build());
         AnyObjectTO printer = createAnyObject(printerCR).getEntity();
 
         group = groupService.read(group.getKey());
@@ -787,8 +783,8 @@ public class GroupITCase extends AbstractITCase {
             // 2. update succeeds
             GroupUR groupUR = new GroupUR();
             groupUR.setKey(group.getKey());
-            groupUR.getPlainAttrs().add(new AttrPatch.Builder().
-                    operation(PatchOperation.ADD_REPLACE).attrTO(attrTO("title", "second")).build());
+            groupUR.getPlainAttrs().add(new AttrPatch.Builder(attrTO("title", "second")).
+                    operation(PatchOperation.ADD_REPLACE).build());
 
             result = updateGroup(groupUR);
             assertNotNull(result);
@@ -809,8 +805,8 @@ public class GroupITCase extends AbstractITCase {
             // 4. update succeeds again
             groupUR = new GroupUR();
             groupUR.setKey(group.getKey());
-            groupUR.getPlainAttrs().add(new AttrPatch.Builder().
-                    operation(PatchOperation.ADD_REPLACE).attrTO(attrTO("title", "third")).build());
+            groupUR.getPlainAttrs().add(new AttrPatch.Builder(attrTO("title", "third")).
+                    operation(PatchOperation.ADD_REPLACE).build());
 
             result = updateGroup(groupUR);
             assertNotNull(result);
@@ -831,8 +827,8 @@ public class GroupITCase extends AbstractITCase {
             // 6. update now fails
             groupUR = new GroupUR();
             groupUR.setKey(group.getKey());
-            groupUR.getPlainAttrs().add(new AttrPatch.Builder().
-                    operation(PatchOperation.ADD_REPLACE).attrTO(attrTO("title", "fourth")).build());
+            groupUR.getPlainAttrs().add(new AttrPatch.Builder(attrTO("title", "fourth")).
+                    operation(PatchOperation.ADD_REPLACE).build());
 
             result = updateGroup(groupUR);
             assertNotNull(result);
@@ -886,7 +882,7 @@ public class GroupITCase extends AbstractITCase {
 
         // 2. create user with such group assigned
         UserCR userCR = UserITCase.getUniqueSample("forProvision@syncope.apache.org");
-        userCR.getMemberships().add(new MembershipTO.Builder().group(groupTO.getKey()).build());
+        userCR.getMemberships().add(new MembershipTO.Builder(groupTO.getKey()).build());
         UserTO userTO = createUser(userCR).getEntity();
 
         // 3. modify the group by assiging the LDAP resource
@@ -1103,7 +1099,7 @@ public class GroupITCase extends AbstractITCase {
         // 5. modify group with new double value
         GroupUR groupUR = new GroupUR();
         groupUR.setKey(groupTO.getKey());
-        groupUR.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO(doubleSchemaName, "11.257")).build());
+        groupUR.getPlainAttrs().add(new AttrPatch.Builder(attrTO(doubleSchemaName, "11.257")).build());
 
         groupTO = updateGroup(groupUR).getEntity();
         assertNotNull(groupTO);
@@ -1116,7 +1112,7 @@ public class GroupITCase extends AbstractITCase {
         // 7. modify group with new double value, verify that no pattern is applied
         groupUR = new GroupUR();
         groupUR.setKey(groupTO.getKey());
-        groupUR.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO(doubleSchemaName, "11.23")).build());
+        groupUR.getPlainAttrs().add(new AttrPatch.Builder(attrTO(doubleSchemaName, "11.23")).build());
 
         groupTO = updateGroup(groupUR).getEntity();
         assertNotNull(groupTO);

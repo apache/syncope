@@ -553,17 +553,16 @@ abstract class AbstractAnyDataBinder {
         anyTO.getAuxClasses().addAll(auxClasses.stream().map(Entity::getKey).collect(Collectors.toList()));
 
         plainAttrs.forEach(plainAttr -> {
-            anyTO.getPlainAttrs().add(new AttrTO.Builder().
-                    schema(plainAttr.getSchema().getKey()).
+            anyTO.getPlainAttrs().add(new AttrTO.Builder(plainAttr.getSchema().getKey()).
                     values(plainAttr.getValuesAsStrings()).build());
         });
 
         derAttrs.forEach((schema, value) -> {
-            anyTO.getDerAttrs().add(new AttrTO.Builder().schema(schema.getKey()).value(value).build());
+            anyTO.getDerAttrs().add(new AttrTO.Builder(schema.getKey()).value(value).build());
         });
 
         virAttrs.forEach((schema, values) -> {
-            anyTO.getVirAttrs().add(new AttrTO.Builder().schema(schema.getKey()).values(values).build());
+            anyTO.getVirAttrs().add(new AttrTO.Builder(schema.getKey()).values(values).build());
         });
 
         anyTO.getResources().addAll(resources.stream().map(Entity::getKey).collect(Collectors.toSet()));
@@ -581,27 +580,24 @@ abstract class AbstractAnyDataBinder {
             final Map<VirSchema, List<String>> virAttrs,
             final Membership<? extends Any<?>> membership) {
 
-        MembershipTO membershipTO = new MembershipTO.Builder().
-                group(membership.getRightEnd().getKey(), membership.getRightEnd().getName()).
+        MembershipTO membershipTO = new MembershipTO.Builder(membership.getRightEnd().getKey()).
+                groupName(membership.getRightEnd().getName()).
                 build();
 
         plainAttrs.forEach(plainAttr -> {
-            membershipTO.getPlainAttrs().add(new AttrTO.Builder().
-                    schema(plainAttr.getSchema().getKey()).
+            membershipTO.getPlainAttrs().add(new AttrTO.Builder(plainAttr.getSchema().getKey()).
                     values(plainAttr.getValuesAsStrings()).
                     build());
         });
 
         derAttrs.forEach((schema, value) -> {
-            membershipTO.getDerAttrs().add(new AttrTO.Builder().
-                    schema(schema.getKey()).
+            membershipTO.getDerAttrs().add(new AttrTO.Builder(schema.getKey()).
                     value(value).
                     build());
         });
 
         virAttrs.forEach((schema, values) -> {
-            membershipTO.getVirAttrs().add(new AttrTO.Builder().
-                    schema(schema.getKey()).
+            membershipTO.getVirAttrs().add(new AttrTO.Builder(schema.getKey()).
                     values(values).
                     build());
         });

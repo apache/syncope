@@ -69,7 +69,7 @@ public class UserWorkflowTaskLogic extends AbstractTransactionalLogic<EntityTO> 
     public UserTO executeNextTask(final WorkflowTaskExecInput workflowTaskExecInput) {
         WorkflowResult<String> updated = wfTaskManager.executeNextTask(workflowTaskExecInput);
 
-        UserUR userUR = new UserUR.Builder().key(updated.getResult()).build();
+        UserUR userUR = new UserUR.Builder(updated.getResult()).build();
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(new WorkflowResult<>(
                 Pair.<UserUR, Boolean>of(userUR, null),

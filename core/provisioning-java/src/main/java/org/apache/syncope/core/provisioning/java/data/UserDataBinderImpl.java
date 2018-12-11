@@ -460,7 +460,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                                 attr.setSchema(schema);
                                 user.add(attr);
 
-                                AttrPatch patch = new AttrPatch.Builder().attrTO(attrTO).build();
+                                AttrPatch patch = new AttrPatch.Builder(attrTO).build();
                                 processAttrPatch(
                                         user, patch, schema, attr, anyUtils,
                                         resources, propByRes, invalidValues);
@@ -630,11 +630,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
             // dynamic memberships
             userTO.getDynMemberships().addAll(
-                    userDAO.findDynGroups(user.getKey()).stream().map(group -> {
-                        return new MembershipTO.Builder().
-                                group(group.getKey(), group.getName()).
-                                build();
-                    }).collect(Collectors.toList()));
+                    userDAO.findDynGroups(user.getKey()).stream().
+                            map(group -> new MembershipTO.Builder(group.getKey()).groupName(group.getName()).build()).
+                            collect(Collectors.toList()));
         }
 
         return userTO;

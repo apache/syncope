@@ -481,8 +481,7 @@ public class AuthenticationITCase extends AbstractITCase {
         // 1. create user with group 'groupForWorkflowApproval' 
         // (users with group groupForWorkflowApproval are defined in workflow as subject to approval)
         UserCR userCR = UserITCase.getUniqueSample("createWithReject@syncope.apache.org");
-        userCR.getMemberships().add(
-                new MembershipTO.Builder().group("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
+        userCR.getMemberships().add(new MembershipTO.Builder("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
 
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);

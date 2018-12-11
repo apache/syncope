@@ -63,7 +63,7 @@ public class JAXBTest {
         GroupTO group = new GroupTO();
         group.setName(UUID.randomUUID().toString());
         group.setRealm(SyncopeConstants.ROOT_REALM);
-        group.getVirAttrs().add(new AttrTO.Builder().schema("rvirtualdata").value("rvirtualvalue").build());
+        group.getVirAttrs().add(new AttrTO.Builder("rvirtualdata").value("rvirtualvalue").build());
         group.getADynMembershipConds().put("USER", "username==a*");
 
         ProvisioningResult<GroupTO> original = new ProvisioningResult<>();

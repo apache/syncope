@@ -174,7 +174,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
                 break;
 
             case PLAIN:
-                updateReq.getPlainAttrs().add(new AttrPatch.Builder().operation(operation).attrTO(attrTO).build());
+                updateReq.getPlainAttrs().add(new AttrPatch.Builder(attrTO).operation(operation).build());
                 break;
 
             case DERIVED:
@@ -196,7 +196,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
         addUpdateOrReplaceAttr(
                 getActualKey(getAnyDAO(), key),
                 schemaType,
-                new AttrTO.Builder().schema(schema).build(),
+                new AttrTO.Builder(schema).build(),
                 PatchOperation.DELETE);
     }
 

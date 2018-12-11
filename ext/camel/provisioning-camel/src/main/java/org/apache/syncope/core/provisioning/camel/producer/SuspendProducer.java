@@ -42,13 +42,13 @@ public class SuspendProducer extends AbstractProducer {
                     (Pair<WorkflowResult<String>, Boolean>) exchange.getIn().getBody();
 
             // propagate suspension if and only if it is required by policy
-            if (updated != null && updated.getValue()) {
-                UserUR userUR = new UserUR.Builder().key(updated.getKey().getResult()).build();
+            if (updated != null && updated.getRight()) {
+                UserUR userUR = new UserUR.Builder(updated.getLeft().getResult()).build();
 
                 List<PropagationTaskInfo> taskInfos = getPropagationManager().getUserUpdateTasks(
                         new WorkflowResult<>(
                                 Pair.of(userUR, Boolean.FALSE),
-                                updated.getKey().getPropByRes(), updated.getKey().getPerformedTasks()));
+                                updated.getLeft().getPropByRes(), updated.getLeft().getPerformedTasks()));
                 getPropagationTaskExecutor().execute(taskInfos, false);
             }
         }

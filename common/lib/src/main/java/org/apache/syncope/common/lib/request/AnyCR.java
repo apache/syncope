@@ -53,19 +53,17 @@ public abstract class AnyCR implements Serializable, AttributableReqEntity {
 
         protected R instance;
 
+        Builder(final String realm) {
+            getInstance().setRealm(realm);
+        }
+
         protected abstract R newInstance();
 
-        protected R getInstance() {
+        protected final R getInstance() {
             if (instance == null) {
                 instance = newInstance();
             }
             return instance;
-        }
-
-        @SuppressWarnings("unchecked")
-        public B realm(final String realm) {
-            getInstance().setRealm(realm);
-            return (B) this;
         }
 
         @SuppressWarnings("unchecked")

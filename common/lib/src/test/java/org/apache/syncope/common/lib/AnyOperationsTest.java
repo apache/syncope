@@ -33,13 +33,13 @@ public class AnyOperationsTest {
     public void mindiff() {
         AnyObjectTO oldOne = new AnyObjectTO();
         oldOne.setName("name");
-        oldOne.getPlainAttrs().add(new AttrTO.Builder().schema("plain").value("oldValue").build());
-        oldOne.getPlainAttrs().add(new AttrTO.Builder().schema("encrypted").value("oldValue").build());
+        oldOne.getPlainAttrs().add(new AttrTO.Builder("plain").value("oldValue").build());
+        oldOne.getPlainAttrs().add(new AttrTO.Builder("encrypted").value("oldValue").build());
 
         AnyObjectTO newOne = new AnyObjectTO();
         newOne.setName("name");
-        newOne.getPlainAttrs().add(new AttrTO.Builder().schema("plain").value("newValue").build());
-        newOne.getPlainAttrs().add(new AttrTO.Builder().schema("encrypted").value("oldValue").build());
+        newOne.getPlainAttrs().add(new AttrTO.Builder("plain").value("newValue").build());
+        newOne.getPlainAttrs().add(new AttrTO.Builder("encrypted").value("oldValue").build());
 
         AnyObjectUR diff = AnyOperations.diff(newOne, oldOne, true);
         assertEquals(1, diff.getPlainAttrs().size());

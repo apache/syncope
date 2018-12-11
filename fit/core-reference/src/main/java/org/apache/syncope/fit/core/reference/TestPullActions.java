@@ -79,9 +79,8 @@ public class TestPullActions implements PullActions {
             }
         }
         if (fullnamePatch == null) {
-            fullnamePatch = new AttrPatch.Builder().
+            fullnamePatch = new AttrPatch.Builder(new AttrTO.Builder("fullname").build()).
                     operation(PatchOperation.ADD_REPLACE).
-                    attrTO(new AttrTO.Builder().schema("fullname").build()).
                     build();
         }
 

@@ -480,18 +480,14 @@ public class SearchITCase extends AbstractITCase {
 
         String serviceKey = null;
         try {
-            AnyObjectCR anyObjectCR = new AnyObjectCR();
-            anyObjectCR.setName("one");
-            anyObjectCR.setRealm(SyncopeConstants.ROOT_REALM);
-            anyObjectCR.setType(service.getKey());
-            anyObjectCR.getMemberships().add(
-                    new MembershipTO.Builder().group("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
+            AnyObjectCR anyObjectCR = new AnyObjectCR.Builder(SyncopeConstants.ROOT_REALM, service.getKey(), "one").
+                    membership(new MembershipTO.Builder("29f96485-729e-4d31-88a1-6fc60e4677f3").build()).
+                    build();
             serviceKey = createAnyObject(anyObjectCR).getEntity().getKey();
 
-            AnyObjectUR anyObjectUR = new AnyObjectUR();
-            anyObjectUR.setKey("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
-            anyObjectUR.getMemberships().add(new MembershipUR.Builder().group("29f96485-729e-4d31-88a1-6fc60e4677f3").
-                    build());
+            AnyObjectUR anyObjectUR = new AnyObjectUR.Builder("fc6dbc3a-6c07-4965-8781-921e7401a4a5").
+                    membership(new MembershipUR.Builder("29f96485-729e-4d31-88a1-6fc60e4677f3").build()).
+                    build();
             updateAnyObject(anyObjectUR);
 
             PagedResult<AnyObjectTO> matching = anyObjectService.search(new AnyQuery.Builder().fiql(
@@ -522,7 +518,7 @@ public class SearchITCase extends AbstractITCase {
     public void issueSYNCOPE1223() {
         UserUR req = new UserUR();
         req.setKey("vivaldi");
-        req.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("ctype", "ou=sample,o=isp")).build());
+        req.getPlainAttrs().add(new AttrPatch.Builder(attrTO("ctype", "ou=sample,o=isp")).build());
         userService.update(req);
 
         try {
@@ -533,7 +529,7 @@ public class SearchITCase extends AbstractITCase {
             assertEquals("vivaldi", users.getResult().get(0).getUsername());
         } finally {
             req.getPlainAttrs().clear();
-            req.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("ctype", "F")).build());
+            req.getPlainAttrs().add(new AttrPatch.Builder(attrTO("ctype", "F")).build());
             userService.update(req);
         }
     }

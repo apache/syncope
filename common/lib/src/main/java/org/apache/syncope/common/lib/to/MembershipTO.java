@@ -21,6 +21,8 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -41,14 +43,42 @@ public class MembershipTO implements Serializable, AttributableTO {
 
         private final MembershipTO instance = new MembershipTO();
 
-        public Builder group(final String groupKey) {
+        public Builder(final String groupKey) {
             instance.setGroupKey(groupKey);
+        }
+
+        public Builder groupName(final String groupName) {
+            instance.setGroupName(groupName);
             return this;
         }
 
-        public Builder group(final String groupKey, final String groupName) {
-            instance.setGroupKey(groupKey);
-            instance.setGroupName(groupName);
+        public Builder plainAttr(final AttrTO plainAttr) {
+            instance.getPlainAttrs().add(plainAttr);
+            return this;
+        }
+
+        public Builder plainAttrs(final AttrTO... plainAttrs) {
+            instance.getPlainAttrs().addAll(Arrays.asList(plainAttrs));
+            return this;
+        }
+
+        public Builder plainAttrs(final Collection<AttrTO> plainAttrs) {
+            instance.getPlainAttrs().addAll(plainAttrs);
+            return this;
+        }
+
+        public Builder virAttr(final AttrTO virAttr) {
+            instance.getVirAttrs().add(virAttr);
+            return this;
+        }
+
+        public Builder virAttrs(final Collection<AttrTO> virAttrs) {
+            instance.getVirAttrs().addAll(virAttrs);
+            return this;
+        }
+
+        public Builder virAttrs(final AttrTO... virAttrs) {
+            instance.getVirAttrs().addAll(Arrays.asList(virAttrs));
             return this;
         }
 

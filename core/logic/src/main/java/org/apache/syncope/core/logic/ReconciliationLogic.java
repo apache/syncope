@@ -117,10 +117,10 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
         ConnObjectTO connObjectTO = ConnObjectUtils.getConnObjectTO(attrs.getRight());
         if (attrs.getLeft() != null) {
-            connObjectTO.getAttrs().add(new AttrTO.Builder().
-                    schema(connObjectKey.getExtAttrName()).value(attrs.getLeft()).build());
-            connObjectTO.getAttrs().add(new AttrTO.Builder().
-                    schema(Uid.NAME).value(attrs.getLeft()).build());
+            connObjectTO.getAttrs().add(new AttrTO.Builder(connObjectKey.getExtAttrName()).
+                    value(attrs.getLeft()).build());
+            connObjectTO.getAttrs().add(new AttrTO.Builder(Uid.NAME).
+                    value(attrs.getLeft()).build());
         }
 
         return connObjectTO;

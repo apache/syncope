@@ -90,14 +90,14 @@ public class UserSelfCreateResource extends BaseUserSelfResource {
                     userTO.getPlainAttrs().stream().
                             filter(attr -> (attr.getSchema().
                             contains(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR))).
-                            forEachOrdered(attr -> {
+                            forEach(attr -> {
                                 String[] simpleAttrs = attr.getSchema().split(
                                         SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR);
                                 MembershipTO membership = userTO.getMemberships().stream().
                                         filter(memb -> simpleAttrs[0].equals(memb.getGroupName())).
                                         findFirst().orElse(null);
                                 if (membership == null) {
-                                    membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
+                                    membership = new MembershipTO.Builder(null).groupName(simpleAttrs[0]).build();
                                     userTO.getMemberships().add(membership);
                                 }
 
@@ -112,7 +112,7 @@ public class UserSelfCreateResource extends BaseUserSelfResource {
                     SyncopeEnduserSession.get().getDatePlainSchemas().stream().map(plainSchema -> {
                         millisToDate(userTO.getPlainAttrs(), plainSchema);
                         return plainSchema;
-                    }).forEachOrdered(plainSchema -> {
+                    }).forEach(plainSchema -> {
                         userTO.getMemberships().forEach(membership -> {
                             millisToDate(membership.getPlainAttrs(), plainSchema);
                         });
@@ -122,14 +122,14 @@ public class UserSelfCreateResource extends BaseUserSelfResource {
                     userTO.getDerAttrs().stream().
                             filter(attr -> (attr.getSchema().
                             contains(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR))).
-                            forEachOrdered(attr -> {
+                            forEach(attr -> {
                                 String[] simpleAttrs = attr.getSchema().split(
                                         SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR);
                                 MembershipTO membership = userTO.getMemberships().stream().
                                         filter(memb -> simpleAttrs[0].equals(memb.getGroupName())).
                                         findFirst().orElse(null);
                                 if (membership == null) {
-                                    membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
+                                    membership = new MembershipTO.Builder(null).groupName(simpleAttrs[0]).build();
                                     userTO.getMemberships().add(membership);
                                 }
 
@@ -144,14 +144,14 @@ public class UserSelfCreateResource extends BaseUserSelfResource {
                     userTO.getVirAttrs().stream().
                             filter(attr -> (attr.getSchema().
                             contains(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR))).
-                            forEachOrdered(attr -> {
+                            forEach(attr -> {
                                 String[] simpleAttrs = attr.getSchema().split(
                                         SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR);
                                 MembershipTO membership = userTO.getMemberships().stream().
                                         filter(memb -> simpleAttrs[0].equals(memb.getGroupName())).
                                         findFirst().orElse(null);
                                 if (membership == null) {
-                                    membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
+                                    membership = new MembershipTO.Builder(null).groupName(simpleAttrs[0]).build();
                                     userTO.getMemberships().add(membership);
                                 }
 
@@ -166,9 +166,7 @@ public class UserSelfCreateResource extends BaseUserSelfResource {
                     LOG.trace("Received user self registration request is: [{}]", userTO);
 
                     // adapt request and create user
-                    UserCR req = new UserCR.Builder().
-                            realm(userTO.getRealm()).
-                            username(userTO.getUsername()).
+                    UserCR req = new UserCR.Builder(userTO.getRealm(), userTO.getUsername()).
                             password(userTO.getPassword()).
                             mustChangePassword(userTO.isMustChangePassword()).
                             securityQuestion(userTO.getSecurityQuestion()).

@@ -50,14 +50,14 @@ public class UserCR extends AnyCR implements GroupableRelatableTO {
 
     public static class Builder extends AnyCR.Builder<UserCR, Builder> {
 
+        public Builder(final String realm, final String username) {
+            super(realm);
+            getInstance().setUsername(username);
+        }
+
         @Override
         protected UserCR newInstance() {
             return new UserCR();
-        }
-
-        public Builder username(final String username) {
-            getInstance().setUsername(username);
-            return this;
         }
 
         public Builder password(final String password) {

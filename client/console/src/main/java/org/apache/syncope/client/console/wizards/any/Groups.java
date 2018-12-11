@@ -159,9 +159,7 @@ public class Groups extends WizardStep implements ICondition {
                                     new SortParam<>("name", true),
                                     null)).stream().map(input -> {
 
-                                return new MembershipTO.Builder().
-                                        group(input.getKey(), input.getName()).
-                                        build();
+                                return new MembershipTO.Builder(input.getKey()).groupName(input.getName()).build();
                             }).collect(Collectors.toList());
                 }
             }).hideLabel().setOutputMarkupId(true));

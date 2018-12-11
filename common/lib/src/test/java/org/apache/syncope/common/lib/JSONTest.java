@@ -84,7 +84,7 @@ public class JSONTest {
         GroupTO group = new GroupTO();
         group.setName(UUID.randomUUID().toString());
         group.setRealm(SyncopeConstants.ROOT_REALM);
-        group.getVirAttrs().add(new AttrTO.Builder().schema("rvirtualdata").value("rvirtualvalue").build());
+        group.getVirAttrs().add(new AttrTO.Builder("rvirtualdata").value("rvirtualvalue").build());
         group.getADynMembershipConds().put("USER", "username==a*");
 
         ProvisioningResult<GroupTO> original = new ProvisioningResult<>();
@@ -100,7 +100,8 @@ public class JSONTest {
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, original);
 
-        ProvisioningResult<GroupTO> actual = mapper.readValue(writer.toString(), new TypeReference<ProvisioningResult<GroupTO>>() {
+        ProvisioningResult<GroupTO> actual = mapper.readValue(writer.toString(),
+                new TypeReference<ProvisioningResult<GroupTO>>() {
         });
         assertEquals(original, actual);
     }

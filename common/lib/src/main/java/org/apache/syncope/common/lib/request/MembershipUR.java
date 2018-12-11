@@ -39,14 +39,14 @@ public class MembershipUR extends AbstractPatch {
 
     public static class Builder extends AbstractPatch.Builder<MembershipUR, Builder> {
 
+        public Builder(final String group) {
+            super();
+            getInstance().setGroup(group);
+        }
+
         @Override
         protected MembershipUR newInstance() {
             return new MembershipUR();
-        }
-
-        public Builder group(final String group) {
-            getInstance().setGroup(group);
-            return this;
         }
 
         public Builder plainAttr(final AttrTO plainAttr) {

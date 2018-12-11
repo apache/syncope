@@ -48,17 +48,17 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.request.ResourceAR;
-import org.apache.syncope.common.lib.request.AttrPatch;
-import org.apache.syncope.common.lib.request.ResourceDR;
-import org.apache.syncope.common.lib.request.MembershipUR;
-import org.apache.syncope.common.lib.request.PasswordPatch;
-import org.apache.syncope.common.lib.request.StatusR;
-import org.apache.syncope.common.lib.request.StringReplacePatchItem;
-import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.HaveIBeenPwnedPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
+import org.apache.syncope.common.lib.request.AttrPatch;
+import org.apache.syncope.common.lib.request.MembershipUR;
+import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.ResourceAR;
+import org.apache.syncope.common.lib.request.ResourceDR;
+import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.StringReplacePatchItem;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -73,11 +73,11 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
-import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.StatusRType;
@@ -90,10 +90,10 @@ import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.apache.syncope.fit.core.reference.TestAccountRuleConf;
-import org.apache.syncope.fit.core.reference.TestPasswordRuleConf;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.FlowableDetector;
+import org.apache.syncope.fit.core.reference.TestAccountRuleConf;
+import org.apache.syncope.fit.core.reference.TestPasswordRuleConf;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.jupiter.api.Test;
 
@@ -108,10 +108,8 @@ public class UserITCase extends AbstractITCase {
     }
 
     public static UserCR getSample(final String email) {
-        return new UserCR.Builder().
-                realm(SyncopeConstants.ROOT_REALM).
+        return new UserCR.Builder(SyncopeConstants.ROOT_REALM, email).
                 password("password123").
-                username(email).
                 plainAttr(attrTO("fullname", email)).
                 plainAttr(attrTO("firstname", email)).
                 plainAttr(attrTO("surname", "surname")).
@@ -260,8 +258,7 @@ public class UserITCase extends AbstractITCase {
             // configured to be minLength=16
             userCR.setPassword("password1");
 
-            userCR.getMemberships().add(new MembershipTO.Builder().
-                    group("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
+            userCR.getMemberships().add(new MembershipTO.Builder("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
 
             createUser(userCR);
         });
@@ -293,8 +290,7 @@ public class UserITCase extends AbstractITCase {
         UserCR userCR = getUniqueSample("a.b@c.com");
 
         // add a membership
-        userCR.getMemberships().add(new MembershipTO.Builder().
-                group("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
+        userCR.getMemberships().add(new MembershipTO.Builder("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
 
         // add an attribute with a non-existing schema: must be ignored
         AttrTO attrWithInvalidSchemaTO = attrTO("invalid schema", "a value");
@@ -372,12 +368,10 @@ public class UserITCase extends AbstractITCase {
     public void createWithRequiredValueMissing() {
         UserCR userCR = getUniqueSample("a.b@c.it");
 
-        AttrTO type = userCR.getPlainAttrs().stream().
-                filter(attr -> "ctype".equals(attr.getSchema())).findFirst().get();
+        AttrTO type = userCR.getPlainAttr("ctype").get();
         userCR.getPlainAttrs().remove(type);
 
-        userCR.getMemberships().add(new MembershipTO.Builder().
-                group("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
+        userCR.getMemberships().add(new MembershipTO.Builder("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
 
         // 1. create user without type (mandatory by UserSchema)
         try {
@@ -389,8 +383,7 @@ public class UserITCase extends AbstractITCase {
 
         userCR.getPlainAttrs().add(attrTO("ctype", "F"));
 
-        AttrTO surname = userCR.getPlainAttrs().stream().
-                filter(attr -> "surname".equals(attr.getSchema())).findFirst().get();
+        AttrTO surname = userCR.getPlainAttr("surname").get();
         userCR.getPlainAttrs().remove(surname);
 
         // 2. create user without surname (mandatory when type == 'F')
@@ -506,9 +499,9 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
 
-        UserUR userUR = new UserUR.Builder().key(userTO.getKey()).
-                plainAttr(new AttrPatch.Builder().operation(PatchOperation.DELETE).
-                        attrTO(new AttrTO.Builder().schema("ctype").build()).
+        UserUR userUR = new UserUR.Builder(userTO.getKey()).
+                plainAttr(new AttrPatch.Builder(new AttrTO.Builder("ctype").build()).
+                        operation(PatchOperation.DELETE).
                         build()).build();
 
         userTO = updateUser(userUR).getEntity();
@@ -554,8 +547,7 @@ public class UserITCase extends AbstractITCase {
     public void update() {
         UserCR userCR = getUniqueSample("g.h@t.com");
 
-        userCR.getMemberships().add(new MembershipTO.Builder().
-                group("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
+        userCR.getMemberships().add(new MembershipTO.Builder("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
 
         UserTO userTO = createUser(userCR).getEntity();
 
@@ -572,10 +564,10 @@ public class UserITCase extends AbstractITCase {
         String newFullName = getUUIDString() + "g.h@t.com";
         userUR.getPlainAttrs().add(attrAddReplacePatch("fullname", newFullName));
 
-        userUR.getMemberships().add(new MembershipUR.Builder().operation(PatchOperation.ADD_REPLACE).
-                group("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
-        userUR.getMemberships().add(new MembershipUR.Builder().operation(PatchOperation.ADD_REPLACE).
-                group(userTO.getMemberships().get(0).getGroupKey()).build());
+        userUR.getMemberships().add(new MembershipUR.Builder("f779c0d4-633b-4be5-8f57-32eb478a3ca5").
+                operation(PatchOperation.ADD_REPLACE).build());
+        userUR.getMemberships().add(new MembershipUR.Builder(userTO.getMemberships().get(0).getGroupKey()).
+                operation(PatchOperation.ADD_REPLACE).build());
 
         userTO = updateUser(userUR).getEntity();
         assertNotNull(userTO);
@@ -614,7 +606,7 @@ public class UserITCase extends AbstractITCase {
         assertFalse(beforeTasks <= 0);
 
         UserCR userCR = getUniqueSample("pwdonly@t.com");
-        userCR.getMemberships().add(new MembershipTO.Builder().group("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
+        userCR.getMemberships().add(new MembershipTO.Builder("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
 
         UserTO userTO = createUser(userCR).getEntity();
 
@@ -651,8 +643,7 @@ public class UserITCase extends AbstractITCase {
         UserCR userCR = getUniqueSample("t@p.mode");
 
         // add a membership
-        userCR.getMemberships().add(new MembershipTO.Builder().
-                group("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
+        userCR.getMemberships().add(new MembershipTO.Builder("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
 
         // 1. create user
         UserTO userTO = createUser(userCR).getEntity();
@@ -716,8 +707,7 @@ public class UserITCase extends AbstractITCase {
 
         UserCR userCR = getUniqueSample("createActivate@syncope.apache.org");
 
-        userCR.getMemberships().add(new MembershipTO.Builder().
-                group("268fed79-f440-4390-9435-b273768eb5d6").build());
+        userCR.getMemberships().add(new MembershipTO.Builder("268fed79-f440-4390-9435-b273768eb5d6").build());
 
         UserTO userTO = createUser(userCR).getEntity();
 
@@ -743,8 +733,7 @@ public class UserITCase extends AbstractITCase {
     public void suspendReactivate() {
         UserCR userCR = getUniqueSample("suspendReactivate@syncope.apache.org");
 
-        userCR.getMemberships().add(new MembershipTO.Builder().
-                group("bf825fe1-7320-4a54-bd64-143b5c18ab97").build());
+        userCR.getMemberships().add(new MembershipTO.Builder("bf825fe1-7320-4a54-bd64-143b5c18ab97").build());
 
         UserTO userTO = createUser(userCR).getEntity();
 
@@ -856,8 +845,8 @@ public class UserITCase extends AbstractITCase {
         userUR.setKey(userTO.getKey());
 
         loginDate.getValues().add("2000-01-01");
-        userUR.getPlainAttrs().add(new AttrPatch.Builder().
-                operation(PatchOperation.ADD_REPLACE).attrTO(loginDate).build());
+        userUR.getPlainAttrs().add(new AttrPatch.Builder(loginDate).
+                operation(PatchOperation.ADD_REPLACE).build());
 
         userTO = updateUser(userUR).getEntity();
         assertNotNull(userTO);
@@ -925,8 +914,7 @@ public class UserITCase extends AbstractITCase {
 
         userCR.getAuxClasses().add("csv");
 
-        userCR.getMemberships().add(new MembershipTO.Builder().
-                group("37d15e4c-cdc1-460b-a591-8505c8133806").build());
+        userCR.getMemberships().add(new MembershipTO.Builder("37d15e4c-cdc1-460b-a591-8505c8133806").build());
 
         userCR.getResources().add(RESOURCE_NAME_CSV);
 
@@ -1339,9 +1327,8 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(response.getEntity());
 
         // 2. update
-        UserUR userUR = new UserUR.Builder().key(result.getEntity().getKey()).
-                plainAttr(new AttrPatch.Builder().
-                        attrTO(new AttrTO.Builder().schema("surname").value("surname2").build()).build()).
+        UserUR userUR = new UserUR.Builder(result.getEntity().getKey()).
+                plainAttr(new AttrPatch.Builder(new AttrTO.Builder("surname").value("surname2").build()).build()).
                 build();
         result = userService.update(userUR).readEntity(
                 new GenericType<ProvisioningResult<UserTO>>() {

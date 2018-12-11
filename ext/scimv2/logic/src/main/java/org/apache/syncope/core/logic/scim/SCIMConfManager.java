@@ -89,8 +89,7 @@ public class SCIMConfManager {
         conf.setGeneralConf(new SCIMGeneralConf());
         conf.getGeneralConf().setLastChangeDate(new Date());
 
-        configurationLogic.set(new AttrTO.Builder().
-                schema(SCIMConf.KEY).
+        configurationLogic.set(new AttrTO.Builder(SCIMConf.KEY).
                 value(Base64.getEncoder().encodeToString(POJOHelper.serialize(conf).getBytes())).
                 build());
     }

@@ -32,14 +32,14 @@ public class RelationshipUR extends AbstractPatch {
 
     public static class Builder extends AbstractPatch.Builder<RelationshipUR, Builder> {
 
+        public Builder(final RelationshipTO relationshipTO) {
+            super();
+            getInstance().setRelationshipTO(relationshipTO);
+        }
+
         @Override
         protected RelationshipUR newInstance() {
             return new RelationshipUR();
-        }
-
-        public Builder relationshipTO(final RelationshipTO relationshipTO) {
-            getInstance().setRelationshipTO(relationshipTO);
-            return this;
         }
     }
 
