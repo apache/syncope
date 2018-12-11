@@ -31,7 +31,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
@@ -43,6 +42,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -82,8 +82,7 @@ public interface UserSelfService extends JAXRSService {
     /**
      * Self-registration for new user.
      *
-     * @param userTO user to be created
-     * @param storePassword whether password shall be stored internally
+     * @param createReq user to be created
      * @return Response object featuring Location header of self-registered user as well as the user itself
      * enriched with propagation status information
      */
@@ -111,8 +110,7 @@ public interface UserSelfService extends JAXRSService {
     @POST
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response create(@NotNull UserTO userTO,
-            @DefaultValue("true") @QueryParam("storePassword") boolean storePassword);
+    Response create(@NotNull UserCR createReq);
 
     /**
      * Self-updates user.

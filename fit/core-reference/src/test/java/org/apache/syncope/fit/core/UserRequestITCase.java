@@ -60,7 +60,7 @@ public class UserRequestITCase extends AbstractITCase {
     public void twoLevelsApproval() {
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
-        UserTO user = createUser(UserITCase.getUniqueSampleTO("twoLevelsApproval@tirasa.net")).getEntity();
+        UserTO user = createUser(UserITCase.getUniqueSample("twoLevelsApproval@tirasa.net")).getEntity();
         assertNotNull(user);
         assertFalse(user.getMembership("ebf97068-aa4b-4a85-9f01-680e8c4cf227").isPresent());
 
@@ -144,7 +144,7 @@ public class UserRequestITCase extends AbstractITCase {
                 userRequestService.getForms(new UserRequestFormQuery.Builder().build());
         int preForms = forms.getTotalCount();
 
-        UserTO user = createUser(UserITCase.getUniqueSampleTO("twoLevelsApproval@tirasa.net")).getEntity();
+        UserTO user = createUser(UserITCase.getUniqueSample("twoLevelsApproval@tirasa.net")).getEntity();
         assertNotNull(user);
         assertFalse(user.getMembership("ebf97068-aa4b-4a85-9f01-680e8c4cf227").isPresent());
 
@@ -178,7 +178,7 @@ public class UserRequestITCase extends AbstractITCase {
                 userRequestService.getForms(new UserRequestFormQuery.Builder().build());
         int preForms = forms.getTotalCount();
 
-        UserTO user = createUser(UserITCase.getUniqueSampleTO("userSelection@tirasa.net")).getEntity();
+        UserTO user = createUser(UserITCase.getUniqueSample("userSelection@tirasa.net")).getEntity();
         assertNotNull(user);
         List<RelationshipTO> relationships = userService.read(user.getKey()).getRelationships();
         assertTrue(relationships.isEmpty());

@@ -28,6 +28,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -56,7 +57,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Spring's Transactional logic at class level.
  */
 @Component
-public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectUR> {
+public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, AnyObjectUR> {
 
     @Autowired
     protected AnySearchDAO searchDAO;
@@ -99,8 +100,8 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectUR> {
         return Pair.of(count, result);
     }
 
-    public ProvisioningResult<AnyObjectTO> create(final AnyObjectTO anyObjectTO, final boolean nullPriorityAsync) {
-        Pair<AnyObjectTO, List<LogicActions>> before = beforeCreate(anyObjectTO);
+    public ProvisioningResult<AnyObjectTO> create(final AnyObjectCR createReq, final boolean nullPriorityAsync) {
+        Pair<AnyObjectCR, List<LogicActions>> before = beforeCreate(createReq);
 
         if (before.getLeft().getRealm() == null) {
             throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);

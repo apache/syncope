@@ -21,6 +21,7 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.util.Date;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -33,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserServiceImpl extends AbstractAnyService<UserTO, UserUR> implements UserService {
+public class UserServiceImpl extends AbstractAnyService<UserTO, UserCR, UserUR> implements UserService {
 
     @Autowired
     private UserDAO userDAO;
@@ -47,7 +48,7 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserUR> implemen
     }
 
     @Override
-    protected AbstractAnyLogic<UserTO, UserUR> getAnyLogic() {
+    protected AbstractAnyLogic<UserTO, UserCR, UserUR> getAnyLogic() {
         return logic;
     }
 
@@ -57,8 +58,8 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserUR> implemen
     }
 
     @Override
-    public Response create(final UserTO userTO, final boolean storePassword) {
-        ProvisioningResult<UserTO> created = logic.create(userTO, storePassword, isNullPriorityAsync());
+    public Response create(final UserCR createReq) {
+        ProvisioningResult<UserTO> created = logic.create(createReq, isNullPriorityAsync());
         return createResponse(created);
     }
 

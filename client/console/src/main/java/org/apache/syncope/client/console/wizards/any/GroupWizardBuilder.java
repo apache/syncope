@@ -28,6 +28,8 @@ import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -89,7 +91,10 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
 
         ProvisioningResult<GroupTO> result;
         if (inner.getKey() == null) {
-            result = groupRestClient.create(inner);
+            GroupCR req = new GroupCR();
+            EntityTOUtils.toAnyCR(inner, req);
+
+            result = groupRestClient.create(req);
         } else {
             fixPlainAndVirAttrs(inner, getOriginalItem().getInnerObject());
             GroupUR groupUR = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);

@@ -280,8 +280,7 @@ public class ResourceStatusDirectoryPanel
                 List<? extends AnyTO> result = restClient.search(
                         SyncopeConstants.ROOT_REALM, fiql, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
 
-                statusBeans.addAll(result.stream().map(any -> StatusUtils.getStatusBean(
-                        any,
+                statusBeans.addAll(result.stream().map(any -> StatusUtils.getStatusBean(any,
                         resource.getKey(),
                         null,
                         any instanceof GroupTO)).collect(Collectors.toList()));

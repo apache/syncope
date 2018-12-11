@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -81,7 +82,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Spring's Transactional logic at class level.
  */
 @Component
-public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupUR> {
+public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
 
     @Resource(name = "adminUser")
     protected String adminUser;
@@ -173,8 +174,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupUR> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_CREATE + "')")
-    public ProvisioningResult<GroupTO> create(final GroupTO groupTO, final boolean nullPriorityAsync) {
-        Pair<GroupTO, List<LogicActions>> before = beforeCreate(groupTO);
+    public ProvisioningResult<GroupTO> create(final GroupCR createReq, final boolean nullPriorityAsync) {
+        Pair<GroupCR, List<LogicActions>> before = beforeCreate(createReq);
 
         if (before.getLeft().getRealm() == null) {
             throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);

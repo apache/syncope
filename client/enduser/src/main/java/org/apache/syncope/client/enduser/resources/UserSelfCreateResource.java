@@ -30,6 +30,7 @@ import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.util.Validation;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -165,8 +166,22 @@ public class UserSelfCreateResource extends BaseUserSelfResource {
                     LOG.trace("Received user self registration request is: [{}]", userTO);
 
                     // adapt request and create user
-                    final Response res = SyncopeEnduserSession.get().getService(UserSelfService.class).create(userTO,
-                            true);
+                    UserCR req = new UserCR.Builder().
+                            realm(userTO.getRealm()).
+                            username(userTO.getUsername()).
+                            password(userTO.getPassword()).
+                            mustChangePassword(userTO.isMustChangePassword()).
+                            securityQuestion(userTO.getSecurityQuestion()).
+                            securityAnswer(userTO.getSecurityAnswer()).
+                            auxClasses(userTO.getAuxClasses()).
+                            plainAttrs(userTO.getPlainAttrs()).
+                            virAttrs(userTO.getVirAttrs()).
+                            memberships(userTO.getMemberships()).
+                            relationships(userTO.getRelationships()).
+                            roles(userTO.getRoles()).
+                            resources(userTO.getResources()).
+                            build();
+                    Response res = SyncopeEnduserSession.get().getService(UserSelfService.class).create(req);
 
                     buildResponse(response, res.getStatus(),
                             Response.Status.Family.SUCCESSFUL.equals(res.getStatusInfo().getFamily())

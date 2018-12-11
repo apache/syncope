@@ -19,9 +19,9 @@
 package org.apache.syncope.core.workflow.api;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.common.lib.to.UserTO;
 
 /**
  * Interface for calling underlying workflow implementations.
@@ -31,23 +31,20 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
     /**
      * Create an user.
      *
-     * @param userTO user to be created and whether to propagate it as active
-     * @param storePassword whether password shall be stored into the internal storage
+     * @param userCR user to be created and whether to propagate it as active
      * @return user just created
      */
-    WorkflowResult<Pair<String, Boolean>> create(UserTO userTO, boolean storePassword);
+    WorkflowResult<Pair<String, Boolean>> create(UserCR userCR);
 
     /**
      * Create an user, optionally disabling password policy check.
      *
-     * @param userTO user to be created and whether to propagate it as active
+     * @param userCR user to be created and whether to propagate it as active
      * @param disablePwdPolicyCheck disable password policy check?
      * @param enabled specify true/false to force active/supended status
-     * @param storePassword whether password shall be stored into the internal storage
      * @return user just created
      */
-    WorkflowResult<Pair<String, Boolean>> create(
-            UserTO userTO, boolean disablePwdPolicyCheck, final Boolean enabled, boolean storePassword);
+    WorkflowResult<Pair<String, Boolean>> create(UserCR userCR, boolean disablePwdPolicyCheck, final Boolean enabled);
 
     /**
      * Activate an user.

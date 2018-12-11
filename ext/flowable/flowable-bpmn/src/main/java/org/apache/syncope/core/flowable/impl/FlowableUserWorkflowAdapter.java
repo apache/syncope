@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowTask;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -82,16 +82,14 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
 
     @Override
     protected WorkflowResult<Pair<String, Boolean>> doCreate(
-            final UserTO userTO,
+            final UserCR userCR,
             final boolean disablePwdPolicyCheck,
-            final Boolean enabled,
-            final boolean storePassword) {
+            final Boolean enabled) {
 
         Map<String, Object> variables = new HashMap<>();
         variables.put(FlowableRuntimeUtils.WF_EXECUTOR, AuthContextUtils.getUsername());
-        variables.put(FlowableRuntimeUtils.USER_TO, userTO);
+        variables.put(FlowableRuntimeUtils.USER_CR, userCR);
         variables.put(FlowableRuntimeUtils.ENABLED, enabled);
-        variables.put(FlowableRuntimeUtils.STORE_PASSWORD, storePassword);
 
         ProcessInstance procInst = null;
         try {
@@ -105,9 +103,9 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         engine.getRuntimeService().removeVariable(
                 procInst.getProcessInstanceId(), FlowableRuntimeUtils.WF_EXECUTOR);
         engine.getRuntimeService().removeVariable(
-                procInst.getProcessInstanceId(), FlowableRuntimeUtils.USER_TO);
+                procInst.getProcessInstanceId(), FlowableRuntimeUtils.USER_CR);
         engine.getRuntimeService().removeVariable(
-                procInst.getProcessInstanceId(), FlowableRuntimeUtils.STORE_PASSWORD);
+                procInst.getProcessInstanceId(), FlowableRuntimeUtils.USER_TO);
 
         User user = engine.getRuntimeService().
                 getVariable(procInst.getProcessInstanceId(), FlowableRuntimeUtils.USER, User.class);
@@ -149,7 +147,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                 procInst.getProcessInstanceId(),
                 created,
                 dataBinder.getUserTO(created, true),
-                userTO.getPassword(),
+                userCR.getPassword(),
                 enabled,
                 propByRes);
 
@@ -413,8 +411,8 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
         user = userDAO.save(user);
 
-        engine.getRuntimeService().setVariable(
-                procInstID, FlowableRuntimeUtils.USER_TO, dataBinder.getUserTO(user, true));
+        engine.getRuntimeService().setVariable(procInstID, FlowableRuntimeUtils.USER_TO, dataBinder.
+                getUserTO(user, true));
 
         if (engine.getRuntimeService().createProcessInstanceQuery().
                 processInstanceId(procInstID).active().list().isEmpty()) {

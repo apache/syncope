@@ -293,8 +293,7 @@ public class AnyStatusDirectoryPanel
                             getReconStatuses(anyTypeKind, anyTO.getKey(), Arrays.asList(resource));
                 }
 
-                return StatusUtils.getStatusBean(
-                        actual,
+                return StatusUtils.getStatusBean(actual,
                         resource,
                         statuses.isEmpty() ? null : statuses.get(0).getRight().getOnResource(),
                         actual instanceof GroupTO);
@@ -334,8 +333,7 @@ public class AnyStatusDirectoryPanel
                 statusBeans.addAll(resources.stream().
                         filter(resource -> !anyTO.getResources().contains(resource)).
                         map(resource -> {
-                            StatusBean statusBean = StatusUtils.getStatusBean(
-                                    actual,
+                            StatusBean statusBean = StatusUtils.getStatusBean(actual,
                                     resource,
                                     null,
                                     actual instanceof GroupTO);

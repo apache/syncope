@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -46,22 +47,20 @@ import org.junit.jupiter.api.Test;
 
 public class AnyObjectITCase extends AbstractITCase {
 
-    public static AnyObjectTO getSampleTO(final String location) {
-        AnyObjectTO anyObjectTO = new AnyObjectTO();
-        anyObjectTO.setName(location + getUUIDString());
-        anyObjectTO.setRealm(SyncopeConstants.ROOT_REALM);
-        anyObjectTO.setType("PRINTER");
-        anyObjectTO.getPlainAttrs().add(attrTO("location", location + getUUIDString()));
-
-        anyObjectTO.getResources().add(RESOURCE_NAME_DBSCRIPTED);
-        return anyObjectTO;
+    public static AnyObjectCR getSample(final String location) {
+        return new AnyObjectCR.Builder("PRINTER").
+                name(location + getUUIDString()).
+                realm(SyncopeConstants.ROOT_REALM).
+                plainAttr(attrTO("location", location + getUUIDString())).
+                resource(RESOURCE_NAME_DBSCRIPTED).
+                build();
     }
 
     @Test
     public void create() {
-        AnyObjectTO anyObjectTO = getSampleTO("create");
+        AnyObjectCR anyObjectCR = getSample("create");
 
-        anyObjectTO = createAnyObject(anyObjectTO).getEntity();
+        AnyObjectTO anyObjectTO = createAnyObject(anyObjectCR).getEntity();
         assertNotNull(anyObjectTO);
 
         ConnObjectTO connObjectTO =
@@ -76,22 +75,22 @@ public class AnyObjectITCase extends AbstractITCase {
     @Test
     public void createInvalidMembership() {
         // 1. create anyObject in realm /odd and attempt to assign group 15, from realm /even => exception
-        AnyObjectTO anyObjectTO = getSampleTO("createInvalidMembership");
-        anyObjectTO.setRealm("/odd");
-        anyObjectTO.getMemberships().add(
+        AnyObjectCR anyObjectCR = getSample("createInvalidMembership");
+        anyObjectCR.setRealm("/odd");
+        anyObjectCR.getMemberships().add(
                 new MembershipTO.Builder().group("034740a9-fa10-453b-af37-dc7897e98fb1").build());
 
         try {
-            createAnyObject(anyObjectTO);
+            createAnyObject(anyObjectCR);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidMembership, e.getType());
         }
 
         // 2. change anyObject's realm to /even/two, now it works
-        anyObjectTO.setRealm("/even/two");
+        anyObjectCR.setRealm("/even/two");
 
-        anyObjectTO = createAnyObject(anyObjectTO).getEntity();
+        AnyObjectTO anyObjectTO = createAnyObject(anyObjectCR).getEntity();
         assertNotNull(anyObjectTO.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1"));
     }
 
@@ -103,10 +102,10 @@ public class AnyObjectITCase extends AbstractITCase {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
 
-        AnyObjectTO anyObjectTO = getSampleTO("deletable");
-        anyObjectTO.setRealm("/even");
+        AnyObjectCR anyObjectCR = getSample("deletable");
+        anyObjectCR.setRealm("/even");
 
-        anyObjectTO = createAnyObject(anyObjectTO).getEntity();
+        AnyObjectTO anyObjectTO = createAnyObject(anyObjectCR).getEntity();
         assertNotNull(anyObjectTO);
 
         AnyObjectTO deletedAnyObject = deleteAnyObject(anyObjectTO.getKey()).getEntity();
@@ -140,8 +139,8 @@ public class AnyObjectITCase extends AbstractITCase {
 
     @Test
     public void update() {
-        AnyObjectTO anyObjectTO = getSampleTO("update");
-        anyObjectTO = createAnyObject(anyObjectTO).getEntity();
+        AnyObjectCR anyObjectCR = getSample("update");
+        AnyObjectTO anyObjectTO = createAnyObject(anyObjectCR).getEntity();
 
         assertEquals(1, anyObjectTO.getPlainAttrs().size());
 
@@ -157,8 +156,8 @@ public class AnyObjectITCase extends AbstractITCase {
 
     @Test
     public void readAttrs() {
-        AnyObjectTO anyObjectTO = getSampleTO("readAttrs");
-        anyObjectTO = createAnyObject(anyObjectTO).getEntity();
+        AnyObjectCR anyObjectCR = getSample("readAttrs");
+        AnyObjectTO anyObjectTO = createAnyObject(anyObjectCR).getEntity();
         assertNotNull(anyObjectTO);
 
         Set<AttrTO> attrs = anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN);
@@ -170,8 +169,8 @@ public class AnyObjectITCase extends AbstractITCase {
 
     @Test
     public void updateAttr() {
-        AnyObjectTO anyObjectTO = getSampleTO("updateAttr");
-        anyObjectTO = createAnyObject(anyObjectTO).getEntity();
+        AnyObjectCR anyObjectCR = getSample("updateAttr");
+        AnyObjectTO anyObjectTO = createAnyObject(anyObjectCR).getEntity();
         assertNotNull(anyObjectTO);
 
         AttrTO updated = attrTO("location", "newlocation");
@@ -183,8 +182,8 @@ public class AnyObjectITCase extends AbstractITCase {
 
     @Test
     public void deleteAttr() {
-        AnyObjectTO anyObjectTO = getSampleTO("deleteAttr");
-        anyObjectTO = createAnyObject(anyObjectTO).getEntity();
+        AnyObjectCR anyObjectCR = getSample("deleteAttr");
+        AnyObjectTO anyObjectTO = createAnyObject(anyObjectCR).getEntity();
         assertNotNull(anyObjectTO);
         assertNotNull(anyObjectTO.getPlainAttr("location"));
 
@@ -200,12 +199,12 @@ public class AnyObjectITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE756() {
-        AnyObjectTO anyObjectTO = getSampleTO("issueSYNCOPE756");
-        anyObjectTO.getRelationships().add(new RelationshipTO.Builder().otherEnd(
+        AnyObjectCR anyObjectCR = getSample("issueSYNCOPE756");
+        anyObjectCR.getRelationships().add(new RelationshipTO.Builder().otherEnd(
                 AnyTypeKind.USER.name(), "1417acbe-cbf6-4277-9372-e75e04f97000").build());
 
         try {
-            createAnyObject(anyObjectTO).getEntity();
+            createAnyObject(anyObjectCR).getEntity();
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidAnyType, e.getType());

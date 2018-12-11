@@ -22,7 +22,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
@@ -53,7 +55,12 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     }
 
     @Override
-    protected ProvisioningManager<?, ?> getProvisioningManager() {
+    protected String getName(final AnyCR anyCR) {
+        return UserCR.class.cast(anyCR).getUsername();
+    }
+
+    @Override
+    protected ProvisioningManager<?, ?, ?> getProvisioningManager() {
         return userProvisioningManager;
     }
 
@@ -69,12 +76,12 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     }
 
     @Override
-    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta) {
-        UserTO userTO = UserTO.class.cast(anyTO);
+    protected AnyTO doCreate(final AnyCR anyCR, final SyncDelta delta) {
+        UserCR userCR = UserCR.class.cast(anyCR);
 
         Boolean enabled = pullUtils.readEnabled(delta.getObject(), profile.getTask());
         Map.Entry<String, List<PropagationStatus>> created =
-                userProvisioningManager.create(userTO, true, true, enabled,
+                userProvisioningManager.create(userCR, true, enabled,
                         Collections.singleton(profile.getTask().getResource().getKey()), true);
 
         return getAnyTO(created.getKey());

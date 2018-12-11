@@ -17,8 +17,10 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
+import org.apache.syncope.common.lib.request.AnyCR
 import org.apache.syncope.common.lib.request.AnyUR
 import org.apache.syncope.common.lib.to.EntityTO
+import org.apache.syncope.common.lib.to.RealmTO
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningActions
@@ -40,7 +42,15 @@ class MyPullActions implements PullActions {
   void beforeProvision(
     ProvisioningProfile profile,
     SyncDelta delta,
-    EntityTO entity) throws JobExecutionException {
+    AnyCR anyCR) throws JobExecutionException {
+
+  }
+
+  @Override
+  void beforeProvision(
+    ProvisioningProfile profile,
+    SyncDelta delta,
+    RealmTO realmTO) throws JobExecutionException {
 
   }
 
@@ -48,7 +58,15 @@ class MyPullActions implements PullActions {
   void beforeAssign(
     ProvisioningProfile profile,
     SyncDelta delta,
-    EntityTO entity) throws JobExecutionException {
+    AnyCR anyCR) throws JobExecutionException {
+
+  }
+
+  @Override
+  void beforeAssign(
+    ProvisioningProfile profile,
+    SyncDelta delta,
+    RealmTO realmTO) throws JobExecutionException {
 
   }
 
@@ -85,11 +103,11 @@ class MyPullActions implements PullActions {
   }
 
   @Override
-  <R extends AnyUR> void beforeUpdate(
+  void beforeUpdate(
     ProvisioningProfile profile,
     SyncDelta delta,
     EntityTO entity,
-    R anyUR) throws JobExecutionException {
+    AnyUR anyUR) throws JobExecutionException {
 
   }
 

@@ -321,7 +321,7 @@ public class SCIMITCase extends AbstractITCase {
         assertEquals("additional", additional.getDisplayName());
 
         // gt
-        UserTO newUser = userService.create(UserITCase.getUniqueSampleTO("scimsearch@syncope.apache.org"), true).
+        UserTO newUser = userService.create(UserITCase.getUniqueSample("scimsearch@syncope.apache.org")).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
 

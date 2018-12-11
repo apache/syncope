@@ -18,11 +18,17 @@
  */
 package org.apache.syncope.common.lib.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -30,181 +36,216 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.to.GroupableRelatableTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 
-@XmlRootElement(name = "userUR")
+@XmlRootElement(name = "userCR")
 @XmlType
-@Schema(allOf = { AnyUR.class })
-public class UserUR extends AnyUR {
+@JsonPropertyOrder(value = { "@class", "username" })
+@Schema(allOf = { AnyCR.class })
+public class UserCR extends AnyCR implements GroupableRelatableTO {
 
-    private static final long serialVersionUID = 2872795537911821448L;
+    private static final long serialVersionUID = 2808404532469484940L;
 
-    public static class Builder extends AnyUR.Builder<UserUR, Builder> {
+    public static class Builder extends AnyCR.Builder<UserCR, Builder> {
 
         @Override
-        protected UserUR newInstance() {
-            return new UserUR();
+        protected UserCR newInstance() {
+            return new UserCR();
         }
 
-        public Builder username(final StringReplacePatchItem username) {
+        public Builder username(final String username) {
             getInstance().setUsername(username);
             return this;
         }
 
-        public Builder password(final PasswordPatch password) {
+        public Builder password(final String password) {
             getInstance().setPassword(password);
             return this;
         }
 
-        public Builder securityQuestion(final StringReplacePatchItem securityQuestion) {
+        public Builder storePassword(final boolean storePassword) {
+            getInstance().setStorePassword(storePassword);
+            return this;
+        }
+
+        public Builder securityQuestion(final String securityQuestion) {
             getInstance().setSecurityQuestion(securityQuestion);
             return this;
         }
 
-        public Builder securityAnswer(final StringReplacePatchItem securityAnswer) {
+        public Builder securityAnswer(final String securityAnswer) {
             getInstance().setSecurityAnswer(securityAnswer);
             return this;
         }
 
-        public Builder mustChangePassword(final BooleanReplacePatchItem mustChangePassword) {
+        public Builder mustChangePassword(final boolean mustChangePassword) {
             getInstance().setMustChangePassword(mustChangePassword);
             return this;
         }
 
-        public Builder relationship(final RelationshipUR relationship) {
+        public Builder relationship(final RelationshipTO relationship) {
             getInstance().getRelationships().add(relationship);
             return this;
         }
 
-        public Builder relationships(final RelationshipUR... relationships) {
+        public Builder relationships(final RelationshipTO... relationships) {
             getInstance().getRelationships().addAll(Arrays.asList(relationships));
             return this;
         }
 
-        public Builder relationships(final Collection<RelationshipUR> relationships) {
+        public Builder relationships(final Collection<RelationshipTO> relationships) {
             getInstance().getRelationships().addAll(relationships);
             return this;
         }
 
-        public Builder membership(final MembershipUR membership) {
+        public Builder membership(final MembershipTO membership) {
             getInstance().getMemberships().add(membership);
             return this;
         }
 
-        public Builder memberships(final MembershipUR... memberships) {
+        public Builder memberships(final MembershipTO... memberships) {
             getInstance().getMemberships().addAll(Arrays.asList(memberships));
             return this;
         }
 
-        public Builder memberships(final Collection<MembershipUR> memberships) {
+        public Builder memberships(final Collection<MembershipTO> memberships) {
             getInstance().getMemberships().addAll(memberships);
             return this;
         }
 
-        public Builder role(final StringPatchItem role) {
+        public Builder role(final String role) {
             getInstance().getRoles().add(role);
             return this;
         }
 
-        public Builder roles(final StringPatchItem... roles) {
+        public Builder roles(final String... roles) {
             getInstance().getRoles().addAll(Arrays.asList(roles));
             return this;
         }
 
-        public Builder roles(final Collection<StringPatchItem> roles) {
+        public Builder roles(final Collection<String> roles) {
             getInstance().getRoles().addAll(roles);
             return this;
         }
     }
 
-    private StringReplacePatchItem username;
+    private String username;
 
-    private PasswordPatch password;
+    private String password;
 
-    private StringReplacePatchItem securityQuestion;
+    private boolean storePassword = true;
 
-    private StringReplacePatchItem securityAnswer;
+    private String securityQuestion;
 
-    private BooleanReplacePatchItem mustChangePassword;
+    private String securityAnswer;
 
-    private final Set<RelationshipUR> relationships = new HashSet<>();
+    private boolean mustChangePassword;
 
-    private final Set<MembershipUR> memberships = new HashSet<>();
+    private final List<RelationshipTO> relationships = new ArrayList<>();
 
-    private final Set<StringPatchItem> roles = new HashSet<>();
+    private final List<MembershipTO> memberships = new ArrayList<>();
+
+    private final Set<String> roles = new HashSet<>();
 
     @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.request.UserUR")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.request.UserCR")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
     }
 
-    public StringReplacePatchItem getUsername() {
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
+    public String getUsername() {
         return username;
     }
 
-    public void setUsername(final StringReplacePatchItem username) {
+    public void setUsername(final String username) {
         this.username = username;
     }
 
-    public PasswordPatch getPassword() {
+    public String getPassword() {
         return password;
     }
 
-    public void setPassword(final PasswordPatch password) {
+    public void setPassword(final String password) {
         this.password = password;
     }
 
-    public StringReplacePatchItem getSecurityQuestion() {
+    public boolean isStorePassword() {
+        return storePassword;
+    }
+
+    public void setStorePassword(final boolean storePassword) {
+        this.storePassword = storePassword;
+    }
+
+    public String getSecurityQuestion() {
         return securityQuestion;
     }
 
-    public void setSecurityQuestion(final StringReplacePatchItem securityQuestion) {
+    public void setSecurityQuestion(final String securityQuestion) {
         this.securityQuestion = securityQuestion;
     }
 
-    public StringReplacePatchItem getSecurityAnswer() {
+    public String getSecurityAnswer() {
         return securityAnswer;
     }
 
-    public void setSecurityAnswer(final StringReplacePatchItem securityAnswer) {
+    public void setSecurityAnswer(final String securityAnswer) {
         this.securityAnswer = securityAnswer;
     }
 
-    public BooleanReplacePatchItem getMustChangePassword() {
+    public boolean isMustChangePassword() {
         return mustChangePassword;
     }
 
-    public void setMustChangePassword(final BooleanReplacePatchItem mustChangePassword) {
+    public void setMustChangePassword(final boolean mustChangePassword) {
         this.mustChangePassword = mustChangePassword;
+    }
+
+    @JsonIgnore
+    @Override
+    public Optional<RelationshipTO> getRelationship(final String type, final String otherKey) {
+        return relationships.stream().filter(
+                relationship -> type.equals(relationship.getType()) && otherKey.equals(relationship.getOtherEndKey())).
+                findFirst();
     }
 
     @XmlElementWrapper(name = "relationships")
     @XmlElement(name = "relationship")
     @JsonProperty("relationships")
-    public Set<RelationshipUR> getRelationships() {
+    @Override
+    public List<RelationshipTO> getRelationships() {
         return relationships;
+    }
+
+    @JsonIgnore
+    @Override
+    public Optional<MembershipTO> getMembership(final String groupKey) {
+        return memberships.stream().filter(membership -> groupKey.equals(membership.getGroupKey())).findFirst();
     }
 
     @XmlElementWrapper(name = "memberships")
     @XmlElement(name = "membership")
     @JsonProperty("memberships")
-    public Set<MembershipUR> getMemberships() {
+    @Override
+    public List<MembershipTO> getMemberships() {
         return memberships;
+    }
+
+    @Override
+    public List<MembershipTO> getDynMemberships() {
+        return Collections.emptyList();
     }
 
     @XmlElementWrapper(name = "roles")
     @XmlElement(name = "role")
     @JsonProperty("roles")
-    public Set<StringPatchItem> getRoles() {
+    public Set<String> getRoles() {
         return roles;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return super.isEmpty()
-                && username == null && password == null && securityQuestion == null && securityAnswer == null
-                && mustChangePassword == null && relationships.isEmpty() && memberships.isEmpty() && roles.isEmpty();
     }
 
     @Override
@@ -212,13 +253,12 @@ public class UserUR extends AnyUR {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(username).
-                append(password).
+                append(roles).
                 append(securityQuestion).
                 append(securityAnswer).
                 append(mustChangePassword).
                 append(relationships).
                 append(memberships).
-                append(roles).
                 build();
     }
 
@@ -233,16 +273,16 @@ public class UserUR extends AnyUR {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final UserUR other = (UserUR) obj;
+        final UserCR other = (UserCR) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(username, other.username).
+                append(roles, other.roles).
                 append(securityQuestion, other.securityQuestion).
                 append(securityAnswer, other.securityAnswer).
                 append(mustChangePassword, other.mustChangePassword).
                 append(relationships, other.relationships).
                 append(memberships, other.memberships).
-                append(roles, other.roles).
                 build();
     }
 }

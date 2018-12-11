@@ -18,18 +18,18 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
 import org.apache.syncope.common.lib.to.UserTO;
 
 public interface OIDCProviderActions {
 
-    UserTO beforeCreate(UserTO input, OIDCLoginResponseTO loginResponse);
+    UserCR beforeCreate(UserCR input, OIDCLoginResponseTO loginResponse);
 
     UserTO afterCreate(UserTO input, OIDCLoginResponseTO loginResponse);
 
     UserUR beforeUpdate(UserUR input, OIDCLoginResponseTO loginResponse);
 
     UserTO afterUpdate(UserTO input, OIDCLoginResponseTO loginResponse);
-
 }

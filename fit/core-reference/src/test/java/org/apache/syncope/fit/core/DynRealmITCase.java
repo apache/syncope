@@ -29,8 +29,10 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AttrPatch;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.DynRealmTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -116,26 +118,25 @@ public class DynRealmITCase extends AbstractITCase {
             assertNotNull(role);
 
             // 3. create new user and assign the new role
-            UserTO dynRealmAdmin = UserITCase.getUniqueSampleTO("dynRealmAdmin@apache.org");
+            UserCR dynRealmAdmin = UserITCase.getUniqueSample("dynRealmAdmin@apache.org");
             dynRealmAdmin.setPassword("password123");
             dynRealmAdmin.getRoles().add(role.getKey());
-            dynRealmAdmin = createUser(dynRealmAdmin).getEntity();
-            assertNotNull(dynRealmAdmin);
+            assertNotNull(createUser(dynRealmAdmin).getEntity());
 
             // 4. create new user and group, assign resource-ldap
-            UserTO user = UserITCase.getUniqueSampleTO("dynRealmUser@apache.org");
-            user.setRealm("/even/two");
-            user.getResources().clear();
-            user.getResources().add(RESOURCE_NAME_LDAP);
-            user = createUser(user).getEntity();
+            UserCR userCR = UserITCase.getUniqueSample("dynRealmUser@apache.org");
+            userCR.setRealm("/even/two");
+            userCR.getResources().clear();
+            userCR.getResources().add(RESOURCE_NAME_LDAP);
+            UserTO user = createUser(userCR).getEntity();
             assertNotNull(user);
             final String userKey = user.getKey();
 
-            GroupTO group = GroupITCase.getSampleTO("dynRealmGroup");
-            group.setRealm("/odd");
-            group.getResources().clear();
-            group.getResources().add(RESOURCE_NAME_LDAP);
-            group = createGroup(group).getEntity();
+            GroupCR groupCR = GroupITCase.getSample("dynRealmGroup");
+            groupCR.setRealm("/odd");
+            groupCR.getResources().clear();
+            groupCR.getResources().add(RESOURCE_NAME_LDAP);
+            GroupTO group = createGroup(groupCR).getEntity();
             assertNotNull(group);
             final String groupKey = group.getKey();
 
@@ -197,9 +198,8 @@ public class DynRealmITCase extends AbstractITCase {
             GroupUR groupUR = new GroupUR();
             groupUR.setKey(groupKey);
             groupUR.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("icon", "modified")).build());
-            group = delegatedGroupService.update(groupUR).
-                    readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
-                    }).getEntity();
+            group = delegatedGroupService.update(groupUR).readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
+            }).getEntity();
             assertNotNull(group);
             assertEquals("modified", group.getPlainAttr("icon").get().getValues().get(0));
         } finally {

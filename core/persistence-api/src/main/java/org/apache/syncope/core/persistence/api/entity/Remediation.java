@@ -19,8 +19,8 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.Date;
+import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 
@@ -34,15 +34,15 @@ public interface Remediation extends Entity {
 
     void setOperation(ResourceOperation operation);
 
-    void setPayload(AnyTO anyTO);
+    void setPayload(AnyCR anyCR);
 
     void setPayload(AnyUR anyUR);
 
     void setPayload(String key);
 
-    <T extends AnyTO> T getPayloadAsTO(Class<T> reference);
+    <C extends AnyCR> C getPayloadAsCR(Class<C> reference);
 
-    <P extends AnyUR> P getPayloadAsUR(Class<P> reference);
+    <U extends AnyUR> U getPayloadAsUR(Class<U> reference);
 
     String getPayloadAsKey();
 

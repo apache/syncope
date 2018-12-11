@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
+import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 
@@ -26,7 +27,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
  */
 public interface LogicActions {
 
-    default <A extends AnyTO> A beforeCreate(A input) {
+    default <C extends AnyCR> C beforeCreate(C input) {
         return input;
     }
 
@@ -34,7 +35,7 @@ public interface LogicActions {
         return input;
     }
 
-    default <P extends AnyUR> P beforeUpdate(P input) {
+    default <U extends AnyUR> U beforeUpdate(U input) {
         return input;
     }
 

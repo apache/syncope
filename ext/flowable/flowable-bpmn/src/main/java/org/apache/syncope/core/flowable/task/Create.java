@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.flowable.task;
 
-import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
@@ -38,12 +38,11 @@ public class Create extends FlowableServiceTask {
 
     @Override
     protected void doExecute(final DelegateExecution execution) {
-        UserTO userTO = execution.getVariable(FlowableRuntimeUtils.USER_TO, UserTO.class);
-        Boolean storePassword = execution.getVariable(FlowableRuntimeUtils.STORE_PASSWORD, Boolean.class);
+        UserCR userCR = execution.getVariable(FlowableRuntimeUtils.USER_CR, UserCR.class);
 
         // create user
         User user = entityFactory.newEntity(User.class);
-        dataBinder.create(user, userTO, storePassword == null ? true : storePassword);
+        dataBinder.create(user, userCR);
 
         // report user as result
         execution.setVariable(FlowableRuntimeUtils.USER, user);

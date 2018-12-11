@@ -23,18 +23,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 
-public interface GroupProvisioningManager extends ProvisioningManager<GroupTO, GroupUR> {
+public interface GroupProvisioningManager extends ProvisioningManager<GroupTO, GroupCR, GroupUR> {
 
     Pair<String, List<PropagationStatus>> create(
-            GroupTO groupTO,
+            GroupCR groupCR,
             Map<String, String> groupOwnerMap,
             Set<String> excludedResources,
             boolean nullPriorityAsync);
 
     List<PropagationStatus> provision(String key, Collection<String> resources, boolean nullPriorityAsync);
-
 }

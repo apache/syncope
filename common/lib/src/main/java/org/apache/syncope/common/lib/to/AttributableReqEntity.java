@@ -16,14 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.request;
+package org.apache.syncope.common.lib.to;
 
 import java.util.Set;
-import org.apache.syncope.common.lib.to.AttrTO;
 
-public interface AttributableUR {
+public interface AttributableReqEntity extends AttributableTO {
 
-    Set<AttrPatch> getPlainAttrs();
+    String getRealm();
 
-    Set<AttrTO> getVirAttrs();
+    void setRealm(String realm);
+
+    Set<String> getAuxClasses();
+
+    Set<String> getResources();
 }

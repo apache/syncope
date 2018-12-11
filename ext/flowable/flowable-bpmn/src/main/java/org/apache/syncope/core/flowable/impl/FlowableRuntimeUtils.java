@@ -55,6 +55,8 @@ public final class FlowableRuntimeUtils {
 
     public static final String FORM_SUBMITTER = "formSubmitter";
 
+    public static final String USER_CR = "userCR";
+
     public static final String USER_TO = "userTO";
 
     public static final String ENABLED = "enabled";
@@ -72,8 +74,6 @@ public final class FlowableRuntimeUtils {
     public static final String PROPAGATE_ENABLE = "propagateEnable";
 
     public static final String ENCRYPTED_PWD = "encryptedPwd";
-
-    public static final String STORE_PASSWORD = "storePassword";
 
     public static final String EVENT = "event";
 

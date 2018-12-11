@@ -50,7 +50,9 @@ import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.client.lib.batch.BatchResponse;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.StringReplacePatchItem;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -75,9 +77,9 @@ public class BatchITCase extends AbstractITCase {
         List<BatchRequestItem> reqItems = new ArrayList<>();
 
         // 1. create user as JSON
-        UserTO user = UserITCase.getUniqueSampleTO("batch@syncope.apache.org");
-        assertNotEquals("/odd", user.getRealm());
-        String createUserPayload = MAPPER.writeValueAsString(user);
+        UserCR userCR = UserITCase.getUniqueSample("batch@syncope.apache.org");
+        assertNotEquals("/odd", userCR.getRealm());
+        String createUserPayload = MAPPER.writeValueAsString(userCR);
 
         BatchRequestItem createUser = new BatchRequestItem();
         createUser.setMethod(HttpMethod.POST);
@@ -90,11 +92,11 @@ public class BatchITCase extends AbstractITCase {
         reqItems.add(createUser);
 
         // 2. create group as XML
-        GroupTO group = GroupITCase.getBasicSampleTO("batch");
-        JAXBContext context = JAXBContext.newInstance(GroupTO.class);
+        GroupCR groupCR = GroupITCase.getBasicSample("batch");
+        JAXBContext context = JAXBContext.newInstance(GroupCR.class);
         Marshaller marshaller = context.createMarshaller();
         StringWriter writer = new StringWriter();
-        marshaller.marshal(group, writer);
+        marshaller.marshal(groupCR, writer);
         String createGroupPayload = writer.toString();
 
         BatchRequestItem createGroup = new BatchRequestItem();
@@ -109,13 +111,13 @@ public class BatchITCase extends AbstractITCase {
 
         // 3. update the user above as JSON, request for no user data being returned
         UserUR userUR = new UserUR();
-        userUR.setKey(user.getUsername());
+        userUR.setKey(userCR.getUsername());
         userUR.setRealm(new StringReplacePatchItem.Builder().value("/odd").build());
         String updateUserPayload = MAPPER.writeValueAsString(userUR);
 
         BatchRequestItem updateUser = new BatchRequestItem();
         updateUser.setMethod(HttpMethod.PATCH);
-        updateUser.setRequestURI("/users/" + user.getUsername());
+        updateUser.setRequestURI("/users/" + userCR.getUsername());
         updateUser.setHeaders(new HashMap<>());
         updateUser.getHeaders().put(RESTHeaders.PREFER, Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
         updateUser.getHeaders().put(HttpHeaders.ACCEPT, Arrays.asList(MediaType.APPLICATION_JSON));
@@ -139,7 +141,7 @@ public class BatchITCase extends AbstractITCase {
         // 6, delete the group created above, expect deleted group as JSON
         BatchRequestItem deleteGroup = new BatchRequestItem();
         deleteGroup.setMethod(HttpMethod.DELETE);
-        deleteGroup.setRequestURI("/groups/" + group.getName());
+        deleteGroup.setRequestURI("/groups/" + groupCR.getName());
         reqItems.add(deleteGroup);
 
         String body = BatchPayloadGenerator.generate(reqItems, boundary);
@@ -169,7 +171,7 @@ public class BatchITCase extends AbstractITCase {
         assertNotNull(resItems.get(1).getHeaders().get(RESTHeaders.RESOURCE_KEY));
         assertEquals(MediaType.APPLICATION_XML, resItems.get(1).getHeaders().get(HttpHeaders.CONTENT_TYPE).get(0));
 
-        JAXBContext context = JAXBContext.newInstance(ProvisioningResult.class, GroupTO.class);
+        JAXBContext context = JAXBContext.newInstance(ProvisioningResult.class, GroupCR.class);
         Unmarshaller unmarshaller = context.createUnmarshaller();
         @SuppressWarnings("unchecked")
         ProvisioningResult<GroupTO> group = (ProvisioningResult<GroupTO>) unmarshaller.unmarshal(
@@ -193,8 +195,7 @@ public class BatchITCase extends AbstractITCase {
         assertEquals(Response.Status.OK.getStatusCode(), resItems.get(5).getStatus());
         assertNotNull(resItems.get(5).getHeaders().get(RESTHeaders.DOMAIN));
         assertEquals(MediaType.APPLICATION_JSON, resItems.get(5).getHeaders().get(HttpHeaders.CONTENT_TYPE).get(0));
-        group = MAPPER.readValue(
-                resItems.get(5).getContent(), new TypeReference<ProvisioningResult<GroupTO>>() {
+        group = MAPPER.readValue(resItems.get(5).getContent(), new TypeReference<ProvisioningResult<GroupTO>>() {
         });
         assertNotNull(group);
     }
@@ -273,23 +274,23 @@ public class BatchITCase extends AbstractITCase {
 
         // 1. create user as JSON
         UserService batchUserService = batchRequest.getService(UserService.class);
-        UserTO user = UserITCase.getUniqueSampleTO("batch@syncope.apache.org");
-        assertNotEquals("/odd", user.getRealm());
-        batchUserService.create(user, true);
+        UserCR userCR = UserITCase.getUniqueSample("batch@syncope.apache.org");
+        assertNotEquals("/odd", userCR.getRealm());
+        batchUserService.create(userCR);
 
         // 2. create group as XML
         GroupService batchGroupService = batchRequest.getService(GroupService.class);
         Client client = WebClient.client(batchGroupService).reset();
         client.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML);
-        GroupTO group = GroupITCase.getBasicSampleTO("batch");
-        batchGroupService.create(group);
+        GroupCR groupCR = GroupITCase.getBasicSample("batch");
+        batchGroupService.create(groupCR);
 
         // 3. update the user above as JSON, request for no user data being returned
         client = WebClient.client(batchUserService).reset();
         client.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
         client.header(RESTHeaders.PREFER, Preference.RETURN_NO_CONTENT.toString());
         UserUR userUR = new UserUR();
-        userUR.setKey(user.getUsername());
+        userUR.setKey(userCR.getUsername());
         userUR.setRealm(new StringReplacePatchItem.Builder().value("/odd").build());
         batchUserService.update(userUR);
 
@@ -302,7 +303,7 @@ public class BatchITCase extends AbstractITCase {
         batchGroupService.delete(UUID.randomUUID().toString());
 
         // 6, delete the group created above, expect deleted group as JSON
-        batchGroupService.delete(group.getName());
+        batchGroupService.delete(groupCR.getName());
 
         return batchRequest;
     }

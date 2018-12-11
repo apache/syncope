@@ -37,8 +37,8 @@ public class RemediationDataBinderImpl implements RemediationDataBinder {
 
         switch (remediation.getOperation()) {
             case CREATE:
-                remediationTO.setAnyTOPayload(
-                        remediation.getPayloadAsTO(remediation.getAnyType().getKind().getTOClass()));
+                remediationTO.setAnyCRPayload(
+                        remediation.getPayloadAsCR(remediation.getAnyType().getKind().getCRClass()));
                 break;
 
             case UPDATE:

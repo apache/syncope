@@ -29,9 +29,9 @@ import org.apache.camel.Exchange;
 import org.apache.camel.PollingConsumer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
@@ -46,23 +46,15 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     private static final Logger LOG = LoggerFactory.getLogger(CamelUserProvisioningManager.class);
 
     @Override
-    public Pair<String, List<PropagationStatus>> create(final UserTO userTO, final boolean nullPriorityAsync) {
-        return create(userTO, true, false, null, Collections.<String>emptySet(), nullPriorityAsync);
-    }
-
-    @Override
-    public Pair<String, List<PropagationStatus>> create(
-            final UserTO userTO, final boolean storePassword, final boolean nullPriorityAsync) {
-
-        return create(userTO, storePassword, false, null, Collections.<String>emptySet(), nullPriorityAsync);
+    public Pair<String, List<PropagationStatus>> create(final UserCR req, final boolean nullPriorityAsync) {
+        return create(req, false, null, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")
     public Pair<String, List<PropagationStatus>> create(
-            final UserTO userTO,
-            final boolean storePassword,
+            final UserCR req,
             final boolean disablePwdPolicyCheck,
             final Boolean enabled,
             final Set<String> excludedResources,
@@ -71,13 +63,12 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         PollingConsumer pollingConsumer = getConsumer("direct:createPort");
 
         Map<String, Object> props = new HashMap<>();
-        props.put("storePassword", storePassword);
         props.put("disablePwdPolicyCheck", disablePwdPolicyCheck);
         props.put("enabled", enabled);
         props.put("excludedResources", excludedResources);
         props.put("nullPriorityAsync", nullPriorityAsync);
 
-        sendMessage("direct:createUser", userTO, props);
+        sendMessage("direct:createUser", req, props);
 
         Exchange exchange = pollingConsumer.receive();
 

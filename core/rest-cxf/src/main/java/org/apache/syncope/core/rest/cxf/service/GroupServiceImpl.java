@@ -20,6 +20,7 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -34,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupUR> implements GroupService {
+public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupCR, GroupUR> implements GroupService {
 
     @Autowired
     private GroupDAO groupDAO;
@@ -48,7 +49,7 @@ public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupUR> imple
     }
 
     @Override
-    protected AbstractAnyLogic<GroupTO, GroupUR> getAnyLogic() {
+    protected AbstractAnyLogic<GroupTO, GroupCR, GroupUR> getAnyLogic() {
         return logic;
     }
 
@@ -58,8 +59,8 @@ public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupUR> imple
     }
 
     @Override
-    public Response create(final GroupTO groupTO) {
-        ProvisioningResult<GroupTO> created = logic.create(groupTO, isNullPriorityAsync());
+    public Response create(final GroupCR createReq) {
+        ProvisioningResult<GroupTO> created = logic.create(createReq, isNullPriorityAsync());
         return createResponse(created);
     }
 

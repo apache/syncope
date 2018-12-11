@@ -22,8 +22,8 @@ import java.util.Date;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RemediationTO;
@@ -72,8 +72,8 @@ public class RemediationServiceImpl extends AbstractServiceImpl implements Remed
     }
 
     @Override
-    public Response remedy(final String remediationKey, final AnyTO anyTO) {
-        ProvisioningResult<?> created = logic.remedy(remediationKey, anyTO, isNullPriorityAsync());
+    public Response remedy(final String remediationKey, final AnyCR anyCR) {
+        ProvisioningResult<?> created = logic.remedy(remediationKey, anyCR, isNullPriorityAsync());
         return createResponse(created);
     }
 

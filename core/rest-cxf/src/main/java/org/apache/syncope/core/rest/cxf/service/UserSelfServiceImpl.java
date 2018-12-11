@@ -23,6 +23,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -44,14 +45,14 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     private SyncopeLogic syncopeLogic;
 
     @Override
-    public Response create(final UserTO userTO, final boolean storePassword) {
+    public Response create(final UserCR createReq) {
         if (!syncopeLogic.isSelfRegAllowed()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.DelegatedAdministration);
             sce.getElements().add("Self registration forbidden by configuration");
             throw sce;
         }
 
-        ProvisioningResult<UserTO> created = logic.selfCreate(userTO, storePassword, isNullPriorityAsync());
+        ProvisioningResult<UserTO> created = logic.selfCreate(createReq, isNullPriorityAsync());
         return createResponse(created);
     }
 

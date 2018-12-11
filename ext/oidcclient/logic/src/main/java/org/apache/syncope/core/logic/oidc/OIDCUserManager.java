@@ -27,7 +27,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
@@ -238,27 +240,30 @@ public class OIDCUserManager {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public String create(final OIDCProvider op, final OIDCLoginResponseTO responseTO, final String email) {
-        UserTO userTO = new UserTO();
+        UserCR userCR = new UserCR();
+        userCR.setStorePassword(false);
 
         if (op.getUserTemplate() != null && op.getUserTemplate().get() != null) {
-            templateUtils.apply(userTO, op.getUserTemplate().get());
+            templateUtils.apply(userCR, op.getUserTemplate().get());
         }
 
         List<OIDCProviderActions> actions = getActions(op);
         for (OIDCProviderActions action : actions) {
-            userTO = action.beforeCreate(userTO, responseTO);
+            userCR = action.beforeCreate(userCR, responseTO);
         }
 
+        UserTO userTO = new UserTO();
+        EntityTOUtils.toAnyTO(userCR, userTO);
         fill(op, responseTO, userTO);
 
-        if (userTO.getRealm() == null) {
-            userTO.setRealm(SyncopeConstants.ROOT_REALM);
+        if (userCR.getRealm() == null) {
+            userCR.setRealm(SyncopeConstants.ROOT_REALM);
         }
-        if (userTO.getUsername() == null) {
-            userTO.setUsername(email);
+        if (userCR.getUsername() == null) {
+            userCR.setUsername(email);
         }
 
-        Pair<String, List<PropagationStatus>> created = provisioningManager.create(userTO, false, false);
+        Pair<String, List<PropagationStatus>> created = provisioningManager.create(userCR, false);
         userTO = binder.getUserTO(created.getKey());
 
         for (OIDCProviderActions action : actions) {

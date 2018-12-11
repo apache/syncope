@@ -29,7 +29,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.request.MembershipPatch;
+import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -53,13 +53,13 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
     @Override
     public Response create(final SCIMGroup group) {
         // first create group, no members assigned
-        ProvisioningResult<GroupTO> result = groupLogic().create(binder().toGroupTO(group), false);
+        ProvisioningResult<GroupTO> result = groupLogic().create(binder().toGroupCR(group), false);
 
         // then assign members
         group.getMembers().forEach(member -> {
             UserUR req = new UserUR.Builder().
                     key(member.getValue()).
-                    membership(new MembershipPatch.Builder().
+                    membership(new MembershipUR.Builder().
                             operation(PatchOperation.ADD_REPLACE).group(result.getEntity().getKey()).build()).
                     build();
             try {
@@ -138,7 +138,7 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
             if (!beforeMembers.contains(member.getValue())) {
                 UserUR req = new UserUR.Builder().
                         key(member.getValue()).
-                        membership(new MembershipPatch.Builder().
+                        membership(new MembershipUR.Builder().
                                 operation(PatchOperation.ADD_REPLACE).group(result.getEntity().getKey()).build()).
                         build();
                 try {
@@ -153,7 +153,7 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
         beforeMembers.stream().filter(member -> !afterMembers.contains(member)).forEach(user -> {
             UserUR req = new UserUR.Builder().
                     key(user).
-                    membership(new MembershipPatch.Builder().
+                    membership(new MembershipUR.Builder().
                             operation(PatchOperation.DELETE).group(result.getEntity().getKey()).build()).
                     build();
             try {

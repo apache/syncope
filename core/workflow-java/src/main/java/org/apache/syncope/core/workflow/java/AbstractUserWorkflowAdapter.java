@@ -20,8 +20,8 @@ package org.apache.syncope.core.workflow.java;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -54,21 +54,20 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     }
 
     @Override
-    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean storePassword) {
-        return create(userTO, false, null, storePassword);
+    public WorkflowResult<Pair<String, Boolean>> create(final UserCR userCR) {
+        return create(userCR, false, null);
     }
 
     protected abstract WorkflowResult<Pair<String, Boolean>> doCreate(
-            UserTO userTO, boolean disablePwdPolicyCheck, Boolean enabled, boolean storePassword);
+            UserCR userCR, boolean disablePwdPolicyCheck, Boolean enabled);
 
     @Override
     public WorkflowResult<Pair<String, Boolean>> create(
-            final UserTO userTO,
+            final UserCR userCR,
             final boolean disablePwdPolicyCheck,
-            final Boolean enabled,
-            final boolean storePassword) {
+            final Boolean enabled) {
 
-        return doCreate(userTO, disablePwdPolicyCheck, enabled, storePassword);
+        return doCreate(userCR, disablePwdPolicyCheck, enabled);
     }
 
     protected abstract WorkflowResult<String> doActivate(User user, String token);

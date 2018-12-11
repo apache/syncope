@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.fit.core.reference.flowable;
 
-import org.apache.syncope.common.lib.request.RelationshipPatch;
+import org.apache.syncope.common.lib.request.RelationshipUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
@@ -53,7 +53,7 @@ public class CreateARelationship extends FlowableServiceTask {
 
             UserUR userUR = new UserUR();
             userUR.setKey(user.getKey());
-            userUR.getRelationships().add(new RelationshipPatch.Builder().
+            userUR.getRelationships().add(new RelationshipUR.Builder().
                     relationshipTO(new RelationshipTO.Builder().
                             otherEnd("PRINTER", printer).type("neighborhood").build()).
                     build());

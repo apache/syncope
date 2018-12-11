@@ -52,10 +52,14 @@ import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.GroupWizardBuilder;
 import org.apache.syncope.client.console.wizards.any.UserWizardBuilder;
 import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -191,7 +195,8 @@ public class RemediationDirectoryPanel
                             UserTO newUserTO;
                             UserTO previousUserTO;
                             if (remediationTO.getAnyURPayload() == null) {
-                                newUserTO = (UserTO) remediationTO.getAnyTOPayload();
+                                newUserTO = new UserTO();
+                                EntityTOUtils.toAnyTO(remediationTO.getAnyCRPayload(), newUserTO);
                                 previousUserTO = null;
                             } else {
                                 previousUserTO = new UserRestClient().
@@ -217,7 +222,8 @@ public class RemediationDirectoryPanel
                             GroupTO newGroupTO;
                             GroupTO previousGroupTO;
                             if (remediationTO.getAnyURPayload() == null) {
-                                newGroupTO = (GroupTO) remediationTO.getAnyTOPayload();
+                                newGroupTO = new GroupTO();
+                                EntityTOUtils.toAnyTO(remediationTO.getAnyCRPayload(), newGroupTO);
                                 previousGroupTO = null;
                             } else {
                                 previousGroupTO = new GroupRestClient().
@@ -243,7 +249,8 @@ public class RemediationDirectoryPanel
                             AnyObjectTO newAnyObjectTO;
                             AnyObjectTO previousAnyObjectTO;
                             if (remediationTO.getAnyURPayload() == null) {
-                                newAnyObjectTO = (AnyObjectTO) remediationTO.getAnyTOPayload();
+                                newAnyObjectTO = new AnyObjectTO();
+                                EntityTOUtils.toAnyTO(remediationTO.getAnyCRPayload(), newAnyObjectTO);
                                 previousAnyObjectTO = null;
                             } else {
                                 previousAnyObjectTO = new AnyObjectRestClient().
@@ -371,7 +378,10 @@ public class RemediationDirectoryPanel
             ProvisioningResult<UserTO> result;
 
             if (remediationTO.getAnyURPayload() == null) {
-                result = restClient.remedy(remediationTO.getKey(), inner);
+                UserCR req = new UserCR();
+                EntityTOUtils.toAnyCR(inner, req);
+
+                result = restClient.remedy(remediationTO.getKey(), req);
             } else {
                 UserUR req = AnyOperations.diff(inner, previousUserTO, false);
 
@@ -423,7 +433,10 @@ public class RemediationDirectoryPanel
             ProvisioningResult<GroupTO> result;
 
             if (remediationTO.getAnyURPayload() == null) {
-                result = restClient.remedy(remediationTO.getKey(), inner);
+                GroupCR req = new GroupCR();
+                EntityTOUtils.toAnyCR(inner, req);
+
+                result = restClient.remedy(remediationTO.getKey(), req);
             } else {
                 GroupUR req = AnyOperations.diff(inner, previousGroupTO, false);
 
@@ -468,7 +481,10 @@ public class RemediationDirectoryPanel
             ProvisioningResult<AnyObjectTO> result;
 
             if (remediationTO.getAnyURPayload() == null) {
-                result = restClient.remedy(remediationTO.getKey(), inner);
+                AnyObjectCR req = new AnyObjectCR();
+                EntityTOUtils.toAnyCR(inner, req);
+
+                result = restClient.remedy(remediationTO.getKey(), req);
             } else {
                 AnyObjectUR req = AnyOperations.diff(inner, previousAnyObjectTO, false);
 

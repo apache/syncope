@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -99,11 +100,13 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
     protected abstract String getName(AnyTO anyTO);
 
-    protected abstract ProvisioningManager<?, ?> getProvisioningManager();
+    protected abstract String getName(AnyCR anyCR);
 
-    protected abstract AnyTO doCreate(AnyTO anyTO, SyncDelta delta);
+    protected abstract ProvisioningManager<?, ?, ?> getProvisioningManager();
 
-    protected abstract AnyUR doUpdate(AnyTO before, AnyUR req, SyncDelta delta, ProvisioningReport result);
+    protected abstract AnyTO doCreate(AnyCR anyCR, SyncDelta delta);
+
+    protected abstract AnyUR doUpdate(AnyTO before, AnyUR anyUR, SyncDelta delta, ProvisioningReport result);
 
     @Override
     public void setPullExecutor(final SyncopePullExecutor executor) {
@@ -182,14 +185,14 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             return Collections.<ProvisioningReport>emptyList();
         }
 
-        AnyTO anyTO = connObjectUtils.getAnyTO(delta.getObject(), profile.getTask(), provision, anyUtils);
-        anyTO.getResources().add(profile.getTask().getResource().getKey());
+        AnyCR anyCR = connObjectUtils.getAnyCR(delta.getObject(), profile.getTask(), provision, anyUtils);
+        anyCR.getResources().add(profile.getTask().getResource().getKey());
 
         ProvisioningReport result = new ProvisioningReport();
         result.setOperation(ResourceOperation.CREATE);
         result.setAnyType(provision.getAnyType().getKey());
         result.setStatus(ProvisioningReport.Status.SUCCESS);
-        result.setName(getName(anyTO));
+        result.setName(getName(anyCR));
         result.setUidValue(delta.getUid().getUidValue());
 
         if (profile.isDryRun()) {
@@ -197,10 +200,10 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             finalize(UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), Result.SUCCESS, null, null, delta);
         } else {
             for (PullActions action : profile.getActions()) {
-                action.beforeAssign(profile, delta, anyTO);
+                action.beforeAssign(profile, delta, anyCR);
             }
 
-            create(anyTO, delta, UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), provision, result);
+            create(anyCR, delta, UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), provision, result);
         }
 
         return Collections.singletonList(result);
@@ -216,13 +219,13 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             return Collections.<ProvisioningReport>emptyList();
         }
 
-        AnyTO anyTO = connObjectUtils.getAnyTO(delta.getObject(), profile.getTask(), provision, anyUtils);
+        AnyCR anyCR = connObjectUtils.getAnyCR(delta.getObject(), profile.getTask(), provision, anyUtils);
 
         ProvisioningReport result = new ProvisioningReport();
         result.setOperation(ResourceOperation.CREATE);
         result.setAnyType(provision.getAnyType().getKey());
         result.setStatus(ProvisioningReport.Status.SUCCESS);
-        result.setName(getName(anyTO));
+        result.setName(getName(anyCR));
         result.setUidValue(delta.getUid().getUidValue());
 
         if (profile.isDryRun()) {
@@ -230,10 +233,10 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             finalize(UnmatchingRule.toEventName(UnmatchingRule.PROVISION), Result.SUCCESS, null, null, delta);
         } else {
             for (PullActions action : profile.getActions()) {
-                action.beforeProvision(profile, delta, anyTO);
+                action.beforeProvision(profile, delta, anyCR);
             }
 
-            create(anyTO, delta, UnmatchingRule.toEventName(UnmatchingRule.PROVISION), provision, result);
+            create(anyCR, delta, UnmatchingRule.toEventName(UnmatchingRule.PROVISION), provision, result);
         }
 
         return Collections.singletonList(result);
@@ -258,7 +261,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
     }
 
     protected void create(
-            final AnyTO anyTO,
+            final AnyCR anyCR,
             final SyncDelta delta,
             final String operation,
             final Provision provision,
@@ -269,7 +272,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         Result resultStatus;
 
         try {
-            AnyTO created = doCreate(anyTO, delta);
+            AnyTO created = doCreate(anyCR, delta);
             output = created;
             result.setKey(created.getKey());
             result.setName(getName(created));
@@ -283,7 +286,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         } catch (PropagationException e) {
             // A propagation failure doesn't imply a pull failure.
             // The propagation exception status will be reported into the propagation task execution.
-            LOG.error("Could not propagate {} {}", anyTO.getType(), delta.getUid().getUidValue(), e);
+            LOG.error("Could not propagate {} {}", provision.getAnyType().getKey(), delta.getUid().getUidValue(), e);
             output = e;
             resultStatus = Result.FAILURE;
         } catch (Exception e) {
@@ -291,7 +294,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
             result.setStatus(ProvisioningReport.Status.FAILURE);
             result.setMessage(ExceptionUtils.getRootCauseMessage(e));
-            LOG.error("Could not create {} {} ", anyTO.getType(), delta.getUid().getUidValue(), e);
+            LOG.error("Could not create {} {} ", provision.getAnyType().getKey(), delta.getUid().getUidValue(), e);
             output = e;
             resultStatus = Result.FAILURE;
 
@@ -299,7 +302,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 Remediation entity = entityFactory.newEntity(Remediation.class);
                 entity.setAnyType(provision.getAnyType());
                 entity.setOperation(ResourceOperation.CREATE);
-                entity.setPayload(anyTO);
+                entity.setPayload(anyCR);
                 entity.setError(result.getMessage());
                 entity.setInstant(new Date());
                 entity.setRemoteName(delta.getObject().getName().getNameValue());

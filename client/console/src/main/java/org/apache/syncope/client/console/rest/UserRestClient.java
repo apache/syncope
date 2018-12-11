@@ -29,6 +29,7 @@ import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -51,8 +52,8 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
         return UserService.class;
     }
 
-    public ProvisioningResult<UserTO> create(final UserTO userTO, final boolean storePassword) {
-        Response response = getService(UserService.class).create(userTO, storePassword);
+    public ProvisioningResult<UserTO> create(final UserCR createReq) {
+        Response response = getService(UserService.class).create(createReq);
         return response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         });
     }

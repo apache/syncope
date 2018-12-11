@@ -30,16 +30,15 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -74,8 +73,7 @@ public interface UserService extends AnyService<UserTO> {
     /**
      * Creates a new user.
      *
-     * @param userTO user to be created
-     * @param storePassword whether password shall be stored internally
+     * @param createReq user create request
      * @return Response object featuring Location header of created user as well as the user itself
      * enriched with propagation status information
      */
@@ -108,9 +106,7 @@ public interface UserService extends AnyService<UserTO> {
     @POST
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response create(
-            @NotNull UserTO userTO,
-            @DefaultValue("true") @QueryParam("storePassword") boolean storePassword);
+    Response create(@NotNull UserCR createReq);
 
     /**
      * Updates user matching the provided key.

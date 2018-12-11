@@ -31,17 +31,17 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.to.AttrTO;
 
-@XmlRootElement(name = "membershipPatch")
+@XmlRootElement(name = "membershipUR")
 @XmlType
-public class MembershipPatch extends AbstractPatch {
+public class MembershipUR extends AbstractPatch {
 
     private static final long serialVersionUID = -6783121761221554433L;
 
-    public static class Builder extends AbstractPatch.Builder<MembershipPatch, Builder> {
+    public static class Builder extends AbstractPatch.Builder<MembershipUR, Builder> {
 
         @Override
-        protected MembershipPatch newInstance() {
-            return new MembershipPatch();
+        protected MembershipUR newInstance() {
+            return new MembershipUR();
         }
 
         public Builder group(final String group) {
@@ -129,7 +129,7 @@ public class MembershipPatch extends AbstractPatch {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final MembershipPatch other = (MembershipPatch) obj;
+        final MembershipUR other = (MembershipUR) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(group, other.group).

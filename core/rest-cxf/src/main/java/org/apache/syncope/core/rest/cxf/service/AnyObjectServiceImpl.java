@@ -21,6 +21,7 @@ package org.apache.syncope.core.rest.cxf.service;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -37,7 +38,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObjectUR> implements AnyObjectService {
+public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObjectCR, AnyObjectUR>
+        implements AnyObjectService {
 
     @Autowired
     private AnyObjectDAO anyObjectDAO;
@@ -51,7 +53,7 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
     }
 
     @Override
-    protected AbstractAnyLogic<AnyObjectTO, AnyObjectUR> getAnyLogic() {
+    protected AbstractAnyLogic<AnyObjectTO, AnyObjectCR, AnyObjectUR> getAnyLogic() {
         return logic;
     }
 
@@ -61,8 +63,8 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
     }
 
     @Override
-    public Response create(final AnyObjectTO anyObjectTO) {
-        ProvisioningResult<AnyObjectTO> created = logic.create(anyObjectTO, isNullPriorityAsync());
+    public Response create(final AnyObjectCR createReq) {
+        ProvisioningResult<AnyObjectTO> created = logic.create(createReq, isNullPriorityAsync());
         return createResponse(created);
     }
 

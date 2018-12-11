@@ -24,14 +24,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.GroupCR;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.scim.SCIMComplexConf;
 import org.apache.syncope.common.lib.scim.SCIMConf;
-import org.apache.syncope.common.lib.scim.SCIMUserAddressConf;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -491,36 +492,29 @@ public class SCIMDataBinder {
             }
 
             if (conf.getUserConf().getDisplayName() != null && user.getDisplayName() != null) {
-                setAttribute(userTO, conf.getUserConf().getDisplayName(),
-                        user.getDisplayName());
+                setAttribute(userTO, conf.getUserConf().getDisplayName(), user.getDisplayName());
             }
             if (conf.getUserConf().getNickName() != null && user.getNickName() != null) {
-                setAttribute(userTO, conf.getUserConf().getNickName(),
-                        user.getNickName());
+                setAttribute(userTO, conf.getUserConf().getNickName(), user.getNickName());
             }
             if (conf.getUserConf().getProfileUrl() != null && user.getProfileUrl() != null) {
-                setAttribute(userTO, conf.getUserConf().getProfileUrl(),
-                        user.getProfileUrl());
+                setAttribute(userTO, conf.getUserConf().getProfileUrl(), user.getProfileUrl());
             }
             if (conf.getUserConf().getTitle() != null && user.getTitle() != null) {
                 setAttribute(userTO, conf.getUserConf().getTitle(),
                         user.getTitle());
             }
             if (conf.getUserConf().getUserType() != null && user.getUserType() != null) {
-                setAttribute(userTO, conf.getUserConf().getUserType(),
-                        user.getUserType());
+                setAttribute(userTO, conf.getUserConf().getUserType(), user.getUserType());
             }
             if (conf.getUserConf().getPreferredLanguage() != null && user.getPreferredLanguage() != null) {
-                setAttribute(userTO, conf.getUserConf().getPreferredLanguage(),
-                        user.getPreferredLanguage());
+                setAttribute(userTO, conf.getUserConf().getPreferredLanguage(), user.getPreferredLanguage());
             }
             if (conf.getUserConf().getLocale() != null && user.getLocale() != null) {
-                setAttribute(userTO, conf.getUserConf().getLocale(),
-                        user.getLocale());
+                setAttribute(userTO, conf.getUserConf().getLocale(), user.getLocale());
             }
             if (conf.getUserConf().getTimezone() != null && user.getTimezone() != null) {
-                setAttribute(userTO, conf.getUserConf().getTimezone(),
-                        user.getTimezone());
+                setAttribute(userTO, conf.getUserConf().getTimezone(), user.getTimezone());
             }
 
             fill(userTO.getPlainAttrs(), conf.getUserConf().getEmails(), user.getEmails());
@@ -529,41 +523,34 @@ public class SCIMDataBinder {
             fill(userTO.getPlainAttrs(), conf.getUserConf().getPhotos(), user.getPhotos());
 
             user.getAddresses().stream().filter(address -> address.getType() != null).forEach(address -> {
-                Optional<SCIMUserAddressConf> addressConf = conf.getUserConf().getAddresses().stream().
-                        filter(object -> address.getType().equals(object.getType().name())).findFirst();
-                if (addressConf.isPresent()) {
-                    if (addressConf.get().getFormatted() != null && address.getFormatted() != null) {
-                        setAttribute(userTO, addressConf.get().getFormatted(),
-                                address.getFormatted());
-                    }
-                    if (addressConf.get().getStreetAddress() != null && address.getStreetAddress() != null) {
-                        setAttribute(userTO, addressConf.get().getStreetAddress(),
-                                address.getStreetAddress());
-                    }
-                    if (addressConf.get().getLocality() != null && address.getLocality() != null) {
-                        setAttribute(userTO, addressConf.get().getLocality(),
-                                address.getLocality());
-                    }
-                    if (addressConf.get().getRegion() != null && address.getRegion() != null) {
-                        setAttribute(userTO, addressConf.get().getRegion(),
-                                address.getRegion());
-                    }
-                    if (addressConf.get().getPostalCode() != null && address.getPostalCode() != null) {
-                        setAttribute(userTO, addressConf.get().getPostalCode(),
-                                address.getPostalCode());
-                    }
-                    if (addressConf.get().getCountry() != null && address.getCountry() != null) {
-                        setAttribute(userTO, addressConf.get().getCountry(),
-                                address.getCountry());
-                    }
-                }
+                conf.getUserConf().getAddresses().stream().
+                        filter(object -> address.getType().equals(object.getType().name())).findFirst().
+                        ifPresent(addressConf -> {
+                            if (addressConf.getFormatted() != null && address.getFormatted() != null) {
+                                setAttribute(userTO, addressConf.getFormatted(), address.getFormatted());
+                            }
+                            if (addressConf.getStreetAddress() != null && address.getStreetAddress() != null) {
+                                setAttribute(userTO, addressConf.getStreetAddress(), address.getStreetAddress());
+                            }
+                            if (addressConf.getLocality() != null && address.getLocality() != null) {
+                                setAttribute(userTO, addressConf.getLocality(), address.getLocality());
+                            }
+                            if (addressConf.getRegion() != null && address.getRegion() != null) {
+                                setAttribute(userTO, addressConf.getRegion(), address.getRegion());
+                            }
+                            if (addressConf.getPostalCode() != null && address.getPostalCode() != null) {
+                                setAttribute(userTO, addressConf.getPostalCode(), address.getPostalCode());
+                            }
+                            if (addressConf.getCountry() != null && address.getCountry() != null) {
+                                setAttribute(userTO, addressConf.getCountry(), address.getCountry());
+                            }
+                        });
             });
 
             for (int i = 0; i < user.getX509Certificates().size(); i++) {
                 Value certificate = user.getX509Certificates().get(i);
                 if (conf.getUserConf().getX509Certificates().size() > i) {
-                    setAttribute(userTO, conf.getUserConf().getX509Certificates().get(i),
-                            certificate.getValue());
+                    setAttribute(userTO, conf.getUserConf().getX509Certificates().get(i), certificate.getValue());
                 }
             }
         }
@@ -609,15 +596,28 @@ public class SCIMDataBinder {
             }
         }
 
-        user.getGroups().forEach(group -> {
-            userTO.getMemberships().add(new MembershipTO.Builder().group(group.getValue()).build());
-        });
+        userTO.getMemberships().addAll(user.getGroups().stream().
+                map(group -> new MembershipTO.Builder().group(group.getValue()).build()).
+                collect(Collectors.toList()));
 
-        user.getRoles().forEach(role -> {
-            userTO.getRoles().add(role.getValue());
-        });
+        userTO.getRoles().addAll(user.getRoles().stream().
+                map(Value::getValue).
+                collect(Collectors.toList()));
 
         return userTO;
+    }
+
+    public UserCR toUserCR(final SCIMUser user) {
+        UserTO userTO = toUserTO(user);
+
+        return new UserCR.Builder().
+                username(userTO.getUsername()).
+                password(userTO.getPassword()).
+                realm(userTO.getRealm()).
+                plainAttrs(userTO.getPlainAttrs()).
+                memberships(userTO.getMemberships()).
+                roles(userTO.getRoles()).
+                build();
     }
 
     private void setAttribute(final UserTO userTO, final String schema, final String value) {
@@ -690,4 +690,11 @@ public class SCIMDataBinder {
         return groupTO;
     }
 
+    public GroupCR toGroupCR(final SCIMGroup group) {
+        if (!GROUP_SCHEMAS.equals(group.getSchemas())) {
+            throw new BadRequestException(ErrorType.invalidValue);
+        }
+
+        return new GroupCR.Builder().realm(SyncopeConstants.ROOT_REALM).name(group.getDisplayName()).build();
+    }
 }

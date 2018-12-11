@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -65,7 +66,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Spring's Transactional logic at class level.
  */
 @Component
-public class UserLogic extends AbstractAnyLogic<UserTO, UserUR> {
+public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
     @Autowired
     protected AnySearchDAO searchDAO;
@@ -125,26 +126,21 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserUR> {
     }
 
     @PreAuthorize("isAnonymous() or hasRole('" + StandardEntitlement.ANONYMOUS + "')")
-    public ProvisioningResult<UserTO> selfCreate(
-            final UserTO userTO, final boolean storePassword, final boolean nullPriorityAsync) {
-
-        return doCreate(userTO, storePassword, true, nullPriorityAsync);
+    public ProvisioningResult<UserTO> selfCreate(final UserCR createReq, final boolean nullPriorityAsync) {
+        return doCreate(createReq, true, nullPriorityAsync);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_CREATE + "')")
-    public ProvisioningResult<UserTO> create(
-            final UserTO userTO, final boolean storePassword, final boolean nullPriorityAsync) {
-
-        return doCreate(userTO, storePassword, false, nullPriorityAsync);
+    public ProvisioningResult<UserTO> create(final UserCR createReq, final boolean nullPriorityAsync) {
+        return doCreate(createReq, false, nullPriorityAsync);
     }
 
     protected ProvisioningResult<UserTO> doCreate(
-            final UserTO userTO,
-            final boolean storePassword,
+            final UserCR userCR,
             final boolean self,
             final boolean nullPriorityAsync) {
 
-        Pair<UserTO, List<LogicActions>> before = beforeCreate(userTO);
+        Pair<UserCR, List<LogicActions>> before = beforeCreate(userCR);
 
         if (before.getLeft().getRealm() == null) {
             throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);
@@ -157,8 +153,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserUR> {
             securityChecks(effectiveRealms, before.getLeft().getRealm(), null);
         }
 
-        Pair<String, List<PropagationStatus>> created =
-                provisioningManager.create(before.getLeft(), storePassword, nullPriorityAsync);
+        Pair<String, List<PropagationStatus>> created = provisioningManager.create(before.getLeft(), nullPriorityAsync);
 
         return afterCreate(
                 binder.returnUserTO(binder.getUserTO(created.getKey())), created.getRight(), before.getRight());

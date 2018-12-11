@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.syncope.common.lib.request.MembershipPatch;
+import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
@@ -74,8 +74,7 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
                     groups.forEach(group -> {
                         Set<String> before = membershipsBefore.get(user);
                         if (before == null || !before.contains(group)) {
-                            userUR.getMemberships().add(
-                                    new MembershipPatch.Builder().
+                            userUR.getMemberships().add(new MembershipUR.Builder().
                                             operation(PatchOperation.ADD_REPLACE).
                                             group(group).
                                             build());
@@ -95,8 +94,7 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
                     groups.forEach(group -> {
                         Set<String> after = membershipsAfter.get(user);
                         if (after == null || !after.contains(group)) {
-                            userUR.getMemberships().add(
-                                    new MembershipPatch.Builder().
+                            userUR.getMemberships().add(new MembershipUR.Builder().
                                             operation(PatchOperation.DELETE).
                                             group(group).
                                             build());

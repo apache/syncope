@@ -20,8 +20,8 @@ package org.apache.syncope.core.workflow.java;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
@@ -40,13 +40,12 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     protected WorkflowResult<Pair<String, Boolean>> doCreate(
-            final UserTO userTO,
+            final UserCR userCR,
             final boolean disablePwdPolicyCheck,
-            final Boolean enabled,
-            final boolean storePassword) {
+            final Boolean enabled) {
 
         User user = entityFactory.newEntity(User.class);
-        dataBinder.create(user, userTO, storePassword);
+        dataBinder.create(user, userCR);
 
         // this will make UserValidator not to consider password policies at all
         if (disablePwdPolicyCheck) {

@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
@@ -95,54 +96,54 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
     }
 
     @Override
-    public void create(final Group group, final GroupTO groupTO) {
+    public void create(final Group group, final GroupCR groupCR) {
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         // name
         SyncopeClientException invalidGroups = SyncopeClientException.build(ClientExceptionType.InvalidGroup);
-        if (groupTO.getName() == null) {
+        if (groupCR.getName() == null) {
             LOG.error("No name specified for this group");
 
             invalidGroups.getElements().add("No name specified for this group");
         } else {
-            group.setName(groupTO.getName());
+            group.setName(groupCR.getName());
         }
 
         // realm
-        Realm realm = realmDAO.findByFullPath(groupTO.getRealm());
+        Realm realm = realmDAO.findByFullPath(groupCR.getRealm());
         if (realm == null) {
             SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-            noRealm.getElements().add("Invalid or null realm specified: " + groupTO.getRealm());
+            noRealm.getElements().add("Invalid or null realm specified: " + groupCR.getRealm());
             scce.addException(noRealm);
         }
         group.setRealm(realm);
 
         // attributes and resources
-        fill(group, groupTO, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce);
+        fill(group, groupCR, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce);
 
         // owner
-        if (groupTO.getUserOwner() != null) {
-            User owner = userDAO.find(groupTO.getUserOwner());
+        if (groupCR.getUserOwner() != null) {
+            User owner = userDAO.find(groupCR.getUserOwner());
             if (owner == null) {
-                LOG.warn("Ignoring invalid user specified as owner: {}", groupTO.getUserOwner());
+                LOG.warn("Ignoring invalid user specified as owner: {}", groupCR.getUserOwner());
             } else {
                 group.setUserOwner(owner);
             }
         }
-        if (groupTO.getGroupOwner() != null) {
-            Group owner = groupDAO.find(groupTO.getGroupOwner());
+        if (groupCR.getGroupOwner() != null) {
+            Group owner = groupDAO.find(groupCR.getGroupOwner());
             if (owner == null) {
-                LOG.warn("Ignoring invalid group specified as owner: {}", groupTO.getGroupOwner());
+                LOG.warn("Ignoring invalid group specified as owner: {}", groupCR.getGroupOwner());
             } else {
                 group.setGroupOwner(owner);
             }
         }
 
         // dynamic membership
-        if (groupTO.getUDynMembershipCond() != null) {
-            setDynMembership(group, anyTypeDAO.findUser(), groupTO.getUDynMembershipCond());
+        if (groupCR.getUDynMembershipCond() != null) {
+            setDynMembership(group, anyTypeDAO.findUser(), groupCR.getUDynMembershipCond());
         }
-        groupTO.getADynMembershipConds().forEach((type, fiql) -> {
+        groupCR.getADynMembershipConds().forEach((type, fiql) -> {
             AnyType anyType = anyTypeDAO.find(type);
             if (anyType == null) {
                 LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), type);
@@ -152,7 +153,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         });
 
         // type extensions
-        groupTO.getTypeExtensions().forEach(typeExtTO -> {
+        groupCR.getTypeExtensions().forEach(typeExtTO -> {
             AnyType anyType = anyTypeDAO.find(typeExtTO.getAnyType());
             if (anyType == null) {
                 LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), typeExtTO.getAnyType());

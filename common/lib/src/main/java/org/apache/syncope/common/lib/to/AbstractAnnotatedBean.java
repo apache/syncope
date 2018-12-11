@@ -19,7 +19,6 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Date;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.StringUtils;
@@ -67,7 +66,6 @@ public abstract class AbstractAnnotatedBean extends BaseBean implements EntityTO
      */
     private Date lastChangeDate;
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public String getCreator() {
         return creator;
     }
@@ -76,7 +74,6 @@ public abstract class AbstractAnnotatedBean extends BaseBean implements EntityTO
         this.creator = creator;
     }
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public Date getCreationDate() {
         if (creationDate != null) {
             return new Date(creationDate.getTime());
@@ -92,7 +89,6 @@ public abstract class AbstractAnnotatedBean extends BaseBean implements EntityTO
         }
     }
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public String getLastModifier() {
         return lastModifier;
     }
@@ -101,7 +97,6 @@ public abstract class AbstractAnnotatedBean extends BaseBean implements EntityTO
         this.lastModifier = lastModifier;
     }
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public Date getLastChangeDate() {
         if (lastChangeDate != null) {
             return new Date(lastChangeDate.getTime());

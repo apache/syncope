@@ -20,8 +20,10 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.Base64;
 import javax.xml.bind.DatatypeConverter;
+import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -58,21 +60,21 @@ public class LDAPPasswordPullActions implements PullActions {
     public void beforeProvision(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final EntityTO entity) throws JobExecutionException {
+            final AnyCR anyCR) throws JobExecutionException {
 
-        if (entity instanceof UserTO) {
-            String password = ((UserTO) entity).getPassword();
+        if (anyCR instanceof UserCR) {
+            String password = ((UserCR) anyCR).getPassword();
             parseEncodedPassword(password);
         }
     }
 
     @Transactional(readOnly = true)
     @Override
-    public <M extends AnyUR> void beforeUpdate(
+    public void beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final EntityTO entityTO,
-            final M anyUR) throws JobExecutionException {
+            final AnyUR anyUR) throws JobExecutionException {
 
         if (anyUR instanceof UserUR) {
             PasswordPatch modPassword = ((UserUR) anyUR).getPassword();

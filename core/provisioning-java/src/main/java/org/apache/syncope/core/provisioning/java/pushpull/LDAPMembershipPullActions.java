@@ -129,11 +129,11 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
      */
     @Transactional(readOnly = true)
     @Override
-    public <P extends AnyUR> void beforeUpdate(
+    public void beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final EntityTO entity,
-            final P anyUR) throws JobExecutionException {
+            final AnyUR anyUR) throws JobExecutionException {
 
         if (!(entity instanceof GroupTO)) {
             super.beforeUpdate(profile, delta, entity, anyUR);

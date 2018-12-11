@@ -22,15 +22,16 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.request.AnyCR;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.GroupCR;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
@@ -50,7 +51,8 @@ import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class AbstractAnyLogic<TO extends AnyTO, R extends AnyUR> extends AbstractResourceAssociator<TO> {
+public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U extends AnyUR>
+        extends AbstractResourceAssociator<TO> {
 
     @Autowired
     protected UserDAO userDAO;
@@ -84,7 +86,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, R extends AnyUR> extend
         return actions;
     }
 
-    protected Pair<TO, List<LogicActions>> beforeCreate(final TO input) {
+    protected Pair<C, List<LogicActions>> beforeCreate(final C input) {
         Realm realm = realmDAO.findByFullPath(input.getRealm());
         if (realm == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
@@ -92,32 +94,34 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, R extends AnyUR> extend
             throw sce;
         }
 
-        AnyType anyType = input instanceof UserTO
-                ? anyTypeDAO.findUser()
-                : input instanceof GroupTO
-                        ? anyTypeDAO.findGroup()
-                        : anyTypeDAO.find(input.getType());
+        AnyType anyType = null;
+        if (input instanceof UserCR) {
+            anyType = anyTypeDAO.findUser();
+        } else if (input instanceof GroupCR) {
+            anyType = anyTypeDAO.findGroup();
+        } else if (input instanceof AnyObjectCR) {
+            anyType = anyTypeDAO.find(((AnyObjectCR) input).getType());
+        }
         if (anyType == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
-            sce.getElements().add(input.getType());
             throw sce;
         }
 
-        TO any = input;
+        C anyCR = input;
 
-        templateUtils.apply(any, realm.getTemplate(anyType));
+        templateUtils.apply(anyCR, realm.getTemplate(anyType));
 
         List<LogicActions> actions = getActions(realm);
         for (LogicActions action : actions) {
-            any = action.beforeCreate(any);
+            anyCR = action.beforeCreate(anyCR);
         }
 
-        LOG.debug("Input: {}\nOutput: {}\n", input, any);
+        LOG.debug("Input: {}\nOutput: {}\n", input, anyCR);
 
-        return ImmutablePair.of(any, actions);
+        return Pair.of(anyCR, actions);
     }
 
-    protected Pair<R, List<LogicActions>> beforeUpdate(final R input, final String realmPath) {
+    protected Pair<U, List<LogicActions>> beforeUpdate(final U input, final String realmPath) {
         Realm realm = realmDAO.findByFullPath(realmPath);
         if (realm == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
@@ -125,7 +129,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, R extends AnyUR> extend
             throw sce;
         }
 
-        R mod = input;
+        U mod = input;
 
         List<LogicActions> actions = getActions(realm);
         for (LogicActions action : actions) {
@@ -134,7 +138,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, R extends AnyUR> extend
 
         LOG.debug("Input: {}\nOutput: {}\n", input, mod);
 
-        return ImmutablePair.of(mod, actions);
+        return Pair.of(mod, actions);
     }
 
     protected Pair<TO, List<LogicActions>> beforeDelete(final TO input) {
@@ -154,7 +158,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, R extends AnyUR> extend
 
         LOG.debug("Input: {}\nOutput: {}\n", input, any);
 
-        return ImmutablePair.of(any, actions);
+        return Pair.of(any, actions);
     }
 
     protected ProvisioningResult<TO> afterCreate(
@@ -253,7 +257,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, R extends AnyUR> extend
             String realm,
             boolean details);
 
-    public abstract ProvisioningResult<TO> update(R updateReq, boolean nullPriorityAsync);
+    public abstract ProvisioningResult<TO> update(U updateReq, boolean nullPriorityAsync);
 
     public abstract ProvisioningResult<TO> delete(String key, boolean nullPriorityAsync);
 }

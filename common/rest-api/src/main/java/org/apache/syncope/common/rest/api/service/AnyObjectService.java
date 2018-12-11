@@ -37,6 +37,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -71,7 +72,7 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
     /**
      * Creates a new any object.
      *
-     * @param anyObjectTO any object to be created
+     * @param createReq any object create request
      * @return Response object featuring Location header of created any object as well as the any
      * object itself enriched with propagation status information
      */
@@ -105,7 +106,7 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
     @POST
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response create(@NotNull AnyObjectTO anyObjectTO);
+    Response create(@NotNull AnyObjectCR createReq);
 
     /**
      * Updates any object matching the provided key.

@@ -40,6 +40,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -76,7 +77,7 @@ public interface GroupService extends AnyService<GroupTO> {
     /**
      * Creates a new group.
      *
-     * @param groupTO group to be created
+     * @param createReq group create request
      * @return Response object featuring Location header of created group as well as the any
      * object itself enriched with propagation status information
      */
@@ -109,7 +110,7 @@ public interface GroupService extends AnyService<GroupTO> {
     @POST
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response create(@NotNull GroupTO groupTO);
+    Response create(@NotNull GroupCR createReq);
 
     /**
      * Updates group matching the provided key.

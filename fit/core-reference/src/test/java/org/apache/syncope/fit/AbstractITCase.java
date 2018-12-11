@@ -52,6 +52,9 @@ import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.policy.PolicyTO;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
+import org.apache.syncope.common.lib.request.GroupCR;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -435,21 +438,17 @@ public abstract class AbstractITCase {
         assertNotNull(notification);
 
         // 2. create user
-        UserTO userTO = UserITCase.getUniqueSampleTO("notificationtest@syncope.apache.org");
-        userTO.getMemberships().add(
+        UserCR req = UserITCase.getUniqueSample("notificationtest@syncope.apache.org");
+        req.getMemberships().add(
                 new MembershipTO.Builder().group("bf825fe1-7320-4a54-bd64-143b5c18ab97").build());
 
-        userTO = createUser(userTO).getEntity();
+        UserTO userTO = createUser(req).getEntity();
         assertNotNull(userTO);
-        return Pair.of(notification.getKey(), userTO.getUsername());
+        return Pair.of(notification.getKey(), req.getUsername());
     }
 
-    protected ProvisioningResult<UserTO> createUser(final UserTO userTO) {
-        return createUser(userTO, true);
-    }
-
-    protected ProvisioningResult<UserTO> createUser(final UserTO userTO, final boolean storePassword) {
-        Response response = userService.create(userTO, storePassword);
+    protected ProvisioningResult<UserTO> createUser(final UserCR req) {
+        Response response = userService.create(req);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
             if (ex != null) {
@@ -472,8 +471,8 @@ public abstract class AbstractITCase {
                 });
     }
 
-    protected ProvisioningResult<AnyObjectTO> createAnyObject(final AnyObjectTO anyObjectTO) {
-        Response response = anyObjectService.create(anyObjectTO);
+    protected ProvisioningResult<AnyObjectTO> createAnyObject(final AnyObjectCR req) {
+        Response response = anyObjectService.create(req);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
             if (ex != null) {
@@ -496,8 +495,8 @@ public abstract class AbstractITCase {
                 });
     }
 
-    protected ProvisioningResult<GroupTO> createGroup(final GroupTO groupTO) {
-        Response response = groupService.create(groupTO);
+    protected ProvisioningResult<GroupTO> createGroup(final GroupCR req) {
+        Response response = groupService.create(req);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
             if (ex != null) {

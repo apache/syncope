@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -131,11 +132,11 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
     }
 
     @Override
-    public void create(final AnyObject anyObject, final AnyObjectTO anyObjectTO) {
-        AnyType type = anyTypeDAO.find(anyObjectTO.getType());
+    public void create(final AnyObject anyObject, final AnyObjectCR anyObjectCR) {
+        AnyType type = anyTypeDAO.find(anyObjectCR.getType());
         if (type == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
-            sce.getElements().add(anyObjectTO.getType());
+            sce.getElements().add(anyObjectCR.getType());
             throw sce;
         }
         anyObject.setType(type);
@@ -144,19 +145,19 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         // name
         SyncopeClientException invalidGroups = SyncopeClientException.build(ClientExceptionType.InvalidGroup);
-        if (anyObjectTO.getName() == null) {
+        if (anyObjectCR.getName() == null) {
             LOG.error("No name specified for this anyObject");
 
             invalidGroups.getElements().add("No name specified for this anyObject");
         } else {
-            anyObject.setName(anyObjectTO.getName());
+            anyObject.setName(anyObjectCR.getName());
         }
 
         // realm
-        Realm realm = realmDAO.findByFullPath(anyObjectTO.getRealm());
+        Realm realm = realmDAO.findByFullPath(anyObjectCR.getRealm());
         if (realm == null) {
             SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-            noRealm.getElements().add("Invalid or null realm specified: " + anyObjectTO.getRealm());
+            noRealm.getElements().add("Invalid or null realm specified: " + anyObjectCR.getRealm());
             scce.addException(noRealm);
         }
         anyObject.setRealm(realm);
@@ -164,7 +165,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
         if (anyObject.getRealm() != null) {
             // relationships
-            anyObjectTO.getRelationships().forEach(relationshipTO -> {
+            anyObjectCR.getRelationships().forEach(relationshipTO -> {
                 if (StringUtils.isBlank(relationshipTO.getOtherEndType())
                         || AnyTypeKind.USER.name().equals(relationshipTO.getOtherEndType())
                         || AnyTypeKind.GROUP.name().equals(relationshipTO.getOtherEndType())) {
@@ -202,7 +203,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             });
 
             // memberships
-            anyObjectTO.getMemberships().forEach(membershipTO -> {
+            anyObjectCR.getMemberships().forEach(membershipTO -> {
                 Group group = membershipTO.getGroupKey() == null
                         ? groupDAO.findByName(membershipTO.getGroupName())
                         : groupDAO.find(membershipTO.getGroupKey());
@@ -230,7 +231,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         }
 
         // attributes and resources
-        fill(anyObject, anyObjectTO, anyUtils, scce);
+        fill(anyObject, anyObjectCR, anyUtils, scce);
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {

@@ -136,7 +136,7 @@ abstract class AbstractService<R extends SCIMResource> {
         }
     }
 
-    protected AbstractAnyLogic<?, ?> anyLogic(final Resource type) {
+    protected AbstractAnyLogic<?, ?, ?> anyLogic(final Resource type) {
         switch (type) {
             case User:
                 return userLogic();
@@ -239,8 +239,7 @@ abstract class AbstractService<R extends SCIMResource> {
                         request.getAttributes(),
                         request.getExcludedAttributes());
             } else if (anyTO instanceof GroupTO) {
-                resource = binder().toSCIMGroup(
-                        (GroupTO) anyTO,
+                resource = binder().toSCIMGroup((GroupTO) anyTO,
                         uriInfo.getAbsolutePathBuilder().path(anyTO.getKey()).build().toASCIIString(),
                         request.getAttributes(),
                         request.getExcludedAttributes());

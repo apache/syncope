@@ -35,6 +35,7 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
@@ -133,15 +134,15 @@ public class MultitenancyITCase extends AbstractITCase {
     public void createUser() {
         assertNull(adminClient.getService(RealmService.class).list().get(0).getPasswordPolicy());
 
-        UserTO user = new UserTO();
-        user.setRealm(SyncopeConstants.ROOT_REALM);
-        user.setUsername(getUUIDString());
-        user.setPassword("password");
+        UserCR userCR = new UserCR();
+        userCR.setRealm(SyncopeConstants.ROOT_REALM);
+        userCR.setUsername(getUUIDString());
+        userCR.setPassword("password");
 
-        Response response = adminClient.getService(UserService.class).create(user, true);
+        Response response = adminClient.getService(UserService.class).create(userCR);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
 
-        user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        UserTO user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(user);
     }
@@ -260,7 +261,7 @@ public class MultitenancyITCase extends AbstractITCase {
         try {
             new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("NotExisting").create().
                     getService(UserSelfService.class).
-                    create(UserITCase.getUniqueSampleTO("syncope1377@syncope.apache.org"), true);
+                    create(UserITCase.getUniqueSample("syncope1377@syncope.apache.org"));
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());

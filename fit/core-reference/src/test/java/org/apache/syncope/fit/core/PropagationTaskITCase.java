@@ -32,7 +32,9 @@ import java.util.Optional;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.lib.batch.BatchRequest;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AttrPatch;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -96,9 +98,9 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     @Test
     public void batch() throws IOException {
         // create user with testdb resource
-        UserTO userTO = UserITCase.getUniqueSampleTO("taskBatch@apache.org");
-        userTO.getResources().add(RESOURCE_NAME_TESTDB);
-        userTO = createUser(userTO).getEntity();
+        UserCR userCR = UserITCase.getUniqueSample("taskBatch@apache.org");
+        userCR.getResources().add(RESOURCE_NAME_TESTDB);
+        UserTO userTO = createUser(userCR).getEntity();
 
         List<PropagationTaskTO> tasks = new ArrayList<>(
                 taskService.<PropagationTaskTO>search(new TaskQuery.Builder(TaskType.PROPAGATION).
@@ -139,11 +141,12 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             resourceService.update(resource);
 
             // 1. create printer on external resource
-            AnyObjectTO anyObjectTO = AnyObjectITCase.getSampleTO("propagationJEXLTransformer");
-            String originalLocation = anyObjectTO.getPlainAttr("location").get().getValues().get(0);
+            AnyObjectCR anyObjectCR = AnyObjectITCase.getSample("propagationJEXLTransformer");
+            String originalLocation = anyObjectCR.getPlainAttrs().stream().
+                    filter(attr -> "location".equals(attr.getSchema())).findFirst().get().getValues().get(0);
             assertFalse(originalLocation.endsWith(suffix));
 
-            anyObjectTO = createAnyObject(anyObjectTO).getEntity();
+            AnyObjectTO anyObjectTO = createAnyObject(anyObjectCR).getEntity();
             assertNotNull(anyObjectTO);
 
             // 2. verify that JEXL MappingItemTransformer was applied during propagation
@@ -179,11 +182,11 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         ldap = createResource(ldap);
 
         try {
-            UserTO user = UserITCase.getUniqueSampleTO("privilege@syncope.apache.org");
-            user.getResources().add(ldap.getKey());
-            user.getRoles().add("Other");
+            UserCR userCR = UserITCase.getUniqueSample("privilege@syncope.apache.org");
+            userCR.getResources().add(ldap.getKey());
+            userCR.getRoles().add("Other");
 
-            ProvisioningResult<UserTO> result = createUser(user);
+            ProvisioningResult<UserTO> result = createUser(userCR);
             assertEquals(1, result.getPropagationStatuses().size());
             assertNotNull(result.getPropagationStatuses().get(0).getAfterObj());
 
@@ -245,10 +248,10 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     @Test
     public void issueSYNCOPE1288() {
         // create a new user
-        UserTO userTO = UserITCase.getUniqueSampleTO("xxxyyy@xxx.xxx");
-        userTO.getResources().add(RESOURCE_NAME_LDAP);
+        UserCR userCR = UserITCase.getUniqueSample("xxxyyy@xxx.xxx");
+        userCR.getResources().add(RESOURCE_NAME_LDAP);
 
-        userTO = createUser(userTO).getEntity();
+        UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
 
         // generate some PropagationTasks
@@ -312,5 +315,4 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
         assertTrue(orderedTasks.getResult().equals(unorderedTasks.getResult()));
     }
-
 }

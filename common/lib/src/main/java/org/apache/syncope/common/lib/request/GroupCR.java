@@ -16,33 +16,82 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.to;
+package org.apache.syncope.common.lib.request;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.to.TypeExtensionTO;
 
-@XmlRootElement(name = "group")
+@XmlRootElement(name = "groupCR")
 @XmlType
-@Schema(allOf = { AnyTO.class })
-public class GroupTO extends AnyTO {
+@JsonPropertyOrder(value = { "@class", "name" })
+@Schema(allOf = { AnyCR.class })
+public class GroupCR extends AnyCR {
 
-    private static final long serialVersionUID = -7785920258290147542L;
+    private static final long serialVersionUID = -4559772531167385473L;
+
+    public static class Builder extends AnyCR.Builder<GroupCR, Builder> {
+
+        @Override
+        protected GroupCR newInstance() {
+            return new GroupCR();
+        }
+
+        public Builder name(final String name) {
+            getInstance().setName(name);
+            return this;
+        }
+
+        public Builder userOwner(final String userOwner) {
+            getInstance().setUserOwner(userOwner);
+            return this;
+        }
+
+        public Builder groupOwner(final String groupOwner) {
+            getInstance().setGroupOwner(groupOwner);
+            return this;
+        }
+
+        public Builder udynMembershipCond(final String udynMembershipCond) {
+            getInstance().setUDynMembershipCond(udynMembershipCond);
+            return this;
+        }
+
+        public Builder adynMembershipCond(final String type, final String fiql) {
+            getInstance().getADynMembershipConds().put(type, fiql);
+            return this;
+        }
+
+        public Builder typeExtension(final TypeExtensionTO typeExtension) {
+            getInstance().getTypeExtensions().add(typeExtension);
+            return this;
+        }
+
+        public Builder typeExtensions(final TypeExtensionTO... typeExtensions) {
+            getInstance().getTypeExtensions().addAll(Arrays.asList(typeExtensions));
+            return this;
+        }
+
+        public Builder typeExtensions(final Collection<TypeExtensionTO> typeExtensions) {
+            getInstance().getTypeExtensions().addAll(typeExtensions);
+            return this;
+        }
+    }
 
     private String name;
 
@@ -52,37 +101,20 @@ public class GroupTO extends AnyTO {
 
     private String udynMembershipCond;
 
-    private int staticUserMembershipCount;
-
-    private int dynamicUserMembershipCount;
-
-    private int staticAnyObjectMembershipCount;
-
-    private int dynamicAnyObjectMembershipCount;
-
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     private final Map<String, String> adynMembershipConds = new HashMap<>();
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
-    @XmlTransient
     @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.GroupTO")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.request.GroupCR")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
     }
 
-    @Override
-    public String getType() {
-        return AnyTypeKind.GROUP.name();
-    }
-
-    @Override
-    public void setType(final String type) {
-        // fixed
-    }
-
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
     public String getName() {
         return name;
     }
@@ -115,48 +147,9 @@ public class GroupTO extends AnyTO {
         this.udynMembershipCond = uDynMembershipCond;
     }
 
-    public int getStaticUserMembershipCount() {
-        return staticUserMembershipCount;
-    }
-
-    public void setStaticUserMembershipCount(final int staticUserMembershipCount) {
-        this.staticUserMembershipCount = staticUserMembershipCount;
-    }
-
-    public int getDynamicUserMembershipCount() {
-        return dynamicUserMembershipCount;
-    }
-
-    public void setDynamicUserMembershipCount(final int dynamicUserMembershipCount) {
-        this.dynamicUserMembershipCount = dynamicUserMembershipCount;
-    }
-
-    public int getStaticAnyObjectMembershipCount() {
-        return staticAnyObjectMembershipCount;
-    }
-
-    public void setStaticAnyObjectMembershipCount(final int staticAnyObjectMembershipCount) {
-        this.staticAnyObjectMembershipCount = staticAnyObjectMembershipCount;
-    }
-
-    public int getDynamicAnyObjectMembershipCount() {
-        return dynamicAnyObjectMembershipCount;
-    }
-
-    public void setDynamicAnyObjectMembershipCount(final int dynamicAnyObjectMembershipCount) {
-        this.dynamicAnyObjectMembershipCount = dynamicAnyObjectMembershipCount;
-    }
-
     @JsonProperty
     public Map<String, String> getADynMembershipConds() {
         return adynMembershipConds;
-    }
-
-    @JsonIgnore
-    public Optional<TypeExtensionTO> getTypeExtension(final String anyType) {
-        return typeExtensions.stream().filter(
-                typeExtension -> anyType != null && anyType.equals(typeExtension.getAnyType())).
-                findFirst();
     }
 
     @XmlElementWrapper(name = "typeExtensions")
@@ -190,7 +183,7 @@ public class GroupTO extends AnyTO {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final GroupTO other = (GroupTO) obj;
+        final GroupCR other = (GroupCR) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(name, other.name).

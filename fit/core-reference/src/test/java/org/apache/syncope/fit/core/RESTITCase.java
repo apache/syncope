@@ -44,6 +44,7 @@ import org.apache.syncope.client.lib.BasicAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.StringReplacePatchItem;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -102,16 +103,16 @@ public class RESTITCase extends AbstractITCase {
         GroupService noContentService = noContentclient.prefer(
                 noContentclient.getService(GroupService.class), Preference.RETURN_NO_CONTENT);
 
-        GroupTO group = GroupITCase.getSampleTO("noContent");
+        GroupCR groupCR = GroupITCase.getSample("noContent");
 
-        Response response = noContentService.create(group);
+        Response response = noContentService.create(groupCR);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(
                 StringUtils.EMPTY,
                 IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
 
-        group = getObject(response.getLocation(), GroupService.class, GroupTO.class);
+        GroupTO group = getObject(response.getLocation(), GroupService.class, GroupTO.class);
         assertNotNull(group);
 
         GroupUR groupUR = new GroupUR();
@@ -135,7 +136,7 @@ public class RESTITCase extends AbstractITCase {
 
     @Test
     public void ifMatch() {
-        UserTO userTO = userService.create(UserITCase.getUniqueSampleTO("ifmatch@syncope.apache.org"), true).
+        UserTO userTO = userService.create(UserITCase.getUniqueSample("ifmatch@syncope.apache.org")).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
         assertNotNull(userTO);

@@ -25,7 +25,7 @@ under the License.
       <simple>${body}</simple>
     </setProperty>
     <doTry>
-      <bean method="create(${body},${property.disablePwdPolicyCheck},${property.enabled},${property.storePassword})"
+      <bean method="create(${body},${property.disablePwdPolicyCheck},${property.enabled})"
             ref="uwfAdapter" />
       <to uri="propagate:create?anyTypeKind=USER"/>
       <to uri="direct:createPort"/>

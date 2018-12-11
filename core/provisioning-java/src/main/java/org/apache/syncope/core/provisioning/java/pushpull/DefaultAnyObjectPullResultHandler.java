@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.request.AnyCR;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -53,7 +55,12 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
     }
 
     @Override
-    protected ProvisioningManager<?, ?> getProvisioningManager() {
+    protected String getName(final AnyCR anyCR) {
+        return AnyObjectCR.class.cast(anyCR).getName();
+    }
+
+    @Override
+    protected ProvisioningManager<?, ?, ?> getProvisioningManager() {
         return anyObjectProvisioningManager;
     }
 
@@ -68,11 +75,11 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
     }
 
     @Override
-    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta) {
-        AnyObjectTO anyObjectTO = AnyObjectTO.class.cast(anyTO);
+    protected AnyTO doCreate(final AnyCR anyCR, final SyncDelta delta) {
+        AnyObjectCR anyObjectCR = AnyObjectCR.class.cast(anyCR);
 
         Map.Entry<String, List<PropagationStatus>> created = anyObjectProvisioningManager.create(
-                anyObjectTO, Collections.singleton(profile.getTask().getResource().getKey()), true);
+                anyObjectCR, Collections.singleton(profile.getTask().getResource().getKey()), true);
 
         return getAnyTO(created.getKey());
     }

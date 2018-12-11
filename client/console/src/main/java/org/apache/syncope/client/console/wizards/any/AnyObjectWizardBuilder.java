@@ -25,6 +25,8 @@ import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -70,7 +72,10 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
 
         ProvisioningResult<AnyObjectTO> result;
         if (inner.getKey() == null) {
-            result = anyObjectRestClient.create(inner);
+            AnyObjectCR req = new AnyObjectCR();
+            EntityTOUtils.toAnyCR(inner, req);
+
+            result = anyObjectRestClient.create(req);
         } else {
             fixPlainAndVirAttrs(inner, getOriginalItem().getInnerObject());
             AnyObjectUR req = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);

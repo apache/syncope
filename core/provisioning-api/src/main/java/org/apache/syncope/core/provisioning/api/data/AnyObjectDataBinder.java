@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -29,7 +30,7 @@ public interface AnyObjectDataBinder {
 
     AnyObjectTO getAnyObjectTO(AnyObject anyObject, boolean details);
 
-    void create(AnyObject anyObject, AnyObjectTO anyObjectTO);
+    void create(AnyObject anyObject, AnyObjectCR anyObjectCR);
 
     PropagationByResource update(AnyObject toBeUpdated, AnyObjectUR anyObjectUR);
 }

@@ -23,8 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
@@ -63,7 +65,12 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
     }
 
     @Override
-    protected ProvisioningManager<?, ?> getProvisioningManager() {
+    protected String getName(final AnyCR anyCR) {
+        return GroupCR.class.cast(anyCR).getName();
+    }
+
+    @Override
+    protected ProvisioningManager<?, ?, ?> getProvisioningManager() {
         return groupProvisioningManager;
     }
 
@@ -78,11 +85,11 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
     }
 
     @Override
-    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta) {
-        GroupTO groupTO = GroupTO.class.cast(anyTO);
+    protected AnyTO doCreate(final AnyCR anyCR, final SyncDelta delta) {
+        GroupCR groupCR = GroupCR.class.cast(anyCR);
 
         Map.Entry<String, List<PropagationStatus>> created = groupProvisioningManager.create(
-                groupTO,
+                groupCR,
                 groupOwnerMap,
                 Collections.singleton(profile.getTask().getResource().getKey()),
                 true);

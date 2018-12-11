@@ -18,107 +18,149 @@
  */
 package org.apache.syncope.common.lib.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.to.GroupableRelatableTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 
-@XmlRootElement(name = "anyObjectUR")
+@XmlRootElement(name = "anyObjectCR")
 @XmlType
-@Schema(allOf = { AnyUR.class })
-public class AnyObjectUR extends AnyUR {
+@JsonPropertyOrder(value = { "@class", "name" })
+@Schema(allOf = { AnyCR.class })
+public class AnyObjectCR extends AnyCR implements GroupableRelatableTO {
 
-    private static final long serialVersionUID = -1644118942622556097L;
+    private static final long serialVersionUID = 5460996992553869226L;
 
-    public static class Builder extends AnyUR.Builder<AnyObjectUR, Builder> {
+    public static class Builder extends AnyCR.Builder<AnyObjectCR, Builder> {
 
         @Override
-        protected AnyObjectUR newInstance() {
-            return new AnyObjectUR();
+        protected AnyObjectCR newInstance() {
+            return new AnyObjectCR();
         }
 
-        public Builder name(final StringReplacePatchItem name) {
+        public Builder(final String type) {
+            getInstance().setType(type);
+        }
+
+        public Builder name(final String name) {
             getInstance().setName(name);
             return this;
         }
 
-        public Builder relationship(final RelationshipUR relationship) {
+        public Builder relationship(final RelationshipTO relationship) {
             getInstance().getRelationships().add(relationship);
             return this;
         }
 
-        public Builder relationships(final RelationshipUR... relationships) {
+        public Builder relationships(final RelationshipTO... relationships) {
             getInstance().getRelationships().addAll(Arrays.asList(relationships));
             return this;
         }
 
-        public Builder relationships(final Collection<RelationshipUR> relationships) {
+        public Builder relationships(final Collection<RelationshipTO> relationships) {
             getInstance().getRelationships().addAll(relationships);
             return this;
         }
 
-        public Builder membership(final MembershipUR membership) {
+        public Builder membership(final MembershipTO membership) {
             getInstance().getMemberships().add(membership);
             return this;
         }
 
-        public Builder memberships(final MembershipUR... memberships) {
+        public Builder memberships(final MembershipTO... memberships) {
             getInstance().getMemberships().addAll(Arrays.asList(memberships));
             return this;
         }
 
-        public Builder memberships(final Collection<MembershipUR> memberships) {
+        public Builder memberships(final Collection<MembershipTO> memberships) {
             getInstance().getMemberships().addAll(memberships);
             return this;
         }
     }
 
-    private StringReplacePatchItem name;
+    private String type;
 
-    private final Set<RelationshipUR> relationships = new HashSet<>();
+    private String name;
 
-    private final Set<MembershipUR> memberships = new HashSet<>();
+    private final List<RelationshipTO> relationships = new ArrayList<>();
+
+    private final List<MembershipTO> memberships = new ArrayList<>();
 
     @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.request.AnyObjectUR")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.request.AnyObjectCR")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
     }
 
-    public StringReplacePatchItem getName() {
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
+    public String getType() {
+        return type;
+    }
+
+    public void setType(final String type) {
+        this.type = type;
+    }
+
+    @JsonProperty(required = true)
+    @XmlElement(required = true)
+    public String getName() {
         return name;
     }
 
-    public void setName(final StringReplacePatchItem name) {
+    public void setName(final String name) {
         this.name = name;
+    }
+
+    @JsonIgnore
+    @Override
+    public Optional<RelationshipTO> getRelationship(final String type, final String otherKey) {
+        return relationships.stream().filter(
+                relationship -> type.equals(relationship.getType()) && otherKey.equals(relationship.getOtherEndKey())).
+                findFirst();
     }
 
     @XmlElementWrapper(name = "relationships")
     @XmlElement(name = "relationship")
     @JsonProperty("relationships")
-    public Set<RelationshipUR> getRelationships() {
+    @Override
+    public List<RelationshipTO> getRelationships() {
         return relationships;
+    }
+
+    @JsonIgnore
+    @Override
+    public Optional<MembershipTO> getMembership(final String groupKey) {
+        return memberships.stream().filter(membership -> groupKey.equals(membership.getGroupKey())).findFirst();
     }
 
     @XmlElementWrapper(name = "memberships")
     @XmlElement(name = "membership")
     @JsonProperty("memberships")
-    public Set<MembershipUR> getMemberships() {
+    @Override
+    public List<MembershipTO> getMemberships() {
         return memberships;
     }
 
     @Override
-    public boolean isEmpty() {
-        return super.isEmpty() && name == null && relationships.isEmpty() && memberships.isEmpty();
+    public List<MembershipTO> getDynMemberships() {
+        return Collections.emptyList();
     }
 
     @Override
@@ -142,7 +184,7 @@ public class AnyObjectUR extends AnyUR {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final AnyObjectUR other = (AnyObjectUR) obj;
+        final AnyObjectCR other = (AnyObjectCR) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(name, other.name).

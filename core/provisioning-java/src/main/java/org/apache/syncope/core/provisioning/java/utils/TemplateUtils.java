@@ -24,9 +24,12 @@ import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.request.GroupCR;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.AttributableReqEntity;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -66,7 +69,7 @@ public class TemplateUtils {
         return result;
     }
 
-    private void fill(final AnyTO anyTO, final AnyTO template) {
+    private void fill(final AttributableReqEntity anyTO, final AttributableReqEntity template) {
         MapContext jexlContext = new MapContext();
         JexlUtils.addFieldsToContext(anyTO, jexlContext);
         JexlUtils.addAttrTOsToContext(anyTO.getPlainAttrs(), jexlContext);
@@ -138,61 +141,81 @@ public class TemplateUtils {
     }
 
     @Transactional(readOnly = true)
-    public <T extends AnyTO> void apply(final T anyTO, final Optional<? extends AnyTemplate> anyTemplate) {
-        if (anyTemplate.isPresent()) {
-            apply(anyTO, anyTemplate.get().get());
+    public void apply(final AttributableReqEntity reqEntity, final Optional<? extends AnyTemplate> template) {
+        if (template.isPresent()) {
+            apply(reqEntity, template.get().get());
         }
     }
 
     @Transactional(readOnly = true)
-    public <T extends AnyTO> void apply(final T anyTO, final AnyTO template) {
-        fill(anyTO, template);
+    public void apply(final AttributableReqEntity reqEntity, final AnyTO template) {
+        fill(reqEntity, template);
 
         MapContext jexlContext = new MapContext();
-        JexlUtils.addFieldsToContext(anyTO, jexlContext);
-        JexlUtils.addAttrTOsToContext(anyTO.getPlainAttrs(), jexlContext);
-        JexlUtils.addAttrTOsToContext(anyTO.getDerAttrs(), jexlContext);
-        JexlUtils.addAttrTOsToContext(anyTO.getVirAttrs(), jexlContext);
+        JexlUtils.addFieldsToContext(reqEntity, jexlContext);
+        JexlUtils.addAttrTOsToContext(reqEntity.getPlainAttrs(), jexlContext);
+        JexlUtils.addAttrTOsToContext(reqEntity.getDerAttrs(), jexlContext);
+        JexlUtils.addAttrTOsToContext(reqEntity.getVirAttrs(), jexlContext);
 
         if (template instanceof AnyObjectTO) {
-            fillRelationships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
-            fillMemberships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
+            fillRelationships((GroupableRelatableTO) reqEntity, ((GroupableRelatableTO) template));
+            fillMemberships((GroupableRelatableTO) reqEntity, ((GroupableRelatableTO) template));
         } else if (template instanceof UserTO) {
             if (StringUtils.isNotBlank(((UserTO) template).getUsername())) {
                 String evaluated = JexlUtils.evaluate(((UserTO) template).getUsername(), jexlContext);
                 if (StringUtils.isNotBlank(evaluated)) {
-                    ((UserTO) anyTO).setUsername(evaluated);
+                    if (reqEntity instanceof UserTO) {
+                        ((UserTO) reqEntity).setUsername(evaluated);
+                    } else if (reqEntity instanceof UserCR) {
+                        ((UserCR) reqEntity).setUsername(evaluated);
+                    }
                 }
             }
 
             if (StringUtils.isNotBlank(((UserTO) template).getPassword())) {
                 String evaluated = JexlUtils.evaluate(((UserTO) template).getPassword(), jexlContext);
                 if (StringUtils.isNotBlank(evaluated)) {
-                    ((UserTO) anyTO).setPassword(evaluated);
+                    if (reqEntity instanceof UserTO) {
+                        ((UserTO) reqEntity).setPassword(evaluated);
+                    } else if (reqEntity instanceof UserCR) {
+                        ((UserCR) reqEntity).setPassword(evaluated);
+                    }
                 }
             }
 
-            fillRelationships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
-            fillMemberships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
-            ((UserTO) anyTO).getRoles().addAll(((UserTO) template).getRoles());
+            fillRelationships((GroupableRelatableTO) reqEntity, ((GroupableRelatableTO) template));
+            fillMemberships((GroupableRelatableTO) reqEntity, ((GroupableRelatableTO) template));
+            ((UserTO) reqEntity).getRoles().addAll(((UserTO) template).getRoles());
         } else if (template instanceof GroupTO) {
             if (StringUtils.isNotBlank(((GroupTO) template).getName())) {
                 String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), jexlContext);
                 if (StringUtils.isNotBlank(evaluated)) {
-                    ((GroupTO) anyTO).setName(evaluated);
+                    if (reqEntity instanceof GroupTO) {
+                        ((GroupTO) reqEntity).setName(evaluated);
+                    } else if (reqEntity instanceof GroupCR) {
+                        ((GroupCR) reqEntity).setName(evaluated);
+                    }
                 }
             }
 
             if (((GroupTO) template).getUserOwner() != null) {
                 final User userOwner = userDAO.find(((GroupTO) template).getUserOwner());
                 if (userOwner != null) {
-                    ((GroupTO) anyTO).setUserOwner(userOwner.getKey());
+                    if (reqEntity instanceof GroupTO) {
+                        ((GroupTO) reqEntity).setUserOwner(userOwner.getKey());
+                    } else if (reqEntity instanceof GroupCR) {
+                        ((GroupCR) reqEntity).setUserOwner(userOwner.getKey());
+                    }
                 }
             }
             if (((GroupTO) template).getGroupOwner() != null) {
                 final Group groupOwner = groupDAO.find(((GroupTO) template).getGroupOwner());
                 if (groupOwner != null) {
-                    ((GroupTO) anyTO).setGroupOwner(groupOwner.getKey());
+                    if (reqEntity instanceof GroupTO) {
+                        ((GroupTO) reqEntity).setGroupOwner(groupOwner.getKey());
+                    } else if (reqEntity instanceof GroupCR) {
+                        ((GroupCR) reqEntity).setGroupOwner(groupOwner.getKey());
+                    }
                 }
             }
         }

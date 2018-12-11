@@ -28,9 +28,12 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
-import org.apache.syncope.common.lib.request.MembershipPatch;
+import org.apache.syncope.common.lib.request.GroupCR;
+import org.apache.syncope.common.lib.request.MembershipUR;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
@@ -133,9 +136,9 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void searchByDynGroup() {
-        GroupTO group = GroupITCase.getBasicSampleTO("dynMembership");
-        group.setUDynMembershipCond("cool==true");
-        group = createGroup(group).getEntity();
+        GroupCR groupCR = GroupITCase.getBasicSample("dynMembership");
+        groupCR.setUDynMembershipCond("cool==true");
+        GroupTO group = createGroup(groupCR).getEntity();
         assertNotNull(group);
 
         if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
@@ -373,11 +376,11 @@ public class SearchITCase extends AbstractITCase {
     @Test
     public void searchBySecurityAnswer() {
         String securityAnswer = RandomStringUtils.randomAlphanumeric(10);
-        UserTO userTO = UserITCase.getUniqueSampleTO("securityAnswer@syncope.apache.org");
-        userTO.setSecurityQuestion("887028ea-66fc-41e7-b397-620d7ea6dfbb");
-        userTO.setSecurityAnswer(securityAnswer);
+        UserCR userCR = UserITCase.getUniqueSample("securityAnswer@syncope.apache.org");
+        userCR.setSecurityQuestion("887028ea-66fc-41e7-b397-620d7ea6dfbb");
+        userCR.setSecurityAnswer(securityAnswer);
 
-        userTO = createUser(userTO).getEntity();
+        UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO.getSecurityQuestion());
 
         PagedResult<UserTO> matchingUsers = userService.search(
@@ -477,18 +480,18 @@ public class SearchITCase extends AbstractITCase {
 
         String serviceKey = null;
         try {
-            AnyObjectTO anyObjectTO = new AnyObjectTO();
-            anyObjectTO.setName("one");
-            anyObjectTO.setRealm(SyncopeConstants.ROOT_REALM);
-            anyObjectTO.setType(service.getKey());
-            anyObjectTO.getMemberships().add(
+            AnyObjectCR anyObjectCR = new AnyObjectCR();
+            anyObjectCR.setName("one");
+            anyObjectCR.setRealm(SyncopeConstants.ROOT_REALM);
+            anyObjectCR.setType(service.getKey());
+            anyObjectCR.getMemberships().add(
                     new MembershipTO.Builder().group("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
-            serviceKey = createAnyObject(anyObjectTO).getEntity().getKey();
+            serviceKey = createAnyObject(anyObjectCR).getEntity().getKey();
 
             AnyObjectUR anyObjectUR = new AnyObjectUR();
             anyObjectUR.setKey("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
-            anyObjectUR.getMemberships().add(
-                    new MembershipPatch.Builder().group("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
+            anyObjectUR.getMemberships().add(new MembershipUR.Builder().group("29f96485-729e-4d31-88a1-6fc60e4677f3").
+                    build());
             updateAnyObject(anyObjectUR);
 
             PagedResult<AnyObjectTO> matching = anyObjectService.search(new AnyQuery.Builder().fiql(

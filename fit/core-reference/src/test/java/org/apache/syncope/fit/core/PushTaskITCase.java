@@ -33,6 +33,7 @@ import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -365,14 +366,14 @@ public class PushTaskITCase extends AbstractTaskITCase {
         anyTypeClassService.create(typeClass);
 
         // create a new sample group
-        GroupTO groupTO = new GroupTO();
-        groupTO.setName("all" + getUUIDString());
-        groupTO.setRealm("/even");
-        groupTO.getAuxClasses().add(typeClass.getKey());
+        GroupCR groupCR = new GroupCR();
+        groupCR.setName("all" + getUUIDString());
+        groupCR.setRealm("/even");
+        groupCR.getAuxClasses().add(typeClass.getKey());
 
-        groupTO.getPlainAttrs().add(attrTO(schemaTO.getKey(), "all"));
+        groupCR.getPlainAttrs().add(attrTO(schemaTO.getKey(), "all"));
 
-        groupTO = createGroup(groupTO).getEntity();
+        GroupTO groupTO = createGroup(groupCR).getEntity();
         assertNotNull(groupTO);
 
         String resourceName = "resource-ldap-grouponly";

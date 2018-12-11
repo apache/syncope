@@ -26,7 +26,9 @@ import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -78,9 +80,13 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
 
         ProvisioningResult<UserTO> result;
         if (inner.getKey() == null) {
-            result = userRestClient.create(inner, modelObject instanceof UserWrapper
+            UserCR req = new UserCR();
+            EntityTOUtils.toAnyCR(inner, req);
+            req.setStorePassword(modelObject instanceof UserWrapper
                     ? UserWrapper.class.cast(modelObject).isStorePasswordInSyncope()
                     : StringUtils.isNotBlank(inner.getPassword()));
+
+            result = userRestClient.create(req);
         } else {
             fixPlainAndVirAttrs(inner, getOriginalItem().getInnerObject());
             UserUR userUR = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);

@@ -18,13 +18,14 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.lib.to.UserTO;
 
 public interface SAML2IdPActions {
 
-    default UserTO beforeCreate(UserTO input, SAML2LoginResponseTO loginResponse) {
+    default UserCR beforeCreate(UserCR input, SAML2LoginResponseTO loginResponse) {
         return input;
     }
 

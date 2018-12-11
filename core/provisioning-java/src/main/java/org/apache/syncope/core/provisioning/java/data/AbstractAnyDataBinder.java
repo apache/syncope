@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.StringPatchItem;
@@ -434,13 +435,13 @@ abstract class AbstractAnyDataBinder {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void fill(
             final Any any,
-            final AnyTO anyTO,
+            final AnyCR anyCR,
             final AnyUtils anyUtils,
             final SyncopeClientCompositeException scce) {
 
         // 0. aux classes
         any.getAuxClasses().clear();
-        anyTO.getAuxClasses().stream().
+        anyCR.getAuxClasses().stream().
                 map(className -> anyTypeClassDAO.find(className)).
                 forEachOrdered(auxClass -> {
                     if (auxClass == null) {
@@ -453,7 +454,7 @@ abstract class AbstractAnyDataBinder {
         // 1. attributes
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
-        anyTO.getPlainAttrs().stream().
+        anyCR.getPlainAttrs().stream().
                 filter(attrTO -> !attrTO.getValues().isEmpty()).
                 forEach(attrTO -> {
                     PlainSchema schema = getPlainSchema(attrTO.getSchema());
@@ -484,7 +485,7 @@ abstract class AbstractAnyDataBinder {
         }
 
         // 2. resources
-        anyTO.getResources().forEach(resourceKey -> {
+        anyCR.getResources().forEach(resourceKey -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
             if (resource == null) {
                 LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + " {}, ignoring...", resourceKey);

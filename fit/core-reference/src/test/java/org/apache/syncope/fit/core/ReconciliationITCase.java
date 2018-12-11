@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Date;
 import javax.sql.DataSource;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -49,9 +50,9 @@ public class ReconciliationITCase extends AbstractITCase {
     @Test
     public void push() {
         // 1. create printer, with no resources
-        AnyObjectTO printer = AnyObjectITCase.getSampleTO("reconciliation");
-        printer.getResources().clear();
-        printer = createAnyObject(printer).getEntity();
+        AnyObjectCR printerCR = AnyObjectITCase.getSample("reconciliation");
+        printerCR.getResources().clear();
+        AnyObjectTO printer = createAnyObject(printerCR).getEntity();
         assertNotNull(printer.getKey());
 
         // 2. verify no printer with that name is on the external resource's db
@@ -97,9 +98,9 @@ public class ReconciliationITCase extends AbstractITCase {
     @Test
     public void pull() {
         // 1. create printer, with no resources
-        AnyObjectTO printer = AnyObjectITCase.getSampleTO("reconciliation");
-        printer.getResources().clear();
-        printer = createAnyObject(printer).getEntity();
+        AnyObjectCR printerCR = AnyObjectITCase.getSample("reconciliation");
+        printerCR.getResources().clear();
+        AnyObjectTO printer = createAnyObject(printerCR).getEntity();
         assertNotNull(printer.getKey());
         assertNotEquals("Nowhere", printer.getPlainAttr("location").get().getValues().get(0));
 

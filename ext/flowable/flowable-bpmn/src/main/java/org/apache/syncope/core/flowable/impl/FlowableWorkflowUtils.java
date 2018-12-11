@@ -22,14 +22,12 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 public class FlowableWorkflowUtils {
 
     @Autowired
     protected DomainProcessEngine engine;
 
-    @Transactional(readOnly = true)
     public boolean isUserIngroup(final UserTO user, final String groupName) {
         return user.getMemberships().stream().
                 anyMatch(membership -> groupName != null && groupName.equals(membership.getGroupName()));

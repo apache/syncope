@@ -28,9 +28,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
-import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -68,15 +68,15 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     protected VirAttrHandler virtAttrHandler;
 
     @Override
-    public Pair<String, List<PropagationStatus>> create(final GroupTO groupTO, final boolean nullPriorityAsync) {
-        WorkflowResult<String> created = gwfAdapter.create(groupTO);
+    public Pair<String, List<PropagationStatus>> create(final GroupCR groupCR, final boolean nullPriorityAsync) {
+        WorkflowResult<String> created = gwfAdapter.create(groupCR);
 
         List<PropagationTaskInfo> tasks = propagationManager.getCreateTasks(
                 AnyTypeKind.GROUP,
                 created.getResult(),
                 null,
                 created.getPropByRes(),
-                groupTO.getVirAttrs(),
+                groupCR.getVirAttrs(),
                 Collections.<String>emptySet());
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
@@ -86,23 +86,23 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public Pair<String, List<PropagationStatus>> create(
-            final GroupTO groupTO,
+            final GroupCR groupCR,
             final Map<String, String> groupOwnerMap,
             final Set<String> excludedResources,
             final boolean nullPriorityAsync) {
 
-        WorkflowResult<String> created = gwfAdapter.create(groupTO);
+        WorkflowResult<String> created = gwfAdapter.create(groupCR);
 
         // see ConnObjectUtils#getAnyTOFromConnObject for GroupOwnerSchema
-        groupTO.getPlainAttr(StringUtils.EMPTY).ifPresent(groupOwner
-                -> groupOwnerMap.put(created.getResult(), groupOwner.getValues().iterator().next()));
+        groupCR.getPlainAttrs().stream().filter(attr -> StringUtils.EMPTY.equals(attr.getSchema())).findFirst().
+                ifPresent(groupOwner -> groupOwnerMap.put(created.getResult(), groupOwner.getValues().get(0)));
 
         List<PropagationTaskInfo> tasks = propagationManager.getCreateTasks(
                 AnyTypeKind.GROUP,
                 created.getResult(),
                 null,
                 created.getPropByRes(),
-                groupTO.getVirAttrs(),
+                groupCR.getVirAttrs(),
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 

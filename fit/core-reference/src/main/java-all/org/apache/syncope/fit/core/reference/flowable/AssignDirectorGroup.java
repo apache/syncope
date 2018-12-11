@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.fit.core.reference.flowable;
 
-import org.apache.syncope.common.lib.request.MembershipPatch;
+import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.apache.syncope.core.flowable.task.FlowableServiceTask;
@@ -50,7 +50,7 @@ public class AssignDirectorGroup extends FlowableServiceTask {
 
             UserUR userUR = new UserUR();
             userUR.setKey(user.getKey());
-            userUR.getMemberships().add(new MembershipPatch.Builder().
+            userUR.getMemberships().add(new MembershipUR.Builder().
                     group("ebf97068-aa4b-4a85-9f01-680e8c4cf227").build());
 
             PropagationByResource propByRes = dataBinder.update(user, userUR);

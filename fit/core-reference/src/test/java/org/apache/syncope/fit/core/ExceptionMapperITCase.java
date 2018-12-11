@@ -27,12 +27,12 @@ import java.util.Properties;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.GroupCR;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -73,7 +73,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
         anyTypeClassService.create(typeClass);
 
         // 2. create an user with mandatory attributes and unique
-        UserTO userTO1 = new UserTO();
+        UserCR userTO1 = new UserCR();
         userTO1.setRealm(SyncopeConstants.ROOT_REALM);
         userTO1.getAuxClasses().add(typeClass.getKey());
         String userId1 = getUUIDString() + "issue654_1@syncope.apache.org";
@@ -88,7 +88,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
         createUser(userTO1);
 
         // 3. create an other user with mandatory attributes and unique with the same value of userTO1
-        UserTO userTO2 = new UserTO();
+        UserCR userTO2 = new UserCR();
         userTO2.setRealm(SyncopeConstants.ROOT_REALM);
         userTO2.getAuxClasses().add(typeClass.getKey());
         String userId2 = getUUIDString() + "issue654_2@syncope.apache.org";
@@ -114,13 +114,13 @@ public class ExceptionMapperITCase extends AbstractITCase {
         String groupUUID = getUUIDString();
 
         // Create the first group
-        GroupTO groupTO1 = new GroupTO();
+        GroupCR groupTO1 = new GroupCR();
         groupTO1.setName("child1" + groupUUID);
         groupTO1.setRealm(SyncopeConstants.ROOT_REALM);
         createGroup(groupTO1);
 
         // Create the second group, with the same name of groupTO1
-        GroupTO groupTO2 = new GroupTO();
+        GroupCR groupTO2 = new GroupCR();
         groupTO2.setName("child1" + groupUUID);
         groupTO2.setRealm(SyncopeConstants.ROOT_REALM);
         try {
@@ -135,18 +135,18 @@ public class ExceptionMapperITCase extends AbstractITCase {
 
     @Test
     public void headersMultiValue() {
-        UserTO userTO = new UserTO();
-        userTO.setRealm(SyncopeConstants.ROOT_REALM);
+        UserCR userCR = new UserCR();
+        userCR.setRealm(SyncopeConstants.ROOT_REALM);
         String userId = getUUIDString() + "issue654@syncope.apache.org";
-        userTO.setUsername(userId);
-        userTO.setPassword("password123");
+        userCR.setUsername(userId);
+        userCR.setPassword("password123");
 
-        userTO.getPlainAttrs().add(attrTO("userId", "issue654"));
-        userTO.getPlainAttrs().add(attrTO("fullname", userId));
-        userTO.getPlainAttrs().add(attrTO("surname", userId));
+        userCR.getPlainAttrs().add(attrTO("userId", "issue654"));
+        userCR.getPlainAttrs().add(attrTO("fullname", userId));
+        userCR.getPlainAttrs().add(attrTO("surname", userId));
 
         try {
-            createUser(userTO);
+            createUser(userCR);
             fail("This should not happen");
         } catch (SyncopeClientCompositeException e) {
             assertEquals(2, e.getExceptions().size());

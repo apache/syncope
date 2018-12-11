@@ -108,7 +108,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return roles;
     }
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @XmlElementWrapper(name = "dynRoles")
     @XmlElement(name = "role")
     @JsonProperty("dynRoles")
@@ -123,7 +122,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return privileges;
     }
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public String getToken() {
         return token;
     }
@@ -132,7 +130,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         this.token = token;
     }
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public Date getTokenExpireTime() {
         if (tokenExpireTime != null) {
             return new Date(tokenExpireTime.getTime());
@@ -158,7 +155,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         this.username = username;
     }
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public Date getChangePwdDate() {
         if (changePwdDate != null) {
             return new Date(changePwdDate.getTime());
@@ -166,12 +162,10 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return null;
     }
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public Integer getFailedLogins() {
         return failedLogins;
     }
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public Date getLastLoginDate() {
         if (lastLoginDate != null) {
             return new Date(lastLoginDate.getTime());
@@ -215,7 +209,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         this.securityAnswer = securityAnswer;
     }
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public boolean isSuspended() {
         return suspended;
     }
@@ -224,7 +217,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         this.suspended = suspended;
     }
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public boolean isMustChangePassword() {
         return mustChangePassword;
     }
@@ -263,7 +255,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return memberships;
     }
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @XmlElementWrapper(name = "dynMemberships")
     @XmlElement(name = "dynMembership")
     @JsonProperty("dynMemberships")

@@ -31,7 +31,7 @@ public class RemediationValidator extends AbstractValidator<RemediationCheck, Re
 
         switch (remediation.getOperation()) {
             case CREATE:
-                if (remediation.getPayloadAsTO(remediation.getAnyType().getKind().getTOClass()) == null) {
+                if (remediation.getPayloadAsCR(remediation.getAnyType().getKind().getCRClass()) == null) {
                     context.disableDefaultConstraintViolation();
                     context.buildConstraintViolationWithTemplate(
                             getTemplate(EntityViolationType.InvalidRemediation,

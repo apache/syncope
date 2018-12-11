@@ -75,8 +75,8 @@ public class GroupResource extends BaseResource {
                         1,
                         30).getResult();
                 groupResponse.setTotGroups(totGroups);
-                groupResponse.setGroupTOs(groupTOs.stream().collect(
-                        Collectors.toMap(GroupTO::getKey, GroupTO::getName)));
+                groupResponse.setGroupTOs(groupTOs.stream().
+                        collect(Collectors.toMap(GroupTO::getKey, GroupTO::getName)));
             } else {
                 groupResponse.setTotGroups(0);
                 Map<String, String> groups = new HashMap<>();

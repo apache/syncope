@@ -32,7 +32,7 @@ import java.util.Locale;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AttrPatch;
-import org.apache.syncope.common.lib.request.MembershipPatch;
+import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -47,6 +47,7 @@ import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.syncope.common.lib.request.UserCR;
 
 public class PlainSchemaITCase extends AbstractITCase {
 
@@ -178,9 +179,9 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         createSchema(SchemaType.PLAIN, schemaTOjson2);
 
-        UserTO userTO = UserITCase.getUniqueSampleTO("test@syncope.apache.org");
+        UserCR userCR = UserITCase.getUniqueSample("test@syncope.apache.org");
 
-        userTO = createUser(userTO).getEntity();
+        UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
 
         UserUR userUR = new UserUR();
@@ -315,11 +316,11 @@ public class PlainSchemaITCase extends AbstractITCase {
         typeClass.getPlainSchemas().add(schemaTO.getKey());
         anyTypeClassService.create(typeClass);
 
-        UserTO userTO = UserITCase.getUniqueSampleTO("issue258@syncope.apache.org");
-        userTO.getAuxClasses().add(typeClass.getKey());
-        userTO.getPlainAttrs().add(attrTO(schemaTO.getKey(), "1.2"));
+        UserCR userCR = UserITCase.getUniqueSample("issue258@syncope.apache.org");
+        userCR.getAuxClasses().add(typeClass.getKey());
+        userCR.getPlainAttrs().add(attrTO(schemaTO.getKey(), "1.2"));
 
-        userTO = createUser(userTO).getEntity();
+        UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
 
         schemaTO.setType(AttrSchemaType.Long);
@@ -344,14 +345,14 @@ public class PlainSchemaITCase extends AbstractITCase {
         typeClass.getPlainSchemas().add(schemaTO.getKey());
         anyTypeClassService.create(typeClass);
 
-        UserTO userTO = UserITCase.getUniqueSampleTO("issue259@syncope.apache.org");
-        userTO.getAuxClasses().add(typeClass.getKey());
-        userTO.getPlainAttrs().add(attrTO(schemaTO.getKey(), "1"));
-        userTO = createUser(userTO).getEntity();
+        UserCR userCR = UserITCase.getUniqueSample("issue259@syncope.apache.org");
+        userCR.getAuxClasses().add(typeClass.getKey());
+        userCR.getPlainAttrs().add(attrTO(schemaTO.getKey(), "1"));
+        UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
 
         UserUR req = new UserUR.Builder().key(userTO.getKey()).
-                membership(new MembershipPatch.Builder().group("b1f7c12d-ec83-441f-a50e-1691daaedf3b").build()).build();
+                membership(new MembershipUR.Builder().group("b1f7c12d-ec83-441f-a50e-1691daaedf3b").build()).build();
 
         UserTO newUserTO = updateUser(req).getEntity();
         assertNotNull(newUserTO);
@@ -370,10 +371,10 @@ public class PlainSchemaITCase extends AbstractITCase {
         typeClass.getPlainSchemas().add(schemaTO.getKey());
         anyTypeClassService.create(typeClass);
 
-        UserTO userTO = UserITCase.getUniqueSampleTO("issue260@syncope.apache.org");
-        userTO.getAuxClasses().add(typeClass.getKey());
-        userTO.getPlainAttrs().add(attrTO(schemaTO.getKey(), "1.2"));
-        userTO = createUser(userTO).getEntity();
+        UserCR userCR = UserITCase.getUniqueSample("issue260@syncope.apache.org");
+        userCR.getAuxClasses().add(typeClass.getKey());
+        userCR.getPlainAttrs().add(attrTO(schemaTO.getKey(), "1.2"));
+        UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
 
         schemaTO.setUniqueConstraint(false);

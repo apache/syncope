@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.workflow.api;
 
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
 
 /**
  * Interface for calling underlying workflow implementations.
@@ -30,10 +30,10 @@ public interface AnyObjectWorkflowAdapter extends WorkflowAdapter {
     /**
      * Create a anyObject.
      *
-     * @param anyObjectTO anyObject to be created and whether to propagate it as active
+     * @param anyObjectCR anyObject to be created and whether to propagate it as active
      * @return anyObject just created
      */
-    WorkflowResult<String> create(AnyObjectTO anyObjectTO);
+    WorkflowResult<String> create(AnyObjectCR anyObjectCR);
 
     /**
      * Update a anyObject.

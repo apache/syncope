@@ -24,16 +24,16 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.request.AnyCR;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RemediationTO;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
@@ -104,7 +104,7 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REMEDIATION_REMEDY + "')")
-    public ProvisioningResult<?> remedy(final String key, final AnyTO anyTO, final boolean nullPriorityAsync) {
+    public ProvisioningResult<?> remedy(final String key, final AnyCR anyCR, final boolean nullPriorityAsync) {
         Remediation remediation = remediationDAO.find(key);
         if (remediation == null) {
             LOG.error("Could not find remediation '" + key + "'");
@@ -116,15 +116,15 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
         switch (remediation.getAnyType().getKind()) {
             case USER:
             default:
-                result = userLogic.create((UserTO) anyTO, true, nullPriorityAsync);
+                result = userLogic.create((UserCR) anyCR, nullPriorityAsync);
                 break;
 
             case GROUP:
-                result = groupLogic.create((GroupTO) anyTO, nullPriorityAsync);
+                result = groupLogic.create((GroupCR) anyCR, nullPriorityAsync);
                 break;
 
             case ANY_OBJECT:
-                result = anyObjectLogic.create((AnyObjectTO) anyTO, nullPriorityAsync);
+                result = anyObjectLogic.create((AnyObjectCR) anyCR, nullPriorityAsync);
         }
 
         remediationDAO.delete(remediation);

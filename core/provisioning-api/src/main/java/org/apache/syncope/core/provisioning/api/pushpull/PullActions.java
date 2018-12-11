@@ -18,8 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
+import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 
@@ -48,13 +50,29 @@ public interface PullActions extends ProvisioningActions {
      *
      * @param profile profile of the pull being executed.
      * @param delta retrieved pull information
-     * @param entity entity
+     * @param createReq create request
      * @throws JobExecutionException in case of generic failure
      */
     default void beforeProvision(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            EntityTO entity) throws JobExecutionException {
+            AnyCR createReq) throws JobExecutionException {
+    }
+
+    /**
+     * Action to be executed before to create a pulled realm locally.
+     * The realm is created locally upon pull in case of the un-matching rule
+     * {@link org.apache.syncope.common.lib.types.UnmatchingRule#PROVISION} (default un-matching rule) is applied.
+     *
+     * @param profile profile of the pull being executed.
+     * @param delta retrieved pull information
+     * @param realm realm
+     * @throws JobExecutionException in case of generic failure
+     */
+    default void beforeProvision(
+            ProvisioningProfile<?, ?> profile,
+            SyncDelta delta,
+            RealmTO realm) throws JobExecutionException {
     }
 
     /**
@@ -64,13 +82,29 @@ public interface PullActions extends ProvisioningActions {
      *
      * @param profile profile of the pull being executed.
      * @param delta retrieved pull information
-     * @param entity entity
+     * @param createReq create request
      * @throws JobExecutionException in case of generic failure
      */
     default void beforeAssign(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            EntityTO entity) throws JobExecutionException {
+            AnyCR createReq) throws JobExecutionException {
+    }
+
+    /**
+     * Action to be executed before creating (and linking to the resource) a pulled realm locally.
+     * The realm is created locally and linked to the pulled resource upon pull in case of the
+     * un-matching rule {@link org.apache.syncope.common.lib.types.UnmatchingRule#ASSIGN} is applied.
+     *
+     * @param profile profile of the pull being executed.
+     * @param delta retrieved pull information
+     * @param realm realm
+     * @throws JobExecutionException in case of generic failure
+     */
+    default void beforeAssign(
+            ProvisioningProfile<?, ?> profile,
+            SyncDelta delta,
+            RealmTO realm) throws JobExecutionException {
     }
 
     /**
@@ -142,18 +176,17 @@ public interface PullActions extends ProvisioningActions {
      * The entity is updated upon pull in case of the matching rule
      * {@link org.apache.syncope.common.lib.types.MatchingRule#UPDATE} (default matching rule) is applied.
      *
-     * @param <P> any object modifications
      * @param profile profile of the pull being executed.
      * @param delta retrieved pull information
      * @param entity entity
      * @param anyUR modification
      * @throws JobExecutionException in case of generic failure.
      */
-    default <P extends AnyUR> void beforeUpdate(
+    default void beforeUpdate(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
             EntityTO entity,
-            P anyUR) throws JobExecutionException {
+            AnyUR anyUR) throws JobExecutionException {
     }
 
     /**

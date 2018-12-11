@@ -100,8 +100,7 @@ public class JSONTest {
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, original);
 
-        ProvisioningResult<GroupTO> actual = mapper.readValue(
-                writer.toString(), new TypeReference<ProvisioningResult<GroupTO>>() {
+        ProvisioningResult<GroupTO> actual = mapper.readValue(writer.toString(), new TypeReference<ProvisioningResult<GroupTO>>() {
         });
         assertEquals(original, actual);
     }

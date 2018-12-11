@@ -29,6 +29,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.ResourceAR;
 import org.apache.syncope.common.lib.request.AttrPatch;
@@ -55,13 +56,13 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
-public abstract class AbstractAnyService<TO extends AnyTO, UR extends AnyUR>
+public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR extends AnyUR>
         extends AbstractServiceImpl
         implements AnyService<TO> {
 
     protected abstract AnyDAO<?> getAnyDAO();
 
-    protected abstract AbstractAnyLogic<TO, UR> getAnyLogic();
+    protected abstract AbstractAnyLogic<TO, CR, UR> getAnyLogic();
 
     protected abstract UR newUpdateReq(String key);
 

@@ -28,8 +28,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
+import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
@@ -94,12 +94,12 @@ public class JPARemediation extends AbstractGeneratedKeyEntity implements Remedi
     }
 
     @Override
-    public <T extends AnyTO> T getPayloadAsTO(final Class<T> reference) {
+    public <C extends AnyCR> C getPayloadAsCR(final Class<C> reference) {
         return POJOHelper.deserialize(this.payload, reference);
     }
 
     @Override
-    public <P extends AnyUR> P getPayloadAsUR(final Class<P> reference) {
+    public <U extends AnyUR> U getPayloadAsUR(final Class<U> reference) {
         return POJOHelper.deserialize(this.payload, reference);
     }
 
@@ -109,8 +109,8 @@ public class JPARemediation extends AbstractGeneratedKeyEntity implements Remedi
     }
 
     @Override
-    public void setPayload(final AnyTO anyTO) {
-        this.payload = POJOHelper.serialize(anyTO);
+    public void setPayload(final AnyCR anyCR) {
+        this.payload = POJOHelper.serialize(anyCR);
     }
 
     @Override

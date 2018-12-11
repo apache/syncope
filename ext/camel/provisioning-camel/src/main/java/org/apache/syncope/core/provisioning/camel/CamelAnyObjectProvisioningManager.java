@@ -27,9 +27,9 @@ import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.PollingConsumer;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,15 +38,15 @@ public class CamelAnyObjectProvisioningManager
         extends AbstractCamelProvisioningManager implements AnyObjectProvisioningManager {
 
     @Override
-    public Pair<String, List<PropagationStatus>> create(final AnyObjectTO any, final boolean nullPriorityAsync) {
-        return create(any, Collections.<String>emptySet(), nullPriorityAsync);
+    public Pair<String, List<PropagationStatus>> create(final AnyObjectCR req, final boolean nullPriorityAsync) {
+        return create(req, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")
     public Pair<String, List<PropagationStatus>> create(
-            final AnyObjectTO anyObjectTO, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+            final AnyObjectCR req, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:createAnyObjectPort");
 
@@ -54,7 +54,7 @@ public class CamelAnyObjectProvisioningManager
         props.put("excludedResources", excludedResources);
         props.put("nullPriorityAsync", nullPriorityAsync);
 
-        sendMessage("direct:createAnyObject", anyObjectTO, props);
+        sendMessage("direct:createAnyObject", req, props);
 
         Exchange exchange = pollingConsumer.receive();
 

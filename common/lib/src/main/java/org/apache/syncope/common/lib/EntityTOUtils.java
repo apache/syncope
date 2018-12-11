@@ -23,9 +23,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.request.AnyCR;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
+import org.apache.syncope.common.lib.request.GroupCR;
+import org.apache.syncope.common.lib.request.UserCR;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
+import org.apache.syncope.common.lib.to.UserTO;
 
 public final class EntityTOUtils {
 
@@ -50,6 +58,86 @@ public final class EntityTOUtils {
         memberships.forEach(memb -> result.put(memb.getGroupKey(), memb));
 
         return Collections.unmodifiableMap(result);
+    }
+
+    public static <A extends AnyTO, C extends AnyCR> void toAnyCR(final A anyTO, final C anyCR) {
+        anyCR.setRealm(anyTO.getRealm());
+        anyCR.getAuxClasses().addAll(anyTO.getAuxClasses());
+        anyCR.getPlainAttrs().addAll(anyTO.getPlainAttrs());
+        anyCR.getVirAttrs().addAll(anyTO.getVirAttrs());
+        anyCR.getResources().addAll(anyTO.getResources());
+
+        if (anyCR instanceof UserCR && anyTO instanceof UserTO) {
+            UserCR userCR = (UserCR) anyCR;
+            UserTO userTO = (UserTO) anyTO;
+
+            userCR.setUsername(userTO.getUsername());
+            userCR.setPassword(userTO.getPassword());
+            userCR.setSecurityQuestion(userTO.getSecurityQuestion());
+            userCR.setSecurityAnswer(userTO.getSecurityAnswer());
+            userCR.setMustChangePassword(userTO.isMustChangePassword());
+            userCR.getRelationships().addAll(userTO.getRelationships());
+            userCR.getMemberships().addAll(userTO.getMemberships());
+            userCR.getRoles().addAll(userTO.getRoles());
+        } else if (anyCR instanceof GroupCR && anyTO instanceof GroupTO) {
+            GroupCR groupCR = (GroupCR) anyCR;
+            GroupTO groupTO = (GroupTO) anyTO;
+
+            groupCR.setName(groupTO.getName());
+            groupCR.setUserOwner(groupTO.getUserOwner());
+            groupCR.setGroupOwner(groupTO.getGroupOwner());
+            groupCR.setUDynMembershipCond(groupTO.getUDynMembershipCond());
+            groupCR.getADynMembershipConds().putAll(groupTO.getADynMembershipConds());
+            groupCR.getTypeExtensions().addAll(groupTO.getTypeExtensions());
+        } else if (anyCR instanceof AnyObjectCR && anyTO instanceof AnyObjectTO) {
+            AnyObjectCR anyObjectCR = (AnyObjectCR) anyCR;
+            AnyObjectTO anyObjectTO = (AnyObjectTO) anyTO;
+
+            anyObjectCR.setType(anyObjectTO.getType());
+            anyObjectCR.setName(anyObjectTO.getName());
+            anyObjectCR.getRelationships().addAll(anyObjectTO.getRelationships());
+            anyObjectCR.getMemberships().addAll(anyObjectTO.getMemberships());
+        }
+    }
+
+    public static <C extends AnyCR, A extends AnyTO> void toAnyTO(final C anyCR, final A anyTO) {
+        anyTO.setRealm(anyCR.getRealm());
+        anyTO.getAuxClasses().addAll(anyCR.getAuxClasses());
+        anyTO.getPlainAttrs().addAll(anyCR.getPlainAttrs());
+        anyTO.getVirAttrs().addAll(anyCR.getVirAttrs());
+        anyTO.getResources().addAll(anyCR.getResources());
+
+        if (anyTO instanceof UserTO && anyCR instanceof UserCR) {
+            UserTO userTO = (UserTO) anyTO;
+            UserCR userCR = (UserCR) anyCR;
+
+            userTO.setUsername(userCR.getUsername());
+            userTO.setPassword(userCR.getPassword());
+            userTO.setSecurityQuestion(userCR.getSecurityQuestion());
+            userTO.setSecurityAnswer(userCR.getSecurityAnswer());
+            userTO.setMustChangePassword(userCR.isMustChangePassword());
+            userTO.getRelationships().addAll(userCR.getRelationships());
+            userTO.getMemberships().addAll(userCR.getMemberships());
+            userTO.getRoles().addAll(userCR.getRoles());
+        } else if (anyTO instanceof GroupTO && anyCR instanceof GroupCR) {
+            GroupTO groupTO = (GroupTO) anyTO;
+            GroupCR groupCR = (GroupCR) anyCR;
+
+            groupTO.setName(groupCR.getName());
+            groupTO.setUserOwner(groupCR.getUserOwner());
+            groupTO.setGroupOwner(groupCR.getGroupOwner());
+            groupTO.setUDynMembershipCond(groupCR.getUDynMembershipCond());
+            groupTO.getADynMembershipConds().putAll(groupCR.getADynMembershipConds());
+            groupTO.getTypeExtensions().addAll(groupCR.getTypeExtensions());
+        } else if (anyTO instanceof AnyObjectTO && anyCR instanceof AnyObjectCR) {
+            AnyObjectTO anyObjectTO = (AnyObjectTO) anyTO;
+            AnyObjectCR anyObjectCR = (AnyObjectCR) anyCR;
+
+            anyObjectTO.setType(anyObjectCR.getType());
+            anyObjectTO.setName(anyObjectCR.getName());
+            anyObjectTO.getRelationships().addAll(anyObjectCR.getRelationships());
+            anyObjectTO.getMemberships().addAll(anyObjectCR.getMemberships());
+        }
     }
 
     /**

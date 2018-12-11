@@ -29,9 +29,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -75,36 +75,27 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     protected UserDAO userDAO;
 
     @Override
-    public Pair<String, List<PropagationStatus>> create(final UserTO userTO, final boolean nullPriorityAsync) {
-        return create(userTO, true, false, null, Collections.<String>emptySet(), nullPriorityAsync);
-    }
-
-    @Override
-    public Pair<String, List<PropagationStatus>> create(
-            final UserTO userTO, final boolean storePassword, final boolean nullPriorityAsync) {
-
-        return create(userTO, storePassword, false, null, Collections.<String>emptySet(), nullPriorityAsync);
+    public Pair<String, List<PropagationStatus>> create(final UserCR userCR, final boolean nullPriorityAsync) {
+        return create(userCR, false, null, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public Pair<String, List<PropagationStatus>> create(
-            final UserTO userTO,
-            final boolean storePassword,
+            final UserCR userCR,
             final boolean disablePwdPolicyCheck,
             final Boolean enabled,
             final Set<String> excludedResources,
             final boolean nullPriorityAsync) {
 
-        WorkflowResult<Pair<String, Boolean>> created =
-                uwfAdapter.create(userTO, disablePwdPolicyCheck, enabled, storePassword);
+        WorkflowResult<Pair<String, Boolean>> created = uwfAdapter.create(userCR, disablePwdPolicyCheck, enabled);
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUserCreateTasks(
                 created.getResult().getLeft(),
-                userTO.getPassword(),
+                userCR.getPassword(),
                 created.getResult().getRight(),
                 created.getPropByRes(),
-                userTO.getVirAttrs(),
+                userCR.getVirAttrs(),
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync);
 

@@ -41,7 +41,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "@class")
 @JsonPropertyOrder(value = { "@class", "key", "type", "realm", "username", "name" })
 @Schema(subTypes = { UserTO.class, GroupTO.class, AnyObjectTO.class }, discriminatorProperty = "@class")
-public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, AttributableTO {
+public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, AttributableReqEntity {
 
     private static final long serialVersionUID = -754311920679872084L;
 
@@ -59,7 +59,7 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
 
     private String status;
 
-    private final List<String> auxClasses = new ArrayList<>();
+    private final Set<String> auxClasses = new HashSet<>();
 
     private final Set<AttrTO> plainAttrs = new HashSet<>();
 
@@ -76,7 +76,6 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
         // do nothing
     }
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @Override
     public String getKey() {
         return key;
@@ -87,7 +86,6 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
         this.key = key;
     }
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public String getType() {
         return type;
     }
@@ -96,15 +94,16 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
         this.type = type;
     }
 
+    @Override
     public String getRealm() {
         return realm;
     }
 
+    @Override
     public void setRealm(final String realm) {
         this.realm = realm;
     }
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @XmlElementWrapper(name = "dynRealms")
     @XmlElement(name = "dynRealmF")
     @JsonProperty("dynRealms")
@@ -112,7 +111,6 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
         return dynRealms;
     }
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public String getStatus() {
         return status;
     }
@@ -124,7 +122,8 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
     @XmlElementWrapper(name = "auxClasses")
     @XmlElement(name = "class")
     @JsonProperty("auxClasses")
-    public List<String> getAuxClasses() {
+    @Override
+    public Set<String> getAuxClasses() {
         return auxClasses;
     }
 
@@ -173,6 +172,7 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
     @XmlElementWrapper(name = "resources")
     @XmlElement(name = "resource")
     @JsonProperty("resources")
+    @Override
     public Set<String> getResources() {
         return resources;
     }

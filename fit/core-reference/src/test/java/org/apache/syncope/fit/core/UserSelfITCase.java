@@ -41,10 +41,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
-import org.apache.syncope.common.lib.request.MembershipPatch;
+import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.request.StringReplacePatchItem;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -86,7 +87,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 1. self-registration as admin: failure
         try {
-            userSelfService.create(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org"), true);
+            userSelfService.create(UserITCase.getUniqueSample("anonymous@syncope.apache.org"));
             fail("This should not happen");
         } catch (ForbiddenException e) {
             assertNotNull(e);
@@ -95,7 +96,7 @@ public class UserSelfITCase extends AbstractITCase {
         // 2. self-registration as anonymous: works
         SyncopeClient anonClient = clientFactory.create();
         UserTO self = anonClient.getService(UserSelfService.class).
-                create(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org"), true).
+                create(UserITCase.getUniqueSample("anonymous@syncope.apache.org")).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
         assertNotNull(self);
@@ -107,14 +108,14 @@ public class UserSelfITCase extends AbstractITCase {
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         // 1. self-create user with membership: goes 'createApproval' with resources and membership but no propagation
-        UserTO userTO = UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org");
-        userTO.getMemberships().add(
+        UserCR userCR = UserITCase.getUniqueSample("anonymous@syncope.apache.org");
+        userCR.getMemberships().add(
                 new MembershipTO.Builder().group("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
-        userTO.getResources().add(RESOURCE_NAME_TESTDB);
+        userCR.getResources().add(RESOURCE_NAME_TESTDB);
 
         SyncopeClient anonClient = clientFactory.create();
-        userTO = anonClient.getService(UserSelfService.class).
-                create(userTO, true).
+        UserTO userTO = anonClient.getService(UserSelfService.class).
+                create(userCR).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
         assertNotNull(userTO);
@@ -145,13 +146,13 @@ public class UserSelfITCase extends AbstractITCase {
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         // 1. self-create user with membership: goes 'createApproval' with resources and membership but no propagation
-        UserTO userTO = UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org");
-        userTO.getMemberships().add(
+        UserCR userCR = UserITCase.getUniqueSample("anonymous@syncope.apache.org");
+        userCR.getMemberships().add(
                 new MembershipTO.Builder().group("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
-        userTO.getResources().add(RESOURCE_NAME_TESTDB);
+        userCR.getResources().add(RESOURCE_NAME_TESTDB);
         SyncopeClient anonClient = clientFactory.create();
-        userTO = anonClient.getService(UserSelfService.class).
-                create(userTO, true).
+        UserTO userTO = anonClient.getService(UserSelfService.class).
+                create(userCR).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
         assertNotNull(userTO);
@@ -192,7 +193,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        UserTO user = createUser(UserITCase.getUniqueSampleTO("selfread@syncope.apache.org")).getEntity();
+        UserTO user = createUser(UserITCase.getUniqueSample("selfread@syncope.apache.org")).getEntity();
         UserService us2 = clientFactory.create(user.getUsername(), "password123").getService(UserService.class);
         try {
             us2.read(user.getKey());
@@ -219,7 +220,7 @@ public class UserSelfITCase extends AbstractITCase {
     @Test
     public void updateWithoutApproval() {
         // 1. create user as admin
-        UserTO created = createUser(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org")).getEntity();
+        UserTO created = createUser(UserITCase.getUniqueSample("anonymous@syncope.apache.org")).getEntity();
         assertNotNull(created);
         assertFalse(created.getUsername().endsWith("XX"));
 
@@ -243,7 +244,7 @@ public class UserSelfITCase extends AbstractITCase {
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         // 1. create user as admin
-        UserTO created = createUser(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org")).getEntity();
+        UserTO created = createUser(UserITCase.getUniqueSample("anonymous@syncope.apache.org")).getEntity();
         assertNotNull(created);
         assertFalse(created.getUsername().endsWith("XX"));
 
@@ -251,7 +252,7 @@ public class UserSelfITCase extends AbstractITCase {
         UserUR userUR = new UserUR();
         userUR.setKey(created.getKey());
         userUR.setUsername(new StringReplacePatchItem.Builder().value(created.getUsername() + "XX").build());
-        userUR.getMemberships().add(new MembershipPatch.Builder().
+        userUR.getMemberships().add(new MembershipUR.Builder().
                 operation(PatchOperation.ADD_REPLACE).
                 group("bf825fe1-7320-4a54-bd64-143b5c18ab97").
                 build());
@@ -296,7 +297,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void delete() {
-        UserTO created = createUser(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org")).getEntity();
+        UserTO created = createUser(UserITCase.getUniqueSample("anonymous@syncope.apache.org")).getEntity();
         assertNotNull(created);
 
         SyncopeClient authClient = clientFactory.create(created.getUsername(), "password123");
@@ -314,7 +315,7 @@ public class UserSelfITCase extends AbstractITCase {
         configurationService.set(attrTO("passwordReset.securityQuestion", "true"));
 
         // 1. create an user with security question and answer
-        UserTO user = UserITCase.getUniqueSampleTO("pwdReset@syncope.apache.org");
+        UserCR user = UserITCase.getUniqueSample("pwdReset@syncope.apache.org");
         user.setSecurityQuestion("887028ea-66fc-41e7-b397-620d7ea6dfbb");
         user.setSecurityAnswer("Rossi");
         user.getResources().add(RESOURCE_NAME_TESTDB);
@@ -381,7 +382,7 @@ public class UserSelfITCase extends AbstractITCase {
         configurationService.set(attrTO("passwordReset.securityQuestion", "false"));
 
         // 1. create an user with security question and answer
-        UserTO user = UserITCase.getUniqueSampleTO("pwdResetNoSecurityQuestion@syncope.apache.org");
+        UserCR user = UserITCase.getUniqueSample("pwdResetNoSecurityQuestion@syncope.apache.org");
         createUser(user);
 
         // 2. verify that new user is able to authenticate
@@ -458,14 +459,14 @@ public class UserSelfITCase extends AbstractITCase {
     public void createWithReject() {
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
-        UserTO userTO = UserITCase.getUniqueSampleTO("createWithReject@syncope.apache.org");
-        userTO.getResources().add(RESOURCE_NAME_TESTDB);
+        UserCR userCR = UserITCase.getUniqueSample("createWithReject@syncope.apache.org");
+        userCR.getResources().add(RESOURCE_NAME_TESTDB);
 
         // User with group 0cbcabd2-4410-4b6b-8f05-a052b451d18f are defined in workflow as subject to approval
-        userTO.getMemberships().add(new MembershipTO.Builder().group("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
+        userCR.getMemberships().add(new MembershipTO.Builder().group("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
 
         // 1. create user with group 0cbcabd2-4410-4b6b-8f05-a052b451d18f
-        userTO = createUser(userTO).getEntity();
+        UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
         assertEquals(1, userTO.getMemberships().size());
         assertEquals("0cbcabd2-4410-4b6b-8f05-a052b451d18f", userTO.getMemberships().get(0).getGroupKey());
@@ -536,17 +537,17 @@ public class UserSelfITCase extends AbstractITCase {
         PagedResult<UserRequestForm> forms = userRequestService.getForms(new UserRequestFormQuery.Builder().build());
         int preForms = forms.getTotalCount();
 
-        UserTO userTO = UserITCase.getUniqueSampleTO("createWithApproval@syncope.apache.org");
-        userTO.getResources().add(RESOURCE_NAME_TESTDB);
+        UserCR userCR = UserITCase.getUniqueSample("createWithApproval@syncope.apache.org");
+        userCR.getResources().add(RESOURCE_NAME_TESTDB);
 
         // User with group 0cbcabd2-4410-4b6b-8f05-a052b451d18f are defined in workflow as subject to approval
-        userTO.getMemberships().add(
+        userCR.getMemberships().add(
                 new MembershipTO.Builder().group("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
 
         // 1. create user and verify that no propagation occurred)
-        ProvisioningResult<UserTO> result = createUser(userTO);
+        ProvisioningResult<UserTO> result = createUser(userCR);
         assertNotNull(result);
-        userTO = result.getEntity();
+        UserTO userTO = result.getEntity();
         assertEquals(1, userTO.getMemberships().size());
         assertEquals("0cbcabd2-4410-4b6b-8f05-a052b451d18f", userTO.getMemberships().get(0).getGroupKey());
         assertEquals("createApproval", userTO.getStatus());
@@ -624,14 +625,14 @@ public class UserSelfITCase extends AbstractITCase {
                 new UserRequestFormQuery.Builder().build());
         int preForms = forms.getTotalCount();
 
-        UserTO created = createUser(UserITCase.getUniqueSampleTO("updateApproval@syncope.apache.org")).getEntity();
+        UserTO created = createUser(UserITCase.getUniqueSample("updateApproval@syncope.apache.org")).getEntity();
         assertNotNull(created);
         assertEquals("/", created.getRealm());
         assertEquals(0, created.getMemberships().size());
 
         UserUR req = new UserUR();
         req.setKey(created.getKey());
-        req.getMemberships().add(new MembershipPatch.Builder().group("b1f7c12d-ec83-441f-a50e-1691daaedf3b").build());
+        req.getMemberships().add(new MembershipUR.Builder().group("b1f7c12d-ec83-441f-a50e-1691daaedf3b").build());
 
         SyncopeClient client = clientFactory.create(created.getUsername(), "password123");
         Response response = client.getService(UserSelfService.class).update(req);
@@ -682,7 +683,7 @@ public class UserSelfITCase extends AbstractITCase {
     public void availableTasks() {
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
-        UserTO user = createUser(UserITCase.getUniqueSampleTO("availableTasks@apache.org")).getEntity();
+        UserTO user = createUser(UserITCase.getUniqueSample("availableTasks@apache.org")).getEntity();
         assertEquals("active", user.getStatus());
 
         List<WorkflowTask> tasks = userWorkflowTaskService.getAvailableTasks(user.getKey());
@@ -700,18 +701,17 @@ public class UserSelfITCase extends AbstractITCase {
         PagedResult<UserRequestForm> forms = userRequestService.getForms(new UserRequestFormQuery.Builder().build());
         int preForms = forms.getTotalCount();
 
-        UserTO userTO = UserITCase.getUniqueSampleTO("issueSYNCOPE15@syncope.apache.org");
-        userTO.getResources().clear();
-        userTO.getVirAttrs().clear();
-        userTO.getDerAttrs().clear();
-        userTO.getMemberships().clear();
+        UserCR userCR = UserITCase.getUniqueSample("issueSYNCOPE15@syncope.apache.org");
+        userCR.getResources().clear();
+        userCR.getVirAttrs().clear();
+        userCR.getMemberships().clear();
 
         // Users with group 0cbcabd2-4410-4b6b-8f05-a052b451d18f are defined in workflow as subject to approval
-        userTO.getMemberships().add(
+        userCR.getMemberships().add(
                 new MembershipTO.Builder().group("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
 
         // 1. create user with group 9 (and verify that no propagation occurred)
-        userTO = createUser(userTO).getEntity();
+        UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
         assertNotEquals(0L, userTO.getKey());
         assertNotNull(userTO.getCreationDate());

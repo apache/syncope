@@ -27,7 +27,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
@@ -252,27 +254,30 @@ public class SAML2UserManager {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public String create(final SAML2IdPEntity idp, final SAML2LoginResponseTO responseTO, final String nameID) {
-        UserTO userTO = new UserTO();
+        UserCR userCR = new UserCR();
+        userCR.setStorePassword(false);
 
         if (idp.getUserTemplate() != null) {
-            templateUtils.apply(userTO, idp.getUserTemplate());
+            templateUtils.apply(userCR, idp.getUserTemplate());
         }
 
         List<SAML2IdPActions> actions = getActions(idp);
         for (SAML2IdPActions action : actions) {
-            userTO = action.beforeCreate(userTO, responseTO);
+            userCR = action.beforeCreate(userCR, responseTO);
         }
 
+        UserTO userTO = new UserTO();
+        EntityTOUtils.toAnyTO(userCR, userTO);
         fill(idp.getKey(), responseTO, userTO);
 
-        if (userTO.getRealm() == null) {
-            userTO.setRealm(SyncopeConstants.ROOT_REALM);
+        if (userCR.getRealm() == null) {
+            userCR.setRealm(SyncopeConstants.ROOT_REALM);
         }
-        if (userTO.getUsername() == null) {
-            userTO.setUsername(nameID);
+        if (userCR.getUsername() == null) {
+            userCR.setUsername(nameID);
         }
 
-        Pair<String, List<PropagationStatus>> created = provisioningManager.create(userTO, false, false);
+        Pair<String, List<PropagationStatus>> created = provisioningManager.create(userCR, false);
         userTO = binder.getUserTO(created.getKey());
 
         for (SAML2IdPActions action : actions) {

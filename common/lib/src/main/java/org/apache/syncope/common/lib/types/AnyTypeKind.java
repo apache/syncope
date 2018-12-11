@@ -19,9 +19,13 @@
 package org.apache.syncope.common.lib.types;
 
 import javax.xml.bind.annotation.XmlEnum;
+import org.apache.syncope.common.lib.request.AnyCR;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -31,25 +35,36 @@ import org.apache.syncope.common.lib.to.UserTO;
 @XmlEnum
 public enum AnyTypeKind {
 
-    USER(UserTO.class, UserUR.class),
-    GROUP(GroupTO.class, GroupUR.class),
-    ANY_OBJECT(AnyObjectTO.class, AnyObjectUR.class);
+    USER(UserTO.class, UserCR.class, UserUR.class),
+    GROUP(GroupTO.class, GroupCR.class, GroupUR.class),
+    ANY_OBJECT(AnyObjectTO.class, AnyObjectCR.class, AnyObjectUR.class);
 
     private final Class<? extends AnyTO> toClass;
 
-    private final Class<? extends AnyUR> reqClass;
+    private final Class<? extends AnyCR> crClass;
 
-    AnyTypeKind(final Class<? extends AnyTO> toClass, final Class<? extends AnyUR> reqClass) {
+    private final Class<? extends AnyUR> urClass;
+
+    AnyTypeKind(
+            final Class<? extends AnyTO> toClass,
+            final Class<? extends AnyCR> crClass,
+            final Class<? extends AnyUR> urClass) {
+
         this.toClass = toClass;
-        this.reqClass = reqClass;
+        this.crClass = crClass;
+        this.urClass = urClass;
     }
 
     public Class<? extends AnyTO> getTOClass() {
         return toClass;
     }
 
+    public Class<? extends AnyCR> getCRClass() {
+        return crClass;
+    }
+
     public Class<? extends AnyUR> getURClass() {
-        return reqClass;
+        return urClass;
     }
 
     public static AnyTypeKind fromTOClass(final Class<? extends AnyTO> clazz) {

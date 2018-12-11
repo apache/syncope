@@ -27,6 +27,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -265,10 +266,10 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         assertEquals(recipientsProvider.getKey(), notification.getRecipientsProvider());
 
         // 2. create group
-        GroupTO groupTO = new GroupTO();
-        groupTO.setName(groupName);
-        groupTO.setRealm("/even/two");
-        groupTO = createGroup(groupTO).getEntity();
+        GroupCR groupCR = new GroupCR();
+        groupCR.setName(groupName);
+        groupCR.setRealm("/even/two");
+        GroupTO groupTO = createGroup(groupCR).getEntity();
         assertNotNull(groupTO);
 
         // 3. verify

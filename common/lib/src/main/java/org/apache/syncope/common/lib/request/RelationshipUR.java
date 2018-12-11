@@ -24,17 +24,17 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 
-@XmlRootElement(name = "relationshipPatch")
+@XmlRootElement(name = "relationshipUR")
 @XmlType
-public class RelationshipPatch extends AbstractPatch {
+public class RelationshipUR extends AbstractPatch {
 
     private static final long serialVersionUID = 1314175521205206511L;
 
-    public static class Builder extends AbstractPatch.Builder<RelationshipPatch, Builder> {
+    public static class Builder extends AbstractPatch.Builder<RelationshipUR, Builder> {
 
         @Override
-        protected RelationshipPatch newInstance() {
-            return new RelationshipPatch();
+        protected RelationshipUR newInstance() {
+            return new RelationshipUR();
         }
 
         public Builder relationshipTO(final RelationshipTO relationshipTO) {
@@ -72,7 +72,7 @@ public class RelationshipPatch extends AbstractPatch {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final RelationshipPatch other = (RelationshipPatch) obj;
+        final RelationshipUR other = (RelationshipUR) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(relationshipTO, other.relationshipTO).

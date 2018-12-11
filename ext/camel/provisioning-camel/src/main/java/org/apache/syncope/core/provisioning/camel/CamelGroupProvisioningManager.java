@@ -27,9 +27,9 @@ import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.PollingConsumer;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
-import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,14 +39,14 @@ public class CamelGroupProvisioningManager
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<String, List<PropagationStatus>> create(final GroupTO groupTO, final boolean nullPriorityAsync) {
+    public Pair<String, List<PropagationStatus>> create(final GroupCR req, final boolean nullPriorityAsync) {
         PollingConsumer pollingConsumer = getConsumer("direct:createGroupPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("excludedResources", Collections.<String>emptySet());
         props.put("nullPriorityAsync", nullPriorityAsync);
 
-        sendMessage("direct:createGroup", groupTO, props);
+        sendMessage("direct:createGroup", req, props);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -61,7 +61,7 @@ public class CamelGroupProvisioningManager
     @Override
     @SuppressWarnings("unchecked")
     public Pair<String, List<PropagationStatus>> create(
-            final GroupTO groupTO,
+            final GroupCR req,
             final Map<String, String> groupOwnerMap,
             final Set<String> excludedResources,
             final boolean nullPriorityAsync) {
@@ -73,7 +73,7 @@ public class CamelGroupProvisioningManager
         props.put("excludedResources", excludedResources);
         props.put("nullPriorityAsync", nullPriorityAsync);
 
-        sendMessage("direct:createGroupInPull", groupTO, props);
+        sendMessage("direct:createGroupInPull", req, props);
 
         Exchange exchange = pollingConsumer.receive();
 

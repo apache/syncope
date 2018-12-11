@@ -26,7 +26,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.PatchOperation;
 
 @XmlType
-@XmlSeeAlso({ AbstractPatchItem.class, AttrPatch.class, MembershipPatch.class, RelationshipPatch.class })
+@XmlSeeAlso({ AbstractPatchItem.class, AttrPatch.class, MembershipUR.class, RelationshipUR.class })
 public abstract class AbstractPatch implements Serializable {
 
     private static final long serialVersionUID = -4729181508529829580L;

@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.api.data;
 
 import java.util.Map;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
@@ -34,7 +35,7 @@ public interface GroupDataBinder {
 
     GroupTO getGroupTO(Group group, boolean details);
 
-    void create(Group group, GroupTO groupTO);
+    void create(Group group, GroupCR groupCR);
 
     PropagationByResource update(Group group, GroupUR groupUR);
 
