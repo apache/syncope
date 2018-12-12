@@ -185,7 +185,11 @@ public class TemplateUtils {
 
             fillRelationships((GroupableRelatableTO) reqEntity, ((GroupableRelatableTO) template));
             fillMemberships((GroupableRelatableTO) reqEntity, ((GroupableRelatableTO) template));
-            ((UserTO) reqEntity).getRoles().addAll(((UserTO) template).getRoles());
+            if (reqEntity instanceof UserTO) {
+                ((UserTO) reqEntity).getRoles().addAll(((UserTO) template).getRoles());
+            } else if (reqEntity instanceof UserCR) {
+                ((UserCR) reqEntity).getRoles().addAll(((UserTO) template).getRoles());
+            }
         } else if (template instanceof GroupTO) {
             if (StringUtils.isNotBlank(((GroupTO) template).getName())) {
                 String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), jexlContext);
