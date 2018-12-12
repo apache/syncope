@@ -330,6 +330,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         groupTO.setCreationDate(group.getCreationDate());
         groupTO.setLastModifier(group.getLastModifier());
         groupTO.setLastChangeDate(group.getLastChangeDate());
+        groupTO.setStatus(group.getStatus());
 
         groupTO.setKey(group.getKey());
         groupTO.setName(group.getName());
