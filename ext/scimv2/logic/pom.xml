@@ -40,8 +40,8 @@ under the License.
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-logic</artifactId>
+      <groupId>org.apache.syncope.core.idrepo</groupId>
+      <artifactId>syncope-core-idrepo-logic</artifactId>
       <version>${project.version}</version>
     </dependency>
     

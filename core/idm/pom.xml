@@ -22,40 +22,23 @@ under the License.
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.apache.syncope.ext</groupId>
-    <artifactId>syncope-ext-camel</artifactId>
+    <groupId>org.apache.syncope</groupId>
+    <artifactId>syncope-core</artifactId>
     <version>3.0.0-SNAPSHOT</version>
   </parent>
 
-  <name>Apache Syncope Ext: Camel Logic</name>
-  <description>Apache Syncope Ext: Camel Logic</description>
-  <groupId>org.apache.syncope.ext.camel</groupId>
-  <artifactId>syncope-ext-camel-logic</artifactId>
-  <packaging>jar</packaging>
+  <name>Apache Syncope Core IdM</name>
+  <description>Apache Syncope Core IdM</description>
+  <groupId>org.apache.syncope.core</groupId>
+  <artifactId>syncope-core-idm</artifactId>
+  <packaging>pom</packaging>
   
   <properties>
-    <rootpom.basedir>${basedir}/../../..</rootpom.basedir>
+    <rootpom.basedir>${basedir}/../..</rootpom.basedir>
   </properties>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.syncope.core.idm</groupId>
-      <artifactId>syncope-core-idm-logic</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.ext.camel</groupId>
-      <artifactId>syncope-ext-camel-provisioning</artifactId>
-      <version>${project.version}</version>
-    </dependency>  
-  </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
+  
+  <modules>
+    <module>logic</module>
+    <module>rest-cxf</module>
+  </modules>
 </project>

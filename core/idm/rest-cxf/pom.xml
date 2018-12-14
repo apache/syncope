@@ -22,15 +22,15 @@ under the License.
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.apache.syncope.ext</groupId>
-    <artifactId>syncope-ext-saml2sp</artifactId>
+    <groupId>org.apache.syncope.core</groupId>
+    <artifactId>syncope-core-idm</artifactId>
     <version>3.0.0-SNAPSHOT</version>
   </parent>
 
-  <name>Apache Syncope Ext: SAML2 SP REST CXF</name>
-  <description>Apache Syncope Ext: SAML2 SP REST CXF</description>
-  <groupId>org.apache.syncope.ext.saml2sp</groupId>
-  <artifactId>syncope-ext-saml2sp-rest-cxf</artifactId>
+  <name>Apache Syncope Core IdM REST CXF</name>
+  <description>Apache Syncope Core IdM REST CXF</description>
+  <groupId>org.apache.syncope.core.idm</groupId>
+  <artifactId>syncope-core-idm-rest-cxf</artifactId>
   <packaging>jar</packaging>
   
   <properties>
@@ -38,35 +38,49 @@ under the License.
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>org.apache.syncope.core.idm</groupId>
-      <artifactId>syncope-core-idm-rest-cxf</artifactId>
-      <version>${project.version}</version>
+    <dependency> 
+      <groupId>javax.servlet</groupId> 
+      <artifactId>javax.servlet-api</artifactId> 
+      <scope>provided</scope>
     </dependency>
+
     <dependency>
-      <groupId>org.apache.syncope.ext.saml2sp</groupId>
-      <artifactId>syncope-ext-saml2sp-rest-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.ext.saml2sp</groupId>
-      <artifactId>syncope-ext-saml2sp-rest-api</artifactId>
+      <groupId>org.apache.syncope.common.idm</groupId>
+      <artifactId>syncope-common-idm-rest-api</artifactId>
       <version>${project.version}</version>
       <classifier>javadoc</classifier>
     </dependency>
+    
     <dependency>
-      <groupId>org.apache.syncope.ext.saml2sp</groupId>
-      <artifactId>syncope-ext-saml2sp-logic</artifactId>
+      <groupId>org.apache.syncope.core.idrepo</groupId>
+      <artifactId>syncope-core-idrepo-rest-cxf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.core.idm</groupId>
+      <artifactId>syncope-core-idm-logic</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.common.idm</groupId>
+      <artifactId>syncope-common-idm-rest-api</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>
 
   <build>
-    <plugins>
+    <plugins>            
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
     </plugins>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
   </build>
 </project>

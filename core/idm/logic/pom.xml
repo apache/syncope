@@ -22,15 +22,15 @@ under the License.
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.apache.syncope.ext</groupId>
-    <artifactId>syncope-ext-saml2sp</artifactId>
+    <groupId>org.apache.syncope.core</groupId>
+    <artifactId>syncope-core-idm</artifactId>
     <version>3.0.0-SNAPSHOT</version>
   </parent>
 
-  <name>Apache Syncope Ext: SAML2 SP REST CXF</name>
-  <description>Apache Syncope Ext: SAML2 SP REST CXF</description>
-  <groupId>org.apache.syncope.ext.saml2sp</groupId>
-  <artifactId>syncope-ext-saml2sp-rest-cxf</artifactId>
+  <name>Apache Syncope Core IdM Logic</name>
+  <description>Apache Syncope Core IdM Logic</description>
+  <groupId>org.apache.syncope.core.idm</groupId>
+  <artifactId>syncope-core-idm-logic</artifactId>
   <packaging>jar</packaging>
   
   <properties>
@@ -39,30 +39,39 @@ under the License.
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.syncope.core.idm</groupId>
-      <artifactId>syncope-core-idm-rest-cxf</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.ext.saml2sp</groupId>
-      <artifactId>syncope-ext-saml2sp-rest-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.ext.saml2sp</groupId>
-      <artifactId>syncope-ext-saml2sp-rest-api</artifactId>
-      <version>${project.version}</version>
-      <classifier>javadoc</classifier>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.ext.saml2sp</groupId>
-      <artifactId>syncope-ext-saml2sp-logic</artifactId>
+      <groupId>org.apache.syncope.core.idrepo</groupId>
+      <artifactId>syncope-core-idrepo-logic</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+        
     <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>buildnumber-maven-plugin</artifactId>
+        <inherited>true</inherited>
+        <configuration>
+          <doCheck>false</doCheck>
+          <doUpdate>false</doUpdate>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>validate</phase>
+            <goals>
+              <goal>create</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>

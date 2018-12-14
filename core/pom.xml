@@ -77,6 +77,8 @@ under the License.
   </profiles>
   
   <modules>
+    <module>idrepo</module>
+    <module>idm</module>
     <module>persistence-api</module>
     <module>persistence-jpa</module>
     <module>persistence-jpa-json</module>
@@ -85,9 +87,6 @@ under the License.
     <module>provisioning-java</module>
     <module>workflow-api</module>
     <module>workflow-java</module>
-    <module>logic</module>
-    <module>rest-cxf</module>
     <module>upgrade</module>
   </modules>
-
 </project>

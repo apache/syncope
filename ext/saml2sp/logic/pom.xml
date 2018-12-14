@@ -39,8 +39,8 @@ under the License.
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-logic</artifactId>
+      <groupId>org.apache.syncope.core.idm</groupId>
+      <artifactId>syncope-core-idm-logic</artifactId>
       <version>${project.version}</version>
     </dependency>
       
