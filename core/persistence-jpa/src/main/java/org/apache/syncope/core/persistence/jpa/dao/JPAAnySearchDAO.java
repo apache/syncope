@@ -127,7 +127,10 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         Pair<String, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
 
         // 1. get the query string from the search condition
-        StringBuilder queryString = getQuery(buildEffectiveCond(cond, filter.getRight()), parameters, svs);
+        Pair<StringBuilder, Set<String>> queryInfo = 
+                getQuery(buildEffectiveCond(cond, filter.getRight()), parameters, svs);
+
+        StringBuilder queryString = queryInfo.getLeft();
 
         // 2. take into account administrative realms
         queryString.insert(0, "SELECT u.any_id FROM (");
@@ -161,16 +164,19 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             Pair<String, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
 
             // 1. get the query string from the search condition
-            StringBuilder queryString = getQuery(buildEffectiveCond(cond, filter.getRight()), parameters, svs);
+            Pair<StringBuilder, Set<String>> queryInfo = getQuery(buildEffectiveCond(cond, filter.getRight()),
+                    parameters, svs);
+
+            StringBuilder queryString = queryInfo.getLeft();
 
             // 2. take into account realms and ordering
             OrderBySupport obs = parseOrderBy(kind, svs, orderBy);
             if (queryString.charAt(0) == '(') {
                 queryString.insert(0, buildSelect(obs));
-                queryString.append(buildWhere(svs, obs));
+                queryString.append(buildWhere(svs, queryInfo.getRight(), obs));
             } else {
                 queryString.insert(0, buildSelect(obs).append('('));
-                queryString.append(')').append(buildWhere(svs, obs));
+                queryString.append(')').append(buildWhere(svs, queryInfo.getRight(), obs));
             }
             queryString.
                     append(filter.getLeft()).
@@ -233,15 +239,48 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return select;
     }
 
-    private StringBuilder buildWhere(final SearchSupport svs, final OrderBySupport obs) {
+    private StringBuilder buildWhere(
+            final SearchSupport svs, final Set<String> involvedPlainAttrs, final OrderBySupport obs) {
+
+        Set<String> attrs = new HashSet<>(involvedPlainAttrs);
+        for (OrderBySupport.Item item : obs.items) {
+            attrs.add(item.orderBy.substring(0, item.orderBy.indexOf(" ")));
+        }
+
         StringBuilder where = new StringBuilder(" u");
+
         for (SearchSupport.SearchView searchView : obs.views) {
             where.append(',');
             if (searchView.name.equals(svs.attr().name)) {
+                StringBuilder attrWhere = new StringBuilder();
+                StringBuilder nullAttrWhere = new StringBuilder();
+
                 where.append(" (SELECT * FROM ").append(searchView.name);
 
                 if (svs.nonMandatorySchemas || obs.nonMandatorySchemas) {
-                    where.append(" UNION SELECT * FROM ").append(svs.nullAttr().name);
+                    for (String field : attrs) {
+                        if (attrWhere.length() == 0) {
+                            attrWhere.append(" WHERE schema_id='").append(field).append("'");
+                        } else {
+                            attrWhere.append(" OR ").append("schema_id='").append(field).append("'");
+                        }
+
+                        nullAttrWhere.append(" UNION SELECT any_id, ").
+                                append("'").
+                                append(field).
+                                append("' AS schema_id, ").
+                                append("null AS booleanvalue, ").
+                                append("null AS datevalue, ").
+                                append("null AS doublevalue, ").
+                                append("null AS longvalue, ").
+                                append("null AS stringvalue FROM ").append(svs.field().name).
+                                append(" WHERE ").
+                                append("any_id NOT IN (").
+                                append("SELECT any_id FROM ").
+                                append(svs.attr().name).append(' ').append(searchView.alias).
+                                append(" WHERE ").append("schema_id='").append(field).append("')");
+                    }
+                    where.append(attrWhere).append(nullAttrWhere);
                 }
 
                 where.append(')');
@@ -342,8 +381,10 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return obs;
     }
 
-    private StringBuilder getQuery(final SearchCond cond, final List<Object> parameters, final SearchSupport svs) {
+    private Pair<StringBuilder, Set<String>> getQuery(
+            final SearchCond cond, final List<Object> parameters, final SearchSupport svs) {
         StringBuilder query = new StringBuilder();
+        Set<String> involvedAttributes = new HashSet<>();
 
         switch (cond.getType()) {
             case LEAF:
@@ -383,6 +424,11 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 } else if (cond.getAttributeCond() != null) {
                     query.append(getQuery(cond.getAttributeCond(),
                             cond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
+                    try {
+                        involvedAttributes.add(check(cond.getAttributeCond(), svs.anyTypeKind).getLeft().getKey());
+                    } catch (IllegalArgumentException e) {
+                        // ignore
+                    }
                 } else if (cond.getAnyCond() != null) {
                     query.append(getQuery(cond.getAnyCond(),
                             cond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
@@ -390,29 +436,41 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 break;
 
             case AND:
-                String andSubQuery = getQuery(cond.getLeftSearchCond(), parameters, svs).toString();
+                Pair<StringBuilder, Set<String>> leftAndInfo = getQuery(cond.getLeftSearchCond(), parameters, svs);
+                involvedAttributes.addAll(leftAndInfo.getRight());
+
+                Pair<StringBuilder, Set<String>> rigthAndInfo = getQuery(cond.getRightSearchCond(), parameters, svs);
+                involvedAttributes.addAll(rigthAndInfo.getRight());
+
+                String andSubQuery = leftAndInfo.getKey().toString();
                 // Add extra parentheses
                 andSubQuery = andSubQuery.replaceFirst("WHERE ", "WHERE (");
                 query.append(andSubQuery).
                         append(" AND any_id IN ( ").
-                        append(getQuery(cond.getRightSearchCond(), parameters, svs)).
+                        append(rigthAndInfo.getKey()).
                         append("))");
                 break;
 
             case OR:
-                String orSubQuery = getQuery(cond.getLeftSearchCond(), parameters, svs).toString();
+                Pair<StringBuilder, Set<String>> leftOrInfo = getQuery(cond.getLeftSearchCond(), parameters, svs);
+                involvedAttributes.addAll(leftOrInfo.getRight());
+
+                Pair<StringBuilder, Set<String>> rigthOrInfo = getQuery(cond.getRightSearchCond(), parameters, svs);
+                involvedAttributes.addAll(rigthOrInfo.getRight());
+
+                String orSubQuery = leftOrInfo.getKey().toString();
                 // Add extra parentheses
                 orSubQuery = orSubQuery.replaceFirst("WHERE ", "WHERE (");
                 query.append(orSubQuery).
                         append(" OR any_id IN ( ").
-                        append(getQuery(cond.getRightSearchCond(), parameters, svs)).
+                        append(rigthOrInfo.getKey()).
                         append("))");
                 break;
 
             default:
         }
 
-        return query;
+        return Pair.of(query, involvedAttributes);
     }
 
     private String getQuery(
@@ -731,7 +789,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 } else {
                     query.append('=');
                 }
-                if ((schema.getType() == AttrSchemaType.String 
+                if ((schema.getType() == AttrSchemaType.String
                         || schema.getType() == AttrSchemaType.Enum) && ignoreCase) {
                     query.append("LOWER(?").append(setParameter(parameters, attrValue.getValue())).append(')');
                 } else {

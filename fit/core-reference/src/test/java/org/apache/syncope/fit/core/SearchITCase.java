@@ -36,6 +36,7 @@ import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -305,6 +306,17 @@ public class SearchITCase extends AbstractITCase {
                         and("username").equalTo("bellini").query()).
                 build());
         assertEquals(users, issueSYNCOPE1321);
+        
+        // SYNCOPE-1416 (check the search for attributes of type different from stringvalue)
+        PagedResult<UserTO> issueSYNCOPE1416 = userService.search(new AnyQuery.Builder().
+                realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("loginDate").lexicalNotBefore("2009-05-26").
+                        and("username").equalTo("rossini").query()).
+                orderBy(SyncopeClient.getOrderByClauseBuilder().asc("loginDate").build()).
+                build());
+        assertEquals(1, issueSYNCOPE1416.getSize());
+        assertEquals("rossini", issueSYNCOPE1416.getResult().get(0).getUsername());
     }
 
     @Test
