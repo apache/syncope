@@ -747,4 +747,27 @@ public class AnySearchTest extends AbstractTest {
                 AnyTypeKind.USER);
         assertFalse(users.isEmpty());
     }
+    
+    @Test
+    public void issueSYNCOPE1416() {
+        AttributeCond idLeftCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
+        idLeftCond.setSchema("surname");
+        
+        AttributeCond idRightCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
+        idRightCond.setSchema("firstname");
+        
+        SearchCond searchCondition = SearchCond.getAndCond(
+                SearchCond.getLeafCond(idLeftCond), SearchCond.getLeafCond(idRightCond));
+
+        List<OrderByClause> orderByClauses = new ArrayList<>();
+        OrderByClause orderByClause = new OrderByClause();
+        orderByClause.setField("ctype");
+        orderByClause.setDirection(OrderByClause.Direction.ASC);
+        orderByClauses.add(orderByClause);
+
+        List<User> users = searchDAO.search(searchCondition, orderByClauses, AnyTypeKind.USER);
+        assertEquals(
+                searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.USER),
+                users.size());
+    }
 }
