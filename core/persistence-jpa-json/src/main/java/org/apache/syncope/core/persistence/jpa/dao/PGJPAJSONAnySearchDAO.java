@@ -18,10 +18,16 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -34,17 +40,60 @@ import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
 
 public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
+    private static final FastDateFormat DATE_FORMAT = FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN);
+
     @Override
     SearchSupport buildSearchSupport(final AnyTypeKind kind) {
         return new SearchSupport(kind);
     }
 
     @Override
-    protected void processOBS(final SearchSupport svs, final OrderBySupport obs, final StringBuilder where) {
+    protected void processOBS(
+            final SearchSupport svs,
+            final Set<String> involvedPlainAttrs,
+            final OrderBySupport obs,
+            final StringBuilder where) {
+
+        Set<String> attrs = obs.items.stream().
+                map(item -> item.orderBy.substring(0, item.orderBy.indexOf(" "))).collect(Collectors.toSet());
+
         obs.views.forEach(searchView -> {
-            where.append(',').
-                    append(searchView.name).
-                    append(' ').append(searchView.alias);
+            if (searchView.name.equals(svs.field().name)) {
+                StringBuilder attrWhere = new StringBuilder();
+                StringBuilder nullAttrWhere = new StringBuilder();
+
+                where.append(", (SELECT * FROM ").append(searchView.name);
+
+                if (svs.nonMandatorySchemas || obs.nonMandatorySchemas) {
+                    attrs.forEach(field -> {
+                        if (attrWhere.length() == 0) {
+                            attrWhere.append(" WHERE ");
+                        } else {
+                            attrWhere.append(" OR ");
+                        }
+                        attrWhere.append("plainAttrs @> '[{\"schema\":\"").append(field).append("\"}]'::jsonb");
+
+                        nullAttrWhere.append(" UNION SELECT DISTINCT any_id,").append(svs.table().alias).append(".*, ").
+                                append("'{\"schema\": \"").
+                                append(field).
+                                append("\"}'::jsonb as attrs, '{}'::jsonb as attrValues").
+                                append(" FROM ").append(svs.table().name).append(" ").append(svs.table().alias).
+                                append(", ").append(svs.field().name).
+                                append(" WHERE ").
+                                append("any_id NOT IN ").
+                                append("(SELECT distinct any_id FROM ").
+                                append(svs.field().name).
+                                append(" WHERE ").append(svs.table().alias).append(".id=any_id AND ").
+                                append("plainAttrs @> '[{\"schema\":\"").append(field).append("\"}]'::jsonb)");
+                    });
+                    where.append(attrWhere).append(nullAttrWhere);
+                }
+
+                where.append(')');
+            } else {
+                where.append(',').append(searchView.name);
+            }
+            where.append(' ').append(searchView.alias);
         });
     }
 
@@ -62,20 +111,12 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
         obs.views.add(svs.field());
 
-        item.select = svs.field().alias + ".attrValues ->> '" + fieldName + "' AS " + fieldName;
+        item.select = svs.field().alias + ".attrValues ->> '" + field(schema, null) + "' AS " + fieldName;
         item.where = "attrs ->> 'schema' = '" + fieldName + "'";
         item.orderBy = fieldName + " " + clause.getDirection().name();
     }
 
-    private void fillAttrQuery(
-            final AnyUtils anyUtils,
-            final StringBuilder query,
-            final PlainAttrValue attrValue,
-            final PlainSchema schema,
-            final AttributeCond cond,
-            final boolean not,
-            final List<Object> parameters) {
-
+    private Pair<Boolean, String> field(final PlainSchema schema, final AttributeCond.Type type) {
         String key;
         boolean lower = false;
         switch (schema.getType()) {
@@ -100,9 +141,22 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                 break;
 
             default:
-                lower = cond.getType() == AttributeCond.Type.IEQ || cond.getType() == AttributeCond.Type.ILIKE;
+                lower = type == AttributeCond.Type.IEQ || type == AttributeCond.Type.ILIKE;
                 key = "stringValue";
         }
+        return Pair.of(lower, key);
+    }
+
+    private void fillAttrQuery(
+            final AnyUtils anyUtils,
+            final StringBuilder query,
+            final PlainAttrValue attrValue,
+            final PlainSchema schema,
+            final AttributeCond cond,
+            final boolean not,
+            final List<Object> parameters) {
+
+        Pair<Boolean, String> field = field(schema, cond.getType());
 
         if (!not && cond.getType() == AttributeCond.Type.EQ) {
             PlainAttr<?> container = anyUtils.newPlainAttr();
@@ -119,11 +173,11 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
         } else {
             query.append("attrs ->> 'schema' = ?").append(setParameter(parameters, cond.getSchema())).
                     append(" AND ").
-                    append(lower ? "LOWER(" : "").
+                    append(field.getLeft() ? "LOWER(" : "").
                     append(schema.isUniqueConstraint()
                             ? "attrs -> 'uniqueValue'" : "attrValues").
-                    append(" ->> '").append(key).append("'").
-                    append(lower ? ")" : "");
+                    append(" ->> '").append(field.getRight()).append("'").
+                    append(field.getLeft() ? ")" : "");
 
             switch (cond.getType()) {
                 case LIKE:
@@ -175,9 +229,18 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                     query.append('=');
             }
 
-            query.append(lower ? "LOWER(" : "").
-                    append("?").append(setParameter(parameters, cond.getExpression())).
-                    append(lower ? ")" : "");
+            String value = cond.getExpression();
+            if (schema.getType() == AttrSchemaType.Date) {
+                try {
+                    value = String.valueOf(DATE_FORMAT.parse(value).getTime());
+                } catch (ParseException e) {
+                    LOG.error("Could not parse {} as date", value, e);
+                }
+            }
+
+            query.append(field.getLeft() ? "LOWER(" : "").
+                    append("?").append(setParameter(parameters, value)).
+                    append(field.getLeft() ? ")" : "");
         }
     }
 

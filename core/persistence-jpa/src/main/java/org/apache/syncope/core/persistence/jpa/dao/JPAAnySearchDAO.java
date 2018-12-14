@@ -245,10 +245,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final OrderBySupport obs,
             final StringBuilder where) {
 
-        Set<String> attrs = new HashSet<>(involvedPlainAttrs);
-        for (OrderBySupport.Item item : obs.items) {
-            attrs.add(item.orderBy.substring(0, item.orderBy.indexOf(" ")));
-        }
+        Set<String> attrs = obs.items.stream().
+                map(item -> item.orderBy.substring(0, item.orderBy.indexOf(" "))).collect(Collectors.toSet());
 
         obs.views.forEach(searchView -> {
             where.append(',');
@@ -261,10 +259,11 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 if (svs.nonMandatorySchemas || obs.nonMandatorySchemas) {
                     attrs.forEach(field -> {
                         if (attrWhere.length() == 0) {
-                            attrWhere.append(" WHERE schema_id='").append(field).append("'");
+                            attrWhere.append(" WHERE ");
                         } else {
-                            attrWhere.append(" OR ").append("schema_id='").append(field).append("'");
+                            attrWhere.append(" OR ");
                         }
+                        attrWhere.append("schema_id='").append(field).append("'");
 
                         nullAttrWhere.append(" UNION SELECT any_id, ").
                                 append("'").

@@ -22,6 +22,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 
 public class SearchSupport {
 
@@ -101,6 +104,27 @@ public class SearchSupport {
         }
 
         return result;
+    }
+
+    public SearchView table() {
+        String result;
+
+        switch (anyTypeKind) {
+            case ANY_OBJECT:
+                result = JPAAnyObject.TABLE;
+                break;
+
+            case GROUP:
+                result = JPAGroup.TABLE;
+                break;
+
+            case USER:
+            default:
+                result = JPAUser.TABLE;
+                break;
+        }
+
+        return new SearchView("t", result);
     }
 
     public SearchView field() {

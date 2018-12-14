@@ -295,7 +295,7 @@ public class SearchITCase extends AbstractITCase {
         PagedResult<UserTO> issueSYNCOPE1416 = userService.search(new AnyQuery.Builder().
                 realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().
-                        is("loginDate").lexicalNotBefore("2009-05-26").
+                        is("loginDate").lexicalNotBefore("2009-05-26T00:00:00+0300").
                         and("username").equalTo("rossini").query()).
                 orderBy(SyncopeClient.getOrderByClauseBuilder().asc("loginDate").build()).
                 build());
@@ -440,9 +440,10 @@ public class SearchITCase extends AbstractITCase {
     @Test
     public void orderBy() {
         PagedResult<UserTO> matchingUsers = userService.search(
-                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                        fiql(SyncopeClient.getUserSearchConditionBuilder().is("userId").equalTo("*@apache.org").query()).
-                        orderBy(SyncopeClient.getOrderByClauseBuilder().asc("status").desc("firstname").build()).build());
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).fiql(
+                        SyncopeClient.getUserSearchConditionBuilder().is("userId").equalTo("*@apache.org").query()).
+                        orderBy(SyncopeClient.getOrderByClauseBuilder().asc("status").desc("firstname").build()).
+                        build());
         assertNotNull(matchingUsers);
 
         assertFalse(matchingUsers.getResult().isEmpty());
