@@ -194,6 +194,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
             // 6. Prepare the result (avoiding duplicates)
             return buildResult(query.getResultList(), kind);
+        } catch (SyncopeClientException e) {
+            throw e;
         } catch (Exception e) {
             LOG.error("While searching for {}", kind, e);
         }
@@ -324,12 +326,27 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         OrderBySupport obs = new OrderBySupport();
 
+        Set<String> orderByUniquePlainSchemas = new HashSet<>();
+        Set<String> orderByNonUniquePlainSchemas = new HashSet<>();
         orderBy.forEach(clause -> {
             OrderBySupport.Item item = new OrderBySupport.Item();
 
             if (anyUtils.getField(clause.getField()) == null) {
                 PlainSchema schema = schemaDAO.find(clause.getField());
                 if (schema != null) {
+                    if (schema.isUniqueConstraint()) {
+                        orderByUniquePlainSchemas.add(schema.getKey());
+                    } else {
+                        orderByNonUniquePlainSchemas.add(schema.getKey());
+                    }
+                    if (orderByUniquePlainSchemas.size() > 1 || orderByNonUniquePlainSchemas.size() > 1) {
+                        SyncopeClientException invalidSearch =
+                                SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+                        invalidSearch.getElements().add("Order by more than one attribute is not allowed; "
+                                + "remove one from " + (orderByUniquePlainSchemas.size() > 1
+                                ? orderByUniquePlainSchemas : orderByNonUniquePlainSchemas));
+                        throw invalidSearch;
+                    }
                     parseOrderByForPlainSchema(svs, obs, item, clause, schema, clause.getField());
                 }
             } else {
