@@ -30,8 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.OIDCConstants;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
 import org.apache.syncope.common.rest.api.service.OIDCClientService;
 import org.slf4j.Logger;
@@ -66,7 +66,7 @@ public class CodeConsumer extends HttpServlet {
                         authorizationCode,
                         request.getSession().getAttribute(OIDCConstants.OP).toString());
                 if (responseTO.isSelfReg()) {
-                    responseTO.getAttrs().add(new AttrTO.Builder("username").values(responseTO.getUsername()).build());
+                    responseTO.getAttrs().add(new Attr.Builder("username").values(responseTO.getUsername()).build());
                     request.getSession(true).
                             setAttribute(Constants.OIDCCLIENT_USER_ATTRS, MAPPER.writeValueAsString(responseTO.
                                     getAttrs()));

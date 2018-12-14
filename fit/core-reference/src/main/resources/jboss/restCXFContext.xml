@@ -105,7 +105,7 @@ under the License.
     <property name="usePathParamsToCompareOperations" value="false"/>
     <property name="javaDocPaths">
       <list>
-        <value>/WEB-INF/lib/syncope-common-rest-api-${syncope.version}-javadoc.jar</value>
+        <value>/WEB-INF/lib/syncope-common-idm-rest-api-${syncope.version}-javadoc.jar</value>
         <value>/WEB-INF/lib/syncope-ext-camel-rest-api-${syncope.version}-javadoc.jar</value>
         <value>/WEB-INF/lib/syncope-ext-saml2sp-rest-api-${syncope.version}-javadoc.jar</value>
       </list>
@@ -126,7 +126,7 @@ under the License.
     <property name="replaceTags" value="false"/>
     <property name="javaDocPaths">
       <list>
-        <value>/WEB-INF/lib/syncope-common-rest-api-${syncope.version}-javadoc.jar</value>
+        <value>/WEB-INF/lib/syncope-common-idm-rest-api-${syncope.version}-javadoc.jar</value>
         <value>/WEB-INF/lib/syncope-ext-camel-rest-api-${syncope.version}-javadoc.jar</value>
         <value>/WEB-INF/lib/syncope-ext-saml2sp-rest-api-${syncope.version}-javadoc.jar</value>
       </list>

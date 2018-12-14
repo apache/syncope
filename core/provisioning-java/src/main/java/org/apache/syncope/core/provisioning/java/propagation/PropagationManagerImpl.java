@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -138,7 +138,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final String key,
             final Boolean enable,
             final PropagationByResource propByRes,
-            final Collection<AttrTO> vAttrs,
+            final Collection<Attr> vAttrs,
             final Collection<String> noPropResourceKeys) {
 
         return getCreateTasks(dao(kind).authFind(key), null, enable, propByRes, vAttrs, noPropResourceKeys);
@@ -150,7 +150,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final String password,
             final Boolean enable,
             final PropagationByResource propByRes,
-            final Collection<AttrTO> vAttrs,
+            final Collection<Attr> vAttrs,
             final Collection<String> noPropResourceKeys) {
 
         return getCreateTasks(userDAO.authFind(key), password, enable, propByRes, vAttrs, noPropResourceKeys);
@@ -161,7 +161,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final String password,
             final Boolean enable,
             final PropagationByResource propByRes,
-            final Collection<AttrTO> vAttrs,
+            final Collection<Attr> vAttrs,
             final Collection<String> noPropResourceKeys) {
 
         if (propByRes == null || propByRes.isEmpty()) {
@@ -182,7 +182,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final boolean changePwd,
             final Boolean enable,
             final PropagationByResource propByRes,
-            final Collection<AttrTO> vAttrs,
+            final Collection<Attr> vAttrs,
             final Collection<String> noPropResourceKeys) {
 
         return getUpdateTasks(dao(kind).authFind(key), null, changePwd, enable, propByRes, vAttrs, noPropResourceKeys);
@@ -255,7 +255,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final boolean changePwd,
             final Boolean enable,
             final PropagationByResource propByRes,
-            final Collection<AttrTO> vAttrs,
+            final Collection<Attr> vAttrs,
             final Collection<String> noPropResourceKeys) {
 
         if (noPropResourceKeys != null && propByRes != null) {
@@ -319,7 +319,7 @@ public class PropagationManagerImpl implements PropagationManager {
     protected List<PropagationTaskInfo> createTasks(final Any<?> any,
             final String password, final boolean changePwd,
             final Boolean enable, final boolean deleteOnResource, final PropagationByResource propByRes,
-            final Collection<AttrTO> vAttrs) {
+            final Collection<Attr> vAttrs) {
 
         LOG.debug("Provisioning {}:\n{}", any, propByRes);
 

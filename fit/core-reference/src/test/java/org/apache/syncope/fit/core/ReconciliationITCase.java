@@ -28,7 +28,7 @@ import java.util.Date;
 import javax.sql.DataSource;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
@@ -88,7 +88,7 @@ public class ReconciliationITCase extends AbstractITCase {
         assertNotNull(status.getOnResource());
 
         // __ENABLE__ management depends on the actual connector...
-        AttrTO enable = status.getOnSyncope().getAttr(OperationalAttributes.ENABLE_NAME).orElse(null);
+        Attr enable = status.getOnSyncope().getAttr(OperationalAttributes.ENABLE_NAME).orElse(null);
         if (enable != null) {
             status.getOnSyncope().getAttrs().remove(enable);
         }

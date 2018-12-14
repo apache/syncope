@@ -77,8 +77,8 @@ under the License.
   </profiles>
 
   <modules>
-    <module>lib</module>
-    <module>rest-api</module>
+    <module>idrepo</module>
+    <module>idm</module>
   </modules>
 
 </project>

@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -46,7 +46,7 @@ public interface PropagationManager {
             String key,
             Boolean enable,
             PropagationByResource propByRes,
-            Collection<AttrTO> vAttrs,
+            Collection<Attr> vAttrs,
             Collection<String> noPropResourceKeys);
 
     /**
@@ -65,7 +65,7 @@ public interface PropagationManager {
             String password,
             Boolean enable,
             PropagationByResource propByRes,
-            Collection<AttrTO> vAttrs,
+            Collection<Attr> vAttrs,
             Collection<String> noPropResourceKeys);
 
     /**
@@ -86,7 +86,7 @@ public interface PropagationManager {
             boolean changePwd,
             Boolean enable,
             PropagationByResource propByRes,
-            Collection<AttrTO> vAttrs,
+            Collection<Attr> vAttrs,
             Collection<String> noPropResourceKeys);
 
     /**

@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public class ConfigurationRead extends AbstractConfigurationCommand {
 
     public void read() {
         if (input.parameterNumber() >= 1) {
-            final List<AttrTO> attrList = new ArrayList<>();
+            final List<Attr> attrList = new ArrayList<>();
             boolean failed = false;
             for (final String parameter : input.getParameters()) {
                 try {

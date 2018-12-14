@@ -80,10 +80,10 @@ public class ExceptionMapperITCase extends AbstractITCase {
         userTO1.setUsername(userId1);
         userTO1.setPassword("password123");
 
-        userTO1.getPlainAttrs().add(attrTO("userId", userId1));
-        userTO1.getPlainAttrs().add(attrTO("fullname", userId1));
-        userTO1.getPlainAttrs().add(attrTO("surname", userId1));
-        userTO1.getPlainAttrs().add(attrTO("unique" + schemaUID, "unique" + schemaUID));
+        userTO1.getPlainAttrs().add(attr("userId", userId1));
+        userTO1.getPlainAttrs().add(attr("fullname", userId1));
+        userTO1.getPlainAttrs().add(attr("surname", userId1));
+        userTO1.getPlainAttrs().add(attr("unique" + schemaUID, "unique" + schemaUID));
 
         createUser(userTO1);
 
@@ -95,10 +95,10 @@ public class ExceptionMapperITCase extends AbstractITCase {
         userTO2.setUsername(userId2);
         userTO2.setPassword("password123");
 
-        userTO2.getPlainAttrs().add(attrTO("userId", userId2));
-        userTO2.getPlainAttrs().add(attrTO("fullname", userId2));
-        userTO2.getPlainAttrs().add(attrTO("surname", userId2));
-        userTO2.getPlainAttrs().add(attrTO("unique" + schemaUID, "unique" + schemaUID));
+        userTO2.getPlainAttrs().add(attr("userId", userId2));
+        userTO2.getPlainAttrs().add(attr("fullname", userId2));
+        userTO2.getPlainAttrs().add(attr("surname", userId2));
+        userTO2.getPlainAttrs().add(attr("unique" + schemaUID, "unique" + schemaUID));
 
         try {
             createUser(userTO2);
@@ -141,9 +141,9 @@ public class ExceptionMapperITCase extends AbstractITCase {
         userCR.setUsername(userId);
         userCR.setPassword("password123");
 
-        userCR.getPlainAttrs().add(attrTO("userId", "issue654"));
-        userCR.getPlainAttrs().add(attrTO("fullname", userId));
-        userCR.getPlainAttrs().add(attrTO("surname", userId));
+        userCR.getPlainAttrs().add(attr("userId", "issue654"));
+        userCR.getPlainAttrs().add(attr("fullname", userId));
+        userCR.getPlainAttrs().add(attr("surname", userId));
 
         try {
             createUser(userCR);

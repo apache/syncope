@@ -30,7 +30,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accor
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -67,7 +67,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
 
             @Override
             public WebMarkupContainer getPanel(final String panelId) {
-                return new DerAttrs.DerSchemas(panelId, schemas, attrTOs);
+                return new DerAttrs.DerSchemas(panelId, schemas, attrs);
             }
         }), Model.of(0)).setOutputMarkupId(true));
 
@@ -104,23 +104,23 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
     }
 
     @Override
-    protected List<AttrTO> getAttrsFromTO() {
+    protected List<Attr> getAttrsFromTO() {
         return anyTO.getDerAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
     }
 
     @Override
-    protected List<AttrTO> getAttrsFromTO(final MembershipTO membershipTO) {
+    protected List<Attr> getAttrsFromTO(final MembershipTO membershipTO) {
         return membershipTO.getDerAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
     }
 
     @Override
     protected void setAttrs() {
-        List<AttrTO> attrs = new ArrayList<>();
+        List<Attr> attrs = new ArrayList<>();
 
-        Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(anyTO.getDerAttrs());
+        Map<String, Attr> attrMap = EntityTOUtils.buildAttrMap(anyTO.getDerAttrs());
 
         schemas.values().forEach(schema -> {
-            AttrTO attrTO = new AttrTO();
+            Attr attrTO = new Attr();
             attrTO.setSchema(schema.getKey());
             if (attrMap.containsKey(schema.getKey())) {
                 attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
@@ -135,9 +135,9 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
 
     @Override
     protected void setAttrs(final MembershipTO membershipTO) {
-        List<AttrTO> attrs = new ArrayList<>();
+        List<Attr> attrs = new ArrayList<>();
 
-        final Map<String, AttrTO> attrMap;
+        final Map<String, Attr> attrMap;
         if (GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).isPresent()) {
             attrMap = EntityTOUtils.buildAttrMap(GroupableRelatableTO.class.cast(anyTO)
                     .getMembership(membershipTO.getGroupKey()).get().getDerAttrs());
@@ -146,7 +146,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
         }
 
         membershipSchemas.get(membershipTO.getGroupKey()).values().forEach(schema -> {
-            AttrTO attrTO = new AttrTO();
+            Attr attrTO = new Attr();
             attrTO.setSchema(schema.getKey());
             if (attrMap.containsKey(schema.getKey())) {
                 attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
@@ -166,10 +166,10 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
         public DerSchemas(
                 final String id,
                 final Map<String, DerSchemaTO> schemas,
-                final IModel<List<AttrTO>> attrTOs) {
+                final IModel<List<Attr>> attrTOs) {
             super(id);
 
-            add(new ListView<AttrTO>("schemas", attrTOs) {
+            add(new ListView<Attr>("schemas", attrTOs) {
 
                 private static final long serialVersionUID = 9101744072914090143L;
 
@@ -180,8 +180,8 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
                 }
 
                 @Override
-                protected void populateItem(final ListItem<AttrTO> item) {
-                    AttrTO attrTO = item.getModelObject();
+                protected void populateItem(final ListItem<Attr> item) {
+                    Attr attrTO = item.getModelObject();
 
                     IModel<String> model;
                     List<String> values = attrTO.getValues();

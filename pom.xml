@@ -2148,8 +2148,8 @@ under the License.
         <artifactId>apache-rat-plugin</artifactId>
         <configuration>
           <excludes>
-            <exclude>nbactions.xml</exclude>
-            <exclude>nb-configuration.xml</exclude>
+            <exclude>**/nbactions.xml</exclude>
+            <exclude>**/nb-configuration.xml</exclude>
             <exclude>**/META-INF/cxf/**</exclude>
             <exclude>**/META-INF/services/**</exclude>
             <exclude>**/META-INF/MANIFEST.MF</exclude>            

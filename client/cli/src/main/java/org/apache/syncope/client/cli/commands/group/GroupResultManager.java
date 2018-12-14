@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.GroupTO;
 
 public class GroupResultManager extends CommonsResultManager {
@@ -59,13 +59,13 @@ public class GroupResultManager extends CommonsResultManager {
         });
     }
 
-    public void printAttributes(final Set<AttrTO> attributes) {
+    public void printAttributes(final Set<Attr> attributes) {
         attributes.forEach(attribute -> {
             printAttribute(attribute);
         });
     }
 
-    public void printAttribute(final AttrTO attribute) {
+    public void printAttribute(final Attr attribute) {
         final StringBuilder attributeMessageBuilder = new StringBuilder();
         attributeMessageBuilder.append("     - ")
                 .append(attribute.getSchema())

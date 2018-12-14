@@ -38,7 +38,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -60,13 +60,13 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public class ParametersDirectoryPanel
-        extends DirectoryPanel<AttrTO, AttrTO, ParametersDirectoryPanel.ParametersProvider, ConfRestClient> {
+        extends DirectoryPanel<Attr, Attr, ParametersDirectoryPanel.ParametersProvider, ConfRestClient> {
 
     private static final long serialVersionUID = 2765863608539154422L;
 
     private final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
-    private final BaseModal<AttrTO> modalDetails = new BaseModal<AttrTO>("modalDetails") {
+    private final BaseModal<Attr> modalDetails = new BaseModal<Attr>("modalDetails") {
 
         private static final long serialVersionUID = 389935548143327858L;
 
@@ -78,12 +78,12 @@ public class ParametersDirectoryPanel
     };
 
     public ParametersDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, new Builder<AttrTO, AttrTO, ConfRestClient>(new ConfRestClient(), pageRef) {
+        super(id, new Builder<Attr, Attr, ConfRestClient>(new ConfRestClient(), pageRef) {
 
             private static final long serialVersionUID = 8769126634538601689L;
 
             @Override
-            protected WizardMgtPanel<AttrTO> newInstance(final String id, final boolean wizardInModal) {
+            protected WizardMgtPanel<Attr> newInstance(final String id, final boolean wizardInModal) {
                 throw new UnsupportedOperationException();
             }
         });
@@ -104,12 +104,12 @@ public class ParametersDirectoryPanel
         modalDetails.size(Modal.Size.Medium);
         addInnerObject(modalDetails);
 
-        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AttrTO>(new AttrTO(), pageRef) {
+        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<Attr>(new Attr(), pageRef) {
 
             private static final long serialVersionUID = 1995192603527154740L;
 
             @Override
-            public WizardModalPanel<AttrTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
+            public WizardModalPanel<Attr> build(final String id, final int index, final AjaxWizard.Mode mode) {
                 return new ParametersCreateModalPanel(modal, newModelObject(), pageRef);
             }
         }, true);
@@ -119,7 +119,7 @@ public class ParametersDirectoryPanel
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.CONFIGURATION_SET);
     }
 
-    public ParametersDirectoryPanel(final String id, final Builder<AttrTO, AttrTO, ConfRestClient> builder) {
+    public ParametersDirectoryPanel(final String id, final Builder<Attr, Attr, ConfRestClient> builder) {
         super(id, builder);
     }
 
@@ -139,18 +139,18 @@ public class ParametersDirectoryPanel
     }
 
     @Override
-    protected List<IColumn<AttrTO, String>> getColumns() {
-        final List<IColumn<AttrTO, String>> columns = new ArrayList<>();
+    protected List<IColumn<Attr, String>> getColumns() {
+        final List<IColumn<Attr, String>> columns = new ArrayList<>();
         columns.add(new PropertyColumn<>(new ResourceModel("schema"), "schema"));
-        columns.add(new PropertyColumn<AttrTO, String>(new ResourceModel("values"), "values") {
+        columns.add(new PropertyColumn<Attr, String>(new ResourceModel("values"), "values") {
 
             private static final long serialVersionUID = -1822504503325964706L;
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<AttrTO>> item,
+                    final Item<ICellPopulator<Attr>> item,
                     final String componentId,
-                    final IModel<AttrTO> rowModel) {
+                    final IModel<Attr> rowModel) {
 
                 PlainSchemaTO schema = null;
                 try {
@@ -171,15 +171,15 @@ public class ParametersDirectoryPanel
     }
 
     @Override
-    public ActionsPanel<AttrTO> getActions(final IModel<AttrTO> model) {
-        final ActionsPanel<AttrTO> panel = super.getActions(model);
+    public ActionsPanel<Attr> getActions(final IModel<Attr> model) {
+        final ActionsPanel<Attr> panel = super.getActions(model);
 
-        panel.add(new ActionLink<AttrTO>() {
+        panel.add(new ActionLink<Attr>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final AttrTO ignore) {
+            public void onClick(final AjaxRequestTarget target, final Attr ignore) {
                 target.add(modalDetails);
                 modalDetails.addSubmitButton();
                 modalDetails.header(new StringResourceModel("any.edit"));
@@ -188,12 +188,12 @@ public class ParametersDirectoryPanel
             }
         }, ActionLink.ActionType.EDIT, StandardEntitlement.CONFIGURATION_SET);
 
-        panel.add(new ActionLink<AttrTO>() {
+        panel.add(new ActionLink<Attr>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final AttrTO ignore) {
+            public void onClick(final AjaxRequestTarget target, final Attr ignore) {
                 try {
                     restClient.delete(model.getObject().getSchema());
                     schemaRestClient.deletePlainSchema(model.getObject().getSchema());
@@ -211,11 +211,11 @@ public class ParametersDirectoryPanel
         return panel;
     }
 
-    protected final class ParametersProvider extends DirectoryDataProvider<AttrTO> {
+    protected final class ParametersProvider extends DirectoryDataProvider<Attr> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
-        private final SortableDataProviderComparator<AttrTO> comparator;
+        private final SortableDataProviderComparator<Attr> comparator;
 
         private ParametersProvider(final int paginatorRows) {
             super(paginatorRows);
@@ -224,8 +224,8 @@ public class ParametersDirectoryPanel
         }
 
         @Override
-        public Iterator<AttrTO> iterator(final long first, final long count) {
-            final List<AttrTO> list = restClient.list();
+        public Iterator<Attr> iterator(final long first, final long count) {
+            final List<Attr> list = restClient.list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
@@ -236,7 +236,7 @@ public class ParametersDirectoryPanel
         }
 
         @Override
-        public IModel<AttrTO> model(final AttrTO object) {
+        public IModel<Attr> model(final Attr object) {
             return new CompoundPropertyModel<>(object);
         }
     }

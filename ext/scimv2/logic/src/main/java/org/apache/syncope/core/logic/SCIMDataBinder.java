@@ -27,13 +27,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.scim.SCIMComplexConf;
 import org.apache.syncope.common.lib.scim.SCIMConf;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -85,7 +85,7 @@ public class SCIMDataBinder {
     private AuthDataAccessor authDataAccessor;
 
     private <E extends Enum<?>> void fill(
-            final Map<String, AttrTO> attrs,
+            final Map<String, Attr> attrs,
             final List<SCIMComplexConf<E>> confs,
             final List<SCIMComplexValue> values) {
 
@@ -158,11 +158,11 @@ public class SCIMDataBinder {
                 output(attributes, excludedAttributes, "userName", userTO.getUsername()),
                 !userTO.isSuspended());
 
-        Map<String, AttrTO> attrs = new HashMap<>();
+        Map<String, Attr> attrs = new HashMap<>();
         attrs.putAll(EntityTOUtils.buildAttrMap(userTO.getPlainAttrs()));
         attrs.putAll(EntityTOUtils.buildAttrMap(userTO.getDerAttrs()));
         attrs.putAll(EntityTOUtils.buildAttrMap(userTO.getVirAttrs()));
-        attrs.put("username", new AttrTO.Builder("username").value(userTO.getUsername()).build());
+        attrs.put("username", new Attr.Builder("username").value(userTO.getUsername()).build());
 
         if (conf.getUserConf() != null) {
             if (output(attributes, excludedAttributes, "name") && conf.getUserConf().getName() != null) {
@@ -360,7 +360,7 @@ public class SCIMDataBinder {
                                     StringUtils.substringBefore(location, "/Users") + "/Users/" + userManager.getKey());
 
                             if (conf.getEnterpriseUserConf().getManager().getDisplayName() != null) {
-                                AttrTO displayName = userManager.getPlainAttr(
+                                Attr displayName = userManager.getPlainAttr(
                                         conf.getEnterpriseUserConf().getManager().getDisplayName()).orElse(null);
                                 if (displayName == null) {
                                     displayName = userManager.getDerAttr(
@@ -424,7 +424,7 @@ public class SCIMDataBinder {
     }
 
     private <E extends Enum<?>> void fill(
-            final Set<AttrTO> attrs,
+            final Set<Attr> attrs,
             final List<SCIMComplexConf<E>> confs,
             final List<SCIMComplexValue> values) {
 
@@ -433,7 +433,7 @@ public class SCIMDataBinder {
                 confs.stream().
                         filter(object -> value.getType().equals(object.getType().name())).findFirst().
                         ifPresent(conf -> attrs.add(
-                        new AttrTO.Builder(conf.getValue()).value(value.getValue()).build()));
+                        new Attr.Builder(conf.getValue()).value(value.getValue()).build()));
             }
         });
     }
@@ -621,7 +621,7 @@ public class SCIMDataBinder {
                 break;
 
             default:
-                userTO.getPlainAttrs().add(new AttrTO.Builder(schema).value(value).build());
+                userTO.getPlainAttrs().add(new Attr.Builder(schema).value(value).build());
         }
     }
 

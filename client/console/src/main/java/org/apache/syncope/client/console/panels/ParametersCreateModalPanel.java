@@ -20,18 +20,18 @@ package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.wicket.PageReference;
 
-public class ParametersCreateModalPanel extends AbstractModalPanel<AttrTO> {
+public class ParametersCreateModalPanel extends AbstractModalPanel<Attr> {
 
     private static final long serialVersionUID = 4024126489500665435L;
 
-    private final AttrTO attrTO;
+    private final Attr attrTO;
 
     public ParametersCreateModalPanel(
-            final BaseModal<AttrTO> modal,
-            final AttrTO attrTO,
+            final BaseModal<Attr> modal,
+            final Attr attrTO,
             final PageReference pageRef) {
         super(modal, pageRef);
         this.attrTO = attrTO;
@@ -40,7 +40,7 @@ public class ParametersCreateModalPanel extends AbstractModalPanel<AttrTO> {
     }
 
     @Override
-    public final AttrTO getItem() {
+    public final Attr getItem() {
         return this.attrTO;
     }
 }

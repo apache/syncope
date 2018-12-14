@@ -39,8 +39,8 @@ under the License.
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.syncope.common</groupId>
-      <artifactId>syncope-common-lib</artifactId>
+      <groupId>org.apache.syncope.common.idrepo</groupId>
+      <artifactId>syncope-common-idrepo-lib</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>

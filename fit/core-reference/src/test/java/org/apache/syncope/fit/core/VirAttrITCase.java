@@ -40,7 +40,7 @@ import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ItemTO;
@@ -77,7 +77,7 @@ public class VirAttrITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE16() {
         UserCR userCR = UserITCase.getUniqueSample("issue16@apache.org");
-        userCR.getVirAttrs().add(attrTO("virtualdata", "virtualvalue"));
+        userCR.getVirAttrs().add(attr("virtualdata", "virtualvalue"));
         userCR.getResources().add(RESOURCE_NAME_DBVIRATTR);
         userCR.getMemberships().add(new MembershipTO.Builder("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
 
@@ -92,7 +92,7 @@ public class VirAttrITCase extends AbstractITCase {
 
         UserUR userUR = new UserUR();
         userUR.setKey(userTO.getKey());
-        userUR.getVirAttrs().add(attrTO("virtualdata", "virtualupdated"));
+        userUR.getVirAttrs().add(attr("virtualdata", "virtualupdated"));
 
         // 3. update virtual attribute
         userTO = updateUser(userUR).getEntity();
@@ -131,7 +131,7 @@ public class VirAttrITCase extends AbstractITCase {
         // ----------------------------------
         UserCR userCR = UserITCase.getUniqueSample("260@a.com");
         userCR.getAuxClasses().add(newClass.getKey());
-        userCR.getVirAttrs().add(attrTO(virSchema.getKey(), "virtualvalue"));
+        userCR.getVirAttrs().add(attr(virSchema.getKey(), "virtualvalue"));
         userCR.getResources().add(RESOURCE_NAME_WS2);
 
         ProvisioningResult<UserTO> result = createUser(userCR);
@@ -151,7 +151,7 @@ public class VirAttrITCase extends AbstractITCase {
         // ----------------------------------
         UserUR userUR = new UserUR();
         userUR.setKey(userTO.getKey());
-        userUR.getVirAttrs().add(attrTO(virSchema.getKey(), "virtualvalue2"));
+        userUR.getVirAttrs().add(attr(virSchema.getKey(), "virtualvalue2"));
 
         result = updateUser(userUR);
         assertNotNull(result);
@@ -213,10 +213,10 @@ public class VirAttrITCase extends AbstractITCase {
         UserCR userCR = UserITCase.getUniqueSample("virattrcache@apache.org");
         userCR.getVirAttrs().clear();
 
-        AttrTO virAttrTO = new AttrTO();
-        virAttrTO.setSchema("virtualdata");
-        virAttrTO.getValues().add("virattrcache");
-        userCR.getVirAttrs().add(virAttrTO);
+        Attr virAttr = new Attr();
+        virAttr.setSchema("virtualdata");
+        virAttr.getValues().add("virattrcache");
+        userCR.getVirAttrs().add(virAttr);
 
         userCR.getMemberships().clear();
         userCR.getResources().clear();
@@ -248,7 +248,7 @@ public class VirAttrITCase extends AbstractITCase {
 
         UserUR userUR = new UserUR();
         userUR.setKey(actual.getKey());
-        userUR.getVirAttrs().add(attrTO("virtualdata", "virtualupdated"));
+        userUR.getVirAttrs().add(attr("virtualdata", "virtualupdated"));
 
         // 5. update virtual attribute
         actual = updateUser(userUR).getEntity();
@@ -305,7 +305,7 @@ public class VirAttrITCase extends AbstractITCase {
             userCR.getMemberships().clear();
 
             userCR.getVirAttrs().clear();
-            userCR.getVirAttrs().add(attrTO(virSchema.getKey(), "test@testone.org"));
+            userCR.getVirAttrs().add(attr(virSchema.getKey(), "test@testone.org"));
             // assign resource-csv to user
             userCR.getResources().add(RESOURCE_NAME_CSV);
             // save user
@@ -324,7 +324,7 @@ public class VirAttrITCase extends AbstractITCase {
             userUR.getResources().add(new StringPatchItem.Builder().
                     operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS2).build());
             // modify virtual attribute
-            userUR.getVirAttrs().add(attrTO(virSchema.getKey(), "test@testoneone.com"));
+            userUR.getVirAttrs().add(attr(virSchema.getKey(), "test@testoneone.com"));
 
             // check Syncope change password
             userUR.setPassword(new PasswordPatch.Builder().
@@ -351,10 +351,10 @@ public class VirAttrITCase extends AbstractITCase {
         UserCR userCR = UserITCase.getUniqueSample("syncope442@apache.org");
         userCR.getVirAttrs().clear();
 
-        AttrTO virAttrTO = new AttrTO();
-        virAttrTO.setSchema("virtualdata");
-        virAttrTO.getValues().add("virattrcache");
-        userCR.getVirAttrs().add(virAttrTO);
+        Attr virAttr = new Attr();
+        virAttr.setSchema("virtualdata");
+        virAttr.getValues().add("virattrcache");
+        userCR.getVirAttrs().add(virAttr);
 
         userCR.getMemberships().clear();
         userCR.getResources().clear();
@@ -438,7 +438,7 @@ public class VirAttrITCase extends AbstractITCase {
         userCR.getMemberships().clear();
         userCR.getResources().clear();
         userCR.getResources().add(RESOURCE_NAME_LDAP);
-        userCR.getVirAttrs().add(attrTO("virtualReadOnly", "readOnly"));
+        userCR.getVirAttrs().add(attr("virtualReadOnly", "readOnly"));
         UserTO userTO = createUser(userCR).getEntity();
         // finding no values because the virtual attribute is readonly 
         assertTrue(userTO.getVirAttr("virtualReadOnly").get().getValues().isEmpty());
@@ -523,7 +523,7 @@ public class VirAttrITCase extends AbstractITCase {
             GroupCR groupCR = new GroupCR();
             groupCR.setName(groupName);
             groupCR.setRealm("/");
-            groupCR.getVirAttrs().add(attrTO(rvirtualdata.getKey(), "ml@group.it"));
+            groupCR.getVirAttrs().add(attr(rvirtualdata.getKey(), "ml@group.it"));
             groupCR.getResources().add(RESOURCE_NAME_LDAP);
             GroupTO groupTO = createGroup(groupCR).getEntity();
             groupKey = groupTO.getKey();
@@ -535,7 +535,7 @@ public class VirAttrITCase extends AbstractITCase {
             // Create new user
             // -------------------------------------------
             UserCR userCR = UserITCase.getUniqueSample("syn453@syncope.apache.org");
-            userCR.getPlainAttrs().add(attrTO("fullname", "123"));
+            userCR.getPlainAttrs().add(attr("fullname", "123"));
             userCR.getResources().clear();
             userCR.getResources().add(resourceName);
             userCR.getVirAttrs().clear();
@@ -596,7 +596,7 @@ public class VirAttrITCase extends AbstractITCase {
         userCR.getResources().add(RESOURCE_NAME_DBVIRATTR);
 
         // virtualdata is mapped with username
-        userCR.getVirAttrs().add(attrTO("virtualdata", "syncope501@apache.org"));
+        userCR.getVirAttrs().add(attr("virtualdata", "syncope501@apache.org"));
 
         UserTO userTO = createUser(userCR).getEntity();
 
@@ -607,7 +607,7 @@ public class VirAttrITCase extends AbstractITCase {
         UserUR userUR = new UserUR();
         userUR.setKey(userTO.getKey());
         // change virtual attribute value
-        userUR.getVirAttrs().add(attrTO("virtualdata", "syncope501_updated@apache.org"));
+        userUR.getVirAttrs().add(attr("virtualdata", "syncope501_updated@apache.org"));
 
         userTO = updateUser(userUR).getEntity();
         assertNotNull(userTO);
@@ -660,7 +660,7 @@ public class VirAttrITCase extends AbstractITCase {
             userCR.getMemberships().clear();
             userCR.getVirAttrs().clear();
 
-            AttrTO emailTO = new AttrTO();
+            Attr emailTO = new Attr();
             emailTO.setSchema(virSchema.getKey());
             emailTO.getValues().add("test@issue691.dom1.org");
             emailTO.getValues().add("test@issue691.dom2.org");
@@ -682,11 +682,10 @@ public class VirAttrITCase extends AbstractITCase {
             UserUR userUR = new UserUR();
             userUR.setKey(userTO.getKey());
             // modify virtual attribute
-            userUR.getVirAttrs().add(
-                    new AttrTO.Builder(virSchema.getKey()).
-                            value("test@issue691.dom3.org").
-                            value("test@issue691.dom4.org").
-                            build());
+            userUR.getVirAttrs().add(new Attr.Builder(virSchema.getKey()).
+                    value("test@issue691.dom3.org").
+                    value("test@issue691.dom4.org").
+                    build());
 
             UserTO updated = updateUser(userUR).getEntity();
             assertNotNull(updated);

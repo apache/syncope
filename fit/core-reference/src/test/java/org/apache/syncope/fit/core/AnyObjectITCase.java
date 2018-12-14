@@ -34,7 +34,7 @@ import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.RelationshipTO;
@@ -49,7 +49,7 @@ public class AnyObjectITCase extends AbstractITCase {
 
     public static AnyObjectCR getSample(final String location) {
         return new AnyObjectCR.Builder(SyncopeConstants.ROOT_REALM, "PRINTER", location + getUUIDString()).
-                plainAttr(attrTO("location", location + getUUIDString())).
+                plainAttr(attr("location", location + getUUIDString())).
                 resource(RESOURCE_NAME_DBSCRIPTED).
                 build();
     }
@@ -157,10 +157,10 @@ public class AnyObjectITCase extends AbstractITCase {
         AnyObjectTO anyObjectTO = createAnyObject(anyObjectCR).getEntity();
         assertNotNull(anyObjectTO);
 
-        Set<AttrTO> attrs = anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN);
+        Set<Attr> attrs = anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN);
         assertEquals(anyObjectTO.getPlainAttrs(), attrs);
 
-        AttrTO location = anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
+        Attr location = anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
         assertEquals(anyObjectTO.getPlainAttr("location").get(), location);
     }
 
@@ -170,10 +170,10 @@ public class AnyObjectITCase extends AbstractITCase {
         AnyObjectTO anyObjectTO = createAnyObject(anyObjectCR).getEntity();
         assertNotNull(anyObjectTO);
 
-        AttrTO updated = attrTO("location", "newlocation");
+        Attr updated = attr("location", "newlocation");
         anyObjectService.update(anyObjectTO.getKey(), SchemaType.PLAIN, updated);
 
-        AttrTO location = anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
+        Attr location = anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
         assertEquals(updated, location);
     }
 

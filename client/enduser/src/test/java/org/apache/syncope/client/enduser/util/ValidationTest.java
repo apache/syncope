@@ -29,25 +29,25 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.client.enduser.model.CustomTemplateInfo;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 
 public class ValidationTest {
 
-    private AttrTO attrTO(final String schemaKey, final String... values) {
-        return new AttrTO.Builder(schemaKey).values(values).build();
+    private Attr attrTO(final String schemaKey, final String... values) {
+        return new Attr.Builder(schemaKey).values(values).build();
     }
 
     @Test
     public void testCompliant() throws IOException {
         UserTO userTO = new UserTO();
         // plain
-        AttrTO firstname = attrTO("firstname", "defaultFirstname");
-        AttrTO surname = attrTO("surname", "surnameValue");
-        AttrTO additionalCtype = attrTO("additional#ctype", "ctypeValue");
-        AttrTO notAllowed = attrTO("not_allowed", "notAllowedValue");
+        Attr firstname = attrTO("firstname", "defaultFirstname");
+        Attr surname = attrTO("surname", "surnameValue");
+        Attr additionalCtype = attrTO("additional#ctype", "ctypeValue");
+        Attr notAllowed = attrTO("not_allowed", "notAllowedValue");
         userTO.getPlainAttrs().addAll(Arrays.asList(firstname, surname, notAllowed, additionalCtype));
 
         Map<String, CustomAttributesInfo> customFormAttributes = new ObjectMapper().readValue(new ClassPathResource(
@@ -73,7 +73,7 @@ public class ValidationTest {
         userTO.getPlainAttr("firstname").get().getValues().remove("notAllowedFirstnameValue");
 
         // virtual
-        AttrTO virtualdata = attrTO("virtualdata", "defaultVirtualData");
+        Attr virtualdata = attrTO("virtualdata", "defaultVirtualData");
         userTO.getVirAttrs().add(virtualdata);
         assertTrue(Validation.isCompliant(userTO, customFormAttributes, true));
 

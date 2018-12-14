@@ -20,22 +20,22 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
 
 public class ConfRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 7692363064029538722L;
 
-    public AttrTO get(final String key) {
+    public Attr get(final String key) {
         return getService(ConfigurationService.class).get(key);
     }
     
-    public List<AttrTO> list() {
+    public List<Attr> list() {
         return getService(ConfigurationService.class).list();
     }
 
-    public void set(final AttrTO attrTO) {
+    public void set(final Attr attrTO) {
         getService(ConfigurationService.class).set(attrTO);
     }
 

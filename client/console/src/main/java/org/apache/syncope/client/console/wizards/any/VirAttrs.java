@@ -34,7 +34,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
@@ -78,7 +78,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
             @Override
             public WebMarkupContainer getPanel(final String panelId) {
-                return new VirAttrs.VirSchemas(panelId, schemas, attrTOs);
+                return new VirAttrs.VirSchemas(panelId, schemas, attrs);
             }
         }), Model.of(0)).setOutputMarkupId(true));
 
@@ -113,23 +113,23 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
     }
 
     @Override
-    protected List<AttrTO> getAttrsFromTO() {
+    protected List<Attr> getAttrsFromTO() {
         return anyTO.getVirAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
     }
 
     @Override
-    protected List<AttrTO> getAttrsFromTO(final MembershipTO membershipTO) {
+    protected List<Attr> getAttrsFromTO(final MembershipTO membershipTO) {
         return membershipTO.getVirAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
     }
 
     @Override
     protected void setAttrs() {
-        List<AttrTO> attrs = new ArrayList<>();
+        List<Attr> attrs = new ArrayList<>();
 
-        Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(anyTO.getVirAttrs());
+        Map<String, Attr> attrMap = EntityTOUtils.buildAttrMap(anyTO.getVirAttrs());
 
         attrs.addAll(schemas.values().stream().map(schema -> {
-            AttrTO attrTO = new AttrTO();
+            Attr attrTO = new Attr();
             attrTO.setSchema(schema.getKey());
             if (attrMap.containsKey(schema.getKey())) {
                 attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
@@ -145,9 +145,9 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
     @Override
     protected void setAttrs(final MembershipTO membershipTO) {
-        List<AttrTO> attrs = new ArrayList<>();
+        List<Attr> attrs = new ArrayList<>();
 
-        final Map<String, AttrTO> attrMap;
+        final Map<String, Attr> attrMap;
         if (GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).isPresent()) {
             attrMap = EntityTOUtils.buildAttrMap(GroupableRelatableTO.class.cast(anyTO)
                     .getMembership(membershipTO.getGroupKey()).get().getVirAttrs());
@@ -156,7 +156,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
         }
 
         attrs.addAll(membershipSchemas.get(membershipTO.getGroupKey()).values().stream().map(schema -> {
-            AttrTO attrTO = new AttrTO();
+            Attr attrTO = new Attr();
             attrTO.setSchema(schema.getKey());
             if (attrMap.containsKey(schema.getKey())) {
                 attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
@@ -177,17 +177,17 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
         public VirSchemas(
                 final String id,
                 final Map<String, VirSchemaTO> schemas,
-                final IModel<List<AttrTO>> attrTOs) {
+                final IModel<List<Attr>> attrTOs) {
             super(id);
 
-            add(new ListView<AttrTO>("schemas", attrTOs) {
+            add(new ListView<Attr>("schemas", attrTOs) {
 
                 private static final long serialVersionUID = 9101744072914090143L;
 
                 @Override
                 @SuppressWarnings("unchecked")
-                protected void populateItem(final ListItem<AttrTO> item) {
-                    AttrTO attrTO = item.getModelObject();
+                protected void populateItem(final ListItem<Attr> item) {
+                    Attr attrTO = item.getModelObject();
                     VirSchemaTO virSchemaTO = schemas.get(attrTO.getSchema());
 
                     AbstractFieldPanel<?> panel = new AjaxTextFieldPanel(

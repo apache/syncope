@@ -23,8 +23,8 @@ import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.cli.Input;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,12 +43,12 @@ public class ConfigurationUpdate extends AbstractConfigurationCommand {
 
     public void update() {
         if (input.parameterNumber() >= 1) {
-            List<AttrTO> attrList = new ArrayList<>();
+            List<Attr> attrList = new ArrayList<>();
             boolean failed = false;
             for (String parameter : input.getParameters()) {
                 Pair<String, String> pairParameter = Input.toPairParameter(parameter);
                 try {
-                    AttrTO attrTO = configurationSyncopeOperations.get(pairParameter.getKey());
+                    Attr attrTO = configurationSyncopeOperations.get(pairParameter.getKey());
                     attrTO.getValues().clear();
                     attrTO.getValues().add(pairParameter.getValue());
                     configurationSyncopeOperations.set(attrTO);

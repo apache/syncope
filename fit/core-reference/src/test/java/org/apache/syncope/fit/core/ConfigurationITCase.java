@@ -35,7 +35,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -53,11 +53,11 @@ public class ConfigurationITCase extends AbstractITCase {
         testKey.setType(AttrSchemaType.String);
         createSchema(SchemaType.PLAIN, testKey);
 
-        AttrTO conf = new AttrTO.Builder(testKey.getKey()).value("testValue").build();
+        Attr conf = new Attr.Builder(testKey.getKey()).value("testValue").build();
 
         configurationService.set(conf);
 
-        AttrTO actual = configurationService.get(conf.getSchema());
+        Attr actual = configurationService.get(conf.getSchema());
         assertEquals(actual, conf);
     }
 
@@ -69,7 +69,7 @@ public class ConfigurationITCase extends AbstractITCase {
         testKey.setMandatoryCondition("true");
         createSchema(SchemaType.PLAIN, testKey);
 
-        AttrTO conf = new AttrTO.Builder(testKey.getKey()).build();
+        Attr conf = new Attr.Builder(testKey.getKey()).build();
         try {
             configurationService.set(conf);
             fail("This should not happen");
@@ -80,7 +80,7 @@ public class ConfigurationITCase extends AbstractITCase {
         conf.getValues().add("testValue");
         configurationService.set(conf);
 
-        AttrTO actual = configurationService.get(conf.getSchema());
+        Attr actual = configurationService.get(conf.getSchema());
         assertEquals(actual, conf);
     }
 
@@ -93,11 +93,11 @@ public class ConfigurationITCase extends AbstractITCase {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
 
-        AttrTO tokenLength = configurationService.get("token.length");
+        Attr tokenLength = configurationService.get("token.length");
 
         configurationService.delete("token.length");
 
-        AttrTO actual = configurationService.get(tokenLength.getSchema());
+        Attr actual = configurationService.get(tokenLength.getSchema());
         assertNotEquals(actual, tokenLength);
 
         configurationService.set(tokenLength);
@@ -108,29 +108,29 @@ public class ConfigurationITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        List<AttrTO> wholeConf = configurationService.list();
+        List<Attr> wholeConf = configurationService.list();
         assertNotNull(wholeConf);
-        for (AttrTO conf : wholeConf) {
+        for (Attr conf : wholeConf) {
             assertNotNull(conf);
         }
     }
 
     @Test
     public void read() {
-        AttrTO conf = configurationService.get("token.expireTime");
+        Attr conf = configurationService.get("token.expireTime");
         assertNotNull(conf);
     }
 
     @Test
     public void update() {
-        AttrTO expireTime = configurationService.get("token.expireTime");
+        Attr expireTime = configurationService.get("token.expireTime");
         int value = Integer.parseInt(expireTime.getValues().get(0));
         value++;
         expireTime.getValues().set(0, value + "");
 
         configurationService.set(expireTime);
 
-        AttrTO newConfigurationTO = configurationService.get(expireTime.getSchema());
+        Attr newConfigurationTO = configurationService.get(expireTime.getSchema());
         assertEquals(expireTime, newConfigurationTO);
     }
 

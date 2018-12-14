@@ -31,7 +31,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.EncryptedFieldP
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -58,7 +58,7 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
         add(content);
 
         schema = new AjaxTextFieldPanel(
-                "schema", getString("schema"), new PropertyModel<>(modelObject.getAttrTO(), "schema"));
+                "schema", getString("schema"), new PropertyModel<>(modelObject.getAttr(), "schema"));
         schema.setRequired(true);
         content.add(schema);
 
@@ -80,7 +80,7 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
 
             @Override
             protected void populateItem(final ListItem<PlainSchemaTO> item) {
-                final Panel panel = getFieldPanel("panel", modelObject.getAttrTO(), item.getModelObject());
+                final Panel panel = getFieldPanel("panel", modelObject.getAttr(), item.getModelObject());
                 item.add(panel);
             }
         };
@@ -89,7 +89,7 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private Panel getFieldPanel(final String id, final AttrTO attrTO, final PlainSchemaTO plainSchemaTO) {
+    private Panel getFieldPanel(final String id, final Attr attrTO, final PlainSchemaTO plainSchemaTO) {
         final String valueHeaderName = getString("values");
 
         final FieldPanel panel;

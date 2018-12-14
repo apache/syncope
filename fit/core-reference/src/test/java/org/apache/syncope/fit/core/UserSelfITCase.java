@@ -311,7 +311,7 @@ public class UserSelfITCase extends AbstractITCase {
     @Test
     public void passwordReset() {
         // 0. ensure that password request DOES require security question
-        configurationService.set(attrTO("passwordReset.securityQuestion", "true"));
+        configurationService.set(attr("passwordReset.securityQuestion", "true"));
 
         // 1. create an user with security question and answer
         UserCR user = UserITCase.getUniqueSample("pwdReset@syncope.apache.org");
@@ -378,7 +378,7 @@ public class UserSelfITCase extends AbstractITCase {
     @Test
     public void passwordResetWithoutSecurityQuestion() {
         // 0. disable security question for password reset
-        configurationService.set(attrTO("passwordReset.securityQuestion", "false"));
+        configurationService.set(attr("passwordReset.securityQuestion", "false"));
 
         // 1. create an user with security question and answer
         UserCR user = UserITCase.getUniqueSample("pwdResetNoSecurityQuestion@syncope.apache.org");
@@ -414,7 +414,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertNull(read.getToken());
 
         // 7. re-enable security question for password reset
-        configurationService.set(attrTO("passwordReset.securityQuestion", "true"));
+        configurationService.set(attr("passwordReset.securityQuestion", "true"));
     }
 
     @Test

@@ -28,7 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.request.GroupCR;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -91,9 +91,9 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
     @Test
     public void notifyByMailWithRetry() throws Exception {
         // 1. Set higher number of retries
-        AttrTO origMaxRetries = configurationService.get("notification.maxRetries");
+        Attr origMaxRetries = configurationService.get("notification.maxRetries");
 
-        configurationService.set(attrTO(origMaxRetries.getSchema(), "10"));
+        configurationService.set(attr(origMaxRetries.getSchema(), "10"));
 
         // 2. Stop mail server to force errors while sending out e-mails
         stopGreenMail();

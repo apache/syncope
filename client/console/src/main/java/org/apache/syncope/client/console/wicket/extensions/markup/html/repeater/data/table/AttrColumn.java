@@ -27,9 +27,9 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.syncope.common.lib.to.AttributableTO;
+import org.apache.syncope.common.lib.Attributable;
 
-public class AttrColumn<T extends AttributableTO> extends AbstractColumn<T, String> {
+public class AttrColumn<T extends Attributable> extends AbstractColumn<T, String> {
 
     private static final long serialVersionUID = 2624734332447371372L;
 

@@ -17,22 +17,41 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
-import org.apache.syncope.common.lib.request.AnyUR
-import org.apache.syncope.common.lib.request.AttrPatch
-import org.apache.syncope.common.lib.to.AnyTO
-import org.apache.syncope.common.lib.to.AttrTO
+import org.apache.syncope.common.lib.request.AnyCR;
+import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.core.provisioning.api.LogicActions
 
 @CompileStatic
 class MyLogicActions implements LogicActions {
   
   @Override
-  <A extends AnyTO> A beforeCreate(final A input) {
+  <C extends AnyCR> C beforeCreate(C input) {
     return input;
   }
 
   @Override
-  <R extends AnyUR> R beforeUpdate(final R input) {
+  <A extends AnyTO> A afterCreate(A input) {
+    return input;
+  }
+
+  @Override
+  <U extends AnyUR> U beforeUpdate(U input) {
+    return input;
+  }
+
+  @Override
+  <A extends AnyTO> A afterUpdate(A input) {
+    return input;
+  }
+
+  @Override
+  <A extends AnyTO> A beforeDelete(A input) {
+    return input;
+  }
+
+  @Override
+  <A extends AnyTO> A afterDelete(A input) {
     return input;
   }
 }

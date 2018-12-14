@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
 
@@ -56,7 +56,7 @@ public class AssertionConsumer extends AbstractSAML2SPServlet {
                             request.getInputStream()));
 
             if (responseTO.isSelfReg()) {
-                responseTO.getAttrs().add(new AttrTO.Builder("username").values(responseTO.getUsername()).build());
+                responseTO.getAttrs().add(new Attr.Builder("username").values(responseTO.getUsername()).build());
                 request.getSession(true).
                         setAttribute(Constants.SAML2SP_USER_ATTRS, MAPPER.writeValueAsString(responseTO.getAttrs()));
 

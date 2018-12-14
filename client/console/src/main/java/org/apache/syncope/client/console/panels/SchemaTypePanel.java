@@ -44,7 +44,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.SchemaTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
@@ -230,7 +230,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
             if (SchemaType.PLAIN == this.schemaType) {
                 List<String> configurations = confRestClient.list().stream().
-                        map(AttrTO::getSchema).collect(Collectors.toList());
+                        map(Attr::getSchema).collect(Collectors.toList());
 
                 schemas.removeIf(schema -> configurations.contains(schema.getKey()));
             }

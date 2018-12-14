@@ -48,9 +48,9 @@ under the License.
 
   <dependencyManagement>
     <dependencies>
-      <dependency>  
-        <groupId>org.apache.syncope.common</groupId>
-        <artifactId>syncope-common-lib</artifactId>
+      <dependency>
+        <groupId>org.apache.syncope.common.idm</groupId>
+        <artifactId>syncope-common-idm-lib</artifactId>
         <version>${syncope.version}</version>
       </dependency>
       

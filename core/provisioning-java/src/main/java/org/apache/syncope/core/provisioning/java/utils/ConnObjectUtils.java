@@ -31,7 +31,7 @@ import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -130,7 +130,7 @@ public class ConnObjectUtils {
 
         if (attrs != null) {
             connObjectTO.getAttrs().addAll(attrs.stream().map(attr -> {
-                AttrTO attrTO = new AttrTO();
+                Attr attrTO = new Attr();
                 attrTO.setSchema(attr.getName());
                 if (attr.getValue() != null) {
                     attr.getValue().stream().filter(value -> value != null).forEachOrdered(value -> {

@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.client.cli.view.Table;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 
@@ -80,8 +80,8 @@ public class UserResultManager extends CommonsResultManager {
         });
     }
 
-    private void printAttributes(final Set<AttrTO> derAttrTOs) {
-        derAttrTOs.forEach(attrTO -> {
+    private void printAttributes(final Set<Attr> derAttrs) {
+        derAttrs.forEach(attrTO -> {
             final StringBuilder attributeSentence = new StringBuilder();
             attributeSentence.append("       ")
                     .append(attrTO.getSchema())

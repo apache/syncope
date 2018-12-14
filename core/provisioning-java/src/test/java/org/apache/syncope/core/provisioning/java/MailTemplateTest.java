@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
@@ -99,9 +99,9 @@ public class MailTemplateTest extends AbstractTest {
         String username = "test" + UUID.randomUUID().toString();
         UserTO user = new UserTO();
         user.setUsername(username);
-        user.getPlainAttrs().add(new AttrTO.Builder("firstname").value("John").build());
-        user.getPlainAttrs().add(new AttrTO.Builder("surname").value("Doe").build());
-        user.getPlainAttrs().add(new AttrTO.Builder("email").value("john.doe@syncope.apache.org").build());
+        user.getPlainAttrs().add(new Attr.Builder("firstname").value("John").build());
+        user.getPlainAttrs().add(new Attr.Builder("surname").value("Doe").build());
+        user.getPlainAttrs().add(new Attr.Builder("email").value("john.doe@syncope.apache.org").build());
         user.getMemberships().add(new MembershipTO.Builder(UUID.randomUUID().toString()).groupName("a group").build());
         ctx.put("user", user);
 

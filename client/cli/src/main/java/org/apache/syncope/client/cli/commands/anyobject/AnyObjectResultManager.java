@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.AttrTO;
 
 public class AnyObjectResultManager extends CommonsResultManager {
 
@@ -55,14 +55,14 @@ public class AnyObjectResultManager extends CommonsResultManager {
         }
     }
 
-    public void printAttributes(final Set<AttrTO> attributes) {
-        for (final AttrTO attribute : attributes) {
+    public void printAttributes(final Set<Attr> attributes) {
+        for (final Attr attribute : attributes) {
             printAttribute(attribute);
         }
         System.out.println("");
     }
 
-    public void printAttribute(final AttrTO attribute) {
+    public void printAttribute(final Attr attribute) {
         final StringBuilder attributeMessageBuilder = new StringBuilder();
         attributeMessageBuilder.append("     - ")
                 .append(attribute.getSchema())

@@ -24,41 +24,41 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 
-public class ParametersEditModalPanel extends AbstractModalPanel<AttrTO> {
+public class ParametersEditModalPanel extends AbstractModalPanel<Attr> {
 
     private static final long serialVersionUID = 4024126489500665435L;
 
-    private final AttrTO attrTO;
+    private final Attr attr;
 
     private final ConfRestClient restClient = new ConfRestClient();
 
     public ParametersEditModalPanel(
-            final BaseModal<AttrTO> modal,
-            final AttrTO attrTO,
+            final BaseModal<Attr> modal,
+            final Attr attr,
             final PageReference pageRef) {
 
         super(modal, pageRef);
-        this.attrTO = attrTO;
+        this.attr = attr;
         add(new ParametersDetailsPanel("parametersDetailsPanel", getItem()));
     }
 
     @Override
-    public final AttrTO getItem() {
-        return this.attrTO;
+    public final Attr getItem() {
+        return this.attr;
     }
 
     @Override
     public void onSubmit(final AjaxRequestTarget target) {
         try {
-            restClient.set(attrTO);
+            restClient.set(attr);
             modal.close(target);
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
         } catch (Exception e) {
-            LOG.error("While creating or updating AttrTO", e);
+            LOG.error("While creating or updating conf prarameter", e);
             SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                     ? e.getClass().getName()
                     : e.getMessage());

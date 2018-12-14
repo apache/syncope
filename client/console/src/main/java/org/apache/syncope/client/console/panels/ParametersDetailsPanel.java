@@ -33,7 +33,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.EncryptedFieldP
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -53,7 +53,7 @@ public class ParametersDetailsPanel extends Panel {
 
     private final AjaxTextFieldPanel schema;
 
-    public ParametersDetailsPanel(final String id, final AttrTO attrTO) {
+    public ParametersDetailsPanel(final String id, final Attr attrTO) {
         super(id);
 
         final WebMarkupContainer container = new WebMarkupContainer("container");
@@ -61,7 +61,7 @@ public class ParametersDetailsPanel extends Panel {
         container.setOutputMarkupId(true);
         add(container);
 
-        final Form<AttrTO> form = new Form<>("parametersForm");
+        final Form<Attr> form = new Form<>("parametersForm");
         form.setMarkupId("parametersForm");
         form.setOutputMarkupId(true);
 
@@ -77,7 +77,7 @@ public class ParametersDetailsPanel extends Panel {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private Panel getFieldPanel(final String id, final AttrTO attrTO) {
+    private Panel getFieldPanel(final String id, final Attr attrTO) {
         final String valueHeaderName = getString("values");
 
         final PlainSchemaTO schemaTO = schemaRestClient.read(SchemaType.PLAIN, attrTO.getSchema());

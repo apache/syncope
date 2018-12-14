@@ -442,7 +442,7 @@ public class AuthenticationITCase extends AbstractITCase {
         folder.setName("home");
         folder.setRealm(SyncopeConstants.ROOT_REALM);
         folder.setType(anyTypeKey);
-        folder.getPlainAttrs().add(attrTO(path.getKey(), "/home"));
+        folder.getPlainAttrs().add(attr(path.getKey(), "/home"));
 
         SyncopeClient belliniClient = clientFactory.create("bellini", ADMIN_PWD);
         try {

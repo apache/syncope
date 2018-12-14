@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
@@ -88,8 +88,8 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             header = ((AnyObjectTO) ((AnyWrapper) modelObject).getInnerObject()).getName();
         } else if (modelObject instanceof ReportTO) {
             header = ((ReportTO) modelObject).getName();
-        } else if (modelObject instanceof AttrTO) {
-            header = ((AttrTO) modelObject).getSchema();
+        } else if (modelObject instanceof Attr) {
+            header = ((Attr) modelObject).getSchema();
         } else if (modelObject instanceof PolicyTO) {
             header = ((PolicyTO) modelObject).getDescription();
         } else if (modelObject instanceof SecurityQuestionTO) {

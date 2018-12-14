@@ -151,10 +151,10 @@ public class CamelRouteITCase extends AbstractITCase {
             String userId = getUUIDString() + "camelUser@syncope.apache.org";
             userCR.setUsername(userId);
             userCR.setPassword("password123");
-            userCR.getPlainAttrs().add(attrTO("userId", userId));
-            userCR.getPlainAttrs().add(attrTO("fullname", userId));
-            userCR.getPlainAttrs().add(attrTO("surname", userId));
-            userCR.getPlainAttrs().add(attrTO("camelAttribute", "false"));
+            userCR.getPlainAttrs().add(attr("userId", userId));
+            userCR.getPlainAttrs().add(attr("fullname", userId));
+            userCR.getPlainAttrs().add(attr("surname", userId));
+            userCR.getPlainAttrs().add(attr("camelAttribute", "false"));
 
             UserTO userTO = createUser(userCR).getEntity();
             assertNotNull(userTO);

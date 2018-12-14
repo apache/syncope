@@ -187,7 +187,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         UserUR userUR = new UserUR();
         userUR.setKey(userTO.getKey());
         // validation OK - application/pdf -> application/pdf
-        userUR.getPlainAttrs().add(new AttrPatch.Builder(attrTO("BinaryPDF",
+        userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("BinaryPDF",
                 Base64.getEncoder().encodeToString(
                         IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.pdf"))))).
                 operation(PatchOperation.ADD_REPLACE).
@@ -200,7 +200,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         userUR.setKey(userTO.getKey());
         // validation KO - text/html -> application/pdf
         try {
-            userUR.getPlainAttrs().add(new AttrPatch.Builder(attrTO("BinaryPDF",
+            userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("BinaryPDF",
                     Base64.getEncoder().encodeToString(
                             IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.html"))))).
                     operation(PatchOperation.ADD_REPLACE).
@@ -215,7 +215,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         userUR = new UserUR();
         userUR.setKey(userTO.getKey());
         // validation ok - application/json -> application/json
-        userUR.getPlainAttrs().add(new AttrPatch.Builder(attrTO("BinaryJSON",
+        userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("BinaryJSON",
                 Base64.getEncoder().encodeToString(
                         IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.json"))))).
                 operation(PatchOperation.ADD_REPLACE).
@@ -227,7 +227,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         userUR = new UserUR();
         userUR.setKey(userTO.getKey());
         // no validation - application/xml -> application/json
-        userUR.getPlainAttrs().add(new AttrPatch.Builder(attrTO("BinaryJSON2",
+        userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("BinaryJSON2",
                 Base64.getEncoder().encodeToString(
                         IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.xml"))))).
                 operation(PatchOperation.ADD_REPLACE).
@@ -318,7 +318,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         UserCR userCR = UserITCase.getUniqueSample("issue258@syncope.apache.org");
         userCR.getAuxClasses().add(typeClass.getKey());
-        userCR.getPlainAttrs().add(attrTO(schemaTO.getKey(), "1.2"));
+        userCR.getPlainAttrs().add(attr(schemaTO.getKey(), "1.2"));
 
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
@@ -347,7 +347,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         UserCR userCR = UserITCase.getUniqueSample("issue259@syncope.apache.org");
         userCR.getAuxClasses().add(typeClass.getKey());
-        userCR.getPlainAttrs().add(attrTO(schemaTO.getKey(), "1"));
+        userCR.getPlainAttrs().add(attr(schemaTO.getKey(), "1"));
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
 
@@ -373,7 +373,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         UserCR userCR = UserITCase.getUniqueSample("issue260@syncope.apache.org");
         userCR.getAuxClasses().add(typeClass.getKey());
-        userCR.getPlainAttrs().add(attrTO(schemaTO.getKey(), "1.2"));
+        userCR.getPlainAttrs().add(attr(schemaTO.getKey(), "1.2"));
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
 

@@ -27,7 +27,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
@@ -63,16 +63,15 @@ public class ConnObjectPanel extends Panel {
 
             @Override
             protected List<String> load() {
-                List<AttrTO> right = new ArrayList<>(connObjectTOs == null || connObjectTOs.getRight() == null
-                        ? Collections.<AttrTO>emptyList()
+                List<Attr> right = new ArrayList<>(connObjectTOs == null || connObjectTOs.getRight() == null
+                        ? Collections.<Attr>emptyList()
                         : connObjectTOs.getRight().getAttrs());
-                List<AttrTO> left = new ArrayList<>(connObjectTOs == null || connObjectTOs.getLeft() == null
-                        ? Collections.<AttrTO>emptyList()
+                List<Attr> left = new ArrayList<>(connObjectTOs == null || connObjectTOs.getLeft() == null
+                        ? Collections.<Attr>emptyList()
                         : connObjectTOs.getLeft().getAttrs());
 
-                List<String> schemas = ListUtils.sum(
-                        right.stream().map(AttrTO::getSchema).collect(Collectors.toList()),
-                        left.stream().map(AttrTO::getSchema).collect(Collectors.toList()));
+                List<String> schemas = ListUtils.sum(right.stream().map(Attr::getSchema).collect(Collectors.toList()),
+                        left.stream().map(Attr::getSchema).collect(Collectors.toList()));
                 Collections.sort(schemas);
                 return schemas;
             }
@@ -81,10 +80,10 @@ public class ConnObjectPanel extends Panel {
         add(new Label("leftTitle", titles.getLeft()).setOutputMarkupPlaceholderTag(true).setVisible(!hideLeft));
         add(new Label("rightTitle", titles.getRight()));
 
-        final Map<String, AttrTO> leftProfile = connObjectTOs == null || connObjectTOs.getLeft() == null
+        final Map<String, Attr> leftProfile = connObjectTOs == null || connObjectTOs.getLeft() == null
                 ? null
                 : EntityTOUtils.buildAttrMap(connObjectTOs.getLeft().getAttrs());
-        final Map<String, AttrTO> rightProfile = connObjectTOs == null || connObjectTOs.getRight() == null
+        final Map<String, Attr> rightProfile = connObjectTOs == null || connObjectTOs.getRight() == null
                 ? null
                 : EntityTOUtils.buildAttrMap(connObjectTOs.getRight().getAttrs());
         ListView<String> propView = new ListView<String>("propView", formProps) {
@@ -96,8 +95,8 @@ public class ConnObjectPanel extends Panel {
                 final String prop = item.getModelObject();
 
                 final Fragment valueFragment;
-                final AttrTO left = leftProfile == null ? null : leftProfile.get(prop);
-                final AttrTO right = rightProfile == null ? null : rightProfile.get(prop);
+                final Attr left = leftProfile == null ? null : leftProfile.get(prop);
+                final Attr right = rightProfile == null ? null : rightProfile.get(prop);
 
                 valueFragment = new Fragment("value", "doubleValue", ConnObjectPanel.this);
                 valueFragment.add(getValuePanel("leftAttribute", prop, left).
@@ -139,7 +138,7 @@ public class ConnObjectPanel extends Panel {
      * @param attrTO remote attribute.
      * @return fragment.
      */
-    private Panel getValuePanel(final String id, final String schemaName, final AttrTO attrTO) {
+    private Panel getValuePanel(final String id, final String schemaName, final Attr attrTO) {
         Panel field;
         if (attrTO == null) {
             field = new AjaxTextFieldPanel(id, schemaName, new Model<>());

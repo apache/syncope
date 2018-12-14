@@ -44,8 +44,8 @@ import org.apache.cxf.rs.security.oidc.common.IdToken;
 import org.apache.cxf.rs.security.oidc.common.UserInfo;
 import org.apache.cxf.rs.security.oidc.rp.IdTokenReader;
 import org.apache.cxf.rs.security.oidc.rp.UserInfoClient;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.OIDCLoginRequestTO;
 import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
@@ -164,7 +164,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         // 3b. find matching user (if any) and return the received attributes
         String keyValue = userInfo.getEmail();
         for (OIDCProviderItem item : op.getItems()) {
-            AttrTO attrTO = new AttrTO();
+            Attr attrTO = new Attr();
             attrTO.setSchema(item.getExtAttrName());
             switch (item.getExtAttrName()) {
                 case UserInfo.PREFERRED_USERNAME_CLAIM:

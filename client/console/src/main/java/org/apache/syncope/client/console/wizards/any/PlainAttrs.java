@@ -47,7 +47,7 @@ import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -113,7 +113,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
             @Override
             public WebMarkupContainer getPanel(final String panelId) {
-                return new PlainSchemas(panelId, schemas, attrTOs);
+                return new PlainSchemas(panelId, schemas, attrs);
             }
         }), Model.of(0)).setOutputMarkupId(true));
 
@@ -155,23 +155,23 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
     }
 
     @Override
-    protected List<AttrTO> getAttrsFromTO() {
+    protected List<Attr> getAttrsFromTO() {
         return anyTO.getPlainAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
     }
 
     @Override
-    protected List<AttrTO> getAttrsFromTO(final MembershipTO membershipTO) {
+    protected List<Attr> getAttrsFromTO(final MembershipTO membershipTO) {
         return membershipTO.getPlainAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
     }
 
     @Override
     protected void setAttrs() {
-        List<AttrTO> attrs = new ArrayList<>();
+        List<Attr> attrs = new ArrayList<>();
 
-        Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(anyTO.getPlainAttrs());
+        Map<String, Attr> attrMap = EntityTOUtils.buildAttrMap(anyTO.getPlainAttrs());
 
         attrs.addAll(schemas.values().stream().map(schema -> {
-            AttrTO attrTO = new AttrTO();
+            Attr attrTO = new Attr();
             attrTO.setSchema(schema.getKey());
             if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
                 attrTO.getValues().add("");
@@ -187,9 +187,9 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     @Override
     protected void setAttrs(final MembershipTO membershipTO) {
-        List<AttrTO> attrs = new ArrayList<>();
+        List<Attr> attrs = new ArrayList<>();
 
-        final Map<String, AttrTO> attrMap;
+        final Map<String, Attr> attrMap;
         if (GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).isPresent()) {
             attrMap = EntityTOUtils.buildAttrMap(GroupableRelatableTO.class.cast(anyTO)
                     .getMembership(membershipTO.getGroupKey()).get().getPlainAttrs());
@@ -199,7 +199,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
         attrs.addAll(membershipSchemas.get(membershipTO.getGroupKey()).values().stream().
                 map(schema -> {
-                    AttrTO attrTO = new AttrTO();
+                    Attr attrTO = new Attr();
                     attrTO.setSchema(schema.getKey());
                     if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
                         attrTO.getValues().add(StringUtils.EMPTY);
@@ -384,17 +384,17 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
         public PlainSchemas(
                 final String id,
                 final Map<String, PlainSchemaTO> schemas,
-                final IModel<List<AttrTO>> attrTOs) {
+                final IModel<List<Attr>> attrTOs) {
             super(id);
 
-            add(new ListView<AttrTO>("schemas", attrTOs) {
+            add(new ListView<Attr>("schemas", attrTOs) {
 
                 private static final long serialVersionUID = 9101744072914090143L;
 
                 @Override
                 @SuppressWarnings({ "unchecked", "rawtypes" })
-                protected void populateItem(final ListItem<AttrTO> item) {
-                    AttrTO attrTO = item.getModelObject();
+                protected void populateItem(final ListItem<Attr> item) {
+                    Attr attrTO = item.getModelObject();
 
                     AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
                     if (mode == AjaxWizard.Mode.TEMPLATE
@@ -411,7 +411,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     }
                     item.add(panel);
 
-                    Optional<AttrTO> prevAttr = previousObject == null
+                    Optional<Attr> prevAttr = previousObject == null
                             ? Optional.empty()
                             : previousObject.getPlainAttr(attrTO.getSchema());
                     if (previousObject != null

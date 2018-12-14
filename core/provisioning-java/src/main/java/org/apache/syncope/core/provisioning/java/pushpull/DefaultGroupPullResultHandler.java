@@ -111,10 +111,10 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
 
         String groupOwner = null;
         for (AttrPatch attrPatch : groupUR.getPlainAttrs()) {
-            if (attrPatch.getOperation() == PatchOperation.ADD_REPLACE && attrPatch.getAttrTO() != null
-                    && attrPatch.getAttrTO().getSchema().isEmpty() && !attrPatch.getAttrTO().getValues().isEmpty()) {
+            if (attrPatch.getOperation() == PatchOperation.ADD_REPLACE && attrPatch.getAttr() != null
+                    && attrPatch.getAttr().getSchema().isEmpty() && !attrPatch.getAttr().getValues().isEmpty()) {
 
-                groupOwner = attrPatch.getAttrTO().getValues().get(0);
+                groupOwner = attrPatch.getAttr().getValues().get(0);
             }
         }
         if (groupOwner != null) {

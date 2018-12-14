@@ -341,7 +341,7 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
             modal.close(target);
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
         } catch (Exception e) {
-            LOG.error("While creating or updating AttrTO", e);
+            LOG.error("While creating or updating Implementation", e);
             SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                     ? e.getClass().getName()
                     : e.getMessage());

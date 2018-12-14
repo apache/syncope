@@ -22,23 +22,23 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.client.cli.view.Table;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 
 public class ConfigurationResultManager extends CommonsResultManager {
 
-    public void fromGet(final List<AttrTO> attrTOs) {
+    public void fromGet(final List<Attr> attrTOs) {
         fromCommandToView("syncope configuration", attrTOs);
     }
 
-    public void fromRead(final List<AttrTO> attrTOs) {
+    public void fromRead(final List<Attr> attrTOs) {
         fromCommandToView("selected conf attributes", attrTOs);
     }
 
-    public void fromUpdate(final List<AttrTO> attrTOs) {
+    public void fromUpdate(final List<Attr> attrTOs) {
         fromCommandToView("updated conf attributes", attrTOs);
     }
 
-    private void fromCommandToView(final String title, final List<AttrTO> attrTOs) {
+    private void fromCommandToView(final String title, final List<Attr> attrTOs) {
         final Table.TableBuilder tableBuilder = new Table.TableBuilder(title).header("attribute").header("value");
         attrTOs.forEach(attrTO -> {
             String attrValue = attrTO.getValues().toString();

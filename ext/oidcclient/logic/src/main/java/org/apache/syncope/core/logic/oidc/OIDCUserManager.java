@@ -27,11 +27,11 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -184,7 +184,7 @@ public class OIDCUserManager {
     public void fill(final OIDCProvider op, final OIDCLoginResponseTO responseTO, final UserTO userTO) {
         op.getItems().forEach(item -> {
             List<String> values = Collections.emptyList();
-            Optional<AttrTO> oidcAttr = responseTO.getAttr(item.getExtAttrName());
+            Optional<Attr> oidcAttr = responseTO.getAttr(item.getExtAttrName());
             if (oidcAttr.isPresent() && !oidcAttr.get().getValues().isEmpty()) {
                 values = oidcAttr.get().getValues();
 
@@ -221,11 +221,11 @@ public class OIDCUserManager {
             } else if (intAttrName != null && intAttrName.getSchemaType() != null) {
                 switch (intAttrName.getSchemaType()) {
                     case PLAIN:
-                        Optional<AttrTO> attr = userTO.getPlainAttr(intAttrName.getSchemaName());
+                        Optional<Attr> attr = userTO.getPlainAttr(intAttrName.getSchemaName());
                         if (attr.isPresent()) {
                             attr.get().getValues().clear();
                         } else {
-                            attr = Optional.of(new AttrTO.Builder(intAttrName.getSchemaName()).build());
+                            attr = Optional.of(new Attr.Builder(intAttrName.getSchemaName()).build());
                             userTO.getPlainAttrs().add(attr.get());
                         }
                         attr.get().getValues().addAll(values);

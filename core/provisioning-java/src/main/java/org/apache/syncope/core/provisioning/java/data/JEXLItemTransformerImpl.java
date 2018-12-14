@@ -89,9 +89,9 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
                 jexlContext.set("value", value);
                 if (entityTO instanceof AnyTO) {
                     JexlUtils.addFieldsToContext((AnyTO) entityTO, jexlContext);
-                    JexlUtils.addAttrTOsToContext(((AnyTO) entityTO).getPlainAttrs(), jexlContext);
-                    JexlUtils.addAttrTOsToContext(((AnyTO) entityTO).getDerAttrs(), jexlContext);
-                    JexlUtils.addAttrTOsToContext(((AnyTO) entityTO).getVirAttrs(), jexlContext);
+                    JexlUtils.addAttrsToContext(((AnyTO) entityTO).getPlainAttrs(), jexlContext);
+                    JexlUtils.addAttrsToContext(((AnyTO) entityTO).getDerAttrs(), jexlContext);
+                    JexlUtils.addAttrsToContext(((AnyTO) entityTO).getVirAttrs(), jexlContext);
                 } else if (entityTO instanceof RealmTO) {
                     JexlUtils.addFieldsToContext((RealmTO) entityTO, jexlContext);
                 }

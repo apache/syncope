@@ -28,8 +28,8 @@ import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.AttributableReqEntity;
+import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.RealmMember;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -53,8 +53,8 @@ public class TemplateUtils {
     @Autowired
     private GroupDAO groupDAO;
 
-    private AttrTO evaluateAttr(final AttrTO template, final MapContext jexlContext) {
-        AttrTO result = new AttrTO();
+    private Attr evaluateAttr(final Attr template, final MapContext jexlContext) {
+        Attr result = new Attr();
         result.setSchema(template.getSchema());
 
         if (template.getValues() != null && !template.getValues().isEmpty()) {
@@ -69,58 +69,58 @@ public class TemplateUtils {
         return result;
     }
 
-    private void fill(final AttributableReqEntity anyTO, final AttributableReqEntity template) {
+    private void fill(final RealmMember realmMember, final RealmMember template) {
         MapContext jexlContext = new MapContext();
-        JexlUtils.addFieldsToContext(anyTO, jexlContext);
-        JexlUtils.addAttrTOsToContext(anyTO.getPlainAttrs(), jexlContext);
-        JexlUtils.addAttrTOsToContext(anyTO.getDerAttrs(), jexlContext);
-        JexlUtils.addAttrTOsToContext(anyTO.getVirAttrs(), jexlContext);
+        JexlUtils.addFieldsToContext(realmMember, jexlContext);
+        JexlUtils.addAttrsToContext(realmMember.getPlainAttrs(), jexlContext);
+        JexlUtils.addAttrsToContext(realmMember.getDerAttrs(), jexlContext);
+        JexlUtils.addAttrsToContext(realmMember.getVirAttrs(), jexlContext);
 
         if (template.getRealm() != null) {
             String evaluated = JexlUtils.evaluate(template.getRealm(), jexlContext);
             if (StringUtils.isNotBlank(evaluated)) {
-                anyTO.setRealm(evaluated);
+                realmMember.setRealm(evaluated);
             }
         }
 
-        Map<String, AttrTO> currentAttrMap = EntityTOUtils.buildAttrMap(anyTO.getPlainAttrs());
-        for (AttrTO templatePlainAttr : template.getPlainAttrs()) {
+        Map<String, Attr> currentAttrMap = EntityTOUtils.buildAttrMap(realmMember.getPlainAttrs());
+        for (Attr templatePlainAttr : template.getPlainAttrs()) {
             if (!templatePlainAttr.getValues().isEmpty()
                     && (!currentAttrMap.containsKey(templatePlainAttr.getSchema())
                     || currentAttrMap.get(templatePlainAttr.getSchema()).getValues().isEmpty())) {
 
-                AttrTO evaluated = evaluateAttr(templatePlainAttr, jexlContext);
+                Attr evaluated = evaluateAttr(templatePlainAttr, jexlContext);
                 if (!evaluated.getValues().isEmpty()) {
-                    anyTO.getPlainAttrs().add(evaluated);
+                    realmMember.getPlainAttrs().add(evaluated);
                     jexlContext.set(evaluated.getSchema(), evaluated.getValues().get(0));
                 }
             }
         }
 
-        currentAttrMap = EntityTOUtils.buildAttrMap(anyTO.getDerAttrs());
-        for (AttrTO templateDerAttr : template.getDerAttrs()) {
+        currentAttrMap = EntityTOUtils.buildAttrMap(realmMember.getDerAttrs());
+        for (Attr templateDerAttr : template.getDerAttrs()) {
             if (!currentAttrMap.containsKey(templateDerAttr.getSchema())) {
-                anyTO.getDerAttrs().add(templateDerAttr);
+                realmMember.getDerAttrs().add(templateDerAttr);
             }
         }
 
-        currentAttrMap = EntityTOUtils.buildAttrMap(anyTO.getVirAttrs());
-        for (AttrTO templateVirAttr : template.getVirAttrs()) {
+        currentAttrMap = EntityTOUtils.buildAttrMap(realmMember.getVirAttrs());
+        for (Attr templateVirAttr : template.getVirAttrs()) {
             if (!templateVirAttr.getValues().isEmpty()
                     && (!currentAttrMap.containsKey(templateVirAttr.getSchema())
                     || currentAttrMap.get(templateVirAttr.getSchema()).getValues().isEmpty())) {
 
-                AttrTO evaluated = evaluateAttr(templateVirAttr, jexlContext);
+                Attr evaluated = evaluateAttr(templateVirAttr, jexlContext);
                 if (!evaluated.getValues().isEmpty()) {
-                    anyTO.getVirAttrs().add(evaluated);
+                    realmMember.getVirAttrs().add(evaluated);
                     jexlContext.set(evaluated.getSchema(), evaluated.getValues().get(0));
                 }
             }
         }
 
-        anyTO.getResources().addAll(template.getResources());
+        realmMember.getResources().addAll(template.getResources());
 
-        anyTO.getAuxClasses().addAll(template.getAuxClasses());
+        realmMember.getAuxClasses().addAll(template.getAuxClasses());
     }
 
     private void fillRelationships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
@@ -141,33 +141,33 @@ public class TemplateUtils {
     }
 
     @Transactional(readOnly = true)
-    public void apply(final AttributableReqEntity reqEntity, final Optional<? extends AnyTemplate> template) {
+    public void apply(final RealmMember realmMember, final Optional<? extends AnyTemplate> template) {
         if (template.isPresent()) {
-            apply(reqEntity, template.get().get());
+            apply(realmMember, template.get().get());
         }
     }
 
     @Transactional(readOnly = true)
-    public void apply(final AttributableReqEntity reqEntity, final AnyTO template) {
-        fill(reqEntity, template);
+    public void apply(final RealmMember realmMember, final AnyTO template) {
+        fill(realmMember, template);
 
         MapContext jexlContext = new MapContext();
-        JexlUtils.addFieldsToContext(reqEntity, jexlContext);
-        JexlUtils.addAttrTOsToContext(reqEntity.getPlainAttrs(), jexlContext);
-        JexlUtils.addAttrTOsToContext(reqEntity.getDerAttrs(), jexlContext);
-        JexlUtils.addAttrTOsToContext(reqEntity.getVirAttrs(), jexlContext);
+        JexlUtils.addFieldsToContext(realmMember, jexlContext);
+        JexlUtils.addAttrsToContext(realmMember.getPlainAttrs(), jexlContext);
+        JexlUtils.addAttrsToContext(realmMember.getDerAttrs(), jexlContext);
+        JexlUtils.addAttrsToContext(realmMember.getVirAttrs(), jexlContext);
 
         if (template instanceof AnyObjectTO) {
-            fillRelationships((GroupableRelatableTO) reqEntity, ((GroupableRelatableTO) template));
-            fillMemberships((GroupableRelatableTO) reqEntity, ((GroupableRelatableTO) template));
+            fillRelationships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
+            fillMemberships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
         } else if (template instanceof UserTO) {
             if (StringUtils.isNotBlank(((UserTO) template).getUsername())) {
                 String evaluated = JexlUtils.evaluate(((UserTO) template).getUsername(), jexlContext);
                 if (StringUtils.isNotBlank(evaluated)) {
-                    if (reqEntity instanceof UserTO) {
-                        ((UserTO) reqEntity).setUsername(evaluated);
-                    } else if (reqEntity instanceof UserCR) {
-                        ((UserCR) reqEntity).setUsername(evaluated);
+                    if (realmMember instanceof UserTO) {
+                        ((UserTO) realmMember).setUsername(evaluated);
+                    } else if (realmMember instanceof UserCR) {
+                        ((UserCR) realmMember).setUsername(evaluated);
                     }
                 }
             }
@@ -175,29 +175,29 @@ public class TemplateUtils {
             if (StringUtils.isNotBlank(((UserTO) template).getPassword())) {
                 String evaluated = JexlUtils.evaluate(((UserTO) template).getPassword(), jexlContext);
                 if (StringUtils.isNotBlank(evaluated)) {
-                    if (reqEntity instanceof UserTO) {
-                        ((UserTO) reqEntity).setPassword(evaluated);
-                    } else if (reqEntity instanceof UserCR) {
-                        ((UserCR) reqEntity).setPassword(evaluated);
+                    if (realmMember instanceof UserTO) {
+                        ((UserTO) realmMember).setPassword(evaluated);
+                    } else if (realmMember instanceof UserCR) {
+                        ((UserCR) realmMember).setPassword(evaluated);
                     }
                 }
             }
 
-            fillRelationships((GroupableRelatableTO) reqEntity, ((GroupableRelatableTO) template));
-            fillMemberships((GroupableRelatableTO) reqEntity, ((GroupableRelatableTO) template));
-            if (reqEntity instanceof UserTO) {
-                ((UserTO) reqEntity).getRoles().addAll(((UserTO) template).getRoles());
-            } else if (reqEntity instanceof UserCR) {
-                ((UserCR) reqEntity).getRoles().addAll(((UserTO) template).getRoles());
+            fillRelationships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
+            fillMemberships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
+            if (realmMember instanceof UserTO) {
+                ((UserTO) realmMember).getRoles().addAll(((UserTO) template).getRoles());
+            } else if (realmMember instanceof UserCR) {
+                ((UserCR) realmMember).getRoles().addAll(((UserTO) template).getRoles());
             }
         } else if (template instanceof GroupTO) {
             if (StringUtils.isNotBlank(((GroupTO) template).getName())) {
                 String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), jexlContext);
                 if (StringUtils.isNotBlank(evaluated)) {
-                    if (reqEntity instanceof GroupTO) {
-                        ((GroupTO) reqEntity).setName(evaluated);
-                    } else if (reqEntity instanceof GroupCR) {
-                        ((GroupCR) reqEntity).setName(evaluated);
+                    if (realmMember instanceof GroupTO) {
+                        ((GroupTO) realmMember).setName(evaluated);
+                    } else if (realmMember instanceof GroupCR) {
+                        ((GroupCR) realmMember).setName(evaluated);
                     }
                 }
             }
@@ -205,20 +205,20 @@ public class TemplateUtils {
             if (((GroupTO) template).getUserOwner() != null) {
                 final User userOwner = userDAO.find(((GroupTO) template).getUserOwner());
                 if (userOwner != null) {
-                    if (reqEntity instanceof GroupTO) {
-                        ((GroupTO) reqEntity).setUserOwner(userOwner.getKey());
-                    } else if (reqEntity instanceof GroupCR) {
-                        ((GroupCR) reqEntity).setUserOwner(userOwner.getKey());
+                    if (realmMember instanceof GroupTO) {
+                        ((GroupTO) realmMember).setUserOwner(userOwner.getKey());
+                    } else if (realmMember instanceof GroupCR) {
+                        ((GroupCR) realmMember).setUserOwner(userOwner.getKey());
                     }
                 }
             }
             if (((GroupTO) template).getGroupOwner() != null) {
                 final Group groupOwner = groupDAO.find(((GroupTO) template).getGroupOwner());
                 if (groupOwner != null) {
-                    if (reqEntity instanceof GroupTO) {
-                        ((GroupTO) reqEntity).setGroupOwner(groupOwner.getKey());
-                    } else if (reqEntity instanceof GroupCR) {
-                        ((GroupCR) reqEntity).setGroupOwner(groupOwner.getKey());
+                    if (realmMember instanceof GroupTO) {
+                        ((GroupTO) realmMember).setGroupOwner(groupOwner.getKey());
+                    } else if (realmMember instanceof GroupCR) {
+                        ((GroupCR) realmMember).setGroupOwner(groupOwner.getKey());
                     }
                 }
             }

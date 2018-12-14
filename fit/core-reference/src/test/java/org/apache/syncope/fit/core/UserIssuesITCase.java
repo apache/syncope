@@ -55,7 +55,7 @@ import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.UserCR;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -105,9 +105,9 @@ public class UserIssuesITCase extends AbstractITCase {
         userCR.setUsername(userId);
         userCR.setPassword("password123");
 
-        userCR.getPlainAttrs().add(attrTO("userId", userId));
-        userCR.getPlainAttrs().add(attrTO("fullname", userId));
-        userCR.getPlainAttrs().add(attrTO("surname", userId));
+        userCR.getPlainAttrs().add(attr("userId", userId));
+        userCR.getPlainAttrs().add(attr("fullname", userId));
+        userCR.getPlainAttrs().add(attr("surname", userId));
 
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
@@ -250,7 +250,7 @@ public class UserIssuesITCase extends AbstractITCase {
     @Test
     public void issue288() {
         UserCR userTO = UserITCase.getSample("issue288@syncope.apache.org");
-        userTO.getPlainAttrs().add(attrTO("aLong", "STRING"));
+        userTO.getPlainAttrs().add(attr("aLong", "STRING"));
 
         try {
             createUser(userTO);
@@ -365,12 +365,12 @@ public class UserIssuesITCase extends AbstractITCase {
 
     @Test()
     public void issueSYNCOPE51() {
-        AttrTO defaultCA = configurationService.get("password.cipher.algorithm");
+        Attr defaultCA = configurationService.get("password.cipher.algorithm");
         String originalCAValue = defaultCA.getValues().get(0);
         defaultCA.getValues().set(0, "MD5");
         configurationService.set(defaultCA);
 
-        AttrTO newCA = configurationService.get(defaultCA.getSchema());
+        Attr newCA = configurationService.get(defaultCA.getSchema());
         assertEquals(defaultCA, newCA);
 
         UserCR userCR = UserITCase.getSample("syncope51@syncope.apache.org");
@@ -387,7 +387,7 @@ public class UserIssuesITCase extends AbstractITCase {
         defaultCA.getValues().set(0, originalCAValue);
         configurationService.set(defaultCA);
 
-        AttrTO oldCA = configurationService.get(defaultCA.getSchema());
+        Attr oldCA = configurationService.get(defaultCA.getSchema());
         assertEquals(defaultCA, oldCA);
     }
 
@@ -397,7 +397,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // create user and check virtual attribute value propagation
         // ----------------------------------
         UserCR userCR = UserITCase.getUniqueSample("syncope267@apache.org");
-        userCR.getVirAttrs().add(attrTO("virtualdata", "virtualvalue"));
+        userCR.getVirAttrs().add(attr("virtualdata", "virtualvalue"));
         userCR.getResources().clear();
         userCR.getResources().add(RESOURCE_NAME_DBVIRATTR);
 
@@ -469,7 +469,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         ConnObjectTO userOnDb = resourceService.readConnObject(
                 RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey());
-        AttrTO pwdOnTestDbAttr = userOnDb.getAttr(OperationalAttributes.PASSWORD_NAME).get();
+        Attr pwdOnTestDbAttr = userOnDb.getAttr(OperationalAttributes.PASSWORD_NAME).get();
         assertNotNull(pwdOnTestDbAttr);
         assertNotNull(pwdOnTestDbAttr.getValues());
         assertFalse(pwdOnTestDbAttr.getValues().isEmpty());
@@ -477,7 +477,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         ConnObjectTO userOnDb2 = resourceService.readConnObject(
                 RESOURCE_NAME_TESTDB2, AnyTypeKind.USER.name(), userTO.getKey());
-        AttrTO pwdOnTestDb2Attr = userOnDb2.getAttr(OperationalAttributes.PASSWORD_NAME).get();
+        Attr pwdOnTestDb2Attr = userOnDb2.getAttr(OperationalAttributes.PASSWORD_NAME).get();
         assertNotNull(pwdOnTestDb2Attr);
         assertNotNull(pwdOnTestDb2Attr.getValues());
         assertFalse(pwdOnTestDb2Attr.getValues().isEmpty());
@@ -502,7 +502,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 3c. verify that password *has* changed on testdb
         userOnDb = resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey());
-        AttrTO pwdOnTestDbAttrAfter = userOnDb.getAttr(OperationalAttributes.PASSWORD_NAME).get();
+        Attr pwdOnTestDbAttrAfter = userOnDb.getAttr(OperationalAttributes.PASSWORD_NAME).get();
         assertNotNull(pwdOnTestDbAttrAfter);
         assertNotNull(pwdOnTestDbAttrAfter.getValues());
         assertFalse(pwdOnTestDbAttrAfter.getValues().isEmpty());
@@ -510,7 +510,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 3d. verify that password hasn't changed on testdb2
         userOnDb2 = resourceService.readConnObject(RESOURCE_NAME_TESTDB2, AnyTypeKind.USER.name(), userTO.getKey());
-        AttrTO pwdOnTestDb2AttrAfter = userOnDb2.getAttr(OperationalAttributes.PASSWORD_NAME).get();
+        Attr pwdOnTestDb2AttrAfter = userOnDb2.getAttr(OperationalAttributes.PASSWORD_NAME).get();
         assertNotNull(pwdOnTestDb2AttrAfter);
         assertNotNull(pwdOnTestDb2AttrAfter.getValues());
         assertFalse(pwdOnTestDb2AttrAfter.getValues().isEmpty());
@@ -520,7 +520,7 @@ public class UserIssuesITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE136AES() {
         // 1. read configured cipher algorithm in order to be able to restore it at the end of test
-        AttrTO pwdCipherAlgo = configurationService.get("password.cipher.algorithm");
+        Attr pwdCipherAlgo = configurationService.get("password.cipher.algorithm");
         String origpwdCipherAlgo = pwdCipherAlgo.getValues().get(0);
 
         // 2. set AES password cipher algorithm
@@ -691,8 +691,8 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 2. create user with membership of the above group
         UserCR userCR = UserITCase.getUniqueSample("syncope357@syncope.apache.org");
-        userCR.getPlainAttrs().add(attrTO("obscure", "valueToBeObscured"));
-        userCR.getPlainAttrs().add(attrTO("photo", Base64.getEncoder().encodeToString(
+        userCR.getPlainAttrs().add(attr("obscure", "valueToBeObscured"));
+        userCR.getPlainAttrs().add(attr("photo", Base64.getEncoder().encodeToString(
                 IOUtils.readBytesFromStream(getClass().getResourceAsStream("/favicon.jpg")))));
         userCR.getMemberships().add(new MembershipTO.Builder(groupTO.getKey()).build());
 
@@ -705,10 +705,10 @@ public class UserIssuesITCase extends AbstractITCase {
         ConnObjectTO connObj = resourceService.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObj);
-        AttrTO registeredAddress = connObj.getAttr("registeredAddress").get();
+        Attr registeredAddress = connObj.getAttr("registeredAddress").get();
         assertNotNull(registeredAddress);
         assertEquals(userTO.getPlainAttr("obscure").get().getValues(), registeredAddress.getValues());
-        Optional<AttrTO> jpegPhoto = connObj.getAttr("jpegPhoto");
+        Optional<Attr> jpegPhoto = connObj.getAttr("jpegPhoto");
         assertTrue(jpegPhoto.isPresent());
         assertEquals(userTO.getPlainAttr("photo").get().getValues().get(0), jpegPhoto.get().getValues().get(0));
 
@@ -767,9 +767,9 @@ public class UserIssuesITCase extends AbstractITCase {
         userCR.setUsername(userId);
         userCR.setPassword("password123");
 
-        userCR.getPlainAttrs().add(attrTO("userId", userId));
-        userCR.getPlainAttrs().add(attrTO("fullname", userId));
-        userCR.getPlainAttrs().add(attrTO("surname", userId));
+        userCR.getPlainAttrs().add(attr("userId", userId));
+        userCR.getPlainAttrs().add(attr("fullname", userId));
+        userCR.getPlainAttrs().add(attr("surname", userId));
 
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
@@ -820,7 +820,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         UserCR userCR = UserITCase.getUniqueSample("syncope420@syncope.apache.org");
         userCR.setRealm(realm.getFullPath());
-        userCR.getPlainAttrs().add(attrTO("makeItDouble", "3"));
+        userCR.getPlainAttrs().add(attr("makeItDouble", "3"));
 
         UserTO userTO = createUser(userCR).getEntity();
         assertEquals("6", userTO.getPlainAttr("makeItDouble").get().getValues().get(0));
@@ -1099,11 +1099,11 @@ public class UserIssuesITCase extends AbstractITCase {
         userCR.setPassword(null);
         userCR.setStorePassword(false);
         userCR.setUsername("syncope391@syncope.apache.org");
-        userCR.getPlainAttrs().add(attrTO("fullname", "fullname"));
-        userCR.getPlainAttrs().add(attrTO("firstname", "nome0"));
-        userCR.getPlainAttrs().add(attrTO("surname", "cognome0"));
-        userCR.getPlainAttrs().add(attrTO("userId", "syncope391@syncope.apache.org"));
-        userCR.getPlainAttrs().add(attrTO("email", "syncope391@syncope.apache.org"));
+        userCR.getPlainAttrs().add(attr("fullname", "fullname"));
+        userCR.getPlainAttrs().add(attr("firstname", "nome0"));
+        userCR.getPlainAttrs().add(attr("surname", "cognome0"));
+        userCR.getPlainAttrs().add(attr("userId", "syncope391@syncope.apache.org"));
+        userCR.getPlainAttrs().add(attr("email", "syncope391@syncope.apache.org"));
         userCR.getAuxClasses().add("csv");
         userCR.getResources().add(RESOURCE_NAME_CSV);
 
@@ -1199,7 +1199,7 @@ public class UserIssuesITCase extends AbstractITCase {
         userCR.getAuxClasses().add("csv");
 
         userCR.getAuxClasses().add("generic membership");
-        userCR.getPlainAttrs().add(attrTO("postalAddress", "postalAddress"));
+        userCR.getPlainAttrs().add(attr("postalAddress", "postalAddress"));
 
         userCR.getResources().add(RESOURCE_NAME_LDAP);
 
@@ -1275,7 +1275,7 @@ public class UserIssuesITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE686() {
         // 1. read configured cipher algorithm in order to be able to restore it at the end of test
-        AttrTO pwdCipherAlgo = configurationService.get("password.cipher.algorithm");
+        Attr pwdCipherAlgo = configurationService.get("password.cipher.algorithm");
         String origpwdCipherAlgo = pwdCipherAlgo.getValues().get(0);
 
         // 2. set AES password cipher algorithm
@@ -1357,7 +1357,7 @@ public class UserIssuesITCase extends AbstractITCase {
     public void issueSYNCOPE881() {
         // 1. create group and assign LDAP
         GroupCR groupCR = GroupITCase.getSample("syncope881G");
-        groupCR.getVirAttrs().add(attrTO("rvirtualdata", "rvirtualvalue"));
+        groupCR.getVirAttrs().add(attr("rvirtualdata", "rvirtualvalue"));
 
         GroupTO group = createGroup(groupCR).getEntity();
         assertNotNull(group);
@@ -1375,7 +1375,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ConnObjectTO connObject =
                 resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
         assertNotNull(connObject);
-        AttrTO userDn = connObject.getAttr(Name.NAME).get();
+        Attr userDn = connObject.getAttr(Name.NAME).get();
         assertNotNull(userDn);
         assertEquals(1, userDn.getValues().size());
         assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().get(0)));
@@ -1464,7 +1464,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 3. update user to match the dynamic condition: expect propagation to LDAP
         UserUR userUR = new UserUR();
         userUR.setKey(result.getEntity().getKey());
-        userUR.getPlainAttrs().add(new AttrPatch.Builder(attrTO("cool", "true")).build());
+        userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("cool", "true")).build());
 
         result = updateUser(userUR);
         assertEquals(1, result.getPropagationStatuses().size());
@@ -1473,7 +1473,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 4. update again user to not match the dynamic condition any more: expect propagation to LDAP
         userUR = new UserUR();
         userUR.setKey(result.getEntity().getKey());
-        userUR.getPlainAttrs().add(new AttrPatch.Builder(attrTO("cool", "false")).build());
+        userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("cool", "false")).build());
 
         result = updateUser(userUR);
         assertEquals(1, result.getPropagationStatuses().size());
@@ -1483,9 +1483,9 @@ public class UserIssuesITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE1337() {
         // 1. save current cipher algorithm and set it to something salted
-        AttrTO original = configurationService.get("password.cipher.algorithm");
+        Attr original = configurationService.get("password.cipher.algorithm");
 
-        AttrTO salted = SerializationUtils.clone(original);
+        Attr salted = SerializationUtils.clone(original);
         salted.getValues().set(0, CipherAlgorithm.SSHA512.name());
         configurationService.set(salted);
 

@@ -21,7 +21,7 @@ package org.apache.syncope.client.cli.commands.group;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
@@ -39,11 +39,11 @@ public class GroupSyncopeOperations {
         return groupService.read(groupKey);
     }
 
-    public Set<AttrTO> readAttributes(final String groupKey, final String schemaType) {
+    public Set<Attr> readAttributes(final String groupKey, final String schemaType) {
         return groupService.read(groupKey, SchemaType.valueOf(schemaType));
     }
 
-    public AttrTO readAttribute(final String groupKey, final String schemaType, final String schema) {
+    public Attr readAttribute(final String groupKey, final String schemaType, final String schema) {
         return groupService.read(groupKey, SchemaType.valueOf(schemaType), schema);
     }
 

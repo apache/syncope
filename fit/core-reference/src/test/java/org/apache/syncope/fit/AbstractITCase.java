@@ -57,7 +57,7 @@ import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -353,12 +353,12 @@ public abstract class AbstractITCase {
         return UUID.randomUUID().toString().substring(0, 8);
     }
 
-    protected static AttrTO attrTO(final String schema, final String value) {
-        return new AttrTO.Builder(schema).value(value).build();
+    protected static Attr attr(final String schema, final String value) {
+        return new Attr.Builder(schema).value(value).build();
     }
 
     protected static AttrPatch attrAddReplacePatch(final String schema, final String value) {
-        return new AttrPatch.Builder(attrTO(schema, value)).operation(PatchOperation.ADD_REPLACE).build();
+        return new AttrPatch.Builder(attr(schema, value)).operation(PatchOperation.ADD_REPLACE).build();
     }
 
     public static <T> T getObject(final URI location, final Class<?> serviceClass, final Class<T> resultClass) {

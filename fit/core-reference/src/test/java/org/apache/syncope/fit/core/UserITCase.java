@@ -60,7 +60,7 @@ import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.request.StringReplacePatchItem;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.request.UserCR;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -110,13 +110,13 @@ public class UserITCase extends AbstractITCase {
     public static UserCR getSample(final String email) {
         return new UserCR.Builder(SyncopeConstants.ROOT_REALM, email).
                 password("password123").
-                plainAttr(attrTO("fullname", email)).
-                plainAttr(attrTO("firstname", email)).
-                plainAttr(attrTO("surname", "surname")).
-                plainAttr(attrTO("ctype", "a type")).
-                plainAttr(attrTO("userId", email)).
-                plainAttr(attrTO("email", email)).
-                plainAttr(attrTO("loginDate", DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(new Date()))).
+                plainAttr(attr("fullname", email)).
+                plainAttr(attr("firstname", email)).
+                plainAttr(attr("surname", "surname")).
+                plainAttr(attr("ctype", "a type")).
+                plainAttr(attr("userId", email)).
+                plainAttr(attr("email", email)).
+                plainAttr(attr("loginDate", DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(new Date()))).
                 build();
     }
 
@@ -154,8 +154,8 @@ public class UserITCase extends AbstractITCase {
         userCR.getResources().add(RESOURCE_NAME_WS2);
         userCR.setPassword("newPassword12");
 
-        AttrTO type = null;
-        for (AttrTO attr : userCR.getPlainAttrs()) {
+        Attr type = null;
+        for (Attr attr : userCR.getPlainAttrs()) {
             if ("ctype".equals(attr.getSchema())) {
                 type = attr;
             }
@@ -268,7 +268,7 @@ public class UserITCase extends AbstractITCase {
     public void createWithException() {
         assertThrows(SyncopeClientException.class, () -> {
             UserCR userCR = new UserCR();
-            userCR.getPlainAttrs().add(attrTO("userId", "userId@nowhere.org"));
+            userCR.getPlainAttrs().add(attr("userId", "userId@nowhere.org"));
             createUser(userCR);
         });
     }
@@ -293,11 +293,11 @@ public class UserITCase extends AbstractITCase {
         userCR.getMemberships().add(new MembershipTO.Builder("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
 
         // add an attribute with a non-existing schema: must be ignored
-        AttrTO attrWithInvalidSchemaTO = attrTO("invalid schema", "a value");
+        Attr attrWithInvalidSchemaTO = attr("invalid schema", "a value");
         userCR.getPlainAttrs().add(attrWithInvalidSchemaTO);
 
         // add an attribute with null value: must be ignored
-        userCR.getPlainAttrs().add(attrTO("activationDate", null));
+        userCR.getPlainAttrs().add(attr("activationDate", null));
 
         // 1. create user
         UserTO userTO = createUser(userCR).getEntity();
@@ -352,7 +352,7 @@ public class UserITCase extends AbstractITCase {
 
         // 4. try (and fail) to create another user with same (unique) values
         userCR = getSample(userTO.getUsername());
-        AttrTO userIdAttr = userTO.getPlainAttr("userId").get();
+        Attr userIdAttr = userTO.getPlainAttr("userId").get();
         userIdAttr.getValues().clear();
         userIdAttr.getValues().add("a.b@c.com");
 
@@ -368,7 +368,7 @@ public class UserITCase extends AbstractITCase {
     public void createWithRequiredValueMissing() {
         UserCR userCR = getUniqueSample("a.b@c.it");
 
-        AttrTO type = userCR.getPlainAttr("ctype").get();
+        Attr type = userCR.getPlainAttr("ctype").get();
         userCR.getPlainAttrs().remove(type);
 
         userCR.getMemberships().add(new MembershipTO.Builder("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
@@ -381,9 +381,9 @@ public class UserITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
 
-        userCR.getPlainAttrs().add(attrTO("ctype", "F"));
+        userCR.getPlainAttrs().add(attr("ctype", "F"));
 
-        AttrTO surname = userCR.getPlainAttr("surname").get();
+        Attr surname = userCR.getPlainAttr("surname").get();
         userCR.getPlainAttrs().remove(surname);
 
         // 2. create user without surname (mandatory when type == 'F')
@@ -500,7 +500,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         UserUR userUR = new UserUR.Builder(userTO.getKey()).
-                plainAttr(new AttrPatch.Builder(new AttrTO.Builder("ctype").build()).
+                plainAttr(new AttrPatch.Builder(new Attr.Builder("ctype").build()).
                         operation(PatchOperation.DELETE).
                         build()).build();
 
@@ -582,10 +582,10 @@ public class UserITCase extends AbstractITCase {
         assertEquals(1, userTO.getMemberships().size());
         assertFalse(userTO.getDerAttrs().isEmpty());
 
-        AttrTO userIdAttr = userTO.getPlainAttr("userId").get();
+        Attr userIdAttr = userTO.getPlainAttr("userId").get();
         assertEquals(Collections.singletonList(newUserId), userIdAttr.getValues());
 
-        AttrTO fullNameAttr = userTO.getPlainAttr("fullname").get();
+        Attr fullNameAttr = userTO.getPlainAttr("fullname").get();
         assertEquals(Collections.singletonList(newFullName), fullNameAttr.getValues());
 
         // update by username
@@ -837,7 +837,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
 
-        AttrTO loginDate = userTO.getPlainAttr("loginDate").get();
+        Attr loginDate = userTO.getPlainAttr("loginDate").get();
         assertNotNull(loginDate);
         assertEquals(1, loginDate.getValues().size());
 
@@ -1328,7 +1328,7 @@ public class UserITCase extends AbstractITCase {
 
         // 2. update
         UserUR userUR = new UserUR.Builder(result.getEntity().getKey()).
-                plainAttr(new AttrPatch.Builder(new AttrTO.Builder("surname").value("surname2").build()).build()).
+                plainAttr(new AttrPatch.Builder(new Attr.Builder("surname").value("surname2").build()).build()).
                 build();
         result = userService.update(userUR).readEntity(
                 new GenericType<ProvisioningResult<UserTO>>() {

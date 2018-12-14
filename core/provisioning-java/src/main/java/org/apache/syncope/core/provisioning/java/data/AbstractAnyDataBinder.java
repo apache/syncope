@@ -36,7 +36,7 @@ import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -154,7 +154,7 @@ abstract class AbstractAnyDataBinder {
         if (StringUtils.isNotBlank(schemaName)) {
             schema = plainSchemaDAO.find(schemaName);
 
-            // safely ignore invalid schemas from AttrTO
+            // safely ignore invalid schemas from Attr
             if (schema == null) {
                 LOG.debug("Ignoring invalid schema {}", schemaName);
             } else if (schema.isReadonly()) {
@@ -294,8 +294,8 @@ abstract class AbstractAnyDataBinder {
                 // 1.1 remove values
                 if (attr.getSchema().isUniqueConstraint()) {
                     if (attr.getUniqueValue() != null
-                            && !patch.getAttrTO().getValues().isEmpty()
-                            && !patch.getAttrTO().getValues().get(0).equals(attr.getUniqueValue().getValueAsString())) {
+                            && !patch.getAttr().getValues().isEmpty()
+                            && !patch.getAttr().getValues().get(0).equals(attr.getUniqueValue().getValueAsString())) {
 
                         plainAttrValueDAO.deleteAll(attr, anyUtils);
                     }
@@ -304,7 +304,7 @@ abstract class AbstractAnyDataBinder {
                 }
 
                 // 1.2 add values
-                List<String> valuesToBeAdded = patch.getAttrTO().getValues();
+                List<String> valuesToBeAdded = patch.getAttr().getValues();
                 if (!valuesToBeAdded.isEmpty()
                         && (!schema.isUniqueConstraint() || attr.getUniqueValue() == null
                         || !valuesToBeAdded.get(0).equals(attr.getUniqueValue().getValueAsString()))) {
@@ -393,11 +393,11 @@ abstract class AbstractAnyDataBinder {
 
         // 3. plain attributes
         anyUR.getPlainAttrs().stream().
-                filter(patch -> patch.getAttrTO() != null).forEach(patch -> {
-            PlainSchema schema = getPlainSchema(patch.getAttrTO().getSchema());
+                filter(patch -> patch.getAttr() != null).forEach(patch -> {
+            PlainSchema schema = getPlainSchema(patch.getAttr().getSchema());
             if (schema == null) {
                 LOG.debug("Invalid " + PlainSchema.class.getSimpleName() + " {}, ignoring...",
-                        patch.getAttrTO().getSchema());
+                        patch.getAttr().getSchema());
             } else {
                 PlainAttr<?> attr = (PlainAttr<?>) any.getPlainAttr(schema.getKey()).orElse(null);
                 if (attr == null) {
@@ -553,16 +553,16 @@ abstract class AbstractAnyDataBinder {
         anyTO.getAuxClasses().addAll(auxClasses.stream().map(Entity::getKey).collect(Collectors.toList()));
 
         plainAttrs.forEach(plainAttr -> {
-            anyTO.getPlainAttrs().add(new AttrTO.Builder(plainAttr.getSchema().getKey()).
+            anyTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey()).
                     values(plainAttr.getValuesAsStrings()).build());
         });
 
         derAttrs.forEach((schema, value) -> {
-            anyTO.getDerAttrs().add(new AttrTO.Builder(schema.getKey()).value(value).build());
+            anyTO.getDerAttrs().add(new Attr.Builder(schema.getKey()).value(value).build());
         });
 
         virAttrs.forEach((schema, values) -> {
-            anyTO.getVirAttrs().add(new AttrTO.Builder(schema.getKey()).values(values).build());
+            anyTO.getVirAttrs().add(new Attr.Builder(schema.getKey()).values(values).build());
         });
 
         anyTO.getResources().addAll(resources.stream().map(Entity::getKey).collect(Collectors.toSet()));
@@ -585,19 +585,19 @@ abstract class AbstractAnyDataBinder {
                 build();
 
         plainAttrs.forEach(plainAttr -> {
-            membershipTO.getPlainAttrs().add(new AttrTO.Builder(plainAttr.getSchema().getKey()).
+            membershipTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey()).
                     values(plainAttr.getValuesAsStrings()).
                     build());
         });
 
         derAttrs.forEach((schema, value) -> {
-            membershipTO.getDerAttrs().add(new AttrTO.Builder(schema.getKey()).
+            membershipTO.getDerAttrs().add(new Attr.Builder(schema.getKey()).
                     value(value).
                     build());
         });
 
         virAttrs.forEach((schema, values) -> {
-            membershipTO.getVirAttrs().add(new AttrTO.Builder(schema.getKey()).
+            membershipTO.getVirAttrs().add(new Attr.Builder(schema.getKey()).
                     values(values).
                     build());
         });

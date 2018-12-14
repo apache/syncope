@@ -371,7 +371,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         groupCR.setRealm("/even");
         groupCR.getAuxClasses().add(typeClass.getKey());
 
-        groupCR.getPlainAttrs().add(attrTO(schemaTO.getKey(), "all"));
+        groupCR.getPlainAttrs().add(attr(schemaTO.getKey(), "all"));
 
         GroupTO groupTO = createGroup(groupCR).getEntity();
         assertNotNull(groupTO);

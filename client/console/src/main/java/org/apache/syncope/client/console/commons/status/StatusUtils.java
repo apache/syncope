@@ -32,7 +32,7 @@ import org.apache.syncope.client.console.panels.LabelPanel;
 import org.apache.syncope.client.console.rest.ReconciliationRestClient;
 import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
@@ -109,14 +109,14 @@ public final class StatusUtils implements Serializable {
     }
 
     public static Boolean isEnabled(final ConnObjectTO objectTO) {
-        Optional<AttrTO> status = objectTO.getAttr(ConnIdSpecialName.ENABLE);
+        Optional<Attr> status = objectTO.getAttr(ConnIdSpecialName.ENABLE);
         return status.isPresent() && status.get().getValues() != null && !status.get().getValues().isEmpty()
                 ? Boolean.valueOf(status.get().getValues().get(0))
                 : Boolean.FALSE;
     }
 
     private static String getConnObjectLink(final ConnObjectTO objectTO) {
-        Optional<AttrTO> name = objectTO == null ? null : objectTO.getAttr(ConnIdSpecialName.NAME);
+        Optional<Attr> name = objectTO == null ? null : objectTO.getAttr(ConnIdSpecialName.NAME);
         return name != null && name.isPresent() && name.get().getValues() != null && !name.get().getValues().isEmpty()
                 ? name.get().getValues().get(0)
                 : null;

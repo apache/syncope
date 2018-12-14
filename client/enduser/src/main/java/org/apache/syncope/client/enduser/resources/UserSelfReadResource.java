@@ -32,7 +32,7 @@ import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -131,15 +131,15 @@ public class UserSelfReadResource extends BaseUserSelfResource {
             final Map<String, CustomAttributesInfo> customFormAttributes) {
         if (customFormAttributes != null && !customFormAttributes.isEmpty()) {
             // filter PLAIN attributes
-            customizeAttrTOs(userTO.getPlainAttrs(), customFormAttributes.get(SchemaType.PLAIN.name()));
+            customizeAttrs(userTO.getPlainAttrs(), customFormAttributes.get(SchemaType.PLAIN.name()));
             // filter DERIVED attributes
-            customizeAttrTOs(userTO.getDerAttrs(), customFormAttributes.get(SchemaType.DERIVED.name()));
+            customizeAttrs(userTO.getDerAttrs(), customFormAttributes.get(SchemaType.DERIVED.name()));
             // filter VIRTUAL attributes
-            customizeAttrTOs(userTO.getVirAttrs(), customFormAttributes.get(SchemaType.VIRTUAL.name()));
+            customizeAttrs(userTO.getVirAttrs(), customFormAttributes.get(SchemaType.VIRTUAL.name()));
         }
     }
 
-    private void customizeAttrTOs(final Set<AttrTO> attrs, final CustomAttributesInfo customAttributesInfo) {
+    private void customizeAttrs(final Set<Attr> attrs, final CustomAttributesInfo customAttributesInfo) {
         if (customAttributesInfo != null
                 && !customAttributesInfo.getAttributes().isEmpty()) {
 

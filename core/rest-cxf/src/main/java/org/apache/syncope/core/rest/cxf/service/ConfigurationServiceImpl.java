@@ -23,7 +23,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.apache.syncope.core.logic.ConfigurationLogic;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -55,17 +55,17 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
     }
 
     @Override
-    public List<AttrTO> list() {
+    public List<Attr> list() {
         return logic.list();
     }
 
     @Override
-    public AttrTO get(final String schema) {
+    public Attr get(final String schema) {
         return logic.get(schema);
     }
 
     @Override
-    public void set(final AttrTO value) {
+    public void set(final Attr value) {
         logic.set(value);
     }
 }

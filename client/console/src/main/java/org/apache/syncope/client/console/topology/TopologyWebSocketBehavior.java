@@ -35,7 +35,7 @@ import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.Application;
@@ -80,7 +80,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
         // Handling with timeout as per SYNCOPE-1379
         try {
             // Loop just to avoid NotFound exception raising on the Core side
-            for (AttrTO param : new ConfRestClient().list()) {
+            for (Attr param : new ConfRestClient().list()) {
                 if (!CollectionUtils.isEmpty(param.getValues())) {
                     try {
                         if (CONNECTOR_TEST_TIMEOUT_PARAMETER.equalsIgnoreCase(param.getSchema())) {

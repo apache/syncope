@@ -23,7 +23,7 @@ import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.UserCR;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
@@ -44,10 +44,10 @@ public class TestPullActions implements PullActions {
             final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final AnyCR anyCR)
             throws JobExecutionException {
 
-        Optional<AttrTO> attrTO = anyCR.getPlainAttrs().stream().
+        Optional<Attr> attrTO = anyCR.getPlainAttrs().stream().
                 filter(attr -> "fullname".equals(attr.getSchema())).findFirst();
         if (!attrTO.isPresent()) {
-            attrTO = Optional.of(new AttrTO());
+            attrTO = Optional.of(new Attr());
             attrTO.get().setSchema("fullname");
             anyCR.getPlainAttrs().add(attrTO.get());
         }
@@ -74,17 +74,17 @@ public class TestPullActions implements PullActions {
 
         AttrPatch fullnamePatch = null;
         for (AttrPatch attrPatch : anyUR.getPlainAttrs()) {
-            if ("fullname".equals(attrPatch.getAttrTO().getSchema())) {
+            if ("fullname".equals(attrPatch.getAttr().getSchema())) {
                 fullnamePatch = attrPatch;
             }
         }
         if (fullnamePatch == null) {
-            fullnamePatch = new AttrPatch.Builder(new AttrTO.Builder("fullname").build()).
+            fullnamePatch = new AttrPatch.Builder(new Attr.Builder("fullname").build()).
                     operation(PatchOperation.ADD_REPLACE).
                     build();
         }
 
-        fullnamePatch.getAttrTO().getValues().clear();
-        fullnamePatch.getAttrTO().getValues().add(String.valueOf(counter++));
+        fullnamePatch.getAttr().getValues().clear();
+        fullnamePatch.getAttr().getValues().add(String.valueOf(counter++));
     }
 }

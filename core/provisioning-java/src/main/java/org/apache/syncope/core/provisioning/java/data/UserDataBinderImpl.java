@@ -643,5 +643,4 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     public UserTO getUserTO(final String key) {
         return getUserTO(userDAO.authFind(key), true);
     }
-
 }

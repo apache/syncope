@@ -58,7 +58,7 @@ import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -222,12 +222,12 @@ public class PullTaskITCase extends AbstractTaskITCase {
         inUserRC.setPassword("password123");
         String userName = "test9";
         inUserRC.setUsername(userName);
-        inUserRC.getPlainAttrs().add(attrTO("firstname", "nome9"));
-        inUserRC.getPlainAttrs().add(attrTO("surname", "cognome"));
-        inUserRC.getPlainAttrs().add(attrTO("ctype", "a type"));
-        inUserRC.getPlainAttrs().add(attrTO("fullname", "nome cognome"));
-        inUserRC.getPlainAttrs().add(attrTO("userId", "puccini@syncope.apache.org"));
-        inUserRC.getPlainAttrs().add(attrTO("email", "puccini@syncope.apache.org"));
+        inUserRC.getPlainAttrs().add(attr("firstname", "nome9"));
+        inUserRC.getPlainAttrs().add(attr("surname", "cognome"));
+        inUserRC.getPlainAttrs().add(attr("ctype", "a type"));
+        inUserRC.getPlainAttrs().add(attr("fullname", "nome cognome"));
+        inUserRC.getPlainAttrs().add(attr("userId", "puccini@syncope.apache.org"));
+        inUserRC.getPlainAttrs().add(attr("email", "puccini@syncope.apache.org"));
         inUserRC.getAuxClasses().add("csv");
 
         UserTO inUserTO = createUser(inUserRC).getEntity();
@@ -413,7 +413,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), matchingUsers.getResult().get(0).getKey());
         assertNotNull(userConnObject);
         assertEquals("odd", userConnObject.getAttr("title").get().getValues().get(0));
-        AttrTO userDn = userConnObject.getAttr(Name.NAME).get();
+        Attr userDn = userConnObject.getAttr(Name.NAME).get();
         updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
                 userDn.getValues().get(0), Collections.singletonMap("title", (String) null));
 
@@ -454,7 +454,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ConnObjectTO groupConnObject = resourceService.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), matchingGroups.getResult().get(0).getKey());
         assertNotNull(groupConnObject);
-        AttrTO groupDn = groupConnObject.getAttr(Name.NAME).get();
+        Attr groupDn = groupConnObject.getAttr(Name.NAME).get();
         updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
                 groupDn.getValues().get(0), Collections.singletonMap("uniquemember", "uid=admin,ou=system"));
 
@@ -778,7 +778,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             userCR.getResources().clear();
 
             String email = userCR.getPlainAttr("email").get().getValues().get(0);
-            userCR.getPlainAttrs().add(new AttrTO.Builder("userId").value(email).build());
+            userCR.getPlainAttrs().add(new Attr.Builder("userId").value(email).build());
 
             remediationService.remedy(remediation.get().getKey(), userCR);
 
@@ -809,12 +809,12 @@ public class PullTaskITCase extends AbstractTaskITCase {
         userCR.setPassword("password123");
         userCR.setUsername("testuser2");
 
-        userCR.getPlainAttrs().add(attrTO("firstname", "testuser2"));
-        userCR.getPlainAttrs().add(attrTO("surname", "testuser2"));
-        userCR.getPlainAttrs().add(attrTO("ctype", "a type"));
-        userCR.getPlainAttrs().add(attrTO("fullname", "a type"));
-        userCR.getPlainAttrs().add(attrTO("userId", "testuser2@syncope.apache.org"));
-        userCR.getPlainAttrs().add(attrTO("email", "testuser2@syncope.apache.org"));
+        userCR.getPlainAttrs().add(attr("firstname", "testuser2"));
+        userCR.getPlainAttrs().add(attr("surname", "testuser2"));
+        userCR.getPlainAttrs().add(attr("ctype", "a type"));
+        userCR.getPlainAttrs().add(attr("fullname", "a type"));
+        userCR.getPlainAttrs().add(attr("userId", "testuser2@syncope.apache.org"));
+        userCR.getPlainAttrs().add(attr("email", "testuser2@syncope.apache.org"));
 
         userCR.getResources().add(RESOURCE_NAME_NOPROPAGATION2);
         userCR.getResources().add(RESOURCE_NAME_NOPROPAGATION4);
@@ -1004,7 +1004,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         UserCR userCR = UserITCase.getUniqueSample("s307@apache.org");
         userCR.setUsername("test0");
         userCR.getPlainAttrs().removeIf(attr -> "firstname".equals(attr.getSchema()));
-        userCR.getPlainAttrs().add(attrTO("firstname", "nome0"));
+        userCR.getPlainAttrs().add(attr("firstname", "nome0"));
         userCR.getAuxClasses().add("csv");
 
         userCR.getResources().clear();
@@ -1023,7 +1023,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         UserTO template = new UserTO();
         template.setPassword("'password123'");
         template.getResources().add(RESOURCE_NAME_DBVIRATTR);
-        template.getVirAttrs().add(attrTO("virtualdata", "'virtualvalue'"));
+        template.getVirAttrs().add(attr("virtualdata", "'virtualvalue'"));
 
         task.getTemplates().put(AnyTypeKind.USER.name(), template);
 
@@ -1230,7 +1230,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             UserTO template = new UserTO();
             template.getAuxClasses().add("minimal group");
             template.getMemberships().add(new MembershipTO.Builder(propagationGroup.getKey()).build());
-            template.getPlainAttrs().add(attrTO("firstname", "'fixed'"));
+            template.getPlainAttrs().add(attr("firstname", "'fixed'"));
             pullTask.getTemplates().put(AnyTypeKind.USER.name(), template);
 
             Response taskResponse = taskService.create(TaskType.PULL, pullTask);
@@ -1254,7 +1254,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
             assertNotNull(connObject);
             assertEquals("pullFromLDAP@syncope.apache.org", connObject.getAttr("mail").get().getValues().get(0));
-            AttrTO userDn = connObject.getAttr(Name.NAME).get();
+            Attr userDn = connObject.getAttr(Name.NAME).get();
             assertNotNull(userDn);
             assertEquals(1, userDn.getValues().size());
             assertNotNull(

@@ -22,7 +22,7 @@ import java.io.Serializable;
 import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
@@ -56,40 +56,34 @@ public class ParametersCreateWizardPanel extends AjaxWizardBuilder<ParametersCre
     @Override
     protected Serializable onApplyInternal(final ParametersForm modelObject) {
         final PlainSchemaTO plainSchemaTO = modelObject.getPlainSchemaTO();
-        plainSchemaTO.setKey(modelObject.getAttrTO().getSchema());
+        plainSchemaTO.setKey(modelObject.getAttr().getSchema());
 
         schemaRestClient.create(SchemaType.PLAIN, plainSchemaTO);
         try {
-            confRestClient.set(modelObject.getAttrTO());
+            confRestClient.set(modelObject.getAttr());
         } catch (Exception e) {
-            LOG.error("While setting {}, removing {}", modelObject.getAttrTO(), plainSchemaTO, e);
+            LOG.error("While setting {}, removing {}", modelObject.getAttr(), plainSchemaTO, e);
             schemaRestClient.deletePlainSchema(plainSchemaTO.getKey());
 
             throw e;
         }
-        return modelObject.getAttrTO();
+        return modelObject.getAttr();
     }
 
     public static class ParametersForm implements Serializable {
 
         private static final long serialVersionUID = 412294016850871853L;
 
-        private final PlainSchemaTO plainSchemaTO;
+        private final PlainSchemaTO plainSchemaTO = new PlainSchemaTO();
 
-        private final AttrTO attrTO;
-
-        public ParametersForm() {
-            plainSchemaTO = new PlainSchemaTO();
-            attrTO = new AttrTO();
-        }
+        private final Attr attr = new Attr();
 
         public PlainSchemaTO getPlainSchemaTO() {
             return plainSchemaTO;
         }
 
-        public AttrTO getAttrTO() {
-            return attrTO;
+        public Attr getAttr() {
+            return attr;
         }
-
     }
 }

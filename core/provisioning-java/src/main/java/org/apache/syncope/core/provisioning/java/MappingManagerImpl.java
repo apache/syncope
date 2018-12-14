@@ -35,7 +35,7 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -755,7 +755,7 @@ public class MappingManagerImpl implements MappingManager {
                     if (anyTO instanceof GroupTO && attr != null) {
                         // using a special attribute (with schema "", that will be ignored) for carrying the
                         // GroupOwnerSchema value
-                        AttrTO attrTO = new AttrTO();
+                        Attr attrTO = new Attr();
                         attrTO.setSchema(StringUtils.EMPTY);
                         if (values.isEmpty() || values.get(0) == null) {
                             attrTO.getValues().add(StringUtils.EMPTY);
@@ -782,7 +782,7 @@ public class MappingManagerImpl implements MappingManager {
 
             switch (intAttrName.getSchemaType()) {
                 case PLAIN:
-                    AttrTO attrTO = new AttrTO();
+                    Attr attrTO = new Attr();
                     attrTO.setSchema(intAttrName.getSchemaName());
 
                     PlainSchema schema = plainSchemaDAO.find(intAttrName.getSchemaName());
@@ -811,7 +811,7 @@ public class MappingManagerImpl implements MappingManager {
                     break;
 
                 case DERIVED:
-                    attrTO = new AttrTO();
+                    attrTO = new Attr();
                     attrTO.setSchema(intAttrName.getSchemaName());
 
                     if (groupableTO == null || group == null) {
@@ -827,7 +827,7 @@ public class MappingManagerImpl implements MappingManager {
                     break;
 
                 case VIRTUAL:
-                    attrTO = new AttrTO();
+                    attrTO = new Attr();
                     attrTO.setSchema(intAttrName.getSchemaName());
 
                     // virtual attributes don't get transformed, iterate over original attr.getValue()

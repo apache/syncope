@@ -21,22 +21,22 @@ package org.apache.syncope.client.cli.commands.configuration;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
 
 public class ConfigurationSyncopeOperations {
 
     private final ConfigurationService configurationService = SyncopeServices.get(ConfigurationService.class);
 
-    public AttrTO get(final String schema) {
+    public Attr get(final String schema) {
         return configurationService.get(schema);
     }
 
-    public void set(final AttrTO attrTO) {
+    public void set(final Attr attrTO) {
         configurationService.set(attrTO);
     }
 
-    public List<AttrTO> list() {
+    public List<Attr> list() {
         return configurationService.list();
     }
 

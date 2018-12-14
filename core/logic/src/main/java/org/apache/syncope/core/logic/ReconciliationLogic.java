@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.collections.IteratorChain;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -117,9 +117,9 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
         ConnObjectTO connObjectTO = ConnObjectUtils.getConnObjectTO(attrs.getRight());
         if (attrs.getLeft() != null) {
-            connObjectTO.getAttrs().add(new AttrTO.Builder(connObjectKey.getExtAttrName()).
+            connObjectTO.getAttrs().add(new Attr.Builder(connObjectKey.getExtAttrName()).
                     value(attrs.getLeft()).build());
-            connObjectTO.getAttrs().add(new AttrTO.Builder(Uid.NAME).
+            connObjectTO.getAttrs().add(new Attr.Builder(Uid.NAME).
                     value(attrs.getLeft()).build());
         }
 

@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
@@ -47,13 +47,13 @@ public class ConfigurationDataBinderImpl extends AbstractAnyDataBinder implement
     private ConfDAO confDAO;
 
     @Override
-    public List<AttrTO> getConfTO() {
-        return confDAO.get().getPlainAttrs().stream().map(attr -> getAttrTO(attr)).collect(Collectors.toList());
+    public List<Attr> getConf() {
+        return confDAO.get().getPlainAttrs().stream().map(attr -> getAttr(attr)).collect(Collectors.toList());
     }
 
     @Override
-    public AttrTO getAttrTO(final CPlainAttr attr) {
-        return new AttrTO.Builder(attr.getSchema().getKey()).
+    public Attr getAttr(final CPlainAttr attr) {
+        return new Attr.Builder(attr.getSchema().getKey()).
                 values(attr.getValuesAsStrings()).
                 build();
     }
@@ -109,7 +109,7 @@ public class ConfigurationDataBinderImpl extends AbstractAnyDataBinder implement
     }
 
     @Override
-    public CPlainAttr getAttr(final AttrTO attrTO) {
+    public CPlainAttr getAttr(final Attr attrTO) {
         PlainSchema schema = getPlainSchema(attrTO.getSchema());
         if (schema == null) {
             throw new NotFoundException("Conf schema " + attrTO.getSchema());

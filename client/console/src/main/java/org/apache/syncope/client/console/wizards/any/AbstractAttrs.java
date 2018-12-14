@@ -32,7 +32,7 @@ import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -52,7 +52,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
 
     private static final long serialVersionUID = -5387344116983102292L;
 
-    protected final Comparator<AttrTO> attrComparator = new AttrComparator();
+    protected final Comparator<Attr> attrComparator = new AttrComparator();
 
     private final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
@@ -68,7 +68,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
 
     protected final Map<String, Map<String, S>> membershipSchemas = new LinkedHashMap<>();
 
-    protected final IModel<List<AttrTO>> attrTOs;
+    protected final IModel<List<Attr>> attrs;
 
     protected final IModel<List<MembershipTO>> membershipTOs;
 
@@ -80,7 +80,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
             final List<String> whichAttrs) {
         super();
         this.anyTypeClasses = anyTypeClasses;
-        this.attrTOs = new ListModel<>(Collections.<AttrTO>emptyList());
+        this.attrs = new ListModel<>(Collections.<Attr>emptyList());
         this.membershipTOs = new ListModel<>(Collections.<MembershipTO>emptyList());
 
         this.setOutputMarkupId(true);
@@ -89,7 +89,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
         this.whichAttrs = whichAttrs;
     }
 
-    private List<AttrTO> loadAttrTOs() {
+    private List<Attr> loadAttrs() {
         List<String> classes = new ArrayList<>(anyTypeClasses);
         classes.addAll(anyTypeClassRestClient.list(anyTO.getAuxClasses()).stream().
                 map(EntityTO::getKey).collect(Collectors.toList()));
@@ -99,7 +99,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
     }
 
     @SuppressWarnings("unchecked")
-    private List<MembershipTO> loadMembershipAttrTOs() {
+    private List<MembershipTO> loadMembershipAttrs() {
         List<MembershipTO> memberships = new ArrayList<>();
         try {
             membershipSchemas.clear();
@@ -172,7 +172,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
     @Override
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
-        if (org.apache.cxf.common.util.CollectionUtils.isEmpty(attrTOs.getObject())
+        if (org.apache.cxf.common.util.CollectionUtils.isEmpty(attrs.getObject())
                 && org.apache.cxf.common.util.CollectionUtils.isEmpty(membershipTOs.getObject())) {
             response.render(OnDomReadyHeaderItem.forScript(
                     String.format("$('#emptyPlaceholder').append(\"%s\"); $('#attributes').hide();",
@@ -184,9 +184,9 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
 
     protected abstract void setAttrs(final MembershipTO membershipTO);
 
-    protected abstract List<AttrTO> getAttrsFromTO();
+    protected abstract List<Attr> getAttrsFromTO();
 
-    protected abstract List<AttrTO> getAttrsFromTO(final MembershipTO membershipTO);
+    protected abstract List<Attr> getAttrsFromTO(final MembershipTO membershipTO);
 
     protected List<String> getMembershipAuxClasses(final MembershipTO membershipTO, final String anyType) {
         try {
@@ -199,9 +199,9 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
 
     @Override
     public boolean evaluate() {
-        this.attrTOs.setObject(loadAttrTOs());
-        this.membershipTOs.setObject(loadMembershipAttrTOs());
-        return !attrTOs.getObject().isEmpty() || !membershipTOs.getObject().isEmpty();
+        this.attrs.setObject(loadAttrs());
+        this.membershipTOs.setObject(loadMembershipAttrs());
+        return !attrs.getObject().isEmpty() || !membershipTOs.getObject().isEmpty();
     }
 
     public PageReference getPageReference() {
@@ -210,12 +210,12 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
         return null;
     }
 
-    private class AttrComparator implements Comparator<AttrTO>, Serializable {
+    private class AttrComparator implements Comparator<Attr>, Serializable {
 
         private static final long serialVersionUID = -5105030477767941060L;
 
         @Override
-        public int compare(final AttrTO left, final AttrTO right) {
+        public int compare(final Attr left, final Attr right) {
             if (left == null || StringUtils.isEmpty(left.getSchema())) {
                 return -1;
             }

@@ -33,7 +33,7 @@ import org.apache.syncope.client.console.wizards.resources.ResourceProvision;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -190,8 +190,8 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
             key = ((AnyObjectTO) ((AnyWrapper) modelObject).getInnerObject()).getKey();
         } else if (modelObject instanceof ReportTO) {
             key = ((ReportTO) modelObject).getKey();
-        } else if (modelObject instanceof AttrTO) {
-            key = ((AttrTO) modelObject).getSchema();
+        } else if (modelObject instanceof Attr) {
+            key = ((Attr) modelObject).getSchema();
         } else if (modelObject instanceof PolicyTO) {
             key = ((PolicyTO) modelObject).getKey();
         } else if (modelObject instanceof SecurityQuestionTO) {

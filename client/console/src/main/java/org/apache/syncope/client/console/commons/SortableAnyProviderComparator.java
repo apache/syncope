@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.IModel;
@@ -81,7 +81,7 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
                 schema = provider.getSort().getProperty().substring(hashPos + 1);
             }
 
-            final AttrTO attr;
+            final Attr attr;
             if (schemaType == null) {
                 attr = this.anyTO.getPlainAttr(schema).orElse(null);
             } else {

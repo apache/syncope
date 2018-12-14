@@ -36,7 +36,7 @@ import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.ResourceDR;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.PatchOperation;
@@ -67,9 +67,9 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
     protected abstract UR newUpdateReq(String key);
 
     @Override
-    public Set<AttrTO> read(final String key, final SchemaType schemaType) {
+    public Set<Attr> read(final String key, final SchemaType schemaType) {
         TO any = read(key);
-        Set<AttrTO> result;
+        Set<Attr> result;
         switch (schemaType) {
             case DERIVED:
                 result = any.getDerAttrs();
@@ -88,9 +88,9 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
     }
 
     @Override
-    public AttrTO read(final String key, final SchemaType schemaType, final String schema) {
+    public Attr read(final String key, final SchemaType schemaType, final String schema) {
         TO any = read(key);
-        Optional<AttrTO> result;
+        Optional<Attr> result;
         switch (schemaType) {
             case DERIVED:
                 result = any.getDerAttr(schema);
@@ -160,7 +160,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
     }
 
     private void addUpdateOrReplaceAttr(
-            final String key, final SchemaType schemaType, final AttrTO attrTO, final PatchOperation operation) {
+            final String key, final SchemaType schemaType, final Attr attrTO, final PatchOperation operation) {
 
         if (attrTO.getSchema() == null) {
             throw new NotFoundException("Must specify schema");
@@ -185,7 +185,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
     }
 
     @Override
-    public Response update(final String key, final SchemaType schemaType, final AttrTO attrTO) {
+    public Response update(final String key, final SchemaType schemaType, final Attr attrTO) {
         String actualKey = getActualKey(getAnyDAO(), key);
         addUpdateOrReplaceAttr(actualKey, schemaType, attrTO, PatchOperation.ADD_REPLACE);
         return modificationResponse(read(actualKey, schemaType, attrTO.getSchema()));
@@ -193,10 +193,9 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
 
     @Override
     public void delete(final String key, final SchemaType schemaType, final String schema) {
-        addUpdateOrReplaceAttr(
-                getActualKey(getAnyDAO(), key),
+        addUpdateOrReplaceAttr(getActualKey(getAnyDAO(), key),
                 schemaType,
-                new AttrTO.Builder(schema).build(),
+                new Attr.Builder(schema).build(),
                 PatchOperation.DELETE);
     }
 

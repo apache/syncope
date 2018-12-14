@@ -34,7 +34,7 @@ import org.apache.syncope.client.enduser.util.Validation;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
@@ -72,7 +72,7 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
             // check if request is compliant with customization form rules
             if (Validation.isCompliant(userTO, customFormAttributes, false)) {
                 // 1. membership attributes management
-                Set<AttrTO> membAttrs = new HashSet<>();
+                Set<Attr> membAttrs = new HashSet<>();
                 userTO.getPlainAttrs().stream().
                         filter(attr -> (attr.getSchema().contains(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR))).
                         forEach(attr -> {
@@ -85,7 +85,7 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
                                 membership = new MembershipTO.Builder(null).groupName(simpleAttrs[0]).build();
                                 userTO.getMemberships().add(membership);
                             }
-                            AttrTO clone = SerializationUtils.clone(attr);
+                            Attr clone = SerializationUtils.clone(attr);
                             clone.setSchema(simpleAttrs[1]);
                             membership.getPlainAttrs().add(clone);
                             membAttrs.add(attr);
@@ -116,7 +116,7 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
                                 membership = new MembershipTO.Builder(null).groupName(simpleAttrs[0]).build();
                                 userTO.getMemberships().add(membership);
                             }
-                            AttrTO clone = SerializationUtils.clone(attr);
+                            Attr clone = SerializationUtils.clone(attr);
                             clone.setSchema(simpleAttrs[1]);
                             membership.getDerAttrs().add(clone);
                             membAttrs.add(attr);
@@ -137,7 +137,7 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
                                 userTO.getMemberships().add(membership);
 
                             }
-                            AttrTO clone = SerializationUtils.clone(attr);
+                            Attr clone = SerializationUtils.clone(attr);
                             clone.setSchema(simpleAttrs[1]);
                             membership.getVirAttrs().add(clone);
                             membAttrs.add(attr);
@@ -207,8 +207,8 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
         completeAttrs(userTO.getVirAttrs(), selfTO.getVirAttrs());
     }
 
-    private void completeAttrs(final Set<AttrTO> userTOAttrs, final Set<AttrTO> selfTOAttrs) {
-        Map<String, AttrTO> userTOAttrsMap =
+    private void completeAttrs(final Set<Attr> userTOAttrs, final Set<Attr> selfTOAttrs) {
+        Map<String, Attr> userTOAttrsMap =
                 EntityTOUtils.buildAttrMap(userTOAttrs);
         selfTOAttrs.stream().
                 filter(selfTOAttr -> (!userTOAttrsMap.containsKey(selfTOAttr.getSchema()))).

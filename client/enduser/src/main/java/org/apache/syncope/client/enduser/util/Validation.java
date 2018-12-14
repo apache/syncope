@@ -24,7 +24,7 @@ import org.apache.syncope.client.enduser.model.CustomAttribute;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.client.enduser.model.CustomTemplateInfo;
 import org.apache.syncope.common.lib.EntityTOUtils;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.slf4j.Logger;
@@ -51,14 +51,14 @@ public final class Validation {
                         customFormAttributes.get(SchemaType.VIRTUAL.name()), checkDefaultValues);
     }
 
-    private static boolean validateAttributes(final Map<String, AttrTO> attrMap,
+    private static boolean validateAttributes(final Map<String, Attr> attrMap,
             final CustomAttributesInfo customAttrInfo, final boolean checkDefaultValues) {
 
         return customAttrInfo == null
                 || customAttrInfo.getAttributes().isEmpty()
                 || attrMap.entrySet().stream().allMatch(entry -> {
                     String schemaKey = entry.getKey();
-                    AttrTO attrTO = entry.getValue();
+                    Attr attrTO = entry.getValue();
                     CustomAttribute customAttr = customAttrInfo.getAttributes().get(schemaKey);
                     boolean compliant = customAttr != null && (!checkDefaultValues || isValid(attrTO, customAttr));
                     if (!compliant) {
@@ -84,7 +84,7 @@ public final class Validation {
 
     }
 
-    private static boolean isValid(final AttrTO attrTO, final CustomAttribute customAttribute) {
+    private static boolean isValid(final Attr attrTO, final CustomAttribute customAttribute) {
         return customAttribute.isReadonly()
                 ? attrTO.getValues().stream().allMatch(value -> customAttribute.getDefaultValues().contains(value))
                 : true;

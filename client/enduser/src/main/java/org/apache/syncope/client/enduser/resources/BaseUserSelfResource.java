@@ -24,14 +24,14 @@ import java.text.ParseException;
 import java.util.ListIterator;
 import java.util.Set;
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 
 public abstract class BaseUserSelfResource extends BaseResource {
 
     private static final long serialVersionUID = -5892402817902884085L;
 
-    protected void dateToMillis(final Set<AttrTO> attrs, final PlainSchemaTO plainSchema)
+    protected void dateToMillis(final Set<Attr> attrs, final PlainSchemaTO plainSchema)
             throws ParseException {
 
         final FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
@@ -49,7 +49,7 @@ public abstract class BaseUserSelfResource extends BaseResource {
                 });
     }
 
-    protected void millisToDate(final Set<AttrTO> attrs, final PlainSchemaTO plainSchema)
+    protected void millisToDate(final Set<Attr> attrs, final PlainSchemaTO plainSchema)
             throws IllegalArgumentException {
 
         final FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());

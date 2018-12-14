@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
@@ -189,7 +189,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertEquals(1, result.getPropagationStatuses().size());
             assertNotNull(result.getPropagationStatuses().get(0).getAfterObj());
 
-            AttrTO businessCategory =
+            Attr businessCategory =
                     result.getPropagationStatuses().get(0).getAfterObj().getAttr("businessCategory").orElse(null);
             assertNotNull(businessCategory);
             assertEquals(1, businessCategory.getValues().size());
@@ -257,7 +257,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         for (int i = 0; i < 9; i++) {
             UserUR userUR = new UserUR();
             userUR.setKey(userTO.getKey());
-            userUR.getPlainAttrs().add(new AttrPatch.Builder(new AttrTO.Builder("userId").value(
+            userUR.getPlainAttrs().add(new AttrPatch.Builder(new Attr.Builder("userId").value(
                     "test" + getUUIDString() + i + "@test.com").build()).
                     operation(PatchOperation.ADD_REPLACE).
                     build());

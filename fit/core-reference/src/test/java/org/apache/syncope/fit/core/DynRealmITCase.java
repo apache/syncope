@@ -197,7 +197,7 @@ public class DynRealmITCase extends AbstractITCase {
             // GROUP_UPDATE
             GroupUR groupUR = new GroupUR();
             groupUR.setKey(groupKey);
-            groupUR.getPlainAttrs().add(new AttrPatch.Builder(attrTO("icon", "modified")).build());
+            groupUR.getPlainAttrs().add(new AttrPatch.Builder(attr("icon", "modified")).build());
             group = delegatedGroupService.update(groupUR).readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
             }).getEntity();
             assertNotNull(group);

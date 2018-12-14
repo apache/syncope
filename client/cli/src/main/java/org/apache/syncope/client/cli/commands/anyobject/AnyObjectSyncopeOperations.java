@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
@@ -42,11 +42,11 @@ public class AnyObjectSyncopeOperations {
         return anyObjectService.read(anyKey);
     }
 
-    public Set<AttrTO> readAttributes(final String anyKey, final String schemaType) {
+    public Set<Attr> readAttributes(final String anyKey, final String schemaType) {
         return anyObjectService.read(anyKey, SchemaType.valueOf(schemaType));
     }
 
-    public AttrTO readAttribute(final String anyKey, final String schemaType, final String schema) {
+    public Attr readAttribute(final String anyKey, final String schemaType, final String schema) {
         return anyObjectService.read(anyKey, SchemaType.valueOf(schemaType), schema);
     }
 

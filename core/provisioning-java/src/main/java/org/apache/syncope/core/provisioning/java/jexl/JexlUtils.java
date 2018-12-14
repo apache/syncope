@@ -42,7 +42,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
@@ -196,7 +196,7 @@ public final class JexlUtils {
         }
     }
 
-    public static void addAttrTOsToContext(final Collection<AttrTO> attrs, final JexlContext jexlContext) {
+    public static void addAttrsToContext(final Collection<Attr> attrs, final JexlContext jexlContext) {
         attrs.stream().filter(attr -> attr.getSchema() != null).forEach(attr -> {
             String expressionValue = attr.getValues().isEmpty()
                     ? StringUtils.EMPTY

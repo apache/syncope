@@ -27,7 +27,7 @@ import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -108,7 +108,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
     private void buildAvailableSchemas(final String key) {
 
         List<String> configurationSchemas = new ConfRestClient().list().stream().
-                map(AttrTO::getSchema).collect(Collectors.toList());
+                map(Attr::getSchema).collect(Collectors.toList());
 
         new AnyTypeClassRestClient().list().stream().
                 filter(item -> key == null || !item.getKey().equals(key)).

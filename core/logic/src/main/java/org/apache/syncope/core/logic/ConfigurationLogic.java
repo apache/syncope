@@ -22,7 +22,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -79,25 +79,25 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONFIGURATION_LIST + "')")
-    public List<AttrTO> list() {
-        return binder.getConfTO();
+    public List<Attr> list() {
+        return binder.getConf();
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONFIGURATION_GET + "')")
     @Transactional(readOnly = true)
-    public AttrTO get(final String schema) {
-        AttrTO result;
+    public Attr get(final String schema) {
+        Attr result;
 
         Optional<? extends CPlainAttr> conf = confDAO.find(schema);
         if (conf.isPresent()) {
-            result = binder.getAttrTO(conf.get());
+            result = binder.getAttr(conf.get());
         } else {
             PlainSchema plainSchema = plainSchemaDAO.find(schema);
             if (plainSchema == null) {
                 throw new NotFoundException("Configuration schema " + schema);
             }
 
-            result = new AttrTO();
+            result = new Attr();
             result.setSchema(schema);
         }
 
@@ -105,7 +105,7 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONFIGURATION_SET + "')")
-    public void set(final AttrTO value) {
+    public void set(final Attr value) {
         confDAO.save(binder.getAttr(value));
     }
 

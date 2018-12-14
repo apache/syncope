@@ -21,10 +21,10 @@ package org.apache.syncope.core.logic.scim;
 import java.util.Base64;
 import java.util.Date;
 import javax.ws.rs.core.MediaType;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMGeneralConf;
 import org.apache.syncope.common.lib.scim.types.SCIMEntitlement;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -51,7 +51,7 @@ public class SCIMConfManager {
 
     @PreAuthorize("hasRole('" + SCIMEntitlement.SCIM_CONF_GET + "')")
     public SCIMConf get() {
-        AttrTO confTO = null;
+        Attr confTO = null;
         try {
             confTO = configurationLogic.get(SCIMConf.KEY);
         } catch (Exception e) {
@@ -89,7 +89,7 @@ public class SCIMConfManager {
         conf.setGeneralConf(new SCIMGeneralConf());
         conf.getGeneralConf().setLastChangeDate(new Date());
 
-        configurationLogic.set(new AttrTO.Builder(SCIMConf.KEY).
+        configurationLogic.set(new Attr.Builder(SCIMConf.KEY).
                 value(Base64.getEncoder().encodeToString(POJOHelper.serialize(conf).getBytes())).
                 build());
     }

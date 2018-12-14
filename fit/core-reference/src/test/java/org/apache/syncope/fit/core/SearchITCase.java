@@ -518,7 +518,7 @@ public class SearchITCase extends AbstractITCase {
     public void issueSYNCOPE1223() {
         UserUR req = new UserUR();
         req.setKey("vivaldi");
-        req.getPlainAttrs().add(new AttrPatch.Builder(attrTO("ctype", "ou=sample,o=isp")).build());
+        req.getPlainAttrs().add(new AttrPatch.Builder(attr("ctype", "ou=sample,o=isp")).build());
         userService.update(req);
 
         try {
@@ -529,7 +529,7 @@ public class SearchITCase extends AbstractITCase {
             assertEquals("vivaldi", users.getResult().get(0).getUsername());
         } finally {
             req.getPlainAttrs().clear();
-            req.getPlainAttrs().add(new AttrPatch.Builder(attrTO("ctype", "F")).build());
+            req.getPlainAttrs().add(new AttrPatch.Builder(attr("ctype", "F")).build());
             userService.update(req);
         }
     }

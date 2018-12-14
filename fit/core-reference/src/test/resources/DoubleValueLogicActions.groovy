@@ -18,10 +18,10 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
+import org.apache.syncope.common.lib.Attr
 import org.apache.syncope.common.lib.request.AnyCR
 import org.apache.syncope.common.lib.request.AnyUR
 import org.apache.syncope.common.lib.request.AttrPatch
-import org.apache.syncope.common.lib.to.AttrTO
 import org.apache.syncope.core.provisioning.api.LogicActions
 
 /**
@@ -34,7 +34,7 @@ class DoubleValueLogicActions implements LogicActions {
 
   @Override
   <C extends AnyCR> C beforeCreate(final C input) {
-    for (AttrTO attr : input.getPlainAttrs()) {
+    for (Attr attr : input.getPlainAttrs()) {
       if (NAME.equals(attr.getSchema())) {
         List<String> values = new ArrayList<String>(attr.getValues().size());
         for (String value : attr.getValues()) {
@@ -55,17 +55,17 @@ class DoubleValueLogicActions implements LogicActions {
   @Override
   <R extends AnyUR> R beforeUpdate(final R input) {
     for (AttrPatch patch : input.getPlainAttrs()) {
-      if (NAME.equals(patch.getAttrTO().getSchema())) {
-        List<String> values = new ArrayList<String>(patch.getAttrTO().getValues().size());
-        for (String value : patch.getAttrTO().getValues()) {
+      if (NAME.equals(patch.getAttr().getSchema())) {
+        List<String> values = new ArrayList<String>(patch.getAttr().getValues().size());
+        for (String value : patch.getAttr().getValues()) {
           try {
             values.add(String.valueOf(2 * Long.parseLong(value)));
           } catch (NumberFormatException e) {
             // ignore
           }
         }
-        patch.getAttrTO().getValues().clear();
-        patch.getAttrTO().getValues().addAll(values);
+        patch.getAttr().getValues().clear();
+        patch.getAttr().getValues().addAll(values);
       }
     }
 

@@ -113,8 +113,8 @@ under the License.
       <artifactId>cxf-rt-rs-client</artifactId>
     </dependency> 
     <dependency>
-      <groupId>org.apache.syncope.common</groupId>
-      <artifactId>syncope-common-rest-api</artifactId>
+      <groupId>org.apache.syncope.common.idm</groupId>
+      <artifactId>syncope-common-idm-rest-api</artifactId>
       <version>${project.version}</version>
       <classifier>javadoc</classifier>
     </dependency>
@@ -125,8 +125,8 @@ under the License.
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.syncope.common</groupId>
-      <artifactId>syncope-common-rest-api</artifactId>
+      <groupId>org.apache.syncope.common.idm</groupId>
+      <artifactId>syncope-common-idm-rest-api</artifactId>
       <version>${project.version}</version>
     </dependency>
             

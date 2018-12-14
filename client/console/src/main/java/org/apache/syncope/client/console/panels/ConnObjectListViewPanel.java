@@ -28,7 +28,7 @@ import org.apache.syncope.client.console.panels.ListViewPanel.ListViewReload;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.Component;
@@ -66,7 +66,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
             @Override
             protected Component getValueComponent(final String key, final ConnObjectTO bean) {
-                Optional<AttrTO> attrTO =
+                Optional<Attr> attrTO =
                         bean.getAttrs().stream().filter(object -> object.getSchema().equals(key)).findAny();
 
                 return !attrTO.isPresent() || attrTO.get().getValues().isEmpty()

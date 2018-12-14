@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.Attr;
 
 @XmlRootElement(name = "oidcLoginResponse")
 @XmlType
@@ -46,7 +47,7 @@ public class OIDCLoginResponseTO implements Serializable {
 
     private Date accessTokenExpiryTime;
 
-    private final Set<AttrTO> attrs = new HashSet<>();
+    private final Set<Attr> attrs = new HashSet<>();
 
     public String getUsername() {
         return username;
@@ -89,14 +90,14 @@ public class OIDCLoginResponseTO implements Serializable {
     }
 
     @JsonIgnore
-    public Optional<AttrTO> getAttr(final String schema) {
+    public Optional<Attr> getAttr(final String schema) {
         return attrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
     @XmlElementWrapper(name = "attrs")
     @XmlElement(name = "attr")
     @JsonProperty("attrs")
-    public Set<AttrTO> getAttrs() {
+    public Set<Attr> getAttrs() {
         return attrs;
     }
 

@@ -34,8 +34,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
 import org.apache.cxf.rs.security.saml.sso.SSOValidatorResponse;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.SAML2RequestTO;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
@@ -472,7 +472,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
                         }
                     }
 
-                    AttrTO attrTO = new AttrTO();
+                    Attr attrTO = new Attr();
                     attrTO.setSchema(attrName);
                     attr.getAttributeValues().stream().
                             filter(value -> value.getDOM() != null).

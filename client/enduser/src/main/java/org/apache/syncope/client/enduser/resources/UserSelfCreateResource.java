@@ -31,7 +31,7 @@ import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.util.Validation;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.UserCR;
-import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
@@ -86,7 +86,7 @@ public class UserSelfCreateResource extends BaseUserSelfResource {
                         SyncopeEnduserApplication.get().getCustomFormAttributes(), true)) {
 
                     // 1. membership attributes management
-                    Set<AttrTO> membAttrs = new HashSet<>();
+                    Set<Attr> membAttrs = new HashSet<>();
                     userTO.getPlainAttrs().stream().
                             filter(attr -> (attr.getSchema().
                             contains(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR))).
@@ -101,7 +101,7 @@ public class UserSelfCreateResource extends BaseUserSelfResource {
                                     userTO.getMemberships().add(membership);
                                 }
 
-                                AttrTO clone = SerializationUtils.clone(attr);
+                                Attr clone = SerializationUtils.clone(attr);
                                 clone.setSchema(simpleAttrs[1]);
                                 membership.getPlainAttrs().add(clone);
                                 membAttrs.add(attr);
@@ -133,7 +133,7 @@ public class UserSelfCreateResource extends BaseUserSelfResource {
                                     userTO.getMemberships().add(membership);
                                 }
 
-                                AttrTO clone = SerializationUtils.clone(attr);
+                                Attr clone = SerializationUtils.clone(attr);
                                 clone.setSchema(simpleAttrs[1]);
                                 membership.getDerAttrs().add(clone);
                                 membAttrs.add(attr);
@@ -155,7 +155,7 @@ public class UserSelfCreateResource extends BaseUserSelfResource {
                                     userTO.getMemberships().add(membership);
                                 }
 
-                                AttrTO clone = SerializationUtils.clone(attr);
+                                Attr clone = SerializationUtils.clone(attr);
                                 clone.setSchema(simpleAttrs[1]);
                                 membership.getVirAttrs().add(clone);
                                 membAttrs.add(attr);
