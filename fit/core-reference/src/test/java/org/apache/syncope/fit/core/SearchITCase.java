@@ -23,10 +23,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
@@ -40,6 +42,7 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.fit.AbstractITCase;
@@ -429,9 +432,9 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(matchingUsers);
 
         assertFalse(matchingUsers.getResult().isEmpty());
-        for (UserTO user : matchingUsers.getResult()) {
+        matchingUsers.getResult().forEach(user -> {
             assertNotNull(user);
-        }
+        });
     }
 
     @Test
@@ -541,5 +544,19 @@ public class SearchITCase extends AbstractITCase {
                 orderBy("userOwner DESC").build());
         assertNotNull(groups);
         assertFalse(groups.getResult().isEmpty());
+    }
+
+    @Test
+    public void issueSYNCOPE1417() {
+        try {
+            userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                    fiql(SyncopeClient.getUserSearchConditionBuilder().is("userId").equalTo("*@apache.org").query()).
+                    orderBy(SyncopeClient.getOrderByClauseBuilder().asc("surname").desc("firstname").build()).build());
+            if (!ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+                fail();
+            }
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSearchExpression, e.getType());
+        }
     }
 }
