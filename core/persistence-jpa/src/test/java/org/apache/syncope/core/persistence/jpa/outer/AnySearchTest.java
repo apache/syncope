@@ -21,15 +21,21 @@ package org.apache.syncope.core.persistence.jpa.outer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
@@ -55,27 +61,6 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private RoleDAO roleDAO;
-
-    @Test
-    public void issueSYNCOPE95() {
-        for (Group group : groupDAO.findAll(1, 100)) {
-            groupDAO.delete(group.getKey());
-        }
-        groupDAO.flush();
-
-        AttributeCond coolLeafCond = new AttributeCond(AttributeCond.Type.EQ);
-        coolLeafCond.setSchema("cool");
-        coolLeafCond.setExpression("true");
-
-        SearchCond cond = SearchCond.getLeafCond(coolLeafCond);
-        assertTrue(cond.isValid());
-
-        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
-        assertNotNull(users);
-        assertEquals(1, users.size());
-
-        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.get(0).getKey());
-    }
 
     @Test
     public void searchByDynMembership() {
@@ -106,5 +91,55 @@ public class AnySearchTest extends AbstractTest {
         assertNotNull(users);
         assertEquals(1, users.size());
         assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.get(0).getKey());
+    }
+
+    @Test
+    public void issueSYNCOPE95() {
+        for (Group group : groupDAO.findAll(1, 100)) {
+            groupDAO.delete(group.getKey());
+        }
+        groupDAO.flush();
+
+        AttributeCond coolLeafCond = new AttributeCond(AttributeCond.Type.EQ);
+        coolLeafCond.setSchema("cool");
+        coolLeafCond.setExpression("true");
+
+        SearchCond cond = SearchCond.getLeafCond(coolLeafCond);
+        assertTrue(cond.isValid());
+
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.get(0).getKey());
+    }
+
+    @Test
+    public void issueSYNCOPE1417() {
+        AnyCond usernameLeafCond = new AnyCond(AnyCond.Type.EQ);
+        usernameLeafCond.setSchema("username");
+        usernameLeafCond.setExpression("rossini");
+        AttributeCond idRightCond = new AttributeCond(AttributeCond.Type.LIKE);
+        idRightCond.setSchema("fullname");
+        idRightCond.setExpression("Giuseppe V%");
+        SearchCond searchCondition = SearchCond.getOrCond(
+                SearchCond.getLeafCond(usernameLeafCond), SearchCond.getLeafCond(idRightCond));
+
+        List<OrderByClause> orderByClauses = new ArrayList<>();
+        OrderByClause orderByClause = new OrderByClause();
+        orderByClause.setField("surname");
+        orderByClause.setDirection(OrderByClause.Direction.DESC);
+        orderByClauses.add(orderByClause);
+        orderByClause = new OrderByClause();
+        orderByClause.setField("firstname");
+        orderByClause.setDirection(OrderByClause.Direction.ASC);
+        orderByClauses.add(orderByClause);
+
+        try {
+            searchDAO.search(searchCondition, orderByClauses, AnyTypeKind.USER);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSearchExpression, e.getType());
+        }
     }
 }

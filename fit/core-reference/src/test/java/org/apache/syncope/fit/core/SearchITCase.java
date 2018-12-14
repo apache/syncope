@@ -23,6 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Collection;
 import javax.ws.rs.core.Response;
@@ -31,12 +32,12 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -45,6 +46,7 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.fit.AbstractITCase;
@@ -306,7 +308,7 @@ public class SearchITCase extends AbstractITCase {
                         and("username").equalTo("bellini").query()).
                 build());
         assertEquals(users, issueSYNCOPE1321);
-        
+
         // SYNCOPE-1416 (check the search for attributes of type different from stringvalue)
         PagedResult<UserTO> issueSYNCOPE1416 = userService.search(new AnyQuery.Builder().
                 realm(SyncopeConstants.ROOT_REALM).
@@ -626,5 +628,19 @@ public class SearchITCase extends AbstractITCase {
                 orderBy("userOwner DESC").build());
         assertNotNull(groups);
         assertFalse(groups.getResult().isEmpty());
+    }
+
+    @Test
+    public void issueSYNCOPE1417() {
+        try {
+            userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                    fiql(SyncopeClient.getUserSearchConditionBuilder().is("userId").equalTo("*@apache.org").query()).
+                    orderBy(SyncopeClient.getOrderByClauseBuilder().asc("surname").desc("firstname").build()).build());
+            if (!ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+                fail();
+            }
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSearchExpression, e.getType());
+        }
     }
 }

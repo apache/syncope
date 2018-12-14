@@ -127,7 +127,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         Pair<String, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
 
         // 1. get the query string from the search condition
-        Pair<StringBuilder, Set<String>> queryInfo = 
+        Pair<StringBuilder, Set<String>> queryInfo =
                 getQuery(buildEffectiveCond(cond, filter.getRight()), parameters, svs);
 
         StringBuilder queryString = queryInfo.getLeft();
@@ -164,8 +164,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             Pair<String, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
 
             // 1. get the query string from the search condition
-            Pair<StringBuilder, Set<String>> queryInfo = getQuery(buildEffectiveCond(cond, filter.getRight()),
-                    parameters, svs);
+            Pair<StringBuilder, Set<String>> queryInfo =
+                    getQuery(buildEffectiveCond(cond, filter.getRight()), parameters, svs);
 
             StringBuilder queryString = queryInfo.getLeft();
 
@@ -197,6 +197,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
             // 6. Prepare the result (avoiding duplicates)
             return buildResult(query.getResultList(), kind);
+        } catch (SyncopeClientException e) {
+            throw e;
         } catch (Exception e) {
             LOG.error("While searching for {}", kind, e);
         }
@@ -240,7 +242,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     private StringBuilder buildWhere(
-            final SearchSupport svs, final Set<String> involvedPlainAttrs, final OrderBySupport obs) {
+            final SearchSupport svs,
+            final Set<String> involvedPlainAttrs,
+            final OrderBySupport obs) {
 
         Set<String> attrs = new HashSet<>(involvedPlainAttrs);
         for (OrderBySupport.Item item : obs.items) {
@@ -324,6 +328,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         OrderBySupport obs = new OrderBySupport();
 
+        Set<String> orderByUniquePlainSchemas = new HashSet<>();
+        Set<String> orderByNonUniquePlainSchemas = new HashSet<>();
+
         for (OrderByClause clause : filterOrderBy(orderBy)) {
             OrderBySupport.Item item = new OrderBySupport.Item();
 
@@ -333,6 +340,20 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             if (ReflectionUtils.findField(attrUtils.anyClass(), fieldName) == null) {
                 PlainSchema schema = schemaDAO.find(fieldName);
                 if (schema != null) {
+                    if (schema.isUniqueConstraint()) {
+                        orderByUniquePlainSchemas.add(schema.getKey());
+                    } else {
+                        orderByNonUniquePlainSchemas.add(schema.getKey());
+                    }
+                    if (orderByUniquePlainSchemas.size() > 1 || orderByNonUniquePlainSchemas.size() > 1) {
+                        SyncopeClientException invalidSearch =
+                                SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+                        invalidSearch.getElements().add("Order by more than one attribute is not allowed; "
+                                + "remove one from " + (orderByUniquePlainSchemas.size() > 1
+                                ? orderByUniquePlainSchemas : orderByNonUniquePlainSchemas));
+                        throw invalidSearch;
+                    }
+
                     // keep track of involvement of non-mandatory schemas in the order by clauses
                     obs.nonMandatorySchemas = !"true".equals(schema.getMandatoryCondition());
 
@@ -382,10 +403,12 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     private Pair<StringBuilder, Set<String>> getQuery(
-            final SearchCond cond, final List<Object> parameters, final SearchSupport svs) {
-        StringBuilder query = new StringBuilder();
-        Set<String> involvedAttributes = new HashSet<>();
+            final SearchCond cond,
+            final List<Object> parameters,
+            final SearchSupport svs) {
 
+        StringBuilder query = new StringBuilder();
+        Set<String> involvedPlainAttrs = new HashSet<>();
         switch (cond.getType()) {
             case LEAF:
             case NOT_LEAF:
@@ -425,7 +448,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                     query.append(getQuery(cond.getAttributeCond(),
                             cond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
                     try {
-                        involvedAttributes.add(check(cond.getAttributeCond(), svs.anyTypeKind).getLeft().getKey());
+                        involvedPlainAttrs.add(check(cond.getAttributeCond(), svs.anyTypeKind).getLeft().getKey());
                     } catch (IllegalArgumentException e) {
                         // ignore
                     }
@@ -437,10 +460,10 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
             case AND:
                 Pair<StringBuilder, Set<String>> leftAndInfo = getQuery(cond.getLeftSearchCond(), parameters, svs);
-                involvedAttributes.addAll(leftAndInfo.getRight());
+                involvedPlainAttrs.addAll(leftAndInfo.getRight());
 
                 Pair<StringBuilder, Set<String>> rigthAndInfo = getQuery(cond.getRightSearchCond(), parameters, svs);
-                involvedAttributes.addAll(rigthAndInfo.getRight());
+                involvedPlainAttrs.addAll(rigthAndInfo.getRight());
 
                 String andSubQuery = leftAndInfo.getKey().toString();
                 // Add extra parentheses
@@ -453,10 +476,10 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
             case OR:
                 Pair<StringBuilder, Set<String>> leftOrInfo = getQuery(cond.getLeftSearchCond(), parameters, svs);
-                involvedAttributes.addAll(leftOrInfo.getRight());
+                involvedPlainAttrs.addAll(leftOrInfo.getRight());
 
                 Pair<StringBuilder, Set<String>> rigthOrInfo = getQuery(cond.getRightSearchCond(), parameters, svs);
-                involvedAttributes.addAll(rigthOrInfo.getRight());
+                involvedPlainAttrs.addAll(rigthOrInfo.getRight());
 
                 String orSubQuery = leftOrInfo.getKey().toString();
                 // Add extra parentheses
@@ -470,7 +493,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             default:
         }
 
-        return Pair.of(query, involvedAttributes);
+        return Pair.of(query, involvedPlainAttrs);
     }
 
     private String getQuery(
