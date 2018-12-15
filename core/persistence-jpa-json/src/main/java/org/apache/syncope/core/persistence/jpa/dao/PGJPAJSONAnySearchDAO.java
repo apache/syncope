@@ -97,29 +97,9 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
         });
     }
 
-    @Override
-    protected void parseOrderByForPlainSchema(
-            final SearchSupport svs,
-            final OrderBySupport obs,
-            final OrderBySupport.Item item,
-            final OrderByClause clause,
-            final PlainSchema schema,
-            final String fieldName) {
-
-        // keep track of involvement of non-mandatory schemas in the order by clauses
-        obs.nonMandatorySchemas = !"true".equals(schema.getMandatoryCondition());
-
-        obs.views.add(svs.field());
-
-        item.select = svs.field().alias + ".attrValues ->> '" + field(schema, null) + "' AS " + fieldName;
-        item.where = "attrs ->> 'schema' = '" + fieldName + "'";
-        item.orderBy = fieldName + " " + clause.getDirection().name();
-    }
-
-    private Pair<Boolean, String> field(final PlainSchema schema, final AttributeCond.Type type) {
+    private String key(final AttrSchemaType schemaType) {
         String key;
-        boolean lower = false;
-        switch (schema.getType()) {
+        switch (schemaType) {
             case Boolean:
                 key = "booleanValue";
                 break;
@@ -141,10 +121,29 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                 break;
 
             default:
-                lower = type == AttributeCond.Type.IEQ || type == AttributeCond.Type.ILIKE;
                 key = "stringValue";
         }
-        return Pair.of(lower, key);
+
+        return key;
+    }
+
+    @Override
+    protected void parseOrderByForPlainSchema(
+            final SearchSupport svs,
+            final OrderBySupport obs,
+            final OrderBySupport.Item item,
+            final OrderByClause clause,
+            final PlainSchema schema,
+            final String fieldName) {
+
+        // keep track of involvement of non-mandatory schemas in the order by clauses
+        obs.nonMandatorySchemas = !"true".equals(schema.getMandatoryCondition());
+
+        obs.views.add(svs.field());
+
+        item.select = svs.field().alias + ".attrValues ->> '" + key(schema.getType()) + "' AS " + fieldName;
+        item.where = "attrs ->> 'schema' = '" + fieldName + "'";
+        item.orderBy = fieldName + " " + clause.getDirection().name();
     }
 
     private void fillAttrQuery(
@@ -156,7 +155,9 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final boolean not,
             final List<Object> parameters) {
 
-        Pair<Boolean, String> field = field(schema, cond.getType());
+        String key = key(schema.getType());
+        boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
+                && (cond.getType() == AttributeCond.Type.IEQ || cond.getType() == AttributeCond.Type.ILIKE);
 
         if (!not && cond.getType() == AttributeCond.Type.EQ) {
             PlainAttr<?> container = anyUtils.newPlainAttr();
@@ -173,11 +174,11 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
         } else {
             query.append("attrs ->> 'schema' = ?").append(setParameter(parameters, cond.getSchema())).
                     append(" AND ").
-                    append(field.getLeft() ? "LOWER(" : "").
+                    append(lower ? "LOWER(" : "").
                     append(schema.isUniqueConstraint()
                             ? "attrs -> 'uniqueValue'" : "attrValues").
-                    append(" ->> '").append(field.getRight()).append("'").
-                    append(field.getLeft() ? ")" : "");
+                    append(" ->> '").append(key).append("'").
+                    append(lower ? ")" : "");
 
             switch (cond.getType()) {
                 case LIKE:
@@ -237,10 +238,9 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                     LOG.error("Could not parse {} as date", value, e);
                 }
             }
-
-            query.append(field.getLeft() ? "LOWER(" : "").
+            query.append(lower ? "LOWER(" : "").
                     append("?").append(setParameter(parameters, value)).
-                    append(field.getLeft() ? ")" : "");
+                    append(lower ? ")" : "");
         }
     }
 

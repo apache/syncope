@@ -130,7 +130,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         Pair<String, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
 
         // 1. get the query string from the search condition
-        Pair<StringBuilder, Set<String>> queryInfo = 
+        Pair<StringBuilder, Set<String>> queryInfo =
                 getQuery(buildEffectiveCond(cond, filter.getRight()), parameters, svs);
 
         StringBuilder queryString = queryInfo.getLeft();
@@ -167,8 +167,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             Pair<String, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
 
             // 1. get the query string from the search condition
-            Pair<StringBuilder, Set<String>> queryInfo = getQuery(buildEffectiveCond(cond, filter.getRight()),
-                    parameters, svs);
+            Pair<StringBuilder, Set<String>> queryInfo =
+                    getQuery(buildEffectiveCond(cond, filter.getRight()), parameters, svs);
 
             StringBuilder queryString = queryInfo.getLeft();
 
@@ -292,7 +292,10 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     private StringBuilder buildWhere(
-            final SearchSupport svs, final Set<String> involvedPlainAttrs, final OrderBySupport obs) {
+            final SearchSupport svs,
+            final Set<String> involvedPlainAttrs,
+            final OrderBySupport obs) {
+
         StringBuilder where = new StringBuilder(" u");
         processOBS(svs, involvedPlainAttrs, obs, where);
         where.append(" WHERE ");
@@ -418,8 +421,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
     private Pair<StringBuilder, Set<String>> getQuery(
             final SearchCond cond, final List<Object> parameters, final SearchSupport svs) {
+
         StringBuilder query = new StringBuilder();
-        Set<String> involvedAttributes = new HashSet<>();
+        Set<String> involvedPlainAttrs = new HashSet<>();
 
         switch (cond.getType()) {
             case LEAF:
@@ -463,7 +467,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                     query.append(getQuery(cond.getAttributeCond(),
                             cond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
                     try {
-                        involvedAttributes.add(check(cond.getAttributeCond(), svs.anyTypeKind).getLeft().getKey());
+                        involvedPlainAttrs.add(check(cond.getAttributeCond(), svs.anyTypeKind).getLeft().getKey());
                     } catch (IllegalArgumentException e) {
                         // ignore
                     }
@@ -475,10 +479,10 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
             case AND:
                 Pair<StringBuilder, Set<String>> leftAndInfo = getQuery(cond.getLeftSearchCond(), parameters, svs);
-                involvedAttributes.addAll(leftAndInfo.getRight());
+                involvedPlainAttrs.addAll(leftAndInfo.getRight());
 
                 Pair<StringBuilder, Set<String>> rigthAndInfo = getQuery(cond.getRightSearchCond(), parameters, svs);
-                involvedAttributes.addAll(rigthAndInfo.getRight());
+                involvedPlainAttrs.addAll(rigthAndInfo.getRight());
 
                 String andSubQuery = leftAndInfo.getKey().toString();
                 // Add extra parentheses
@@ -491,10 +495,10 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
             case OR:
                 Pair<StringBuilder, Set<String>> leftOrInfo = getQuery(cond.getLeftSearchCond(), parameters, svs);
-                involvedAttributes.addAll(leftOrInfo.getRight());
+                involvedPlainAttrs.addAll(leftOrInfo.getRight());
 
                 Pair<StringBuilder, Set<String>> rigthOrInfo = getQuery(cond.getRightSearchCond(), parameters, svs);
-                involvedAttributes.addAll(rigthOrInfo.getRight());
+                involvedPlainAttrs.addAll(rigthOrInfo.getRight());
 
                 String orSubQuery = leftOrInfo.getKey().toString();
                 // Add extra parentheses
@@ -508,7 +512,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             default:
         }
 
-        return Pair.of(query, involvedAttributes);
+        return Pair.of(query, involvedPlainAttrs);
     }
 
     protected String getQuery(
