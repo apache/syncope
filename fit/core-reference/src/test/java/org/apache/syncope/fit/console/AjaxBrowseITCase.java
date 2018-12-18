@@ -61,7 +61,7 @@ public class AjaxBrowseITCase extends AbstractConsoleITCase {
         TESTER.clickLink("body:realmsLI:realms");
         TESTER.assertRenderedPage(Realms.class);
 
-        TESTER.clickLink("body:topologyLI:topology");
+        TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage");
         TESTER.assertRenderedPage(Topology.class);
 
         TESTER.clickLink("body:reportsLI:reports");

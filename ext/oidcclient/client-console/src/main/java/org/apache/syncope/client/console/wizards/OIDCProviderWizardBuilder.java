@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wizards;
 
+import org.apache.syncope.client.console.wizards.resources.OIDCProviderMappingPanel;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;

@@ -54,8 +54,8 @@ under the License.
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.syncope.client</groupId>
-      <artifactId>syncope-client-console</artifactId>
+      <groupId>org.apache.syncope.client.idrepo</groupId>
+      <artifactId>syncope-client-idrepo-console</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>

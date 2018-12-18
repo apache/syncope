@@ -32,6 +32,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPa
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wizards.resources.JEXLTransformersTogglePanel;
 import org.apache.syncope.client.console.wizards.resources.ItemTransformersTogglePanel;
+import org.apache.syncope.client.console.wizards.resources.SAML2IdPMappingPanel;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.SAML2IdPTO;
 import org.apache.syncope.common.lib.types.SAML2BindingType;

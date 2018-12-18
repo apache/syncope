@@ -43,7 +43,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        TESTER.clickLink("body:topologyLI:topology");
+        TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage");
         TESTER.assertRenderedPage(Topology.class);
     }
 
@@ -166,7 +166,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.assertInfoMessages("Operation executed successfully");
 
         TESTER.cleanupFeedbackMessages();
-        TESTER.clickLink("body:topologyLI:topology");
+        TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage");
 
         Component component = findComponentByProp("key", "body:resources", res);
         assertNotNull(component);
@@ -264,7 +264,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
 
-        TESTER.clickLink("body:topologyLI:topology");
+        TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage");
         component = findComponentByProp("key", "body:resources", res);
         assertNull(component);
     }
@@ -362,7 +362,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:2:action:action");
 
-        TESTER.clickLink("body:topologyLI:topology");
+        TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage");
 
         component = findComponentByProp("key", "body:resources", "resource-testdb");
         assertNotNull(component);

@@ -339,7 +339,7 @@ public class BatchesITCase extends AbstractConsoleITCase {
 
     @Test
     public void executePropagationTask() {
-        TESTER.clickLink("body:topologyLI:topology");
+        TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage");
 
         Component component = findComponentByProp("key", "body:resources", "resource-testdb");
         assertNotNull(component);

@@ -512,8 +512,8 @@ The library is available as a Maven artifact:
 [source,xml,subs="verbatim,attributes"]
 ----
 <dependency>
-  <groupId>org.apache.syncope.client</groupId>
-  <artifactId>syncope-client-lib</artifactId>
+  <groupId>org.apache.syncope.client.idm</groupId>
+  <artifactId>syncope-client-idm-lib</artifactId>
   <version>{docVersion}</version>
 </dependency>
 ----

@@ -41,8 +41,8 @@ under the License.
   <dependencies>
     
     <dependency>
-      <groupId>org.apache.syncope.client</groupId>
-      <artifactId>syncope-client-lib</artifactId>
+      <groupId>org.apache.syncope.client.idm</groupId>
+      <artifactId>syncope-client-idm-lib</artifactId>
       <version>${project.version}</version>
     </dependency>
     
