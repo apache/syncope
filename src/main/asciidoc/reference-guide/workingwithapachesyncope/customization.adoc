@@ -19,8 +19,8 @@
 === Customization
 
 [CAUTION]
-Only Maven projects can be customized: if using Standalone, Debian packages or the GUI installer, none of the
-customizations discussed below can be applied.
+Only Maven projects can be customized: if using Standalone or Debian packages, none of the customizations discussed
+below can be applied.
 
 Apache Syncope is designed to be as flexible as possible, to best suit the various environments
 in which it can be deployed. Besides other aspects, this means that every feature and component can be extended or

@@ -37,9 +37,6 @@ Debian packages:: The configuration files will be first searched in `/etc/apache
 * `/usr/share/tomcat8/webapps/syncope-console/WEB-INF/classes/`
 * `/usr/share/tomcat8/webapps/syncope-enduser/WEB-INF/classes/`
 
-GUI installer:: Assuming that `$CONF_DIRECTORY` is the directory selected from the installer, the configuration files will be first
-searched in `$CONF_DIRECTORY`, then under the selected Java EE container's application classpath.
-
 Maven project:: Assuming that `$CONF_DIRECTORY` is the directory passed among
 <<deployment-directories,deployment directories>> at build time and that `$SOURCE` is the path where the Maven project
 was generated, the configuration files will be first searched in
