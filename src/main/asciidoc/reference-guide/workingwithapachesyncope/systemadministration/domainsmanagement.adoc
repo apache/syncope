@@ -31,7 +31,7 @@ the `Master` domain, which is always present.
 [CAUTION]
 Adding a new domain requires re-deploying the <<core>> application and restarting the Java EE container.
 
-Once a new domain is added, the admin credentials for such domain can be set via the admin console, CLI or
+Once a new domain is added, the admin credentials for such domain can be set via the admin console or
 barely invoking the REST layer through http://curl.haxx.se/[curl^].
 
 [[sample-domain-create]]

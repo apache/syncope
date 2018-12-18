@@ -64,7 +64,7 @@ lower_case_table_names=1
 
 ===== Export
 
-This task can be accomplished either via the admin console, CLI or by barely invoking the REST layer through
+This task can be accomplished either via the admin console or by barely invoking the REST layer through
 http://curl.haxx.se/[curl^], for example:
 
 ....

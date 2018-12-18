@@ -79,7 +79,6 @@ under the License.
   <modules>
     <module>idrepo</module>
     <module>idm</module>
-    <module>cli</module>
     <module>enduser</module>
   </modules>
 

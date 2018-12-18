@@ -143,20 +143,10 @@ E.g.
 
 To reset to the default mode, it is enough to click again on the specific icon.
 
-[[cli-component]]
-=== CLI
-
-The command-line interface (CLI) client is an utility tool meant for interacting with Apache Syncope deployments from 
-shell scripts.
-
-The communication between CLI and Core is exclusively REST-based.
-
-More details are available in the dedicated <<cli,usage>> section.
-
 === Third Party Applications
 
 Third-party applications are provided full access to IdM services by leveraging the REST interface, either via the 
-Java <<client-library,Client Library>> (the basis of Admin UI, End-user UI and CLI) or plain HTTP calls.
+Java <<client-library,Client Library>> (the basis of Admin UI and End-user UI) or plain HTTP calls.
 
 ==== Eclipse IDE Plugin
 

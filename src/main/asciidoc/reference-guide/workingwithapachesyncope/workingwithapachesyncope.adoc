@@ -32,8 +32,6 @@ include::adminconsole/adminconsole.adoc[]
 
 include::enduser.adoc[]
 
-include::cli/cli.adoc[]
-
 include::restfulservices.adoc[]
 
 include::customization.adoc[]

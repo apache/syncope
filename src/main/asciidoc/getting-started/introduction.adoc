@@ -99,9 +99,6 @@ for delegated administration.
 
 *_End-user UI_* is the web-based application for self-registration, self-service and password reset.
 
-*_CLI_* is the command-line application for interacting with Apache Syncope from scripts, particularly useful for 
-system administrators.
-
 *_Core_* is the central component, providing all services offered by Apache Syncope. +
 It exposes a fully-compliant https://en.wikipedia.org/wiki/Java_API_for_RESTful_Web_Services[JAX-RS 2.0^] 
 https://en.wikipedia.org/wiki/Representational_state_transfer[RESTful^] interface which enables third-party applications,
@@ -129,7 +126,7 @@ changes: MySQL, MariaDB, PostgreSQL, Oracle and MS SQL Server are fully supporte
 implementation of delegated administration scenarios.
 
 Third-party applications are provided full access to IdM services by leveraging the REST interface, either via the 
-Java Client Library (the basis of Admin UI, End-user UI and CLI) or plain HTTP calls.
+Java Client Library (the basis of Admin UI and End-user UI) or plain HTTP calls.
 
 .ConnId
 ****

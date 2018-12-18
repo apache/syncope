@@ -38,7 +38,6 @@ under the License.
     <jdbcdriver.artifactId>h2</jdbcdriver.artifactId>
     
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
-    <cli-test.dir>${project.build.directory}/cli-test</cli-test.dir>
   </properties>
 
   <dependencies>
@@ -122,12 +121,6 @@ under the License.
     <dependency>
       <groupId>org.apache.syncope.client.idm</groupId>
       <artifactId>syncope-client-idm-lib</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.client</groupId>
-      <artifactId>syncope-client-cli</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -243,14 +236,11 @@ under the License.
         <inherited>true</inherited>
         <executions>
           <execution>
-            <id>setupCSV_CLI</id>
+            <id>setupCSV</id>
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
                 <copy file="${project.build.directory}/test-classes/test.csv" todir="${test.csvdir.path}" overwrite="true" />
-
-                <mkdir dir="${cli-test.dir}" />
-                <unzip src="${basedir}/../../client/cli/target/syncope-client-cli-${project.version}.zip" dest="${cli-test.dir}" />
               </target>
             </configuration>
             <goals>

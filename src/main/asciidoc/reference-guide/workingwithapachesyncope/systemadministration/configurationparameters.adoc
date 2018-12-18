@@ -19,7 +19,7 @@
 
 ==== Configuration Parameters
 
-Most run-time configuration options are available as parameters and can be tuned either via the admin console, CLI or
+Most run-time configuration options are available as parameters and can be tuned either via the admin console or
 barely invoking the REST layer through http://curl.haxx.se/[curl^]:
 
 * `password.cipher.algorithm` - which cipher algorithm shall be used for encrypting password values; supported 
