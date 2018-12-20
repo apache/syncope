@@ -988,7 +988,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 break;
 
             default:
-                if (not && checked.getLeft().isMultivalue()) {
+                if (not && !(cond instanceof AnyCond) && checked.getLeft().isMultivalue()) {
                     query.append(svs.field().name).append(" WHERE ");
                 } else {
                     if (checked.getLeft().isUniqueConstraint()) {
