@@ -28,6 +28,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -153,94 +154,106 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final PlainSchema schema,
             final AttributeCond cond,
             final boolean not,
-            final List<Object> parameters) {
+            final List<Object> parameters,
+            final SearchSupport svs) {
 
-        String key = key(schema.getType());
-        boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
-                && (cond.getType() == AttributeCond.Type.IEQ || cond.getType() == AttributeCond.Type.ILIKE);
-
-        if (!not && cond.getType() == AttributeCond.Type.EQ) {
-            PlainAttr<?> container = anyUtils.newPlainAttr();
-            container.setSchema(schema);
-            if (attrValue instanceof PlainAttrUniqueValue) {
-                container.setUniqueValue((PlainAttrUniqueValue) attrValue);
-            } else {
-                ((JSONPlainAttr) container).add(attrValue);
-            }
-
-            query.append("plainAttrs @> '").
-                    append(POJOHelper.serialize(Arrays.asList(container))).
-                    append("'::jsonb");
+        // This first branch is required for handling with not conditions given on multivalue fields (SYNCOPE-1419)
+        if (not && !(cond instanceof AnyCond)
+                && schema.isMultivalue()
+                && cond.getType() != AttributeCond.Type.ISNULL
+                && cond.getType() != AttributeCond.Type.ISNOTNULL) {
+            query.append("id NOT IN (SELECT DISTINCT any_id FROM ");
+            query.append(svs.field().name).append(" WHERE ");
+            fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, parameters, svs);
+            query.append(")");
         } else {
-            query.append("attrs ->> 'schema' = ?").append(setParameter(parameters, cond.getSchema())).
-                    append(" AND ").
-                    append(lower ? "LOWER(" : "").
-                    append(schema.isUniqueConstraint()
-                            ? "attrs -> 'uniqueValue'" : "attrValues").
-                    append(" ->> '").append(key).append("'").
-                    append(lower ? ")" : "");
+            String key = key(schema.getType());
+            boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
+                    && (cond.getType() == AttributeCond.Type.IEQ || cond.getType() == AttributeCond.Type.ILIKE);
 
-            switch (cond.getType()) {
-                case LIKE:
-                case ILIKE:
-                    if (not) {
-                        query.append("NOT ");
-                    }
-                    query.append(" LIKE ");
-                    break;
-
-                case GE:
-                    if (not) {
-                        query.append('<');
-                    } else {
-                        query.append(">=");
-                    }
-                    break;
-
-                case GT:
-                    if (not) {
-                        query.append("<=");
-                    } else {
-                        query.append('>');
-                    }
-                    break;
-
-                case LE:
-                    if (not) {
-                        query.append('>');
-                    } else {
-                        query.append("<=");
-                    }
-                    break;
-
-                case LT:
-                    if (not) {
-                        query.append(">=");
-                    } else {
-                        query.append('<');
-                    }
-                    break;
-
-                case EQ:
-                case IEQ:
-                default:
-                    if (not) {
-                        query.append('!');
-                    }
-                    query.append('=');
-            }
-
-            String value = cond.getExpression();
-            if (schema.getType() == AttrSchemaType.Date) {
-                try {
-                    value = String.valueOf(DATE_FORMAT.parse(value).getTime());
-                } catch (ParseException e) {
-                    LOG.error("Could not parse {} as date", value, e);
+            if (!not && cond.getType() == AttributeCond.Type.EQ) {
+                PlainAttr<?> container = anyUtils.newPlainAttr();
+                container.setSchema(schema);
+                if (attrValue instanceof PlainAttrUniqueValue) {
+                    container.setUniqueValue((PlainAttrUniqueValue) attrValue);
+                } else {
+                    ((JSONPlainAttr) container).add(attrValue);
                 }
+
+                query.append("plainAttrs @> '").
+                        append(POJOHelper.serialize(Arrays.asList(container))).
+                        append("'::jsonb");
+            } else {
+                query.append("attrs ->> 'schema' = ?").append(setParameter(parameters, cond.getSchema())).
+                        append(" AND ").
+                        append(lower ? "LOWER(" : "").
+                        append(schema.isUniqueConstraint()
+                                ? "attrs -> 'uniqueValue'" : "attrValues").
+                        append(" ->> '").append(key).append("'").
+                        append(lower ? ")" : "");
+
+                switch (cond.getType()) {
+                    case LIKE:
+                    case ILIKE:
+                        if (not) {
+                            query.append("NOT ");
+                        }
+                        query.append(" LIKE ");
+                        break;
+
+                    case GE:
+                        if (not) {
+                            query.append('<');
+                        } else {
+                            query.append(">=");
+                        }
+                        break;
+
+                    case GT:
+                        if (not) {
+                            query.append("<=");
+                        } else {
+                            query.append('>');
+                        }
+                        break;
+
+                    case LE:
+                        if (not) {
+                            query.append('>');
+                        } else {
+                            query.append("<=");
+                        }
+                        break;
+
+                    case LT:
+                        if (not) {
+                            query.append(">=");
+                        } else {
+                            query.append('<');
+                        }
+                        break;
+
+                    case EQ:
+                    case IEQ:
+                    default:
+                        if (not) {
+                            query.append('!');
+                        }
+                        query.append('=');
+                }
+
+                String value = cond.getExpression();
+                if (schema.getType() == AttrSchemaType.Date) {
+                    try {
+                        value = String.valueOf(DATE_FORMAT.parse(value).getTime());
+                    } catch (ParseException e) {
+                        LOG.error("Could not parse {} as date", value, e);
+                    }
+                }
+                query.append(lower ? "LOWER(" : "").
+                        append("?").append(setParameter(parameters, value)).
+                        append(lower ? ")" : "");
             }
-            query.append(lower ? "LOWER(" : "").
-                    append("?").append(setParameter(parameters, value)).
-                    append(lower ? ")" : "");
         }
     }
 
@@ -267,8 +280,8 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             }
         }
 
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
-                append(svs.field().name).append(" WHERE ");
+        StringBuilder query = 
+                new StringBuilder("SELECT DISTINCT any_id FROM ").append(svs.field().name).append(" WHERE ");
         switch (cond.getType()) {
             case ISNOTNULL:
                 query.append("plainAttrs @> '[{\"schema\":\"").
@@ -285,8 +298,12 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                 break;
 
             default:
+                if (not && !(cond instanceof AnyCond) && checked.getLeft().isMultivalue()) {
+                    query = new StringBuilder("SELECT DISTINCT id AS any_id FROM ").append(svs.table().name).
+                            append(" WHERE ");
+                }
                 fillAttrQuery(anyUtilsFactory.getInstance(svs.anyTypeKind),
-                        query, checked.getRight(), checked.getLeft(), cond, not, parameters);
+                        query, checked.getRight(), checked.getLeft(), cond, not, parameters, svs);
         }
 
         return query.toString();
