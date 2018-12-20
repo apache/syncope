@@ -834,111 +834,126 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final boolean not,
             final List<Object> parameters,
             final SearchSupport svs) {
+        // This first branch is required for handling with not conditions given on multivalue fields (SYNCOPE-1419)
+        if (not && !(cond instanceof AnyCond)
+                && schema.isMultivalue()
+                && cond.getType() != AttributeCond.Type.ISNULL
+                && cond.getType() != AttributeCond.Type.ISNOTNULL) {
+            query.append("any_id NOT IN (SELECT DISTINCT any_id FROM ");
+            if (schema.isUniqueConstraint()) {
+                query.append(svs.asSearchViewSupport().uniqueAttr().name);
+            } else {
+                query.append(svs.asSearchViewSupport().attr().name);
+            }
+            query.append(" WHERE schema_id='").append(schema.getKey());
+            fillAttrQuery(query, attrValue, schema, cond, false, parameters, svs);
+            query.append(")");
+        } else {
+            // activate ignoreCase only for EQ and LIKE operators
+            boolean ignoreCase = AttributeCond.Type.ILIKE == cond.getType() || AttributeCond.Type.IEQ == cond.getType();
 
-        // activate ignoreCase only for EQ and LIKE operators
-        boolean ignoreCase = AttributeCond.Type.ILIKE == cond.getType() || AttributeCond.Type.IEQ == cond.getType();
+            String column = (cond instanceof AnyCond) ? cond.getSchema() : svs.fieldName(schema.getType());
+            if ((schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) && ignoreCase) {
+                column = "LOWER (" + column + ")";
+            }
+            if (!(cond instanceof AnyCond)) {
+                column = "' AND " + column;
+            }
 
-        String column = (cond instanceof AnyCond) ? cond.getSchema() : svs.fieldName(schema.getType());
-        if ((schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) && ignoreCase) {
-            column = "LOWER (" + column + ")";
-        }
-        if (!(cond instanceof AnyCond)) {
-            column = "' AND " + column;
-        }
+            switch (cond.getType()) {
 
-        switch (cond.getType()) {
+                case ISNULL:
+                    query.append(column).append(not
+                            ? " IS NOT NULL"
+                            : " IS NULL");
+                    break;
 
-            case ISNULL:
-                query.append(column).append(not
-                        ? " IS NOT NULL"
-                        : " IS NULL");
-                break;
+                case ISNOTNULL:
+                    query.append(column).append(not
+                            ? " IS NULL"
+                            : " IS NOT NULL");
+                    break;
 
-            case ISNOTNULL:
-                query.append(column).append(not
-                        ? " IS NULL"
-                        : " IS NOT NULL");
-                break;
+                case ILIKE:
+                case LIKE:
+                    if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
+                        query.append(column);
+                        if (not) {
+                            query.append(" NOT ");
+                        }
+                        query.append(" LIKE ");
+                        if (ignoreCase) {
+                            query.append("LOWER(?").append(setParameter(parameters, cond.getExpression())).append(')');
+                        } else {
+                            query.append('?').append(setParameter(parameters, cond.getExpression()));
+                        }
+                    } else {
+                        if (!(cond instanceof AnyCond)) {
+                            query.append("' AND");
+                        }
+                        query.append(" 1=2");
+                        LOG.error("LIKE is only compatible with string or enum schemas");
+                    }
+                    break;
 
-            case ILIKE:
-            case LIKE:
-                if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
+                case IEQ:
+                case EQ:
                     query.append(column);
                     if (not) {
-                        query.append(" NOT ");
-                    }
-                    query.append(" LIKE ");
-                    if (ignoreCase) {
-                        query.append("LOWER(?").append(setParameter(parameters, cond.getExpression())).append(')');
+                        query.append("<>");
                     } else {
-                        query.append('?').append(setParameter(parameters, cond.getExpression()));
+                        query.append('=');
                     }
-                } else {
-                    if (!(cond instanceof AnyCond)) {
-                        query.append("' AND");
+                    if ((schema.getType() == AttrSchemaType.String
+                            || schema.getType() == AttrSchemaType.Enum) && ignoreCase) {
+                        query.append("LOWER(?").append(setParameter(parameters, attrValue.getValue())).append(')');
+                    } else {
+                        query.append('?').append(setParameter(parameters, attrValue.getValue()));
                     }
-                    query.append(" 1=2");
-                    LOG.error("LIKE is only compatible with string or enum schemas");
-                }
-                break;
+                    break;
 
-            case IEQ:
-            case EQ:
-                query.append(column);
-                if (not) {
-                    query.append("<>");
-                } else {
-                    query.append('=');
-                }
-                if ((schema.getType() == AttrSchemaType.String
-                        || schema.getType() == AttrSchemaType.Enum) && ignoreCase) {
-                    query.append("LOWER(?").append(setParameter(parameters, attrValue.getValue())).append(')');
-                } else {
+                case GE:
+                    query.append(column);
+                    if (not) {
+                        query.append('<');
+                    } else {
+                        query.append(">=");
+                    }
                     query.append('?').append(setParameter(parameters, attrValue.getValue()));
-                }
-                break;
+                    break;
 
-            case GE:
-                query.append(column);
-                if (not) {
-                    query.append('<');
-                } else {
-                    query.append(">=");
-                }
-                query.append('?').append(setParameter(parameters, attrValue.getValue()));
-                break;
+                case GT:
+                    query.append(column);
+                    if (not) {
+                        query.append("<=");
+                    } else {
+                        query.append('>');
+                    }
+                    query.append('?').append(setParameter(parameters, attrValue.getValue()));
+                    break;
 
-            case GT:
-                query.append(column);
-                if (not) {
-                    query.append("<=");
-                } else {
-                    query.append('>');
-                }
-                query.append('?').append(setParameter(parameters, attrValue.getValue()));
-                break;
+                case LE:
+                    query.append(column);
+                    if (not) {
+                        query.append('>');
+                    } else {
+                        query.append("<=");
+                    }
+                    query.append('?').append(setParameter(parameters, attrValue.getValue()));
+                    break;
 
-            case LE:
-                query.append(column);
-                if (not) {
-                    query.append('>');
-                } else {
-                    query.append("<=");
-                }
-                query.append('?').append(setParameter(parameters, attrValue.getValue()));
-                break;
+                case LT:
+                    query.append(column);
+                    if (not) {
+                        query.append(">=");
+                    } else {
+                        query.append('<');
+                    }
+                    query.append('?').append(setParameter(parameters, attrValue.getValue()));
+                    break;
 
-            case LT:
-                query.append(column);
-                if (not) {
-                    query.append(">=");
-                } else {
-                    query.append('<');
-                }
-                query.append('?').append(setParameter(parameters, attrValue.getValue()));
-                break;
-
-            default:
+                default:
+            }
         }
     }
 

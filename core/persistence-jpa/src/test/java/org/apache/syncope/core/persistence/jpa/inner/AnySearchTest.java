@@ -770,4 +770,18 @@ public class AnySearchTest extends AbstractTest {
                 searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.USER),
                 users.size());
     }
+
+    @Test
+    public void issueSYNCOPE1419() {
+        AttributeCond loginDateCond = new AttributeCond(AttributeCond.Type.EQ);
+        loginDateCond.setSchema("loginDate");
+        loginDateCond.setExpression("2009-05-26");
+
+        SearchCond cond = SearchCond.getNotLeafCond(loginDateCond);
+        assertTrue(cond.isValid());
+
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(4, users.size());
+    }
 }
