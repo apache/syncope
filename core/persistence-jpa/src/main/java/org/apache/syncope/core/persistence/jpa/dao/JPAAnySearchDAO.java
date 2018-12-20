@@ -130,8 +130,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         Pair<String, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
 
         // 1. get the query string from the search condition
-        Pair<StringBuilder, Set<String>> queryInfo = getQuery(buildEffectiveCond(cond, filter.getRight()), parameters,
-                svs);
+        Pair<StringBuilder, Set<String>> queryInfo =
+                getQuery(buildEffectiveCond(cond, filter.getRight()), parameters, svs);
 
         StringBuilder queryString = queryInfo.getLeft();
 
@@ -167,8 +167,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             Pair<String, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
 
             // 1. get the query string from the search condition
-            Pair<StringBuilder, Set<String>> queryInfo = getQuery(buildEffectiveCond(cond, filter.getRight()),
-                    parameters, svs);
+            Pair<StringBuilder, Set<String>> queryInfo =
+                    getQuery(buildEffectiveCond(cond, filter.getRight()), parameters, svs);
 
             StringBuilder queryString = queryInfo.getLeft();
 
@@ -384,8 +384,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         orderByNonUniquePlainSchemas.add(schema.getKey());
                     }
                     if (orderByUniquePlainSchemas.size() > 1 || orderByNonUniquePlainSchemas.size() > 1) {
-                        SyncopeClientException invalidSearch = SyncopeClientException.build(
-                                ClientExceptionType.InvalidSearchExpression);
+                        SyncopeClientException invalidSearch =
+                                SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
                         invalidSearch.getElements().add("Order by more than one attribute is not allowed; "
                                 + "remove one from " + (orderByUniquePlainSchemas.size() > 1
                                 ? orderByUniquePlainSchemas : orderByNonUniquePlainSchemas));
