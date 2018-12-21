@@ -137,8 +137,8 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
             accessToken.setKey(UUID_GENERATOR.generate().toString());
 
             accessToken = replace(subject, claims, authorities, accessToken);
-        } else if (replace) {
-            // AccessToken found, but replace requested: update existing
+        } else if (replace || accessToken.getExpiryTime() == null || accessToken.getExpiryTime().before(new Date())) {
+            // AccessToken found, but either replace was requested or it is expired: update existing
             accessToken = replace(subject, claims, authorities, accessToken);
         }
 
