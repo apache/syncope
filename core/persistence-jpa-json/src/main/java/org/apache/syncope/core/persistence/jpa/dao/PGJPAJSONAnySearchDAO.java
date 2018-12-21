@@ -158,10 +158,10 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final SearchSupport svs) {
 
         // This first branch is required for handling with not conditions given on multivalue fields (SYNCOPE-1419)
-        if (not && !(cond instanceof AnyCond)
-                && schema.isMultivalue()
-                && cond.getType() != AttributeCond.Type.ISNULL
-                && cond.getType() != AttributeCond.Type.ISNOTNULL) {
+        if (not && schema.isMultivalue()
+                && !(cond instanceof AnyCond)
+                && cond.getType() != AttributeCond.Type.ISNULL && cond.getType() != AttributeCond.Type.ISNOTNULL) {
+
             query.append("id NOT IN (SELECT DISTINCT any_id FROM ");
             query.append(svs.field().name).append(" WHERE ");
             fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, parameters, svs);
@@ -280,7 +280,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             }
         }
 
-        StringBuilder query = 
+        StringBuilder query =
                 new StringBuilder("SELECT DISTINCT any_id FROM ").append(svs.field().name).append(" WHERE ");
         switch (cond.getType()) {
             case ISNOTNULL:

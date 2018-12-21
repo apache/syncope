@@ -747,15 +747,15 @@ public class AnySearchTest extends AbstractTest {
                 AnyTypeKind.USER);
         assertFalse(users.isEmpty());
     }
-    
+
     @Test
     public void issueSYNCOPE1416() {
         AttributeCond idLeftCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
         idLeftCond.setSchema("surname");
-        
+
         AttributeCond idRightCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
         idRightCond.setSchema("firstname");
-        
+
         SearchCond searchCondition = SearchCond.getAndCond(
                 SearchCond.getLeafCond(idLeftCond), SearchCond.getLeafCond(idRightCond));
 

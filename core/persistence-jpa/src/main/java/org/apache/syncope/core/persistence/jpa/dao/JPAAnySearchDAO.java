@@ -834,11 +834,12 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final boolean not,
             final List<Object> parameters,
             final SearchSupport svs) {
+
         // This first branch is required for handling with not conditions given on multivalue fields (SYNCOPE-1419)
-        if (not && !(cond instanceof AnyCond)
-                && schema.isMultivalue()
-                && cond.getType() != AttributeCond.Type.ISNULL
-                && cond.getType() != AttributeCond.Type.ISNOTNULL) {
+        if (not && schema.isMultivalue()
+                && !(cond instanceof AnyCond)
+                && cond.getType() != AttributeCond.Type.ISNULL && cond.getType() != AttributeCond.Type.ISNOTNULL) {
+
             query.append("any_id NOT IN (SELECT DISTINCT any_id FROM ");
             if (schema.isUniqueConstraint()) {
                 query.append(svs.asSearchViewSupport().uniqueAttr().name);

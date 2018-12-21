@@ -34,7 +34,6 @@ import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -288,7 +287,7 @@ public class SearchITCase extends AbstractITCase {
                         and("username").equalTo("bellini").query()).
                 build());
         assertEquals(users, issueSYNCOPE1321);
-        
+
         // SYNCOPE-1416 (check the search for attributes of type different from stringvalue)
         PagedResult<UserTO> issueSYNCOPE1416 = userService.search(new AnyQuery.Builder().
                 realm(SyncopeConstants.ROOT_REALM).
@@ -571,5 +570,25 @@ public class SearchITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidSearchExpression, e.getType());
         }
+    }
+
+    @Test
+    public void issueSYNCOPE1419() {
+        PagedResult<UserTO> total = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).page(1).size(1).build());
+
+        PagedResult<UserTO> matching = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().
+                                is("loginDate").equalTo("2009-05-26").query()).page(1).size(1).build());
+        assertTrue(matching.getSize() > 0);
+
+        PagedResult<UserTO> unmatching = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().
+                                is("loginDate").notEqualTo("2009-05-26").query()).page(1).size(1).build());
+        assertTrue(unmatching.getSize() > 0);
+
+        assertEquals(total.getTotalCount(), matching.getTotalCount() + unmatching.getTotalCount());;
     }
 }
