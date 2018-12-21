@@ -38,15 +38,18 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
 
     @Autowired
+    @Lazy
     private RealmDAO realmDAO;
 
     @Autowired
+    @Lazy
     private ExternalResourceDAO resourceDAO;
 
     private <T extends Policy> Class<? extends AbstractPolicy> getEntityReference(final Class<T> reference) {
