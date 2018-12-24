@@ -430,7 +430,7 @@ under the License.
     <commons-collection.version>4.1</commons-collection.version>
     <commons-logging.version>1.1.3</commons-logging.version>
     
-    <tika.version>1.19.1</tika.version>
+    <tika.version>1.20</tika.version>
 
     <joda.version>2.10.1</joda.version>
 
@@ -1939,7 +1939,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.1.1</version>
         </plugin>
         
         <plugin>
