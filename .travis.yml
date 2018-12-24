@@ -29,7 +29,7 @@ before_script:
   - cd fit/core-reference
 script:
   # invoker.streamLogs: we cannot access to log files through Travis web ui, so display everything in the console
-  - mvn --show-version verify -Dinvoker.streamLogs=true
+  - travis_wait 120 mvn --show-version verify -Dinvoker.streamLogs=true
 after_failure:
   - cat target/log/*
   - cat target/failsafe-reports/org.apache.syncope.fit.*-output.txt
