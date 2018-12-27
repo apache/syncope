@@ -803,6 +803,25 @@ public class AnySearchTest extends AbstractTest {
         assertEquals(
                 searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.USER),
                 users.size());
+        
+        // search by attribute with unique constraint
+        AttributeCond fullnameCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
+        fullnameCond.setSchema("fullname");
+
+        SearchCond cond = SearchCond.getLeafCond(fullnameCond);
+        assertTrue(cond.isValid());
+
+        users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertEquals(5, users.size());
+        
+        fullnameCond = new AttributeCond(AttributeCond.Type.ISNULL);
+        fullnameCond.setSchema("fullname");
+
+        cond = SearchCond.getLeafCond(fullnameCond);
+        assertTrue(cond.isValid());
+
+        users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertTrue(users.isEmpty());
     }
 
     @Test

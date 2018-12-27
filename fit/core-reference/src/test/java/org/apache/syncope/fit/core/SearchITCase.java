@@ -308,17 +308,6 @@ public class SearchITCase extends AbstractITCase {
                         and("username").equalTo("bellini").query()).
                 build());
         assertEquals(users, issueSYNCOPE1321);
-
-        // SYNCOPE-1416 (check the search for attributes of type different from stringvalue)
-        PagedResult<UserTO> issueSYNCOPE1416 = userService.search(new AnyQuery.Builder().
-                realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().
-                        is("loginDate").lexicalNotBefore("2009-05-26").
-                        and("username").equalTo("rossini").query()).
-                orderBy(SyncopeClient.getOrderByClauseBuilder().asc("loginDate").build()).
-                build());
-        assertEquals(1, issueSYNCOPE1416.getSize());
-        assertEquals("rossini", issueSYNCOPE1416.getResult().get(0).getUsername());
     }
 
     @Test
@@ -631,6 +620,36 @@ public class SearchITCase extends AbstractITCase {
     }
 
     @Test
+    public void issueSYNCOPE1416() {
+        // check the search for attributes of type different from stringvalue
+        PagedResult<UserTO> issueSYNCOPE1416 = userService.search(new AnyQuery.Builder().
+                realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("loginDate").lexicalNotBefore("2009-05-26").
+                        and("username").equalTo("rossini").query()).
+                orderBy(SyncopeClient.getOrderByClauseBuilder().asc("loginDate").build()).
+                build());
+        assertEquals(1, issueSYNCOPE1416.getSize());
+        assertEquals("rossini", issueSYNCOPE1416.getResult().get(0).getUsername());
+        
+        // search by attribute with unique constraint
+        issueSYNCOPE1416 = userService.search(new AnyQuery.Builder().
+                realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("fullname").query()).
+                orderBy(SyncopeClient.getOrderByClauseBuilder().asc("loginDate").build()).
+                build());
+        // some identities could have been imported by pull tasks executions
+        assertTrue(issueSYNCOPE1416.getSize() >= 5);
+        
+        issueSYNCOPE1416 = userService.search(new AnyQuery.Builder().
+                realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().isNull("fullname").query()).
+                orderBy(SyncopeClient.getOrderByClauseBuilder().asc("loginDate").build()).
+                build());
+        assertEquals(0, issueSYNCOPE1416.getSize());
+    }
+    
+    @Test
     public void issueSYNCOPE1417() {
         try {
             userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
@@ -661,6 +680,6 @@ public class SearchITCase extends AbstractITCase {
                                 is("loginDate").notEqualTo("2009-05-26").query()).page(1).size(1).build());
         assertTrue(unmatching.getSize() > 0);
 
-        assertEquals(total.getTotalCount(), matching.getTotalCount() + unmatching.getTotalCount());;
+        assertEquals(total.getTotalCount(), matching.getTotalCount() + unmatching.getTotalCount());
     }
 }
