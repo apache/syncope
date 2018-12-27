@@ -35,20 +35,25 @@ public class MemoryVirAttrCache implements VirAttrCache {
     /**
      * Elapsed time in seconds.
      */
-    protected int ttl;
+    protected int ttl = 60;
 
     /**
      * Max cache size.
      */
-    protected int maxCacheSize;
+    protected int maxCacheSize = 5000;
 
     /**
      * Cache entries.
      */
     protected final Map<VirAttrCacheKey, VirAttrCacheValue> cache = new HashMap<>();
 
-    public MemoryVirAttrCache(final int ttl, final int maxCacheSize) {
+    @Override
+    public void setTtl(final int ttl) {
         this.ttl = ttl;
+    }
+
+    @Override
+    public void setMaxCacheSize(final int maxCacheSize) {
         this.maxCacheSize = maxCacheSize;
     }
 

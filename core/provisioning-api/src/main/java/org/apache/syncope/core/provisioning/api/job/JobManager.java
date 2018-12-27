@@ -44,5 +44,4 @@ public interface JobManager {
     void unregister(Task task);
 
     void unregister(Report report);
-
 }

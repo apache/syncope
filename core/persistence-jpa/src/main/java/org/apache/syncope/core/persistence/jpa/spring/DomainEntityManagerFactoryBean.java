@@ -40,6 +40,7 @@ public class DomainEntityManagerFactoryBean extends LocalContainerEntityManagerF
         if (commonEMFConf.getPersistenceUnitPostProcessors() != null) {
             super.setPersistenceUnitPostProcessors(commonEMFConf.getPersistenceUnitPostProcessors());
         }
-    }
 
+        commonEMFConf.addDomain(this.getPersistenceUnitName(), this.getDataSource());
+    }
 }

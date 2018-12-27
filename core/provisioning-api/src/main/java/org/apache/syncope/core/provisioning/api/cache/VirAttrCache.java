@@ -23,6 +23,12 @@ package org.apache.syncope.core.provisioning.api.cache;
  */
 public interface VirAttrCache {
 
+    default void setTtl(int ttl) {
+    }
+
+    default void setMaxCacheSize(int maxCacheSize) {
+    }
+
     /**
      * Force entry expiring.
      *

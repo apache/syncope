@@ -396,7 +396,7 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
         try {
             SystemLoadReporterJob job = createSpringBean(SystemLoadReporterJob.class);
             registerJob(
-                    "systemLoadReporterJob",
+                    StringUtils.uncapitalize(SystemLoadReporterJob.class.getSimpleName()),
                     job,
                     "0 * * * * ?",
                     null,

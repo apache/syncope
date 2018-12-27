@@ -33,6 +33,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements PlainSchemaDAO {
 
@@ -43,6 +44,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
     private PlainAttrDAO plainAttrDAO;
 
     @Autowired
+    @Lazy
     private ExternalResourceDAO resourceDAO;
 
     @Override

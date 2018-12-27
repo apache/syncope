@@ -142,6 +142,8 @@ public final class Encryptor {
         return instance;
     }
 
+    private final Map<CipherAlgorithm, StandardStringDigester> digesters = new ConcurrentHashMap<>();
+
     private SecretKeySpec keySpec;
 
     private Encryptor(final String secretKey) {
@@ -230,24 +232,30 @@ public final class Encryptor {
     }
 
     private StandardStringDigester getDigester(final CipherAlgorithm cipherAlgorithm) {
-        StandardStringDigester digester = new StandardStringDigester();
+        StandardStringDigester digester = digesters.get(cipherAlgorithm);
+        if (digester == null) {
+            digester = new StandardStringDigester();
 
-        if (cipherAlgorithm.getAlgorithm().startsWith("S-")) {
-            // Salted ...
-            digester.setAlgorithm(cipherAlgorithm.getAlgorithm().replaceFirst("S\\-", ""));
-            digester.setIterations(SALT_ITERATIONS);
-            digester.setSaltSizeBytes(SALT_SIZE_BYTES);
-            digester.setInvertPositionOfPlainSaltInEncryptionResults(IPOPSIER);
-            digester.setInvertPositionOfSaltInMessageBeforeDigesting(IPOSIMBD);
-            digester.setUseLenientSaltSizeCheck(ULSSC);
-        } else {
-            // Not salted ...
-            digester.setAlgorithm(cipherAlgorithm.getAlgorithm());
-            digester.setIterations(1);
-            digester.setSaltSizeBytes(0);
+            if (cipherAlgorithm.getAlgorithm().startsWith("S-")) {
+                // Salted ...
+                digester.setAlgorithm(cipherAlgorithm.getAlgorithm().replaceFirst("S\\-", ""));
+                digester.setIterations(SALT_ITERATIONS);
+                digester.setSaltSizeBytes(SALT_SIZE_BYTES);
+                digester.setInvertPositionOfPlainSaltInEncryptionResults(IPOPSIER);
+                digester.setInvertPositionOfSaltInMessageBeforeDigesting(IPOSIMBD);
+                digester.setUseLenientSaltSizeCheck(ULSSC);
+            } else {
+                // Not salted ...
+                digester.setAlgorithm(cipherAlgorithm.getAlgorithm());
+                digester.setIterations(1);
+                digester.setSaltSizeBytes(0);
+            }
+
+            digester.setStringOutputType(CommonUtils.STRING_OUTPUT_TYPE_HEXADECIMAL);
+
+            digesters.put(cipherAlgorithm, digester);
         }
 
-        digester.setStringOutputType(CommonUtils.STRING_OUTPUT_TYPE_HEXADECIMAL);
         return digester;
     }
 }

@@ -108,8 +108,8 @@ under the License.
   <bean class="org.apache.syncope.core.provisioning.java.propagation.PropagationManagerImpl"/>
 
   <bean id="virAttrCache" class="${virAttrCache}" scope="singleton">
-    <constructor-arg value="60"/>
-    <constructor-arg value="5000"/>
+    <property name="ttl" value="60"/>
+    <property name="maxCacheSize" value="5000"/>
   </bean>
 
   <bean id="connIdBundleManager" class="org.apache.syncope.core.provisioning.java.ConnIdBundleManagerImpl">

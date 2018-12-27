@@ -26,10 +26,6 @@ import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
  */
 public class DisabledVirAttrCache implements VirAttrCache {
 
-    public DisabledVirAttrCache(final int ttl, final int maxCacheSize) {
-        // ignore
-    }
-
     @Override
     public void expire(final String type, final String key, final String schemaKey) {
         // nothing to do
@@ -49,5 +45,4 @@ public class DisabledVirAttrCache implements VirAttrCache {
     public void put(final String type, final String key, final String schemaName, final VirAttrCacheValue value) {
         // nothing to do
     }
-
 }

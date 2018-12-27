@@ -49,7 +49,7 @@ under the License.
   <servlet-mapping>
     <servlet-name>WADLServlet</servlet-name>
     <url-pattern>/index.html</url-pattern>
-    <url-pattern>/schema_1_syncope21.html</url-pattern>
+    <url-pattern>/schema_1_syncope30.html</url-pattern>
     <url-pattern>/syncope.wadl</url-pattern>
   </servlet-mapping>
 
