@@ -85,7 +85,7 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(rollbackFor = { Throwable.class })
-public class DefaultNotificationManagerImpl implements NotificationManager {
+public class DefaultNotificationManager implements NotificationManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(NotificationManager.class);
 
