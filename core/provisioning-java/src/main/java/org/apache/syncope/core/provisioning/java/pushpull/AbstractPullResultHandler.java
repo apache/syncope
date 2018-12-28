@@ -901,7 +901,9 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
         AnyUtils anyUtils = getAnyUtils();
 
-        notificationManager.createTasks(AuditElements.EventCategoryType.PULL,
+        notificationManager.createTasks(
+                AuthContextUtils.getUsername(),
+                AuditElements.EventCategoryType.PULL,
                 anyUtils.anyTypeKind().name().toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,
