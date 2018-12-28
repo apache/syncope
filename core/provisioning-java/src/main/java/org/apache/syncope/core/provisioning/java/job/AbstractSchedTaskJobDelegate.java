@@ -138,6 +138,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         status.set("Done");
 
         notificationManager.createTasks(
+                AuthContextUtils.getUsername(),
                 AuditElements.EventCategoryType.TASK,
                 this.getClass().getSimpleName(),
                 null,

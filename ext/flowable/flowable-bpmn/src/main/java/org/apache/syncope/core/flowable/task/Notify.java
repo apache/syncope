@@ -44,9 +44,11 @@ public class Notify extends FlowableServiceTask {
         User user = execution.getVariable(FlowableRuntimeUtils.USER, User.class);
         UserTO userTO = execution.getVariable(FlowableRuntimeUtils.USER_TO, UserTO.class);
         String event = execution.getVariable(FlowableRuntimeUtils.EVENT, String.class);
+        String wfExecutor = execution.getVariable(FlowableRuntimeUtils.WF_EXECUTOR, String.class);
 
         if (StringUtils.isNotBlank(event)) {
             notificationManager.createTasks(
+                    wfExecutor,
                     AuditElements.EventCategoryType.CUSTOM,
                     null,
                     null,

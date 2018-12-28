@@ -65,6 +65,7 @@ public interface NotificationManager {
     /**
      * Create notification tasks for each notification matching provided conditions.
      *
+     * @param who user triggering the event
      * @param type event category type
      * @param category event category
      * @param subcategory event subcategory
@@ -76,6 +77,7 @@ public interface NotificationManager {
      * @return created notification tasks
      */
     List<NotificationTask> createTasks(
+            String who,
             AuditElements.EventCategoryType type,
             String category,
             String subcategory,

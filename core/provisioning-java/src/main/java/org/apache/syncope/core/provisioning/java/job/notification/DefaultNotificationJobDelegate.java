@@ -199,6 +199,7 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
                     }
 
                     notificationManager.createTasks(
+                            AuthContextUtils.getUsername(),
                             AuditElements.EventCategoryType.TASK,
                             "notification",
                             null,
@@ -217,6 +218,7 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
                     }
 
                     notificationManager.createTasks(
+                            AuthContextUtils.getUsername(),
                             AuditElements.EventCategoryType.TASK,
                             "notification",
                             null,

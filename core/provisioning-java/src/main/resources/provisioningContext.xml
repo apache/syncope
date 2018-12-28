@@ -45,6 +45,8 @@ under the License.
   <bean class="${userProvisioningManager}"/>
   <bean class="${groupProvisioningManager}"/>
   <bean class="${anyObjectProvisioningManager}"/>
+  <bean class="${notificationManager}"/>
+  <bean class="${auditManager}"/>
 
   <bean id="quartzDataSourceInit" class="org.apache.syncope.core.provisioning.java.job.SchedulerDBInit">
     <property name="dataSource" ref="MasterDataSource"/>
