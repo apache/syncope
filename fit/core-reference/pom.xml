@@ -1286,17 +1286,6 @@ under the License.
           <groupId>org.apache.syncope.core</groupId>
           <artifactId>syncope-core-persistence-jpa</artifactId>
           <version>${project.version}</version>
-          <exclusions>
-            <exclusion>
-              <groupId>org.apache.bval</groupId>
-              <artifactId>bval-jsr</artifactId>
-            </exclusion>
-          </exclusions>
-        </dependency>
-        <dependency>
-          <groupId>org.hibernate.validator</groupId>
-          <artifactId>hibernate-validator</artifactId>
-          <version>6.0.11.Final</version>
         </dependency>
 
         <dependency>
