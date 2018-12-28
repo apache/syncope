@@ -154,10 +154,10 @@ specification provided in a given <<notifications,notification>>:
 ====
 Notification tasks are automatically generated via the
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/notification/NotificationManagerImpl.java[NotificationManager^],
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/notification/DefaultNotificationManager.java[NotificationManager^],
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/2_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/notification/NotificationManagerImpl.java[NotificationManager^],
+https://github.com/apache/syncope/blob/2_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/notification/DefaultNotificationManager.java[NotificationManager^],
 endif::[]
 executed via the
 ifeval::["{snapshotOrRelease}" == "release"]
