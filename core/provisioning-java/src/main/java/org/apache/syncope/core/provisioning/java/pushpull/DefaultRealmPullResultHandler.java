@@ -774,7 +774,9 @@ public class DefaultRealmPullResultHandler
             this.latestResult = result;
         }
 
-        notificationManager.createTasks(AuditElements.EventCategoryType.PULL,
+        notificationManager.createTasks(
+                AuthContextUtils.getUsername(),
+                AuditElements.EventCategoryType.PULL,
                 REALM_TYPE.toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,

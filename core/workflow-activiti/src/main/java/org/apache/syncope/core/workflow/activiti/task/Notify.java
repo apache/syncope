@@ -46,9 +46,12 @@ public class Notify extends AbstractActivitiServiceTask {
                 getVariable(executionId, ActivitiUserWorkflowAdapter.USER_TO, UserTO.class);
         String event = engine.getRuntimeService().
                 getVariable(executionId, ActivitiUserWorkflowAdapter.EVENT, String.class);
+        String wfExecutor = engine.getRuntimeService().
+                getVariable(executionId, ActivitiUserWorkflowAdapter.WF_EXECUTOR, String.class);
 
         if (StringUtils.isNotBlank(event)) {
             notificationManager.createTasks(
+                    wfExecutor,
                     AuditElements.EventCategoryType.CUSTOM,
                     null,
                     null,

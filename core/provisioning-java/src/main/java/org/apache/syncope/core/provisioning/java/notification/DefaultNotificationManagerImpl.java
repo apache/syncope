@@ -82,12 +82,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 @Transactional(rollbackFor = { Throwable.class })
-public class NotificationManagerImpl implements NotificationManager {
+public class DefaultNotificationManagerImpl implements NotificationManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(NotificationManager.class);
 
@@ -281,6 +279,7 @@ public class NotificationManagerImpl implements NotificationManager {
     @Override
     public void createTasks(final AfterHandlingEvent event) {
         createTasks(
+                event.getWho(),
                 event.getType(),
                 event.getCategory(),
                 event.getSubcategory(),
@@ -293,6 +292,7 @@ public class NotificationManagerImpl implements NotificationManager {
 
     @Override
     public List<NotificationTask> createTasks(
+            final String who,
             final AuditElements.EventCategoryType type,
             final String category,
             final String subcategory,
@@ -356,6 +356,7 @@ public class NotificationManagerImpl implements NotificationManager {
                     LOG.debug("Creating notification task for event {} about {}", currentEvent, any);
 
                     final Map<String, Object> model = new HashMap<>();
+                    model.put("who", who);
                     model.put("type", type);
                     model.put("category", category);
                     model.put("subcategory", subcategory);

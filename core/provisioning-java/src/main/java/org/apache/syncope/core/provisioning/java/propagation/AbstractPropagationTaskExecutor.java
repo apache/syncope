@@ -551,7 +551,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         if (notificationsAvailable || auditRequested) {
             ExecTO execTO = taskDataBinder.getExecTO(execution);
-            notificationManager.createTasks(AuditElements.EventCategoryType.PROPAGATION, anyTypeKind, resource,
+            notificationManager.createTasks(
+                    AuthContextUtils.getUsername(),
+                    AuditElements.EventCategoryType.PROPAGATION,
+                    anyTypeKind,
+                    resource,
                     operation,
                     result,
                     beforeObj,

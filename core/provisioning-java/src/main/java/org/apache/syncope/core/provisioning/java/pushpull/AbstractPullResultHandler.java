@@ -846,7 +846,9 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             this.latestResult = result;
         }
 
-        notificationManager.createTasks(AuditElements.EventCategoryType.PULL,
+        notificationManager.createTasks(
+                AuthContextUtils.getUsername(),
+                AuditElements.EventCategoryType.PULL,
                 getAnyUtils().anyTypeKind().name().toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,
