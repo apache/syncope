@@ -82,7 +82,7 @@ import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider;
 import org.apache.syncope.core.spring.ImplementationManager;
 
 @Transactional(rollbackFor = { Throwable.class })
-public class DefaultNotificationManagerImpl implements NotificationManager {
+public class DefaultNotificationManager implements NotificationManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(NotificationManager.class);
 

@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(readOnly = true)
-public class DefaultAuditManagerImpl implements AuditManager {
+public class DefaultAuditManager implements AuditManager {
 
     @Autowired
     private LoggerDAO loggerDAO;
