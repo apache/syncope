@@ -1,0 +1,822 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+*/
+
+/* Default style
+============================================================================= */
+* {
+  box-sizing: border-box;
+}
+
+#form-container {
+  position: relative;
+  width: 100%;
+  margin-top:-4px;
+  margin: 0 auto;
+  text-align: center;
+  background-color: #F7F7F7;
+}
+
+#form-container .breadcrumb-header {
+  margin: auto;
+  width: 80%; 
+  padding:10px; 
+}
+
+#form-container .page-header { 
+  background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9db80), color-stop(100%,#96c56f)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* IE10+ */ 
+  margin: 1% 9%;
+  width: 83%; padding:10px; 
+  /* shadows and rounded borders */
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+  -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+  text-align: left; 
+  font-weight: 700;
+}
+
+.signup-form {
+  text-align: left;
+  padding: 2%;
+}
+
+#attribute {
+  margin: auto;
+  max-width:480px;
+  padding: 10px;
+}
+
+#attribute-derived,
+#attribute-virtual {
+  padding:  155px;
+}
+
+.attribute-virtual-value-container {
+  margin-top: 2%;
+  list-style: none;
+  padding-right: 5%;
+}
+
+.attribute-virtual-value-field {
+  font-weight: 700;
+  padding: 6px 12px;
+  margin-bottom: 2%;
+}
+
+.fileButton{
+  margin-top: 2%;
+}
+
+.upper-select {
+  padding-right: 71%;
+  padding-left: 18%;
+}
+
+.attribute-ui-select {
+  width: 100%;
+  list-style: none;
+}
+
+#next,
+#previous,
+#save,
+#finish {
+  background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%);  /*FF3.6+*/ 
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9db80), color-stop(100%,#96c56f));  /*Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Opera 11.10+ */
+  background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*IE10+ */
+  display: inline-block;
+
+  padding-left: 8px;
+  padding-right: 8px;
+  margin-left: 5px;
+  border: none;
+  color: black;
+}
+
+#save:hover,
+#previous:hover,
+#finish:hover,
+#next:hover {
+  background: #658D5D;
+}
+
+#save {
+  margin-right: 5px;
+}
+
+#finish {
+  margin-right: 5px;
+}
+
+#cancel {
+  color: #fff;
+  margin-top: 0%;
+}
+
+.container-fluid {
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+  width: 63%;
+}
+
+
+#form-views { width:100%; }
+
+/* basic styling for entering and leaving */
+/* left and right to add to ensure full width: position:absolute; left:30px; right:30px; */
+#form-views.ng-enter,
+#form-views.ng-leave      { 
+  position: absolute;
+  transition:0.5s all ease-in; -moz-transition:0.5s all ease-in; -webkit-transition:0.5s all ease; 
+}
+
+/* enter animation */
+#form-views.ng-enter            { 
+  -webkit-animation:slideInRight 0.5s ease;
+  -moz-animation:slideInRight 0.5s ease;
+  animation:slideInRight 0.5s ease; 
+}
+
+/* leave animation */
+#form-views.ng-leave            { 
+  position:absolute;
+  -webkit-animation:slideOutLeft 0.5s ease;
+  -moz-animation:slideOutLeft 0.5s ease;
+  animation:slideOutLeft 0.5s ease;   
+}
+
+.btn-group{
+  margin-top: 10px;
+}
+
+span.k-datetimepicker{
+  width: 170%;
+}
+
+#date, #date-property{
+  position: relative;
+  display: table; 
+  border-collapse: separate;
+  margin-bottom: -40px;
+}
+
+#timepicker{
+  line-height: 34px; 
+  float: right; 
+  padding: 0 3px 0px 0px;
+  margin-top: -65px;
+  margin-left: 39px;
+}
+
+/** Button breadcrumb **/
+.btn-breadcrumb .btn:not(:last-child):after {
+  border-left: 10px solid #ffffff;
+}
+.btn-breadcrumb .btn:not(:last-child):before {
+  margin-left: 1px;
+  border-left: 10px solid rgb(173, 173, 173);
+}
+.btn-breadcrumb .btn:not(:last-child):before,
+.btn-breadcrumb .btn:not(:last-child):after {
+  content: " ";
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 17px solid transparent;
+  border-bottom: 17px solid transparent;
+  position: absolute;
+  top: 50%;
+  margin-top: -17px;
+  left: 100%;
+  z-index: 3;
+}
+
+/** The Spacing **/
+.btn-breadcrumb .btn {
+  padding:6px 12px 6px 24px;
+}
+.btn-breadcrumb .btn:first-child {
+  padding:6px 6px 6px 10px;
+}
+.btn-breadcrumb .btn:last-child {
+  padding:6px 18px 6px 24px;
+}
+
+/** Default buttons **/
+.breadcrumb-disabled-link {
+  pointer-events: none;
+  cursor: default;
+}
+
+.breadcrumb-btn-elem {
+  border-color: #ccc;
+}
+
+.btn-breadcrumb .breadcrumb-btn-elem:not(:last-child):after {
+  border-left: 10px solid #fff;
+}
+.btn-breadcrumb .breadcrumb-btn-elem:not(:last-child):before {
+  border-left: 10px solid #ccc;
+}
+
+.btn-breadcrumb .breadcrumb-btn-elem.active:not(:last-child):after,
+.btn-breadcrumb .breadcrumb-btn-elem:hover:not(:last-child):after {
+  border-left: 10px solid #ebebeb;
+}
+.btn-breadcrumb .breadcrumb-btn-elem.active:not(:last-child):before,
+.btn-breadcrumb .breadcrumb-btn-elem:hover:not(:last-child):before {
+  border-left: 10px solid #adadad;
+}
+
+.btn-breadcrumb .breadcrumb-btn-elem.active {
+  box-shadow: 0 0px 0px rgba(0, 0, 0, 0.125)
+}
+.btn-breadcrumb .breadcrumb-btn-elem:focus {
+  box-shadow: none !important;
+}
+
+.btn-breadcrumb .btn:before,
+.btn-breadcrumb .btn:after {
+  transition: all .15s ease-in-out;
+}
+
+div[role="tablist"] {
+  margin-bottom: 20px;
+}
+
+/* For Bootstrap 4 */
+
+/*
+.btn-breadcrumb .breadcrumb-btn-elem:hover {
+  color: #ffffff !important;
+}
+
+.btn-breadcrumb .breadcrumb-btn-elem:not(:hover),
+.btn-breadcrumb .breadcrumb-home:not(:hover) {
+  color: #333;
+  background-color: #fff;
+}
+
+.btn-breadcrumb .breadcrumb-btn-elem:hover:not(:last-child):after,
+.btn-breadcrumb .breadcrumb-btn-elem:hover:not(:last-child):before,
+.btn-breadcrumb .breadcrumb-btn-elem.active:not(:last-child):after,
+.btn-breadcrumb .breadcrumb-btn-elem.active:not(:last-child):before {
+  border-left: 10px solid #4c4c4c;
+}
+*/
+
+.btn-file {
+  background: transparent;
+  color: black;
+}
+
+.text-validation-error{
+  color: #dd301b;
+  font-weight: 600;
+}
+
+.multivalue button{
+  float: right
+}
+.schema-type #date{
+  margin-top: 35px;
+  margin-bottom: 2px;
+}
+
+.schema-type #date-property {
+    margin-bottom: 2px;
+}
+
+.property-label{
+  margin-top: 15px
+}
+
+.multivalue input{
+  width: calc(100% - 70px);
+  margin-top: 10px
+}
+
+.multivalue input:disabled{
+  width: 100%;  
+}
+
+.multivalue button{
+  margin-top: 2px
+}
+
+.multivalue #datetime{
+  margin-top: 0px
+}
+
+#datetime input{
+  width: 100%;
+  margin-top: 0px
+}
+#timepicker input{
+  width: 50px;
+  margin-top: 0px
+}
+
+.multivalue #timepicker {
+  margin-top: -35px;
+}
+
+.suggestions{
+  font-size: 10px;
+  display: inline-block;
+  margin-bottom: 5px;
+}
+
+#status-buttons {
+  padding-left: 15px;
+  -webkit-flex-flow: row wrap; /* Safari 6.1+ */
+  flex-flow: row wrap;
+}
+
+.card.card-open {
+  background-color: #ffffff;
+}
+
+.card-header a {
+  text-decoration: none;
+}
+
+.card-header h5 a {
+  color: black;
+}
+
+.card-header {
+  padding: 2px 15px;
+  border-bottom: 1px solid transparent;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  background-color: #f5f5f5;
+  border-color: #ddd;
+}
+/* end default style
+============================================================================= */
+
+/* Style for devices max width 350
+============================================================================= */
+@media only screen and (max-width: 350px) {
+
+  input[type=file] {
+    display: block;
+    color: #ffffff !important;
+  }
+
+  #form-container {
+    padding: 1px 0px 0px 0px;
+  }
+
+  .panel-body {
+    padding: 0px;
+  }
+
+  #timepicker{
+    width: 47px;
+    line-height: 34px; 
+    float: right; 
+    padding: 0 3px 0px 0px;
+    margin-top: -65px;
+  }
+
+
+  .btn-group{
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle;
+    width: 90%;
+    margin-left: 35px;
+    margin-top: 10px;
+    padding: 0px 0px 1px 0px
+  }
+
+  #finish,
+  #save,
+  #next,
+  #previous {
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+
+  #finish{
+    margin-left:-27px;
+    margin-top: 2px;
+  }
+  #next{
+    margin-left: 1px;
+  }
+  #previous{
+    margin-left:-126px;
+  }
+  #save{
+    margin-top: 4px;
+    margin-top:-31px;
+    margin-left: -42px;
+    margin-right: 15px;
+  }
+
+  span.k-datetimepicker {
+    width: 141%;
+    margin-top: -50px;
+  }
+
+}
+/* 
+============================================================================= */
+
+/* Style for devices max width 400
+============================================================================= */
+@media only screen and (max-width: 400px) {
+
+  input[type=file] {
+    display: block;
+  }
+
+  .panel-body {
+    padding: 0px;
+  }
+
+  #datetime input {
+    width: 100%;
+  }
+
+  #form-container {
+    padding: 1px 0px 0px 0px;
+  }
+
+  #form-container .breadcrumb-header   { 
+    margin: auto;
+    width: 100%; 
+    padding: 1px 0px 0px 0px;
+    text-align: left;
+    overflow: auto;
+  }
+
+  .btn-group{
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle;
+    width: 70%;
+    margin-left: 35px;
+    margin-top: 10px;
+    padding: 0px 0px 1px 0px
+  }
+
+  .btn-breadcrumb .btn {
+    padding:6px 12px 6px 12px;
+  }
+
+  .btn-breadcrumb .btn:first-child {
+    padding:6px 6px 6px 10px;
+  }
+
+  .btn-breadcrumb .btn:last-child {
+    padding:6px 18px 6px 24px;
+  }
+
+  #next,
+  #finish,
+  #previous,
+  #save {
+    padding-left: 2px;
+  }
+
+  #finish {
+    padding-right: 2px;
+    margin-right: -3px;
+    margin-left: 0px;
+  }
+  #next {
+    padding-right: 2px;
+    margin-right: 23px;
+  }
+  #previous {
+    padding-right: 2px;
+    margin-left: 0px
+  }
+  #save {
+    padding-right: 0px;
+    margin-left: -21px;
+    margin-top: 4px;
+  }
+
+  span.k-datetimepicker{
+    width: 160%;
+  }
+
+}
+/* 
+============================================================================= */
+
+/* Style for devices max width 500
+============================================================================= */
+@media only screen and (max-width: 500px) {
+
+  * {
+    font-size:12px;
+  }
+
+  #form-container {
+    padding: 1px 0px 0px -4px;
+  }
+
+  #form-container .breadcrumb-header   { 
+    margin: auto;
+    width: 118%; 
+    text-align: left;
+    overflow: auto;
+  }
+
+  .panel-body {
+    padding: 0px;
+  }
+
+  .btn-group{
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle;
+    width: 80%;
+    margin-left: 35px;
+    margin-top: 10px;
+    padding: 0px 0px 1px 0px
+  }
+
+  .btn{
+    font-size: 12px;
+  }
+
+  .btn-group .btn+.btn, 
+  .btn-group .btn+.btn-group, 
+  .btn-group .btn-group+.btn, 
+  .btn-group .btn-group+.btn-group {
+    margin-left: 0px;
+  }
+
+  .card-container.card {
+    width: 295px;
+    padding: 40px 40px 0px;
+  }
+
+  .btn-breadcrumb .btn {
+    padding:6px 12px 6px 12px;
+  }
+
+  .btn-breadcrumb .btn:first-child {
+    padding:6px 6px 6px 10px;
+  }
+
+  .btn-breadcrumb .btn:last-child {
+    padding:6px 18px 6px 24px;
+  }
+
+  #resetpassword {
+    margin-left: 5px;
+    width: 70px;
+  }
+
+  #navButtons{
+    float: right;
+    width: 75%;
+  }
+
+  .container {
+    padding-right: 0px;
+    padding-left: 0px;
+    margin-right: auto;
+    margin-left: auto;
+    /*margin-top: -4px;*/
+  }
+
+  .input-group .form-control{
+    font-size: 12px;
+  }
+
+  label {
+    font-size: 12px;
+  }
+
+  .form-control{
+    font-size: 12px;
+  }
+
+  .select2-results .select2-result-label{
+    font-size: 12px;
+  }
+
+  .select2-container-multi .select2-choices .select2-search-field input{
+    font-size:12px;
+  }
+
+  #datetime{
+    line-height: 34px;
+    float: left;
+    margin-top:-30px;
+    padding: 0 3px 0px 0px;
+    display: inline-block !important;
+    width:100px;
+  }
+
+  #date, #date-property{
+    position: relative;
+    display: table; 
+    border-collapse: separate;
+  }
+
+  #timepicker{
+    line-height: 34px; 
+    float: right; 
+    padding: 0 3px 0px 0px;
+    margin-top: -65px;
+  }
+
+  span.k-datetimepicker{
+    width: 171%;
+    margin-top: 50%;
+  }
+
+  .multivalue button{
+    width: 40px;
+  }
+
+  .row{
+    margin-left: -34px;
+    margin-right: 0px;
+    width: 100%
+  }
+
+  .navbar {
+    position: relative;
+    min-height: 50px;
+    width: 100%;
+    margin-left: 33px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+  }
+
+  #datetime{
+    line-height: 34px;
+    float: left;
+    margin-top:-30px;
+    padding: 0 3px 0px 0px;
+    display: -webkit-inline-box;
+  }
+
+  #datetime input{
+    width: 105%;
+    margin-top: 0px
+  }
+
+  #date, #date-property{
+    position: relative;
+    display: table; 
+    border-collapse: separate;
+    margin-bottom: -40px;
+  }
+
+  #calendar{
+    position:absolute;
+    margin-top: -33px;
+    margin-left: 99px;
+    width:40px;
+  }
+
+  #timepicker{
+    line-height: 34px; 
+    float: right; 
+    padding: 0 3px 0px 0px;
+    margin-top: -64px;
+    margin-left: 48px;
+  }
+
+
+  .container-fluid {
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: 33px;
+    margin-left: 33px;
+    width: 82%;
+  }
+
+  #finish{
+    padding-left: 4px;
+    padding-right: 4px;
+    margin-top: 4px;
+    margin-right: 16px;
+  }
+  #next{
+    padding-left: 6px;
+    padding-right: 4px;
+    margin-right:-15px;
+  }
+  #previous{
+    padding-left: 4px;
+    padding-right: 4px;
+    margin-left: -87px
+  }
+  #save{
+    padding-left: 4px;
+    padding-right: 4px;
+    margin-top:4px;
+    margin-right:25px;
+
+  }
+}
+/* 
+============================================================================= */
+
+/* Style for devices max width 800)
+============================================================================= */
+@media only screen and (max-width: 800px) {
+
+  * {
+    font-size:12px;
+  }
+
+  #form-container .breadcrumb-header   { 
+    width: 97%; 
+    padding: 1px 0px 0px 0px;
+    text-align: left;
+    overflow: auto;
+  }
+
+  .panel-body {
+    padding: 0px;
+  }
+
+  .btn-group{
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle;
+    width: 80%;
+    margin-left: 35px;
+    margin-top: 10px;
+    padding: 0px 0px 1px 0px
+  }
+
+  #captchaImg {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+}
+/* 
+============================================================================= */
+
+/* ANIMATIONS
+============================================================================= */
+/* slide out to the left */
+@keyframes slideOutLeft {
+  to      { transform: translateX(-300%); }
+}
+@-moz-keyframes slideOutLeft {  
+  to      { -moz-transform: translateX(-300%); }
+}
+@-webkit-keyframes slideOutLeft {
+  to      { -webkit-transform: translateX(-300%); }
+}
+
+/* slide in from the right */
+@keyframes slideInRight {
+  from    { transform:translateX(300%); }
+  to      { transform: translateX(0); }
+}
+@-moz-keyframes slideInRight {
+  from    { -moz-transform:translateX(300%); }
+  to      { -moz-transform: translateX(0); }
+}
+@-webkit-keyframes slideInRight {
+  from    { -webkit-transform:translateX(300%); }
+  to      { -webkit-transform: translateX(0); }
+}
+/* 
+============================================================================= */

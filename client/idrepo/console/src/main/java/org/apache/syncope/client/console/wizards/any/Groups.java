@@ -18,22 +18,22 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
-import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.ui.commons.wizards.any.AbstractGroups;
+import org.apache.syncope.client.ui.commons.wizards.any.AbstractGroupsModel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -42,7 +42,6 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
-import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
@@ -50,24 +49,15 @@ import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.PropertyModel;
 
-public class Groups extends WizardStep implements ICondition {
+public class Groups extends AbstractGroups {
 
     private static final long serialVersionUID = 552437609667518888L;
 
-    private static final int MAX_GROUP_LIST_CARDINALITY = 30;
-
     private final GroupRestClient groupRestClient = new GroupRestClient();
-
-    private final List<DynRealmTO> allDynRealms = new DynRealmRestClient().list();
-
-    private GroupsModel groupsModel;
-
-    private final AnyTO anyTO;
 
     private boolean templateMode;
 
@@ -75,13 +65,14 @@ public class Groups extends WizardStep implements ICondition {
 
     protected WebMarkupContainer dynrealmsContainer;
 
+    private final ConsoleGroupsModel groupsModel;
+
+    private final List<DynRealmTO> allDynRealms = new ArrayList<>();
+
     public <T extends AnyTO> Groups(final AnyWrapper<T> modelObject, final boolean templateMode) {
-        super();
+        super(modelObject);
         this.templateMode = templateMode;
-
-        this.anyTO = modelObject.getInnerObject();
-
-        groupsModel = new GroupsModel();
+        this.groupsModel = new ConsoleGroupsModel();
 
         // -----------------------------------------------------------------
         // Pre-Authorizations
@@ -91,18 +82,26 @@ public class Groups extends WizardStep implements ICondition {
         permissions.authorizeAll(RENDER);
         // -----------------------------------------------------------------
 
-        setOutputMarkupId(true);
+        addDynamicGroupsContainer();
 
-        WebMarkupContainer groupsContainer = new WebMarkupContainer("groupsContainer");
-        groupsContainer.setOutputMarkupId(true);
-        groupsContainer.setOutputMarkupPlaceholderTag(true);
-        add(groupsContainer);
+        addGroupsPanel();
 
-        dyngroupsContainer = new WebMarkupContainer("dyngroupsContainer");
-        dyngroupsContainer.setOutputMarkupId(true);
-        dyngroupsContainer.setOutputMarkupPlaceholderTag(true);
-        add(dyngroupsContainer);
+        addDynamicRealmsContainer();
+    }
 
+    private void addDynamicRealmsContainer() {
+        dynrealmsContainer = new WebMarkupContainer("dynrealmsContainer");
+        dynrealmsContainer.setOutputMarkupId(true);
+        dynrealmsContainer.setOutputMarkupPlaceholderTag(true);
+        dynrealmsContainer.add(new AjaxPalettePanel.Builder<>().build("dynrealms",
+                new PropertyModel<>(anyTO, "dynRealms"),
+                new ListModel<>(allDynRealms.stream().map(EntityTO::getKey).collect(Collectors.toList()))).
+                hideLabel().setEnabled(false).setOutputMarkupId(true));
+        add(dynrealmsContainer);
+    }
+
+    @Override
+    protected void addGroupsPanel() {
         if (anyTO instanceof GroupTO) {
             groupsContainer.add(new Label("groups").setVisible(false));
             groupsContainer.setVisible(false);
@@ -179,29 +178,13 @@ public class Groups extends WizardStep implements ICondition {
 
             // ---------------------------------
         }
+    }
 
-        dynrealmsContainer = new WebMarkupContainer("dynrealmsContainer");
-        dynrealmsContainer.setOutputMarkupId(true);
-        dynrealmsContainer.setOutputMarkupPlaceholderTag(true);
-        dynrealmsContainer.add(new AjaxPalettePanel.Builder<>().build("dynrealms",
-                new PropertyModel<>(anyTO, "dynRealms"),
-                new ListModel<>(allDynRealms.stream().map(EntityTO::getKey).collect(Collectors.toList()))).
-                hideLabel().setEnabled(false).setOutputMarkupId(true));
-        add(dynrealmsContainer);
-
-        // ------------------
-        // insert changed label if needed
-        // ------------------
-        if (modelObject instanceof UserWrapper
-                && UserWrapper.class.cast(modelObject).getPreviousUserTO() != null
-                && !ListUtils.isEqualList(
-                        UserWrapper.class.cast(modelObject).getInnerObject().getMemberships(),
-                        UserWrapper.class.cast(modelObject).getPreviousUserTO().getMemberships())) {
-            groupsContainer.add(new LabelInfo("changed", StringUtils.EMPTY));
-        } else {
-            groupsContainer.add(new Label("changed", StringUtils.EMPTY));
-        }
-        // ------------------
+    private void addDynamicGroupsContainer() {
+        dyngroupsContainer = new WebMarkupContainer("dyngroupsContainer");
+        dyngroupsContainer.setOutputMarkupId(true);
+        dyngroupsContainer.setOutputMarkupPlaceholderTag(true);
+        add(dyngroupsContainer);
     }
 
     @Override
@@ -213,7 +196,7 @@ public class Groups extends WizardStep implements ICondition {
                         isActionAuthorized(this, RENDER);
     }
 
-    private class GroupsModel extends ListModel<GroupTO> {
+    public class ConsoleGroupsModel extends AbstractGroupsModel {
 
         private static final long serialVersionUID = -4541954630939063927L;
 
@@ -234,7 +217,8 @@ public class Groups extends WizardStep implements ICondition {
         /**
          * Retrieve the first MAX_GROUP_LIST_CARDINALITY assignable.
          */
-        private void reloadObject() {
+        @Override
+        protected void reloadObject() {
             groups = groupRestClient.search(
                     realm,
                     SyncopeClient.getGroupSearchConditionBuilder().isAssignable().query(),
@@ -244,6 +228,7 @@ public class Groups extends WizardStep implements ICondition {
                     null);
         }
 
+        @Override
         public List<MembershipTO> getMemberships() {
             reload();
             return memberships;
@@ -252,7 +237,8 @@ public class Groups extends WizardStep implements ICondition {
         /**
          * Retrieve group memberships.
          */
-        private void reloadMemberships() {
+        @Override
+        protected void reloadMemberships() {
             // this is to be sure to have group names (required to see membership details in approval page)
             GroupFiqlSearchConditionBuilder searchConditionBuilder = SyncopeClient.getGroupSearchConditionBuilder();
 
@@ -286,6 +272,7 @@ public class Groups extends WizardStep implements ICondition {
             memberships = GroupableRelatableTO.class.cast(anyTO).getMemberships();
         }
 
+        @Override
         public List<String> getDynMemberships() {
             reload();
             return dynMemberships;
@@ -294,7 +281,8 @@ public class Groups extends WizardStep implements ICondition {
         /**
          * Retrieve dyn group memberships.
          */
-        private void reloadDynMemberships() {
+        @Override
+        protected void reloadDynMemberships() {
             GroupFiqlSearchConditionBuilder searchConditionBuilder = SyncopeClient.getGroupSearchConditionBuilder();
 
             List<CompleteCondition> conditions = GroupableRelatableTO.class.cast(anyTO).getDynMemberships().
@@ -317,7 +305,8 @@ public class Groups extends WizardStep implements ICondition {
         /**
          * Reload data if the realm changes (see SYNCOPE-1135).
          */
-        private void reload() {
+        @Override
+        protected void reload() {
             boolean reload;
 
             if (Groups.this.templateMode) {

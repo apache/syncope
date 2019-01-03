@@ -35,19 +35,35 @@ under the License.
   
   <properties>
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
-    <enduser-test.dir>${project.build.directory}/enduser-test</enduser-test.dir>
-    <protractor.cmd>${enduser-test.dir}/nodejs/bin/protractor</protractor.cmd>
-    <webdriver-manager.cmd>${enduser-test.dir}/nodejs/bin/webdriver-manager</webdriver-manager.cmd>
   </properties>
 
   <dependencies>
+    <dependency> 
+      <groupId>javax.servlet</groupId> 
+      <artifactId>javax.servlet-api</artifactId> 
+    </dependency>
     <dependency>
+      <groupId>javax.servlet.jsp</groupId>
+      <artifactId>javax.servlet.jsp-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
+    </dependency>
+
+    <!--    <dependency>
       <groupId>org.apache.syncope.client</groupId>
       <artifactId>syncope-client-enduser</artifactId>
       <version>${project.version}</version>
-    </dependency>
+    </dependency>-->
 
     <dependency>
+      <groupId>org.apache.syncope.client.idrepo</groupId>
+      <artifactId>syncope-client-idrepo-enduser</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!--    <dependency>
       <groupId>org.apache.syncope.ext.saml2sp</groupId>
       <artifactId>syncope-ext-saml2sp-client-enduser</artifactId>
       <version>${project.version}</version>
@@ -63,14 +79,39 @@ under the License.
       <groupId>org.apache.syncope.ext.flowable</groupId>
       <artifactId>syncope-ext-flowable-client-enduser</artifactId>
       <version>${project.version}</version>
+    </dependency>-->
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.lmax</groupId>
+      <artifactId>disruptor</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
     </dependency>
     
     <!-- TEST -->
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
@@ -101,125 +142,6 @@ under the License.
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <inherited>true</inherited>
-        <executions>
-          <execution>
-            <id>setup-enduser-it</id>
-            <phase>pre-integration-test</phase>
-            <configuration>
-              <target>
-                <mkdir dir="${enduser-test.dir}" />
-                <copy todir="${enduser-test.dir}" overwrite="true">
-                  <file name="${project.build.directory}/test-classes/protractor-conf.js" />
-                  <fileset dir="${project.build.directory}/test-classes" includes="tests/**" />
-                </copy>
-
-                <delete file="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/userWorkflow.bpmn20.xml" />
-              </target>
-              <skip>${skipTests}</skip>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>     
-
-      <plugin>
-        <groupId>com.github.eirslett</groupId>
-        <artifactId>frontend-maven-plugin</artifactId>
-        <configuration>
-          <skip>${skipTests}</skip>
-          <skipTests>${skipTests}</skipTests>
-        </configuration>
-        <executions>
-          <execution>
-            <id>install-node-npm</id>
-            <phase>pre-integration-test</phase>            
-            <goals>
-              <goal>install-node-and-npm</goal>
-            </goals>
-            <configuration>
-              <workingDirectory>${enduser-test.dir}/nodejs</workingDirectory>
-              <nodeVersion>${nodejs.version}</nodeVersion>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-           
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <configuration>
-          <skip>${skipTests}</skip>
-        </configuration>
-        <executions>
-          <execution>            
-            <id>install-protractor</id>
-            <phase>pre-integration-test</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <workingDirectory>${enduser-test.dir}/nodejs/node/node_modules</workingDirectory>
-              <executable>${enduser-test.dir}/nodejs/node/node</executable>
-              <arguments>
-                <argument>npm/bin/npm-cli.js</argument>
-                <argument>install</argument>
-                <argument>-g</argument>
-                <argument>protractor@${protractor.version}</argument>                
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>            
-            <id>update-protractor-webdriver-manager</id>
-            <phase>pre-integration-test</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <workingDirectory>${enduser-test.dir}/nodejs/lib</workingDirectory>
-              <executable>${enduser-test.dir}/nodejs/node/node</executable>
-              <arguments>
-                <argument>${webdriver-manager.cmd}</argument>
-                <argument>update</argument>                             
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>            
-            <id>exec-protractor</id>
-            <phase>integration-test</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>${enduser-test.dir}/nodejs/node/node</executable>
-              <arguments>
-                <argument>${protractor.cmd}</argument>
-                <argument>${enduser-test.dir}/protractor-conf.js</argument>                             
-              </arguments>
-            </configuration>
-          </execution>                          
-        </executions>
-      </plugin>
-            
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <inherited>true</inherited>
-        <executions>
-          <execution>
-            <id>verify</id>
-            <goals>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      
       <plugin>
         <groupId>org.codehaus.cargo</groupId>
         <artifactId>cargo-maven2-plugin</artifactId>
@@ -280,28 +202,6 @@ under the License.
             </deployable>
           </deployables>
         </configuration>
-        <executions>
-          <execution>
-            <id>start-container</id>
-            <phase>pre-integration-test</phase>
-            <goals>
-              <goal>start</goal>
-            </goals>
-            <configuration>
-              <skip>${skipTests}</skip>
-            </configuration>
-          </execution>
-          <execution>
-            <id>stop-container</id>
-            <phase>post-integration-test</phase>
-            <goals>
-              <goal>stop</goal>
-            </goals>
-            <configuration>
-              <skip>${skipTests}</skip>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       
       <plugin>
@@ -336,21 +236,6 @@ under the License.
   </build>
   
   <profiles>
-    <profile>
-      <id>windows-it</id>
-
-      <activation>
-        <os>
-          <family>Windows</family>
-        </os>
-      </activation>
-
-      <properties>
-        <protractor.cmd>${enduser-test.dir}/nodejs/node/node_modules/protractor/bin/protractor</protractor.cmd>
-        <webdriver-manager.cmd>${enduser-test.dir}/nodejs/node/node_modules/protractor/bin/webdriver-manager</webdriver-manager.cmd>
-      </properties>
-    </profile>
-
     <profile>
       <id>skipTests</id>
     </profile>
@@ -413,18 +298,6 @@ under the License.
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
         <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>            
-                <id>exec-protractor</id>
-                <phase>none</phase>
-              </execution>
-            </executions>
-          </plugin>
-       
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>

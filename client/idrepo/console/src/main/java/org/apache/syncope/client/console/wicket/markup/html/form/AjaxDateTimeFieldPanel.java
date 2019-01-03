@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
+import org.apache.syncope.client.ui.commons.markup.html.form.DateFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import com.googlecode.wicket.kendo.ui.form.datetime.AjaxDateTimePicker;
 import java.util.Date;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -51,5 +54,12 @@ public class AjaxDateTimeFieldPanel extends DateFieldPanel {
         }
 
         return panel;
+    }
+
+    @Override
+    protected FastDateFormat getDateFormat(final String datePattern) {
+        return datePattern == null
+                ? SyncopeConsoleSession.get().getDateFormat()
+                : FastDateFormat.getInstance(datePattern);
     }
 }

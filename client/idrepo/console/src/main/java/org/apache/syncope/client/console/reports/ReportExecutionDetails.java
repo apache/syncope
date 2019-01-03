@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.reports;
 
-import org.apache.syncope.client.console.commons.HttpResourceStream;
+import org.apache.syncope.client.ui.commons.HttpResourceStream;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.ExecutionRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;

@@ -29,10 +29,11 @@ import org.apache.syncope.client.console.rest.ApplicationRestClient;
 import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.RoleTO;
@@ -47,7 +48,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class RoleWizardBuilder extends AjaxWizardBuilder<RoleWrapper> {
+public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
 
     private static final long serialVersionUID = 5945391813567245081L;
 

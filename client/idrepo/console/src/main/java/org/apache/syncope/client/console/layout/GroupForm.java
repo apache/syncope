@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.layout;
 
+import org.apache.syncope.client.ui.commons.wizards.any.AnyForm;
 import org.apache.syncope.common.lib.to.GroupTO;
 
 public interface GroupForm extends AnyForm<GroupTO> {

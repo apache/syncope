@@ -20,8 +20,8 @@ package org.apache.syncope.client.console.wizards.resources;
 
 import java.util.Set;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.wicket.ajax.AjaxRequestTarget;

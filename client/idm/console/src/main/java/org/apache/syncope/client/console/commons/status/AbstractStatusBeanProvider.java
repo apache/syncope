@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.commons.status;
 
+import org.apache.syncope.client.ui.commons.status.StatusBean;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;

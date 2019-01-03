@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
+import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
+
 import static de.agilecoders.wicket.jquery.JQuery.$;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.BootstrapFileInputField;
@@ -34,10 +36,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.HttpResourceStream;
+import org.apache.syncope.client.ui.commons.HttpResourceStream;
 import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer;
+import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
+import org.apache.syncope.client.ui.commons.markup.html.form.BaseBinaryFieldPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
@@ -58,7 +61,7 @@ import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
 
-public class BinaryFieldPanel extends FieldPanel<String> {
+public class BinaryFieldPanel extends BaseBinaryFieldPanel {
 
     private static final long serialVersionUID = 6264462604183088931L;
 
@@ -290,5 +293,15 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         downloadLink.setEnabled(StringUtils.isNotBlank(modelObj));
         setVisibleFileButtons(StringUtils.isNotBlank(modelObj));
         return this;
+    }
+
+    @Override
+    protected void sendError(final String message) {
+        SyncopeConsoleSession.get().error(message);
+    }
+
+    @Override
+    protected Integer getMaxUploadFileSizeMB() {
+        return SyncopeWebApplication.get().getMaxUploadFileSizeMB();
     }
 }

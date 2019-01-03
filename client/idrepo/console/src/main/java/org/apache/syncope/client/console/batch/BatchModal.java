@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
-import org.apache.syncope.client.console.rest.RestClient;
+import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.wicket.PageReference;

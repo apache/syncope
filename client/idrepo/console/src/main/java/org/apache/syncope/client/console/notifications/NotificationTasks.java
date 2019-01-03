@@ -19,12 +19,12 @@
 package org.apache.syncope.client.console.notifications;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.tasks.NotificationMailBodyDetails;
 import org.apache.syncope.client.console.tasks.NotificationTaskDirectoryPanel;
 import org.apache.syncope.client.console.tasks.TaskExecutionDetails;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;

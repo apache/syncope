@@ -22,16 +22,22 @@ import org.apache.syncope.client.console.wizards.resources.OIDCProviderMappingPa
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.OIDCProvidersDirectoryPanel;
 import org.apache.syncope.client.console.rest.OIDCProviderRestClient;
-import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.resources.ItemTransformersTogglePanel;
 import org.apache.syncope.client.console.wizards.resources.JEXLTransformersTogglePanel;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.OIDCProviderTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -106,6 +112,27 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
         wizardModel.add(mapping);
 
         return wizardModel;
+    }
+
+    @Override
+    protected long getMaxWaitTimeInSeconds() {
+        return SyncopeWebApplication.get().getMaxWaitTimeInSeconds();
+    }
+
+    @Override
+    protected void sendError(final String message) {
+        SyncopeConsoleSession.get().error(message);
+    }
+
+    @Override
+    protected void sendWarning(final String message) {
+        SyncopeConsoleSession.get().warn(message);
+    }
+
+    @Override
+    protected Future<Pair<Serializable, Serializable>> execute(
+            final Callable<Pair<Serializable, Serializable>> future) {
+        return SyncopeConsoleSession.get().execute(future);
     }
 
     public class OP extends WizardStep {

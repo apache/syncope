@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import java.util.List;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
-import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.TemplatableTO;

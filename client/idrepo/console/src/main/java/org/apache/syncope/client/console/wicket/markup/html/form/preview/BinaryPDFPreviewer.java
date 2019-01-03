@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form.preview;
 
+import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -32,7 +33,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.graphics.PDXObject;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
-import org.apache.syncope.client.console.annotations.BinaryPreview;
+import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.image.NonCachingImage;

@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.TogglePanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;

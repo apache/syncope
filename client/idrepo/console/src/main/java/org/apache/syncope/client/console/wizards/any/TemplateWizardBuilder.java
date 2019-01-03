@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AnyTO;
 
 public interface TemplateWizardBuilder<T extends AnyTO> {

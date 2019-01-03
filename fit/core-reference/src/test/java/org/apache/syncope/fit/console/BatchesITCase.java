@@ -22,8 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.status.Status;
-import org.apache.syncope.client.console.commons.status.StatusBean;
+import org.apache.syncope.client.ui.commons.status.Status;
+import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;

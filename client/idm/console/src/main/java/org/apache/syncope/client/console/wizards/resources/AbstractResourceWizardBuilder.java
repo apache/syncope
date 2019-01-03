@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.wizards.resources;
 import java.io.Serializable;
 import org.apache.syncope.client.console.topology.TopologyNode;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.ModalEvent;
-import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 
@@ -30,7 +30,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
  *
  * @param <T> model object type
  */
-public abstract class AbstractResourceWizardBuilder<T extends Serializable> extends AjaxWizardBuilder<Serializable> {
+public abstract class AbstractResourceWizardBuilder<T extends Serializable>
+        extends BaseAjaxWizardBuilder<Serializable> {
 
     private static final long serialVersionUID = 1734415311027284221L;
 

@@ -18,15 +18,21 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import org.apache.syncope.client.console.layout.AbstractAnyFormLayout;
-import org.apache.syncope.client.console.layout.AnyForm;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
+import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
-import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
+import org.apache.syncope.client.ui.commons.wizards.any.AbstractAnyWizardBuilder;
+import org.apache.syncope.client.ui.commons.wizards.any.AnyForm;
+import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -35,7 +41,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 
-public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilder<AnyWrapper<A>> {
+public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizardBuilder<A> {
 
     private static final long serialVersionUID = -2480279868319546243L;
 
@@ -103,7 +109,7 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
         }
 
         if (formLayoutInfo.isAuxClasses()) {
-            wizardModel.add(new AuxClasses(modelObject, anyTypeClasses));
+            wizardModel.add(new ConsoleAuxClasses(modelObject, anyTypeClasses));
         }
 
         if (formLayoutInfo.isGroups()) {
@@ -173,6 +179,7 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
         }
     }
 
+    @Override
     protected void fixPlainAndVirAttrs(final AnyTO updated, final AnyTO original) {
         // re-add to the updated object any missing plain or virtual attribute (compared to original): this to cope with
         // form layout, which might have not included some plain or virtual attributes
@@ -212,4 +219,24 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
         }
     }
 
+    @Override
+    protected long getMaxWaitTimeInSeconds() {
+        return SyncopeWebApplication.get().getMaxWaitTimeInSeconds();
+    }
+
+    @Override
+    protected void sendError(final String message) {
+        SyncopeConsoleSession.get().error(message);
+    }
+
+    @Override
+    protected void sendWarning(final String message) {
+        SyncopeConsoleSession.get().warn(message);
+    }
+
+    @Override
+    protected Future<Pair<Serializable, Serializable>> execute(
+            final Callable<Pair<Serializable, Serializable>> future) {
+        return SyncopeConsoleSession.get().execute(future);
+    }
 }

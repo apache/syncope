@@ -20,18 +20,19 @@ package org.apache.syncope.client.console.pages;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
-import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.Realm;
 import org.apache.syncope.client.console.panels.RealmChoicePanel;
 import org.apache.syncope.client.console.panels.RealmChoicePanel.ChosenRealm;
-import org.apache.syncope.client.console.panels.WizardModalPanel;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.tasks.TemplatesTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.any.ResultPage;
+import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
+import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -164,7 +165,7 @@ public class Realms extends BasePage {
                 templateModal.close(newItemEvent.getTarget());
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                ((BasePage) getPage()).getNotificationPanel().refresh(newItemEvent.getTarget());
+                ((BaseWebPage) getPage()).getNotificationPanel().refresh(newItemEvent.getTarget());
                 templateModal.close(newItemEvent.getTarget());
             }
         }
@@ -245,7 +246,7 @@ public class Realms extends BasePage {
                     // Escape line breaks
                     SyncopeConsoleSession.get().error(e.getMessage().replace("\n", " "));
                 }
-                ((BasePage) Realms.this.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) Realms.this.getPage()).getNotificationPanel().refresh(target);
             }
         });
         return content;

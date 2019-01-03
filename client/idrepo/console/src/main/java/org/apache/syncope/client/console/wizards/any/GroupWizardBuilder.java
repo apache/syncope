@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import java.io.Serializable;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -25,8 +26,8 @@ import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.syncope.client.console.layout.GroupForm;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
 import org.apache.syncope.client.console.rest.GroupRestClient;
-import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.request.GroupCR;

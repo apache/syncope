@@ -1,0 +1,90 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta charset="UTF-8"/>
+    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'/>
+
+    <title>Apache Syncope Enduser - Login</title>
+
+    <link rel="shortcut icon" href="img/favicon.png" type="image/png"/>
+
+    <link href="webjars/font-awesome/${font-awesome.version}/css/${font-awesome.filename}" rel="stylesheet" type="text/css" />
+    <link href="webjars/ionicons/${ionicons.version}/css/ionicons.min.css" rel="stylesheet" type="text/css" />
+    <link href="css/fonts.css" rel="stylesheet" type="text/css"/>
+
+    <link href="css/login.css" rel="stylesheet" type="text/css" />
+    <link href="css/syncopeEnduser.css" rel="stylesheet" type="text/css" />
+ 
+    <!-- accessibility -->
+    <link href="css/accessibility.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="js/accessibility.js"></script>
+  </head>
+
+  <body class="login-body">
+    <div id="accessibility">
+      <div id="change_contrast" class="btn-accessibility">
+        <i aria-label="Toggle high contrast colors mode" tabindex="0" accesskey="H"
+           class="fa fa-adjust">
+        </i>
+      </div>
+      <div id="change_fontSize" class="btn-accessibility">
+        <i aria-label="Toggle font size increment" tabindex="1" accesskey="F"
+           class="fa fa-font">
+        </i>
+      </div>
+    </div>
+    <div class="container">
+      <div class="login-card card card-container">
+        <img class="login-logo" src="img/logo-green.png" />
+
+        <span wicket:id="feedback" role="alert"/>
+        <div class="box alert-danger" style="padding: 5px;text-align: center;" wicket:id="exceptionMessage"/>
+
+        <form class="form-signin" wicket:id="login">
+          <fieldset class="form-group">
+            <input type="text" wicket:id="username" class="form-control" 
+                   wicket:message="placeholder:username" required="required" autofocus="autofocus" />
+
+            <input type="password" wicket:id="password" class="form-control" 
+                   wicket:message="placeholder:password" required="required" />
+
+            <fieldset class="input-group">
+              <select wicket:id="language"/>
+            </fieldset>
+
+            <button wicket:id="submit" type="submit" class="btn btn-lg btn-primary btn-block btn-signin"></button>
+          </fieldset>
+
+          <div wicket:id="ssoLogins">
+            <div wicket:id="ssoLogin"/>
+          </div>
+
+        </form>
+      </div>
+      <div class="text-center">
+        <a wicket:id="self-registration"><wicket:message key="self-registration">[SELFREGISTRATION]</wicket:message></a>
+      </div>
+      <div class="text-center">
+        <a wicket:id="self-pwd-reset"><wicket:message key="self-pwd-reset">[SELFPWDRESET]</wicket:message></a>
+      </div>
+    </div>
+  </body>
+</html>

@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
+import org.apache.syncope.client.ui.commons.status.ConnObjectWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 

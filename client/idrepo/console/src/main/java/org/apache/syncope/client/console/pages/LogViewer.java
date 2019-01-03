@@ -24,7 +24,7 @@ import org.apache.commons.collections4.list.SetUniqueList;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.LogStatementPanel;
 import org.apache.syncope.client.console.rest.LoggerRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.common.lib.log.LogStatement;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;

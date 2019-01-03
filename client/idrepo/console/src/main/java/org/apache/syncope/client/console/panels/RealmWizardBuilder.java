@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import org.apache.syncope.client.console.rest.RealmRestClient;
-import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.PageReference;
@@ -28,7 +28,7 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 
-public class RealmWizardBuilder extends AjaxWizardBuilder<RealmTO> {
+public class RealmWizardBuilder extends BaseAjaxWizardBuilder<RealmTO> {
 
     private static final long serialVersionUID = 5945391813567245081L;
 

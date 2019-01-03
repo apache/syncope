@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.events.EventCategoryPanel;
 import org.apache.syncope.client.console.panels.search.AbstractSearchPanel;
@@ -37,12 +38,12 @@ import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.LoggerRestClient;
 import org.apache.syncope.client.console.rest.NotificationRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiPanel;
-import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
@@ -70,7 +71,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 
-public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWrapper> {
+public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<NotificationWrapper> {
 
     private static final long serialVersionUID = -1975312550059578553L;
 
@@ -320,6 +321,11 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
                             // no detach
                         }
                     });
+                }
+
+                @Override
+                protected void sendError(final String message) {
+                    SyncopeConsoleSession.get().error(getString(Constants.OPERATION_ERROR));
                 }
             }.hideLabel());
         }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import org.apache.syncope.client.ui.commons.rest.RestClient;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;

@@ -18,41 +18,20 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.ui.commons.wizards.any.AbstractResources;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
-import org.apache.wicket.extensions.wizard.WizardStep;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.util.ListModel;
 
-public class Resources extends WizardStep implements ICondition {
+public class Resources extends AbstractResources {
 
-    private static final long serialVersionUID = 552437609667518888L;
-
-    private final ListModel<String> available;
+    private static final long serialVersionUID = 702900610508752856L;
 
     public <T extends AnyTO> Resources(final AnyWrapper<T> modelObject) {
-        final T entityTO = modelObject.getInnerObject();
-
-        if (modelObject instanceof UserWrapper
-                && UserWrapper.class.cast(modelObject).getPreviousUserTO() != null
-                && !modelObject.getInnerObject().getResources().equals(
-                        UserWrapper.class.cast(modelObject).getPreviousUserTO().getResources())) {
-
-            add(new LabelInfo("changed", StringUtils.EMPTY));
-        } else {
-            add(new Label("changed", StringUtils.EMPTY));
-        }
+        super(modelObject);
 
         // -----------------------------------------------------------------
         // Pre-Authorizations
@@ -62,26 +41,6 @@ public class Resources extends WizardStep implements ICondition {
         permissions.authorize(RENDER,
                 new org.apache.wicket.authroles.authorization.strategies.role.Roles(StandardEntitlement.RESOURCE_LIST));
         // -----------------------------------------------------------------
-
-        this.setOutputMarkupId(true);
-        this.available = new ListModel<>(Collections.<String>emptyList());
-
-        add(new AjaxPalettePanel.Builder<String>().build("resources",
-                new PropertyModel<List<String>>(entityTO, "resources") {
-
-            private static final long serialVersionUID = 3799387950428254072L;
-
-            @Override
-            public List<String> getObject() {
-                return new ArrayList<>(entityTO.getResources());
-            }
-
-            @Override
-            public void setObject(final List<String> object) {
-                entityTO.getResources().clear();
-                entityTO.getResources().addAll(object);
-            }
-        }, available).hideLabel().setOutputMarkupId(true));
     }
 
     @Override

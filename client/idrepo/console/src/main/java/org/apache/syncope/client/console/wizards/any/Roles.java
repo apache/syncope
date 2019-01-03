@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
+import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,8 +28,8 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.rest.RoleRestClient;
-import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;

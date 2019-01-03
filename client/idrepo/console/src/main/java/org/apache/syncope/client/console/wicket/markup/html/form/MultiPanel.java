@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import java.io.Serializable;
 import java.util.List;
+import org.apache.syncope.client.ui.commons.markup.html.form.AbstractMultiPanel;
 import org.apache.wicket.model.IModel;
 
 public abstract class MultiPanel<INNER extends Serializable> extends AbstractMultiPanel<INNER> {

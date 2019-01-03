@@ -21,14 +21,14 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
-import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 
-public class ParametersCreateWizardPanel extends AjaxWizardBuilder<ParametersCreateWizardPanel.ParametersForm> {
+public class ParametersCreateWizardPanel extends BaseAjaxWizardBuilder<ParametersCreateWizardPanel.ParametersForm> {
 
     private static final long serialVersionUID = -2868592590785581481L;
 

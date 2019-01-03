@@ -35,11 +35,11 @@ import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
-import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiPanel;
 import org.apache.syncope.common.lib.policy.AbstractCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
@@ -141,6 +141,11 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
             @Override
             protected CorrelationRulePanel getItemPanel(final ListItem<CorrelationRule> item) {
                 return new CorrelationRulePanel("panel", Model.of(item.getModelObject()));
+            }
+
+            @Override
+            protected void sendError(final String message) {
+                SyncopeConsoleSession.get().error(getString(Constants.OPERATION_ERROR));
             }
         });
     }

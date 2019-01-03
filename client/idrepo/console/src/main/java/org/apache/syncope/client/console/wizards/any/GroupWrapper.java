@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

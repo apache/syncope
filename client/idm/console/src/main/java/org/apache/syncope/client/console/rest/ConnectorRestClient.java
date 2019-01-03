@@ -65,14 +65,17 @@ public class ConnectorRestClient extends BaseRestClient {
 
     public List<String> getObjectClasses(final String connectorKey) {
         List<String> result = new ArrayList<>();
-
-        ConnectorService service = getService(ConnectorService.class);
-        ConnInstanceTO connInstance = service.read(connectorKey, SyncopeConsoleSession.get().getLocale().getLanguage());
-        if (connInstance != null) {
-            result.addAll(service.buildObjectClassInfo(connInstance, true).stream().
-                    map(input -> input.getType()).collect(Collectors.toList()));
+        try {
+            ConnectorService service = getService(ConnectorService.class);
+            ConnInstanceTO connInstance = service.read(connectorKey, SyncopeConsoleSession.get().getLocale().
+                    getLanguage());
+            if (connInstance != null) {
+                result.addAll(service.buildObjectClassInfo(connInstance, true).stream().
+                        map(input -> input.getType()).collect(Collectors.toList()));
+            }
+        } catch (Exception e) {
+            LOG.error("While reading object classes for connector {}", connectorKey, e);
         }
-
         return result;
     }
 

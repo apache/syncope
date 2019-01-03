@@ -1,0 +1,57 @@
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:panel>
+    <input type="hidden" wicket:id="recorder"/>
+    <div class="col-md-5">
+      <div class="form-group">
+        <label>
+          <span wicket:id="availableHeader">[available header]</span>
+        </label>
+        <select class="form-control" style="min-width: 100px;" wicket:id="choices">[choices]</select>
+      </div>
+    </div>
+    <div style="width: 20px; float: left; padding-top: 30px; text-align: center">
+      <div style="padding-top: 2px;">
+        <a wicket:id="addAllButton"><i class="glyphicon glyphicon-forward"></i></a>
+      </div>
+      <div style="padding-top: 2px;">
+        <a wicket:id="removeAllButton"><i class="glyphicon glyphicon-backward"></i></a>
+      </div>
+      <div style="padding-top: 2px;">
+        <a wicket:id="addButton"><i class="glyphicon glyphicon-triangle-right"></i></a>
+      </div>
+      <div style="padding-top: 2px;">
+        <a wicket:id="removeButton"><i class="glyphicon glyphicon-triangle-left"></i></a>
+      </div>
+      <div style="padding-top: 2px;">
+        <a wicket:id="moveUpButton"><i class="glyphicon glyphicon-triangle-top"></i></a>
+      </div>
+      <div style="padding-top: 2px;">
+        <a wicket:id="moveDownButton"><i class="glyphicon glyphicon-triangle-bottom"></i></a>
+      </div>          
+    </div>
+    <div class="col-md-5">
+      <div class="form-group">
+        <label>
+          <span wicket:id="selectedHeader">[selected header]</span>
+        </label>
+        <select class="form-control" style="min-width: 100px;" wicket:id="selection">[selection]</select>	
+      </div>
+    </div>
+  </wicket:panel>
+</html>

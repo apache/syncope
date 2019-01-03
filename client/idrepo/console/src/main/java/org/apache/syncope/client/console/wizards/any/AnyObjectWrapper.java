@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 
 public class AnyObjectWrapper extends AnyWrapper<AnyObjectTO> {

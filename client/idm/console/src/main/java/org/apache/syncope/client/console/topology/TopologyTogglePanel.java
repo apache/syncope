@@ -39,7 +39,7 @@ import org.apache.syncope.client.console.tasks.SchedTasks;
 import org.apache.syncope.client.console.tasks.PullTasks;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
-import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.resources.AbstractResourceWizardBuilder;
 import org.apache.syncope.client.console.wizards.resources.ResourceProvision;
 import org.apache.syncope.client.console.wizards.resources.ResourceProvisionPanel;

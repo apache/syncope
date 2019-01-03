@@ -27,13 +27,13 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.annotations.ExtPage;
 import org.apache.syncope.client.console.annotations.IdMPage;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.HttpResourceStream;
+import org.apache.syncope.client.ui.commons.HttpResourceStream;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.widgets.ExtAlertWidget;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -42,7 +42,6 @@ import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -69,7 +68,7 @@ import org.apache.wicket.util.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BasePage extends WebPage implements IAjaxIndicatorAware {
+public class BasePage extends BaseWebPage {
 
     private static final long serialVersionUID = 1571997737305598502L;
 
@@ -80,10 +79,6 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
     @SpringBean
     protected ClassPathScanImplementationLookup lookup;
 
-    protected final WebMarkupContainer body;
-
-    protected NotificationPanel notificationPanel;
-
     public BasePage() {
         this(null);
     }
@@ -91,15 +86,11 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
     public BasePage(final PageParameters parameters) {
         super(parameters);
 
-        body = new WebMarkupContainer("body");
         Serializable leftMenuCollapse = SyncopeConsoleSession.get().getAttribute(Constants.MENU_COLLAPSE);
         if ((leftMenuCollapse instanceof Boolean) && ((Boolean) leftMenuCollapse)) {
             body.add(new AttributeAppender("class", " sidebar-collapse"));
         }
         add(body);
-
-        notificationPanel = new NotificationPanel(Constants.FEEDBACK);
-        body.addOrReplace(notificationPanel.setOutputMarkupId(true));
 
         // header, footer
         body.add(new Label("username", SyncopeConsoleSession.get().getSelfTO().getUsername()));
@@ -453,15 +444,6 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     private String getULContainerId(final String linkId) {
         return linkId + "UL";
-    }
-
-    @Override
-    public String getAjaxIndicatorMarkupId() {
-        return Constants.VEIL_INDICATOR_MARKUP_ID;
-    }
-
-    public NotificationPanel getNotificationPanel() {
-        return notificationPanel;
     }
 
     /**

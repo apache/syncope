@@ -19,6 +19,8 @@
 package org.apache.syncope.client.console.layout;
 
 import org.apache.syncope.client.console.wizards.any.UserWizardBuilder;
+import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
+import org.apache.syncope.client.ui.commons.layout.UserForm;
 import org.apache.syncope.common.lib.to.UserTO;
 
 public class UserFormLayoutInfo extends AbstractAnyFormLayout<UserTO, UserForm> {

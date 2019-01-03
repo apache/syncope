@@ -39,7 +39,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.annotations.Resource;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Dashboard;
@@ -72,7 +71,11 @@ import org.slf4j.LoggerFactory;
 import org.apache.syncope.client.console.commons.ExternalResourceProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
+import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.cycle.IRequestCycleListener;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -231,7 +234,25 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         if (BooleanUtils.toBoolean(csrf)) {
             getRequestCycleListeners().add(new WebSocketAwareCsrfPreventionRequestCycleListener());
         }
-        getRequestCycleListeners().add(new SyncopeConsoleRequestCycleListener());
+
+        getRequestCycleListeners().add(new SyncopeUIRequestCycleListener() {
+
+            @Override
+            protected boolean isSignedIn() {
+                return SyncopeConsoleSession.get().isSignedIn();
+            }
+
+            @Override
+            protected void invalidateSession() {
+                SyncopeConsoleSession.get().invalidate();
+            }
+
+            @Override
+            protected IRequestablePage getErrorPage(final PageParameters errorParameters) {
+                return new Login(errorParameters);
+            }
+        });
+
         getRequestCycleListeners().add(new IRequestCycleListener() {
 
             @Override

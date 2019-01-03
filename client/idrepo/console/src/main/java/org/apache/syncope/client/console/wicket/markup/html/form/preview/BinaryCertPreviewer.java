@@ -18,13 +18,14 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form.preview;
 
+import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.annotations.BinaryPreview;
+import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;

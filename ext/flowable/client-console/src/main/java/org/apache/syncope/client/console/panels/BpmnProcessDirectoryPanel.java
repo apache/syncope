@@ -20,14 +20,19 @@ package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
@@ -40,8 +45,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ImageModalPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
-import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
@@ -85,6 +90,27 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
                     final BpmnProcess modelObject, final WizardModel wizardModel) {
 
                 return wizardModel;
+            }
+
+            @Override
+            protected long getMaxWaitTimeInSeconds() {
+                return SyncopeWebApplication.get().getMaxWaitTimeInSeconds();
+            }
+
+            @Override
+            protected void sendError(final String message) {
+                SyncopeConsoleSession.get().error(message);
+            }
+
+            @Override
+            protected void sendWarning(final String message) {
+                SyncopeConsoleSession.get().warn(message);
+            }
+
+            @Override
+            protected Future<Pair<Serializable, Serializable>> execute(
+                    final Callable<Pair<Serializable, Serializable>> future) {
+                return SyncopeConsoleSession.get().execute(future);
             }
         }, false);
         NewBpmnProcess newBpmnProcess = new NewBpmnProcess("newBpmnProcess", container, pageRef);

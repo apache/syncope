@@ -25,8 +25,8 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.BeanPanel;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -41,7 +41,7 @@ import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
-public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletWrapper> {
+public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapper> {
 
     private static final long serialVersionUID = 5945391813567245081L;
 

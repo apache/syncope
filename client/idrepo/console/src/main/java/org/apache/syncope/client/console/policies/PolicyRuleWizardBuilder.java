@@ -27,8 +27,8 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.BeanPanel;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.ComposablePolicy;
 import org.apache.syncope.common.lib.policy.RuleConf;
@@ -45,7 +45,7 @@ import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 
-public class PolicyRuleWizardBuilder extends AjaxWizardBuilder<PolicyRuleWrapper> {
+public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWrapper> {
 
     private static final long serialVersionUID = 5945391813567245081L;
 

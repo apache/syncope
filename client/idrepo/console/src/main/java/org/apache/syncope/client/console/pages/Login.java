@@ -27,30 +27,20 @@ import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.console.panels.NotificationPanel;
+import org.apache.syncope.client.ui.commons.BaseLogin;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authentication.IAuthenticationStrategy;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
-import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
-import org.apache.wicket.markup.html.form.PasswordTextField;
-import org.apache.wicket.markup.html.form.StatelessForm;
-import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Login extends WebPage {
+public class Login extends BaseLogin {
 
     private static final Logger LOG = LoggerFactory.getLogger(Login.class);
 
@@ -59,59 +49,8 @@ public class Login extends WebPage {
     @SpringBean
     private ClassPathScanImplementationLookup lookup;
 
-    private final NotificationPanel notificationPanel;
-
-    private final StatelessForm<Void> form;
-
-    private final TextField<String> usernameField;
-
-    private final TextField<String> passwordField;
-
     public Login(final PageParameters parameters) {
         super(parameters);
-        setStatelessHint(true);
-
-        notificationPanel = new NotificationPanel(Constants.FEEDBACK);
-        add(notificationPanel);
-
-        Label exceptionMessage = new Label("exceptionMessage");
-        exceptionMessage.setOutputMarkupPlaceholderTag(true);
-        exceptionMessage.setVisible(false);
-        if (!parameters.get("errorMessage").isNull()) {
-            exceptionMessage.setVisible(true);
-            exceptionMessage.setDefaultModel(Model.of(parameters.get("errorMessage")));
-        }
-        add(exceptionMessage);
-
-        form = new StatelessForm<>("login");
-
-        usernameField = new TextField<>("username", new Model<>());
-        usernameField.setMarkupId("username");
-        form.add(usernameField);
-
-        passwordField = new PasswordTextField("password", new Model<>());
-        passwordField.setMarkupId("password");
-        form.add(passwordField);
-
-        LocaleDropDown languageSelect = new LocaleDropDown("language");
-        languageSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
-
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
-            }
-        }).add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
-
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
-            }
-        });
-        form.add(languageSelect);
 
         DomainDropDown domainSelect = new DomainDropDown("domain");
         if (SyncopeWebApplication.get().getDomains().size() == 1) {
@@ -135,35 +74,10 @@ public class Login extends WebPage {
             }
         });
         form.add(domainSelect);
+    }
 
-        AjaxButton submitButton = new AjaxButton("submit", new Model<>(getString("submit"))) {
-
-            private static final long serialVersionUID = 429178684321093953L;
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target) {
-                if (SyncopeWebApplication.get().getAnonymousUser().equals(usernameField.getRawInput())) {
-                    throw new AccessControlException("Illegal username");
-                }
-
-                IAuthenticationStrategy strategy = getApplication().getSecuritySettings().getAuthenticationStrategy();
-
-                if (AuthenticatedWebSession.get().signIn(usernameField.getRawInput(), passwordField.getRawInput())) {
-                    // If login has been called because the user was not yet logged in, than continue to the
-                    // original destination, otherwise to the Home page
-                    continueToOriginalDestination();
-                    setResponsePage(getApplication().getHomePage());
-                } else {
-                    SyncopeConsoleSession.get().error(getString("login-error"));
-                    notificationPanel.refresh(target);
-                }
-                strategy.remove();
-            }
-        };
-        submitButton.setDefaultFormProcessing(false);
-        form.add(submitButton);
-        form.setDefaultButton(submitButton);
-
+    @Override
+    protected List<Panel> getSSOLoginFormPanels() {
         List<Panel> ssoLoginFormPanels = new ArrayList<>();
         lookup.getSSOLoginFormPanels().forEach(ssoLoginFormPanel -> {
             try {
@@ -172,64 +86,43 @@ public class Login extends WebPage {
                 LOG.error("Could not initialize the provided SSO login form panel", e);
             }
         });
-        ListView<Panel> ssoLogins = new ListView<Panel>("ssoLogins", ssoLoginFormPanels) {
-
-            private static final long serialVersionUID = -9180479401817023838L;
-
-            @Override
-            protected void populateItem(final ListItem<Panel> item) {
-                item.add(item.getModelObject());
-            }
-        };
-        form.add(ssoLogins);
-
-        add(form);
+        return ssoLoginFormPanels;
     }
 
-    /**
-     * Inner class which implements (custom) Locale DropDownChoice component.
-     */
-    private class LocaleDropDown extends BootstrapSelect<Locale> {
+    @Override
+    protected void sendError(final String error) {
+        SyncopeConsoleSession.get().error(error);
+    }
 
-        private static final long serialVersionUID = 2349382679992357202L;
+    @Override
+    protected String getAnonymousUser() {
+        return SyncopeWebApplication.get().getAnonymousUser();
+    }
 
-        private class LocaleRenderer extends ChoiceRenderer<Locale> {
+    @Override
+    protected List<Locale> getSupportedLocales() {
+        return SyncopeWebApplication.SUPPORTED_LOCALES;
+    }
 
-            private static final long serialVersionUID = -3657529581555164741L;
-
-            @Override
-            public String getDisplayValue(final Locale locale) {
-                return locale.getDisplayName(getLocale());
-            }
+    @Override
+    protected void authenticate(final String username, final String password, final AjaxRequestTarget target) throws
+            AccessControlException {
+        if (SyncopeWebApplication.get().getAnonymousUser().equals(username)) {
+            throw new AccessControlException("Illegal username");
         }
 
-        LocaleDropDown(final String id) {
-            super(id, SyncopeWebApplication.SUPPORTED_LOCALES);
+        IAuthenticationStrategy strategy = getApplication().getSecuritySettings().getAuthenticationStrategy();
 
-            setChoiceRenderer(new LocaleRenderer());
-            setModel(new IModel<Locale>() {
-
-                private static final long serialVersionUID = -6985170095629312963L;
-
-                @Override
-                public Locale getObject() {
-                    return getSession().getLocale();
-                }
-
-                @Override
-                public void setObject(final Locale object) {
-                    getSession().setLocale(object);
-                }
-
-                @Override
-                public void detach() {
-                    // Empty.
-                }
-            });
-
-            // set default value to English
-            getModel().setObject(Locale.ENGLISH);
+        if (AuthenticatedWebSession.get().signIn(username, password)) {
+            // If login has been called because the user was not yet logged in, than continue to the
+            // original destination, otherwise to the Home page
+            continueToOriginalDestination();
+            setResponsePage(getApplication().getHomePage());
+        } else {
+            SyncopeConsoleSession.get().error(getString("login-error"));
+            notificationPanel.refresh(target);
         }
+        strategy.remove();
     }
 
     /**

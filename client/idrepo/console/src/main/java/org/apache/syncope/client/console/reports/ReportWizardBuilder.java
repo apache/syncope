@@ -22,10 +22,10 @@ import java.io.Serializable;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.tasks.CrontabPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.wicket.PageReference;
@@ -33,7 +33,7 @@ import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.PropertyModel;
 
-public class ReportWizardBuilder extends AjaxWizardBuilder<ReportTO> {
+public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
 
     private static final long serialVersionUID = 5945391813567245081L;
 

@@ -24,8 +24,8 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.syncope.client.console.panels.WizardModalPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 
 public abstract class ResultPage<T extends Serializable> extends Panel implements WizardModalPanel<T> {
 

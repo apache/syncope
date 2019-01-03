@@ -19,8 +19,8 @@
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
+import org.apache.syncope.client.ui.commons.HttpResourceStream;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;

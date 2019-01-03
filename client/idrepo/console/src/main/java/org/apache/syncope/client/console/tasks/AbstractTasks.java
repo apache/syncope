@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import org.apache.syncope.client.console.panels.ModalPanel;
+import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 
 public abstract class AbstractTasks extends Panel implements ModalPanel {

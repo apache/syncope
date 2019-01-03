@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.status;
 
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
-import org.apache.syncope.client.console.commons.status.StatusBean;
+import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;

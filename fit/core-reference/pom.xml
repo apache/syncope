@@ -88,6 +88,12 @@ under the License.
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.apache.syncope.client.idrepo</groupId>
+      <artifactId>syncope-client-idrepo-enduser</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.syncope.ext.flowable</groupId>
       <artifactId>syncope-ext-flowable-rest-cxf</artifactId>
       <version>${project.version}</version>

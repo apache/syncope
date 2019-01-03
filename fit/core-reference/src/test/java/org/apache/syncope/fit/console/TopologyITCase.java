@@ -27,7 +27,7 @@ import java.util.UUID;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.topology.Topology;
-import org.apache.syncope.client.console.wicket.markup.html.form.NonI18nPalette;
+import org.apache.syncope.client.ui.commons.markup.html.form.NonI18nPalette;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.markup.html.AjaxLink;

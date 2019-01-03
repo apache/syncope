@@ -19,9 +19,9 @@
 package org.apache.syncope.client.console.commons;
 
 import java.io.Serializable;
-import org.apache.syncope.client.console.layout.AbstractAnyFormLayout;
-import org.apache.syncope.client.console.layout.AnyForm;
-import org.apache.syncope.client.console.wizards.any.AnyWrapper;
+import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
+import org.apache.syncope.client.ui.commons.wizards.any.AnyForm;
+import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.extensions.wizard.WizardModel;
 

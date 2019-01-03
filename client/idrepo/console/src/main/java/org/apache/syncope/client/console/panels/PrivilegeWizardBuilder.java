@@ -20,9 +20,9 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import org.apache.syncope.client.console.rest.ApplicationRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;
-import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.ApplicationTO;
 import org.apache.syncope.common.lib.to.PrivilegeTO;
 import org.apache.wicket.PageReference;
@@ -32,7 +32,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class PrivilegeWizardBuilder extends AjaxWizardBuilder<PrivilegeTO> {
+public class PrivilegeWizardBuilder extends BaseAjaxWizardBuilder<PrivilegeTO> {
 
     private static final long serialVersionUID = -1817419622749405208L;
 
