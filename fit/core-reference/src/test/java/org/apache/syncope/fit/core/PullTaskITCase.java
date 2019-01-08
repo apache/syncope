@@ -92,6 +92,7 @@ import org.apache.syncope.common.rest.api.beans.RemediationQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.TaskService;
+import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
 import org.apache.syncope.core.spring.security.Encryptor;
@@ -874,7 +875,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         // 1. populate the external table
         jdbcTemplate.execute("INSERT INTO testpull VALUES"
-                + "('" + id + "', 'issuesyncope230', 'Surname', false, 'syncope230@syncope.apache.org', NULL)");
+                + "('" + id + "', 'issuesyncope230', 'Surname230', false, 'syncope230@syncope.apache.org', NULL)");
 
         // 2. execute PullTask for resource-db-pull (table TESTPULL on external H2)
         execProvisioningTask(taskService, TaskType.PULL, "7c2242f4-14af-4ab5-af31-cdae23783655", 50, false);
