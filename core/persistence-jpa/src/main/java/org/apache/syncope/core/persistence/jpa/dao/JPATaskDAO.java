@@ -231,22 +231,28 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
             throw new IllegalArgumentException(type + " is not related to notifications");
         }
 
-        StringBuilder queryString = new StringBuilder("SELECT ").
-                append(AbstractTask.TABLE).
-                append(".id FROM ").
-                append(AbstractTask.TABLE);
+        StringBuilder queryString = new StringBuilder("SELECT ").append(AbstractTask.TABLE).append(".*");
+
         if (orderByTaskExecInfo) {
-            queryString.append(" LEFT OUTER JOIN ").
-                    append(JPATaskExec.TABLE).
-                    append(" ON ").
-                    append(AbstractTask.TABLE).
-                    append(".id = ").
-                    append(JPATaskExec.TABLE).
-                    append(".task_id");
+            queryString.append(",").append(JPATaskExec.TABLE).append(".startDate AS startDate").
+                    append(",").append(JPATaskExec.TABLE).append(".endDate AS endDate").
+                    append(",").append(JPATaskExec.TABLE).append(".status AS status").
+                    append(" FROM ").append(AbstractTask.TABLE).
+                    append(",").append(JPATaskExec.TABLE).append(",").append("(SELECT ").
+                    append(JPATaskExec.TABLE).append(".task_id, ").
+                    append("MAX(").append(JPATaskExec.TABLE).append(".startDate) AS startDate").
+                    append(" FROM ").append(JPATaskExec.TABLE).
+                    append(" GROUP BY ").append(JPATaskExec.TABLE).append(".task_id) GRP").
+                    append(" WHERE ").
+                    append(AbstractTask.TABLE).append(".id=").append(JPATaskExec.TABLE).append(".task_id").
+                    append(" AND ").append(AbstractTask.TABLE).append(".id=").append("GRP.task_id").
+                    append(" AND ").append(JPATaskExec.TABLE).append(".startDate=").append("GRP.startDate").
+                    append(" AND ").append(AbstractTask.TABLE).append(".DTYPE = ?1");
+        } else {
+            queryString.append(", null AS startDate, null AS endDate, null AS status FROM ").append(AbstractTask.TABLE).
+                    append(" WHERE ").append(AbstractTask.TABLE).append(".DTYPE = ?1");
         }
-        queryString.append(" WHERE ").
-                append(AbstractTask.TABLE).
-                append(".DTYPE = ?1");
+
         queryParameters.add(getEntityTableName(type));
         if (type == TaskType.SCHEDULED) {
             queryString.append(" AND ").
@@ -294,34 +300,15 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         return queryString;
     }
 
-    private String toOrderByStatement(
-            final Class<? extends Task> beanClass,
-            final List<OrderByClause> orderByClauses,
-            final boolean orderByTaskExecInfo) {
+    private String toOrderByStatement(final Class<? extends Task> beanClass, final List<OrderByClause> orderByClauses) {
 
         StringBuilder statement = new StringBuilder();
 
-        if (orderByTaskExecInfo) {
-            statement.append(" AND (").
-                    append(JPATaskExec.TABLE).
-                    append(".startDate IS NULL OR ").
-                    append(JPATaskExec.TABLE).
-                    append(".startDate = (SELECT MAX(").
-                    append(JPATaskExec.TABLE).
-                    append(".startDate) FROM ").
-                    append(JPATaskExec.TABLE).
-                    append(" WHERE ").
-                    append(AbstractTask.TABLE).
-                    append(".id = ").
-                    append(JPATaskExec.TABLE).
-                    append(".task_id))");
-        }
         statement.append(" ORDER BY ");
 
         StringBuilder subStatement = new StringBuilder();
         orderByClauses.forEach(clause -> {
             String field = clause.getField().trim();
-            String table = JPATaskExec.TABLE;
             switch (field) {
                 case "latestExecStatus":
                     field = "status";
@@ -342,19 +329,13 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
                             || beanField.getAnnotation(OneToMany.class) != null)) {
                         field += "_id";
                     }
-                    table = AbstractTask.TABLE;
             }
-            subStatement.append(table).
-                    append(".").
-                    append(field).
-                    append(' ').
-                    append(clause.getDirection().name()).
-                    append(',');
+
+            subStatement.append(field).append(' ').append(clause.getDirection().name()).append(',');
         });
 
         if (subStatement.length() == 0) {
-            statement.append(AbstractTask.TABLE).
-                    append(".id DESC");
+            statement.append("id DESC");
         } else {
             subStatement.deleteCharAt(subStatement.length() - 1);
             statement.append(subStatement);
@@ -390,8 +371,27 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
                 anyTypeKind,
                 entityKey,
                 orderByTaskExecInfo,
-                queryParameters).
-                append(toOrderByStatement(getEntityReference(type), orderByClauses, orderByTaskExecInfo));
+                queryParameters);
+
+        if (orderByTaskExecInfo) {
+            // UNION with tasks without executions...
+            queryString.insert(0, "SELECT T.id FROM ((").append(") UNION ALL (").
+                    append(buildFindAllQuery(
+                            type,
+                            resource,
+                            notification,
+                            anyTypeKind,
+                            entityKey,
+                            false,
+                            queryParameters)).
+                    append(" AND id NOT IN ").
+                    append("(SELECT task_id AS id FROM ").append(JPATaskExec.TABLE).append(")").
+                    append(")) T");
+        } else {
+            queryString.insert(0, "SELECT T.id FROM (").append(") T");
+        }
+
+        queryString.append(toOrderByStatement(getEntityReference(type), orderByClauses));
 
         Query query = entityManager().createNativeQuery(queryString.toString());
 
@@ -423,7 +423,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
 
         Query query = entityManager().createNativeQuery(StringUtils.replaceOnce(
                 queryString.toString(),
-                "SELECT " + AbstractTask.TABLE + ".id",
+                "SELECT " + AbstractTask.TABLE + ".*, null AS startDate, null AS endDate, null AS status",
                 "SELECT COUNT(" + AbstractTask.TABLE + ".id)"));
 
         for (int i = 1; i <= queryParameters.size(); i++) {

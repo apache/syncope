@@ -213,13 +213,15 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
         // check list
         PagedResult<TaskTO> tasks = taskService.search(
-                new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(2).details(false).build());
+                new TaskQuery.Builder(TaskType.PROPAGATION).
+                        page(1).size(2).orderBy("operation DESC").details(false).build());
         for (TaskTO item : tasks.getResult()) {
             assertTrue(item.getExecutions().isEmpty());
         }
 
         tasks = taskService.search(
-                new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(2).details(true).build());
+                new TaskQuery.Builder(TaskType.PROPAGATION).
+                        page(1).size(2).orderBy("operation DESC").details(true).build());
         for (TaskTO item : tasks.getResult()) {
             assertFalse(item.getExecutions().isEmpty());
         }
