@@ -206,7 +206,8 @@ public final class Constants {
             body.append("<li>").append(jexlExample).append("</li>");
         }
         body.append("</ul>").
-                append("<a href='https://commons.apache.org/proper/commons-jexl/reference/' target='_blank'>").
+                append("<a href='https://commons.apache.org/proper/commons-jexl/reference/' ").
+                append("target='_blank' rel='noopener noreferrer'>").
                 append(caller.getString("jexl_syntax_url")).
                 append("</a>");
 
