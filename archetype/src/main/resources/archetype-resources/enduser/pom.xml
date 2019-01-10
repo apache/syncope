@@ -346,7 +346,7 @@ under the License.
         <dependency>
           <groupId>org.apache.syncope.ext.flowable</groupId>
           <artifactId>syncope-ext-flowable-client-enduser</artifactId>
-          <version>${project.version}</version>
+          <version>${syncope.version}</version>
         </dependency>
       </dependencies>
       
