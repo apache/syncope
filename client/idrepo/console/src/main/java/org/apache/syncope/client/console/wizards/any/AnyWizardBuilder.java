@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -175,12 +176,16 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
     protected void fixPlainAndVirAttrs(final AnyTO updated, final AnyTO original) {
         // re-add to the updated object any missing plain or virtual attribute (compared to original): this to cope with
         // form layout, which might have not included some plain or virtual attributes
-        original.getPlainAttrs().stream().
-                filter(attr -> updated.getPlainAttr(attr.getSchema()).isPresent()).
-                forEach(attr -> updated.getPlainAttrs().add(attr));
-        original.getVirAttrs().stream().
-                filter(attr -> updated.getVirAttr(attr.getSchema()).isPresent()).
-                forEach(attr -> updated.getVirAttrs().add(attr));
+        for (AttrTO plainAttrTO : original.getPlainAttrs()) {
+            if (!updated.getPlainAttr(plainAttrTO.getSchema()).isPresent()) {
+                updated.getPlainAttrs().add(plainAttrTO);
+            }
+        }
+        for (AttrTO virAttrTO : original.getVirAttrs()) {
+            if (!updated.getVirAttr(virAttrTO.getSchema()).isPresent()) {
+                updated.getVirAttrs().add(virAttrTO);
+            }
+        }
         if (updated instanceof GroupableRelatableTO && original instanceof GroupableRelatableTO) {
             GroupableRelatableTO.class.cast(original).getMemberships().forEach(oMemb -> {
                 GroupableRelatableTO.class.cast(updated).getMembership(oMemb.getGroupKey()).ifPresent(uMemb -> {
