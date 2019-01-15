@@ -29,6 +29,7 @@ import org.flowable.common.engine.impl.interceptor.EngineConfigurationConstants;
 import org.flowable.engine.impl.util.EngineServiceUtil;
 import org.flowable.idm.spring.SpringIdmEngineConfiguration;
 import org.flowable.spring.SpringExpressionManager;
+import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
@@ -38,7 +39,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**
- * Spring factory for {@link DomainProcessEngine} which takes the provided {@link DomainProcessEngineConfiguration} as
+ * Spring factory for {@link DomainProcessEngine} which takes the provided {@link SpringProcessEngineConfiguration} as
  * template for each of the configured Syncope domains.
  */
 @Component
@@ -66,7 +67,7 @@ public class DomainProcessEngineFactoryBean
                             domain + "TransactionManager", PlatformTransactionManager.class);
                     Object entityManagerFactory = ctx.getBean(domain + "EntityManagerFactory");
 
-                    DomainProcessEngineConfiguration conf = ctx.getBean(DomainProcessEngineConfiguration.class);
+                    SpringProcessEngineConfiguration conf = ctx.getBean(SpringProcessEngineConfiguration.class);
                     conf.setDataSource(dataSource);
                     conf.setTransactionManager(transactionManager);
                     conf.setTransactionsExternallyManaged(true);

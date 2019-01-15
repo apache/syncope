@@ -408,7 +408,7 @@ under the License.
 
     <groovy.version>3.0.0-alpha-4</groovy.version>
 
-    <flowable.version>6.4.0</flowable.version>
+    <flowable.version>6.4.1</flowable.version>
 
     <camel.version>2.23.0</camel.version>	
 
@@ -886,6 +886,11 @@ under the License.
 
       <dependency>
         <groupId>org.springframework</groupId>
+        <artifactId>spring-beans</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
         <artifactId>spring-context</artifactId>
         <version>${spring.version}</version>
       </dependency>
@@ -1160,6 +1165,10 @@ under the License.
         <artifactId>flowable-spring</artifactId>
         <version>${flowable.version}</version>
         <exclusions>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+          </exclusion>
           <exclusion>
             <groupId>commons-dbcp</groupId>
             <artifactId>commons-dbcp</artifactId>

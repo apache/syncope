@@ -40,7 +40,7 @@ under the License.
 
   <bean id="syncopeFormHandlerHelper" class="org.apache.syncope.core.flowable.support.SyncopeFormHandlerHelper"/>
 
-  <bean class="org.apache.syncope.core.flowable.support.DomainProcessEngineConfiguration" scope="prototype">
+  <bean class="org.flowable.spring.SpringProcessEngineConfiguration" scope="prototype">
     <property name="databaseSchemaUpdate" value="true"/>
 
     <property name="jpaHandleTransaction" value="true"/>

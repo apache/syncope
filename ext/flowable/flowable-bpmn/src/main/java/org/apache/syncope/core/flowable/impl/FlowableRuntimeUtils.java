@@ -26,7 +26,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
-import org.apache.syncope.core.flowable.support.SyncopeTaskQueryImpl;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -34,7 +33,6 @@ import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.flowable.common.engine.api.FlowableException;
 import org.flowable.engine.history.HistoricActivityInstance;
-import org.flowable.engine.impl.RuntimeServiceImpl;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
@@ -140,8 +138,7 @@ public final class FlowableRuntimeUtils {
     }
 
     public static TaskQuery createTaskQuery(final DomainProcessEngine engine, final boolean onlyFormTasks) {
-        SyncopeTaskQueryImpl taskQuery = new SyncopeTaskQueryImpl(
-                ((RuntimeServiceImpl) engine.getRuntimeService()).getCommandExecutor());
+        TaskQuery taskQuery = engine.getTaskService().createTaskQuery();
         if (onlyFormTasks) {
             taskQuery.taskWithFormKey();
         }
