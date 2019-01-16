@@ -36,7 +36,6 @@ import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
-import org.flowable.task.api.TaskQuery;
 import org.identityconnectors.common.security.EncryptorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,7 +128,7 @@ public final class FlowableRuntimeUtils {
     }
 
     public static void updateStatus(final DomainProcessEngine engine, final String procInstId, final User user) {
-        List<Task> tasks = createTaskQuery(engine, false).processInstanceId(procInstId).list();
+        List<Task> tasks = engine.getTaskService().createTaskQuery().processInstanceId(procInstId).list();
         if (tasks.isEmpty() || tasks.size() > 1) {
             LOG.warn("While setting user status: unexpected task number ({})", tasks.size());
         } else {
@@ -137,18 +136,11 @@ public final class FlowableRuntimeUtils {
         }
     }
 
-    public static TaskQuery createTaskQuery(final DomainProcessEngine engine, final boolean onlyFormTasks) {
-        TaskQuery taskQuery = engine.getTaskService().createTaskQuery();
-        if (onlyFormTasks) {
-            taskQuery.taskWithFormKey();
-        }
-        return taskQuery;
-    }
-
     public static String getFormTask(final DomainProcessEngine engine, final String procInstId) {
         String result = null;
 
-        List<Task> tasks = createTaskQuery(engine, true).processInstanceId(procInstId).list();
+        List<Task> tasks = engine.getTaskService().createTaskQuery().
+                taskWithFormKey().processInstanceId(procInstId).list();
         if (tasks.isEmpty() || tasks.size() > 1) {
             LOG.debug("While checking if form task: unexpected task number ({})", tasks.size());
         } else {
