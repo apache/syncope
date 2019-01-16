@@ -128,7 +128,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         userRequest.setStartTime(procInst.getStartTime());
         userRequest.setUsername(userDAO.find(split.getRight()).getUsername());
         userRequest.setExecutionId(procInst.getId());
-        userRequest.setActivityId(FlowableRuntimeUtils.createTaskQuery(engine, false).
+        userRequest.setActivityId(engine.getTaskService().createTaskQuery().
                 processInstanceId(procInst.getProcessInstanceId()).singleResult().getTaskDefinitionKey());
         return userRequest;
     }
@@ -461,7 +461,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
         Pair<Integer, List<UserRequestForm>> forms;
 
-        TaskQuery query = FlowableRuntimeUtils.createTaskQuery(engine, true);
+        TaskQuery query = engine.getTaskService().createTaskQuery().taskWithFormKey();
         if (userKey != null) {
             query.processInstanceBusinessKeyLike(FlowableRuntimeUtils.getProcBusinessKey("%", userKey));
         }
@@ -539,7 +539,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     protected Pair<Task, TaskFormData> parseTask(final String taskId) {
         Task task;
         try {
-            task = FlowableRuntimeUtils.createTaskQuery(engine, true).taskId(taskId).singleResult();
+            task = engine.getTaskService().createTaskQuery().taskWithFormKey().taskId(taskId).singleResult();
             if (task == null) {
                 throw new FlowableException("NULL result");
             }
@@ -563,8 +563,8 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
         String authUser = AuthContextUtils.getUsername();
         if (!adminUser.equals(authUser)) {
-            List<Task> tasksForUser = FlowableRuntimeUtils.createTaskQuery(engine, true).
-                    taskId(taskId).taskCandidateOrAssigned(authUser).list();
+            List<Task> tasksForUser = engine.getTaskService().createTaskQuery().
+                    taskWithFormKey().taskId(taskId).taskCandidateOrAssigned(authUser).list();
             if (tasksForUser.isEmpty()) {
                 throw new WorkflowException(
                         new IllegalArgumentException(authUser + " is not candidate nor assignee of task " + taskId));
@@ -586,7 +586,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         Task task;
         try {
             engine.getTaskService().claim(taskId, authUser);
-            task = FlowableRuntimeUtils.createTaskQuery(engine, true).taskId(taskId).singleResult();
+            task = engine.getTaskService().createTaskQuery().taskWithFormKey().taskId(taskId).singleResult();
         } catch (FlowableException e) {
             throw new WorkflowException("While reading task " + taskId, e);
         }
@@ -601,7 +601,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         Task task;
         try {
             engine.getTaskService().unclaim(taskId);
-            task = FlowableRuntimeUtils.createTaskQuery(engine, true).taskId(taskId).singleResult();
+            task = engine.getTaskService().createTaskQuery().taskWithFormKey().taskId(taskId).singleResult();
         } catch (FlowableException e) {
             throw new WorkflowException("While unclaiming task " + taskId, e);
         }

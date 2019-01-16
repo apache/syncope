@@ -171,7 +171,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
             variables.putAll(moreVariables);
         }
 
-        List<Task> tasks = FlowableRuntimeUtils.createTaskQuery(engine, false).processInstanceId(procInstID).list();
+        List<Task> tasks = engine.getTaskService().createTaskQuery().processInstanceId(procInstID).list();
         String task = null;
         if (tasks.size() == 1) {
             try {
@@ -459,8 +459,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
 
         List<String> availableTasks = new ArrayList<>();
         try {
-            Task currentTask = FlowableRuntimeUtils.createTaskQuery(engine, false).
-                    processInstanceId(procInstID).singleResult();
+            Task currentTask = engine.getTaskService().createTaskQuery().processInstanceId(procInstID).singleResult();
 
             Process process = engine.getRepositoryService().
                     getBpmnModel(FlowableRuntimeUtils.getLatestProcDefByKey(
