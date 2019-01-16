@@ -197,7 +197,8 @@ Now, from the `enduser` subdirectory, execute:
 [source,bash]
 $ mvn -P embedded,debug
 
-At this point your favourite IDE can be attached to the port `8000`.
+At this point your favourite IDE can be attached to the port `8000`; please note that you might need to add
+`-XX:MaxPermSize=512m` to `<cargo.jvmargs>` in order to run with JDK 7.
 ====
 
 [[customization-core]]
@@ -208,8 +209,8 @@ When providing custom Java classes implementing the defined interfaces or extend
 implementations, their package *must* be rooted under `org.apache.syncope.core`, otherwise they will not be available
 at runtime.
 
-Besides replacing existing classes as explained <<override-behavior,above>>, new <<implementations,implementations>> can
-be provided - under `core/src/main/java` if Java - for the following components:
+Besides replacing existing classes as explained <<override-behavior,above>>, new implementations can be provided under
+`core/src/main/java` for the following components:
 
 * <<propagationactions,propagation>>, <<pushactions,push>>, <<pullactions,pull>> and <<logicactions,logic>> actions
 * <<push-correlation-rules,push>> / <<pull-correlation-rules,pull>> correlation rules
@@ -311,31 +312,20 @@ becomes:
 ====
 
 [discrete]
-===== Select the <<flowable-user-workflow-adapter>>
+===== Select the <<activiti-user-workflow-adapter>>
 
 Add the following dependency to `core/pom.xml`:
 
 [source,xml,subs="verbatim,attributes"]
 ----
 <dependency>
-  <groupId>org.apache.syncope.ext.flowable</groupId>
-  <artifactId>syncope-ext-flowable-rest-cxf</artifactId>
+  <groupId>org.apache.syncope.core</groupId>
+  <artifactId>syncope-core-workflow-activiti</artifactId>
   <version>${syncope.version}</version>
 </dependency>
 ----
 
 Copy `core/src/main/resources/all/workflow.properties` to `core/src/main/resources/workflow.properties`.
-
-Add the following dependency to `console/pom.xml`:
-
-[source,xml,subs="verbatim,attributes"]
-----
-<dependency>
-  <groupId>org.apache.syncope.ext.flowable</groupId>
-  <artifactId>syncope-ext-flowable-client-console</artifactId>
-  <version>${syncope.version}</version>
-</dependency>
-----
 
 [discrete]
 ===== Enable the <<apache-camel-provisioning-manager>>
@@ -422,6 +412,9 @@ Add the following dependencies to `core/pom.xml`:
 
 [discrete]
 ===== Enable the <<elasticsearch>> extension
+
+[WARNING]
+This extension requires the latest JDK 8 that is available.
 
 Add the following dependencies to `core/pom.xml`:
 

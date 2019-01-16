@@ -18,23 +18,23 @@
 //
 ==== JavaEE Container
 
-===== Apache Tomcat 9
+===== Apache Tomcat 8 and 8.5
 
 On GNU / Linux - Mac OS X, create `$CATALINA_HOME/bin/setenv.sh` with similar content
 (keep everything on a single line):
 
 ....
 JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server \
--Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC \
--Djava.security.egd=file:/dev/./urandom"
+-Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m \
+-XX:MaxPermSize=256m -XX:+DisableExplicitGC -Djava.security.egd=file:/dev/./urandom"
 ....
 
 On MS Windows, create `%CATALINA_HOME%\bin\setenv.bat` with similar content (keep everything on a single line):
 
 ....
 set JAVA_OPTS=-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server
--Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC
-....
+-Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m
+-XX:MaxPermSize=256m -XX:+DisableExplicitGC....
 
 It is recommended to define a separate datasource for each <<domains,domain>> (the following example is for the `Master`
 domain and MySQL): please also check that the connection parameters are the same as configured for <<dbms>>:
@@ -58,41 +58,7 @@ domain and MySQL): please also check that the connection parameters are the same
 [CAUTION]
 Be sure to put the corresponding JDBC driver JAR file under `$CATALINA_HOME/lib` for each datasource defined.
 
-===== Glassfish 5 and Payara Server 5
-
-Replace
-
-[source,xml]
-....
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-persistence-jpa</artifactId>
-    </dependency>
-....
-
-with
-
-[source,xml]
-....
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-persistence-jpa</artifactId>
-      <version>${syncope.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.bval</groupId>
-          <artifactId>bval-jsr</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate.validator</groupId>
-      <artifactId>hibernate-validator</artifactId>
-      <version>6.0.11.Final</version>
-    </dependency>
-....
-
-in `core/pom.xml`.
+===== Glassfish 4.1 and Payara Server 4
 
 When using a datasource for internal storage, be sure to add
 
@@ -116,7 +82,7 @@ For better performance under GNU / Linux, do not forget to include
 among JVM options.
 ====
 
-===== Wildfly 14
+===== Wildfly 9 and 10
 
 Add
 
