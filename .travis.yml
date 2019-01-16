@@ -14,13 +14,9 @@
 # limitations under the License.
 
 sudo: false
-addons:
-  apt:
-    packages:
-      - oracle-java8-installer
 language: java
 jdk:
-  - oraclejdk8
+  - openjdk8
 before_install:
   - echo 'MAVEN_OPTS="-Xms512m -Xmx1024m -XX:+TieredCompilation -XX:TieredStopAtLevel=1"' >~/.mavenrc
 # default install is mvn install --quiet -DskipTests=true
