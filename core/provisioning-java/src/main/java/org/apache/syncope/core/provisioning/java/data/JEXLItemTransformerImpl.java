@@ -57,23 +57,31 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
 
         if (StringUtils.isNotBlank(propagationJEXL) && values != null) {
             values.forEach(value -> {
-                JexlContext jexlContext = new MapContext();
-                if (entity != null) {
-                    JexlUtils.addFieldsToContext(entity, jexlContext);
-                    if (entity instanceof Any) {
-                        JexlUtils.addPlainAttrsToContext(((Any<?>) entity).getPlainAttrs(), jexlContext);
-                        JexlUtils.addDerAttrsToContext(((Any<?>) entity), jexlContext);
+                Object originalValue = value.getValue();
+                if (originalValue != null) {
+                    JexlContext jexlContext = new MapContext();
+                    if (entity != null) {
+                        JexlUtils.addFieldsToContext(entity, jexlContext);
+                        if (entity instanceof Any) {
+                            JexlUtils.addPlainAttrsToContext(((Any<?>) entity).getPlainAttrs(), jexlContext);
+                            JexlUtils.addDerAttrsToContext(((Any<?>) entity), jexlContext);
+                        }
                     }
-                }
-                jexlContext.set("value", value.getValueAsString());
+                    jexlContext.set("value", originalValue.toString());
 
-                value.setStringValue(JexlUtils.evaluate(propagationJEXL, jexlContext));
+                    value.setBinaryValue(null);
+                    value.setBooleanValue(null);
+                    value.setDateValue(null);
+                    value.setDoubleValue(null);
+                    value.setLongValue(null);
+                    value.setStringValue(JexlUtils.evaluate(propagationJEXL, jexlContext));
+                }
             });
 
             return values;
         }
 
-        return values;
+        return JEXLItemTransformer.super.beforePropagation(item, entity, values);
     }
 
     @Override
