@@ -118,26 +118,26 @@ database `syncope` fully accessible by user `syncope` with password `syncope`.
 
 Download
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/fit/core-reference/src/main/resources/pgjsonb/indexes.xml[indexes.xml^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa-json/src/main/resources/pgjsonb/indexes.xml[indexes.xml^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/2_1_X/fit/core-reference/src/main/resources/pgjsonb/indexes.xml[indexes.xml^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa-json/src/main/resources/pgjsonb/indexes.xml[indexes.xml^]
 endif::[]
 and
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/fit/core-reference/src/main/resources/pgjsonb/views.xml[views.xml^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa-json/src/main/resources/pgjsonb/views.xml[views.xml^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/2_1_X/fit/core-reference/src/main/resources/pgjsonb/views.xml[views.xml^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa-json/src/main/resources/pgjsonb/views.xml[views.xml^]
 endif::[]
 then save both under `core/src/main/resources/`.
 
 Download
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion/core/persistence-jpa-pgjsonb/src/test/resources/domains/MasterContent.xml[MasterContent.xml^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa-json/src/main/resources/pgjsonb/domains/MasterContent.xml[MasterContent.xml^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa-pgjsonb/src/test/resources/domains/MasterContent.xml[MasterContent.xml^]
+https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa-json/src/main/resources/pgjsonb/domains/MasterContent.xml[MasterContent.xml^]
 endif::[]
 and save it under `core/src/test/resources/`.
 
