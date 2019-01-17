@@ -2,6 +2,34 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.0.12
+================================================================================
+
+** Bug
+    * [SYNCOPE-1391] - Check template for confirmPasswordReset and mustChangePassword
+    * [SYNCOPE-1393] - jexl function fullPath2Dn return invalid value for ROOT realm
+    * [SYNCOPE-1398] - Console stucks on update with unique key constraint violation
+    * [SYNCOPE-1405] - Error during db initialization: views.xml always set for PostgreSQL
+    * [SYNCOPE-1407] - Date pattern ignored by widget
+    * [SYNCOPE-1408] - Partial user edit via Role layout implies removing all unmanaged attributes
+    * [SYNCOPE-1411] - User/Any object updates generate attributes with null owner in case of patches involving membership attributes
+    * [SYNCOPE-1417] - Search with order by two plain attributes gives no results
+    * [SYNCOPE-1419] - User and AnyObject search fails in case of not leaf conditions given on multivalue fields
+    * [SYNCOPE-1420] - Expired Access Tokens might impede successful authentication
+    * [SYNCOPE-1425] - Mapping item transformers do not work for non-string values
+
+** New Feature
+    * [SYNCOPE-1368] - Add some accessibility features to Console
+
+** Improvement
+    * [SYNCOPE-1394] - Add un-claim capability for requests
+    * [SYNCOPE-1396] - Give the possibility to configure TLS client parameters
+    * [SYNCOPE-1409] - Avoid double round-trip to External Resource during Push
+    * [SYNCOPE-1412] - Serch for identities with null attributes can be improved 
+    * [SYNCOPE-1416] - remove user_search_null_attr view
+    * [SYNCOPE-1422] - Permit to provide custom implementation of NotificationManager and AuditManager
+    * [SYNCOPE-1424] - Improve Propagation task ordered search
+
 Release Notes - Syncope - Version 2.0.11
 ================================================================================
 
