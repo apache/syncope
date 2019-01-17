@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Apache Syncope Eclipse Plugin
 Bundle-SymbolicName: org.apache.syncope.ide.eclipse.plugin;singleton:=true
-Bundle-Version: 2.1.3.qualifier
+Bundle-Version: 2.1.3
 Bundle-Activator: org.apache.syncope.ide.eclipse.plugin.Activator
 Require-Bundle: org.eclipse.ui,
       org.eclipse.core.runtime,
