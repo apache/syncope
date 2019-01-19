@@ -148,12 +148,6 @@ To reset to the default mode, it is enough to click again on the specific icon.
 Third-party applications are provided full access to IdM services by leveraging the REST interface, either via the 
 Java <<client-library,Client Library>> (the basis of Admin UI and End-user UI) or plain HTTP calls.
 
-==== Eclipse IDE Plugin
-
-The Eclipse IDE plugin allows remote management of <<notification-templates,notification e-mail>> and
-<<report-templates,report>> templates, and constitutes an example of a Java application relying on the Client Library
-for interacting with the Core via REST.
-
 ==== Netbeans IDE Plugin
 
 The Netbeans IDE plugin allows remote management of <<notification-templates,notification e-mail>> and
