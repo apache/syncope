@@ -38,7 +38,7 @@ install:
   - cmd: SET PATH=C:\maven\apache-maven-3.5.4\bin;%JAVA_HOME%\bin;%PATH%
   - cmd: SET JAVA_HOME=C:\Program Files\Java\jdk11
   - cmd: SET M2_HOME=C:\maven\apache-maven-3.5.4
-  - cmd: SET MAVEN_OPTS="-Xmx2048M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+  - cmd: SET MAVEN_OPTS=-Xmx4g
   - cmd: SET JAVA_OPTS=-Xmx4g
 
   - echo %PATH%
