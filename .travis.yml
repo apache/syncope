@@ -18,7 +18,7 @@ language: java
 jdk:
   - openjdk10
 before_install:
-  - echo 'MAVEN_OPTS="-Xms512m -Xmx1024m -XX:+TieredCompilation -XX:TieredStopAtLevel=1"' >~/.mavenrc
+  - echo 'MAVEN_OPTS="-Xmx2048M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:+TieredCompilation -XX:TieredStopAtLevel=1"' >~/.mavenrc
 # default install is mvn install --quiet -DskipTests=true
 install: travis_wait 30 mvn --show-version --quiet -T 1C -P all,skipTests
 before_script:
