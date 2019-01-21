@@ -2209,6 +2209,7 @@ under the License.
               <goal>execute</goal>
             </goals>
             <configuration>
+              <allowSystemExits>true</allowSystemExits>
               <scripts>
                 <script><![CDATA[
                 import java.util.Date
