@@ -73,12 +73,14 @@ import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
+import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
+import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -182,6 +184,12 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
     private VirAttrCache virAttrCache;
 
     @Autowired
+    private NotificationManager notificationManager;
+
+    @Autowired
+    private AuditManager auditManager;
+
+    @Autowired
     private PasswordGenerator passwordGenerator;
 
     @Autowired
@@ -228,6 +236,8 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
                 PLATFORM_INFO.setUserProvisioningManager(AopUtils.getTargetClass(uProvisioningManager).getName());
                 PLATFORM_INFO.setGroupProvisioningManager(AopUtils.getTargetClass(gProvisioningManager).getName());
                 PLATFORM_INFO.setVirAttrCache(AopUtils.getTargetClass(virAttrCache).getName());
+                PLATFORM_INFO.setNotificationManager(AopUtils.getTargetClass(notificationManager).getName());
+                PLATFORM_INFO.setAuditManager(AopUtils.getTargetClass(auditManager).getName());
                 PLATFORM_INFO.setPasswordGenerator(AopUtils.getTargetClass(passwordGenerator).getName());
                 PLATFORM_INFO.setAnySearchDAO(AopUtils.getTargetClass(anySearchDAO).getName());
 

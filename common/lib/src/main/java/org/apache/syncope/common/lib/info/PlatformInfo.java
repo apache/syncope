@@ -69,6 +69,10 @@ public class PlatformInfo extends AbstractBaseBean {
 
     private String virAttrCache;
 
+    private String notificationManager;
+
+    private String auditManager;
+
     private String passwordGenerator;
 
     private String anySearchDAO;
@@ -184,20 +188,20 @@ public class PlatformInfo extends AbstractBaseBean {
         return virAttrCache;
     }
 
+    public String getNotificationManager() {
+        return notificationManager;
+    }
+
+    public String getAuditManager() {
+        return auditManager;
+    }
+
     public String getPasswordGenerator() {
         return passwordGenerator;
     }
 
-    public void setPasswordGenerator(final String passwordGenerator) {
-        this.passwordGenerator = passwordGenerator;
-    }
-
     public String getAnySearchDAO() {
         return anySearchDAO;
-    }
-
-    public void setAnySearchDAO(final String anySearchDAO) {
-        this.anySearchDAO = anySearchDAO;
     }
 
     @XmlElementWrapper(name = "anyTypes")
@@ -402,5 +406,21 @@ public class PlatformInfo extends AbstractBaseBean {
 
     public void setVirAttrCache(final String virAttrCache) {
         this.virAttrCache = virAttrCache;
+    }
+
+    public void setNotificationManager(final String notificationManager) {
+        this.notificationManager = notificationManager;
+    }
+
+    public void setAuditManager(final String auditManager) {
+        this.auditManager = auditManager;
+    }
+
+    public void setPasswordGenerator(final String passwordGenerator) {
+        this.passwordGenerator = passwordGenerator;
+    }
+
+    public void setAnySearchDAO(final String anySearchDAO) {
+        this.anySearchDAO = anySearchDAO;
     }
 }
