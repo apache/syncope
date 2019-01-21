@@ -54,6 +54,10 @@ public class PlatformInfo implements Serializable {
 
         private String groupProvisioningManager;
 
+        private String notificationManager;
+
+        private String auditManager;
+
         public String getPropagationTaskExecutor() {
             return propagationTaskExecutor;
         }
@@ -92,6 +96,22 @@ public class PlatformInfo implements Serializable {
 
         public void setGroupProvisioningManager(final String groupProvisioningManager) {
             this.groupProvisioningManager = groupProvisioningManager;
+        }
+
+        public String getNotificationManager() {
+            return notificationManager;
+        }
+
+        public void setNotificationManager(final String notificationManager) {
+            this.notificationManager = notificationManager;
+        }
+
+        public String getAuditManager() {
+            return auditManager;
+        }
+
+        public void setAuditManager(final String auditManager) {
+            this.auditManager = auditManager;
         }
     }
 
