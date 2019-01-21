@@ -15,8 +15,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# Cannot FROM adoptopenjdk/openjdk8-openj9:alpine-slim because it's headless, and fonts are required for captcha
-FROM openjdk:8
+# Cannot FROM adoptopenjdk/openjdk11-openj9:alpine-slim because it's headless, and fonts are required for captcha
+FROM openjdk:11
 MAINTAINER dev@syncope.apache.org
 
 RUN set -x

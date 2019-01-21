@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM adoptopenjdk/openjdk8-openj9:alpine-slim
+FROM adoptopenjdk/openjdk11-openj9:alpine-slim
 MAINTAINER dev@syncope.apache.org
 
 RUN set -x
