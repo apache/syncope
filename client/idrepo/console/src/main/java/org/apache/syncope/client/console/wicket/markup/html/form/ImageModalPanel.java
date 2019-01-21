@@ -54,5 +54,4 @@ public class ImageModalPanel<T extends Serializable> extends AbstractModalPanel<
         image.setOutputMarkupId(true);
         add(image);
     }
-
 }

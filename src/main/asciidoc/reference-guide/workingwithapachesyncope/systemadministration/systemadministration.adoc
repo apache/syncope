@@ -40,7 +40,7 @@ Debian packages:: The configuration files will be first searched in `/etc/apache
 Maven project:: Assuming that `$CONF_DIRECTORY` is the directory passed among
 <<deployment-directories,deployment directories>> at build time and that `$SOURCE` is the path where the Maven project
 was generated, the configuration files will be first searched in
-`$CONF_DIRECTORY`, then under the selected Java EE container's application classpath, according to the content of
+`$CONF_DIRECTORY`, then under the selected deployment's application classpath, according to the content of
 
 * `$SOURCE/core/target/classes/`
 * `$SOURCE/console/target/classes/`
@@ -49,7 +49,7 @@ was generated, the configuration files will be first searched in
 
 include::dbms.adoc[]
 
-include::dbcp.adoc[]
+include::executable.adoc[]
 
 include::javaeecontainer.adoc[]
 

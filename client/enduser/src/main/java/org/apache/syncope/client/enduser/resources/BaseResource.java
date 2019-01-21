@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.wicket.request.resource.AbstractResource;
@@ -40,7 +40,7 @@ public abstract class BaseResource extends AbstractResource {
 
     protected final boolean xsrfCheck(final HttpServletRequest request) {
         final String requestXSRFHeader = request.getHeader(SyncopeEnduserConstants.XSRF_HEADER_NAME);
-        return SyncopeEnduserApplication.get().isXsrfEnabled()
+        return SyncopeWebApplication.get().isXsrfEnabled()
                 ? StringUtils.isNotBlank(requestXSRFHeader)
                 && SyncopeEnduserSession.get().getCookieUtils().
                         getCookie(SyncopeEnduserConstants.XSRF_COOKIE).getValue().equals(requestXSRFHeader)
@@ -48,7 +48,7 @@ public abstract class BaseResource extends AbstractResource {
     }
 
     protected final boolean captchaCheck(final String enteredCaptcha, final Object currentCaptcha) {
-        return SyncopeEnduserApplication.get().isCaptchaEnabled()
+        return SyncopeWebApplication.get().isCaptchaEnabled()
                 ? StringUtils.isBlank(currentCaptcha.toString()) || enteredCaptcha == null
                 ? false
                 : enteredCaptcha.equals(currentCaptcha.toString())

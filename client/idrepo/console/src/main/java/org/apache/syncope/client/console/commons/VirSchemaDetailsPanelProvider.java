@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.client.console.commons;
 
+import java.io.Serializable;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.wicket.markup.html.panel.Panel;
 
-public interface VirSchemaDetailsPanelProvider {
+public interface VirSchemaDetailsPanelProvider extends Serializable {
 
     Panel get(String id, VirSchemaTO schemaTO);
 }

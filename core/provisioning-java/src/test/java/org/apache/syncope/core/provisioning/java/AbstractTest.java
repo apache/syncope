@@ -24,12 +24,7 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@SpringJUnitConfig(locations = {
-    "classpath:persistenceTest.xml",
-    "classpath:provisioningContext.xml",
-    "classpath:workflowContext.xml",
-    "classpath:provisioningTest.xml"
-})
+@SpringJUnitConfig(classes = { ProvisioningTestContext.class })
 public abstract class AbstractTest {
 
     protected EntityManager entityManager() {

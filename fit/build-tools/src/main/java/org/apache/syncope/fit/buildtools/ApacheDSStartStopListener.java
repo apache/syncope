@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
@@ -57,6 +58,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 /**
  * Start and stop an embedded ApacheDS instance alongside with Servlet Context.
  */
+@WebListener
 public class ApacheDSStartStopListener implements ServletContextListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ApacheDSStartStopListener.class);
@@ -231,7 +233,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
             server = new LdapServer();
             server.setTransports(new TcpTransport(Integer.parseInt(
                     WebApplicationContextUtils.getWebApplicationContext(sce.getServletContext()).
-                    getBean("testds.port", String.class))));
+                            getBean("testds.port", String.class))));
             server.setDirectoryService(service);
 
             server.start();

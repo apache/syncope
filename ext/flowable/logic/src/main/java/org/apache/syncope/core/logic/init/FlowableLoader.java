@@ -22,14 +22,14 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
 import org.apache.syncope.core.flowable.impl.FlowableDeployUtils;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
-import org.apache.syncope.core.persistence.api.SyncopeLoader;
+import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.flowable.engine.ProcessEngine;
@@ -41,7 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class FlowableLoader implements SyncopeLoader {
+public class FlowableLoader implements SyncopeCoreLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(FlowableLoader.class);
 
@@ -52,14 +52,17 @@ public class FlowableLoader implements SyncopeLoader {
     private DomainProcessEngine dpEngine;
 
     @Override
-    public Integer getPriority() {
-        return Integer.MIN_VALUE;
+    public int getOrder() {
+        return 310;
     }
 
     @Override
     public void load() {
         EntitlementsHolder.getInstance().init(FlowableEntitlement.values());
+    }
 
+    @Override
+    public void load(final String domain, final DataSource datasource) {
         byte[] wfDef = new byte[0];
 
         try (InputStream wfIn = userWorkflowDef.getResource().getInputStream()) {
@@ -68,29 +71,32 @@ public class FlowableLoader implements SyncopeLoader {
             LOG.error("While loading " + userWorkflowDef.getResource().getFilename(), e);
         }
 
-        for (Map.Entry<String, ProcessEngine> entry : dpEngine.getEngines().entrySet()) {
-            List<ProcessDefinition> processes = entry.getValue().getRepositoryService().
+        ProcessEngine processEngine = dpEngine.getEngines().get(domain);
+        if (processEngine == null) {
+            LOG.error("Could not find the configured ProcessEngine for domain {}", domain);
+        } else {
+            List<ProcessDefinition> processes = processEngine.getRepositoryService().
                     createProcessDefinitionQuery().processDefinitionKey(FlowableRuntimeUtils.WF_PROCESS_ID).
                     list();
             LOG.debug(FlowableRuntimeUtils.WF_PROCESS_ID + " Flowable processes in repository: {}", processes);
 
             // Only loads process definition from file if not found in repository
             if (processes.isEmpty()) {
-                entry.getValue().getRepositoryService().createDeployment().addInputStream(
+                processEngine.getRepositoryService().createDeployment().addInputStream(
                         userWorkflowDef.getResource().getFilename(), new ByteArrayInputStream(wfDef)).deploy();
 
-                ProcessDefinition procDef = entry.getValue().getRepositoryService().createProcessDefinitionQuery().
+                ProcessDefinition procDef = processEngine.getRepositoryService().createProcessDefinitionQuery().
                         processDefinitionKey(FlowableRuntimeUtils.WF_PROCESS_ID).latestVersion().
                         singleResult();
 
-                FlowableDeployUtils.deployModel(entry.getValue(), procDef);
+                FlowableDeployUtils.deployModel(processEngine, procDef);
 
-                LOG.debug("Flowable Workflow definition loaded for domain {}", entry.getKey());
+                LOG.debug("Flowable Workflow definition loaded for domain {}", domain);
             }
 
             // jump to the next ID block
-            for (int i = 0; i < entry.getValue().getProcessEngineConfiguration().getIdBlockSize(); i++) {
-                SpringProcessEngineConfiguration.class.cast(entry.getValue().getProcessEngineConfiguration()).
+            for (int i = 0; i < processEngine.getProcessEngineConfiguration().getIdBlockSize(); i++) {
+                SpringProcessEngineConfiguration.class.cast(processEngine.getProcessEngineConfiguration()).
                         getIdGenerator().getNextId();
             }
         }

@@ -58,7 +58,7 @@ public class JPACPlainAttr extends AbstractPlainAttr<Conf> implements CPlainAttr
     /**
      * Values of this attribute (if schema is not UNIQUE).
      */
-    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true, mappedBy = "attribute")
+    @OneToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, orphanRemoval = true, mappedBy = "attribute")
     @Valid
     private List<JPACPlainAttrValue> values = new ArrayList<>();
 

@@ -34,6 +34,7 @@ import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -118,7 +119,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
 
         try {
             return binder.delete(anyType);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | InvalidDataAccessApiUsageException e) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
             sce.getElements().add(e.getMessage());
             throw sce;

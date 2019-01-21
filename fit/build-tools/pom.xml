@@ -43,21 +43,57 @@ under the License.
       <artifactId>javax.servlet-api</artifactId> 
       <scope>provided</scope>
     </dependency>
-    
+
     <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-spring-boot-starter-jaxrs</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-service</artifactId>
+      <artifactId>apacheds-core-api</artifactId>
+      <version>${apacheds.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-service-builder</artifactId>
+      <version>${apacheds.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.directory.server</groupId>
+          <artifactId>apacheds-http-integration</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.api</groupId>
+      <artifactId>api-ldap-codec-standalone</artifactId>
+      <version>${apachedirapi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.api</groupId>
+      <artifactId>api-ldap-model</artifactId>
+      <version>${apachedirapi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.api</groupId>
+      <artifactId>api-ldap-schema-data</artifactId>
+      <version>${apachedirapi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.api</groupId>
+      <artifactId>api-util</artifactId>
+      <version>${apachedirapi.version}</version>
     </dependency>
 
     <dependency>
       <groupId>javax.xml.ws</groupId>
       <artifactId>jaxws-api</artifactId>
-      <version>2.2.11</version>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
@@ -79,11 +115,22 @@ under the License.
       <artifactId>cxf-rt-wsdl</artifactId>
       <version>${cxf.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-frontend-jaxws</artifactId>
+      <version>${cxf.version}</version>
+    </dependency>
         
     <dependency>
       <groupId>net.tirasa.connid.bundles.soap</groupId>
       <artifactId>soap-utilities</artifactId>
       <version>${connid.soap.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.cxf</groupId>
+          <artifactId>cxf-rt-frontend-jaxws</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -95,45 +142,8 @@ under the License.
       <artifactId>cxf-rt-rs-service-description</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-rs-service-description-openapi-v3</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.fasterxml.jackson.jaxrs</groupId>
       <artifactId>jackson-jaxrs-json-provider</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.jaxrs</groupId>
-      <artifactId>jackson-jaxrs-yaml-provider</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>swagger-ui</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-core</artifactId>
-      <version>${spring.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-jdbc</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-web</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -177,25 +187,6 @@ under the License.
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-sql</artifactId>
     </dependency>
-
-    <dependency>
-      <groupId>net.tirasa.connid.bundles.db</groupId>
-      <artifactId>net.tirasa.connid.bundles.db.table</artifactId>
-      <version>${connid.database.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.tirasa.connid.bundles.db</groupId>
-      <artifactId>net.tirasa.connid.bundles.db.scriptedsql</artifactId>
-      <version>${connid.database.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.tirasa.connid.bundles</groupId>
-      <artifactId>net.tirasa.connid.bundles.rest</artifactId>
-      <version>${connid.rest.version}</version>
-      <scope>runtime</scope>
-    </dependency>
     
     <dependency>
       <groupId>commons-logging</groupId>
@@ -206,10 +197,35 @@ under the License.
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
-    <plugins>      
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>set-bundles</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
@@ -229,6 +245,10 @@ under the License.
                 <include>NOTICE</include>
               </includes>
             </resource>
+            <resource>
+              <directory>${bundles.directory}</directory>
+              <targetPath>WEB-INF/classes/bundles</targetPath>
+            </resource>
           </webResources>
           <packagingExcludes>WEB-INF/classes/META-INF/LICENSE*,WEB-INF/classes/META-INF/NOTICE*,WEB-INF/classes/META-INF/DEPENDENCIES*</packagingExcludes>
         </configuration>
@@ -239,6 +259,13 @@ under the License.
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/../../src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>banner.txt</include>
+        </includes>
       </resource>
       <resource>
         <directory>${basedir}</directory>
@@ -265,6 +292,15 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
+                <containerId>tomcat9x</containerId>
+                <zipUrlInstaller>
+                  <url>http://central.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
+                  <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
+                  <extractDir>${project.build.directory}/cargo/extract</extractDir>
+                </zipUrlInstaller>
+                <timeout>300000</timeout>
+                <log>${cargo.log}</log>
+                <output>${cargo.output}</output>
                 <dependencies>
                   <dependency>
                     <groupId>com.h2database</groupId>
@@ -273,24 +309,11 @@ under the License.
                 </dependencies>
               </container>
               <configuration>
-                <type>standalone</type>
                 <properties>
-                  <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
-                  <cargo.tomcat.ajp.port>${cargo.tomcat.ajp.port}</cargo.tomcat.ajp.port>
-                  <cargo.rmi.port>${cargo.rmi.port}</cargo.rmi.port>
-
                   <cargo.jvmargs>-Xdebug -Djaxb.debug=true -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC</cargo.jvmargs>
                 </properties>
               </configuration>
-              <deployables>
-                <deployable>
-                  <location>${project.build.directory}/${project.build.finalName}</location>
-                  <properties>
-                    <context>syncope-fit-build-tools</context>
-                  </properties>
-                </deployable>
-              </deployables>
             </configuration>
           </plugin>
         </plugins>

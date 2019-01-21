@@ -20,8 +20,7 @@
 
 Apache Syncope can be configured to use either local or remote <<connector-bundles,connector bundles>>:
 
-* *local* connector bundles are located somewhere in the same filesystem where the Java EE container running 
-Apache Syncope is deployed;
+* *local* connector bundles are located somewhere in the same filesystem where Apache Syncope is deployed;
 * *remote* connector bundles are provided via Java or .NET
 https://connid.atlassian.net/wiki/display/BASE/Connector+Servers[connector server^].
 

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -86,9 +86,9 @@ public class Resources extends WizardStep implements ICondition {
 
     @Override
     public boolean evaluate() {
-        if (SyncopeConsoleApplication.get().getSecuritySettings().
+        if (SyncopeWebApplication.get().getSecuritySettings().
                 getAuthorizationStrategy().isActionAuthorized(this, RENDER)) {
-            available.setObject(SyncopeConsoleApplication.get().getResourceProvider().get());
+            available.setObject(SyncopeWebApplication.get().getResourceProvider().get());
             return !available.getObject().isEmpty();
         } else {
             return false;

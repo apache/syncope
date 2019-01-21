@@ -20,7 +20,7 @@ under the License.
 <!DOCTYPE glassfish-web-app PUBLIC "-//GlassFish.org//DTD 
 GlassFish Application Server 3.1 Servlet 3.0//EN" "http://glassfish.org/dtds/glassfish-web-app_3_0-1.dtd">
 <glassfish-web-app>
-  <context-root>/syncope</context-root>
+  <context-root>/syncope-fit-build-tools</context-root>
   <class-loader delegate="false"/>
   <jsp-config>
     <property name="httpMethods" value="GET,POST,HEAD,PUT,DELETE"/>

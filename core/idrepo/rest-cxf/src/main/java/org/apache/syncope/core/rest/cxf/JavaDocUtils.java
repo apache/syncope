@@ -23,6 +23,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.env.Environment;
 import org.springframework.util.ClassUtils;
 
 public final class JavaDocUtils {
@@ -42,6 +43,16 @@ public final class JavaDocUtils {
             if (!javaDocURLs.isEmpty()) {
                 result = javaDocURLs.toArray(new URL[javaDocURLs.size()]);
             }
+        }
+
+        return result;
+    }
+
+    public static String[] getJavaDocPaths(final Environment env) {
+        String[] result = null;
+
+        if (env.containsProperty("javadocPaths")) {
+            result = env.getProperty("javadocPaths").split(",");
         }
 
         return result;

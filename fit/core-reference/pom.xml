@@ -36,74 +36,26 @@ under the License.
   <properties>
     <jdbcdriver.groupId>com.h2database</jdbcdriver.groupId>
     <jdbcdriver.artifactId>h2</jdbcdriver.artifactId>
-    
+
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
   </properties>
 
   <dependencies>
-    <dependency> 
-      <groupId>javax.servlet</groupId> 
-      <artifactId>javax.servlet-api</artifactId> 
-    </dependency>
     <dependency>
-      <groupId>javax.servlet.jsp</groupId>
-      <artifactId>javax.servlet.jsp-api</artifactId>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-starter</artifactId>
+      <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-    </dependency>
-    
     <dependency>
       <groupId>org.apache.syncope.core.idm</groupId>
       <artifactId>syncope-core-idm-rest-cxf</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-workflow-java</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-persistence-jpa</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.lmax</groupId>
-      <artifactId>disruptor</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-    </dependency>
-    
+
     <!-- TEST -->
     <dependency>
-      <groupId>com.icegreen</groupId>
-      <artifactId>greenmail</artifactId>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -114,8 +66,8 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
+      <groupId>com.icegreen</groupId>
+      <artifactId>greenmail</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -129,6 +81,16 @@ under the License.
       <artifactId>syncope-client-idm-console</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>cglib</groupId>
+          <artifactId>cglib</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.ow2.asm</groupId>
+          <artifactId>asm-util</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.syncope.ext.flowable</groupId>
@@ -272,13 +234,22 @@ under the License.
           </execution>
         </executions>
       </plugin>
-      
+
       <plugin>
         <groupId>org.codehaus.cargo</groupId>
         <artifactId>cargo-maven2-plugin</artifactId>
         <inherited>true</inherited>
         <configuration>
           <container>
+            <containerId>tomcat9x</containerId>
+            <zipUrlInstaller>
+              <url>http://central.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
+              <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
+              <extractDir>${project.build.directory}/cargo/extract</extractDir>
+            </zipUrlInstaller>
+            <timeout>300000</timeout>
+            <log>${cargo.log}</log>
+            <output>${cargo.output}</output>
             <dependencies>
               <dependency>
                 <groupId>com.h2database</groupId>
@@ -291,21 +262,11 @@ under the License.
             </dependencies>
           </container>
           <configuration>
-            <type>standalone</type>
             <properties>
-              <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
-              <cargo.tomcat.ajp.port>${cargo.tomcat.ajp.port}</cargo.tomcat.ajp.port>
-              <cargo.rmi.port>${cargo.rmi.port}</cargo.rmi.port>
-
-              <cargo.jvmargs>-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
+              <cargo.jvmargs>
+                -Dspring.profiles.active=embedded
+                -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
             </properties>
-            <configfiles>
-              <configfile>
-                <file>${basedir}/src/main/resources/context.xml</file>
-                <todir>conf/</todir>
-                <tofile>context.xml</tofile>
-              </configfile>
-            </configfiles>
           </configuration>
           <deployables>
             <deployable>
@@ -318,7 +279,7 @@ under the License.
             </deployable>
             <deployable>
               <location>${project.build.directory}/${project.build.finalName}</location>
-              <pingURL>http://localhost:${cargo.servlet.port}/syncope/cacheStats.jsp</pingURL>
+              <pingURL>http://localhost:${cargo.servlet.port}/syncope/index.html</pingURL>
               <pingTimeout>60000</pingTimeout>
               <properties>
                 <context>syncope</context>
@@ -333,6 +294,9 @@ under the License.
             <goals>
               <goal>start</goal>
             </goals>
+            <configuration>
+              <skip>${skipTests}</skip>
+            </configuration>
           </execution>
           <execution>
             <id>stop-container</id>
@@ -340,10 +304,13 @@ under the License.
             <goals>
               <goal>stop</goal>
             </goals>
+            <configuration>
+              <skip>${skipTests}</skip>
+            </configuration>
           </execution>
         </executions>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
@@ -365,9 +332,6 @@ under the License.
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
-        <excludes>
-          <exclude>context.xml</exclude>
-        </excludes>
       </resource>
       <resource>
         <directory>${basedir}/../../core/persistence-jpa/src/main/resources</directory>
@@ -378,7 +342,7 @@ under the License.
       </resource>
       <resource>
         <directory>${basedir}/../../core/persistence-jpa/src/test/resources/domains</directory>
-        <targetPath>${project.build.directory}/classes/domains</targetPath>
+        <targetPath>${project.build.outputDirectory}/domains</targetPath>
         <filtering>true</filtering>
       </resource>
       <resource>
@@ -455,7 +419,7 @@ under the License.
     </profile>
   
     <profile>
-      <id>elasticsearch</id>
+      <id>elasticsearch-it</id>
       
       <dependencies>
         <dependency>
@@ -472,22 +436,6 @@ under the License.
       
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-war-plugin</artifactId>
-            <configuration>
-              <webResources>
-                <resource>
-                  <directory>src/main/webapp/WEB-INF</directory>
-                  <excludes>
-                    <exclude>web.xml</exclude>
-                  </excludes>
-                </resource>
-              </webResources>
-              <webXml>${basedir}/src/main/resources/elasticsearch/web.xml</webXml>
-            </configuration>
-          </plugin>
-          
           <plugin>
             <groupId>io.fabric8</groupId>
             <artifactId>docker-maven-plugin</artifactId>
@@ -532,22 +480,6 @@ under the License.
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
             <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>start-container</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>stop-container</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
         
@@ -594,7 +526,7 @@ under the License.
           <artifactId>syncope-core-persistence-jpa-json</artifactId>
           <version>${project.version}</version>
         </dependency>
-    
+        
         <dependency>
           <groupId>org.postgresql</groupId>
           <artifactId>postgresql</artifactId>
@@ -626,7 +558,7 @@ under the License.
                 <configuration>
                   <target>
                     <delete>
-                      <fileset dir="${project.build.directory}/classes/domains" includes="Two*"/>
+                      <fileset dir="${project.build.outputDirectory}/domains" includes="Two*"/>
                     </delete>
                   </target>
                 </configuration>
@@ -653,6 +585,10 @@ under the License.
                     <ports>
                       <port>5432:5432</port>
                     </ports>
+                    <wait>
+                      <log>database system is ready to accept connections</log>
+                      <time>30000</time>
+                    </wait>
                   </run>
                 </image>
               </images>
@@ -680,22 +616,6 @@ under the License.
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
             <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>start-container</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>stop-container</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
 
@@ -715,7 +635,7 @@ under the License.
           </resource>
           <resource>
             <directory>${basedir}/../../core/persistence-jpa-json/src/test/resources/pgjsonb/domains</directory>
-            <targetPath>${project.build.directory}/classes/domains</targetPath>
+            <targetPath>${project.build.outputDirectory}/domains</targetPath>
             <filtering>true</filtering>
           </resource>
         </resources>
@@ -769,6 +689,10 @@ under the License.
                     <ports>
                       <port>5432:5432</port>
                     </ports>
+                    <wait>
+                      <log>database system is ready to accept connections</log>
+                      <time>30000</time>
+                    </wait>
                   </run>
                 </image>
               </images>
@@ -796,22 +720,6 @@ under the License.
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
             <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>start-container</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>stop-container</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
 
@@ -858,7 +766,7 @@ under the License.
           <scope>test</scope>
         </dependency>
       </dependencies>
-      
+
       <build>
         <defaultGoal>clean verify</defaultGoal>
 
@@ -879,6 +787,10 @@ under the License.
                     <ports>
                       <port>3306:3306</port>
                     </ports>
+                    <wait>
+                      <log>MySQL init process done. Ready for start up.</log>
+                      <time>30000</time>
+                    </wait>
                   </run>
                 </image>
               </images>
@@ -901,27 +813,11 @@ under the License.
               </execution>
             </executions>
           </plugin>
-          
+
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
             <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>start-container</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>stop-container</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
 
@@ -957,7 +853,7 @@ under the License.
           <scope>test</scope>
         </dependency>
       </dependencies>
-      
+
       <build>
         <defaultGoal>clean verify</defaultGoal>
 
@@ -1010,22 +906,6 @@ under the License.
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
             <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>start-container</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>stop-container</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
 
@@ -1047,7 +927,7 @@ under the License.
     
     <profile>
       <id>oracle-it</id>
-
+      
       <properties>
         <jdbcdriver.groupId>com.oracle.jdbc</jdbcdriver.groupId>
         <jdbcdriver.artifactId>ojdbc8</jdbcdriver.artifactId>
@@ -1061,7 +941,7 @@ under the License.
           <scope>test</scope>
         </dependency>
       </dependencies>
-      
+
       <build>
         <defaultGoal>clean verify</defaultGoal>
 
@@ -1121,22 +1001,6 @@ under the License.
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
             <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>start-container</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>stop-container</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
 
@@ -1158,7 +1022,7 @@ under the License.
 
     <profile>
       <id>sqlserver-it</id>
-
+      
       <properties>
         <jdbcdriver.groupId>com.microsoft.sqlserver</jdbcdriver.groupId>
         <jdbcdriver.artifactId>mssql-jdbc</jdbcdriver.artifactId>
@@ -1172,7 +1036,7 @@ under the License.
           <scope>test</scope>
         </dependency>
       </dependencies>
-      
+
       <build>
         <defaultGoal>clean verify</defaultGoal>
 
@@ -1195,6 +1059,10 @@ under the License.
                     <ports>
                       <port>1433:1433</port>
                     </ports>
+                    <wait>
+                      <log>MSSQL CONFIG COMPLETE</log>
+                      <time>30000</time>
+                    </wait>
                   </run>
                 </image>
               </images>
@@ -1222,22 +1090,6 @@ under the License.
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
             <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>start-container</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>stop-container</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
 
@@ -1271,19 +1123,6 @@ under the License.
     <profile>
       <id>glassfish-it</id>
       
-      <dependencies>
-        <dependency>
-          <groupId>org.apache.syncope.core</groupId>
-          <artifactId>syncope-core-persistence-jpa</artifactId>
-          <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-          <groupId>com.h2database</groupId>
-          <artifactId>h2</artifactId>
-        </dependency>
-      </dependencies>
-
       <build>
         <defaultGoal>clean verify</defaultGoal>
 
@@ -1302,7 +1141,19 @@ under the License.
                 </zipUrlInstaller>
                 <log>${cargo.log}</log>
                 <output>${cargo.output}</output>
+                <dependencies>
+                  <dependency>
+                    <groupId>com.h2database</groupId>
+                    <artifactId>h2</artifactId>
+                  </dependency>
+                </dependencies>
               </container>
+              <configuration>
+                <properties>
+                  <cargo.jvmargs>-Dspring.profiles.active=embedded
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx2048m -Xms1024m</cargo.jvmargs>
+                </properties>
+              </configuration>
             </configuration>
           </plugin>
         </plugins>
@@ -1311,25 +1162,6 @@ under the License.
 
     <profile>
       <id>payara-it</id>
-
-      <dependencies>
-        <dependency>
-          <groupId>org.apache.syncope.core</groupId>
-          <artifactId>syncope-core-persistence-jpa</artifactId>
-          <version>${project.version}</version>
-          <exclusions>
-            <exclusion>
-              <groupId>org.apache.bval</groupId>
-              <artifactId>bval-jsr</artifactId>
-            </exclusion>
-          </exclusions>
-        </dependency>
-
-        <dependency>
-          <groupId>com.h2database</groupId>
-          <artifactId>h2</artifactId>
-        </dependency>
-      </dependencies>
 
       <build>
         <defaultGoal>clean verify</defaultGoal>
@@ -1343,13 +1175,25 @@ under the License.
               <container>
                 <containerId>glassfish5x</containerId>
                 <zipUrlInstaller>
-                  <url>https://s3-eu-west-1.amazonaws.com/payara.fish/Payara+Downloads/5.183/payara-5.183.zip</url>
+                  <url>https://s3-eu-west-1.amazonaws.com/payara.fish/Payara+Downloads/5.184/payara-5.184.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
                 <log>${cargo.log}</log>
                 <output>${cargo.output}</output>
+                <dependencies>
+                  <dependency>
+                    <groupId>com.h2database</groupId>
+                    <artifactId>h2</artifactId>
+                  </dependency>
+                </dependencies>
               </container>
+              <configuration>
+                <properties>
+                  <cargo.jvmargs>-Dspring.profiles.active=embedded
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx2048m -Xms1024m</cargo.jvmargs>
+                </properties>
+              </configuration>
             </configuration>
           </plugin>
         </plugins>
@@ -1363,7 +1207,6 @@ under the License.
         <dependency>
           <groupId>javax.xml.ws</groupId>
           <artifactId>jaxws-api</artifactId>
-          <version>2.2.11</version>
         </dependency>
         <dependency>
           <groupId>org.apache.cxf</groupId>
@@ -1385,7 +1228,7 @@ under the License.
           <artifactId>cxf-rt-wsdl</artifactId>
           <version>${cxf.version}</version>
         </dependency>
-
+        
         <dependency>
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>
@@ -1397,22 +1240,6 @@ under the License.
 
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-war-plugin</artifactId>
-            <configuration>
-              <webResources>
-                <resource>
-                  <directory>src/main/webapp/WEB-INF</directory>
-                  <excludes>
-                    <exclude>web.xml</exclude>
-                  </excludes>
-                </resource>
-              </webResources>
-              <webXml>${basedir}/src/main/resources/jboss/web.xml</webXml>
-            </configuration>
-          </plugin>
-
-          <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
             <inherited>true</inherited>
@@ -1420,54 +1247,33 @@ under the License.
               <container>
                 <containerId>wildfly14x</containerId>
                 <zipUrlInstaller>
-                  <url>http://download.jboss.org/wildfly/14.0.1.Final/wildfly-14.0.1.Final.zip</url>
+                  <url>https://download.jboss.org/wildfly/15.0.1.Final/wildfly-15.0.1.Final.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
                 <log>${cargo.log}</log>
                 <output>${cargo.output}</output>
+                <dependencies>
+                  <dependency>
+                    <groupId>com.h2database</groupId>
+                    <artifactId>h2</artifactId>
+                  </dependency>
+                </dependencies>
               </container>
               <configuration>
                 <properties>
-                  <cargo.jvmargs>-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx2048m -Xms1024m</cargo.jvmargs>
+                  <cargo.jvmargs>-Dspring.profiles.active=wildfly,embedded
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx2048m -Xms1024m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
           </plugin>
         </plugins>
-
-        <resources>
-          <resource>
-            <directory>src/main/resources</directory>
-            <filtering>true</filtering>
-            <excludes>
-              <exclude>restCXFContext.xml</exclude>
-            </excludes>
-          </resource>
-          <resource>
-            <directory>${basedir}/../../core/persistence-jpa/src/main/resources</directory>
-            <includes>
-              <include>persistenceContext.xml</include>
-            </includes>
-            <filtering>true</filtering>
-          </resource>
-          <resource>
-            <directory>src/main/resources/jboss</directory>
-            <filtering>true</filtering>
-          </resource>
-        </resources>
       </build>
     </profile>
 
     <profile>
       <id>skipTests</id>
-
-      <dependencies>
-        <dependency>
-          <groupId>com.h2database</groupId>
-          <artifactId>h2</artifactId>
-        </dependency>
-      </dependencies>
 
       <build>
         <plugins>
@@ -1478,36 +1284,6 @@ under the License.
             <configuration>
               <skipTests>${skipTests}</skipTests>
             </configuration>
-          </plugin>
-
-          <plugin>
-            <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <deployables>
-                <deployable>
-                  <location>${project.build.directory}/${project.build.finalName}.war</location>
-                </deployable>
-              </deployables>
-            </configuration>
-            <executions>
-              <execution>
-                <id>install-container</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>install</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>start-container</id>
-                <phase>none</phase>
-              </execution>
-              <execution>
-                <id>stop-container</id>
-                <phase>none</phase>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
       </build>
@@ -1531,21 +1307,13 @@ under the License.
             <configuration>
               <configuration>
                 <properties>
-                  <cargo.jvmargs>-Xdebug -Djaxb.debug=true -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
+                  <cargo.jvmargs>
+                    -Dspring.profiles.active=embedded
+                    -Xdebug -Djaxb.debug=true -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
                     -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
-            <executions>
-              <execution>
-                <id>start-container</id>
-                <phase>none</phase>
-              </execution>
-              <execution>
-                <id>stop-container</id>
-                <phase>none</phase>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
       </build>
@@ -1578,22 +1346,13 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>
+                    -Dspring.profiles.active=embedded
                     -XXaltjvm=dcevm -javaagent:${settings.localRepository}/org/hotswapagent/hotswap-agent/${hotswap.version}/hotswap-agent-${hotswap.version}.jar=autoHotswap=true,disablePlugin=Spring
                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
-                    -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -XX:+CMSClassUnloadingEnabled -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
-            <executions>
-              <execution>
-                <id>start-container</id>
-                <phase>none</phase>
-              </execution>
-              <execution>
-                <id>stop-container</id>
-                <phase>none</phase>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
 
@@ -1707,7 +1466,7 @@ under the License.
             <inherited>true</inherited>
             <executions>
               <execution>
-                <phase>prepare-package</phase>
+                <phase>process-resources</phase>
                 <goals>
                   <goal>transform</goal>
                 </goals>
@@ -1716,11 +1475,11 @@ under the License.
             <configuration>
               <transformationSets>
                 <transformationSet>
-                  <dir>${project.build.directory}/classes</dir>
+                  <dir>${project.build.outputDirectory}</dir>
                   <includes>
                     <include>domains/MasterContent.xml</include>
                   </includes>
-                  <outputDir>${project.build.directory}/classes</outputDir>
+                  <outputDir>${project.build.outputDirectory}</outputDir>
                   <stylesheet>${basedir}/src/test/resources/addFlowableToContent.xsl</stylesheet>
                   <outputProperties>
                     <outputProperty>

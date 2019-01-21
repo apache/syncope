@@ -79,7 +79,7 @@ import org.junit.jupiter.api.Test;
 public class MultitenancyITCase extends AbstractITCase {
 
     @BeforeAll
-    public static void restSetup() {
+    public static void domainSetup() {
         if (!domainService.list().isEmpty()) {
             clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("Two");
 

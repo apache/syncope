@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
@@ -90,9 +90,9 @@ public class SchemaResource extends BaseResource {
 
             // USER from customization, if empty or null ignore it, use it to filter attributes otherwise
             Map<String, CustomAttributesInfo> customFormAttributes =
-                    SyncopeEnduserApplication.get().getCustomFormAttributes();
+                    SyncopeWebApplication.get().getCustomFormAttributes();
             CustomTemplateInfo customTemplate =
-                    SyncopeEnduserApplication.get().getCustomTemplate();
+                    SyncopeWebApplication.get().getCustomTemplate();
 
             SchemaService schemaService = SyncopeEnduserSession.get().getService(SchemaService.class);
             final List<SchemaTO> plainSchemas = classes.isEmpty()

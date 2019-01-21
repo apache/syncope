@@ -20,42 +20,20 @@ under the License.
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:jaxrs="http://cxf.apache.org/jaxrs"
-       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://cxf.apache.org/jaxrs
-                           http://cxf.apache.org/schemas/jaxrs.xsd
-                           http://www.springframework.org/schema/context
-                           http://www.springframework.org/schema/context/spring-context.xsd">
+                           http://cxf.apache.org/schemas/jaxrs.xsd">
 
-  <import resource="classpath:META-INF/cxf/cxf.xml"/>
-  <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
+  <bean id="scimJSONProvider" class="org.apache.syncope.ext.scimv2.cxf.JacksonSCIMJsonProvider"/>
 
-  <context:component-scan base-package="org.apache.syncope.ext.scimv2.cxf.service"/>  
-  
-  <bean id="jsonProvider" class="org.apache.syncope.ext.scimv2.cxf.JacksonSCIMJsonProvider"/>
+  <bean id="scimExceptionMapper" class="org.apache.syncope.ext.scimv2.cxf.SCIMExceptionMapper"/>
 
-  <bean id="exceptionMapper" class="org.apache.syncope.ext.scimv2.cxf.SCIMExceptionMapper"/>
+  <bean id="scimAddETagFilter" class="org.apache.syncope.ext.scimv2.cxf.AddETagFilter"/>
 
-  <bean id="validationProvider" class="org.apache.cxf.validation.BeanValidationProvider"/>
-  <bean id="validationInInterceptor" class="org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor">
-    <property name="provider" ref="validationProvider"/>
-  </bean>
-  <bean id="validationOutInterceptor" class="org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor">
-    <property name="provider" ref="validationProvider"/>
-  </bean>   
-  
-  <bean id="gzipInInterceptor" class="org.apache.cxf.transport.common.gzip.GZIPInInterceptor"/>
-  <bean id="gzipOutInterceptor" class="org.apache.cxf.transport.common.gzip.GZIPOutInterceptor">
-    <property name="threshold" value="0"/>
-    <property name="force" value="true"/>
-  </bean>
-
-  <bean id="addETagFilter" class="org.apache.syncope.ext.scimv2.cxf.AddETagFilter"/>
-
-  <bean id="wadlGenerator" class="org.apache.cxf.jaxrs.model.wadl.WadlGenerator">
+  <bean id="scimWADLGenerator" class="org.apache.cxf.jaxrs.model.wadl.WadlGenerator">
     <property name="applicationTitle" value="Apache Syncope SCIMv2 ${syncope.version}"/>
-    <property name="namespacePrefix" value="syncope2"/>
+    <property name="namespacePrefix" value="syncope30"/>
     <property name="incrementNamespacePrefix" value="false"/>    
     <property name="linkAnyMediaTypeToXmlSchema" value="true"/>
     <property name="useJaxbContextForQnames" value="true"/>
@@ -64,7 +42,7 @@ under the License.
     <property name="usePathParamsToCompareOperations" value="false"/>
   </bean>
   
-  <jaxrs:server id="scimv2Container" address="/"
+  <jaxrs:server id="scimv2Container" address="/scim"
                 basePackages="org.apache.syncope.ext.scimv2.api.service, org.apache.syncope.ext.scimv2.cxf.service" 
                 staticSubresourceResolution="true">
     <jaxrs:properties>
@@ -79,10 +57,10 @@ under the License.
       <ref bean="validationOutInterceptor"/>
     </jaxrs:outInterceptors>
     <jaxrs:providers>
-      <ref bean="jsonProvider"/>
-      <ref bean="exceptionMapper"/>
-      <ref bean="addETagFilter"/>
-      <ref bean="wadlGenerator"/>
+      <ref bean="scimJSONProvider"/>
+      <ref bean="scimExceptionMapper"/>
+      <ref bean="scimAddETagFilter"/>
+      <ref bean="scimWADLGenerator"/>
     </jaxrs:providers>
   </jaxrs:server>
 

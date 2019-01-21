@@ -47,7 +47,7 @@ public class JPAGPlainAttr extends AbstractPlainAttr<Group> implements GPlainAtt
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAGroup owner;
 
-    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true, mappedBy = "attribute")
+    @OneToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, orphanRemoval = true, mappedBy = "attribute")
     @Valid
     private List<JPAGPlainAttrValue> values = new ArrayList<>();
 

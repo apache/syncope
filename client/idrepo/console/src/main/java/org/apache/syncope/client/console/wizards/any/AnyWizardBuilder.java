@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.List;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.layout.AbstractAnyFormLayout;
 import org.apache.syncope.client.console.layout.AnyForm;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
@@ -155,7 +155,7 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
             wizardModel.add(new Relationships(modelObject, pageRef));
         }
 
-        SyncopeConsoleApplication.get().getAnyWizardBuilderAdditionalSteps().
+        SyncopeWebApplication.get().getAnyWizardBuilderAdditionalSteps().
                 buildModelSteps(modelObject, wizardModel, formLayoutInfo);
 
         return wizardModel;

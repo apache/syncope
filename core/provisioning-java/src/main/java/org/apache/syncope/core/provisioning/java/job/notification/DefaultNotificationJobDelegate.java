@@ -87,7 +87,7 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
 
             Properties javaMailProperties = javaMailSender.getJavaMailProperties();
 
-            Properties props = PropertyUtils.read(Encryptor.class, "mail.properties", "conf.directory").getLeft();
+            Properties props = PropertyUtils.read(Encryptor.class, "mail.properties", "conf.directory");
             for (Enumeration<?> e = props.propertyNames(); e.hasMoreElements();) {
                 String prop = (String) e.nextElement();
                 if (prop.startsWith("mail.smtp.")) {

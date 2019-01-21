@@ -19,17 +19,12 @@ under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd
-                           http://www.springframework.org/schema/context
-                           http://www.springframework.org/schema/context/spring-context.xsd
                            http://www.springframework.org/schema/task
                            http://www.springframework.org/schema/task/spring-task.xsd">
   
-  <context:component-scan base-package="org.apache.syncope.core.provisioning.java"/>
-
   <!-- Used by AsyncConnectorFacade -->
   <task:annotation-driven executor="asyncConnectorFacadeExecutor"/>
   <task:executor id="asyncConnectorFacadeExecutor"
@@ -40,13 +35,6 @@ under the License.
                  pool-size="${propagationTaskExecutorAsyncExecutor.poolSize}"
                  queue-capacity="${propagationTaskExecutorAsyncExecutor.queueCapacity}"
                  rejection-policy="ABORT"/>
-  <bean class="${propagationTaskExecutor}"/>
-  
-  <bean class="${userProvisioningManager}"/>
-  <bean class="${groupProvisioningManager}"/>
-  <bean class="${anyObjectProvisioningManager}"/>
-  <bean class="${notificationManager}"/>
-  <bean class="${auditManager}"/>
 
   <bean id="quartzDataSourceInit" class="org.apache.syncope.core.provisioning.java.job.SchedulerDBInit">
     <property name="dataSource" ref="MasterDataSource"/>
@@ -108,11 +96,6 @@ under the License.
   </bean>
 
   <bean class="org.apache.syncope.core.provisioning.java.propagation.PropagationManagerImpl"/>
-
-  <bean id="virAttrCache" class="${virAttrCache}" scope="singleton">
-    <property name="ttl" value="60"/>
-    <property name="maxCacheSize" value="5000"/>
-  </bean>
 
   <bean id="connIdBundleManager" class="org.apache.syncope.core.provisioning.java.ConnIdBundleManagerImpl">
     <property name="stringLocations" value="${connid.locations}"/>

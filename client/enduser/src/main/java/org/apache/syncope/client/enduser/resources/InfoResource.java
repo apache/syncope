@@ -25,7 +25,7 @@ import java.util.Map;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.adapters.PlatformInfoAdapter;
@@ -63,7 +63,7 @@ public class InfoResource extends BaseResource {
                 @Override
                 public void writeData(final IResource.Attributes attributes) throws IOException {
                     Map<String, CustomAttributesInfo> customFormAttributes =
-                            SyncopeEnduserApplication.get().getCustomFormAttributes();
+                            SyncopeWebApplication.get().getCustomFormAttributes();
                     attributes.getResponse().write(
                             MAPPER.writeValueAsString(
                                     PlatformInfoAdapter.toPlatformInfoRequest(

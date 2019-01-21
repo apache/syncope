@@ -18,8 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.content;
 
-import org.apache.syncope.core.persistence.api.SyncopeLoader;
+import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 
-public interface ContentLoader extends SyncopeLoader {
-
+public interface ContentLoader extends SyncopeCoreLoader, ContentDealer {
 }

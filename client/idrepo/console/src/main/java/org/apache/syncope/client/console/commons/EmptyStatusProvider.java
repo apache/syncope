@@ -28,6 +28,8 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 
 public class EmptyStatusProvider implements StatusProvider {
 
+    private static final long serialVersionUID = -7948190795547208134L;
+
     @Override
     public List<Triple<ConnObjectTO, ConnObjectWrapper, String>> get(
             final AnyTO any, final Collection<String> resources) {

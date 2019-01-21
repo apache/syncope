@@ -66,6 +66,7 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -247,7 +248,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
     public void enableAudit(final AuditLoggerName auditLoggerName) {
         try {
             setLevel(auditLoggerName.toLoggerName(), Level.DEBUG, LoggerType.AUDIT);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | InvalidDataAccessApiUsageException e) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidLogger);
             sce.getElements().add(e.getMessage());
             throw sce;
@@ -299,7 +300,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
             delete(auditLoggerName.toLoggerName(), LoggerType.AUDIT);
         } catch (NotFoundException e) {
             LOG.debug("Ignoring disable of non existing logger {}", auditLoggerName.toLoggerName());
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | InvalidDataAccessApiUsageException e) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidLogger);
             sce.getElements().add(e.getMessage());
             throw sce;

@@ -70,7 +70,7 @@ import org.junit.jupiter.api.Test;
 
 public class SCIMITCase extends AbstractITCase {
 
-    public static final String SCIM_ADDRESS = "http://localhost:9080/syncope/scim/v2";
+    public static final String SCIM_ADDRESS = "http://localhost:9080/syncope/rest/scim/v2";
 
     private static final SCIMConf CONF;
 

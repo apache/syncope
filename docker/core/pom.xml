@@ -31,6 +31,7 @@ under the License.
   <description>Apache Syncope Docker Core</description>
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope-docker-core</artifactId>
+  <packaging>war</packaging>
 
   <properties>
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
@@ -38,44 +39,135 @@ under the License.
 
   <dependencies>
     <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-undertow</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-starter</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.core.idm</groupId>
+      <artifactId>syncope-core-idm-rest-cxf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-persistence-jpa-json</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.syncope.ext.flowable</groupId>
+      <artifactId>syncope-ext-flowable-rest-cxf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.ext.camel</groupId>
+      <artifactId>syncope-ext-camel-rest-cxf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.camel</groupId>
+      <artifactId>syncope-ext-camel-persistence-jpa</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.camel</groupId>
+      <artifactId>syncope-ext-camel-provisioning</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.syncope.ext.saml2sp</groupId>
+      <artifactId>syncope-ext-saml2sp-rest-cxf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.saml2sp</groupId>
+      <artifactId>syncope-ext-saml2sp-persistence-jpa</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.syncope.ext.scimv2</groupId>
+      <artifactId>syncope-ext-scimv2-rest-cxf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.scimv2</groupId>
+      <artifactId>syncope-ext-scimv2-scim-rest-cxf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.ext.oidcclient</groupId>
+      <artifactId>syncope-ext-oidcclient-rest-cxf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.oidcclient</groupId>
+      <artifactId>syncope-ext-oidcclient-persistence-jpa</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.ext</groupId>
+      <artifactId>syncope-ext-swagger-ui</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- JDBC drivers -->
+    <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <version>${jdbc.postgresql.version}</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
       <version>${jdbc.mysql.version}</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.mariadb.jdbc</groupId>
       <artifactId>mariadb-java-client</artifactId>
       <version>${jdbc.mariadb.version}</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>com.microsoft.sqlserver</groupId>
       <artifactId>mssql-jdbc</artifactId>
       <version>${jdbc.mssql.version}8</version>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.syncope</groupId>
-      <artifactId>syncope-deb-core</artifactId>
-      <version>${project.version}</version>
-      <type>war</type>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>set-bundles</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.outputDirectory}/bundles</outputDirectory>          
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
@@ -86,17 +178,54 @@ under the License.
             <phase>process-resources</phase>
             <configuration>
               <target>
-                <copy file="${settings.localRepository}/org/postgresql/postgresql/${jdbc.postgresql.version}/postgresql-${jdbc.postgresql.version}.jar" todir="${project.build.directory}/classes" overwrite="true" />
-                <copy file="${settings.localRepository}/mysql/mysql-connector-java/${jdbc.mysql.version}/mysql-connector-java-${jdbc.mysql.version}.jar" todir="${project.build.directory}/classes" overwrite="true" />
-                <copy file="${settings.localRepository}/org/mariadb/jdbc/mariadb-java-client/${jdbc.mariadb.version}/mariadb-java-client-${jdbc.mariadb.version}.jar" todir="${project.build.directory}/classes" overwrite="true" />
-                <copy file="${settings.localRepository}/com/microsoft/sqlserver/mssql-jdbc/${jdbc.mssql.version}8/mssql-jdbc-${jdbc.mssql.version}8.jar" todir="${project.build.directory}/classes" overwrite="true" />
-
-                <copy file="${basedir}/../../deb/core/target/apache-syncope-${project.version}.deb" todir="${project.build.directory}/classes" overwrite="true" />
+                <copy file="${settings.localRepository}/org/postgresql/postgresql/${jdbc.postgresql.version}/postgresql-${jdbc.postgresql.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true" />
+                <copy file="${settings.localRepository}/mysql/mysql-connector-java/${jdbc.mysql.version}/mysql-connector-java-${jdbc.mysql.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true" />
+                <copy file="${settings.localRepository}/org/mariadb/jdbc/mariadb-java-client/${jdbc.mariadb.version}/mariadb-java-client-${jdbc.mariadb.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true" />
+                <copy file="${settings.localRepository}/com/microsoft/sqlserver/mssql-jdbc/${jdbc.mssql.version}8/mssql-jdbc-${jdbc.mssql.version}8.jar" todir="${project.build.outputDirectory}/lib" overwrite="true" />
               </target>
             </configuration>
             <goals>
               <goal>run</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <inherited>false</inherited>
+        <configuration>
+          <webXml>${basedir}/../../fit/core-reference/src/main/webapp/WEB-INF/web.xml</webXml>
+          <webResources>
+            <resource>
+              <directory>${basedir}</directory>
+              <targetPath>META-INF</targetPath>
+              <includes>
+                <include>LICENSE</include>
+                <include>NOTICE</include>
+              </includes>
+            </resource>
+          </webResources>                
+          <outputDirectory>${project.build.outputDirectory}/lib</outputDirectory>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <mainClass>org.apache.syncope.core.starter.SyncopeCoreApplication</mainClass>
+          <layout>ZIP</layout>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.outputDirectory}/lib</outputDirectory>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -110,7 +239,7 @@ under the License.
             <image>
               <name>apache/syncope:%v</name>
               <build>
-                <dockerFileDir>${project.build.directory}/classes</dockerFileDir>
+                <dockerFileDir>${project.build.outputDirectory}</dockerFileDir>
               </build>
             </image>
           </images>
@@ -133,6 +262,65 @@ under the License.
         </executions>
       </plugin>
     </plugins>
+    
+    <resources>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+
+      <resource>
+        <directory>${basedir}/../../core/starter/src/main/resources</directory>
+        <includes>
+          <include>application.properties</include>
+        </includes>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/../../core/spring/src/main/resources</directory>
+        <includes>
+          <include>security.properties</include>
+        </includes>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/../../ext/flowable/flowable-bpmn/src/main/resources</directory>
+        <includes>
+          <include>workflow.properties</include>
+          <include>userWorkflow.bpmn20.xml</include>
+        </includes>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/../../core/provisioning-java/src/main/resources</directory>
+        <includes>
+          <include>mail.properties</include>
+          <include>connid.properties</include>
+        </includes>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/../../core/idrepo/logic/src/main/resources</directory>
+        <includes>
+          <include>logic.properties</include>
+        </includes>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${project.basedir}/../../ext/saml2sp/logic/src/main/resources</directory>
+        <includes>
+          <include>saml2sp-logic.properties</include>
+        </includes>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/../../fit/core-reference/src/test/resources</directory>
+        <includes>
+          <include>keystore</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+    </resources>
   </build>
 
   <profiles>

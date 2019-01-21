@@ -41,19 +41,6 @@ under the License.
   </properties>
 
   <dependencies>
-    <dependency> 
-      <groupId>javax.servlet</groupId> 
-      <artifactId>javax.servlet-api</artifactId> 
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet.jsp</groupId>
-      <artifactId>javax.servlet.jsp-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>org.apache.syncope.client</groupId>
       <artifactId>syncope-client-enduser</artifactId>
@@ -77,36 +64,6 @@ under the License.
       <artifactId>syncope-ext-flowable-client-enduser</artifactId>
       <version>${project.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.lmax</groupId>
-      <artifactId>disruptor</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-    </dependency>
     
     <!-- TEST -->
     <dependency>
@@ -115,15 +72,15 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.syncope.fit</groupId>
       <artifactId>syncope-fit-build-tools</artifactId>
       <version>${project.version}</version>
       <type>war</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -269,6 +226,15 @@ under the License.
         <inherited>true</inherited>
         <configuration>
           <container>
+            <containerId>tomcat9x</containerId>
+            <zipUrlInstaller>
+              <url>http://central.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
+              <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
+              <extractDir>${project.build.directory}/cargo/extract</extractDir>
+            </zipUrlInstaller>
+            <timeout>300000</timeout>
+            <log>${cargo.log}</log>
+            <output>${cargo.output}</output>
             <dependencies>
               <dependency>
                 <groupId>com.h2database</groupId>
@@ -277,21 +243,11 @@ under the License.
             </dependencies>
           </container>
           <configuration>
-            <type>standalone</type>
             <properties>
-              <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
-              <cargo.tomcat.ajp.port>${cargo.tomcat.ajp.port}</cargo.tomcat.ajp.port>
-              <cargo.rmi.port>${cargo.rmi.port}</cargo.rmi.port>
-
-              <cargo.jvmargs>-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC</cargo.jvmargs>
+              <cargo.jvmargs>
+                -Dspring.profiles.active=embedded
+                -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
             </properties>
-            <configfiles>
-              <configfile>
-                <file>${basedir}/src/main/resources/context.xml</file>
-                <todir>conf/</todir>
-                <tofile>context.xml</tofile>
-              </configfile>
-            </configfiles>
           </configuration>
           <deployables>
             <deployable>
@@ -304,7 +260,7 @@ under the License.
             </deployable>
             <deployable>
               <location>${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}</location>
-              <pingURL>http://localhost:${cargo.servlet.port}/syncope/cacheStats.jsp</pingURL>
+              <pingURL>http://localhost:${cargo.servlet.port}/syncope/index.html</pingURL>
               <pingTimeout>60000</pingTimeout>
               <properties>
                 <context>syncope</context>
@@ -331,6 +287,9 @@ under the License.
             <goals>
               <goal>start</goal>
             </goals>
+            <configuration>
+              <skip>${skipTests}</skip>
+            </configuration>
           </execution>
           <execution>
             <id>stop-container</id>
@@ -338,6 +297,9 @@ under the License.
             <goals>
               <goal>stop</goal>
             </goals>
+            <configuration>
+              <skip>${skipTests}</skip>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -363,9 +325,6 @@ under the License.
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
-        <excludes>
-          <exclude>context.xml</exclude>
-        </excludes>
       </resource>
     </resources>
     <testResources>
@@ -394,96 +353,17 @@ under the License.
 
     <profile>
       <id>skipTests</id>
-
-      <properties>
-        <skipTests>true</skipTests>
-      </properties>
-      
-      <dependencies>
-        <dependency>
-          <groupId>com.h2database</groupId>
-          <artifactId>h2</artifactId>
-        </dependency>
-      </dependencies>
-
-      <build>
-        <plugins>      
-          <plugin>
-            <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <deployables>
-                <deployable>
-                  <location>${project.build.directory}/${project.build.finalName}.war</location>
-                </deployable>
-              </deployables>
-            </configuration>
-            <executions>
-              <execution>
-                <id>install-container</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>install</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>start-container</id>
-                <phase>none</phase>
-              </execution>
-              <execution>
-                <id>stop-container</id>
-                <phase>none</phase>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
 
     <profile>
       <id>debug</id>
 
+      <properties>
+        <skipTests>true</skipTests>
+      </properties>
+
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
-
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>            
-                <id>exec-protractor</id>
-                <phase>none</phase>
-              </execution>
-            </executions>
-          </plugin>
-      
-          <plugin>
-            <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <configuration>
-                <properties>
-                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC</cargo.jvmargs>
-                </properties>
-              </configuration>
-            </configuration>
-            <executions>
-              <execution>
-                <id>start-container</id>
-                <phase>none</phase>
-              </execution>
-              <execution>
-                <id>stop-container</id>
-                <phase>none</phase>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
       </build>
     </profile>
     
@@ -491,6 +371,24 @@ under the License.
       <id>hotswap</id>
       
       <dependencies>
+        <!-- wicket-ioc depends on cglib, need to exclude it for hotswap to work -->
+        <dependency>
+          <groupId>org.apache.syncope.client.idm</groupId>
+          <artifactId>syncope-client-idm-console</artifactId>
+          <version>${project.version}</version>
+          <exclusions>
+            <exclusion>
+              <groupId>cglib</groupId>
+              <artifactId>cglib</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+        <dependency>
+          <groupId>cglib</groupId>
+          <artifactId>cglib-nodep</artifactId>
+          <version>3.2.6</version>
+        </dependency>
+
         <dependency>
           <groupId>org.hotswapagent</groupId>
           <artifactId>hotswap-agent</artifactId>
@@ -547,23 +445,13 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>
-                    -Dwicket.configuration=development
+                    -Dspring.profiles.active=embedded
                     -XXaltjvm=dcevm -javaagent:${settings.localRepository}/org/hotswapagent/hotswap-agent/${hotswap.version}/hotswap-agent-${hotswap.version}.jar=autoHotswap=true,disablePlugin=Spring
                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
-                    -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -XX:+CMSClassUnloadingEnabled -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
-            <executions>
-              <execution>
-                <id>start-container</id>
-                <phase>none</phase>
-              </execution>
-              <execution>
-                <id>stop-container</id>
-                <phase>none</phase>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
         

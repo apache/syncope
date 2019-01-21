@@ -27,11 +27,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -50,6 +48,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.io.IOUtils;
 
 public class ImplementationModalPanel extends AbstractModalPanel<ImplementationTO> {
@@ -64,6 +63,9 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
     }
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    @SpringBean
+    private ClassPathScanImplementationLookup lookup;
 
     private final ImplementationRestClient restClient = new ImplementationRestClient();
 
@@ -103,33 +105,29 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
                     ? new ArrayList<>(javaClasses.get().getClasses())
                     : new ArrayList<>();
         } else if (viewMode == ViewMode.JSON_BODY) {
-            ClassPathScanImplementationLookup implementationLookup =
-                    (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
-                            getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
-
             switch (implementation.getType()) {
                 case REPORTLET:
-                    classes = implementationLookup.getReportletConfs().keySet().stream().
+                    classes = lookup.getReportletConfs().keySet().stream().
                             collect(Collectors.toList());
                     break;
 
                 case ACCOUNT_RULE:
-                    classes = implementationLookup.getAccountRuleConfs().keySet().stream().
+                    classes = lookup.getAccountRuleConfs().keySet().stream().
                             collect(Collectors.toList());
                     break;
 
                 case PASSWORD_RULE:
-                    classes = implementationLookup.getPasswordRuleConfs().keySet().stream().
+                    classes = lookup.getPasswordRuleConfs().keySet().stream().
                             collect(Collectors.toList());
                     break;
 
                 case PULL_CORRELATION_RULE:
-                    classes = implementationLookup.getPullCorrelationRuleConfs().keySet().stream().
+                    classes = lookup.getPullCorrelationRuleConfs().keySet().stream().
                             collect(Collectors.toList());
                     break;
 
                 case PUSH_CORRELATION_RULE:
-                    classes = implementationLookup.getPushCorrelationRuleConfs().keySet().stream().
+                    classes = lookup.getPushCorrelationRuleConfs().keySet().stream().
                             collect(Collectors.toList());
                     break;
 
@@ -263,30 +261,26 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
 
             @Override
             protected void onEvent(final AjaxRequestTarget target) {
-                ClassPathScanImplementationLookup implementationLookup =
-                        (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
-                                getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
-
                 Class<?> clazz = null;
                 switch (implementation.getType()) {
                     case REPORTLET:
-                        clazz = implementationLookup.getReportletConfs().get(jsonClass.getModelObject());
+                        clazz = lookup.getReportletConfs().get(jsonClass.getModelObject());
                         break;
 
                     case ACCOUNT_RULE:
-                        clazz = implementationLookup.getAccountRuleConfs().get(jsonClass.getModelObject());
+                        clazz = lookup.getAccountRuleConfs().get(jsonClass.getModelObject());
                         break;
 
                     case PASSWORD_RULE:
-                        clazz = implementationLookup.getPasswordRuleConfs().get(jsonClass.getModelObject());
+                        clazz = lookup.getPasswordRuleConfs().get(jsonClass.getModelObject());
                         break;
 
                     case PULL_CORRELATION_RULE:
-                        clazz = implementationLookup.getPullCorrelationRuleConfs().get(jsonClass.getModelObject());
+                        clazz = lookup.getPullCorrelationRuleConfs().get(jsonClass.getModelObject());
                         break;
 
                     case PUSH_CORRELATION_RULE:
-                        clazz = implementationLookup.getPushCorrelationRuleConfs().get(jsonClass.getModelObject());
+                        clazz = lookup.getPushCorrelationRuleConfs().get(jsonClass.getModelObject());
                         break;
 
                     default:

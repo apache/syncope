@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
@@ -67,7 +67,7 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
 
             UserTO userTO = MAPPER.readValue(request.getReader().readLine(), UserTO.class);
             Map<String, CustomAttributesInfo> customFormAttributes =
-                    SyncopeEnduserApplication.get().getCustomFormAttributes();
+                    SyncopeWebApplication.get().getCustomFormAttributes();
 
             // check if request is compliant with customization form rules
             if (Validation.isCompliant(userTO, customFormAttributes, false)) {

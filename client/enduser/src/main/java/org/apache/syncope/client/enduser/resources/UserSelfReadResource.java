@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
@@ -97,7 +97,7 @@ public class UserSelfReadResource extends BaseUserSelfResource {
                 membership.getVirAttrs().clear();
             }
             // USER from customization, if empty or null ignore it, use it to filter attributes otherwise
-            applyFromCustomization(userTO, SyncopeEnduserApplication.get().getCustomFormAttributes());
+            applyFromCustomization(userTO, SyncopeWebApplication.get().getCustomFormAttributes());
 
             // 1.1 Date -> millis conversion for PLAIN attributes of USER
             for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {

@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.model.Credentials;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
@@ -61,7 +61,7 @@ public class LoginResource extends BaseResource {
                 LOG.error("Could not read credentials from request: username is blank!");
                 response.setError(Response.Status.BAD_REQUEST.getStatusCode(),
                         "ErrorMessage{{ Could not read credentials from request: username is blank! }}");
-            } else if (!SyncopeEnduserApplication.get().getAdminUser().equalsIgnoreCase(username)
+            } else if (!SyncopeWebApplication.get().getAdminUser().equalsIgnoreCase(username)
                     && SyncopeEnduserSession.get().authenticate(username, password)) {
                 // user has been authenticated successfully
                 response.setTextEncoding(StandardCharsets.UTF_8.name());

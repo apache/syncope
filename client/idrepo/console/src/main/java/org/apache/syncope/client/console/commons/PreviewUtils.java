@@ -19,25 +19,18 @@
 package org.apache.syncope.client.console.commons;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.syncope.client.console.wicket.markup.html.form.preview.DefaultPreviewer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 
-public final class PreviewUtils {
+@Component
+public class PreviewUtils {
 
-    public static PreviewUtils getInstance() {
-        return new PreviewUtils();
-    }
-
-    private final ClassPathScanImplementationLookup classPathScanImplementationLookup;
-
-    private PreviewUtils() {
-        classPathScanImplementationLookup = (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
-                getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
-    }
+    @Autowired
+    private ClassPathScanImplementationLookup lookup;
 
     public AbstractBinaryPreviewer getDefaultPreviewer(final String mimeType) {
         return new DefaultPreviewer("previewer", mimeType);
@@ -48,13 +41,12 @@ public final class PreviewUtils {
             return null;
         }
 
-        Class<? extends AbstractBinaryPreviewer> previewer =
-                classPathScanImplementationLookup.getPreviewerClass(mimeType);
+        Class<? extends AbstractBinaryPreviewer> previewer = lookup.getPreviewerClass(mimeType);
         try {
             return previewer == null
                     ? null
                     : ClassUtils.getConstructorIfAvailable(previewer, String.class, String.class).
-                    newInstance(new Object[] { "previewer", mimeType });
+                            newInstance(new Object[] { "previewer", mimeType });
         } catch (Exception e) {
             return null;
         }

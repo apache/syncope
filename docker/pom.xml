@@ -34,6 +34,11 @@ under the License.
   <packaging>pom</packaging>
 
   <properties>
+    <conf.directory>/opt/syncope/conf</conf.directory>
+    <bundles.directory>/opt/syncope/bundles</bundles.directory>
+    <connid.location>file:${bundles.directory}/</connid.location>
+    <log.directory>/opt/syncope/log</log.directory>
+
     <rootpom.basedir>${basedir}/..</rootpom.basedir>
   </properties>
 

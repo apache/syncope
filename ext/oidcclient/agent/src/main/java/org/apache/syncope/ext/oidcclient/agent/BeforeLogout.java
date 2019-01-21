@@ -20,7 +20,6 @@ package org.apache.syncope.ext.oidcclient.agent;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,7 +32,6 @@ import org.apache.syncope.common.lib.OIDCConstants;
 import org.apache.syncope.common.lib.to.OIDCLogoutRequestTO;
 import org.apache.syncope.common.rest.api.service.OIDCClientService;
 
-@WebServlet(name = "oidclientbeforelogout", urlPatterns = { "/oidcclient/beforelogout" })
 public class BeforeLogout extends HttpServlet {
 
     private static final long serialVersionUID = -5920740403138557179L;

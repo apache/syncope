@@ -31,6 +31,8 @@ import org.apache.wicket.PageReference;
 public class EmptyAnyDirectoryPanelAditionalActionLinksProvider
         implements AnyDirectoryPanelAditionalActionLinksProvider {
 
+    private static final long serialVersionUID = 121356001392126568L;
+
     @Override
     public List<Action<UserTO>> get(
             final UserTO modelObject,

@@ -15,20 +15,27 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM debian:stable-slim
+# Cannot FROM adoptopenjdk/openjdk8-openj9:alpine-slim because it's headless, and fonts are required for captcha
+FROM openjdk:8
 MAINTAINER dev@syncope.apache.org
 
 RUN set -x
 
-COPY *.deb /tmp/
+RUN mkdir /opt/syncope
+RUN mkdir /opt/syncope/bin
+RUN mkdir /opt/syncope/conf
+RUN mkdir /opt/syncope/lib
+RUN mkdir /opt/syncope/log
 
-COPY *.properties.template /etc/apache-syncope/
+COPY *.properties /opt/syncope/conf/
+COPY *.json /opt/syncope/conf/
+COPY *.properties.template /opt/syncope/conf/
+COPY log4j2.xml /opt/syncope/conf/
 
-COPY build.sh /tmp
-RUN chmod 755 /tmp/build.sh && sync && /tmp/build.sh && rm /tmp/build.sh
+COPY syncope-docker-enduser-*war /opt/syncope/lib/syncope-enduser.war
 
-COPY startup.sh /sbin
-RUN chmod 755 /sbin/startup.sh
-CMD ["/sbin/startup.sh"]
+COPY startup.sh /opt/syncope/bin
+RUN chmod 755 /opt/syncope/bin/startup.sh
+CMD ["/opt/syncope/bin/startup.sh"]
 
 EXPOSE 8080

@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.client.console.commons;
 
+import java.io.Serializable;
 import java.util.List;
 
-public interface ExternalResourceProvider {
+public interface ExternalResourceProvider extends Serializable {
 
     List<String> get();
 }

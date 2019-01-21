@@ -33,7 +33,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
@@ -122,12 +122,12 @@ public class ReconciliationWidget extends BaseWidget {
                 if (isCheckReconciliationJob()) {
                     try {
                         restClient.listJobs().stream().
-                                filter(jobTO -> SyncopeConsoleApplication.get().
+                                filter(jobTO -> SyncopeWebApplication.get().
                                 getReconciliationReportKey().equals(jobTO.getRefKey())).
                                 findFirst().ifPresent(reportJobTO -> {
                                     if (!reportJobTO.isRunning()) {
                                         LOG.debug("Report {} is not running",
-                                                SyncopeConsoleApplication.get().getReconciliationReportKey());
+                                                SyncopeWebApplication.get().getReconciliationReportKey());
 
                                         overlay.setVisible(false);
 
@@ -150,7 +150,7 @@ public class ReconciliationWidget extends BaseWidget {
         overlay.setVisible(false);
         container.add(overlay);
 
-        this.reconciliationReportKey = SyncopeConsoleApplication.get().getReconciliationReportKey();
+        this.reconciliationReportKey = SyncopeWebApplication.get().getReconciliationReportKey();
 
         ReportTO reconciliationReport = null;
         if (SyncopeConsoleSession.get().owns(StandardEntitlement.REPORT_READ)) {

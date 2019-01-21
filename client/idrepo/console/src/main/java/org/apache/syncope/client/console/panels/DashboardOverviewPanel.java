@@ -30,6 +30,7 @@ import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.util.time.Duration;
 
 public class DashboardOverviewPanel extends Panel {
@@ -63,11 +64,12 @@ public class DashboardOverviewPanel extends Panel {
         container.setOutputMarkupId(true);
         add(container);
 
-        totalUsers = new NumberWidget(
-                "totalUsers", "bg-yellow", numbers.getTotalUsers(), getString("users"), "ion ion-person");
+        totalUsers = new NumberWidget("totalUsers", "bg-yellow", numbers.getTotalUsers(),
+                new ResourceModel("users").getObject(), "ion ion-person");
         container.add(totalUsers);
         totalGroups = new NumberWidget(
-                "totalGroups", "bg-red", numbers.getTotalGroups(), getString("groups"), "ion ion-person-stalker");
+                "totalGroups", "bg-red", numbers.getTotalGroups(),
+                new ResourceModel("groups").getObject(), "ion ion-person-stalker");
         container.add(totalGroups);
 
         Triple<Integer, String, String> built = buildTotalAny1OrRoles(numbers);
@@ -154,7 +156,7 @@ public class DashboardOverviewPanel extends Panel {
         String icon;
         if (numbers.getAnyType1() == null) {
             number = numbers.getTotalRoles();
-            label = getString("roles");
+            label = new ResourceModel("roles").getObject();
             icon = "fa fa-users";
         } else {
             number = numbers.getTotalAny1();
@@ -170,7 +172,7 @@ public class DashboardOverviewPanel extends Panel {
         String icon;
         if (numbers.getAnyType2() == null) {
             number = numbers.getTotalResources();
-            label = getString("resources");
+            label = new ResourceModel("resources").getObject();
             icon = "fa fa-database";
         } else {
             number = numbers.getTotalAny2();

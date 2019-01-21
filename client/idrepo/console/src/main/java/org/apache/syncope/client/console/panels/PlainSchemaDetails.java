@@ -26,10 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.PropertyList;
-import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -50,14 +48,15 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.Strings;
 
 public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
     private static final long serialVersionUID = 5378100729213456451L;
 
-    private static final MIMETypesLoader MIME_TYPES_LOADER = (MIMETypesLoader) SyncopeConsoleApplication.get().
-            getServletContext().getAttribute(ConsoleInitializer.MIMETYPES_LOADER);
+    @SpringBean
+    private MIMETypesLoader mimeTypesLoader;
 
     private final ImplementationRestClient implRestClient = new ImplementationRestClient();
 
@@ -393,7 +392,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             cipherAlgorithm.setModelObject(null);
 
             binaryParams.setVisible(true);
-            mimeType.setChoices(MIME_TYPES_LOADER.getMimeTypes());
+            mimeType.setChoices(mimeTypesLoader.getMimeTypes());
 
             schema.setValidator("BinaryValidator");
         } else {

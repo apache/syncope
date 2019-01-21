@@ -31,7 +31,7 @@ import java.util.Base64;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.HttpResourceStream;
@@ -55,13 +55,15 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
 
 public class BinaryFieldPanel extends FieldPanel<String> {
 
     private static final long serialVersionUID = 6264462604183088931L;
 
-    private static final PreviewUtils PREVIEW_UTILS = PreviewUtils.getInstance();
+    @SpringBean
+    private PreviewUtils previewUtils;
 
     private final String mimeType;
 
@@ -93,16 +95,17 @@ public class BinaryFieldPanel extends FieldPanel<String> {
             final IModel<String> model,
             final String mimeType,
             final String fileKey) {
+
         super(id, name, model);
         this.model = model;
         this.fileKey = fileKey;
         this.mimeType = mimeType;
 
-        previewer = PREVIEW_UTILS.getPreviewer(mimeType);
+        previewer = previewUtils.getPreviewer(mimeType);
 
-        maxUploadSize = SyncopeConsoleApplication.get().getMaxUploadFileSizeMB() == null
+        maxUploadSize = SyncopeWebApplication.get().getMaxUploadFileSizeMB() == null
                 ? null
-                : Bytes.megabytes(SyncopeConsoleApplication.get().getMaxUploadFileSizeMB());
+                : Bytes.megabytes(SyncopeWebApplication.get().getMaxUploadFileSizeMB());
         uploadForm = new StatelessForm<>("uploadForm");
         uploadForm.setMultiPart(true);
         add(uploadForm);
@@ -274,7 +277,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         if (StringUtils.isNotBlank(modelObj)) {
             final Component panelPreview;
             if (previewer == null) {
-                panelPreview = PREVIEW_UTILS.getDefaultPreviewer(mimeType);
+                panelPreview = previewUtils.getDefaultPreviewer(mimeType);
             } else {
                 panelPreview = previewer.preview(modelObj);
             }

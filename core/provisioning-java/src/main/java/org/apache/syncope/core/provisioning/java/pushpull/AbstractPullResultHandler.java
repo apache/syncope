@@ -66,7 +66,6 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(rollbackFor = Throwable.class)
 public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHandler<PullTask, PullActions>
         implements SyncopePullResultHandler {
 
@@ -113,15 +112,15 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         this.executor = executor;
     }
 
+    @Transactional
     @Override
     public boolean handle(final SyncDelta delta) {
         Provision provision = null;
         try {
-            provision = profile.getTask().getResource().getProvision(delta.getObject().getObjectClass()).orElse(null);
-            if (provision == null) {
-                throw new JobExecutionException("No provision found on " + profile.getTask().getResource() + " for "
-                        + delta.getObject().getObjectClass());
-            }
+            provision = profile.getTask().getResource().getProvision(delta.getObject().getObjectClass()).
+                    orElseThrow(() -> new JobExecutionException(
+                    "No provision found on " + profile.getTask().getResource() + " for "
+                    + delta.getObject().getObjectClass()));
 
             doHandle(delta, provision);
             executor.reportHandled(delta.getObjectClass(), delta.getObject().getName());
@@ -649,7 +648,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
         List<ProvisioningReport> results = new ArrayList<>();
 
-        for (String key : anyKeys) {
+        anyKeys.forEach(key -> {
             Object output;
             Result resultStatus = Result.FAILURE;
 
@@ -711,7 +710,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             } catch (Exception e) {
                 LOG.error("Could not delete {} {}", provision.getAnyType().getKey(), key, e);
             }
-        }
+        });
 
         return results;
     }

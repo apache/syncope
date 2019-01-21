@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -97,7 +97,7 @@ public class RealmDetails extends Panel {
 
         @Override
         protected List<String> load() {
-            return SyncopeConsoleApplication.get().getResourceProvider().get();
+            return SyncopeWebApplication.get().getResourceProvider().get();
         }
     };
 

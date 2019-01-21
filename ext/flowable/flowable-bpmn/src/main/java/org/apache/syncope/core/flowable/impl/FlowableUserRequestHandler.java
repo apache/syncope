@@ -39,7 +39,6 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UserRequestFormPropertyType;
 import org.apache.syncope.core.flowable.api.DropdownValueProvider;
-import org.apache.syncope.core.flowable.api.WorkflowTaskManager;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -77,9 +76,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class FlowableUserRequestHandler implements UserRequestHandler {
 
     protected static final Logger LOG = LoggerFactory.getLogger(UserRequestHandler.class);
-
-    @Autowired
-    protected WorkflowTaskManager wfTaskManager;
 
     @Autowired
     protected UserDataBinder dataBinder;

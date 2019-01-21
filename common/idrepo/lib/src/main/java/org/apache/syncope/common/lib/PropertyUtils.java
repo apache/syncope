@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,18 +32,17 @@ public final class PropertyUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(PropertyUtils.class);
 
-    public static Pair<Properties, File> read(
+    public static Properties read(
             final Class<?> clazz, final String propertiesFileName, final String confDirProp) {
 
         Properties props = new Properties();
-        File confDir = null;
 
         try (InputStream is = clazz.getResourceAsStream("/" + propertiesFileName)) {
             props.load(is);
 
             String confDirName = props.getProperty(confDirProp);
             if (confDirName != null) {
-                confDir = new File(confDirName);
+                File confDir = new File(confDirName);
                 if (confDir.exists() && confDir.canRead() && confDir.isDirectory()) {
                     File confDirProps = new File(confDir, propertiesFileName);
                     if (confDirProps.exists() && confDirProps.canRead() && confDirProps.isFile()) {
@@ -60,7 +58,7 @@ public final class PropertyUtils {
             throw new RuntimeException("Could not read " + propertiesFileName, e);
         }
 
-        return Pair.of(props, confDir);
+        return props;
     }
 
     /**

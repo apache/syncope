@@ -94,11 +94,11 @@ under the License.
         <configuration>
           <transformationSets>
             <transformationSet>
-              <dir>${project.build.directory}/classes/core</dir>
+              <dir>${project.build.outputDirectory}/core</dir>
               <includes>
                 <include>domains/MasterContent.xml</include>
               </includes>
-              <outputDir>${project.build.directory}/classes/core</outputDir>
+              <outputDir>${project.build.outputDirectory}/core</outputDir>
               <stylesheet>${basedir}/../fit/core-reference/src/test/resources/addFlowableToContent.xsl</stylesheet>
               <outputProperties>
                 <outputProperty>
@@ -181,7 +181,7 @@ under the License.
                 </copy>
 
                 <!-- Other custom Tomcat resources -->
-                <copy file="../fit/core-reference/src/main/resources/context.xml" todir="${work.dir}/apache-tomcat-${tomcat.version}/conf" overwrite="true" />
+                <copy file="${project.build.outputDirectory}/context.xml" todir="${work.dir}/apache-tomcat-${tomcat.version}/conf" overwrite="true" />
                 <copy file="src/main/resources/setenv.sh" todir="${work.dir}/apache-tomcat-${tomcat.version}/bin" />
                 <copy file="src/main/resources/setenv.bat" todir="${work.dir}/apache-tomcat-${tomcat.version}/bin" />
                 <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8080" value="${cargo.servlet.port}" />

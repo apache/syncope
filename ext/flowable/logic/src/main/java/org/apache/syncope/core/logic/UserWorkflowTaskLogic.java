@@ -37,6 +37,7 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.flowable.api.WorkflowTaskManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
@@ -44,6 +45,7 @@ import org.springframework.stereotype.Component;
 public class UserWorkflowTaskLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @Autowired
+    @Lazy
     private WorkflowTaskManager wfTaskManager;
 
     @Autowired

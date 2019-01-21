@@ -23,18 +23,17 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
-import org.apache.syncope.core.persistence.api.SyncopeLoader;
+import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.provisioning.api.OIDCProviderActions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 
 @Component
-public class OIDCClientClassPathScanImplementationLookup implements SyncopeLoader {
+public class OIDCClientClassPathScanImplementationLookup implements SyncopeCoreLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImplementationLookup.class);
 
@@ -43,8 +42,8 @@ public class OIDCClientClassPathScanImplementationLookup implements SyncopeLoade
     private Set<String> actionsClasses;
 
     @Override
-    public Integer getPriority() {
-        return Integer.MIN_VALUE;
+    public int getOrder() {
+        return 999;
     }
 
     @Override
@@ -54,10 +53,9 @@ public class OIDCClientClassPathScanImplementationLookup implements SyncopeLoade
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AssignableTypeFilter(OIDCProviderActions.class));
 
-        for (BeanDefinition bd : scanner.findCandidateComponents(DEFAULT_BASE_PACKAGE)) {
+        scanner.findCandidateComponents(DEFAULT_BASE_PACKAGE).forEach(bd -> {
             try {
-                Class<?> clazz = ClassUtils.resolveClassName(
-                        bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
+                Class<?> clazz = ClassUtils.resolveClassName(bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
                 boolean isAbstractClazz = Modifier.isAbstract(clazz.getModifiers());
 
                 if (OIDCProviderActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
@@ -66,7 +64,7 @@ public class OIDCClientClassPathScanImplementationLookup implements SyncopeLoade
             } catch (Throwable t) {
                 LOG.warn("Could not inspect class {}", bd.getBeanClassName(), t);
             }
-        }
+        });
 
         actionsClasses = Collections.unmodifiableSet(actionsClasses);
     }
@@ -74,5 +72,4 @@ public class OIDCClientClassPathScanImplementationLookup implements SyncopeLoade
     public Set<String> getActionsClasses() {
         return actionsClasses;
     }
-
 }

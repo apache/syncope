@@ -39,6 +39,7 @@ import org.apache.cocoon.sax.component.XMLGenerator;
 import org.apache.cocoon.sax.component.XMLSerializer;
 import org.apache.cocoon.sax.component.XSLTTransformer;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 
 public class WADLServlet extends HttpServlet {
@@ -78,7 +79,7 @@ public class WADLServlet extends HttpServlet {
 
         Pipeline<SAXPipelineComponent> pipeline = new CachingPipeline<>();
         pipeline.addComponent(new XMLGenerator(wadl));
-        if ("/index.html".equals(request.getServletPath())) {
+        if (StringUtils.isEmpty(request.getServletPath()) || "/index.html".equals(request.getServletPath())) {
             XSLTTransformer xslt = new XSLTTransformer(getClass().getResource("/wadl2html/index.xsl"));
 
             Map<String, Object> parameters = new HashMap<>();
@@ -112,5 +113,4 @@ public class WADLServlet extends HttpServlet {
             throw new ServerException("URL not supported: " + request.getRequestURI());
         }
     }
-
 }

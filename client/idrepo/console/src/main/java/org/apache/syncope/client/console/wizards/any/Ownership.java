@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.GroupSearchPanel;
@@ -344,7 +344,7 @@ public class Ownership extends WizardStep implements ICondition {
 
     @Override
     public boolean evaluate() {
-        return SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
+        return SyncopeWebApplication.get().getSecuritySettings().getAuthorizationStrategy().
                 isActionAuthorized(this, RENDER);
     }
 }

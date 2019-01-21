@@ -33,6 +33,10 @@ public class ApplicationContextProvider implements ApplicationContextAware {
         return CTX;
     }
 
+    public static void setApplicationContext(final ConfigurableApplicationContext ctx) {
+        CTX = ctx;
+    }
+
     public static DefaultListableBeanFactory getBeanFactory() {
         return BEAN_FACTORY == null
                 ? CTX == null

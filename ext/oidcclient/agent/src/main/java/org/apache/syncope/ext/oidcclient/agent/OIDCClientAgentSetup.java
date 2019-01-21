@@ -21,13 +21,11 @@ package org.apache.syncope.ext.oidcclient.agent;
 import java.util.Properties;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.PropertyUtils;
 
-@WebListener
 public class OIDCClientAgentSetup implements ServletContextListener {
 
     private static final String OIDCCLIENT_AGENT_PROPERTIES = "oidcclient-agent.properties";
@@ -42,7 +40,7 @@ public class OIDCClientAgentSetup implements ServletContextListener {
     @Override
     public void contextInitialized(final ServletContextEvent sce) {
         // read oidcclientagent.properties
-        Properties props = PropertyUtils.read(getClass(), OIDCCLIENT_AGENT_PROPERTIES, "conf.directory").getLeft();
+        Properties props = PropertyUtils.read(getClass(), OIDCCLIENT_AGENT_PROPERTIES, "conf.directory");
 
         String anonymousUser = props.getProperty("anonymousUser");
         assertNotNull(anonymousUser, "<anonymousUser>");
@@ -73,5 +71,4 @@ public class OIDCClientAgentSetup implements ServletContextListener {
     @Override
     public void contextDestroyed(final ServletContextEvent sce) {
     }
-
 }

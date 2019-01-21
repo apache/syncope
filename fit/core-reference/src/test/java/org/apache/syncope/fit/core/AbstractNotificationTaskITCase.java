@@ -77,25 +77,23 @@ public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase 
         greenMail.waitForIncomingEmail(1);
 
         boolean found = false;
-        Session session = Session.getDefaultInstance(System.getProperties());
-        Store store = session.getStore("pop3");
-        store.connect(POP3_HOST, POP3_PORT, mailAddress, mailAddress);
+        try (Store store = Session.getDefaultInstance(System.getProperties()).getStore("pop3")) {
+            store.connect(POP3_HOST, POP3_PORT, mailAddress, mailAddress);
 
-        Folder inbox = store.getFolder("INBOX");
-        assertNotNull(inbox);
-        inbox.open(Folder.READ_WRITE);
+            Folder inbox = store.getFolder("INBOX");
+            assertNotNull(inbox);
+            inbox.open(Folder.READ_WRITE);
 
-        Message[] messages = inbox.getMessages();
-        for (Message message : messages) {
-            if (sender.equals(message.getFrom()[0].toString()) && subject.equals(message.getSubject())) {
-                found = true;
-                message.setFlag(Flags.Flag.DELETED, true);
+            Message[] messages = inbox.getMessages();
+            for (Message message : messages) {
+                if (sender.equals(message.getFrom()[0].toString()) && subject.equals(message.getSubject())) {
+                    found = true;
+                    message.setFlag(Flags.Flag.DELETED, true);
+                }
             }
-        }
 
-        inbox.close(true);
-        store.close();
+            inbox.close(true);
+        }
         return found;
     }
-
 }

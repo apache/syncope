@@ -23,14 +23,12 @@ import java.lang.reflect.Constructor;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.annotations.ExtPage;
 import org.apache.syncope.client.console.annotations.IdMPage;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
@@ -66,6 +64,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.ContentDisposition;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +77,9 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     protected static final HeaderItem META_IE_EDGE = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
+    @SpringBean
+    protected ClassPathScanImplementationLookup lookup;
+
     protected final WebMarkupContainer body;
 
     protected NotificationPanel notificationPanel;
@@ -88,9 +90,6 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     public BasePage(final PageParameters parameters) {
         super(parameters);
-
-        ClassPathScanImplementationLookup lookup = (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
-                getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
 
         body = new WebMarkupContainer("body");
         Serializable leftMenuCollapse = SyncopeConsoleSession.get().getAttribute(Constants.MENU_COLLAPSE);

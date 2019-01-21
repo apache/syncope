@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +32,6 @@ import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
 
-@WebServlet(name = "assertionConsumer", urlPatterns = { "/saml2sp/assertion-consumer" })
 public class AssertionConsumer extends AbstractSAML2SPServlet {
 
     private static final long serialVersionUID = 968480296813639041L;

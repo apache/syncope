@@ -26,7 +26,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.console.commons.status.Status;
@@ -69,7 +69,7 @@ public class StatusPanel extends Panel {
 
         super(id);
         init(any, model,
-                SyncopeConsoleApplication.get().getStatusProvider().get(any, any.getResources()), pageRef, false);
+                SyncopeWebApplication.get().getStatusProvider().get(any, any.getResources()), pageRef, false);
     }
 
     public <T extends AnyTO> StatusPanel(

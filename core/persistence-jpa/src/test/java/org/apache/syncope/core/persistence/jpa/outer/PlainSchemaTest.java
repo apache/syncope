@@ -177,7 +177,7 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test
     public void deleteSurname() {
-        // search for user schema fullname
+        // search for user schema surname
         PlainSchema schema = plainSchemaDAO.find("surname");
         assertNotNull(schema);
 
@@ -202,7 +202,7 @@ public class PlainSchemaTest extends AbstractTest {
         assertEquals(5, labels.size());
         assertEquals(2, schema.getLabels().size());
 
-        // delete user schema fullname
+        // delete user schema surname
         plainSchemaDAO.delete("surname");
 
         entityManager().flush();
@@ -218,15 +218,13 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test
     public void deleteFirstname() {
-        assertEquals(6, resourceDAO.find("resource-db-pull").
-                getProvision(anyTypeDAO.findUser()).get().getMapping().getItems().size());
+        int pre = resourceDAO.find("resource-db-pull").
+                getProvision(anyTypeDAO.findUser()).get().getMapping().getItems().size();
 
         plainSchemaDAO.delete("firstname");
         assertNull(plainSchemaDAO.find("firstname"));
 
-        entityManager().flush();
-
-        assertEquals(5, resourceDAO.find("resource-db-pull").
+        assertEquals(pre - 1, resourceDAO.find("resource-db-pull").
                 getProvision(anyTypeDAO.findUser()).get().getMapping().getItems().size());
     }
 }

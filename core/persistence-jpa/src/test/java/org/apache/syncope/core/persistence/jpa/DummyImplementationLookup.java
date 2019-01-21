@@ -42,13 +42,8 @@ import org.springframework.stereotype.Component;
 public class DummyImplementationLookup implements ImplementationLookup {
 
     @Override
-    public Integer getPriority() {
+    public int getOrder() {
         return -1;
-    }
-
-    @Override
-    public void load() {
-        // do nothing
     }
 
     @Override
@@ -100,5 +95,4 @@ public class DummyImplementationLookup implements ImplementationLookup {
     public Set<Class<?>> getAuditAppenderClasses() {
         return Collections.emptySet();
     }
-
 }

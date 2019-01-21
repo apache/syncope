@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.model.CustomTemplateInfo;
@@ -59,7 +59,7 @@ public class GroupResource extends BaseResource {
             }
 
             CustomTemplateInfo customTemplate =
-                    SyncopeEnduserApplication.get().getCustomTemplate();
+                    SyncopeWebApplication.get().getCustomTemplate();
             final GroupResponse groupResponse = new GroupResponse();
             if (customTemplate.getWizard().getSteps().containsKey("groups")) {
                 String realm = URLDecoder.decode(attributes.getParameters().get("realm").

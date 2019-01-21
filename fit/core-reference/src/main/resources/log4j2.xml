@@ -20,7 +20,7 @@ under the License.
 <configuration status="WARN">
 
   <appenders>
-    
+
     <RollingRandomAccessFile name="mainFile" fileName="${log.directory}/core.log"
                              filePattern="${log.directory}/core-%d{yyyy-MM-dd}.log.gz"
                              immediateFlush="false" append="true">
@@ -82,6 +82,10 @@ under the License.
       <appender-ref ref="persistence"/>
     </asyncLogger>
     <asyncLogger name="org.springframework.orm" additivity="false" level="INFO">
+      <appender-ref ref="persistenceFile"/>
+      <appender-ref ref="persistence"/>
+    </asyncLogger>
+    <asyncLogger name="org.apache.openjpa" additivity="false" level="INFO">
       <appender-ref ref="persistenceFile"/>
       <appender-ref ref="persistence"/>
     </asyncLogger>

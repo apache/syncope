@@ -53,6 +53,7 @@ import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
@@ -73,6 +74,8 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrUniqueVa
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
@@ -83,9 +86,11 @@ import org.xml.sax.helpers.AttributesImpl;
  * Export internal storage content as XML.
  */
 @Component
-public class XMLContentExporter extends AbstractContentDealer implements ContentExporter {
+public class XMLContentExporter implements ContentExporter {
 
-    protected static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = new HashSet<>(Arrays.asList(new String[] {
+    private static final Logger LOG = LoggerFactory.getLogger(XMLContentExporter.class);
+
+    private static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = new HashSet<>(Arrays.asList(new String[] {
         "QRTZ_", "LOGGING", JPAReportExec.TABLE, JPATaskExec.TABLE,
         JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
         JPAURelationship.TABLE, JPAUMembership.TABLE,
@@ -93,11 +98,14 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
         JPAARelationship.TABLE, JPAAMembership.TABLE, JPAAccessToken.TABLE
     }));
 
-    protected static final Map<String, String> TABLES_TO_BE_FILTERED =
+    private static final Map<String, String> TABLES_TO_BE_FILTERED =
             Collections.singletonMap("TASK", "DTYPE <> 'PropagationTask'");
 
-    protected static final Map<String, Set<String>> COLUMNS_TO_BE_NULLIFIED =
+    private static final Map<String, Set<String>> COLUMNS_TO_BE_NULLIFIED =
             Collections.singletonMap("SYNCOPEGROUP", Collections.singleton("USEROWNER_ID"));
+
+    @Autowired
+    private DomainsHolder domainsHolder;
 
     @Autowired
     private RealmDAO realmDAO;
@@ -376,7 +384,9 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
             throw new IllegalArgumentException("Could not find DataSource for domain " + domain);
         }
 
-        String schema = ApplicationContextProvider.getBeanFactory().getBean(domain + "DatabaseSchema", String.class);
+        String schema = ApplicationContextProvider.getBeanFactory().containsBean(domain + "DatabaseSchema")
+                ? ApplicationContextProvider.getBeanFactory().getBean(domain + "DatabaseSchema", String.class)
+                : null;
 
         Connection conn = null;
         ResultSet rs = null;

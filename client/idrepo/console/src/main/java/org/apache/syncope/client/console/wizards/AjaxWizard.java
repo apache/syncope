@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.wicket.Component;
@@ -382,7 +382,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
                     SyncopeConsoleSession.get().execute(new ApplyFuture(target));
 
             Pair<Serializable, Serializable> res =
-                    executor.get(SyncopeConsoleApplication.get().getMaxWaitTimeInSeconds(), TimeUnit.SECONDS);
+                    executor.get(SyncopeWebApplication.get().getMaxWaitTimeInSeconds(), TimeUnit.SECONDS);
 
             if (res.getLeft() != null) {
                 send(pageRef.getPage(), Broadcast.BUBBLE, res.getLeft());

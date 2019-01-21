@@ -23,15 +23,15 @@ import java.security.KeyStore;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import javax.sql.DataSource;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.PropertyUtils;
-import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.SAML2SPEntitlement;
 import org.apache.syncope.core.logic.saml2.SAML2IdPCache;
 import org.apache.syncope.core.logic.saml2.SAML2ReaderWriter;
-import org.apache.syncope.core.persistence.api.DomainsHolder;
+import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
@@ -46,7 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SAML2SPLoader implements SyncopeLoader {
+public class SAML2SPLoader implements SyncopeCoreLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(SAML2SPLoader.class);
 
@@ -67,9 +67,6 @@ public class SAML2SPLoader implements SyncopeLoader {
     private SAML2ReaderWriter saml2rw;
 
     @Autowired
-    private DomainsHolder domainsHolder;
-
-    @Autowired
     private SAML2IdPCache cache;
 
     @Autowired
@@ -86,7 +83,7 @@ public class SAML2SPLoader implements SyncopeLoader {
     private String signatureAlgorithm;
 
     @Override
-    public Integer getPriority() {
+    public int getOrder() {
         return 1000;
     }
 
@@ -94,7 +91,7 @@ public class SAML2SPLoader implements SyncopeLoader {
     public void load() {
         EntitlementsHolder.getInstance().init(SAML2SPEntitlement.values());
 
-        Properties props = PropertyUtils.read(getClass(), SAML2SP_LOGIC_PROPERTIES, "conf.directory").getLeft();
+        Properties props = PropertyUtils.read(getClass(), SAML2SP_LOGIC_PROPERTIES, "conf.directory");
         String confDirectory = props.getProperty("conf.directory");
 
         assertNotNull(confDirectory, "<conf.directory>");
@@ -138,18 +135,19 @@ public class SAML2SPLoader implements SyncopeLoader {
             LOG.error("Could not initialize the SAML 2.0 Service Provider certificate", e);
             inited = false;
         }
+    }
 
-        domainsHolder.getDomains().keySet().forEach(domain -> {
-            AuthContextUtils.execWithAuthContext(domain, () -> {
-                idpDAO.findAll().forEach(idp -> {
-                    try {
-                        cache.put(idp);
-                    } catch (Exception e) {
-                        LOG.error("Could not cache the SAML 2.0 IdP with key ", idp.getEntityID(), e);
-                    }
-                });
-                return null;
+    @Override
+    public void load(final String domain, final DataSource datasource) {
+        AuthContextUtils.execWithAuthContext(domain, () -> {
+            idpDAO.findAll().forEach(idp -> {
+                try {
+                    cache.put(idp);
+                } catch (Exception e) {
+                    LOG.error("Could not cache the SAML 2.0 IdP with key ", idp.getEntityID(), e);
+                }
             });
+            return null;
         });
     }
 

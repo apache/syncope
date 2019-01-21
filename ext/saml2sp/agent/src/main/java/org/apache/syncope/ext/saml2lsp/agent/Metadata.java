@@ -21,7 +21,6 @@ package org.apache.syncope.ext.saml2lsp.agent;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,7 +32,6 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
 
-@WebServlet(name = "metadata", urlPatterns = { "/saml2sp/metadata" })
 public class Metadata extends HttpServlet {
 
     private static final long serialVersionUID = 694030186105137875L;

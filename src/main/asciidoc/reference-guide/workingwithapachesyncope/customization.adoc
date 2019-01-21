@@ -178,11 +178,11 @@ straightforward: just add the `<profile>` below to `enduser/pom.xml`:
           <configuration>
             <properties>
               <cargo.jvmargs>
-              -Xdebug
-              -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-              -noverify -XX:+CMSClassUnloadingEnabled
-              -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m
-              </cargo.jvmargs>
+                -Xdebug
+                -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
+                -Dspring.profiles.active=embedded
+                -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC
+                -Xmx1024m -Xms512m</cargo.jvmargs>
             </properties>
           </configuration>
         </configuration>
@@ -746,7 +746,7 @@ customization.
 [NOTE]
 .Hot deploy
 ====
-The `customFormAttributes.json` could be edited and reloaded without the need of re-starting the Java EE container.
+The `customFormAttributes.json` could be edited and reloaded without the need of re-starting the deployment.
 ====
 
 [TIP]
@@ -882,7 +882,7 @@ style and structure.
 [NOTE]
 .Hot deploy
 ====
-The `customTemplate.json` could be edited and reloaded without the need of re-starting the Java EE container.
+The `customTemplate.json` could be edited and reloaded without the need of re-starting the deployment.
 ====
 
 [TIP]

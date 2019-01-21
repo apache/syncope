@@ -18,6 +18,31 @@
 //
 ==== JavaEE Container
 
+Besides the <<executable>> option, Apache Syncope can be also deployed into the Java EE containers listed below, with
+related configuration settings.
+
+[[dbcp]]
+.Database Connection Pool
+****
+The <<persistence,internal storage>> is the central place where all data of a given <<Core>> deployment are located.
+
+After choosing the appropriate <<DBMS>>, it is of fundamental importance to provide an adequate configuration for the
+related database https://en.wikipedia.org/wiki/Connection_pool[connection pool^]. 
+
+The database connection pool can be:
+
+. Application-managed (default); based on http://brettwooldridge.github.io/HikariCP/[HikariCP^], the related
+parameters can be tuned in the related <<domains,domain>> configuration file, e.g. `domains/Master.properties`,
+for the Master domain.
+. <<JavaEE Container>>-managed, via the JNDI resource matching the name specified for a given <<domains,domain>>, e.g.
+`java:comp/env/jdbc/syncopeMasterDataSource` for the Master domain. +
+Each JavaEE Container provides its own way to accomplish this task:
+  * https://tomcat.apache.org/tomcat-9.0-doc/jdbc-pool.html[Apache Tomcat 9^]
+  * https://javaeesquad.github.io/tutorials/glassfishDatasource/glassFishDatasource.html[Glassfish 5^]
+  * https://payara.gitbooks.io/payara-server/content/documentation/user-guides/connection-pools/connection-pools.html[Payara Server 5^]
+  * http://docs.wildfly.org/15/Admin_Guide.html#DataSource[Wildfly 15^]
+****
+
 ===== Apache Tomcat 9
 
 On GNU / Linux - Mac OS X, create `$CATALINA_HOME/bin/setenv.sh` with similar content
@@ -116,7 +141,7 @@ For better performance under GNU / Linux, do not forget to include
 among JVM options.
 ====
 
-===== Wildfly 14
+===== Wildfly 15
 
 Add
 

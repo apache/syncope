@@ -21,13 +21,11 @@ package org.apache.syncope.ext.saml2lsp.agent;
 import java.util.Properties;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.PropertyUtils;
 
-@WebListener
 public class SAML2SPAgentSetup implements ServletContextListener {
 
     private static final String SAML2SP_AGENT_PROPERTIES = "saml2sp-agent.properties";
@@ -42,7 +40,7 @@ public class SAML2SPAgentSetup implements ServletContextListener {
     @Override
     public void contextInitialized(final ServletContextEvent sce) {
         // read saml2spagent.properties
-        Properties props = PropertyUtils.read(getClass(), SAML2SP_AGENT_PROPERTIES, "conf.directory").getLeft();
+        Properties props = PropertyUtils.read(getClass(), SAML2SP_AGENT_PROPERTIES, "conf.directory");
 
         String anonymousUser = props.getProperty("anonymousUser");
         assertNotNull(anonymousUser, "<anonymousUser>");
@@ -73,5 +71,4 @@ public class SAML2SPAgentSetup implements ServletContextListener {
     @Override
     public void contextDestroyed(final ServletContextEvent sce) {
     }
-
 }

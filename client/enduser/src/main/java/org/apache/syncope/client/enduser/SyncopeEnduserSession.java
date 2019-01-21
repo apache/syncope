@@ -74,10 +74,10 @@ public class SyncopeEnduserSession extends WebSession {
         // define cookie utility to manage application cookies
         cookieUtils = new CookieUtils();
 
-        anonymousClient = SyncopeEnduserApplication.get().getClientFactory().
+        anonymousClient = SyncopeWebApplication.get().getClientFactory().
                 create(new AnonymousAuthenticationHandler(
-                        SyncopeEnduserApplication.get().getAnonymousUser(),
-                        SyncopeEnduserApplication.get().getAnonymousKey()));
+                        SyncopeWebApplication.get().getAnonymousUser(),
+                        SyncopeWebApplication.get().getAnonymousKey()));
         platformInfo = anonymousClient.getService(SyncopeService.class).platform();
 
         datePlainSchemas = anonymousClient.getService(SchemaService.class).
@@ -106,8 +106,8 @@ public class SyncopeEnduserSession extends WebSession {
         boolean authenticated = false;
 
         try {
-            client = SyncopeEnduserApplication.get().getClientFactory().
-                    setDomain(SyncopeEnduserApplication.get().getDomain()).
+            client = SyncopeWebApplication.get().getClientFactory().
+                    setDomain(SyncopeWebApplication.get().getDomain()).
                     create(username, password);
 
             afterAuthentication(username);
@@ -124,8 +124,8 @@ public class SyncopeEnduserSession extends WebSession {
         boolean authenticated = false;
 
         try {
-            client = SyncopeEnduserApplication.get().getClientFactory().
-                    setDomain(SyncopeEnduserApplication.get().getDomain()).create(jwt);
+            client = SyncopeWebApplication.get().getClientFactory().
+                    setDomain(SyncopeWebApplication.get().getDomain()).create(jwt);
 
             afterAuthentication(null);
 

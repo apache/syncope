@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -17,18 +17,25 @@
 # specific language governing permissions and limitations
 # under the License.
 
-cd /etc/apache-syncope
+cd /opt/syncope/conf
+
 rm -f provisioning.properties
 ln -s provisioning.properties.$DBMS provisioning.properties
+
 rm -f views.xml
 ln -s views.xml.$DBMS views.xml
 
+if [ $DBMS = "pgjsonb" ]; then
+  ln -s indexes.xml.pgjsonb indexes.xml
+else
+  rm -f indexes.xml
+fi
+
 cd domains
+
 rm -f Master.properties
 ln -s Master.properties.$DBMS Master.properties
 
-/etc/init.d/tomcat8 start
-
-xtail /var/log/apache-syncope/*.log /var/log/tomcat8/
-
-/bin/bash
+export LOADER_PATH="/opt/syncope/conf,/opt/syncope/lib"
+java -Dfile.encoding=UTF-8 -server -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m \
+ -XX:+DisableExplicitGC -Djava.security.egd=file:/dev/./urandom -jar /opt/syncope/lib/syncope.war

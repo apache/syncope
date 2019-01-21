@@ -88,7 +88,7 @@ public final class Encryptor {
 
     static {
         try {
-            Properties props = PropertyUtils.read(Encryptor.class, "security.properties", "conf.directory").getLeft();
+            Properties props = PropertyUtils.read(Encryptor.class, "security.properties", "conf.directory");
 
             SECRET_KEY = props.getProperty("secretKey");
             SALT_ITERATIONS = Integer.valueOf(props.getProperty("digester.saltIterations"));

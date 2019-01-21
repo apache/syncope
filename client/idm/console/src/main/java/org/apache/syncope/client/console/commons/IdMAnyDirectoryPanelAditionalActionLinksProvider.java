@@ -39,6 +39,8 @@ import org.apache.wicket.model.Model;
 public class IdMAnyDirectoryPanelAditionalActionLinksProvider
         implements AnyDirectoryPanelAditionalActionLinksProvider {
 
+    private static final long serialVersionUID = -1698293704237878993L;
+
     @Override
     public List<Action<UserTO>> get(
             final UserTO modelObject,

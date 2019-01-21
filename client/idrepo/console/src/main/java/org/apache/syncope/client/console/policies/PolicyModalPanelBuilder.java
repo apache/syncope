@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -89,7 +89,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
 
             @Override
             protected List<String> load() {
-                return SyncopeConsoleApplication.get().getResourceProvider().get();
+                return SyncopeWebApplication.get().getResourceProvider().get();
             }
         };
 

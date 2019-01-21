@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.notifications.NotificationTasks;
@@ -236,7 +236,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                         setRealms(realm, model.getObject().getDynRealms());
             }
 
-            SyncopeConsoleApplication.get().getAnyDirectoryPanelAditionalActionLinksProvider().get(
+            SyncopeWebApplication.get().getAnyDirectoryPanelAditionalActionLinksProvider().get(
                     model.getObject(),
                     realm,
                     altDefaultModal,

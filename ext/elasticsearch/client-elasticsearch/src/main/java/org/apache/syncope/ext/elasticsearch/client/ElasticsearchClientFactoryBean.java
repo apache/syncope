@@ -84,5 +84,4 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<Client>, Disp
             client.close();
         }
     }
-
 }

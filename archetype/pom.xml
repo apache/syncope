@@ -127,6 +127,13 @@ under the License.
       </resource>
 
       <resource>
+        <directory>../core/starter/src/main/resources</directory>
+        <includes>
+          <include>application.properties</include>
+        </includes>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
+      </resource>
+      <resource>
         <directory>../core/provisioning-java/src/main/resources</directory>
         <excludes>
           <exclude>*Context.xml</exclude>
@@ -136,8 +143,6 @@ under the License.
       <resource>
         <directory>../core/persistence-jpa/src/main/resources</directory>
         <excludes>
-          <exclude>*Context.xml</exclude>
-          <exclude>domains.xml</exclude>
           <exclude>META-INF/spring-persistence.xml</exclude>
         </excludes>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
@@ -149,9 +154,6 @@ under the License.
       <resource>
         <directory>../core/logic/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
-        <excludes>
-          <exclude>*Context.xml</exclude>
-        </excludes>
       </resource>
       <resource>
         <directory>../core/spring/src/main/resources</directory>
@@ -164,7 +166,7 @@ under the License.
         <directory>../fit/core-reference/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
         <includes>
-          <include>coreContext.xml</include>
+          <include>application-embedded.properties</include>
           <include>log4j2.xml</include>
         </includes>
       </resource>
@@ -199,13 +201,6 @@ under the License.
         </includes>
       </resource>
       <resource>
-        <directory>../fit/core-reference/src/main/webapp</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
-        <includes>
-          <include>*.jsp</include>
-        </includes>
-      </resource>
-      <resource>
         <directory>../fit/core-reference/src/main/webapp/WEB-INF</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/webapp/WEB-INF</targetPath>
       </resource>
@@ -219,9 +214,10 @@ under the License.
       </resource>
             
       <resource>
-        <directory>../client/console/src/main/resources</directory>
+        <directory>../client/idrepo/console/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources</targetPath>
         <includes>
+          <include>application.properties</include>
           <include>console.properties</include>
         </includes>
       </resource>
@@ -243,6 +239,7 @@ under the License.
         <directory>../fit/console-reference/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources</targetPath>
         <includes>
+          <include>application-embedded.properties</include>
           <include>log4j2.xml</include>
         </includes>
       </resource>
@@ -271,6 +268,7 @@ under the License.
         <directory>../client/enduser/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/resources</targetPath>
         <includes>
+          <include>application.properties</include>
           <include>enduser.properties</include>
           <include>customFormAttributes.json</include>
           <include>customTemplate.json</include>
@@ -298,6 +296,7 @@ under the License.
         <directory>../fit/enduser-reference/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/resources</targetPath>
         <includes>
+          <include>application-embedded.properties</include>
           <include>log4j2.xml</include>
         </includes>
       </resource>

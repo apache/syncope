@@ -351,7 +351,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertNotNull(userTO);
             assertEquals("active", userTO.getStatus());
         } finally {
-            jdbcTemplate.execute("UPDATE TEST SET status=FALSE WHERE id='testUser1'");
+            jdbcTemplate.execute("UPDATE TEST SET status=FALSE WHERE id='testuser1'");
             if (userTO != null) {
                 userService.delete(userTO.getKey());
             }

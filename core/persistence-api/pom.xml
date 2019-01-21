@@ -42,7 +42,12 @@ under the License.
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
     </dependency>
-      
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>net.tirasa.connid</groupId>
       <artifactId>connector-framework</artifactId>

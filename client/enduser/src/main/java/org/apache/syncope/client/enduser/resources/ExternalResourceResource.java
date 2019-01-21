@@ -25,7 +25,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.model.CustomTemplateInfo;
@@ -53,7 +53,7 @@ public class ExternalResourceResource extends BaseResource {
             }
 
             CustomTemplateInfo customTemplate =
-                    SyncopeEnduserApplication.get().getCustomTemplate();
+                    SyncopeWebApplication.get().getCustomTemplate();
             final List<String> resources = customTemplate.getWizard().getSteps().containsKey("groups")
                     ? SyncopeEnduserSession.get().
                             getService(SyncopeService.class).platform().getResources()

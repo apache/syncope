@@ -18,39 +18,35 @@
  */
 package org.apache.syncope.core.logic.init;
 
-import java.util.Map;
 import javax.sql.DataSource;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.persistence.api.DomainsHolder;
-import org.apache.syncope.core.persistence.api.SyncopeLoader;
+import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EntitlementLoader implements SyncopeLoader {
-
-    @Autowired
-    private DomainsHolder domainsHolder;
+public class EntitlementLoader implements SyncopeCoreLoader {
 
     @Autowired
     private EntitlementAccessor entitlementAccessor;
 
     @Override
-    public Integer getPriority() {
+    public int getOrder() {
         return 900;
     }
 
     @Override
     public void load() {
         EntitlementsHolder.getInstance().init(StandardEntitlement.values());
+    }
 
-        for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
-            AuthContextUtils.execWithAuthContext(entry.getKey(), () -> {
-                entitlementAccessor.addEntitlementsForAnyTypes();
-                return null;
-            });
-        }
+    @Override
+    public void load(final String domain, final DataSource datasource) {
+        AuthContextUtils.execWithAuthContext(domain, () -> {
+            entitlementAccessor.addEntitlementsForAnyTypes();
+            return null;
+        });
     }
 }

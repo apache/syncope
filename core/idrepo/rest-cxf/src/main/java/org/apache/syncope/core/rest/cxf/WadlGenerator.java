@@ -21,6 +21,7 @@ package org.apache.syncope.core.rest.cxf;
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -32,21 +33,43 @@ import org.apache.cxf.common.util.ClasspathScanner;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.utils.InjectionUtils;
 import org.apache.cxf.jaxrs.utils.ResourceUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.core.env.Environment;
 
 /**
  * Automatically loads available javadocs from class loader (when {@link java.net.URLClassLoader}).
  */
-public class WadlGenerator extends org.apache.cxf.jaxrs.model.wadl.WadlGenerator {
+public class WadlGenerator extends org.apache.cxf.jaxrs.model.wadl.WadlGenerator implements EnvironmentAware {
+
+    private static final Logger LOG = LoggerFactory.getLogger(WadlGenerator.class);
+
+    private Environment env;
 
     private boolean inited = false;
 
     private String wadl = null;
 
+    @Override
+    public void setEnvironment(final Environment env) {
+        this.env = env;
+    }
+
     private void init() {
         synchronized (this) {
             if (!inited) {
                 URL[] javaDocURLs = JavaDocUtils.getJavaDocURLs();
-                if (javaDocURLs != null) {
+                if (javaDocURLs == null) {
+                    String[] javaDocPaths = JavaDocUtils.getJavaDocPaths(env);
+                    if (javaDocPaths != null) {
+                        try {
+                            super.setJavaDocPaths(javaDocPaths);
+                        } catch (Exception e) {
+                            LOG.error("Could not set javadoc paths from {}", Arrays.asList(javaDocPaths), e);
+                        }
+                    }
+                } else {
                     super.setJavaDocURLs(javaDocURLs);
                 }
 

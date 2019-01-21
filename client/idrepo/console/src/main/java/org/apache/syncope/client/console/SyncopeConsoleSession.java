@@ -94,20 +94,20 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     public SyncopeConsoleSession(final Request request) {
         super(request);
 
-        clientFactory = SyncopeConsoleApplication.get().newClientFactory();
+        clientFactory = SyncopeWebApplication.get().newClientFactory();
         anonymousClient = clientFactory.
                 create(new AnonymousAuthenticationHandler(
-                        SyncopeConsoleApplication.get().getAnonymousUser(),
-                        SyncopeConsoleApplication.get().getAnonymousKey()));
+                        SyncopeWebApplication.get().getAnonymousUser(),
+                        SyncopeWebApplication.get().getAnonymousKey()));
 
         platformInfo = anonymousClient.getService(SyncopeService.class).platform();
         systemInfo = anonymousClient.getService(SyncopeService.class).system();
 
         executor = new ThreadPoolTaskExecutor();
         executor.setWaitForTasksToCompleteOnShutdown(false);
-        executor.setCorePoolSize(SyncopeConsoleApplication.get().getCorePoolSize());
-        executor.setMaxPoolSize(SyncopeConsoleApplication.get().getMaxPoolSize());
-        executor.setQueueCapacity(SyncopeConsoleApplication.get().getQueueCapacity());
+        executor.setCorePoolSize(SyncopeWebApplication.get().getCorePoolSize());
+        executor.setMaxPoolSize(SyncopeWebApplication.get().getMaxPoolSize());
+        executor.setQueueCapacity(SyncopeWebApplication.get().getQueueCapacity());
         executor.initialize();
     }
 

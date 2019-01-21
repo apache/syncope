@@ -23,11 +23,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
-import org.apache.syncope.core.persistence.api.SyncopeLoader;
+import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.provisioning.api.RequestedAuthnContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.stereotype.Component;
@@ -35,7 +34,7 @@ import org.springframework.util.ClassUtils;
 import org.apache.syncope.core.provisioning.api.SAML2IdPActions;
 
 @Component
-public class SAML2SPClassPathScanImplementationLookup implements SyncopeLoader {
+public class SAML2SPClassPathScanImplementationLookup implements SyncopeCoreLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImplementationLookup.class);
 
@@ -46,8 +45,8 @@ public class SAML2SPClassPathScanImplementationLookup implements SyncopeLoader {
     private Set<String> requestedAuthnContextProvidersClasses;
 
     @Override
-    public Integer getPriority() {
-        return Integer.MIN_VALUE;
+    public int getOrder() {
+        return 999;
     }
 
     @Override
@@ -59,10 +58,9 @@ public class SAML2SPClassPathScanImplementationLookup implements SyncopeLoader {
         scanner.addIncludeFilter(new AssignableTypeFilter(SAML2IdPActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(RequestedAuthnContextProvider.class));
 
-        for (BeanDefinition bd : scanner.findCandidateComponents(DEFAULT_BASE_PACKAGE)) {
+        scanner.findCandidateComponents(DEFAULT_BASE_PACKAGE).forEach(bd -> {
             try {
-                Class<?> clazz = ClassUtils.resolveClassName(
-                        bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
+                Class<?> clazz = ClassUtils.resolveClassName(bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
                 boolean isAbstractClazz = Modifier.isAbstract(clazz.getModifiers());
 
                 if (SAML2IdPActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
@@ -73,7 +71,7 @@ public class SAML2SPClassPathScanImplementationLookup implements SyncopeLoader {
             } catch (Throwable t) {
                 LOG.warn("Could not inspect class {}", bd.getBeanClassName(), t);
             }
-        }
+        });
 
         actionsClasses = Collections.unmodifiableSet(actionsClasses);
         requestedAuthnContextProvidersClasses = Collections.unmodifiableSet(requestedAuthnContextProvidersClasses);

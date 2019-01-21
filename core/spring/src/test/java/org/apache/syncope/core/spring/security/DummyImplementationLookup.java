@@ -36,13 +36,8 @@ import org.apache.syncope.core.persistence.api.dao.Reportlet;
 public class DummyImplementationLookup implements ImplementationLookup {
 
     @Override
-    public Integer getPriority() {
+    public int getOrder() {
         return -1;
-    }
-
-    @Override
-    public void load() {
-        // do nothing
     }
 
     @Override

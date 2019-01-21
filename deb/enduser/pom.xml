@@ -61,36 +61,6 @@ under the License.
       <artifactId>syncope-ext-oidcclient-client-enduser</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.lmax</groupId>
-      <artifactId>disruptor</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-    </dependency>
   </dependencies>
 
   <build>
@@ -104,6 +74,7 @@ under the License.
       <resource>
         <directory>${project.basedir}/../../client/enduser/src/main/resources</directory>
         <includes>
+          <include>application.properties</include>
           <include>enduser.properties</include>
           <include>customFormAttributes.json</include>
           <include>customTemplate.json</include>
@@ -132,13 +103,13 @@ under the License.
         <includes>
           <include>log4j2.xml</include>
         </includes>
-        <targetPath>${project.build.directory}/classes</targetPath>
+        <targetPath>${project.build.outputDirectory}</targetPath>
         <filtering>true</filtering>
       </resource>
       
       <resource>
         <directory>${project.build.directory}/etc</directory>
-        <targetPath>${project.build.directory}/classes</targetPath>
+        <targetPath>${project.build.outputDirectory}</targetPath>
       </resource>
       
       <resource>
@@ -241,6 +212,7 @@ under the License.
                 <data>
                   <src>${project.build.directory}/etc</src>
                   <type>directory</type>
+                  <conffile>true</conffile>
                   <mapper>
                     <type>perm</type>
                     <prefix>${conf.directory}</prefix>
@@ -311,5 +283,5 @@ under the License.
       </build>
     </profile>
   </profiles>
-  
+
 </project>

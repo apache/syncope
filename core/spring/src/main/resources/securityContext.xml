@@ -24,53 +24,9 @@ under the License.
                            http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/security
                            http://www.springframework.org/schema/security/spring-security.xsd">
-
-  <bean id="adminUser" class="java.lang.String">
-    <constructor-arg value="${adminUser}"/>
-  </bean>
-  <bean id="adminPassword" class="java.lang.String">
-    <constructor-arg value="${adminPassword}"/>
-  </bean>
-  <bean id="adminPasswordAlgorithm" class="java.lang.String">
-    <constructor-arg value="${adminPasswordAlgorithm}"/>
-  </bean>
-
-  <bean id="anonymousUser" class="java.lang.String">
-    <constructor-arg value="${anonymousUser}"/>
-  </bean>
-  <bean id="anonymousKey" class="java.lang.String">
-    <constructor-arg value="${anonymousKey}"/>
-  </bean>
-  
-  <bean id="jwtIssuer" class="java.lang.String">
-    <constructor-arg value="${jwtIssuer}"/>
-  </bean>
-  <bean id="jwsKey" class="java.lang.String">
-    <constructor-arg value="${jwsKey}"/>
-  </bean>
-
-  <bean id="credentialChecker" class="org.apache.syncope.core.spring.security.DefaultCredentialChecker">
-    <constructor-arg value="${jwsKey}" index="0"/>
-    <constructor-arg value="${adminPassword}" index="1"/>
-    <constructor-arg value="${anonymousKey}" index="2"/>
-  </bean>
-
-  <bean id="accessTokenJwsSignatureVerifier"
-        class="org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureVerifier">
-    <property name="jwsAlgorithm" value="${jwsAlgorithm}"/>
-    <property name="jwsKey" value="${jwsKey}"/>
-  </bean>
-  <bean id="accessTokenJwsSignatureProvider"
-        class="org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureProvider">
-    <property name="jwsAlgorithm" value="${jwsAlgorithm}"/>
-    <property name="jwsKey" value="${jwsKey}"/>
-  </bean>
-  
-  <bean class="${passwordGenerator}"/>
-  <bean class="org.apache.syncope.core.spring.DefaultRolesPrefixPostProcessor"/>
   
   <security:global-method-security pre-post-annotations="enabled"/>
-  
+
   <bean id="securityContextRepository" class='org.springframework.security.web.context.NullSecurityContextRepository'/>
   <bean id="securityContextPersistenceFilter"
         class="org.springframework.security.web.context.SecurityContextPersistenceFilter">
@@ -138,4 +94,3 @@ under the License.
     <security:authentication-provider ref="jwtAuthenticationProvider"/>
   </security:authentication-manager>
 </beans>
-

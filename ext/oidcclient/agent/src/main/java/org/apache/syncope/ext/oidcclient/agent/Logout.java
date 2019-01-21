@@ -22,14 +22,12 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@WebServlet(name = "oidcclientlogout", urlPatterns = { "/oidcclient/logout" })
 public class Logout extends HttpServlet {
 
     private static final long serialVersionUID = 2383239908659843071L;
@@ -63,5 +61,4 @@ public class Logout extends HttpServlet {
             }
         }
     }
-
 }

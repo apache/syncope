@@ -33,20 +33,6 @@ under the License.
   <packaging>war</packaging>
 
   <dependencies>
-
-    <dependency> 
-      <groupId>javax.servlet</groupId> 
-      <artifactId>javax.servlet-api</artifactId> 
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet.jsp</groupId>
-      <artifactId>javax.servlet.jsp-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>${groupId}</groupId>
       <artifactId>syncope-common</artifactId>
@@ -56,36 +42,6 @@ under the License.
     <dependency>
       <groupId>org.apache.syncope.client</groupId>
       <artifactId>syncope-client-enduser</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.lmax</groupId>
-      <artifactId>disruptor</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
     </dependency>
   </dependencies>
 
@@ -239,9 +195,6 @@ under the License.
                     <copy file="../core/target/test-classes/connid.properties" 
                           todir="../core/target/syncope/WEB-INF/classes" 
                           overwrite="true"/>
-                    <copy file="../core/target/test-classes/db.jsp" 
-                          todir="../core/target/syncope" 
-                          overwrite="true"/>
 
                     <copy file="${project.build.directory}/test-classes/enduser.properties" 
                           todir="${project.build.directory}/${project.build.finalName}/WEB-INF/classes" 
@@ -276,21 +229,27 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
+                <containerId>tomcat9x</containerId>
+                <zipUrlInstaller>
+                  <url>http://central.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
+                  <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
+                  <extractDir>${project.build.directory}/cargo/extract</extractDir>
+                </zipUrlInstaller>
                 <dependencies>
                   <dependency>
                     <groupId>com.h2database</groupId>
                     <artifactId>h2</artifactId>
                   </dependency>
                 </dependencies>
+                <timeout>300000</timeout>
+                <log>${cargo.log}</log>
+                <output>${cargo.output}</output> 
               </container>
               <configuration>
-                <type>standalone</type>
                 <properties>
-                  <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
-                  <cargo.tomcat.ajp.port>${cargo.tomcat.ajp.port}</cargo.tomcat.ajp.port>
-                  <cargo.rmi.port>${cargo.rmi.port}</cargo.rmi.port>
-
-                  <cargo.jvmargs>-noverify -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC</cargo.jvmargs>
+                  <cargo.jvmargs>
+                    -Dspring.profiles.active=embedded
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
               <deployables>
@@ -378,6 +337,37 @@ under the License.
             <filtering>true</filtering>
           </resource>
         </resources>
+      </build>
+    </profile>
+    
+    <profile>
+      <id>executable</id>
+      
+      <dependencies>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
+      </dependencies>
+        
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+              <mainClass>org.apache.syncope.client.enduser.SyncopeEnduserApplication</mainClass>
+              <layout>ZIP</layout>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>repackage</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
       </build>
     </profile>
   </profiles>

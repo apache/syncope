@@ -23,11 +23,10 @@ import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -47,6 +46,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +55,9 @@ public class Login extends WebPage {
     private static final Logger LOG = LoggerFactory.getLogger(Login.class);
 
     private static final long serialVersionUID = 5889157642852559004L;
+
+    @SpringBean
+    private ClassPathScanImplementationLookup lookup;
 
     private final NotificationPanel notificationPanel;
 
@@ -111,7 +114,7 @@ public class Login extends WebPage {
         form.add(languageSelect);
 
         DomainDropDown domainSelect = new DomainDropDown("domain");
-        if (SyncopeConsoleApplication.get().getDomains().size() == 1) {
+        if (SyncopeWebApplication.get().getDomains().size() == 1) {
             domainSelect.setOutputMarkupPlaceholderTag(true);
         }
         domainSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
@@ -139,7 +142,7 @@ public class Login extends WebPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
-                if (SyncopeConsoleApplication.get().getAnonymousUser().equals(usernameField.getRawInput())) {
+                if (SyncopeWebApplication.get().getAnonymousUser().equals(usernameField.getRawInput())) {
                     throw new AccessControlException("Illegal username");
                 }
 
@@ -161,11 +164,8 @@ public class Login extends WebPage {
         form.add(submitButton);
         form.setDefaultButton(submitButton);
 
-        ClassPathScanImplementationLookup classPathScanImplementationLookup =
-                (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
-                        getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
         List<Panel> ssoLoginFormPanels = new ArrayList<>();
-        classPathScanImplementationLookup.getSSOLoginFormPanels().forEach(ssoLoginFormPanel -> {
+        lookup.getSSOLoginFormPanels().forEach(ssoLoginFormPanel -> {
             try {
                 ssoLoginFormPanels.add(ssoLoginFormPanel.getConstructor(String.class).newInstance("ssoLogin"));
             } catch (Exception e) {
@@ -204,7 +204,7 @@ public class Login extends WebPage {
         }
 
         LocaleDropDown(final String id) {
-            super(id, SyncopeConsoleApplication.SUPPORTED_LOCALES);
+            super(id, SyncopeWebApplication.SUPPORTED_LOCALES);
 
             setChoiceRenderer(new LocaleRenderer());
             setModel(new IModel<Locale>() {
@@ -240,7 +240,7 @@ public class Login extends WebPage {
         private static final long serialVersionUID = -7401167913360133325L;
 
         DomainDropDown(final String id) {
-            super(id, SyncopeConsoleApplication.get().getDomains());
+            super(id, SyncopeWebApplication.get().getDomains());
 
             setModel(new IModel<String>() {
 

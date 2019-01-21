@@ -22,8 +22,13 @@ import java.io.OutputStream;
 import javax.xml.transform.TransformerConfigurationException;
 import org.xml.sax.SAXException;
 
-public interface ContentExporter {
+public interface ContentExporter extends ContentDealer {
 
-    void export(String domain, OutputStream output, String uwfPrefix, String gwfPrefix, String awfPrefix) 
+    void export(
+            String domain,
+            OutputStream output,
+            String uwfPrefix,
+            String gwfPrefix,
+            String awfPrefix)
             throws SAXException, TransformerConfigurationException;
 }

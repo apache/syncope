@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -17,7 +17,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-cd /etc/apache-syncope
+cd /opt/syncope/conf
 
 sed "s/\${CORE_SCHEME}/$CORE_SCHEME/" enduser.properties.template | 
 sed "s/\${DOMAIN}/$DOMAIN/" | sed "s/\${CORE_HOST}/$CORE_HOST/" | sed "s/\${CORE_PORT}/$CORE_PORT/" > enduser.properties
@@ -28,8 +28,6 @@ sed "s/\${CORE_HOST}/$CORE_HOST/" | sed "s/\${CORE_PORT}/$CORE_PORT/" > oidcclie
 sed "s/\${CORE_SCHEME}/$CORE_SCHEME/" saml2sp-agent.properties.template | 
 sed "s/\${CORE_HOST}/$CORE_HOST/" | sed "s/\${CORE_PORT}/$CORE_PORT/" > saml2sp-agent.properties
 
-/etc/init.d/tomcat8 start
-
-xtail /var/log/apache-syncope/*.log /var/log/tomcat8/
-
-/bin/bash
+export LOADER_PATH="/opt/syncope/conf,/opt/syncope/lib"
+java -Dfile.encoding=UTF-8 -server -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m \
+ -XX:+DisableExplicitGC -Djava.security.egd=file:/dev/./urandom -jar /opt/syncope/lib/syncope-enduser.war

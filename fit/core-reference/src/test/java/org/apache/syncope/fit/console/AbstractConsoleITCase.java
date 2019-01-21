@@ -18,8 +18,19 @@
  */
 package org.apache.syncope.fit.console;
 
+import com.giffing.wicket.spring.boot.context.extensions.WicketApplicationInitConfiguration;
+import com.giffing.wicket.spring.boot.context.extensions.boot.actuator.WicketEndpointRepository;
+import com.giffing.wicket.spring.boot.starter.app.classscanner.candidates.WicketClassCandidatesHolder;
+import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.settings.general.GeneralSettingsProperties;
+import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.List;
+import org.apache.syncope.client.console.SyncopeWebApplication;
+import org.apache.syncope.client.console.commons.PreviewUtils;
+import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -34,6 +45,9 @@ import org.apache.wicket.util.visit.IVisit;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 public abstract class AbstractConsoleITCase {
 
@@ -53,13 +67,67 @@ public abstract class AbstractConsoleITCase {
 
     protected static SyncopeService SYNCOPE_SERVICE;
 
+    @Configuration
+    public static class SyncopeWebApplicationTestConfig {
+
+        @Bean
+        public GeneralSettingsProperties generalSettingsProperties() {
+            return new GeneralSettingsProperties();
+        }
+
+        @Bean
+        public List<WicketApplicationInitConfiguration> configurations() {
+            return Collections.emptyList();
+        }
+
+        @Bean
+        public WicketClassCandidatesHolder wicketClassCandidatesHolder() {
+            return new WicketClassCandidatesHolder();
+        }
+
+        @Bean
+        public WicketEndpointRepository wicketEndpointRepository() {
+            return new WicketEndpointRepositoryDefault();
+        }
+
+        @Bean
+        public ClassPathScanImplementationLookup classPathScanImplementationLookup() {
+            ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup();
+            lookup.load();
+            return lookup;
+        }
+
+        @Bean
+        public MIMETypesLoader mimeTypesLoader() {
+            MIMETypesLoader mimeTypesLoader = new MIMETypesLoader();
+            mimeTypesLoader.load();
+            return mimeTypesLoader;
+        }
+
+        @Bean
+        public PreviewUtils previewUtils() {
+            return new PreviewUtils();
+        }
+    }
+
     @BeforeAll
     public static void setUp() {
-        TESTER = ConsoleSetup.TESTER;
+        synchronized (LOG) {
+            if (TESTER == null) {
+                AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+                ctx.register(SyncopeWebApplicationTestConfig.class);
+                ctx.register(SyncopeWebApplication.class);
+                ctx.refresh();
 
-        SYNCOPE_SERVICE = new SyncopeClientFactoryBean().
-                setAddress(ADDRESS).create(ADMIN_UNAME, ADMIN_PWD).
-                getService(SyncopeService.class);
+                TESTER = new WicketTester(ctx.getBean(SyncopeWebApplication.class));
+            }
+
+            if (SYNCOPE_SERVICE == null) {
+                SYNCOPE_SERVICE = new SyncopeClientFactoryBean().
+                        setAddress(ADDRESS).create(ADMIN_UNAME, ADMIN_PWD).
+                        getService(SyncopeService.class);
+            }
+        }
     }
 
     protected void doLogin(final String user, final String passwd) {

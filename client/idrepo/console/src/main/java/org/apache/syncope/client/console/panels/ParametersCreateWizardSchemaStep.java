@@ -22,10 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.PropertyList;
-import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -46,13 +44,14 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ParametersCreateWizardSchemaStep extends WizardStep {
 
     private static final long serialVersionUID = -7843275202297616553L;
 
-    private static final MIMETypesLoader MIME_TYPES_LOADER = (MIMETypesLoader) SyncopeConsoleApplication.get().
-            getServletContext().getAttribute(ConsoleInitializer.MIMETYPES_LOADER);
+    @SpringBean
+    private MIMETypesLoader mimeTypesLoader;
 
     private final ImplementationRestClient implRestClient = new ImplementationRestClient();
 
@@ -357,7 +356,8 @@ public class ParametersCreateWizardSchemaStep extends WizardStep {
             cipherAlgorithm.setModelObject(null);
 
             binaryParams.setVisible(true);
-            mimeType.setChoices(MIME_TYPES_LOADER.getMimeTypes());
+            mimeType.setChoices(mimeTypesLoader.getMimeTypes());
+
             schema.setValidator("BinaryValidator");
         } else {
             conversionParams.setVisible(false);

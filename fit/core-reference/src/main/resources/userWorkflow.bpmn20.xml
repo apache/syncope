@@ -170,7 +170,7 @@ try {
     <sequenceFlow id="flow10" sourceRef="suspend" targetRef="suspended"/>
     <userTask id="suspended" name="Suspended"/>
     <sequenceFlow id="flow11" sourceRef="suspended" targetRef="suspendedGw"/>
-    <exclusiveGateway id="suspendedGw"/>
+    <exclusiveGateway id="suspendedGw" default="sid-26ACDEC4-8BE2-4E70-BB63-36B6375B7EEC"/>
     <sequenceFlow id="suspended2Reactivate" sourceRef="suspendedGw" targetRef="reactivate">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'reactivate'}]]></conditionExpression>
     </sequenceFlow>
@@ -260,6 +260,7 @@ try {
     <sequenceFlow id="sid-1D0DA593-85D7-412B-8DA3-79DC0CE00E1D" sourceRef="updateWhilePendingUpdateApproval" targetRef="updateApproval"/>
     <sequenceFlow id="sid-12E29B94-C369-45C1-BCEF-C165AFDA525A" sourceRef="sid-4C9C9117-26DB-4326-A12B-EEDA42EADF07" targetRef="UpdateApprovalEvaluation"/>
     <sequenceFlow id="sid-53FA7F29-CE60-4AE6-921D-AF7331CDB19F" sourceRef="UpdateApprovalEvaluation" targetRef="updateApprovalGW"/>
+    <sequenceFlow id="sid-26ACDEC4-8BE2-4E70-BB63-36B6375B7EEC" sourceRef="suspendedGw" targetRef="suspended"/>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_userWorkflow">
     <bpmndi:BPMNPlane bpmnElement="userWorkflow" id="BPMNPlane_userWorkflow">
@@ -380,6 +381,11 @@ try {
       <bpmndi:BPMNShape bpmnElement="sid-4C9C9117-26DB-4326-A12B-EEDA42EADF07" id="BPMNShape_sid-4C9C9117-26DB-4326-A12B-EEDA42EADF07">
         <omgdc:Bounds height="40.0" width="40.0" x="1635.0" y="875.0"/>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="enableGW2GenerateToken" id="BPMNEdge_enableGW2GenerateToken">
+        <omgdi:waypoint x="729.9433544302707" y="449.0"/>
+        <omgdi:waypoint x="860.0" y="449.0"/>
+        <omgdi:waypoint x="860.0" y="272.95"/>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="active2Update" id="BPMNEdge_active2Update">
         <omgdi:waypoint x="1539.9223684210267" y="540.0"/>
         <omgdi:waypoint x="1556.0" y="540.0"/>
@@ -418,11 +424,6 @@ try {
         <omgdi:waypoint x="1552.0" y="680.0"/>
         <omgdi:waypoint x="2174.0" y="680.0"/>
         <omgdi:waypoint x="2260.1369863013697" y="417.95"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="enableGW2GenerateToken" id="BPMNEdge_enableGW2GenerateToken">
-        <omgdi:waypoint x="729.9433544302707" y="449.0"/>
-        <omgdi:waypoint x="860.0" y="449.0"/>
-        <omgdi:waypoint x="860.0" y="272.95"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
         <omgdi:waypoint x="348.3475822648328" y="281.94584310464063"/>
@@ -464,8 +465,8 @@ try {
         <omgdi:waypoint x="1185.025167785235" y="511.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-66CDB1C4-7C2F-4BAE-9834-84CF0CF52BF3" id="BPMNEdge_sid-66CDB1C4-7C2F-4BAE-9834-84CF0CF52BF3">
-        <omgdi:waypoint x="1635.4333333333334" y="895.4333333333334"/>
-        <omgdi:waypoint x="1554.9499999999264" y="895.1659468438539"/>
+        <omgdi:waypoint x="1635.0" y="895.0"/>
+        <omgdi:waypoint x="1554.95" y="895.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
         <omgdi:waypoint x="1229.9499999999914" y="540.8529411764707"/>
@@ -484,12 +485,6 @@ try {
         <omgdi:waypoint x="1334.0" y="971.0"/>
         <omgdi:waypoint x="1180.0" y="844.0"/>
         <omgdi:waypoint x="1180.0" y="570.95"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="enableGW2Active" id="BPMNEdge_enableGW2Active">
-        <omgdi:waypoint x="729.9433984115534" y="449.0"/>
-        <omgdi:waypoint x="861.0" y="449.0"/>
-        <omgdi:waypoint x="861.0" y="541.0"/>
-        <omgdi:waypoint x="1130.0" y="541.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="active2UpdateApproval" id="BPMNEdge_active2UpdateApproval">
         <omgdi:waypoint x="1539.9207478005092" y="540.0"/>
@@ -537,10 +532,21 @@ try {
         <omgdi:waypoint x="367.0" y="683.0"/>
         <omgdi:waypoint x="436.7741935483871" y="619.9499999999999"/>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="enableGW2Active" id="BPMNEdge_enableGW2Active">
+        <omgdi:waypoint x="729.9433984115534" y="449.0"/>
+        <omgdi:waypoint x="861.0" y="449.0"/>
+        <omgdi:waypoint x="861.0" y="541.0"/>
+        <omgdi:waypoint x="1130.0" y="541.0"/>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow14ter" id="BPMNEdge_flow14ter">
         <omgdi:waypoint x="1889.9999999999998" y="260.7451923076923"/>
         <omgdi:waypoint x="1524.0" y="193.0"/>
         <omgdi:waypoint x="1209.6057471264367" y="511.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-26ACDEC4-8BE2-4E70-BB63-36B6375B7EEC" id="BPMNEdge_sid-26ACDEC4-8BE2-4E70-BB63-36B6375B7EEC">
+        <omgdi:waypoint x="1940.0" y="180.0"/>
+        <omgdi:waypoint x="1940.0" y="135.0"/>
+        <omgdi:waypoint x="1839.95" y="135.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="suspended2Delete" id="BPMNEdge_suspended2Delete">
         <omgdi:waypoint x="1959.9469781884277" y="200.0"/>
@@ -585,8 +591,8 @@ try {
         <omgdi:waypoint x="1229.9499999999998" y="551.1921585160202"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-A2BDF803-688C-4A4D-9D33-6D859C029245" id="BPMNEdge_sid-A2BDF803-688C-4A4D-9D33-6D859C029245">
-        <omgdi:waypoint x="1655.1193227091633" y="799.9499999999999"/>
-        <omgdi:waypoint x="1655.42" y="875.42"/>
+        <omgdi:waypoint x="1655.0" y="799.9499999999999"/>
+        <omgdi:waypoint x="1655.0" y="875.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
         <omgdi:waypoint x="759.9499999998994" y="689.0"/>
@@ -626,17 +632,23 @@ try {
         <omgdi:waypoint x="412.0" y="680.0"/>
         <omgdi:waypoint x="412.375" y="770.0"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="enableGW2Suspended" id="BPMNEdge_enableGW2Suspended">
-        <omgdi:waypoint x="729.9339371980061" y="449.0"/>
-        <omgdi:waypoint x="772.0" y="449.0"/>
-        <omgdi:waypoint x="772.0" y="130.0"/>
-        <omgdi:waypoint x="1590.0" y="130.0"/>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow14bis" id="BPMNEdge_flow14bis">
         <omgdi:waypoint x="1689.949999999984" y="310.0"/>
         <omgdi:waypoint x="1702.0" y="310.0"/>
         <omgdi:waypoint x="1702.0" y="320.0"/>
         <omgdi:waypoint x="1770.0" y="320.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="created2Activate" id="BPMNEdge_created2Activate">
+        <omgdi:waypoint x="1141.9407724328892" y="243.0"/>
+        <omgdi:waypoint x="1180.0" y="243.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-12E29B94-C369-45C1-BCEF-C165AFDA525A" id="BPMNEdge_sid-12E29B94-C369-45C1-BCEF-C165AFDA525A">
+        <omgdi:waypoint x="1674.9426165798702" y="895.0"/>
+        <omgdi:waypoint x="1739.9999999997615" y="895.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-E58BBC2D-8831-4CF2-A798-14B258FE569B" id="BPMNEdge_sid-E58BBC2D-8831-4CF2-A798-14B258FE569B">
+        <omgdi:waypoint x="1770.0" y="770.0"/>
+        <omgdi:waypoint x="1704.95" y="770.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="enableGW2Activate" id="BPMNEdge_enableGW2Activate">
         <omgdi:waypoint x="729.9339371980061" y="449.0"/>
@@ -644,17 +656,11 @@ try {
         <omgdi:waypoint x="772.0" y="640.0"/>
         <omgdi:waypoint x="810.0" y="640.0"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="created2Activate" id="BPMNEdge_created2Activate">
-        <omgdi:waypoint x="1141.9407724328892" y="243.0"/>
-        <omgdi:waypoint x="1180.0" y="243.0"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-12E29B94-C369-45C1-BCEF-C165AFDA525A" id="BPMNEdge_sid-12E29B94-C369-45C1-BCEF-C165AFDA525A">
-        <omgdi:waypoint x="1674.5135906040268" y="895.429104477612"/>
-        <omgdi:waypoint x="1740.0" y="895.185687732342"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="sid-E58BBC2D-8831-4CF2-A798-14B258FE569B" id="BPMNEdge_sid-E58BBC2D-8831-4CF2-A798-14B258FE569B">
-        <omgdi:waypoint x="1770.0" y="770.0"/>
-        <omgdi:waypoint x="1704.95" y="770.0"/>
+      <bpmndi:BPMNEdge bpmnElement="enableGW2Suspended" id="BPMNEdge_enableGW2Suspended">
+        <omgdi:waypoint x="729.9339371980061" y="449.0"/>
+        <omgdi:waypoint x="772.0" y="449.0"/>
+        <omgdi:waypoint x="772.0" y="130.0"/>
+        <omgdi:waypoint x="1590.0" y="130.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="create2Activate" id="BPMNEdge_create2Activate">
         <omgdi:waypoint x="369.91892523364487" y="527.0"/>
@@ -674,9 +680,9 @@ try {
         <omgdi:waypoint x="1739.9999999999768" y="150.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
-        <omgdi:waypoint x="1839.9499999999837" y="150.0"/>
-        <omgdi:waypoint x="1852.0" y="150.0"/>
-        <omgdi:waypoint x="1852.0" y="200.0"/>
+        <omgdi:waypoint x="1839.95" y="165.0"/>
+        <omgdi:waypoint x="1879.0" y="165.0"/>
+        <omgdi:waypoint x="1879.0" y="200.0"/>
         <omgdi:waypoint x="1920.0" y="200.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow99" id="BPMNEdge_flow99">

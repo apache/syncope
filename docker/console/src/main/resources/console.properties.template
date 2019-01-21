@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-console.directory=/etc/apache-syncope
+console.directory=${conf.directory}
 
 site=http://syncope.apache.org
 
@@ -38,7 +38,6 @@ reconciliationReportKey=c3520ad9-179f-49e7-b315-d684d216dd97
 page.dashboard=org.apache.syncope.client.console.pages.Dashboard
 page.realms=org.apache.syncope.client.console.pages.Realms
 page.reports=org.apache.syncope.client.console.pages.Reports
-page.workflow=org.apache.syncope.client.console.pages.Workflow
 page.audit=org.apache.syncope.client.console.pages.Audit
 page.implementations=org.apache.syncope.client.console.pages.Implementations
 page.logs=org.apache.syncope.client.console.pages.Logs
@@ -47,3 +46,7 @@ page.types=org.apache.syncope.client.console.pages.Types
 page.policies=org.apache.syncope.client.console.pages.Policies
 page.notifications=org.apache.syncope.client.console.pages.Notifications
 page.parameters=org.apache.syncope.client.console.pages.Parameters
+
+executor.corePoolSize=10
+executor.maxPoolSize=20
+executor.queueCapacity=50

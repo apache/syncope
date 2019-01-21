@@ -48,56 +48,30 @@ under the License.
       <groupId>org.apache.syncope.ext.flowable</groupId>
       <artifactId>syncope-ext-flowable-client-console</artifactId>
       <version>${project.version}</version>
-    </dependency>    
+    </dependency>
+
     <dependency>
       <groupId>org.apache.syncope.ext.camel</groupId>
       <artifactId>syncope-ext-camel-client-console</artifactId>
       <version>${project.version}</version>
-    </dependency>    
+    </dependency>
+
     <dependency>
       <groupId>org.apache.syncope.ext.saml2sp</groupId>
       <artifactId>syncope-ext-saml2sp-client-console</artifactId>
       <version>${project.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.syncope.ext.oidcclient</groupId>
       <artifactId>syncope-ext-oidcclient-client-console</artifactId>
       <version>${project.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.syncope.ext.scimv2</groupId>
       <artifactId>syncope-ext-scimv2-client-console</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.lmax</groupId>
-      <artifactId>disruptor</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
     </dependency>
   </dependencies>
 
@@ -110,7 +84,14 @@ under the License.
       </resource>
       
       <resource>
-        <directory>${project.basedir}/../../client/console/src/main/resources</directory>
+        <directory>${project.basedir}/../../client/idrepo/console/src/main/resources</directory>
+        <includes>
+          <include>application.properties</include>
+        </includes>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${project.basedir}/../../client/idrepo/console/src/main/resources</directory>
         <includes>
           <include>console.properties</include>
         </includes>
@@ -138,13 +119,13 @@ under the License.
         <includes>
           <include>log4j2.xml</include>
         </includes>
-        <targetPath>${project.build.directory}/classes</targetPath>
+        <targetPath>${project.build.outputDirectory}</targetPath>
         <filtering>true</filtering>
       </resource>
       
       <resource>
         <directory>${project.build.directory}/etc</directory>
-        <targetPath>${project.build.directory}/classes</targetPath>
+        <targetPath>${project.build.outputDirectory}</targetPath>
       </resource>
       
       <resource>
@@ -247,6 +228,7 @@ under the License.
                 <data>
                   <src>${project.build.directory}/etc</src>
                   <type>directory</type>
+                  <conffile>true</conffile>
                   <mapper>
                     <type>perm</type>
                     <prefix>${conf.directory}</prefix>

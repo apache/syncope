@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.commons;
 
+import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.Action;
@@ -27,7 +28,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 
-public interface AnyDirectoryPanelAditionalActionLinksProvider {
+public interface AnyDirectoryPanelAditionalActionLinksProvider extends Serializable {
 
     List<Action<UserTO>> get(
             UserTO modelObject,

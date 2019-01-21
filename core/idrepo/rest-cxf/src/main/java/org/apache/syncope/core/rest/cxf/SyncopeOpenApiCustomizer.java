@@ -31,6 +31,7 @@ import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.servers.Server;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,7 +40,6 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
-import org.apache.cxf.jaxrs.model.doc.JavaDocProvider;
 import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -47,25 +47,51 @@ import org.apache.syncope.common.lib.to.ErrorTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.core.env.Environment;
 
-public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
+public class SyncopeOpenApiCustomizer extends OpenApiCustomizer implements EnvironmentAware {
 
-    private JavaDocProvider javadocProvider;
+    private static final Logger LOG = LoggerFactory.getLogger(WadlGenerator.class);
+
+    private Environment env;
+
+    private boolean inited = false;
 
     private List<String> domains;
 
-    public SyncopeOpenApiCustomizer() {
-        super();
+    @Override
+    public void setEnvironment(final Environment env) {
+        this.env = env;
+    }
 
-        URL[] javaDocURLs = JavaDocUtils.getJavaDocURLs();
-        if (javaDocURLs != null) {
-            this.javadocProvider = new JavaDocProvider(javaDocURLs);
-            super.setJavadocProvider(javadocProvider);
+    private void init() {
+        synchronized (this) {
+            if (!inited) {
+                URL[] javaDocURLs = JavaDocUtils.getJavaDocURLs();
+                if (javaDocURLs == null) {
+                    String[] javaDocPaths = JavaDocUtils.getJavaDocPaths(env);
+                    if (javaDocPaths != null) {
+                        try {
+                            super.setJavaDocPaths(javaDocPaths);
+                        } catch (Exception e) {
+                            LOG.error("Could not set javadoc paths from {}", Arrays.asList(javaDocPaths), e);
+                        }
+                    }
+                } else {
+                    super.setJavaDocURLs(javaDocURLs);
+                }
+
+                inited = true;
+            }
         }
     }
 
     @Override
     public OpenAPIConfiguration customize(final OpenAPIConfiguration configuration) {
+        init();
         super.customize(configuration);
 
         MessageContext ctx = JAXRSUtils.createContextValue(

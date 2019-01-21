@@ -15,25 +15,31 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM debian:stable-slim
+FROM adoptopenjdk/openjdk8-openj9:alpine-slim
 MAINTAINER dev@syncope.apache.org
 
 RUN set -x
 
-COPY *.jar /tmp/
+RUN mkdir /opt/syncope
+RUN mkdir /opt/syncope/bin
+RUN mkdir /opt/syncope/bundles
+RUN mkdir /opt/syncope/conf
+RUN mkdir /opt/syncope/conf/domains
+RUN mkdir /opt/syncope/lib
+RUN mkdir /opt/syncope/log
 
-COPY *.deb /tmp/
+COPY *.properties* /opt/syncope/conf/
+COPY *.xml* /opt/syncope/conf/
+COPY keystore /opt/syncope/conf/
+COPY domains/* /opt/syncope/conf/domains/
 
-COPY provisioning.properties.* /etc/apache-syncope/
-COPY views.xml.* /etc/apache-syncope/
-COPY *.properties /etc/apache-syncope/
-COPY Master.properties.* /etc/apache-syncope/domains/
+COPY bundles/*.jar /opt/syncope/bundles/
+COPY lib/*.jar /opt/syncope/lib/
 
-COPY build.sh /tmp
-RUN chmod 755 /tmp/build.sh && sync && /tmp/build.sh && rm /tmp/build.sh
+COPY lib/syncope-docker-core-*war /opt/syncope/lib/syncope.war
 
-COPY startup.sh /sbin
-RUN chmod 755 /sbin/startup.sh
-CMD ["/sbin/startup.sh"]
+COPY startup.sh /opt/syncope/bin
+RUN chmod 755 /opt/syncope/bin/startup.sh
+CMD ["/opt/syncope/bin/startup.sh"]
 
 EXPOSE 8080

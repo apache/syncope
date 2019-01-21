@@ -33,68 +33,15 @@ under the License.
   <packaging>war</packaging>
 
   <dependencies>
-
-    <dependency> 
-      <groupId>javax.servlet</groupId> 
-      <artifactId>javax.servlet-api</artifactId> 
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet.jsp</groupId>
-      <artifactId>javax.servlet.jsp-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>${groupId}</groupId>
       <artifactId>syncope-common</artifactId>
       <version>${project.version}</version>
     </dependency>  
-    
+
     <dependency>
       <groupId>org.apache.syncope.client.idm</groupId>
       <artifactId>syncope-client-idm-console</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.lmax</groupId>
-      <artifactId>disruptor</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>jquery-ui</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>codemirror</artifactId>
     </dependency>    
   </dependencies>
 
@@ -163,6 +110,37 @@ under the License.
             <filtering>true</filtering>
           </resource>
         </resources>
+      </build>
+    </profile>
+    
+    <profile>
+      <id>executable</id>
+      
+      <dependencies>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
+      </dependencies>
+        
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+              <mainClass>org.apache.syncope.client.console.SyncopeConsoleApplication</mainClass>
+              <layout>ZIP</layout>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>repackage</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
       </build>
     </profile>
   </profiles>

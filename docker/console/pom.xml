@@ -31,6 +31,7 @@ under the License.
   <description>Apache Syncope Docker Console</description>
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope-docker-console</artifactId>
+  <packaging>war</packaging>
 
   <properties>
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
@@ -38,19 +39,44 @@ under the License.
   
   <dependencies>
     <dependency>
-      <groupId>org.apache.syncope</groupId>
-      <artifactId>syncope-deb-console</artifactId>
-      <version>${project.version}</version>
-      <type>war</type>
-      <scope>test</scope>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-undertow</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.syncope.fit</groupId>
-      <artifactId>syncope-fit-console-reference</artifactId>
+      <groupId>org.apache.syncope.client.idm</groupId>
+      <artifactId>syncope-client-idm-console</artifactId>
       <version>${project.version}</version>
-      <type>war</type>
-      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.ext.flowable</groupId>
+      <artifactId>syncope-ext-flowable-client-console</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.ext.camel</groupId>
+      <artifactId>syncope-ext-camel-client-console</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.ext.saml2sp</groupId>
+      <artifactId>syncope-ext-saml2sp-client-console</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.ext.oidcclient</groupId>
+      <artifactId>syncope-ext-oidcclient-client-console</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.ext.scimv2</groupId>
+      <artifactId>syncope-ext-scimv2-client-console</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 
@@ -58,20 +84,39 @@ under the License.
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <inherited>true</inherited>
+        <artifactId>maven-war-plugin</artifactId>
+        <inherited>false</inherited>
+        <configuration>
+          <webXml>${basedir}/../../fit/console-reference/src/main/webapp/WEB-INF/web.xml</webXml>
+          <webResources>
+            <resource>
+              <directory>${basedir}</directory>
+              <targetPath>META-INF</targetPath>
+              <includes>
+                <include>LICENSE</include>
+                <include>NOTICE</include>
+              </includes>
+            </resource>
+          </webResources>        
+          <outputDirectory>${project.build.outputDirectory}</outputDirectory>        
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <mainClass>org.apache.syncope.client.console.SyncopeConsoleApplication</mainClass>
+          <layout>ZIP</layout>
+        </configuration>
         <executions>
           <execution>
-            <id>setup</id>
-            <phase>process-resources</phase>
-            <configuration>
-              <target>
-                <copy file="${basedir}/../../deb/console/target/apache-syncope-console-${project.version}.deb" todir="${project.build.directory}/classes" overwrite="true" />
-              </target>
-            </configuration>
             <goals>
-              <goal>run</goal>
+              <goal>repackage</goal>
             </goals>
+            <configuration>
+              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -85,7 +130,7 @@ under the License.
             <image>
               <name>apache/syncope-console:%v</name>
               <build>
-                <dockerFileDir>${project.build.directory}/classes</dockerFileDir>
+                <dockerFileDir>${project.build.outputDirectory}</dockerFileDir>
               </build>
             </image>
           </images>
@@ -112,6 +157,14 @@ under the License.
     <resources>
       <resource>
         <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+      
+      <resource>
+        <directory>${project.basedir}/../../client/idrepo/console/src/main/resources</directory>
+        <includes>
+          <include>application.properties</include>
+        </includes>
         <filtering>true</filtering>
       </resource>
     </resources>

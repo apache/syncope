@@ -322,7 +322,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         Exception ex = (Exception) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         if (ex != null) {
             LOG.error("Update of user {} failed, trying to pull its status anyway (if configured)",
-                    nullPriorityAsync, ex);
+                    userUR.getKey(), ex);
 
             result.setStatus(ProvisioningReport.Status.FAILURE);
             result.setMessage("Update failed, trying to pull status anyway (if configured)\n" + ex.getMessage());
@@ -380,5 +380,4 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
     }
-
 }

@@ -19,8 +19,15 @@ under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://cxf.apache.org/jaxws
+                           http://cxf.apache.org/schemas/jaxws.xsd
+                           http://cxf.apache.org/jaxrs
+                           http://cxf.apache.org/schemas/jaxrs.xsd">
 
   <bean id="testDataSource"
         class="org.springframework.jdbc.datasource.DriverManagerDataSource">
@@ -42,26 +49,16 @@ under the License.
   <bean id="testconnectorserver.key" class="java.lang.String">
     <constructor-arg value="${testconnectorserver.key}"/>
   </bean>  
-  <bean id="testconnectorserver.soap.bundle" class="java.lang.String">
-    <constructor-arg value="net.tirasa.connid.bundles.soap-${connid.soap.version}.jar"/>
-  </bean>  
-  <bean id="testconnectorserver.rest.bundle" class="java.lang.String">
-    <constructor-arg value="net.tirasa.connid.bundles.rest-${connid.rest.version}.jar"/>
-  </bean>  
-  <bean id="testconnectorserver.dbtable.bundle" class="java.lang.String">
-    <constructor-arg value="net.tirasa.connid.bundles.db.table-${connid.database.version}.jar"/>
-  </bean>  
-  <bean id="testconnectorserver.scriptedsql.bundle" class="java.lang.String">
-    <constructor-arg value="net.tirasa.connid.bundles.db.scriptedsql-${connid.database.version}.jar"/>
-  </bean>  
-  <bean id="testconnectorserver.csvdir.bundle" class="java.lang.String">
-    <constructor-arg value="net.tirasa.connid.bundles.csvdir-${connid.csvdir.version}.jar"/>
-  </bean>  
-  <bean id="testconnectorserver.ad.bundle" class="java.lang.String">
-    <constructor-arg value="net.tirasa.connid.bundles.ad-${connid.ad.version}.jar"/>
-  </bean>
-  <bean id="testconnectorserver.ldap.bundle" class="java.lang.String">
-    <constructor-arg value="net.tirasa.connid.bundles.ldap-${connid.ldap.version}.jar"/>
-  </bean>
+
+  <jaxws:endpoint id="soapProvisioning" address="/soap" implementor="#provisioningImpl"/>
     
+  <bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider"/>
+  <jaxrs:server id="restProvisioning" address="/rest"
+                basePackages="org.apache.syncope.fit.buildtools.cxf" 
+                staticSubresourceResolution="true">
+    <jaxrs:providers>
+      <ref bean="jsonProvider"/>
+    </jaxrs:providers>
+  </jaxrs:server>
+
 </beans>

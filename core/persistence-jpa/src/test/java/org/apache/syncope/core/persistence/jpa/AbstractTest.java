@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@SpringJUnitConfig(locations = { "classpath:persistenceTest.xml" })
+@SpringJUnitConfig(classes = { PersistenceTestContext.class })
 public abstract class AbstractTest {
 
     @Autowired

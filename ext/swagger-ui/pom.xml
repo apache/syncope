@@ -39,6 +39,11 @@ under the License.
 
   <dependencies>
     <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-xml</artifactId>
     </dependency>
@@ -98,7 +103,7 @@ under the License.
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${project.build.directory}/classes/META-INF/resources/swagger</outputDirectory>
+              <outputDirectory>${project.build.outputDirectory}/META-INF/resources/swagger</outputDirectory>
               <resources>
                 <resource>
                   <directory>${project.build.directory}/swagger-ui/META-INF/resources/webjars/swagger-ui/${swagger-ui.version}</directory>

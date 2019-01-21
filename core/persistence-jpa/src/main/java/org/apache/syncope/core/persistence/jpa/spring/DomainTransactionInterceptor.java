@@ -18,20 +18,20 @@
  */
 package org.apache.syncope.core.persistence.jpa.spring;
 
-import java.lang.reflect.Method;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
-import org.springframework.transaction.interceptor.TransactionAttribute;
+import org.springframework.transaction.annotation.AnnotationTransactionAttributeSource;
 import org.springframework.transaction.interceptor.TransactionAttributeSource;
 import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 /**
  * Extends the standard {@link TransactionInterceptor} by dynamically setting the appropriate
- * {@link TransactionAttribute} qualifier according to the authentication domain of the caller - retrieved via
+ * {@link TransactionAttributeSource} qualifier according to the authentication domain of the caller - retrieved via
  * {@link AuthContextUtils#getDomain()}.
+ *
+ * @see DomainTransactionAnnotationParser
  */
 public class DomainTransactionInterceptor extends TransactionInterceptor {
 
@@ -41,17 +41,7 @@ public class DomainTransactionInterceptor extends TransactionInterceptor {
 
     @Override
     public TransactionAttributeSource getTransactionAttributeSource() {
-        final TransactionAttributeSource origTxAttrSource = super.getTransactionAttributeSource();
-
-        return (final Method method, final Class<?> targetClass) -> {
-            TransactionAttribute txAttr = origTxAttrSource.getTransactionAttribute(method, targetClass);
-
-            if (txAttr instanceof DefaultTransactionAttribute) {
-                ((DefaultTransactionAttribute) txAttr).setQualifier(AuthContextUtils.getDomain());
-            }
-
-            return txAttr;
-        };
+        return new AnnotationTransactionAttributeSource(new DomainTransactionAnnotationParser());
     }
 
     @Override

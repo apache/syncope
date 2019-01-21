@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.ITabComponent;
@@ -163,7 +163,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
             @Override
             public boolean isVisible() {
-                return SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
+                return SyncopeWebApplication.get().getSecuritySettings().getAuthorizationStrategy().
                         isActionAuthorized(this, RENDER);
             }
         });
@@ -184,7 +184,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
                 @Override
                 public boolean isVisible() {
-                    return SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
+                    return SyncopeWebApplication.get().getSecuritySettings().getAuthorizationStrategy().
                             isActionAuthorized(this, RENDER);
                 }
             });

@@ -39,9 +39,8 @@ import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.logic.MemoryAppender;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
-import org.apache.syncope.core.persistence.api.SyncopeLoader;
+import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,10 +49,7 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LoggerLoader implements SyncopeLoader {
-
-    @Autowired
-    private DomainsHolder domainsHolder;
+public class LoggerLoader implements SyncopeCoreLoader {
 
     @Autowired
     private LoggerAccessor loggerAccessor;
@@ -64,21 +60,11 @@ public class LoggerLoader implements SyncopeLoader {
     private final Map<String, MemoryAppender> memoryAppenders = new HashMap<>();
 
     @Override
-    public Integer getPriority() {
+    public int getOrder() {
         return 300;
     }
 
-    @Override
-    public void load() {
-        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-
-        ctx.getConfiguration().getAppenders().entrySet().stream().
-                filter(entry -> (entry.getValue() instanceof MemoryAppender)).
-                forEach(entry -> {
-                    memoryAppenders.put(entry.getKey(), (MemoryAppender) entry.getValue());
-                });
-
-        // Audit table and DataSource for each configured domain
+    private ColumnConfig[] buildColumnConfigs(final LoggerContext ctx) {
         ColumnConfig[] columnConfigs = {
             ColumnConfig.newBuilder().
             setConfiguration(ctx.getConfiguration()).setName("EVENT_DATE").setEventTimestamp(true).build(),
@@ -91,33 +77,44 @@ public class LoggerLoader implements SyncopeLoader {
             ColumnConfig.newBuilder().setUnicode(false).
             setConfiguration(ctx.getConfiguration()).setName("THROWABLE").setPattern("%ex{full}").build()
         };
-        ColumnMapping[] columnMappings = new ColumnMapping[0];
 
-        for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
-            Appender appender = ctx.getConfiguration().getAppender("audit_for_" + entry.getKey());
-            if (appender == null) {
-                appender = JdbcAppender.newBuilder().
-                        withName("audit_for_" + entry.getKey()).
-                        withIgnoreExceptions(false).
-                        setConnectionSource(new DataSourceConnectionSource(entry.getKey(), entry.getValue())).
-                        setBufferSize(0).
-                        setTableName("SYNCOPEAUDIT").
-                        setColumnConfigs(columnConfigs).
-                        setColumnMappings(columnMappings).
-                        build();
-                appender.start();
-                ctx.getConfiguration().addAppender(appender);
-            }
+        return columnConfigs;
+    }
 
-            LoggerConfig logConf = new LoggerConfig(AuditLoggerName.getAuditLoggerName(entry.getKey()), null, false);
+    @Override
+    public void load(final String domain, final DataSource datasource) {
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+
+        ctx.getConfiguration().getAppenders().entrySet().stream().
+                filter(entry -> (entry.getValue() instanceof MemoryAppender)).
+                forEach(entry -> {
+                    memoryAppenders.put(entry.getKey(), (MemoryAppender) entry.getValue());
+                });
+
+        // Audit table and DataSource for the given domain
+        Appender appender = ctx.getConfiguration().getAppender("audit_for_" + domain);
+        if (appender == null) {
+            appender = JdbcAppender.newBuilder().
+                    withName("audit_for_" + domain).
+                    withIgnoreExceptions(false).
+                    setConnectionSource(new DataSourceConnectionSource(domain, datasource)).
+                    setBufferSize(0).
+                    setTableName("SYNCOPEAUDIT").
+                    setColumnConfigs(buildColumnConfigs(ctx)).
+                    setColumnMappings(new ColumnMapping[0]).
+                    build();
+            appender.start();
+            ctx.getConfiguration().addAppender(appender);
+
+            LoggerConfig logConf = new LoggerConfig(AuditLoggerName.getAuditLoggerName(domain), null, false);
             logConf.addAppender(appender, Level.DEBUG, null);
             logConf.setLevel(Level.DEBUG);
             ctx.getConfiguration().addLogger(logConf.getName(), logConf);
 
             // SYNCOPE-1144 For each custom audit appender class add related appenders to log4j logger
-            auditAppenders(entry.getKey()).forEach(auditAppender -> {
+            auditAppenders(domain).forEach(auditAppender -> {
                 auditAppender.getEvents().stream().
-                        map(event -> AuditLoggerName.getAuditEventLoggerName(entry.getKey(), event.toLoggerName())).
+                        map(event -> AuditLoggerName.getAuditEventLoggerName(domain, event.toLoggerName())).
                         forEachOrdered(domainAuditLoggerName -> {
                             LoggerConfig eventLogConf = ctx.getConfiguration().getLoggerConfig(domainAuditLoggerName);
                             boolean isRootLogConf = LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName());
@@ -132,7 +129,7 @@ public class LoggerLoader implements SyncopeLoader {
                         });
             });
 
-            AuthContextUtils.execWithAuthContext(entry.getKey(), () -> {
+            AuthContextUtils.execWithAuthContext(domain, () -> {
                 loggerAccessor.synchronizeLog4J(ctx);
                 return null;
             });

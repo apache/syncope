@@ -31,8 +31,11 @@ public class DomainTransactionInterceptorInjector implements BeanFactoryPostProc
 
     @Override
     public void postProcessBeanFactory(final ConfigurableListableBeanFactory beanFactory) throws BeansException {
-        BeanDefinition bd = beanFactory.getBeanDefinition(TransactionInterceptor.class.getName() + "#0");
-        bd.setBeanClassName(DomainTransactionInterceptor.class.getName());
+        for (String name : beanFactory.getBeanNamesForType(TransactionInterceptor.class)) {
+            BeanDefinition bd = beanFactory.getBeanDefinition(name);
+            bd.setBeanClassName(DomainTransactionInterceptor.class.getName());
+            bd.setFactoryBeanName(null);
+            bd.setFactoryMethodName(null);
+        }
     }
-
 }

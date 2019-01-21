@@ -26,7 +26,7 @@ The base URL for invoking such services is normally set as
 protocol://host:port/syncope/rest/
 ....
 
-where `protocol`, `host` and `port` reflect your Java EE container installation.
+where `protocol`, `host` and `port` reflect your deployment.
 
 [NOTE]
 .REST Reference
@@ -38,7 +38,7 @@ http://syncope.apache.org/rest/2.1/index.html[published^] as well as made availa
 protocol://host:port/syncope/
 ....
 
-where `protocol`, `host` and `port` reflect your Java EE container installation.
+where `protocol`, `host` and `port` reflect your deployment.
 ====
 
 [TIP]

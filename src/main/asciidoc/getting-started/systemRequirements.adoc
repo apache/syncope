@@ -39,7 +39,7 @@ Apache Syncope {docVersion} is verified with the following Java EE containers:
  . http://tomcat.apache.org/download-90.cgi[Apache Tomcat 9^]
  . https://javaee.github.io/glassfish/[Glassfish 5^]
  . http://www.payara.fish/[Payara Server 5^]
- . http://www.wildfly.org/[Wildfly 14^]
+ . http://www.wildfly.org/[Wildfly 15^]
 
 === Internal Storage
 

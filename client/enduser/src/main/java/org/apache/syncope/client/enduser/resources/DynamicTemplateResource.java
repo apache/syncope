@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
@@ -60,7 +60,7 @@ public class DynamicTemplateResource extends BaseResource {
 
                 @Override
                 public void writeData(final IResource.Attributes attributes) throws IOException {
-                    CustomTemplateInfo customTemplate = SyncopeEnduserApplication.get().getCustomTemplate();
+                    CustomTemplateInfo customTemplate = SyncopeWebApplication.get().getCustomTemplate();
                     attributes.getResponse().write(MAPPER.writeValueAsString(customTemplate));
                 }
             });

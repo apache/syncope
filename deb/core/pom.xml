@@ -39,18 +39,19 @@ under the License.
   
   <dependencies>
     <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-starter</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.syncope.core.idm</groupId>
       <artifactId>syncope-core-idm-rest-cxf</artifactId>
       <version>${project.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-workflow-java</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-persistence-jpa</artifactId>
+      <artifactId>syncope-core-persistence-jpa-json</artifactId>
       <version>${project.version}</version>
     </dependency>
     
@@ -114,36 +115,6 @@ under the License.
       <artifactId>syncope-ext-swagger-ui</artifactId>
       <version>${project.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.lmax</groupId>
-      <artifactId>disruptor</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-    </dependency>
   </dependencies>
 
   <build>
@@ -155,8 +126,18 @@ under the License.
       </resource>
       
       <resource>
-        <directory>${basedir}/../../core/persistence-jpa/src/main/resources/domains</directory>
-        <targetPath>${project.build.directory}/etc/domains</targetPath>
+        <directory>${basedir}/../../core/starter/src/main/resources</directory>
+        <includes>
+          <include>application.properties</include>
+        </includes>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/../../core/spring/src/main/resources</directory>
+        <includes>
+          <include>security.properties</include>
+        </includes>
+        <targetPath>${project.build.directory}/etc</targetPath>
         <filtering>true</filtering>
       </resource>
       <resource>
@@ -189,34 +170,9 @@ under the License.
         <filtering>true</filtering>
       </resource>
       <resource>
-        <directory>${basedir}/../../core/spring/src/main/resources</directory>
-        <includes>
-          <include>security.properties</include>
-        </includes>
-        <targetPath>${project.build.directory}/etc</targetPath>
-        <filtering>true</filtering>
-      </resource>
-      <resource>
-        <directory>${basedir}/../../core/logic/src/main/resources</directory>
+        <directory>${basedir}/../../core/idrepo/logic/src/main/resources</directory>
         <includes>
           <include>logic.properties</include>
-        </includes>
-        <targetPath>${project.build.directory}/etc</targetPath>
-        <filtering>true</filtering>
-      </resource>
-      <resource>
-        <directory>${basedir}/../../fit/core-reference/src/main/resources</directory>
-        <includes>
-          <include>coreContext.xml</include>
-          <include>log4j2.xml</include>
-        </includes>
-        <targetPath>${project.build.directory}/etc</targetPath>
-        <filtering>true</filtering>
-      </resource>
-      <resource>
-        <directory>${basedir}/../../fit/core-reference/src/main/resources/postgres</directory>
-        <includes>
-          <include>views.xml</include>
         </includes>
         <targetPath>${project.build.directory}/etc</targetPath>
         <filtering>true</filtering>
@@ -237,10 +193,33 @@ under the License.
         <targetPath>${project.build.directory}/etc</targetPath>
         <filtering>false</filtering>
       </resource>
+      <resource>
+        <directory>${basedir}/../../fit/core-reference/src/main/resources</directory>
+        <includes>
+          <include>log4j2.xml</include>
+        </includes>
+        <targetPath>${project.build.directory}/etc</targetPath>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/../../core/persistence-jpa-json/src/main/resources/pgjsonb</directory>
+        <includes>
+          <include>persistence.properties</include>
+          <include>indexes.xml</include>
+          <include>views.xml</include>        
+        </includes>
+        <targetPath>${project.build.directory}/etc</targetPath>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/../../core/persistence-jpa-json/src/main/resources/pgjsonb/domains</directory>
+        <targetPath>${project.build.directory}/etc/domains</targetPath>
+        <filtering>true</filtering>
+      </resource>
 
       <resource>
         <directory>${project.build.directory}/etc</directory>
-        <targetPath>${project.build.directory}/classes</targetPath>
+        <targetPath>${project.build.outputDirectory}</targetPath>
       </resource>
       
       <resource>
@@ -361,6 +340,7 @@ under the License.
                 <data>
                   <src>${project.build.directory}/etc</src>
                   <type>directory</type>
+                  <conffile>true</conffile>
                   <mapper>
                     <type>perm</type>
                     <prefix>${conf.directory}</prefix>

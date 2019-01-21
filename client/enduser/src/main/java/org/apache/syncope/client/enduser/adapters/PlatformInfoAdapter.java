@@ -19,7 +19,7 @@
 package org.apache.syncope.client.enduser.adapters;
 
 import java.util.Map;
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.client.enduser.model.PlatformInfoRequest;
 import org.apache.syncope.common.lib.info.PlatformInfo;
@@ -33,9 +33,9 @@ public final class PlatformInfoAdapter {
         request.setSelfRegAllowed(platformInfo.isSelfRegAllowed());
         request.setPwdResetRequiringSecurityQuestions(platformInfo.isPwdResetRequiringSecurityQuestions());
         request.setVersion(platformInfo.getVersion());
-        request.setCaptchaEnabled(SyncopeEnduserApplication.get().isCaptchaEnabled());
-        if (SyncopeEnduserApplication.get().getMaxUploadFileSizeMB() != null) {
-            request.setMaxUploadFileSizeMB(SyncopeEnduserApplication.get().getMaxUploadFileSizeMB());
+        request.setCaptchaEnabled(SyncopeWebApplication.get().isCaptchaEnabled());
+        if (SyncopeWebApplication.get().getMaxUploadFileSizeMB() != null) {
+            request.setMaxUploadFileSizeMB(SyncopeWebApplication.get().getMaxUploadFileSizeMB());
         }
         request.setCustomFormAttributes(customFormAttributes);
 

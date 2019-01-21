@@ -1,5 +1,0 @@
-/etc/tomcat8/Catalina/localhost/syncope-console.xml
-/etc/apache-syncope/console.properties
-/etc/apache-syncope/saml2sp-agent.properties
-/etc/apache-syncope/oidcclient-agent.properties
-

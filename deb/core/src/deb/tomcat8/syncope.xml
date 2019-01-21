@@ -32,7 +32,7 @@ under the License.
               maxWait="-1"/>
   -->
 
-  <!--  https://cwiki.apache.org/confluence/display/SYNCOPE/Run+Syncope+in+real+environments
+  <!--  http://syncope.apache.org/docs/reference-guide.html#apache-tomcat-9
 
    <Resource name="jdbc/syncopeMasterDataSource" auth="Container" type="javax.sql.DataSource"
       factory="org.apache.tomcat.jdbc.pool.DataSourceFactory" testWhileIdle="true"

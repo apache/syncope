@@ -89,7 +89,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
     private Set<Class<?>> auditAppenderClasses;
 
     @Override
-    public Integer getPriority() {
+    public int getOrder() {
         return Integer.MIN_VALUE;
     }
 
@@ -102,8 +102,8 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         return DEFAULT_BASE_PACKAGE;
     }
 
-    @Override
     @SuppressWarnings("unchecked")
+    @Override
     public void load() {
         classNames = new EnumMap<>(ImplementationType.class);
         for (ImplementationType type : ImplementationType.values()) {

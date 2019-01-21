@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.sql.DataSource;
 import net.tirasa.connid.bundles.soap.exceptions.ProvisioningException;
@@ -41,7 +42,6 @@ import net.tirasa.connid.bundles.soap.utilities.Operand;
 import org.identityconnectors.common.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Service;
 
@@ -53,7 +53,7 @@ public class ProvisioningImpl implements Provisioning {
 
     private static final Logger LOG = LoggerFactory.getLogger(Provisioning.class);
 
-    @Autowired
+    @Resource(name = "testDataSource")
     private DataSource dataSource;
 
     @Override

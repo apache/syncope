@@ -33,19 +33,6 @@ under the License.
   <packaging>war</packaging>
 
   <dependencies>
-    <dependency> 
-      <groupId>javax.servlet</groupId> 
-      <artifactId>javax.servlet-api</artifactId> 
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet.jsp</groupId>
-      <artifactId>javax.servlet.jsp-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-    </dependency>
-    
     <dependency>
       <groupId>${groupId}</groupId>
       <artifactId>syncope-common</artifactId>
@@ -53,59 +40,12 @@ under the License.
     </dependency>
     
     <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-starter</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.syncope.core.idm</groupId>
       <artifactId>syncope-core-idm-rest-cxf</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-workflow-java</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-persistence-jpa</artifactId>
-    </dependency>
-  
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.lmax</groupId>
-      <artifactId>disruptor</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>jquery</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>jquery-ui</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>highlightjs</artifactId>
     </dependency>
   </dependencies>
 
@@ -160,7 +100,7 @@ under the License.
       
       <dependencies>
         <dependency>
-	  <groupId>org.apache.syncope.ext.flowable</groupId>
+          <groupId>org.apache.syncope.ext.flowable</groupId>
           <artifactId>syncope-ext-flowable-rest-cxf</artifactId>
           <version>${syncope.version}</version>
         </dependency>
@@ -236,6 +176,46 @@ under the License.
             <filtering>true</filtering>
           </resource>
         </resources>
+      </build>
+    </profile>
+    
+    <profile>
+      <!--
+      This profile builds an executable war file.
+      In order for the app to run, it is necessary to include the conf directory and the JDBC driver in the runtime
+      classpath; according to official docs [1] this can be achieved by setting the LOADER_PATH env variable as follows:
+      
+      export LOADER_PATH=/path/to/conf/dir,/path/to/jdbc-driver.jar
+      
+      [1] https://docs.spring.io/spring-boot/docs/current/reference/html/executable-jar.html
+      -->
+      <id>executable</id>
+      
+      <dependencies>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
+      </dependencies>
+        
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+              <mainClass>org.apache.syncope.core.starter.SyncopeCoreApplication</mainClass>
+              <layout>ZIP</layout>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>repackage</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
       </build>
     </profile>
   </profiles>

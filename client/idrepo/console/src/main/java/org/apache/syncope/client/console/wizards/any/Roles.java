@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
@@ -73,7 +73,7 @@ public class Roles extends WizardStep implements ICondition {
 
         this.setOutputMarkupId(true);
 
-        allRoles = SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
+        allRoles = SyncopeWebApplication.get().getSecuritySettings().getAuthorizationStrategy().
                 isActionAuthorized(this, RENDER)
                 ? new RoleRestClient().list().stream().map(EntityTO::getKey).collect(Collectors.toList())
                 : Collections.<String>emptyList();
@@ -91,7 +91,7 @@ public class Roles extends WizardStep implements ICondition {
     @Override
     public final boolean evaluate() {
         return CollectionUtils.isNotEmpty(allRoles)
-                && SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
+                && SyncopeWebApplication.get().getSecuritySettings().getAuthorizationStrategy().
                         isActionAuthorized(this, RENDER);
     }
 }

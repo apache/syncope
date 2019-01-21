@@ -30,6 +30,8 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 public class IdMStatusProvider implements StatusProvider {
 
+    private static final long serialVersionUID = 1875374599950896631L;
+
     @Override
     public List<Triple<ConnObjectTO, ConnObjectWrapper, String>> get(
             final AnyTO any, final Collection<String> resources) {

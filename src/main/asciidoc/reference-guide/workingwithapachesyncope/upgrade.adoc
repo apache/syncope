@@ -16,17 +16,17 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-=== Upgrade from Apache Syncope 2.0
+=== Upgrade from Apache Syncope 2.1
 
-Upgrading an existing Apache Syncope 2.0 deployment involves at least the following steps:
+Upgrading an existing Apache Syncope 2.1 deployment involves at least the following steps:
 
 . upgrade Core, Console and Enduser according to the latest
-https://cwiki.apache.org/confluence/display/SYNCOPE/Fusion[release notes^] available
+https://cwiki.apache.org/confluence/display/SYNCOPE/Maggiore[release notes^] available
 
-. full backup of existing DBMS used as <<persistence,internal storage>> for Apache Syncope 2.0 Core
+. full backup of existing DBMS used as <<persistence,internal storage>> for Apache Syncope 2.1 Core
 
 . https://syncope.apache.org/downloads[download^] and run the upgrade tool, which will generate the full set of SQL
-statements required to upgrade the internal storage to 2.1
+statements required to upgrade the internal storage to 3.0
  .. once uncompressed, you will find a `lib` directory and two scripts: `syncopeupgrade.sh` and `syncopeupgrade.bat`,
 which will be used depending on the operating system
  .. copy the JDBC driver JAR file compatible with the internal storage into the `lib` directory
@@ -43,11 +43,11 @@ assuming that:
 `syncope` fully accessible by user `syncope` with password `syncope`
  * SQL statements are generated onto the `upgrade.sql` file
 
-. shutdown the Java EE container running Apache Syncope 2.0 Core
+. shutdown the Apache Syncope 2.1 Core deployment
 
 . execute the SQL statements as generated above against the internal storage: in case of errors, apply manual
 corrections until everything runs clear; consider to restore from the backup taken above if needed, before executing
 the updated SQL statements again
 
-. after deploying Apache Syncope 2.1, start the Java EE container of Apache Syncope 2.1 Core and watch the log files
+. after deploying Apache Syncope 3.0, start the Apache Syncope 3.0 Core and deployment watch the log files
 to check for any error 

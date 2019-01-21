@@ -47,7 +47,6 @@ import org.apache.syncope.core.provisioning.java.job.report.GroupReportlet;
 import org.apache.syncope.core.provisioning.java.job.report.ReconciliationReportlet;
 import org.apache.syncope.core.provisioning.java.job.report.StaticReportlet;
 import org.apache.syncope.core.provisioning.java.job.report.UserReportlet;
-import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -235,26 +234,21 @@ public class ITImplementationLookup implements ImplementationLookup {
     private AnySearchDAO anySearchDAO;
 
     @Autowired
-    private DomainsHolder domainsHolder;
-
-    @Autowired
     private ElasticsearchInit elasticsearchInit;
 
     @Override
-    public Integer getPriority() {
+    public int getOrder() {
         return Integer.MAX_VALUE;
     }
 
     @Override
-    public void load() {
+    public void load(final String domain, final DataSource datasource) {
         // in case the Elasticsearch extension is enabled, reinit a clean index for all available domains
         if (AopUtils.getTargetClass(anySearchDAO).getName().contains("Elasticsearch")) {
-            for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
-                AuthContextUtils.execWithAuthContext(entry.getKey(), () -> {
-                    elasticsearchInit.init();
-                    return null;
-                });
-            }
+            AuthContextUtils.execWithAuthContext(domain, () -> {
+                elasticsearchInit.init();
+                return null;
+            });
         }
     }
 

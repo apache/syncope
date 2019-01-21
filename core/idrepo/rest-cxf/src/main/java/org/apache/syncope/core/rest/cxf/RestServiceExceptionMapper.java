@@ -60,7 +60,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.orm.jpa.JpaSystemException;
+import org.springframework.dao.UncategorizedDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.TransactionSystemException;
 
@@ -111,7 +111,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
 
             builder = builder(ClientExceptionType.EntityExists,
                     getPersistenceErrorMessage(ex instanceof PersistenceException ? ex.getCause() : ex));
-        } else if (ex instanceof DataIntegrityViolationException || ex instanceof JpaSystemException) {
+        } else if (ex instanceof DataIntegrityViolationException || ex instanceof UncategorizedDataAccessException) {
             builder = builder(ClientExceptionType.DataIntegrityViolation, getPersistenceErrorMessage(ex));
         } else if (ex instanceof ConnectorException) {
             builder = builder(ClientExceptionType.ConnectorException, ExceptionUtils.getRootCauseMessage(ex));
@@ -259,7 +259,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
             return builder(ClientExceptionType.GenericPersistence, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ibatisPersistenceException != null && ibatisPersistenceException.isAssignableFrom(ex.getClass())) {
             return builder(ClientExceptionType.Workflow, "Currently unavailable. Please try later.");
-        } else if (ex instanceof JpaSystemException) {
+        } else if (ex instanceof UncategorizedDataAccessException) {
             return builder(ClientExceptionType.DataIntegrityViolation, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof ConfigurationException) {
             return builder(ClientExceptionType.InvalidConnIdConf, ExceptionUtils.getRootCauseMessage(ex));

@@ -24,7 +24,7 @@ import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
@@ -309,7 +309,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 String.format("%s,%s", StandardEntitlement.TASK_CREATE, StandardEntitlement.TASK_EXECUTE)).
                 setRealm(realm);
 
-        SyncopeConsoleApplication.get().getAnyDirectoryPanelAditionalActionLinksProvider().get(
+        SyncopeWebApplication.get().getAnyDirectoryPanelAditionalActionLinksProvider().get(
                 model.getObject(),
                 realm,
                 altDefaultModal,

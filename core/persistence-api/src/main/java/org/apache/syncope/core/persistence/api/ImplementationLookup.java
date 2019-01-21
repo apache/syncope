@@ -31,7 +31,7 @@ import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
 
-public interface ImplementationLookup extends SyncopeLoader {
+public interface ImplementationLookup extends SyncopeCoreLoader {
 
     Set<String> getClassNames(ImplementationType type);
 

@@ -17,13 +17,13 @@
 // under the License.
 //
 === Enduser Application
-Once the Java EE container has initialized, the enduser application can be accessed at:
+Once the deployment is ready, the enduser application can be accessed at:
 
 ....
 protocol://host:port/syncope-enduser/
 ....
 
-where `protocol`, `host` and `port` reflect your Java EE container installation.
+where `protocol`, `host` and `port` reflect your deployment.
 
 The scope of the enduser application is primarily to provide a dedicated web-based entry-point for self-registration,
 self-service and <<password-reset,password reset>>.

@@ -120,7 +120,7 @@ $ cd /usr/share/tomcat8/lib/ && sudo wget http://central.maven.org/maven2/org/po
 [source,bash]
 ----
 JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server \
-  -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:+DisableExplicitGC \
+  -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC \
   -Djava.security.egd=file:/dev/./urandom"
 ----
 +
@@ -511,8 +511,8 @@ If no failures are encountered, your basic Apache Syncope project is now ready t
 
 [NOTE]
 ====
-Before actual deployment onto a standalone Java EE container, you need to further check the **Customization** chapter of
-the
+Before actual deployment as executbale or onto a Java EE container, you need to further check the **Customization**
+chapter of the
 ifeval::["{backend}" == "html5"]
 http://syncope.apache.org/docs/reference-guide.html[Apache Syncope Reference Guide.]
 endif::[]
@@ -582,7 +582,7 @@ Credentials: `admin` / `password`
 | http://localhost:9080/syncope-enduser/
 
 | Internal storage
-| A SQL web interface is available at http://localhost:9080/syncope/db.jsp +
+| A SQL web interface is available at http://localhost:9080/syncope/h2 +
  +
  Choose configuration 'Generic H2 (Embedded)' +
  Insert `jdbc:h2:mem:syncopedb` as JDBC URL +

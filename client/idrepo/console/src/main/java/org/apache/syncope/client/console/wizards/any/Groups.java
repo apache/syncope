@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
@@ -209,7 +209,7 @@ public class Groups extends WizardStep implements ICondition {
         return (anyTO instanceof GroupTO
                 ? !allDynRealms.isEmpty()
                 : !allDynRealms.isEmpty() || !groupsModel.getObject().isEmpty())
-                && SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
+                && SyncopeWebApplication.get().getSecuritySettings().getAuthorizationStrategy().
                         isActionAuthorized(this, RENDER);
     }
 

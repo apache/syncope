@@ -67,6 +67,7 @@ import org.quartz.JobDataMap;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -191,7 +192,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                     collect(Collectors.toList());
 
             return Pair.of(count, result);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | InvalidDataAccessApiUsageException e) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
             sce.getElements().add(e.getMessage());
             throw sce;

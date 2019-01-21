@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.notifications.NotificationTasks;
@@ -131,7 +131,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
         }, ActionType.CLONE, AnyEntitlement.CREATE.getFor(type)).setRealm(realm);
 
         if (wizardInModal) {
-            SyncopeConsoleApplication.get().getAnyDirectoryPanelAditionalActionLinksProvider().get(
+            SyncopeWebApplication.get().getAnyDirectoryPanelAditionalActionLinksProvider().get(
                     type,
                     model.getObject(),
                     realm,

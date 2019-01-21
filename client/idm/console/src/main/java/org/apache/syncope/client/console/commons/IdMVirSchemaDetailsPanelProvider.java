@@ -24,6 +24,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 
 public class IdMVirSchemaDetailsPanelProvider implements VirSchemaDetailsPanelProvider {
 
+    private static final long serialVersionUID = -173141337550903982L;
+
     @Override
     public Panel get(final String id, final VirSchemaTO schemaTO) {
         return new VirSchemaDetails("details", schemaTO);

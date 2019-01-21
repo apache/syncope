@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
@@ -194,7 +194,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
             @Override
             protected List<String> load() {
-                return SyncopeConsoleApplication.get().getResourceProvider().get();
+                return SyncopeWebApplication.get().getResourceProvider().get();
             }
         };
     }

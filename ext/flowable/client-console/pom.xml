@@ -34,7 +34,7 @@ under the License.
   <packaging>jar</packaging>
   
   <properties>
-    <flowable-modeler.directory>${project.build.directory}/classes/META-INF/resources/flowable-modeler</flowable-modeler.directory>
+    <flowable-modeler.directory>${project.build.outputDirectory}/META-INF/resources/flowable-modeler</flowable-modeler.directory>
     <rootpom.basedir>${basedir}/../../..</rootpom.basedir>
   </properties>
 

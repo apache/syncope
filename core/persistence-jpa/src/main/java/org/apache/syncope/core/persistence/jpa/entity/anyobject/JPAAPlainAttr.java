@@ -54,7 +54,7 @@ public class JPAAPlainAttr extends AbstractPlainAttr<AnyObject> implements APlai
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAAMembership membership;
 
-    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true, mappedBy = "attribute")
+    @OneToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, orphanRemoval = true, mappedBy = "attribute")
     @Valid
     private List<JPAAPlainAttrValue> values = new ArrayList<>();
 

@@ -25,6 +25,8 @@ import org.apache.syncope.common.lib.to.EntityTO;
 
 public class IdMExternalResourceProvider implements ExternalResourceProvider {
 
+    private static final long serialVersionUID = 6335503820405008093L;
+
     @Override
     public List<String> get() {
         return new ResourceRestClient().list().stream().map(EntityTO::getKey).collect(Collectors.toList());

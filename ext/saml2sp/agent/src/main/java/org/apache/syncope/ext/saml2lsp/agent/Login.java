@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -30,7 +29,6 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.SAML2RequestTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
 
-@WebServlet(name = "saml2spLogin", urlPatterns = { "/saml2sp/login" })
 public class Login extends AbstractSAML2SPServlet {
 
     private static final long serialVersionUID = 968480296813639041L;

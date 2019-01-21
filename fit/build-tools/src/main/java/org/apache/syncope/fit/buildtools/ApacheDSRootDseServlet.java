@@ -30,19 +30,20 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 
+@WebServlet(urlPatterns = "/apacheDS")
 public class ApacheDSRootDseServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1514567335969002735L;
 
     @Override
     protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException {
-
         try {
             resp.setContentType("text/plain");
             PrintWriter out = resp.getWriter();

@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
@@ -83,7 +83,7 @@ public class UserSelfCreateResource extends BaseUserSelfResource {
 
                 // check if request is compliant with customization form rules
                 if (Validation.isCompliant(userTO,
-                        SyncopeEnduserApplication.get().getCustomFormAttributes(), true)) {
+                        SyncopeWebApplication.get().getCustomFormAttributes(), true)) {
 
                     // 1. membership attributes management
                     Set<Attr> membAttrs = new HashSet<>();

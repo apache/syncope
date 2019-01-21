@@ -19,7 +19,6 @@
 package org.apache.syncope.core.logic.init;
 
 import java.io.StringWriter;
-import java.util.Map;
 import javax.sql.DataSource;
 import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
@@ -34,12 +33,10 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CamelEntitlement;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
-import org.apache.syncope.core.persistence.api.DomainsHolder;
-import org.apache.syncope.core.persistence.api.SyncopeLoader;
+import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -55,7 +52,7 @@ import org.w3c.dom.ls.LSParser;
 import org.w3c.dom.ls.LSSerializer;
 
 @Component
-public class CamelRouteLoader implements SyncopeLoader {
+public class CamelRouteLoader implements SyncopeCoreLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(CamelRouteLoader.class);
 
@@ -85,26 +82,21 @@ public class CamelRouteLoader implements SyncopeLoader {
     @javax.annotation.Resource(name = "anyObjectRoutes")
     private ResourceWithFallbackLoader anyObjectRoutesLoader;
 
-    @Autowired
-    private DomainsHolder domainsHolder;
-
     @Override
-    public Integer getPriority() {
+    public int getOrder() {
         return 1000;
     }
 
     @Override
     public void load() {
-        for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
-            loadRoutes(entry.getKey(), entry.getValue(),
-                    userRoutesLoader.getResource(), AnyTypeKind.USER);
-            loadRoutes(entry.getKey(), entry.getValue(),
-                    groupRoutesLoader.getResource(), AnyTypeKind.GROUP);
-            loadRoutes(entry.getKey(), entry.getValue(),
-                    anyObjectRoutesLoader.getResource(), AnyTypeKind.ANY_OBJECT);
-        }
-
         EntitlementsHolder.getInstance().init(CamelEntitlement.values());
+    }
+
+    @Override
+    public void load(final String domain, final DataSource datasource) {
+        loadRoutes(domain, datasource, userRoutesLoader.getResource(), AnyTypeKind.USER);
+        loadRoutes(domain, datasource, groupRoutesLoader.getResource(), AnyTypeKind.GROUP);
+        loadRoutes(domain, datasource, anyObjectRoutesLoader.getResource(), AnyTypeKind.ANY_OBJECT);
     }
 
     private String nodeToString(final Node content, final DOMImplementationLS domImpl) {

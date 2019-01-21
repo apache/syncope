@@ -23,6 +23,8 @@ import java.util.List;
 
 public class EmptyExternalResourceProvider implements ExternalResourceProvider {
 
+    private static final long serialVersionUID = 3002474783308961295L;
+
     @Override
     public List<String> get() {
         return Collections.emptyList();

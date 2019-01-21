@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,7 +36,6 @@ import org.apache.syncope.common.rest.api.service.OIDCClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@WebServlet(name = "codeConsumer", urlPatterns = { "/oidcclient/code-consumer" })
 public class CodeConsumer extends HttpServlet {
 
     private static final long serialVersionUID = 968480296813639041L;

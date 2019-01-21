@@ -197,6 +197,10 @@ under the License.
                     <ports>
                       <port>5432:5432</port>
                     </ports>
+                    <wait>
+                      <log>database system is ready to accept connections</log>
+                      <time>30000</time>
+                    </wait>
                   </run>
                 </image>
               </images>

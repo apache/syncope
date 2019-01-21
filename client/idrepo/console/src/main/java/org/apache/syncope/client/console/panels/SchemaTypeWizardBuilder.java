@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -115,7 +115,7 @@ public class SchemaTypeWizardBuilder extends AjaxWizardBuilder<SchemaTO> {
                     break;
 
                 case VIRTUAL:
-                    detailsPanel = SyncopeConsoleApplication.get().getVirSchemaDetailsPanelProvider().
+                    detailsPanel = SyncopeWebApplication.get().getVirSchemaDetailsPanelProvider().
                             get("details", (VirSchemaTO) modelObject);
                     break;
 
@@ -166,7 +166,7 @@ public class SchemaTypeWizardBuilder extends AjaxWizardBuilder<SchemaTO> {
                         }
                     });
                     locale.setRequired(true).hideLabel();
-                    locale.setChoices(SyncopeConsoleApplication.SUPPORTED_LOCALES.stream().
+                    locale.setChoices(SyncopeWebApplication.SUPPORTED_LOCALES.stream().
                             map(Objects::toString).collect(Collectors.toList()));
                     locale.addValidator(validatable -> {
                         try {

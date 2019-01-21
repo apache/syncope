@@ -87,6 +87,7 @@ under the License.
     <module>provisioning-java</module>
     <module>workflow-api</module>
     <module>workflow-java</module>
+    <module>starter</module>
     <module>upgrade</module>
   </modules>
 </project>

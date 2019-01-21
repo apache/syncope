@@ -22,6 +22,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,8 +48,8 @@ import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
+import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.quartz.CronScheduleBuilder;
@@ -78,7 +79,7 @@ import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 
-public class JobManagerImpl implements JobManager, SyncopeLoader {
+public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobManager.class);
 
@@ -290,13 +291,13 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
     }
 
     @Override
-    public Integer getPriority() {
-        return 200;
+    public int getOrder() {
+        return 500;
     }
 
     @Transactional
     @Override
-    public void load() {
+    public void load(final String domain, final DataSource datasource) {
         if (disableQuartzInstance) {
             String instanceId = "AUTO";
             try {
@@ -311,7 +312,7 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
             return;
         }
 
-        final Pair<String, Long> conf = AuthContextUtils.execWithAuthContext(SyncopeConstants.MASTER_DOMAIN, () -> {
+        Pair<String, Long> conf = AuthContextUtils.execWithAuthContext(SyncopeConstants.MASTER_DOMAIN, () -> {
             String notificationJobCronExpression = StringUtils.EMPTY;
 
             Optional<? extends CPlainAttr> notificationJobCronExp = confDAO.find("notificationjob.cronExpression");
@@ -326,83 +327,80 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
             return Pair.of(notificationJobCronExpression, interruptMaxRetries);
         });
 
-        for (String domain : domainsHolder.getDomains().keySet()) {
-            AuthContextUtils.execWithAuthContext(domain, () -> {
-                // 1. jobs for SchedTasks
-                Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
-                tasks.addAll(taskDAO.<PullTask>findAll(TaskType.PULL));
-                tasks.addAll(taskDAO.<PushTask>findAll(TaskType.PUSH));
+        AuthContextUtils.execWithAuthContext(domain, () -> {
+            // 1. jobs for SchedTasks
+            Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
+            tasks.addAll(taskDAO.<PullTask>findAll(TaskType.PULL));
+            tasks.addAll(taskDAO.<PushTask>findAll(TaskType.PUSH));
 
-                boolean loadException = false;
-                for (Iterator<SchedTask> it = tasks.iterator(); it.hasNext() && !loadException;) {
-                    SchedTask task = it.next();
+            boolean loadException = false;
+            for (Iterator<SchedTask> it = tasks.iterator(); it.hasNext() && !loadException;) {
+                SchedTask task = it.next();
+                try {
+                    register(task, task.getStartAt(), conf.getRight());
+                } catch (Exception e) {
+                    LOG.error("While loading job instance for task " + task.getKey(), e);
+                    loadException = true;
+                }
+            }
+
+            if (loadException) {
+                LOG.debug("Errors while loading job instances for tasks, aborting");
+            } else {
+                // 2. jobs for Reports
+                for (Iterator<Report> it = reportDAO.findAll().iterator(); it.hasNext() && !loadException;) {
+                    Report report = it.next();
                     try {
-                        register(task, task.getStartAt(), conf.getRight());
+                        register(report, null, conf.getRight());
                     } catch (Exception e) {
-                        LOG.error("While loading job instance for task " + task.getKey(), e);
+                        LOG.error("While loading job instance for report " + report.getName(), e);
                         loadException = true;
                     }
                 }
 
                 if (loadException) {
-                    LOG.debug("Errors while loading job instances for tasks, aborting");
-                } else {
-                    // 2. jobs for Reports
-                    for (Iterator<Report> it = reportDAO.findAll().iterator(); it.hasNext() && !loadException;) {
-                        Report report = it.next();
-                        try {
-                            register(report, null, conf.getRight());
-                        } catch (Exception e) {
-                            LOG.error("While loading job instance for report " + report.getName(), e);
-                            loadException = true;
-                        }
-                    }
-
-                    if (loadException) {
-                        LOG.debug("Errors while loading job instances for reports, aborting");
-                    }
+                    LOG.debug("Errors while loading job instances for reports, aborting");
                 }
-
-                return null;
-            });
-        }
-
-        Map<String, Object> jobMap = new HashMap<>();
-        jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
-
-        // 3. NotificationJob
-        if (StringUtils.isBlank(conf.getLeft())) {
-            LOG.debug("Empty value provided for {}'s cron, not registering anything on Quartz",
-                    NotificationJob.class.getSimpleName());
-        } else {
-            LOG.debug("{}'s cron expression: {} - registering Quartz job and trigger",
-                    NotificationJob.class.getSimpleName(), conf.getLeft());
-
-            try {
-                NotificationJob job = createSpringBean(NotificationJob.class);
-                registerJob(
-                        NOTIFICATION_JOB.getName(),
-                        job,
-                        conf.getLeft(),
-                        null,
-                        jobMap);
-            } catch (Exception e) {
-                LOG.error("While loading {} instance", NotificationJob.class.getSimpleName(), e);
             }
-        }
 
-        // 4. SystemLoadReporterJob (fixed schedule, every minute)
-        LOG.debug("Registering {}", SystemLoadReporterJob.class);
-        try {
-            SystemLoadReporterJob job = createSpringBean(SystemLoadReporterJob.class);
-            registerJob(
-                    StringUtils.uncapitalize(SystemLoadReporterJob.class.getSimpleName()),
-                    job,
-                    "0 * * * * ?",
-                    null,
-                    jobMap);
-        } catch (Exception e) {
-            LOG.error("While loading {} instance", SystemLoadReporterJob.class.getSimpleName(), e);
+            return null;
+        });
+
+        if (SyncopeConstants.MASTER_DOMAIN.equals(domain)) {
+            // 3. NotificationJob
+            if (StringUtils.isBlank(conf.getLeft())) {
+                LOG.debug("Empty value provided for {}'s cron, not registering anything on Quartz",
+                        NotificationJob.class.getSimpleName());
+            } else {
+                LOG.debug("{}'s cron expression: {} - registering Quartz job and trigger",
+                        NotificationJob.class.getSimpleName(), conf.getLeft());
+
+                try {
+                    NotificationJob job = createSpringBean(NotificationJob.class);
+                    registerJob(
+                            NOTIFICATION_JOB.getName(),
+                            job,
+                            conf.getLeft(),
+                            null,
+                            Collections.emptyMap());
+                } catch (Exception e) {
+                    LOG.error("While loading {} instance", NotificationJob.class.getSimpleName(), e);
+                }
+            }
+
+            // 4. SystemLoadReporterJob (fixed schedule, every minute)
+            LOG.debug("Registering {}", SystemLoadReporterJob.class);
+            try {
+                SystemLoadReporterJob job = createSpringBean(SystemLoadReporterJob.class);
+                registerJob(
+                        StringUtils.uncapitalize(SystemLoadReporterJob.class.getSimpleName()),
+                        job,
+                        "0 * * * * ?",
+                        null,
+                        Collections.emptyMap());
+            } catch (Exception e) {
+                LOG.error("While loading {} instance", SystemLoadReporterJob.class.getSimpleName(), e);
+            }
         }
     }
 }
