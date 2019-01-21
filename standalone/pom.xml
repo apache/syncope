@@ -91,8 +91,6 @@ under the License.
               <extractDir>${project.build.directory}/cargo/extract</extractDir>
             </zipUrlInstaller>
             <timeout>300000</timeout>
-            <log>${cargo.log}</log>
-            <output>${cargo.output}</output>
           </container>
         </configuration>
         <executions>
