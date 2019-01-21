@@ -78,6 +78,34 @@ under the License.
   <build>
 
     <plugins>
+      <plugin>
+        <groupId>org.codehaus.cargo</groupId>
+        <artifactId>cargo-maven2-plugin</artifactId>
+        <inherited>true</inherited>
+        <configuration>
+          <container>
+            <containerId>tomcat9x</containerId>
+            <zipUrlInstaller>
+              <url>http://central.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
+              <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
+              <extractDir>${project.build.directory}/cargo/extract</extractDir>
+            </zipUrlInstaller>
+            <timeout>300000</timeout>
+            <log>${cargo.log}</log>
+            <output>${cargo.output}</output>
+          </container>
+        </configuration>
+        <executions>
+          <execution>
+            <id>install-tomcat</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>install</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
       <!-- Adds Flowable test content -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
