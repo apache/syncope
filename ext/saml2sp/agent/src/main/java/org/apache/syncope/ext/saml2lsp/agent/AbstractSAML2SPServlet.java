@@ -87,7 +87,7 @@ public abstract class AbstractSAML2SPServlet extends HttpServlet {
 
         String samlResponse = params.getFirst(SSOConstants.SAML_RESPONSE);
         if (StringUtils.isNotBlank(samlResponse)) {
-            samlResponse = URLDecoder.decode(samlResponse, StandardCharsets.UTF_8.name());
+            samlResponse = URLDecoder.decode(samlResponse, StandardCharsets.UTF_8);
             LOG.debug("Received SAML Response: {}", samlResponse);
         }
 

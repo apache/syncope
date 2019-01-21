@@ -70,7 +70,7 @@ public class Logout extends AbstractSAML2SPServlet {
                 e.printStackTrace(response.getWriter());
             } else {
                 response.sendRedirect(errorURL + "?errorMessage="
-                        + URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8.name()));
+                        + URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
             }
         }
     }
@@ -106,7 +106,7 @@ public class Logout extends AbstractSAML2SPServlet {
                     e.printStackTrace(response.getWriter());
                 } else {
                     response.sendRedirect(errorURL + "?errorMessage="
-                            + URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8.name()));
+                            + URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 }
             }
         } else { // process REDIRECT binding logout response

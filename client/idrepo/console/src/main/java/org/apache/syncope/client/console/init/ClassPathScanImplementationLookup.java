@@ -240,32 +240,38 @@ public class ClassPathScanImplementationLookup {
                         if (!clazz.equals(EmptyExternalResourceProvider.class)
                                 && !clazz.isInstance(resourceProvider)) {
 
-                            resourceProvider = (ExternalResourceProvider) clazz.newInstance();
+                            resourceProvider = (ExternalResourceProvider) clazz.
+                                    getConstructor().newInstance();
                         }
                     } else if (AnyWizardBuilderAdditionalSteps.class.isAssignableFrom(clazz)) {
                         if (!clazz.equals(EmptyAnyWizardBuilderAdditionalSteps.class)
                                 && !clazz.isInstance(anyWizardBuilderAdditionalSteps)) {
 
-                            anyWizardBuilderAdditionalSteps = (AnyWizardBuilderAdditionalSteps) clazz.newInstance();
+                            anyWizardBuilderAdditionalSteps = (AnyWizardBuilderAdditionalSteps) clazz.
+                                    getConstructor().newInstance();
                         }
                     } else if (StatusProvider.class.isAssignableFrom(clazz)) {
                         if (!clazz.equals(EmptyStatusProvider.class)
                                 && !clazz.isInstance(statusProvider)) {
 
-                            statusProvider = (StatusProvider) clazz.newInstance();
+                            statusProvider = (StatusProvider) clazz.
+                                    getConstructor().newInstance();
                         }
                     } else if (VirSchemaDetailsPanelProvider.class.isAssignableFrom(clazz)) {
                         if (!clazz.equals(EmptyVirSchemaDetailsPanelProvider.class)
                                 && !clazz.isInstance(virSchemaDetailsPanelProvider)) {
 
-                            virSchemaDetailsPanelProvider = (VirSchemaDetailsPanelProvider) clazz.newInstance();
+                            virSchemaDetailsPanelProvider = (VirSchemaDetailsPanelProvider) clazz.
+                                    getConstructor().newInstance();
                         }
                     } else if (AnyDirectoryPanelAditionalActionLinksProvider.class.isAssignableFrom(clazz)) {
                         if (!clazz.equals(EmptyAnyDirectoryPanelAditionalActionLinksProvider.class)
                                 && !clazz.isInstance(anyDirectoryPanelAditionalActionLinksProvider)) {
 
                             anyDirectoryPanelAditionalActionLinksProvider =
-                                    (AnyDirectoryPanelAditionalActionLinksProvider) clazz.newInstance();
+                                    (AnyDirectoryPanelAditionalActionLinksProvider) clazz.
+                                            getConstructor().newInstance();
+
                         }
                     }
                 }

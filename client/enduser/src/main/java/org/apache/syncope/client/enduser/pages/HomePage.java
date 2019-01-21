@@ -48,7 +48,7 @@ public class HomePage extends WebPage {
 
     private void appendMessage(final StringBuilder redirectUrl, final String message) {
         try {
-            redirectUrl.append(URLEncoder.encode(message, StandardCharsets.UTF_8.name()));
+            redirectUrl.append(URLEncoder.encode(message, StandardCharsets.UTF_8));
         } catch (Exception e) {
             redirectUrl.append("Generic error");
         }

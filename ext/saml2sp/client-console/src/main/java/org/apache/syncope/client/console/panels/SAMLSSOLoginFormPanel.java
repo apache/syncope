@@ -84,7 +84,7 @@ public class SAMLSSOLoginFormPanel extends SSOLoginFormPanel {
                         RequestCycle.get().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(
                                 UrlUtils.rewriteToContextRelative("saml2sp/login?idp="
                                         + URLEncoder.encode(
-                                                model.getObject().getEntityID(), StandardCharsets.UTF_8.name()),
+                                                model.getObject().getEntityID(), StandardCharsets.UTF_8),
                                         RequestCycle.get())));
                     } catch (Exception e) {
                         LOG.error("Could not redirect to the selected IdP {}", model.getObject().getEntityID(), e);

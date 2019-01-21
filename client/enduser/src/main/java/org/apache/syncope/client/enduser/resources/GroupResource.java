@@ -63,7 +63,7 @@ public class GroupResource extends BaseResource {
             final GroupResponse groupResponse = new GroupResponse();
             if (customTemplate.getWizard().getSteps().containsKey("groups")) {
                 String realm = URLDecoder.decode(attributes.getParameters().get("realm").
-                        toString(SyncopeConstants.ROOT_REALM), "UTF-8");
+                        toString(SyncopeConstants.ROOT_REALM), StandardCharsets.UTF_8);
                 StringValue term = attributes.getParameters().get("term");
 
                 final int totGroups = SyncopeEnduserSession.get().
@@ -71,7 +71,8 @@ public class GroupResource extends BaseResource {
                 final List<GroupTO> groupTOs = SyncopeEnduserSession.get().
                         getService(SyncopeService.class).searchAssignableGroups(
                         realm,
-                        term.isNull() || term.isEmpty() ? null : URLDecoder.decode(term.toString(), "UTF-8"),
+                        term.isNull() || term.isEmpty()
+                        ? null : URLDecoder.decode(term.toString(), StandardCharsets.UTF_8),
                         1,
                         30).getResult();
                 groupResponse.setTotGroups(totGroups);

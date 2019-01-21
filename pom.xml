@@ -389,7 +389,7 @@ under the License.
     <connid.scimv11.version>1.0.1</connid.scimv11.version>
     <connid.servicenow.version>1.0.0</connid.servicenow.version>
 
-    <cxf.version>3.2.7</cxf.version>
+    <cxf.version>3.3.0-SNAPSHOT</cxf.version>
 
     <jackson.version>2.9.8</jackson.version>
 
@@ -397,7 +397,7 @@ under the License.
     <spring-security.version>5.1.3.RELEASE</spring-security.version>
     <spring-boot.version>2.1.2.RELEASE</spring-boot.version>
 
-    <openjpa.version>3.0.0</openjpa.version>
+    <openjpa.version>3.0.1-SNAPSHOT</openjpa.version>
     <hikaricp.version>3.3.0</hikaricp.version>
     <hibernate-validator.version>6.0.13.Final</hibernate-validator.version>
 
@@ -534,7 +534,7 @@ under the License.
     <secretKey>1abcdefghilmnopqrstuvz2!</secretKey>
     <jwsKey>ZW7pRixehFuNUtnY5Se47IemgMryTzazPPJ9CGX5LTCmsOJpOgHAQEuPQeV9A28f</jwsKey>
 
-    <targetJdk>1.8</targetJdk>
+    <targetJdk>11</targetJdk>
     <rootpom.basedir>${basedir}</rootpom.basedir>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -542,6 +542,11 @@ under the License.
   <dependencyManagement>
 
     <dependencies>
+      <dependency>
+        <groupId>javax.annotation</groupId>
+        <artifactId>javax.annotation-api</artifactId>
+        <version>1.3.2</version>
+      </dependency>
       <dependency>
         <groupId>javax.validation</groupId>
         <artifactId>validation-api</artifactId>
@@ -1165,6 +1170,17 @@ under the License.
       <dependency>
         <groupId>org.codehaus.groovy</groupId>
         <artifactId>groovy-templates</artifactId>
+        <version>${groovy.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-xml</artifactId>
+          </exclusion>    
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.groovy</groupId>
+        <artifactId>groovy-xml</artifactId>
         <version>${groovy.version}</version>
       </dependency>
       <dependency>
@@ -1843,8 +1859,7 @@ under the License.
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.8.0</version> 
           <configuration>
-            <source>${targetJdk}</source>
-            <target>${targetJdk}</target>
+            <release>${targetJdk}</release>
             <useIncrementalCompilation>false</useIncrementalCompilation>
             <showWarnings>true</showWarnings>
             <showDeprecation>true</showDeprecation>
@@ -2124,8 +2139,11 @@ under the License.
             </goals>
             <configuration>
               <rules>
+                <requireJavaVersion>
+                  <version>11</version>                  
+                </requireJavaVersion>
                 <requireMavenVersion>
-                  <version>3.0</version>
+                  <version>3.5.0</version>
                 </requireMavenVersion>
               </rules>    
             </configuration>
@@ -2172,14 +2190,16 @@ under the License.
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.gmaven</groupId>
-        <artifactId>gmaven-plugin</artifactId>
-        <version>1.5</version>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <version>1.6.2</version>
         <dependencies>
           <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
-            <version>1.5.8</version>
+            <version>${groovy.version}</version>
+            <scope>runtime</scope>
+            <type>pom</type>
           </dependency>
         </dependencies>
         <executions>
@@ -2189,7 +2209,8 @@ under the License.
               <goal>execute</goal>
             </goals>
             <configuration>
-              <source>
+              <scripts>
+                <script><![CDATA[
                 import java.util.Date
                 import java.text.MessageFormat
                 def year = MessageFormat.format("{0,date,yyyy}", new Date()) 
@@ -2201,7 +2222,8 @@ under the License.
 
                 if (!project.properties.containsKey('buildNumber'))
                 project.properties['buildNumber'] = ""
-              </source>
+                ]]></script>
+              </scripts>
             </configuration>
           </execution>
         </executions>
@@ -2371,10 +2393,10 @@ under the License.
           <detectLinks>true</detectLinks>
           <detectJavaApiLink>true</detectJavaApiLink>
           <links>
-            <link>http://docs.oracle.com/javaee/7/api/</link>
+            <link>https://javaee.github.io/javaee-spec/javadocs/</link>
             <link>http://www.slf4j.org/api/</link>
             <link>http://connid.tirasa.net/apidocs/1.4/</link>
-            <link>http://cxf.apache.org/javadoc/latest-3.2.x/</link>
+            <link>http://cxf.apache.org/javadoc/latest/</link>
             <link>http://fasterxml.github.io/jackson-core/javadoc/2.9/</link>
             <link>http://fasterxml.github.io/jackson-databind/javadoc/2.9/</link>
             <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.9/</link>
@@ -2387,13 +2409,14 @@ under the License.
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-io/javadocs/api-2.6/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/1.19/api/</link>
-            <link>https://docs.spring.io/spring/docs/5.0.x/javadoc-api/</link>
-            <link>https://docs.spring.io/spring-security/site/docs/5.0.x/api/</link>
+            <link>https://tika.apache.org/1.20/api/</link>
+            <link>https://docs.spring.io/spring-boot/docs/current/api/</link>
+            <link>https://docs.spring.io/spring/docs/current/javadoc-api/</link>
+            <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.0/apidocs/</link>
             <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/6.5.4/index.html</link>
-            <link>http://docs.swagger.io/swagger-core/v2.0.5/apidocs/</link>
+            <link>http://docs.swagger.io/swagger-core/v2.0.6/apidocs/</link>
           </links>
         </configuration>
         <reportSets>
@@ -2635,47 +2658,6 @@ under the License.
       <modules>
         <module>docker</module>
       </modules>
-    </profile>
-    
-    <profile>
-      <id>java9-plus</id>
-
-      <activation>
-        <jdk>[9,)</jdk>
-      </activation>
-
-      <dependencies>
-        <dependency>
-          <groupId>javax.xml.bind</groupId>
-          <artifactId>jaxb-api</artifactId>
-          <version>2.3.1</version>
-        </dependency>
-        <dependency>
-          <groupId>com.sun.xml.bind</groupId>
-          <artifactId>jaxb-core</artifactId>
-          <version>2.3.0.1</version>
-        </dependency>
-        <dependency>
-          <groupId>com.sun.xml.bind</groupId>
-          <artifactId>jaxb-impl</artifactId>
-          <version>2.3.0.1</version>
-        </dependency>
-        <dependency>
-          <groupId>javax.annotation</groupId>
-          <artifactId>javax.annotation-api</artifactId>
-          <version>1.3.2</version>
-        </dependency>
-        <dependency>
-          <groupId>javax.xml.ws</groupId>
-          <artifactId>jaxws-api</artifactId>
-          <version>2.3.1</version>
-        </dependency>
-        <dependency>
-          <groupId>javax.activation</groupId>
-          <artifactId>activation</artifactId>
-          <version>1.1.1</version>
-        </dependency>
-      </dependencies>
     </profile>
   </profiles>
   

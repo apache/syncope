@@ -93,7 +93,7 @@ public class OIDCSSOLoginFormPanel extends SSOLoginFormPanel {
                         RequestCycle.get().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(
                                 UrlUtils.rewriteToContextRelative("oidcclient/login?op="
                                         + URLEncoder.encode(
-                                                model.getObject().getName(), StandardCharsets.UTF_8.name()),
+                                                model.getObject().getName(), StandardCharsets.UTF_8),
                                         RequestCycle.get())));
                     } catch (Exception e) {
                         LOG.error("Could not redirect to the selected OP {}", model.getObject().getName(), e);

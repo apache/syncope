@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
+import java.lang.reflect.InvocationTargetException;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
@@ -53,57 +54,64 @@ public class ProvisioningContext implements EnvironmentAware {
 
     @Bean
     public PropagationTaskExecutor propagationTaskExecutor()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            IllegalArgumentException, InvocationTargetException {
 
         return (PropagationTaskExecutor) Class.forName(env.getProperty("propagationTaskExecutor")).
-                newInstance();
+                getConstructor().newInstance();
     }
 
     @Bean
     public UserProvisioningManager userProvisioningManager()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            IllegalArgumentException, InvocationTargetException {
 
         return (UserProvisioningManager) Class.forName(env.getProperty("userProvisioningManager")).
-                newInstance();
+                getConstructor().newInstance();
     }
 
     @Bean
     public GroupProvisioningManager groupProvisioningManager()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            IllegalArgumentException, InvocationTargetException {
 
         return (GroupProvisioningManager) Class.forName(env.getProperty("groupProvisioningManager")).
-                newInstance();
+                getConstructor().newInstance();
     }
 
     @Bean
     public AnyObjectProvisioningManager anyObjectProvisioningManager()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            IllegalArgumentException, InvocationTargetException {
 
         return (AnyObjectProvisioningManager) Class.forName(env.getProperty("anyObjectProvisioningManager")).
-                newInstance();
+                getConstructor().newInstance();
     }
 
     @Bean
     public VirAttrCache virAttrCache()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            IllegalArgumentException, InvocationTargetException {
 
         return (VirAttrCache) Class.forName(env.getProperty("virAttrCache")).
-                newInstance();
+                getConstructor().newInstance();
     }
 
     @Bean
     public NotificationManager notificationManager()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            IllegalArgumentException, InvocationTargetException {
 
         return (NotificationManager) Class.forName(env.getProperty("notificationManager")).
-                newInstance();
+                getConstructor().newInstance();
     }
 
     @Bean
     public AuditManager auditManager()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            IllegalArgumentException, InvocationTargetException {
 
         return (AuditManager) Class.forName(env.getProperty("auditManager")).
-                newInstance();
+                getConstructor().newInstance();
     }
 }

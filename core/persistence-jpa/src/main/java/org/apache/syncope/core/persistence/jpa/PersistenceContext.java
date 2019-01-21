@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.persistence.ValidationMode;
@@ -102,65 +103,74 @@ public class PersistenceContext implements EnvironmentAware {
 
     @Bean
     public EntityFactory entityFactory()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            IllegalArgumentException, InvocationTargetException {
 
-        return (EntityFactory) Class.forName(env.getProperty("entity.factory")).newInstance();
+        return (EntityFactory) Class.forName(env.getProperty("entity.factory")).getConstructor().newInstance();
     }
 
     @Bean
     public PlainSchemaDAO plainSchemaDAO()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            IllegalArgumentException, InvocationTargetException {
 
-        return (PlainSchemaDAO) Class.forName(env.getProperty("plainSchema.dao")).newInstance();
+        return (PlainSchemaDAO) Class.forName(env.getProperty("plainSchema.dao")).getConstructor().newInstance();
     }
 
     @Bean
     public PlainAttrDAO plainAttrDAO()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            IllegalArgumentException, InvocationTargetException {
 
-        return (PlainAttrDAO) Class.forName(env.getProperty("plainAttr.dao")).newInstance();
+        return (PlainAttrDAO) Class.forName(env.getProperty("plainAttr.dao")).getConstructor().newInstance();
     }
 
     @Bean
     public PlainAttrValueDAO plainAttrValueDAO()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            IllegalArgumentException, InvocationTargetException {
 
-        return (PlainAttrValueDAO) Class.forName(env.getProperty("plainAttrValue.dao")).newInstance();
+        return (PlainAttrValueDAO) Class.forName(env.getProperty("plainAttrValue.dao")).getConstructor().newInstance();
     }
 
     @Bean
     public AnySearchDAO anySearchDAO()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            IllegalArgumentException, InvocationTargetException {
 
-        return (AnySearchDAO) Class.forName(env.getProperty("any.search.dao")).newInstance();
+        return (AnySearchDAO) Class.forName(env.getProperty("any.search.dao")).getConstructor().newInstance();
     }
 
     @Bean
     public UserDAO userDAO()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            IllegalArgumentException, InvocationTargetException {
 
-        return (UserDAO) Class.forName(env.getProperty("user.dao")).newInstance();
+        return (UserDAO) Class.forName(env.getProperty("user.dao")).getConstructor().newInstance();
     }
 
     @Bean
     public GroupDAO groupDAO()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            IllegalArgumentException, InvocationTargetException {
 
-        return (GroupDAO) Class.forName(env.getProperty("group.dao")).newInstance();
+        return (GroupDAO) Class.forName(env.getProperty("group.dao")).getConstructor().newInstance();
     }
 
     @Bean
     public AnyObjectDAO anyObjectDAO()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            IllegalArgumentException, InvocationTargetException {
 
-        return (AnyObjectDAO) Class.forName(env.getProperty("anyObject.dao")).newInstance();
+        return (AnyObjectDAO) Class.forName(env.getProperty("anyObject.dao")).getConstructor().newInstance();
     }
 
     @Bean
     public ConfDAO confDAO()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            IllegalArgumentException, InvocationTargetException {
 
-        return (ConfDAO) Class.forName(env.getProperty("conf.dao")).newInstance();
+        return (ConfDAO) Class.forName(env.getProperty("conf.dao")).getConstructor().newInstance();
     }
 
     @Bean

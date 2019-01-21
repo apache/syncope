@@ -70,7 +70,7 @@ public class BatchClientProxyImpl extends ClientProxyImpl {
         bri.setHeaders((Map<String, List<Object>>) message.get(Message.PROTOCOL_HEADERS));
 
         BatchOfflineHTTPConduit conduit = (BatchOfflineHTTPConduit) message.getExchange().getConduit(message);
-        bri.setContent(conduit.getOutputStream().toString(StandardCharsets.UTF_8.name()));
+        bri.setContent(conduit.getOutputStream().toString(StandardCharsets.UTF_8));
 
         factory.add(bri);
         return null;

@@ -57,7 +57,7 @@ public class Logout extends HttpServlet {
                 e.printStackTrace(response.getWriter());
             } else {
                 response.sendRedirect(errorURL + "?errorMessage="
-                        + URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8.name()));
+                        + URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
             }
         }
     }

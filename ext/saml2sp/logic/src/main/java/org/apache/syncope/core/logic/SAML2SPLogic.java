@@ -332,13 +332,13 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
             // 4. sign and encode AuthnRequest
             switch (idp.getBindingType()) {
                 case REDIRECT:
-                    requestTO.setRelayState(URLEncoder.encode(relayState.getLeft(), StandardCharsets.UTF_8.name()));
+                    requestTO.setRelayState(URLEncoder.encode(relayState.getLeft(), StandardCharsets.UTF_8));
                     requestTO.setContent(URLEncoder.encode(
-                            saml2rw.encode(authnRequest, true), StandardCharsets.UTF_8.name()));
-                    requestTO.setSignAlg(URLEncoder.encode(saml2rw.getSigAlgo(), StandardCharsets.UTF_8.name()));
+                            saml2rw.encode(authnRequest, true), StandardCharsets.UTF_8));
+                    requestTO.setSignAlg(URLEncoder.encode(saml2rw.getSigAlgo(), StandardCharsets.UTF_8));
                     requestTO.setSignature(URLEncoder.encode(
                             saml2rw.sign(requestTO.getContent(), requestTO.getRelayState()),
-                            StandardCharsets.UTF_8.name()));
+                            StandardCharsets.UTF_8));
                     break;
 
                 case POST:

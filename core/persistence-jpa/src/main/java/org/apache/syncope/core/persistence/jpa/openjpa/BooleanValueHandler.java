@@ -41,7 +41,7 @@ public class BooleanValueHandler extends AbstractValueHandler {
     /**
      * {@inheritDoc}
      *
-     * @deprecated
+     * @Deprecated
      */
     @Override
     public Column[] map(final ValueMapping vm, final String name, final ColumnIO io, final boolean adapt) {
