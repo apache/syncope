@@ -553,9 +553,9 @@ under the License.
         <version>2.0.1.Final</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jpa_2.1_spec</artifactId>
-        <version>1.0-alpha-1</version> 
+        <groupId>javax.persistence</groupId>
+        <artifactId>javax.persistence-api</artifactId>
+        <version>2.2</version>
       </dependency>
       <dependency>
         <groupId>javax.el</groupId>
@@ -851,6 +851,12 @@ under the License.
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa-persistence-jdbc</artifactId>
         <version>${openjpa.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jpa_2.1_spec</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.uuid</groupId>
@@ -1626,7 +1632,7 @@ under the License.
         <groupId>org.webjars.bower</groupId>
         <artifactId>angular-translate-loader-partial</artifactId>
         <version>${angular-translate-loader-partial.version}</version>
-      </dependency>      
+      </dependency>
       <dependency>
         <groupId>org.webjars.bower</groupId>
         <artifactId>angular-translate-storage-cookie</artifactId>
@@ -1888,7 +1894,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.10.4</version>          
+          <version>3.1.0-SNAPSHOT</version>
         </plugin>
         
         <plugin>
@@ -2140,7 +2146,7 @@ under the License.
             <configuration>
               <rules>
                 <requireJavaVersion>
-                  <version>11</version>                  
+                  <version>${targetJdk}</version>
                 </requireJavaVersion>
                 <requireMavenVersion>
                   <version>3.5.0</version>
@@ -2387,12 +2393,16 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.4</version>
+        <version>3.1.0-SNAPSHOT</version>
         <configuration>
-          <destDir>apidocs/2.1</destDir>
+          <destDir>apidocs/3.0</destDir>
           <isOffline>false</isOffline>
           <detectLinks>true</detectLinks>
           <detectJavaApiLink>true</detectJavaApiLink>
+          <dependencySourceExcludes>
+            <dependencySourceExclude>org.webjars:*</dependencySourceExclude>
+            <dependencySourceExclude>org.webjars.bower:*</dependencySourceExclude>
+          </dependencySourceExcludes>
           <links>
             <link>https://javaee.github.io/javaee-spec/javadocs/</link>
             <link>http://www.slf4j.org/api/</link>

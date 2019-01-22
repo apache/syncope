@@ -45,7 +45,7 @@ install:
 build_script:
   - mvn --show-version --quiet -T 1C -PskipTests,all --batch-mode
 test_script:
-  - cd fit\core_reference
+  - cd fit\core-reference
   - mvn clean verify
 cache:
   - C:\maven\
