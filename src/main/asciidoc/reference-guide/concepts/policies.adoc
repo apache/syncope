@@ -116,7 +116,7 @@ endif::[]
 
 * maximum length - the maximum length to allow; `0` means no limit set;
 * minimum length - the minimum length to allow; `0` means no limit set;
-* pattern - http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java regular expression pattern^] to
+* pattern - https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/regex/Pattern.html[Java regular expression pattern^] to
 match; `NULL` means no match is attempted;
 * all uppercase - are lowercase characters allowed?
 * all lowercase - are uppercase characters allowed?

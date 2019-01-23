@@ -157,7 +157,7 @@ If no failures are encountered, your basic Apache Syncope project is now ready t
 [TIP]
 .JPDA Debug in Embedded Mode
 ====
-The Java™ Platform Debugger Architecture (http://docs.oracle.com/javase/8/docs/technotes/guides/jpda/index.html[JPDA^])
+The Java™ Platform Debugger Architecture (https://docs.oracle.com/en/java/javase/11/docs/specs/jpda/jpda.html[JPDA^])
 is a collection of APIs aimed to help with debugging Java code.
 
 Enhancing the `embedded` profile of the `enduser` module to enable the JPDA socket is quite
@@ -181,8 +181,8 @@ straightforward: just add the `<profile>` below to `enduser/pom.xml`:
                 -Xdebug
                 -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
                 -Dspring.profiles.active=embedded
-                -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC
-                -Xmx1024m -Xms512m</cargo.jvmargs>
+                -XX:+CMSClassUnloadingEnabled -Xmx1024m -Xms512m
+              </cargo.jvmargs>
             </properties>
           </configuration>
         </configuration>
