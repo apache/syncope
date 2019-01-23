@@ -63,7 +63,7 @@ import org.apache.syncope.ext.scimv2.api.data.ServiceProviderConfig;
 import org.apache.syncope.ext.scimv2.api.data.Value;
 import org.apache.syncope.ext.scimv2.api.type.ErrorType;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
-import org.apache.syncope.ext.scimv2.cxf.JacksonSCIMJsonProvider;
+import org.apache.syncope.ext.scimv2.cxf.SCIMJacksonJsonProvider;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -123,7 +123,7 @@ public class SCIMITCase extends AbstractITCase {
     }
 
     private WebClient webClient() {
-        return WebClient.create(SCIM_ADDRESS, Arrays.asList(new JacksonSCIMJsonProvider())).
+        return WebClient.create(SCIM_ADDRESS, Arrays.asList(new SCIMJacksonJsonProvider())).
                 accept(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
                 type(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
                 header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT());

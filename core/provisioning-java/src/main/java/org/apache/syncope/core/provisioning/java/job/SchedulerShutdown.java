@@ -18,21 +18,18 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 /**
  * Clean shutdown for Quartz scheduler.
  */
-public class SchedulerShutdown implements ApplicationContextAware, DisposableBean {
+public class SchedulerShutdown implements DisposableBean {
 
-    private ApplicationContext ctx;
+    private final ApplicationContext ctx;
 
-    @Override
-    public void setApplicationContext(final ApplicationContext ctx) throws BeansException {
+    public SchedulerShutdown(final ApplicationContext ctx) {
         this.ctx = ctx;
     }
 
@@ -41,5 +38,4 @@ public class SchedulerShutdown implements ApplicationContextAware, DisposableBea
         SchedulerFactoryBean scheduler = ctx.getBean(SchedulerFactoryBean.class);
         scheduler.getScheduler().shutdown();
     }
-
 }

@@ -265,7 +265,7 @@ under the License.
             <properties>
               <cargo.jvmargs>
                 -Dspring.profiles.active=embedded
-                -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
+                -XX:+CMSClassUnloadingEnabled -Xmx1024m -Xms512m</cargo.jvmargs>
             </properties>
           </configuration>
           <deployables>
@@ -1151,7 +1151,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>-Dspring.profiles.active=embedded
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx2048m -Xms1024m</cargo.jvmargs>
+                    -XX:+CMSClassUnloadingEnabled -Xmx2048m -Xms1024m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -1191,7 +1191,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>-Dspring.profiles.active=embedded
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx2048m -Xms1024m</cargo.jvmargs>
+                    -XX:+CMSClassUnloadingEnabled -Xmx2048m -Xms1024m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -1263,7 +1263,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>-Dspring.profiles.active=wildfly,embedded
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx2048m -Xms1024m</cargo.jvmargs>
+                    -XX:+CMSClassUnloadingEnabled -Xmx2048m -Xms1024m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -1310,7 +1310,7 @@ under the License.
                   <cargo.jvmargs>
                     -Dspring.profiles.active=embedded
                     -Xdebug -Djaxb.debug=true -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -XX:+CMSClassUnloadingEnabled -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>

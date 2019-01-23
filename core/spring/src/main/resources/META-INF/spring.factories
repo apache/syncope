@@ -16,4 +16,5 @@
 # under the License.
 
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  org.apache.syncope.core.spring.security.SecurityContext
+  org.apache.syncope.core.spring.security.SecurityContext,\
+  org.apache.syncope.core.spring.security.WebSecurityContext

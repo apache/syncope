@@ -233,7 +233,7 @@ public class ITImplementationLookup implements ImplementationLookup {
     @Autowired
     private AnySearchDAO anySearchDAO;
 
-    @Autowired
+    @Autowired(required = false)
     private ElasticsearchInit elasticsearchInit;
 
     @Override
@@ -244,7 +244,7 @@ public class ITImplementationLookup implements ImplementationLookup {
     @Override
     public void load(final String domain, final DataSource datasource) {
         // in case the Elasticsearch extension is enabled, reinit a clean index for all available domains
-        if (AopUtils.getTargetClass(anySearchDAO).getName().contains("Elasticsearch")) {
+        if (elasticsearchInit != null && AopUtils.getTargetClass(anySearchDAO).getName().contains("Elasticsearch")) {
             AuthContextUtils.execWithAuthContext(domain, () -> {
                 elasticsearchInit.init();
                 return null;

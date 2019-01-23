@@ -28,7 +28,7 @@ import javax.servlet.ServletResponse;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
+import org.springframework.security.web.firewall.FirewalledRequest;
 
 public class MustChangePasswordFilter implements Filter {
 
@@ -46,15 +46,14 @@ public class MustChangePasswordFilter implements Filter {
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
 
-        if (request instanceof SecurityContextHolderAwareRequestWrapper) {
+        if (request instanceof FirewalledRequest) {
             boolean isMustChangePassword =
                     SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(
                             authority -> StandardEntitlement.MUST_CHANGE_PASSWORD.equals(authority.getAuthority()));
 
-            SecurityContextHolderAwareRequestWrapper wrapper =
-                    SecurityContextHolderAwareRequestWrapper.class.cast(request);
-            if (isMustChangePassword && !"POST".equalsIgnoreCase(wrapper.getMethod())
-                    && !"/users/self/changePassword".equals(wrapper.getPathInfo())) {
+            FirewalledRequest wrappedRequest = FirewalledRequest.class.cast(request);
+            if (isMustChangePassword && !"POST".equalsIgnoreCase(wrappedRequest.getMethod())
+                    && !"/users/self/changePassword".equals(wrappedRequest.getPathInfo())) {
 
                 throw new AccessDeniedException("Please change your password first");
             }

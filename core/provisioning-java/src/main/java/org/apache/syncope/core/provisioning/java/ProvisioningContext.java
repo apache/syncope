@@ -19,20 +19,50 @@
 package org.apache.syncope.core.provisioning.java;
 
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
+import java.util.Properties;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
+import javax.annotation.Resource;
+import javax.sql.DataSource;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.AuditManager;
+import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
+import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
+import org.apache.syncope.core.provisioning.java.job.AutowiringSpringBeanJobFactory;
+import org.apache.syncope.core.provisioning.java.job.JobManagerImpl;
+import org.apache.syncope.core.provisioning.java.job.SchedulerDBInit;
+import org.apache.syncope.core.provisioning.java.job.SchedulerShutdown;
+import org.apache.syncope.core.provisioning.java.propagation.PropagationManagerImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
 
 @PropertySource("classpath:connid.properties")
 @PropertySource("classpath:mail.properties")
@@ -40,16 +70,152 @@ import org.springframework.core.env.Environment;
 @PropertySource(value = "file:${conf.directory}/connid.properties", ignoreResourceNotFound = true)
 @PropertySource(value = "file:${conf.directory}/mail.properties", ignoreResourceNotFound = true)
 @PropertySource(value = "file:${conf.directory}/provisioning.properties", ignoreResourceNotFound = true)
-@ImportResource("classpath:/provisioningContext.xml")
 @ComponentScan("org.apache.syncope.core.provisioning.java")
+@EnableAsync
+@EnableScheduling
 @Configuration
-public class ProvisioningContext implements EnvironmentAware {
+public class ProvisioningContext implements EnvironmentAware, SchedulingConfigurer {
+
+    @Resource(name = "MasterDataSource")
+    private DataSource masterDataSource;
+
+    @Resource(name = "MasterTransactionManager")
+    private PlatformTransactionManager masterTransactionManager;
+
+    @Autowired
+    private ApplicationContext ctx;
 
     private Environment env;
 
     @Override
     public void setEnvironment(final Environment env) {
         this.env = env;
+    }
+
+    /**
+     * Used by {@link AsyncConnectorFacade}.
+     *
+     * @return executor
+     */
+    @Bean
+    public Executor asyncConnectorFacadeExecutor() {
+        ThreadPoolTaskScheduler batchExecutor = new ThreadPoolTaskScheduler();
+        batchExecutor.setPoolSize(env.getProperty("asyncConnectorFacadeExecutor.poolSize", Integer.class));
+        batchExecutor.setThreadNamePrefix("AsyncConnectorFacade-");
+        batchExecutor.initialize();
+        return batchExecutor;
+    }
+
+    @Override
+    public void configureTasks(final ScheduledTaskRegistrar taskRegistrar) {
+        taskRegistrar.setScheduler(asyncConnectorFacadeExecutor());
+    }
+
+    /**
+     * Used by {@link org.apache.syncope.core.provisioning.java.propagation.PriorityPropagationTaskExecutor}.
+     *
+     * @return executor
+     */
+    @Bean
+    public Executor propagationTaskExecutorAsyncExecutor() {
+        ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor = new ThreadPoolTaskExecutor();
+        propagationTaskExecutorAsyncExecutor.setCorePoolSize(
+                env.getProperty("propagationTaskExecutorAsyncExecutor.corePoolSize", Integer.class));
+        propagationTaskExecutorAsyncExecutor.setMaxPoolSize(
+                env.getProperty("propagationTaskExecutorAsyncExecutor.maxPoolSize", Integer.class));
+        propagationTaskExecutorAsyncExecutor.setQueueCapacity(
+                env.getProperty("propagationTaskExecutorAsyncExecutor.queueCapacity", Integer.class));
+        propagationTaskExecutorAsyncExecutor.setThreadNamePrefix("PropagationTaskExecutor-");
+        propagationTaskExecutorAsyncExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
+        propagationTaskExecutorAsyncExecutor.initialize();
+        return propagationTaskExecutorAsyncExecutor;
+    }
+
+    @Bean
+    public SchedulerDBInit quartzDataSourceInit() {
+        SchedulerDBInit init = new SchedulerDBInit();
+        init.setDataSource(masterDataSource);
+
+        ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
+        databasePopulator.setContinueOnError(true);
+        databasePopulator.setIgnoreFailedDrops(true);
+        databasePopulator.setSqlScriptEncoding(StandardCharsets.UTF_8.name());
+        databasePopulator.setScripts(new ClassPathResource("/quartz/" + env.getProperty("quartz.sql")));
+        init.setDatabasePopulator(databasePopulator);
+
+        return init;
+    }
+
+    @DependsOn("quartzDataSourceInit")
+    @Lazy(false)
+    @Bean
+    public SchedulerFactoryBean scheduler() {
+        SchedulerFactoryBean scheduler = new SchedulerFactoryBean();
+        scheduler.setAutoStartup(true);
+        scheduler.setApplicationContext(ctx);
+        scheduler.setWaitForJobsToCompleteOnShutdown(true);
+        scheduler.setOverwriteExistingJobs(true);
+        scheduler.setDataSource(masterDataSource);
+        scheduler.setTransactionManager(masterTransactionManager);
+        scheduler.setJobFactory(new AutowiringSpringBeanJobFactory());
+
+        Properties quartzProperties = new Properties();
+        quartzProperties.setProperty(
+                "org.quartz.scheduler.idleWaitTime", env.getProperty("quartz.scheduler.idleWaitTime", "30000"));
+        quartzProperties.setProperty("org.quartz.jobStore.misfireThreshold", "6000000");
+        quartzProperties.setProperty("org.quartz.jobStore.driverDelegateClass", env.getProperty("quartz.jobstore"));
+        quartzProperties.setProperty("org.quartz.jobStore.isClustered", "true");
+        quartzProperties.setProperty("org.quartz.jobStore.clusterCheckinInterval", "20000");
+        quartzProperties.setProperty("org.quartz.scheduler.instanceName", "ClusteredScheduler");
+        quartzProperties.setProperty("org.quartz.scheduler.instanceId", "AUTO");
+        quartzProperties.setProperty("org.quartz.scheduler.jmx.export", "true");
+        scheduler.setQuartzProperties(quartzProperties);
+
+        return scheduler;
+    }
+
+    @Bean
+    public SchedulerShutdown schedulerShutdown() {
+        return new SchedulerShutdown(ctx);
+    }
+
+    @Bean
+    public JobManager jobManager() {
+        JobManagerImpl jobManager = new JobManagerImpl();
+        jobManager.setDisableQuartzInstance(env.getProperty("quartz.disableInstance", Boolean.class, false));
+        return jobManager;
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public JavaMailSender mailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setDefaultEncoding(env.getProperty("smtpEncoding"));
+        mailSender.setHost(env.getProperty("smtpHost"));
+        mailSender.setPort(env.getProperty("smtpPort", Integer.class));
+        mailSender.setUsername(env.getProperty("smtpUsername"));
+        mailSender.setPassword(env.getProperty("smtpPassword"));
+        mailSender.setProtocol(env.getProperty("smtpProtocol"));
+        return mailSender;
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public PropagationManager propagationManager() {
+        return new PropagationManagerImpl();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public ConnIdBundleManager connIdBundleManager() {
+        ConnIdBundleManagerImpl connIdBundleManager = new ConnIdBundleManagerImpl();
+        connIdBundleManager.setStringLocations(env.getProperty("connid.locations"));
+        return connIdBundleManager;
+    }
+
+    @Bean
+    public IntAttrNameParser intAttrNameParser() {
+        return new IntAttrNameParser();
     }
 
     @Bean

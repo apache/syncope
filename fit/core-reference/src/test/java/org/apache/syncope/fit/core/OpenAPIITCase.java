@@ -39,7 +39,7 @@ public class OpenAPIITCase extends AbstractITCase {
     public void openapi() throws IOException {
         WebClient webClient = WebClient.create(ADDRESS + "/openapi.json").accept(MediaType.APPLICATION_JSON_TYPE);
         Response response = webClient.get();
-        assumeTrue(response.getStatus() == 200);
+        assertEquals(200, response.getStatus());
 
         JsonNode tree = new ObjectMapper().readTree((InputStream) response.getEntity());
         assertNotNull(tree);

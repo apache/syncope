@@ -27,18 +27,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-@ImportResource("classpath:/securityContext.xml")
 @PropertySource("classpath:security.properties")
 @PropertySource(value = "file:${conf.directory}/security.properties", ignoreResourceNotFound = true)
 @Configuration
-@EnableWebSecurity
-public class SecurityContext extends WebSecurityConfigurerAdapter implements EnvironmentAware {
+public class SecurityContext implements EnvironmentAware {
 
     private Environment env;
 

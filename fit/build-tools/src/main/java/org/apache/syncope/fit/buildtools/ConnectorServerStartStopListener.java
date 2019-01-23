@@ -68,12 +68,12 @@ public class ConnectorServerStartStopListener implements ServletContextListener 
         ConnectorServer server = ConnectorServer.newInstance();
         WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(sce.getServletContext());
         try {
-            server.setPort(Integer.parseInt(ctx.getBean("testconnectorserver.port", String.class)));
+            server.setPort(ctx.getEnvironment().getProperty("testconnectorserver.port", Integer.class));
 
             server.setBundleURLs(getBundleURLs(ctx));
 
             server.setKeyHash(SecurityUtil.computeBase64SHA1Hash(
-                    ctx.getBean("testconnectorserver.key", String.class).toCharArray()));
+                    ctx.getEnvironment().getProperty("testconnectorserver.key", String.class).toCharArray()));
 
             server.start();
             LOG.info("ConnId connector server listening on port " + server.getPort());

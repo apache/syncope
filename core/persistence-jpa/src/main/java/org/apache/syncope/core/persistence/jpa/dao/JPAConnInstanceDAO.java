@@ -35,6 +35,7 @@ import org.apache.syncope.core.provisioning.api.ConnectorRegistry;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -44,6 +45,7 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements Con
     private ConnInstanceHistoryConfDAO connInstanceHistoryConfDAO;
 
     @Autowired
+    @Lazy
     private ExternalResourceDAO resourceDAO;
 
     @Autowired

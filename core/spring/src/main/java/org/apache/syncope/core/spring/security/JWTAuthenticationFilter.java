@@ -35,7 +35,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
@@ -46,10 +45,12 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
 
+    @Autowired
     private AuthenticationEntryPoint authenticationEntryPoint;
 
     private AuthenticationManager authenticationManager;
 
+    @Autowired
     private SyncopeAuthenticationDetailsSource authenticationDetailsSource;
 
     @Autowired
@@ -58,23 +59,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private DefaultCredentialChecker credentialChecker;
 
-    public void setAuthenticationEntryPoint(final AuthenticationEntryPoint authenticationEntryPoint) {
-        this.authenticationEntryPoint = authenticationEntryPoint;
-    }
-
     public void setAuthenticationManager(final AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
-    }
-
-    public void setAuthenticationDetailsSource(final SyncopeAuthenticationDetailsSource authenticationDetailsSource) {
-        this.authenticationDetailsSource = authenticationDetailsSource;
-    }
-
-    @Override
-    public void afterPropertiesSet() {
-        Assert.notNull(this.authenticationEntryPoint, "An AuthenticationEntryPoint is required");
-        Assert.notNull(this.authenticationManager, "An AuthenticationManager is required");
-        Assert.notNull(this.authenticationDetailsSource, "AuthenticationDetailsSource required");
     }
 
     @Override

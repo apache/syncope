@@ -56,16 +56,12 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.UncategorizedDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.TransactionSystemException;
 
-@Configuration
-@PropertySource("classpath:errorMessages.properties")
 @Provider
 public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
 

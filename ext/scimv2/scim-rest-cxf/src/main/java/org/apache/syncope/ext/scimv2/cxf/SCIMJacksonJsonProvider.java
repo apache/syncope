@@ -31,7 +31,7 @@ import org.apache.syncope.ext.scimv2.api.SCIMConstants;
 @Provider
 @Consumes(SCIMConstants.APPLICATION_SCIM_JSON)
 @Produces(SCIMConstants.APPLICATION_SCIM_JSON)
-public class JacksonSCIMJsonProvider extends JacksonJsonProvider {
+public class SCIMJacksonJsonProvider extends JacksonJsonProvider {
 
     private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
 
@@ -43,7 +43,7 @@ public class JacksonSCIMJsonProvider extends JacksonJsonProvider {
         }
     };
 
-    public JacksonSCIMJsonProvider() {
+    public SCIMJacksonJsonProvider() {
         super(new ObjectMapper(), BASIC_ANNOTATIONS);
         _mapperConfig.getConfiguredMapper().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         _mapperConfig.getConfiguredMapper().setDateFormat(DATE_FORMAT.get());

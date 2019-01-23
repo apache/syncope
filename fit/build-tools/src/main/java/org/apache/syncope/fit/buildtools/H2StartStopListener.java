@@ -50,7 +50,7 @@ public class H2StartStopListener implements ServletContextListener {
         try {
             Server h2TestDb = new Server();
             h2TestDb.runTool("-tcp", "-tcpDaemon", "-web", "-webDaemon",
-                    "-webPort", ctx.getBean("testdb.webport", String.class));
+                    "-webPort", ctx.getEnvironment().getProperty("testdb.webport"));
 
             context.setAttribute(H2_TESTDB, h2TestDb);
         } catch (SQLException e) {

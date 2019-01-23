@@ -124,7 +124,7 @@ under the License.
             <properties>
               <cargo.jvmargs>
                 -Dspring.profiles.active=embedded
-                -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
+                -XX:+CMSClassUnloadingEnabled -Xmx1024m -Xms512m</cargo.jvmargs>
             </properties>
           </configuration>
           <deployables>

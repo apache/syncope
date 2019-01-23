@@ -18,12 +18,91 @@
  */
 package org.apache.syncope.ext.scimv2.cxf;
 
+import java.util.Arrays;
+import java.util.Collections;
+import javax.annotation.Resource;
+import org.apache.cxf.Bus;
+import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.jaxrs.model.wadl.WadlGenerator;
+import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser.SpringJAXRSServerFactoryBean;
+import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
+import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor;
+import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
+import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 
-@ImportResource("classpath:/restSCIMv2CXFContext.xml")
 @ComponentScan("org.apache.syncope.ext.scimv2.cxf.service")
 @Configuration
 public class RESTSCIMCXFContext {
+
+    @Autowired
+    private Bus bus;
+
+    @Autowired
+    private ApplicationContext ctx;
+
+    @Resource(name = "version")
+    private String version;
+
+    @Bean
+    public SCIMJacksonJsonProvider scimJacksonJsonProvider() {
+        return new SCIMJacksonJsonProvider();
+    }
+
+    @Bean
+    public SCIMExceptionMapper scimExceptionMapper() {
+        return new SCIMExceptionMapper();
+    }
+
+    @Bean
+    public AddETagFilter scimAddETagFilter() {
+        return new AddETagFilter();
+    }
+
+    @Bean
+    public WadlGenerator scimWADLGenerator() {
+        WadlGenerator wadlGenerator = new WadlGenerator();
+        wadlGenerator.setApplicationTitle("Apache Syncope SCIMv2 " + version);
+        wadlGenerator.setNamespacePrefix("syncope30");
+        wadlGenerator.setIncrementNamespacePrefix(false);
+        wadlGenerator.setLinkAnyMediaTypeToXmlSchema(true);
+        wadlGenerator.setUseJaxbContextForQnames(true);
+        wadlGenerator.setAddResourceAndMethodIds(true);
+        wadlGenerator.setIgnoreMessageWriters(true);
+        wadlGenerator.setUsePathParamsToCompareOperations(false);
+        return wadlGenerator;
+    }
+
+    @Bean
+    public Server scimv2Container() {
+        SpringJAXRSServerFactoryBean scimv2Container = new SpringJAXRSServerFactoryBean();
+        scimv2Container.setBus(bus);
+        scimv2Container.setAddress("/scim");
+        scimv2Container.setStaticSubresourceResolution(true);
+        scimv2Container.setBasePackages(Arrays.asList(
+                "org.apache.syncope.ext.scimv2.api.service",
+                "org.apache.syncope.ext.scimv2.cxf.service"));
+        scimv2Container.setProperties(Collections.singletonMap("convert.wadl.resources.to.dom", "false"));
+
+        scimv2Container.setInInterceptors(Arrays.asList(
+                ctx.getBean(GZIPInInterceptor.class),
+                ctx.getBean(JAXRSBeanValidationInInterceptor.class)));
+
+        scimv2Container.setOutInterceptors(Arrays.asList(
+                ctx.getBean(GZIPOutInterceptor.class),
+                ctx.getBean(JAXRSBeanValidationOutInterceptor.class)));
+
+        scimv2Container.setProviders(Arrays.asList(
+                scimJacksonJsonProvider(),
+                scimExceptionMapper(),
+                scimAddETagFilter(),
+                scimWADLGenerator()));
+
+        scimv2Container.setApplicationContext(ctx);
+        return scimv2Container.create();
+    }
 }

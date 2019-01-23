@@ -49,21 +49,19 @@ import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 
-public class SyncopeOpenApiCustomizer extends OpenApiCustomizer implements EnvironmentAware {
+public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
 
     private static final Logger LOG = LoggerFactory.getLogger(WadlGenerator.class);
 
-    private Environment env;
+    private final Environment env;
 
     private boolean inited = false;
 
     private List<String> domains;
 
-    @Override
-    public void setEnvironment(final Environment env) {
+    public SyncopeOpenApiCustomizer(final Environment env) {
         this.env = env;
     }
 

@@ -39,5 +39,4 @@ public class SyncopeAccessDeniedHandler extends AccessDeniedHandlerImpl {
 
         super.handle(request, response, accessDeniedException);
     }
-
 }

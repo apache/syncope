@@ -233,7 +233,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
             server = new LdapServer();
             server.setTransports(new TcpTransport(Integer.parseInt(
                     WebApplicationContextUtils.getWebApplicationContext(sce.getServletContext()).
-                            getBean("testds.port", String.class))));
+                            getEnvironment().getProperty("testds.port"))));
             server.setDirectoryService(service);
 
             server.start();
