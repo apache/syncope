@@ -127,10 +127,6 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, parameters, svs);
             query.append(")");
         } else {
-            String key = key(schema.getType());
-            boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
-                    && (cond.getType() == AttributeCond.Type.IEQ || cond.getType() == AttributeCond.Type.ILIKE);
-
             if (!not && cond.getType() == AttributeCond.Type.EQ) {
                 PlainAttr<?> container = anyUtils.newPlainAttr();
                 container.setSchema(schema);
@@ -144,6 +140,10 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                         append(POJOHelper.serialize(Arrays.asList(container))).
                         append("'::jsonb");
             } else {
+                String key = key(schema.getType());
+                boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
+                        && (cond.getType() == AttributeCond.Type.IEQ || cond.getType() == AttributeCond.Type.ILIKE);
+
                 query.append("attrs ->> 'schema' = ?").append(setParameter(parameters, cond.getSchema())).
                         append(" AND ").
                         append(lower ? "LOWER(" : "").

@@ -35,7 +35,6 @@ import org.apache.commons.jexl3.parser.Token;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -54,9 +53,6 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
-
-    @Autowired
-    private DerSchemaDAO derSchemaDAO;
 
     protected abstract String queryBegin(String table);
 

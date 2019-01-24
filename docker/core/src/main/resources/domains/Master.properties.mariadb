@@ -19,7 +19,7 @@ Master.url=${DB_URL}
 Master.schema=
 Master.username=${DB_USER}
 Master.password=${DB_PASSWORD}
-Master.databasePlatform=org.apache.openjpa.jdbc.sql.MariaDBDictionary(blobTypeName=LONGBLOB,timestampTypeName=DATETIME(3))
+Master.databasePlatform=org.apache.openjpa.jdbc.sql.MariaDBDictionary(blobTypeName=LONGBLOB,dateFractionDigits=3)
 Master.orm=META-INF/spring-orm.xml
 
 Master.pool.maxActive=${DB_POOL_MAX}

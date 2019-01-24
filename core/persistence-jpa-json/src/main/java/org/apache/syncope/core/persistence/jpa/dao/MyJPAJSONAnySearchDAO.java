@@ -61,20 +61,25 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                         } else {
                             attrWhere.append(" OR ");
                         }
-                        attrWhere.append("JSON_CONTAINS(plainAttrs, '[{\"schema\":\"").append(field).append("\"}]'");
+                        attrWhere.append("JSON_CONTAINS(plainAttrs, '[{\"schema\":\"").append(field).append("\"}]')");
 
                         nullAttrWhere.append(" UNION SELECT DISTINCT any_id,").append(svs.table().alias).append(".*, ").
-                                append("JSON('{\"schema\": \"").
-                                append(field).
-                                append("\"})' as attrs, JSON('{}') as attrValues").
+                                append("\"").append(field).append("\"").append(" AS plainShema, ").
+                                append("null AS binaryValue, ").
+                                append("null AS booleanValue, ").
+                                append("null AS dateValue, ").
+                                append("null AS doubleValue, ").
+                                append("null AS longValue, ").
+                                append("null AS stringValue, ").
+                                append("null AS attrUniqueValue").
                                 append(" FROM ").append(svs.table().name).append(" ").append(svs.table().alias).
                                 append(", ").append(svs.field().name).
-                                append(" WHERE ").
-                                append("any_id NOT IN ").
+                                append(" WHERE any_id=").append(svs.table().alias).append(".id").
+                                append(" AND any_id NOT IN ").
                                 append("(SELECT distinct any_id FROM ").
                                 append(svs.field().name).
                                 append(" WHERE ").append(svs.table().alias).append(".id=any_id AND ").
-                                append("JSON_CONTAINS(plainAttrs, '[{\"schema\":\"").append(field).append("\"}]')");
+                                append("JSON_CONTAINS(plainAttrs, '[{\"schema\":\"").append(field).append("\"}]'))");
                     });
                     where.append(attrWhere).append(nullAttrWhere);
                 }
