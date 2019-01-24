@@ -528,8 +528,8 @@ under the License.
     <docker.mariadb.version>10.4</docker.mariadb.version>
 
     <jdbc.postgresql.version>42.2.5</jdbc.postgresql.version>
-    <jdbc.mysql.version>8.0.13</jdbc.mysql.version>
-    <jdbc.mariadb.version>2.4.0</jdbc.mariadb.version>
+    <jdbc.mysql.version>8.0.15</jdbc.mysql.version>
+    <jdbc.mariadb.version>2.4.1</jdbc.mariadb.version>
     <jdbc.mssql.version>7.2.1.jre</jdbc.mssql.version>
 
     <adminUser>admin</adminUser>

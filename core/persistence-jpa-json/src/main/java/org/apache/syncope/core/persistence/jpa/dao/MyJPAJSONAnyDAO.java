@@ -85,8 +85,8 @@ public class MyJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
     /**
      * {@inheritDoc}
      *
-     * This method is a workaround for a bug experienced with MySQL 8.0.13, where the correct implementation (as shown
-     * in PGJPAJSONAnyDAO.findByDerAttrValue(String, Map&lt;String, List&lt;Object&gt;&gt;)) generates a core dump.
+     * This method is a workaround for a bug experienced up to MySQL 8.0.15, where the correct implementation (as shown
+     * in {@link PGJPAJSONAnyDAO#findByDerAttrValue(java.lang.String, java.util.Map)} generates a core dump.
      */
     @Override
     @SuppressWarnings("unchecked")
