@@ -192,7 +192,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
     protected static final Class<? extends AnyTO> getTOClass(final String type) {
         if (type.equalsIgnoreCase(AnyTypeKind.USER.name())) {
             return UserTO.class;
-        } else if (type.equalsIgnoreCase(AnyTypeKind.USER.name())) {
+        } else if (type.equalsIgnoreCase(AnyTypeKind.GROUP.name())) {
             return GroupTO.class;
         } else {
             return AnyObjectTO.class;
