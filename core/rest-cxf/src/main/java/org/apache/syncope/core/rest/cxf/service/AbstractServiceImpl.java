@@ -71,9 +71,6 @@ abstract class AbstractServiceImpl implements JAXRSService {
         String actualKey = pretendingKey;
         if (!SyncopeConstants.UUID_PATTERN.matcher(pretendingKey).matches()) {
             actualKey = dao.findKey(pretendingKey);
-            if (actualKey == null) {
-                throw new NotFoundException("User, Group or Any Object for " + pretendingKey);
-            }
         }
 
         return actualKey;
