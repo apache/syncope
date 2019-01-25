@@ -69,6 +69,16 @@ under the License.
         To build Syncope without running any test nor check, but generating Docker images, do:
         <source>$ mvn -PskipTests,all,docker</source>
       </p>
+
+      <subsection name="Code analysis">
+	After build, it is possible to examine code quality by submitting the generated reports to
+	a <a href="https://www.sonarqube.org/">SonarQube</a> instance.
+	Various installation methods are available, but the quicker seems to be via Docker:
+	<source>$ docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube</source>
+	Once SonarQube is up and runninig, submit the reports as follows:
+	<source>$ mvn sonar:sonar</source>
+	At the end, browse http://localhost:9000/dashboard?id=org.apache.syncope%3Asyncope to see results.
+      </subsection>
     </section>
     
     <section name="Building documentation">
