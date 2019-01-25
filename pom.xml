@@ -535,6 +535,20 @@ under the License.
     <secretKey>1abcdefghilmnopqrstuvz2!</secretKey>
     <jwsKey>ZW7pRixehFuNUtnY5Se47IemgMryTzazPPJ9CGX5LTCmsOJpOgHAQEuPQeV9A28f</jwsKey>
 
+    <!--
+    Surefire plugin argLine can be defined as a Maven property to avoid JVM errors on startup with no jacaco-maven-plugin
+    https://www.eclemma.org/jacoco/trunk/doc/prepare-agent-mojo.html
+    -->
+    <argLine>-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m -Xss256k</argLine>
+
+    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+    <sonar.jacoco.utReportPath>${rootpom.basedir}/target/jacoco.ut.exec</sonar.jacoco.utReportPath>
+    <sonar.jacoco.itReportPath>${rootpom.basedir}/target/jacoco.it.exec</sonar.jacoco.itReportPath>
+    <sonar.jacoco.reportPaths>${sonar.jacoco.utReportPath},${sonar.jacoco.itReportPath}</sonar.jacoco.reportPaths>
+    <sonar.junit.reportPaths>${project.build.directory}/surefire-reports,${project.build.directory}/failsafe-reports</sonar.junit.reportPaths>
+    <sonar.language>java</sonar.language>
+    <sonar.java.source>${targetJdk}</sonar.java.source>
+
     <targetJdk>1.7</targetJdk>
     <rootpom.basedir>${basedir}</rootpom.basedir>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -2006,7 +2020,6 @@ under the License.
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
             <runOrder>alphabetical</runOrder>
-            <argLine>-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m -Xss256k</argLine>
           </configuration>
         </plugin>
         <plugin>
@@ -2017,7 +2030,6 @@ under the License.
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
             <runOrder>alphabetical</runOrder>
-            <argLine>-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m -Xss256k</argLine>
           </configuration>
           <executions>
             <execution>
@@ -2038,7 +2050,7 @@ under the License.
             <targetJdk>${targetJdk}</targetJdk>
           </configuration>
         </plugin>
-        
+
         <plugin>
           <groupId>org.vafer</groupId>
           <artifactId>jdeb</artifactId>
@@ -2176,6 +2188,44 @@ under the License.
             <phase>verify</phase>
             <goals>
               <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.3</version>
+        <configuration>
+          <append>true</append>
+        </configuration>
+        <executions>
+          <execution>
+            <id>jacoco-agent-ut</id>
+            <phase>process-test-classes</phase>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+            <configuration>
+              <destFile>${sonar.jacoco.utReportPath}</destFile>
+            </configuration>
+          </execution>
+          <execution>
+            <id>jacoco-agent-it</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>prepare-agent-integration</goal>
+            </goals>
+            <configuration>
+              <destFile>${sonar.jacoco.itReportPath}</destFile>
+            </configuration>
+          </execution>
+          <execution>
+            <id>jacoco-site</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>report-aggregate</goal>
             </goals>
           </execution>
         </executions>

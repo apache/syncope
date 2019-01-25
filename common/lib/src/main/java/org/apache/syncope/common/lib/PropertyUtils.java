@@ -29,6 +29,15 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public final class PropertyUtils {
 
+    /**
+     * Reads the property file with the given name from the directory assigned to the given property, or
+     * from the classpath if not found.
+     *
+     * @param clazz calling class, to access classpath
+     * @param propertiesFileName property file name
+     * @param confDirProp property name for the configuration directory
+     * @return properties, either from configuration directory, or from classpath
+     */
     public static Pair<Properties, String> read(
             final Class<?> clazz, final String propertiesFileName, final String confDirProp) {
 
