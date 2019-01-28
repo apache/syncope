@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Properties;
@@ -254,41 +254,64 @@ public class LoggerITCase extends AbstractITCase {
         assertTrue(found);
     }
 
+    private boolean logFileContains(final File file, final String message, final int maxWaitSeconds)
+            throws IOException {
+
+        int i = 0;
+        boolean messagePresent = false;
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            String auditLog = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+            messagePresent = auditLog.contains(message);
+
+            i++;
+        } while (!messagePresent && i < maxWaitSeconds);
+        return messagePresent;
+    }
+
     @Test
     public void customAuditAppender() throws IOException, InterruptedException {
+        AuditLoggerName auditLoggerResUpd = new AuditLoggerName(
+                EventCategoryType.LOGIC,
+                ResourceLogic.class.getSimpleName(),
+                null,
+                "update",
+                AuditElements.Result.SUCCESS);
+        LoggerTO resUpd = new LoggerTO();
+        resUpd.setKey(auditLoggerResUpd.toLoggerName());
+
+        AuditLoggerName auditLoggerConnUpd = new AuditLoggerName(
+                EventCategoryType.LOGIC,
+                ConnectorLogic.class.getSimpleName(),
+                null,
+                "update",
+                AuditElements.Result.SUCCESS);
+        LoggerTO connUpd = new LoggerTO();
+        connUpd.setKey(auditLoggerConnUpd.toLoggerName());
+
         try (InputStream propStream = getClass().getResourceAsStream("/core-test.properties")) {
             Properties props = new Properties();
             props.load(propStream);
 
-            String auditFilePath = props.getProperty("test.log.dir")
-                    + File.separator + "audit_for_Master_file.log";
-            String auditNoRewriteFilePath = props.getProperty("test.log.dir")
-                    + File.separator + "audit_for_Master_norewrite_file.log";
-            // 1. Enable audit for resource update -> catched by FileRewriteAuditAppender
-            AuditLoggerName auditLoggerResUpd = new AuditLoggerName(
-                    EventCategoryType.LOGIC,
-                    ResourceLogic.class.getSimpleName(),
-                    null,
-                    "update",
-                    AuditElements.Result.SUCCESS);
+            File auditFile = new File(props.getProperty("test.log.dir")
+                    + File.separator + "audit_for_Master_file.log");
+            FileUtils.write(auditFile, StringUtils.EMPTY, StandardCharsets.UTF_8);
 
-            LoggerTO loggerTOUpd = new LoggerTO();
-            loggerTOUpd.setKey(auditLoggerResUpd.toLoggerName());
-            loggerTOUpd.setLevel(LoggerLevel.DEBUG);
-            loggerService.update(LoggerType.AUDIT, loggerTOUpd);
+            File auditNoRewriteFile = new File(props.getProperty("test.log.dir")
+                    + File.separator + "audit_for_Master_norewrite_file.log");
+            FileUtils.write(auditNoRewriteFile, StringUtils.EMPTY, StandardCharsets.UTF_8);
+
+            // 1. Enable audit for resource update -> catched by FileRewriteAuditAppender
+            resUpd.setLevel(LoggerLevel.DEBUG);
+            loggerService.update(LoggerType.AUDIT, resUpd);
 
             // 2. Enable audit for connector update -> NOT catched by FileRewriteAuditAppender
-            AuditLoggerName auditLoggerConnUpd = new AuditLoggerName(
-                    EventCategoryType.LOGIC,
-                    ConnectorLogic.class.getSimpleName(),
-                    null,
-                    "update",
-                    AuditElements.Result.SUCCESS);
-
-            LoggerTO loggerTOConnUpd = new LoggerTO();
-            loggerTOConnUpd.setKey(auditLoggerConnUpd.toLoggerName());
-            loggerTOConnUpd.setLevel(LoggerLevel.DEBUG);
-            loggerService.update(LoggerType.AUDIT, loggerTOConnUpd);
+            connUpd.setLevel(LoggerLevel.DEBUG);
+            loggerService.update(LoggerType.AUDIT, connUpd);
 
             // 3. check that resource update is transformed and logged onto an audit file.
             ResourceTO resource = resourceService.read(RESOURCE_NAME_CSV);
@@ -301,23 +324,18 @@ public class LoggerITCase extends AbstractITCase {
             connector.setPoolConf(new ConnPoolConfTO());
             connectorService.update(connector);
 
-            File auditTempFile = new File(auditFilePath);
             // check audit_for_Master_file.log, it should contain only a static message
-            String auditLog = FileUtils.readFileToString(auditTempFile, Charset.defaultCharset());
-
-            assertTrue(StringUtils.contains(auditLog,
+            assertTrue(logFileContains(auditFile,
                     "DEBUG Master.syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]"
-                    + " - This is a static test message"));
-            File auditNoRewriteTempFile = new File(auditNoRewriteFilePath);
-            // check audit_for_Master_file.log, it should contain only a static message
-            String auditLogNoRewrite = FileUtils.readFileToString(auditNoRewriteTempFile, Charset.defaultCharset());
+                    + " - This is a static test message", 10));
 
-            assertFalse(StringUtils.contains(auditLogNoRewrite,
+            // nothing expected in audit_for_Master_norewrite_file.log instead
+            assertFalse(logFileContains(auditNoRewriteFile,
                     "DEBUG Master.syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]"
-                    + " - This is a static test message"));
+                    + " - This is a static test message", 10));
 
             // clean audit_for_Master_file.log
-            FileUtils.writeStringToFile(auditTempFile, StringUtils.EMPTY, Charset.defaultCharset());
+            FileUtils.write(auditFile, StringUtils.EMPTY, StandardCharsets.UTF_8);
             loggerService.delete(LoggerType.AUDIT, "syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]");
 
             resource = resourceService.read(RESOURCE_NAME_CSV);
@@ -326,9 +344,16 @@ public class LoggerITCase extends AbstractITCase {
             resourceService.update(resource);
 
             // check that nothing has been written to audit_for_Master_file.log
-            assertTrue(StringUtils.isEmpty(FileUtils.readFileToString(auditTempFile, Charset.defaultCharset())));
+            assertTrue(StringUtils.isEmpty(FileUtils.readFileToString(auditFile, StandardCharsets.UTF_8)));
         } catch (IOException e) {
-            fail("Unable to read/write log files" + e.getMessage());
+            fail("Unable to read/write log files: " + e.getMessage());
+            LOG.error("Unable to read/write log files", e);
+        } finally {
+            resUpd.setLevel(LoggerLevel.ERROR);
+            loggerService.update(LoggerType.AUDIT, resUpd);
+
+            connUpd.setLevel(LoggerLevel.ERROR);
+            loggerService.update(LoggerType.AUDIT, connUpd);
         }
     }
 
