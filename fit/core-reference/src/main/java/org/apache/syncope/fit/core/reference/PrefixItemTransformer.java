@@ -21,7 +21,9 @@ package org.apache.syncope.fit.core.reference;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
@@ -32,18 +34,19 @@ public class PrefixItemTransformer extends DefaultItemTransformer {
     public static final String PREFIX = "PREFIX_";
 
     @Override
-    public List<PlainAttrValue> beforePropagation(
+    public Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
             final Item item,
             final Entity entity,
+            final AttrSchemaType schemaType,
             final List<PlainAttrValue> values) {
 
         if (values == null || values.isEmpty() || values.get(0).getStringValue() == null) {
-            return super.beforePropagation(item, entity, values);
+            return super.beforePropagation(item, entity, schemaType, values);
         } else {
             String value = values.get(0).getStringValue();
             values.get(0).setStringValue(PREFIX + value);
 
-            return values;
+            return Pair.of(schemaType, values);
         }
     }
 
@@ -62,5 +65,4 @@ public class PrefixItemTransformer extends DefaultItemTransformer {
             return newValues;
         }
     }
-
 }

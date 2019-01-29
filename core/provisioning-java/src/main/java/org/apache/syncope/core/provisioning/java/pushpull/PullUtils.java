@@ -26,6 +26,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -37,6 +38,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -243,27 +245,26 @@ public class PullUtils {
                 case PLAIN:
                     PlainAttrValue value = anyUtils.newPlainAttrValue();
 
-                    PlainSchema schema = plainSchemaDAO.find(intAttrName.getSchemaName());
-                    if (schema == null) {
+                    if (intAttrName.getSchemaType() == SchemaType.PLAIN) {
                         value.setStringValue(connObjectKey);
                     } else {
                         try {
-                            value.parseValue(schema, connObjectKey);
+                            value.parseValue((PlainSchema) intAttrName.getSchema(), connObjectKey);
                         } catch (ParsingValidationException e) {
                             LOG.error("While parsing provided __UID__ {}", value, e);
                             value.setStringValue(connObjectKey);
                         }
                     }
 
-                    for (Any<?> any : anyUtils.dao().findByPlainAttrValue(intAttrName.getSchemaName(), value)) {
-                        result.add(any.getKey());
-                    }
+                    result.addAll(CollectionUtils.collect(
+                            anyUtils.dao().findByPlainAttrValue((PlainSchema) intAttrName.getSchema(), value),
+                            EntityUtils.keyTransformer()));
                     break;
 
                 case DERIVED:
-                    for (Any<?> any : anyUtils.dao().findByDerAttrValue(intAttrName.getSchemaName(), connObjectKey)) {
-                        result.add(any.getKey());
-                    }
+                    result.addAll(CollectionUtils.collect(
+                            anyUtils.dao().findByDerAttrValue((DerSchema) intAttrName.getSchema(), connObjectKey),
+                            EntityUtils.keyTransformer()));
                     break;
 
                 default:

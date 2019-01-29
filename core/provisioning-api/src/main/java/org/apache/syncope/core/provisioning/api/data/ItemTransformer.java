@@ -19,7 +19,9 @@
 package org.apache.syncope.core.provisioning.api.data;
 
 import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
@@ -37,12 +39,14 @@ public interface ItemTransformer {
      *
      * @param item mapping item
      * @param entity entity
+     * @param schemaType schema type
      * @param values original values
      * @return transformed values
      */
-    List<PlainAttrValue> beforePropagation(
+    Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
             Item item,
             Entity entity,
+            AttrSchemaType schemaType,
             List<PlainAttrValue> values);
 
     /**

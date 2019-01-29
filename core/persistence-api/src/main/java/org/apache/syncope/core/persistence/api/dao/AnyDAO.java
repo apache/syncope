@@ -23,8 +23,10 @@ import java.util.Date;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 
 public interface AnyDAO<A extends Any<?>> extends DAO<A> {
@@ -41,9 +43,9 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
     A findByWorkflowId(String workflowId);
 
-    List<A> findByPlainAttrValue(String schemaName, PlainAttrValue attrValue);
+    List<A> findByPlainAttrValue(PlainSchema schema, PlainAttrValue attrValue);
 
-    A findByPlainAttrUniqueValue(String schemaName, PlainAttrValue attrUniqueValue);
+    A findByPlainAttrUniqueValue(PlainSchema schema, PlainAttrValue attrUniqueValue);
 
     /**
      * Find any objects by derived attribute value. This method could fail if one or more string literals contained
@@ -51,11 +53,11 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
      * specify a derived attribute expression you must be quite sure that string literals used to build the expression
      * cannot be found into the attribute values used to replace attribute schema names used as identifiers.
      *
-     * @param schemaName derived schema name
+     * @param schema derived schema
      * @param value derived attribute value
      * @return list of any objects
      */
-    List<A> findByDerAttrValue(String schemaName, String value);
+    List<A> findByDerAttrValue(DerSchema schema, String value);
 
     List<A> findByResource(ExternalResource resource);
 

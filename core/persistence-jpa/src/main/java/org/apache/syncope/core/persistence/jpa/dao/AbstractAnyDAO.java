@@ -211,10 +211,9 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<A> findByPlainAttrValue(final String schemaKey, final PlainAttrValue attrValue) {
-        PlainSchema schema = plainSchemaDAO().find(schemaKey);
+    public List<A> findByPlainAttrValue(final PlainSchema schema, final PlainAttrValue attrValue) {
         if (schema == null) {
-            LOG.error("Invalid schema name '{}'", schemaKey);
+            LOG.error("No PlainSchema");
             return Collections.<A>emptyList();
         }
 
@@ -222,7 +221,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
                 ? anyUtils().plainAttrUniqueValueClass().getName()
                 : anyUtils().plainAttrValueClass().getName();
         Query query = findByPlainAttrValueQuery(entityName);
-        query.setParameter("schemaKey", schemaKey);
+        query.setParameter("schemaKey", schema.getKey());
         query.setParameter("stringValue", attrValue.getStringValue());
         query.setParameter("booleanValue", attrValue.getBooleanValue() == null
                 ? null
@@ -247,18 +246,17 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     }
 
     @Override
-    public A findByPlainAttrUniqueValue(final String schemaKey, final PlainAttrValue attrUniqueValue) {
-        PlainSchema schema = plainSchemaDAO().find(schemaKey);
+    public A findByPlainAttrUniqueValue(final PlainSchema schema, final PlainAttrValue attrUniqueValue) {
         if (schema == null) {
-            LOG.error("Invalid schema name '{}'", schemaKey);
+            LOG.error("No PlainSchema");
             return null;
         }
         if (!schema.isUniqueConstraint()) {
-            LOG.error("This schema has not unique constraint: '{}'", schemaKey);
+            LOG.error("This schema has not unique constraint: '{}'", schema.getKey());
             return null;
         }
 
-        List<A> result = findByPlainAttrValue(schemaKey, attrUniqueValue);
+        List<A> result = findByPlainAttrValue(schema, attrUniqueValue);
         return result.isEmpty()
                 ? null
                 : result.iterator().next();
@@ -412,10 +410,9 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     }
 
     @Override
-    public List<A> findByDerAttrValue(final String schemaKey, final String value) {
-        DerSchema schema = derSchemaDAO().find(schemaKey);
+    public List<A> findByDerAttrValue(final DerSchema schema, final String value) {
         if (schema == null) {
-            LOG.error("Invalid schema name '{}'", schemaKey);
+            LOG.error("No DerSchema");
             return Collections.<A>emptyList();
         }
 

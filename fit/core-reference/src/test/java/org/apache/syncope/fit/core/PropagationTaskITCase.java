@@ -23,13 +23,21 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.TaskTO;
@@ -45,11 +53,17 @@ import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.fit.core.reference.DateToDateItemTransformer;
+import org.apache.syncope.fit.core.reference.DateToLongItemTransformer;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.junit.Test;
 
 public class PropagationTaskITCase extends AbstractTaskITCase {
@@ -276,4 +290,114 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         assertTrue(orderedTasks.getResult().equals(unorderedTasks.getResult()));
     }
 
+    @Test
+    public void issueSYNCOPE1430() throws ParseException {
+        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        try {
+            // 1. clone the LDAP resource and add some sensible mappings
+            ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name());
+            assertNotNull(provision);
+            CollectionUtils.filterInverse(provision.getMapping().getItems(), new Predicate<ItemTO>() {
+
+                @Override
+                public boolean evaluate(final ItemTO item) {
+                    return "mail".equals(item.getExtAttrName());
+                }
+            });
+            provision.getVirSchemas().clear();
+
+            // Date -> long (JEXL expression) -> string (as all JEXL in Syncope)
+            ItemTO loginDateForJexlAsLong = new ItemTO();
+            loginDateForJexlAsLong.setPurpose(MappingPurpose.PROPAGATION);
+            loginDateForJexlAsLong.setIntAttrName("loginDate");
+            loginDateForJexlAsLong.setExtAttrName("employeeNumber");
+            loginDateForJexlAsLong.setPropagationJEXLTransformer("value.getTime()");
+            provision.getMapping().add(loginDateForJexlAsLong);
+
+            // Date -> string (JEXL expression)
+            ItemTO loginDateForJexlAsString = new ItemTO();
+            loginDateForJexlAsString.setPurpose(MappingPurpose.PROPAGATION);
+            loginDateForJexlAsString.setIntAttrName("loginDate");
+            loginDateForJexlAsString.setExtAttrName("street");
+            loginDateForJexlAsString.setPropagationJEXLTransformer(
+                    "value.toInstant().toString().split(\"T\")[0].replace(\"-\", \"\")");
+            provision.getMapping().add(loginDateForJexlAsString);
+
+            // Date -> long
+            ItemTO loginDateForJavaToLong = new ItemTO();
+            loginDateForJavaToLong.setPurpose(MappingPurpose.PROPAGATION);
+            loginDateForJavaToLong.setIntAttrName("loginDate");
+            loginDateForJavaToLong.setExtAttrName("st");
+            loginDateForJavaToLong.getTransformerClassNames().add(DateToLongItemTransformer.class.getName());
+            provision.getMapping().add(loginDateForJavaToLong);
+
+            // Date -> date
+            ItemTO loginDateForJavaToDate = new ItemTO();
+            loginDateForJavaToDate.setPurpose(MappingPurpose.PROPAGATION);
+            loginDateForJavaToDate.setIntAttrName("loginDate");
+            loginDateForJavaToDate.setExtAttrName("carLicense");
+            loginDateForJavaToDate.getTransformerClassNames().add(DateToDateItemTransformer.class.getName());
+            provision.getMapping().add(loginDateForJavaToDate);
+
+            ldap.getProvisions().clear();
+            ldap.getProvisions().add(provision);
+            ldap.setKey(RESOURCE_NAME_LDAP + "1430" + getUUIDString());
+            resourceService.create(ldap);
+
+            // 2. create user with the new resource assigned
+            UserTO user = UserITCase.getUniqueSampleTO("syncope1430@syncope.apache.org");
+            user.getResources().clear();
+            user.getResources().add(ldap.getKey());
+            CollectionUtils.filterInverse(user.getPlainAttrs(), new Predicate<AttrTO>() {
+
+                @Override
+                public boolean evaluate(final AttrTO attr) {
+                    return "loginDate".equals(attr.getSchema());
+                }
+            });
+            user.getPlainAttrs().add(attrTO("loginDate", "2019-01-29"));
+            user = createUser(user).getEntity();
+
+            // 3. check attributes prepared for propagation
+            PagedResult<PropagationTaskTO> tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                    resource(user.getResources().iterator().next()).
+                    anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
+            assertEquals(1, tasks.getSize());
+
+            Set<Attribute> propagationAttrs = new HashSet<>();
+            if (StringUtils.isNotBlank(tasks.getResult().get(0).getAttributes())) {
+                propagationAttrs.addAll(Arrays.asList(
+                        POJOHelper.deserialize(tasks.getResult().get(0).getAttributes(), Attribute[].class)));
+            }
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+            Calendar loginDate = Calendar.getInstance();
+            loginDate.setTime(sdf.parse(user.getPlainAttr("loginDate").getValues().get(0)));
+
+            Attribute employeeNumber = AttributeUtil.find("employeeNumber", propagationAttrs);
+            assertNotNull(employeeNumber);
+            assertEquals(String.valueOf(loginDate.getTimeInMillis()), employeeNumber.getValue().get(0));
+
+            Attribute street = AttributeUtil.find("street", propagationAttrs);
+            assertNotNull(street);
+            assertEquals(loginDate.toInstant().toString().split("T")[0].replace("-", ""), street.getValue().get(0));
+
+            Attribute st = AttributeUtil.find("st", propagationAttrs);
+            assertNotNull(st);
+            assertEquals(loginDate.getTimeInMillis(), st.getValue().get(0));
+
+            loginDate.add(Calendar.DAY_OF_MONTH, 1);
+
+            Attribute carLicense = AttributeUtil.find("carLicense", propagationAttrs);
+            assertNotNull(carLicense);
+            assertEquals(sdf.format(loginDate.getTime()), carLicense.getValue().get(0));
+        } finally {
+            try {
+                resourceService.delete(ldap.getKey());
+            } catch (Exception ignore) {
+                // ignore
+            }
+        }
+    }
 }

@@ -710,5 +710,4 @@ public class VirAttrITCase extends AbstractITCase {
             }
         }
     }
-
 }

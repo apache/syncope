@@ -28,7 +28,9 @@ import java.util.Date;
 import java.util.List;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -54,6 +56,12 @@ public class UserTest extends AbstractTest {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
+
+    @Autowired
+    private PlainSchemaDAO plainSchemaDAO;
+
+    @Autowired
+    private DerSchemaDAO derSchemaDAO;
 
     @Test
     public void findAll() {
@@ -89,18 +97,18 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void findByDerAttributeValue() {
-        final List<User> list = userDAO.findByDerAttrValue("cn", "Vivaldi, Antonio");
+        final List<User> list = userDAO.findByDerAttrValue(derSchemaDAO.find("cn"), "Vivaldi, Antonio");
         assertEquals("did not get expected number of users", 1, list.size());
     }
 
     @Test
     public void findByInvalidDerAttrValue() {
-        assertTrue(userDAO.findByDerAttrValue("cn", "Antonio, Maria, Rossi").isEmpty());
+        assertTrue(userDAO.findByDerAttrValue(derSchemaDAO.find("cn"), "Antonio, Maria, Rossi").isEmpty());
     }
 
     @Test
     public void findByInvalidDerAttrExpression() {
-        assertTrue(userDAO.findByDerAttrValue("noschema", "Antonio, Maria").isEmpty());
+        assertTrue(userDAO.findByDerAttrValue(derSchemaDAO.find("noschema"), "Antonio, Maria").isEmpty());
     }
 
     @Test
@@ -108,7 +116,7 @@ public class UserTest extends AbstractTest {
         final UPlainAttrValue fullnameValue = entityFactory.newEntity(UPlainAttrValue.class);
         fullnameValue.setStringValue("Gioacchino Rossini");
 
-        final List<User> list = userDAO.findByPlainAttrValue("fullname", fullnameValue);
+        final List<User> list = userDAO.findByPlainAttrValue(plainSchemaDAO.find("fullname"), fullnameValue);
         assertEquals("did not get expected number of users", 1, list.size());
     }
 
@@ -117,7 +125,7 @@ public class UserTest extends AbstractTest {
         final UPlainAttrValue coolValue = entityFactory.newEntity(UPlainAttrValue.class);
         coolValue.setBooleanValue(true);
 
-        final List<User> list = userDAO.findByPlainAttrValue("cool", coolValue);
+        final List<User> list = userDAO.findByPlainAttrValue(plainSchemaDAO.find("cool"), coolValue);
         assertEquals("did not get expected number of users", 1, list.size());
     }
 

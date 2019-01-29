@@ -22,6 +22,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.core.persistence.api.entity.Schema;
 
 public class IntAttrName {
 
@@ -31,7 +32,7 @@ public class IntAttrName {
 
     private SchemaType schemaType;
 
-    private String schemaName;
+    private Schema schema;
 
     private String enclosingGroup;
 
@@ -69,12 +70,12 @@ public class IntAttrName {
         this.schemaType = schemaType;
     }
 
-    public String getSchemaName() {
-        return schemaName;
+    public Schema getSchema() {
+        return schema;
     }
 
-    public void setSchemaName(final String schemaName) {
-        this.schemaName = schemaName;
+    public void setSchema(final Schema schemaName) {
+        this.schema = schemaName;
     }
 
     public String getEnclosingGroup() {

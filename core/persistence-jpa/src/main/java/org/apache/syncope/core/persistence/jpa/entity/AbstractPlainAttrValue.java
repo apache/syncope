@@ -219,7 +219,51 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
                                                 : getStringValue());
     }
 
+    private Object getValue(final AttrSchemaType type) {
+        Object value;
+        switch (type) {
+
+            case Boolean:
+                value = getBooleanValue();
+                break;
+
+            case Long:
+                value = getLongValue();
+                break;
+
+            case Double:
+                value = getDoubleValue();
+                break;
+
+            case Date:
+                value = getDateValue();
+                break;
+
+            case Binary:
+                value = getBinaryValue();
+                break;
+
+            case String:
+            case Enum:
+            case Encrypted:
+                value = getStringValue();
+                break;
+
+            default:
+                value = null;
+        }
+
+        return value;
+    }
+
     private String getValueAsString(final AttrSchemaType type, final PlainSchema schema) {
+        if (getValue(type) == null) {
+            LOG.warn("Could not find expected value for type {} in {}, reverting to getValue().toString()", type, this);
+
+            Object value = getValue();
+            return value == null ? null : value.toString();
+        }
+
         String result;
         switch (type) {
 
@@ -254,7 +298,6 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
             case Encrypted:
             default:
                 result = getStringValue();
-                break;
         }
 
         return result;

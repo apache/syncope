@@ -16,23 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java.data;
+package org.apache.syncope.fit.core.reference;
 
+import java.util.Calendar;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
-import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.provisioning.java.data.DefaultItemTransformer;
 
-/**
- * Default (empty) implementation of {@link ItemTransformer}.
- */
-@Transactional(readOnly = true)
-public class DefaultItemTransformer implements ItemTransformer {
+public class DateToDateItemTransformer extends DefaultItemTransformer {
 
     @Override
     public Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
@@ -41,11 +36,15 @@ public class DefaultItemTransformer implements ItemTransformer {
             final AttrSchemaType schemaType,
             final List<PlainAttrValue> values) {
 
-        return Pair.of(schemaType, values);
-    }
+        if (values == null || values.isEmpty() || values.get(0).getDateValue() == null) {
+            return super.beforePropagation(item, entity, schemaType, values);
+        } else {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(values.get(0).getDateValue());
+            cal.add(Calendar.DAY_OF_MONTH, 1);
+            values.get(0).setDateValue(cal.getTime());
 
-    @Override
-    public List<Object> beforePull(final Item item, final EntityTO entityTO, final List<Object> values) {
-        return values;
+            return Pair.of(schemaType, values);
+        }
     }
 }

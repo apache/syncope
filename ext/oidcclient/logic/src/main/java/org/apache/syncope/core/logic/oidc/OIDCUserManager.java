@@ -34,9 +34,11 @@ import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.OIDCProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCProviderItem;
@@ -133,12 +135,11 @@ public class OIDCUserManager {
                 case PLAIN:
                     PlainAttrValue value = entityFactory.newEntity(UPlainAttrValue.class);
 
-                    PlainSchema schema = plainSchemaDAO.find(intAttrName.getSchemaName());
-                    if (schema == null) {
+                    if (intAttrName.getSchemaType() == SchemaType.PLAIN) {
                         value.setStringValue(transformed);
                     } else {
                         try {
-                            value.parseValue(schema, transformed);
+                            value.parseValue((PlainSchema) intAttrName.getSchema(), transformed);
                         } catch (ParsingValidationException e) {
                             LOG.error("While parsing provided key value {}", transformed, e);
                             value.setStringValue(transformed);
@@ -146,7 +147,7 @@ public class OIDCUserManager {
                     }
 
                     CollectionUtils.collect(
-                            userDAO.findByPlainAttrValue(intAttrName.getSchemaName(), value),
+                            userDAO.findByPlainAttrValue((PlainSchema) intAttrName.getSchema(), value),
                             new Transformer<User, String>() {
 
                         @Override
@@ -158,7 +159,7 @@ public class OIDCUserManager {
 
                 case DERIVED:
                     CollectionUtils.collect(
-                            userDAO.findByDerAttrValue(intAttrName.getSchemaName(), transformed),
+                            userDAO.findByDerAttrValue((DerSchema) intAttrName.getSchema(), transformed),
                             new Transformer<User, String>() {
 
                         @Override
@@ -233,9 +234,9 @@ public class OIDCUserManager {
             } else if (intAttrName != null && intAttrName.getSchemaType() != null) {
                 switch (intAttrName.getSchemaType()) {
                     case PLAIN:
-                        AttrTO attr = userTO.getPlainAttr(intAttrName.getSchemaName());
+                        AttrTO attr = userTO.getPlainAttr(intAttrName.getSchema().getKey());
                         if (attr == null) {
-                            attr = new AttrTO.Builder().schema(intAttrName.getSchemaName()).build();
+                            attr = new AttrTO.Builder().schema(intAttrName.getSchema().getKey()).build();
                             userTO.getPlainAttrs().add(attr);
                         }
                         attr.getValues().clear();
@@ -243,7 +244,7 @@ public class OIDCUserManager {
                         break;
 
                     default:
-                        LOG.warn("Unsupported: {} {}", intAttrName.getSchemaType(), intAttrName.getSchemaName());
+                        LOG.warn("Unsupported: {} {}", intAttrName.getSchemaType(), intAttrName.getSchema().getKey());
                 }
             }
         }

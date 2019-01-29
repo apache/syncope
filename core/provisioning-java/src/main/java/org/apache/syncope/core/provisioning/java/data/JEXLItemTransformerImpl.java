@@ -23,9 +23,11 @@ import java.util.List;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
@@ -50,9 +52,10 @@ public class JEXLItemTransformerImpl extends DefaultItemTransformer implements J
     }
 
     @Override
-    public List<PlainAttrValue> beforePropagation(
+    public Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
             final Item item,
             final Entity entity,
+            final AttrSchemaType schemaType,
             final List<PlainAttrValue> values) {
 
         if (StringUtils.isNotBlank(propagationJEXL) && values != null) {
@@ -67,7 +70,7 @@ public class JEXLItemTransformerImpl extends DefaultItemTransformer implements J
                             JexlUtils.addDerAttrsToContext(((Any<?>) entity), jexlContext);
                         }
                     }
-                    jexlContext.set("value", originalValue.toString());
+                    jexlContext.set("value", originalValue);
 
                     value.setBinaryValue(null);
                     value.setBooleanValue(null);
@@ -78,10 +81,10 @@ public class JEXLItemTransformerImpl extends DefaultItemTransformer implements J
                 }
             }
 
-            return values;
+            return Pair.of(AttrSchemaType.String, values);
         }
 
-        return super.beforePropagation(item, entity, values);
+        return super.beforePropagation(item, entity, schemaType, values);
     }
 
     @Override
