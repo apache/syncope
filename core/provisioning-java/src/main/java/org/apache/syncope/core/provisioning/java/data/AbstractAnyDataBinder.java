@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AnyPatch;
@@ -38,6 +39,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -208,9 +210,16 @@ abstract class AbstractAnyDataBinder {
             } catch (ParseException e) {
                 LOG.error("Invalid intAttrName '{}', ignoring", mapItem.getIntAttrName(), e);
             }
-            if (intAttrName != null && intAttrName.getSchemaType() != null) {
-                List<PlainAttrValue> values = mappingManager.getIntValues(provision, mapItem, intAttrName, any);
-                if (values.isEmpty() && JexlUtils.evaluateMandatoryCondition(mapItem.getMandatoryCondition(), any)) {
+            if (intAttrName != null && intAttrName.getSchema() != null) {
+                AttrSchemaType schemaType = intAttrName.getSchema() instanceof PlainSchema
+                        ? ((PlainSchema) intAttrName.getSchema()).getType()
+                        : AttrSchemaType.String;
+
+                Pair<AttrSchemaType, List<PlainAttrValue>> intValues =
+                        mappingManager.getIntValues(provision, mapItem, intAttrName, schemaType, any);
+                if (intValues.getRight().isEmpty()
+                        && JexlUtils.evaluateMandatoryCondition(mapItem.getMandatoryCondition(), any)) {
+
                     missingAttrNames.add(mapItem.getIntAttrName());
                 }
             }

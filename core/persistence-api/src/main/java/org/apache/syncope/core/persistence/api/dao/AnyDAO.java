@@ -23,8 +23,10 @@ import java.util.Date;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 
 public interface AnyDAO<A extends Any<?>> extends DAO<A> {
@@ -39,9 +41,9 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
     A find(String key);
 
-    List<A> findByPlainAttrValue(String schema, PlainAttrValue attrValue, boolean ignoreCaseMatch);
+    List<A> findByPlainAttrValue(PlainSchema schema, PlainAttrValue attrValue, boolean ignoreCaseMatch);
 
-    A findByPlainAttrUniqueValue(String schema, PlainAttrValue attrUniqueValue, boolean ignoreCaseMatch);
+    A findByPlainAttrUniqueValue(PlainSchema schema, PlainAttrValue attrUniqueValue, boolean ignoreCaseMatch);
 
     /**
      * Find any objects by derived attribute value. This method could fail if one or more string literals contained
@@ -54,7 +56,7 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
      * @param ignoreCaseMatch whether comparison for string values should take case into account or not
      * @return list of any objects
      */
-    List<A> findByDerAttrValue(String schema, String value, boolean ignoreCaseMatch);
+    List<A> findByDerAttrValue(DerSchema schema, String value, boolean ignoreCaseMatch);
 
     List<A> findByResource(ExternalResource resource);
 

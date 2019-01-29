@@ -143,20 +143,19 @@ public class PGJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> implements JPAJ
     public <A extends Any<?>> List<A> findByPlainAttrValue(
             final String table,
             final AnyUtils anyUtils,
-            final String schemaKey,
+            final PlainSchema schema,
             final PlainAttrValue attrValue,
             final boolean ignoreCaseMatch) {
 
-        PlainSchema schema = plainSchemaDAO.find(schemaKey);
         if (schema == null) {
-            LOG.error("Invalid schema '{}'", schemaKey);
+            LOG.error("No PlainSchema");
             return Collections.<A>emptyList();
         }
 
         Query query = entityManager().createNativeQuery(
                 queryBegin(table)
                 + "WHERE " + attrValueMatch(anyUtils, schema, attrValue, ignoreCaseMatch));
-        query.setParameter(1, schemaKey);
+        query.setParameter(1, schema.getKey());
         query.setParameter(2, attrValue.getValue());
 
         return buildResult(anyUtils, query.getResultList());
@@ -167,21 +166,20 @@ public class PGJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> implements JPAJ
     public <A extends Any<?>> A findByPlainAttrUniqueValue(
             final String table,
             final AnyUtils anyUtils,
-            final String schemaKey,
+            final PlainSchema schema,
             final PlainAttrValue attrUniqueValue,
             final boolean ignoreCaseMatch) {
 
-        PlainSchema schema = plainSchemaDAO.find(schemaKey);
         if (schema == null) {
-            LOG.error("Invalid schema '{}'", schemaKey);
+            LOG.error("No PlainSchema");
             return null;
         }
         if (!schema.isUniqueConstraint()) {
-            LOG.error("This schema has not unique constraint: '{}'", schemaKey);
+            LOG.error("This schema has not unique constraint: '{}'", schema.getKey());
             return null;
         }
 
-        List<A> result = findByPlainAttrValue(table, anyUtils, schemaKey, attrUniqueValue, ignoreCaseMatch);
+        List<A> result = findByPlainAttrValue(table, anyUtils, schema, attrUniqueValue, ignoreCaseMatch);
         return result.isEmpty()
                 ? null
                 : result.get(0);
@@ -216,13 +214,12 @@ public class PGJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> implements JPAJ
     public <A extends Any<?>> List<A> findByDerAttrValue(
             final String table,
             final AnyUtils anyUtils,
-            final String schemaKey,
+            final DerSchema derSchema,
             final String value,
             final boolean ignoreCaseMatch) {
 
-        DerSchema derSchema = derSchemaDAO.find(schemaKey);
         if (derSchema == null) {
-            LOG.error("Invalid schema '{}'", schemaKey);
+            LOG.error("No DerSchema");
             return Collections.<A>emptyList();
         }
 
@@ -335,13 +332,14 @@ public class PGJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> implements JPAJ
                 filter(attr -> attr.getUniqueValue() != null).
                 map(JSONPlainAttr.class::cast).
                 forEach(attr -> {
-                    String schemaKey = attr.getSchemaKey();
-                    List<A> others = findByPlainAttrValue(table, anyUtils, schemaKey, attr.getUniqueValue(), false);
+                    PlainSchema schema = attr.getSchema();
+                    List<A> others = findByPlainAttrValue(table, anyUtils, schema, attr.getUniqueValue(), false);
                     if (others.isEmpty() || (others.size() == 1 && others.get(0).getKey().equals(any.getKey()))) {
                         LOG.debug("No duplicate value found for {}", attr.getUniqueValue().getValueAsString());
                     } else {
                         throw new DuplicateException(
-                                "Value " + attr.getUniqueValue().getValueAsString() + " existing for " + schemaKey);
+                                "Value " + attr.getUniqueValue().getValueAsString()
+                                + " existing for " + schema.getKey());
                     }
                 });
 

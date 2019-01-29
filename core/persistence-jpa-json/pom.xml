@@ -237,6 +237,9 @@ under the License.
           <testResource>
             <directory>src/main/resources/pgjsonb</directory>
             <filtering>true</filtering>
+            <excludes>
+              <exclude>domains/MasterContent.xml</exclude>
+            </excludes>
           </testResource>
         </testResources>
       </build>

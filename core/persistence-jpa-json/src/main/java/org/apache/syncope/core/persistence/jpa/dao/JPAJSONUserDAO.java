@@ -26,6 +26,8 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUser;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public class JPAJSONUserDAO extends JPAUserDAO {
 
@@ -39,33 +41,32 @@ public class JPAJSONUserDAO extends JPAUserDAO {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<User> findByPlainAttrValue(
-            final String schemaKey,
+            final PlainSchema schema,
             final PlainAttrValue attrValue,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO().findByPlainAttrValue(JPAJSONUser.TABLE, anyUtils(), schemaKey, attrValue, ignoreCaseMatch);
+        return anyDAO().findByPlainAttrValue(
+                JPAJSONUser.TABLE, anyUtils(), schema, attrValue, ignoreCaseMatch);
     }
 
     @Override
     public User findByPlainAttrUniqueValue(
-            final String schemaKey,
+            final PlainSchema schema,
             final PlainAttrValue attrUniqueValue,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO().findByPlainAttrUniqueValue(JPAJSONUser.TABLE, anyUtils(),
-                schemaKey, attrUniqueValue, ignoreCaseMatch);
+        return anyDAO().findByPlainAttrUniqueValue(
+                JPAJSONUser.TABLE, anyUtils(), schema, attrUniqueValue, ignoreCaseMatch);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<User> findByDerAttrValue(
-            final String schemaKey,
+            final DerSchema schema,
             final String value,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO().findByDerAttrValue(JPAJSONUser.TABLE, anyUtils(), schemaKey, value, ignoreCaseMatch);
+        return anyDAO().findByDerAttrValue(JPAJSONUser.TABLE, anyUtils(), schema, value, ignoreCaseMatch);
     }
 
     @Override

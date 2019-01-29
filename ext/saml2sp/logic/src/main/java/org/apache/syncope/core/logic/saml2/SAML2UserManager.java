@@ -34,10 +34,12 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -143,24 +145,25 @@ public class SAML2UserManager {
                 case PLAIN:
                     PlainAttrValue value = entityFactory.newEntity(UPlainAttrValue.class);
 
-                    PlainSchema schema = plainSchemaDAO.find(intAttrName.getSchemaName());
-                    if (schema == null) {
+                    if (intAttrName.getSchemaType() == SchemaType.PLAIN) {
                         value.setStringValue(transformed);
                     } else {
                         try {
-                            value.parseValue(schema, transformed);
+                            value.parseValue((PlainSchema) intAttrName.getSchema(), transformed);
                         } catch (ParsingValidationException e) {
                             LOG.error("While parsing provided key value {}", transformed, e);
                             value.setStringValue(transformed);
                         }
                     }
 
-                    result.addAll(userDAO.findByPlainAttrValue(intAttrName.getSchemaName(), value, false).stream().
+                    result.addAll(userDAO.findByPlainAttrValue(
+                            (PlainSchema) intAttrName.getSchema(), value, false).stream().
                             map(User::getUsername).collect(Collectors.toList()));
                     break;
 
                 case DERIVED:
-                    result.addAll(userDAO.findByDerAttrValue(intAttrName.getSchemaName(), transformed, false).stream().
+                    result.addAll(userDAO.findByDerAttrValue(
+                            (DerSchema) intAttrName.getSchema(), transformed, false).stream().
                             map(User::getUsername).collect(Collectors.toList()));
                     break;
 
@@ -233,18 +236,18 @@ public class SAML2UserManager {
             } else if (intAttrName != null && intAttrName.getSchemaType() != null) {
                 switch (intAttrName.getSchemaType()) {
                     case PLAIN:
-                        Optional<AttrTO> attr = userTO.getPlainAttr(intAttrName.getSchemaName());
+                        Optional<AttrTO> attr = userTO.getPlainAttr(intAttrName.getSchema().getKey());
                         if (attr.isPresent()) {
                             attr.get().getValues().clear();
                         } else {
-                            attr = Optional.of(new AttrTO.Builder().schema(intAttrName.getSchemaName()).build());
+                            attr = Optional.of(new AttrTO.Builder().schema(intAttrName.getSchema().getKey()).build());
                             userTO.getPlainAttrs().add(attr.get());
                         }
                         attr.get().getValues().addAll(values);
                         break;
 
                     default:
-                        LOG.warn("Unsupported: {} {}", intAttrName.getSchemaType(), intAttrName.getSchemaName());
+                        LOG.warn("Unsupported: {} {}", intAttrName.getSchemaType(), intAttrName.getSchema().getKey());
                 }
             }
         });

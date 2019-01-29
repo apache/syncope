@@ -23,11 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
@@ -623,9 +621,7 @@ public class VirAttrITCase extends AbstractITCase {
         try {
             ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
             assertNotNull(provision);
-            List<ItemTO> mail = provision.getMapping().getItems().stream().
-                    filter(item -> "mail".equals(item.getExtAttrName())).collect(Collectors.toList());
-            provision.getMapping().getItems().removeAll(mail);
+            provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getExtAttrName()));
             provision.getVirSchemas().clear();
 
             ldap.getProvisions().clear();
@@ -701,5 +697,4 @@ public class VirAttrITCase extends AbstractITCase {
             }
         }
     }
-
 }

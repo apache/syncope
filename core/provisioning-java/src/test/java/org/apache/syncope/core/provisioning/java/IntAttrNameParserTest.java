@@ -21,11 +21,15 @@ package org.apache.syncope.core.provisioning.java;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.text.ParseException;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +48,7 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
         assertNotNull(intAttrName.getField());
         assertEquals("key", intAttrName.getField());
-        assertNull(intAttrName.getSchemaName());
+        assertNull(intAttrName.getSchema());
         assertNull(intAttrName.getSchemaType());
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
@@ -59,7 +63,7 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertEquals(AnyTypeKind.GROUP, intAttrName.getAnyTypeKind());
         assertNotNull(intAttrName.getField());
         assertEquals("name", intAttrName.getField());
-        assertNull(intAttrName.getSchemaName());
+        assertNull(intAttrName.getSchema());
         assertNull(intAttrName.getSchemaType());
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
@@ -74,7 +78,7 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertEquals(AnyTypeKind.GROUP, intAttrName.getAnyTypeKind());
         assertNotNull(intAttrName.getField());
         assertEquals("userOwner", intAttrName.getField());
-        assertNull(intAttrName.getSchemaName());
+        assertNull(intAttrName.getSchema());
         assertNull(intAttrName.getSchemaType());
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
@@ -96,8 +100,9 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNotNull(intAttrName);
         assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
-        assertEquals("email", intAttrName.getSchemaName());
+        assertEquals("email", intAttrName.getSchema().getKey());
         assertEquals(SchemaType.PLAIN, intAttrName.getSchemaType());
+        assertTrue(intAttrName.getSchema() instanceof PlainSchema);
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
@@ -110,8 +115,9 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNotNull(intAttrName);
         assertEquals(AnyTypeKind.ANY_OBJECT, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
-        assertEquals("cn", intAttrName.getSchemaName());
+        assertEquals("cn", intAttrName.getSchema().getKey());
         assertEquals(SchemaType.DERIVED, intAttrName.getSchemaType());
+        assertTrue(intAttrName.getSchema() instanceof DerSchema);
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
@@ -124,8 +130,9 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNotNull(intAttrName);
         assertEquals(AnyTypeKind.ANY_OBJECT, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
-        assertEquals("rvirtualdata", intAttrName.getSchemaName());
+        assertEquals("rvirtualdata", intAttrName.getSchema().getKey());
         assertEquals(SchemaType.VIRTUAL, intAttrName.getSchemaType());
+        assertTrue(intAttrName.getSchema() instanceof VirSchema);
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
@@ -141,8 +148,9 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNotNull(intAttrName);
         assertEquals(AnyTypeKind.GROUP, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
-        assertEquals("cn", intAttrName.getSchemaName());
+        assertEquals("cn", intAttrName.getSchema().getKey());
         assertEquals(SchemaType.DERIVED, intAttrName.getSchemaType());
+        assertTrue(intAttrName.getSchema() instanceof DerSchema);
         assertEquals("readers", intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
@@ -158,8 +166,9 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNotNull(intAttrName);
         assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
-        assertEquals("firstname", intAttrName.getSchemaName());
+        assertEquals("firstname", intAttrName.getSchema().getKey());
         assertEquals(SchemaType.PLAIN, intAttrName.getSchemaType());
+        assertTrue(intAttrName.getSchema() instanceof PlainSchema);
         assertEquals("bellini", intAttrName.getRelatedUser());
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
@@ -175,7 +184,7 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNotNull(intAttrName);
         assertEquals(AnyTypeKind.ANY_OBJECT, intAttrName.getAnyTypeKind());
         assertEquals("name", intAttrName.getField());
-        assertNull(intAttrName.getSchemaName());
+        assertNull(intAttrName.getSchema());
         assertNull(intAttrName.getSchemaType());
         assertNull(intAttrName.getEnclosingGroup());
         assertEquals("hp", intAttrName.getRelatedAnyObject());
@@ -192,8 +201,9 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNotNull(intAttrName);
         assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
-        assertEquals("cn", intAttrName.getSchemaName());
+        assertEquals("cn", intAttrName.getSchema().getKey());
         assertEquals(SchemaType.DERIVED, intAttrName.getSchemaType());
+        assertTrue(intAttrName.getSchema() instanceof DerSchema);
         assertNull(intAttrName.getEnclosingGroup());
         assertEquals("top", intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
@@ -209,7 +219,7 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNotNull(intAttrName);
         assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
-        assertNull(intAttrName.getSchemaName());
+        assertNull(intAttrName.getSchema());
         assertNull(intAttrName.getSchemaType());
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getRelatedAnyObject());
@@ -226,8 +236,9 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNotNull(intAttrName);
         assertEquals(AnyTypeKind.ANY_OBJECT, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
-        assertEquals("location", intAttrName.getSchemaName());
+        assertEquals("location", intAttrName.getSchema().getKey());
         assertEquals(SchemaType.PLAIN, intAttrName.getSchemaType());
+        assertTrue(intAttrName.getSchema() instanceof PlainSchema);
         assertEquals("inclusion", intAttrName.getRelationshipType());
         assertEquals("PRINTER", intAttrName.getRelationshipAnyType());
         assertNull(intAttrName.getEnclosingGroup());

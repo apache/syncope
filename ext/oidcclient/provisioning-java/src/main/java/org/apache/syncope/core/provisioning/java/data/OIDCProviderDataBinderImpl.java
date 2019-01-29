@@ -107,15 +107,15 @@ public class OIDCProviderDataBinderImpl implements OIDCProviderDataBinder {
                             && intAttrName.getRelatedAnyObject() == null) {
                         switch (intAttrName.getSchemaType()) {
                             case PLAIN:
-                                allowed = allowedSchemas.getPlainSchemas().contains(intAttrName.getSchemaName());
+                                allowed = allowedSchemas.getPlainSchemas().contains(intAttrName.getSchema().getKey());
                                 break;
 
                             case DERIVED:
-                                allowed = allowedSchemas.getDerSchemas().contains(intAttrName.getSchemaName());
+                                allowed = allowedSchemas.getDerSchemas().contains(intAttrName.getSchema().getKey());
                                 break;
 
                             case VIRTUAL:
-                                allowed = allowedSchemas.getVirSchemas().contains(intAttrName.getSchemaName());
+                                allowed = allowedSchemas.getVirSchemas().contains(intAttrName.getSchema().getKey());
                                 break;
 
                             default:

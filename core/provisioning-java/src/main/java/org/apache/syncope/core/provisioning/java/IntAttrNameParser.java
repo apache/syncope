@@ -22,6 +22,7 @@ import java.text.ParseException;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -66,7 +67,7 @@ public class IntAttrNameParser {
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
 
-    private SchemaType find(final String key) {
+    private Pair<Schema, SchemaType> find(final String key) {
         Schema schema = plainSchemaDAO.find(key);
         if (schema == null) {
             schema = derSchemaDAO.find(key);
@@ -75,13 +76,13 @@ public class IntAttrNameParser {
                 if (schema == null) {
                     return null;
                 } else {
-                    return SchemaType.VIRTUAL;
+                    return Pair.of(schema, SchemaType.VIRTUAL);
                 }
             } else {
-                return SchemaType.DERIVED;
+                return Pair.of(schema, SchemaType.DERIVED);
             }
         } else {
-            return SchemaType.PLAIN;
+            return Pair.of(schema, SchemaType.PLAIN);
         }
     }
 
@@ -91,8 +92,11 @@ public class IntAttrNameParser {
             final IntAttrName result) {
 
         if (anyUtilsFactory.getInstance(anyTypeKind).getField(fieldOrSchemaName) == null) {
-            result.setSchemaType(find(fieldOrSchemaName));
-            result.setSchemaName(fieldOrSchemaName);
+            Pair<Schema, SchemaType> schemaInfo = find(fieldOrSchemaName);
+            if (schemaInfo != null) {
+                result.setSchemaType(schemaInfo.getRight());
+                result.setSchema(schemaInfo.getLeft());
+            }
         } else {
             result.setField(fieldOrSchemaName);
         }
