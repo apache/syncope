@@ -17,7 +17,10 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
+import java.util.List;
+import org.apache.commons.lang3.tuple.Pair
 import org.apache.syncope.common.lib.to.EntityTO
+import org.apache.syncope.common.lib.types.AttrSchemaType
 import org.apache.syncope.core.persistence.api.entity.Entity
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue
 import org.apache.syncope.core.persistence.api.entity.resource.Item
@@ -27,12 +30,13 @@ import org.apache.syncope.core.provisioning.api.data.ItemTransformer
 class MyItemTransformer implements ItemTransformer {
 	
   @Override
-  List<PlainAttrValue> beforePropagation(
+  Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
     Item item,
     Entity entity,
+    AttrSchemaType schemaType,
     List<PlainAttrValue> values) {
 
-    return values;
+    return Pair.of(schemaType, values);
   }
     
   @Override

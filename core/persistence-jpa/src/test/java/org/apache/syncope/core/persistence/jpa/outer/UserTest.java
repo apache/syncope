@@ -242,11 +242,11 @@ public class UserTest extends AbstractTest {
         assertNotNull(firstname);
 
         // search by ksuffix derived attribute
-        List<User> list = userDAO.findByDerAttrValue("ksuffix", firstname + "k", false);
+        List<User> list = userDAO.findByDerAttrValue(derSchemaDAO.find("ksuffix"), firstname + "k", false);
         assertEquals(1, list.size());
 
         // search by kprefix derived attribute
-        list = userDAO.findByDerAttrValue("kprefix", "k" + firstname, false);
+        list = userDAO.findByDerAttrValue(derSchemaDAO.find("kprefix"), "k" + firstname, false);
         assertEquals(1, list.size());
     }
 

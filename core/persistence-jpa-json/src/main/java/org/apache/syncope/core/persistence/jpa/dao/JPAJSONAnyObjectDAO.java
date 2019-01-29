@@ -24,6 +24,8 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAJSONAnyObject;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public class JPAJSONAnyObjectDAO extends JPAAnyObjectDAO {
 
@@ -37,33 +39,32 @@ public class JPAJSONAnyObjectDAO extends JPAAnyObjectDAO {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<AnyObject> findByPlainAttrValue(
-            final String schemaKey,
+            final PlainSchema schema,
             final PlainAttrValue attrValue,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO().findByPlainAttrValue(JPAJSONAnyObject.TABLE, anyUtils(), schemaKey, attrValue, ignoreCaseMatch);
+        return anyDAO().findByPlainAttrValue(
+                JPAJSONAnyObject.TABLE, anyUtils(), schema, attrValue, ignoreCaseMatch);
     }
 
     @Override
     public AnyObject findByPlainAttrUniqueValue(
-            final String schemaKey,
+            final PlainSchema schema,
             final PlainAttrValue attrUniqueValue,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO().findByPlainAttrUniqueValue(JPAJSONAnyObject.TABLE, anyUtils(),
-                schemaKey, attrUniqueValue, ignoreCaseMatch);
+        return anyDAO().findByPlainAttrUniqueValue(
+                JPAJSONAnyObject.TABLE, anyUtils(), schema, attrUniqueValue, ignoreCaseMatch);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<AnyObject> findByDerAttrValue(
-            final String schemaKey,
+            final DerSchema schema,
             final String value,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO().findByDerAttrValue(JPAJSONAnyObject.TABLE, anyUtils(), schemaKey, value, ignoreCaseMatch);
+        return anyDAO().findByDerAttrValue(JPAJSONAnyObject.TABLE, anyUtils(), schema, value, ignoreCaseMatch);
     }
 
     @Override

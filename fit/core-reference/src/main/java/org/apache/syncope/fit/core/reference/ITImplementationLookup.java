@@ -175,6 +175,8 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(ImplementationType.PASSWORD_RULE, classNames);
 
             classNames = new HashSet<>();
+            classNames.add(DateToDateItemTransformer.class.getName());
+            classNames.add(DateToLongItemTransformer.class.getName());
             put(ImplementationType.ITEM_TRANSFORMER, classNames);
 
             classNames = new HashSet<>();

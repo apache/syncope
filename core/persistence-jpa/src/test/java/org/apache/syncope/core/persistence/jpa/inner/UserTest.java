@@ -29,7 +29,9 @@ import java.util.Date;
 import java.util.List;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -57,6 +59,12 @@ public class UserTest extends AbstractTest {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
+
+    @Autowired
+    private PlainSchemaDAO plainSchemaDAO;
+
+    @Autowired
+    private DerSchemaDAO derSchemaDAO;
 
     @Test
     public void find() {
@@ -109,24 +117,24 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void findByDerAttrValue() {
-        List<User> list = userDAO.findByDerAttrValue("cn", "Vivaldi, Antonio", false);
+        List<User> list = userDAO.findByDerAttrValue(derSchemaDAO.find("cn"), "Vivaldi, Antonio", false);
         assertEquals(1, list.size());
 
-        list = userDAO.findByDerAttrValue("cn", "VIVALDI, ANTONIO", false);
+        list = userDAO.findByDerAttrValue(derSchemaDAO.find("cn"), "VIVALDI, ANTONIO", false);
         assertEquals(0, list.size());
 
-        list = userDAO.findByDerAttrValue("cn", "VIVALDI, ANTONIO", true);
+        list = userDAO.findByDerAttrValue(derSchemaDAO.find("cn"), "VIVALDI, ANTONIO", true);
         assertEquals(1, list.size());
     }
 
     @Test
     public void findByInvalidDerAttrValue() {
-        assertTrue(userDAO.findByDerAttrValue("cn", "Antonio, Maria, Rossi", false).isEmpty());
+        assertTrue(userDAO.findByDerAttrValue(derSchemaDAO.find("cn"), "Antonio, Maria, Rossi", false).isEmpty());
     }
 
     @Test
     public void findByInvalidDerAttrExpression() {
-        assertTrue(userDAO.findByDerAttrValue("noschema", "Antonio, Maria", false).isEmpty());
+        assertTrue(userDAO.findByDerAttrValue(derSchemaDAO.find("noschema"), "Antonio, Maria", false).isEmpty());
     }
 
     @Test
@@ -134,15 +142,15 @@ public class UserTest extends AbstractTest {
         UPlainAttrUniqueValue fullnameValue = entityFactory.newEntity(UPlainAttrUniqueValue.class);
         fullnameValue.setStringValue("Gioacchino Rossini");
 
-        List<User> list = userDAO.findByPlainAttrValue("fullname", fullnameValue, false);
+        List<User> list = userDAO.findByPlainAttrValue(plainSchemaDAO.find("fullname"), fullnameValue, false);
         assertEquals(1, list.size());
 
         fullnameValue.setStringValue("Gioacchino ROSSINI");
 
-        list = userDAO.findByPlainAttrValue("fullname", fullnameValue, false);
+        list = userDAO.findByPlainAttrValue(plainSchemaDAO.find("fullname"), fullnameValue, false);
         assertEquals(0, list.size());
 
-        list = userDAO.findByPlainAttrValue("fullname", fullnameValue, true);
+        list = userDAO.findByPlainAttrValue(plainSchemaDAO.find("fullname"), fullnameValue, true);
         assertEquals(1, list.size());
     }
 
@@ -151,7 +159,7 @@ public class UserTest extends AbstractTest {
         final UPlainAttrValue coolValue = entityFactory.newEntity(UPlainAttrValue.class);
         coolValue.setBooleanValue(true);
 
-        final List<User> list = userDAO.findByPlainAttrValue("cool", coolValue, false);
+        final List<User> list = userDAO.findByPlainAttrValue(plainSchemaDAO.find("cool"), coolValue, false);
         assertEquals(1, list.size());
     }
 

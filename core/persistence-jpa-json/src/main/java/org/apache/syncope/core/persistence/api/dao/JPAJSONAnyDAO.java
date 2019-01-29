@@ -21,18 +21,28 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public interface JPAJSONAnyDAO {
 
-    <A extends Any<?>> List<A> findByDerAttrValue(
-            String table, AnyUtils anyUtils, String schemaKey, String value, boolean ignoreCaseMatch);
+    <A extends Any<?>> List<A> findByPlainAttrValue(
+            String table,
+            AnyUtils anyUtils,
+            PlainSchema schema,
+            PlainAttrValue attrValue,
+            boolean ignoreCaseMatch);
 
     <A extends Any<?>> A findByPlainAttrUniqueValue(
-            String table, AnyUtils anyUtils, String schemaKey, PlainAttrValue attrUniqueValue, boolean ignoreCaseMatch);
+            String table,
+            AnyUtils anyUtils,
+            PlainSchema schema,
+            PlainAttrValue attrUniqueValue,
+            boolean ignoreCaseMatch);
 
-    <A extends Any<?>> List<A> findByPlainAttrValue(
-            String table, AnyUtils anyUtils, String schemaKey, PlainAttrValue attrValue, boolean ignoreCaseMatch);
+    <A extends Any<?>> List<A> findByDerAttrValue(
+            String table, AnyUtils anyUtils, DerSchema schema, String value, boolean ignoreCaseMatch);
 
     <A extends Any<?>> void checkBeforeSave(String table, AnyUtils anyUtils, A any);
 }

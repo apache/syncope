@@ -23,6 +23,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.core.persistence.api.entity.Schema;
 
 public class IntAttrName {
 
@@ -32,7 +33,7 @@ public class IntAttrName {
 
     private SchemaType schemaType;
 
-    private String schemaName;
+    private Schema schema;
 
     private String enclosingGroup;
 
@@ -72,12 +73,12 @@ public class IntAttrName {
         this.schemaType = schemaType;
     }
 
-    public String getSchemaName() {
-        return schemaName;
+    public Schema getSchema() {
+        return schema;
     }
 
-    public void setSchemaName(final String schemaName) {
-        this.schemaName = schemaName;
+    public void setSchema(final Schema schemaName) {
+        this.schema = schemaName;
     }
 
     public String getEnclosingGroup() {
@@ -142,7 +143,7 @@ public class IntAttrName {
                 append(anyTypeKind).
                 append(field).
                 append(schemaType).
-                append(schemaName).
+                append(schema).
                 append(enclosingGroup).
                 append(relatedUser).
                 append(relatedAnyObject).
@@ -169,7 +170,7 @@ public class IntAttrName {
                 append(anyTypeKind, other.anyTypeKind).
                 append(field, other.field).
                 append(schemaType, other.schemaType).
-                append(schemaName, other.schemaName).
+                append(schema, other.schema).
                 append(enclosingGroup, other.enclosingGroup).
                 append(relatedUser, other.relatedUser).
                 append(relatedAnyObject, other.relatedAnyObject).
@@ -186,7 +187,7 @@ public class IntAttrName {
                 append(anyTypeKind).
                 append(field).
                 append(schemaType).
-                append(schemaName).
+                append(schema).
                 append(enclosingGroup).
                 append(relatedUser).
                 append(relatedAnyObject).
