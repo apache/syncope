@@ -49,6 +49,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
@@ -94,10 +95,12 @@ public class ProvisioningContext implements EnvironmentAware, SchedulingConfigur
 
     /**
      * Used by {@link AsyncConnectorFacade}.
+     * Annotated as {@code @Primary} because it will be used by {@code @Async} in {@link AsyncConnectorFacade}.
      *
      * @return executor
      */
     @Bean
+    @Primary
     public Executor asyncConnectorFacadeExecutor() {
         ThreadPoolTaskScheduler batchExecutor = new ThreadPoolTaskScheduler();
         batchExecutor.setPoolSize(env.getProperty("asyncConnectorFacadeExecutor.poolSize", Integer.class));
