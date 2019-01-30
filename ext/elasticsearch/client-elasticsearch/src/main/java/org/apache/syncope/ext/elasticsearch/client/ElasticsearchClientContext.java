@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.ext.elasticsearch.client;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
+import org.apache.http.HttpHost;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,18 +30,8 @@ public class ElasticsearchClientContext {
     @ConditionalOnMissingBean
     @Bean
     public ElasticsearchClientFactoryBean elasticsearchClientFactoryBean() {
-        ElasticsearchClientFactoryBean factory = new ElasticsearchClientFactoryBean();
-
-        Map<String, String> settings = new HashMap<>();
-        settings.put("cluster.name", "elasticsearch");
-        settings.put("client.transport.sniff", "false");
-        factory.setSettings(settings);
-
-        Map<String, Integer> addresses = new HashMap<>();
-        addresses.put("localhost", 9300);
-        factory.setAddresses(addresses);
-
-        return factory;
+        return new ElasticsearchClientFactoryBean(
+                Collections.singletonList(new HttpHost("localhost", 9200, "http")));
     }
 
     @ConditionalOnMissingBean

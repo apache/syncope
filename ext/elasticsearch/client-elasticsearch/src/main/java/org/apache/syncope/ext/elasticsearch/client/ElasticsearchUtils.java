@@ -142,7 +142,13 @@ public class ElasticsearchUtils {
             User user = ((User) any);
             builder = builder.
                     field("username", user.getUsername()).
-                    field("lastLoginDate", user.getLastLoginDate());
+                    field("token", user.getToken()).
+                    field("tokenExpireTime", user.getTokenExpireTime()).
+                    field("changePwdDate", user.getChangePwdDate()).
+                    field("failedLogins", user.getFailedLogins()).
+                    field("lastLoginDate", user.getLastLoginDate()).
+                    field("suspended", user.isSuspended()).
+                    field("mustChangePassword", user.isMustChangePassword());
 
             List<Object> roles = userDAO.findAllRoles(user).stream().
                     map(r -> r.getKey()).collect(Collectors.toList());
@@ -176,13 +182,11 @@ public class ElasticsearchUtils {
                     values.add(plainAttr.getUniqueValue().getValue());
                 }
 
-                builder = builder.field(plainAttr.getSchema().getKey(), values);
+                builder = builder.field(plainAttr.getSchema().getKey(), values.size() == 1 ? values.get(0) : values);
             }
         }
 
-        builder = builder.endObject();
-
-        return builder;
+        return builder.endObject();
     }
 
     public String getContextDomainName(final AnyTypeKind kind) {

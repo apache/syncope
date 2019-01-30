@@ -18,51 +18,31 @@
  */
 package org.apache.syncope.ext.elasticsearch.client;
 
-import java.net.InetAddress;
-import java.util.Map;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.TransportAddress;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import java.util.List;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 
 /**
- * Spring {@link FactoryBean} for getting the Elasticsearch's {@link Client} singleton instance.
+ * Spring {@link FactoryBean} for getting the Elasticsearch's {@link RestHighLevelClient} singleton instance.
  */
-public class ElasticsearchClientFactoryBean implements FactoryBean<Client>, DisposableBean {
+public class ElasticsearchClientFactoryBean implements FactoryBean<RestHighLevelClient>, DisposableBean {
 
-    private Map<String, String> settings;
+    private final List<HttpHost> hosts;
 
-    private Map<String, Integer> addresses;
+    private RestHighLevelClient client;
 
-    private Client client;
-
-    public void setSettings(final Map<String, String> settings) {
-        this.settings = settings;
-    }
-
-    public void setAddresses(final Map<String, Integer> addresses) {
-        this.addresses = addresses;
+    public ElasticsearchClientFactoryBean(final List<HttpHost> hosts) {
+        this.hosts = hosts;
     }
 
     @Override
-    public Client getObject() throws Exception {
+    public RestHighLevelClient getObject() throws Exception {
         synchronized (this) {
             if (client == null) {
-                Settings.Builder builder = Settings.builder();
-                settings.forEach((key, value) -> {
-                    builder.put(key, value);
-                });
-
-                PreBuiltTransportClient tClient = new PreBuiltTransportClient(builder.build());
-
-                for (Map.Entry<String, Integer> entry : addresses.entrySet()) {
-                    tClient.addTransportAddress(
-                            new TransportAddress(InetAddress.getByName(entry.getKey()), entry.getValue()));
-                }
-
-                client = tClient;
+                client = new RestHighLevelClient(RestClient.builder(hosts.toArray(new HttpHost[0])));
             }
         }
         return client;
@@ -70,7 +50,7 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<Client>, Disp
 
     @Override
     public Class<?> getObjectType() {
-        return Client.class;
+        return RestHighLevelClient.class;
     }
 
     @Override

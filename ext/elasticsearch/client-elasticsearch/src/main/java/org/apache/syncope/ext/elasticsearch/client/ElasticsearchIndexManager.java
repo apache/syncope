@@ -22,11 +22,16 @@ import java.io.IOException;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
+import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
+import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
-import org.elasticsearch.client.Client;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,53 +45,51 @@ public class ElasticsearchIndexManager {
     private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchIndexManager.class);
 
     @Autowired
-    private Client client;
+    private RestHighLevelClient client;
 
     @Autowired
     private ElasticsearchUtils elasticsearchUtils;
 
     @TransactionalEventListener
     public void after(final AnyCreatedUpdatedEvent<Any<?>> event) throws IOException {
-        GetResponse getResponse = client.prepareGet(
+        GetRequest getRequest = new GetRequest(
                 elasticsearchUtils.getContextDomainName(event.getAny().getType().getKind()),
                 event.getAny().getType().getKind().name(),
-                event.getAny().getKey()).
-                get();
+                event.getAny().getKey());
+        GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
         if (getResponse.isExists()) {
             LOG.debug("About to update index for {}", event.getAny());
 
-            UpdateResponse response = client.prepareUpdate(
+            UpdateRequest request = new UpdateRequest(
                     elasticsearchUtils.getContextDomainName(event.getAny().getType().getKind()),
                     event.getAny().getType().getKind().name(),
                     event.getAny().getKey()).
-                    setRetryOnConflict(elasticsearchUtils.getRetryOnConflict()).
-                    setDoc(elasticsearchUtils.builder(event.getAny())).
-                    get();
+                    retryOnConflict(elasticsearchUtils.getRetryOnConflict()).
+                    doc(elasticsearchUtils.builder(event.getAny()));
+            UpdateResponse response = client.update(request, RequestOptions.DEFAULT);
             LOG.debug("Index successfully updated for {}: {}", event.getAny(), response);
         } else {
             LOG.debug("About to create index for {}", event.getAny());
 
-            IndexResponse response = client.prepareIndex(
+            IndexRequest request = new IndexRequest(
                     elasticsearchUtils.getContextDomainName(event.getAny().getType().getKind()),
                     event.getAny().getType().getKind().name(),
                     event.getAny().getKey()).
-                    setSource(elasticsearchUtils.builder(event.getAny())).
-                    get();
-
+                    source(elasticsearchUtils.builder(event.getAny()));
+            IndexResponse response = client.index(request, RequestOptions.DEFAULT);
             LOG.debug("Index successfully created for {}: {}", event.getAny(), response);
         }
     }
 
     @TransactionalEventListener
-    public void after(final AnyDeletedEvent event) {
+    public void after(final AnyDeletedEvent event) throws IOException {
         LOG.debug("About to delete index for {}[{}]", event.getAnyTypeKind(), event.getAnyKey());
 
-        DeleteResponse response = client.prepareDelete(
+        DeleteRequest request = new DeleteRequest(
                 elasticsearchUtils.getContextDomainName(event.getAnyTypeKind()),
                 event.getAnyTypeKind().name(),
-                event.getAnyKey()).
-                get();
-
+                event.getAnyKey());
+        DeleteResponse response = client.delete(request, RequestOptions.DEFAULT);
         LOG.debug("Index successfully deleted for {}[{}]: {}",
                 event.getAnyTypeKind(), event.getAnyKey(), response);
     }
