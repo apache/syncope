@@ -159,9 +159,15 @@ public class ElasticsearchUtils {
             User user = ((User) any);
             builder = builder.
                     field("username", user.getUsername()).
-                    field("lastLoginDate", user.getLastLoginDate()).
                     field("lastRecertification", user.getLastRecertification()).
-                    field("lastRecertificator", user.getLastRecertificator());
+                    field("lastRecertificator", user.getLastRecertificator()).
+                    field("token", user.getToken()).
+                    field("tokenExpireTime", user.getTokenExpireTime()).
+                    field("changePwdDate", user.getChangePwdDate()).
+                    field("failedLogins", user.getFailedLogins()).
+                    field("lastLoginDate", user.getLastLoginDate()).
+                    field("suspended", user.isSuspended()).
+                    field("mustChangePassword", user.isMustChangePassword());
 
             List<Object> roles = CollectionUtils.collect(userDAO.findAllRoles(user),
                     EntityUtils.<Role>keyTransformer(), new ArrayList<>());
@@ -194,12 +200,10 @@ public class ElasticsearchUtils {
                     values.add(plainAttr.getUniqueValue().getValue());
                 }
 
-                builder = builder.field(plainAttr.getSchema().getKey(), values);
+                builder = builder.field(plainAttr.getSchema().getKey(), values.size() == 1 ? values.get(0) : values);
             }
         }
 
-        builder = builder.endObject();
-
-        return builder;
+        return builder.endObject();
     }
 }

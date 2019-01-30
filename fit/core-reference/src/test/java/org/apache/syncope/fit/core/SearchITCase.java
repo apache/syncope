@@ -99,7 +99,15 @@ public class SearchITCase extends AbstractITCase {
 
         matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                        fiql("(fullname=~*oSsINi)").page(1).size(2).build());
+                        fiql("fullname=~*oSsINi").page(1).size(2).build());
+        assertNotNull(matchingUsers);
+        assertEquals(1, matchingUsers.getResult().size());
+        assertEquals("rossini", matchingUsers.getResult().iterator().next().getUsername());
+        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", matchingUsers.getResult().iterator().next().getKey());
+
+        matchingUsers = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql("fullname=~*ino*rossini*").page(1).size(2).build());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
         assertEquals("rossini", matchingUsers.getResult().iterator().next().getUsername());
@@ -567,6 +575,14 @@ public class SearchITCase extends AbstractITCase {
                     new MembershipPatch.Builder().group("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
             updateAnyObject(anyObjectPatch);
 
+            if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
+
             PagedResult<AnyObjectTO> matching = anyObjectService.search(new AnyQuery.Builder().fiql(
                     SyncopeClient.getAnyObjectSearchConditionBuilder(service.getKey()).
                             inGroups("29f96485-729e-4d31-88a1-6fc60e4677f3").
@@ -631,7 +647,7 @@ public class SearchITCase extends AbstractITCase {
                 build());
         assertEquals(1, issueSYNCOPE1416.getSize());
         assertEquals("rossini", issueSYNCOPE1416.getResult().get(0).getUsername());
-        
+
         // search by attribute with unique constraint
         issueSYNCOPE1416 = userService.search(new AnyQuery.Builder().
                 realm(SyncopeConstants.ROOT_REALM).
@@ -640,7 +656,7 @@ public class SearchITCase extends AbstractITCase {
                 build());
         // some identities could have been imported by pull tasks executions
         assertTrue(issueSYNCOPE1416.getSize() >= 5);
-        
+
         issueSYNCOPE1416 = userService.search(new AnyQuery.Builder().
                 realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNull("fullname").query()).
@@ -648,7 +664,7 @@ public class SearchITCase extends AbstractITCase {
                 build());
         assertEquals(0, issueSYNCOPE1416.getSize());
     }
-    
+
     @Test
     public void issueSYNCOPE1417() {
         try {

@@ -356,8 +356,20 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 break;
 
             case ILIKE:
-                builder = QueryBuilders.queryStringQuery(
-                        schema.getKey() + ":" + cond.getExpression().replace('%', '*').toLowerCase());
+                StringBuilder output = new StringBuilder();
+                for (char c : cond.getExpression().toLowerCase().toCharArray()) {
+                    if (c == '%') {
+                        output.append(".*");
+                    } else if (Character.isLetter(c)) {
+                        output.append('[').
+                                append(c).
+                                append(Character.toUpperCase(c)).
+                                append(']');
+                    } else {
+                        output.append(c);
+                    }
+                }
+                builder = QueryBuilders.regexpQuery(schema.getKey(), output.toString());
                 break;
 
             case LIKE:
