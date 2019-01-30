@@ -22,24 +22,17 @@ under the License.
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+  <bean id="localhost" class="org.apache.http.HttpHost">
+    <constructor-arg value="localhost"/>
+    <constructor-arg value="9200"/>
+    <constructor-arg value="http"/>
+  </bean>  
   <bean class="org.apache.syncope.ext.elasticsearch.client.ElasticsearchClientFactoryBean">
-    <property name="settings">
-      <map>
-        <entry key="cluster.name">
-          <value>elasticsearch</value>
-        </entry>
-        <entry key="client.transport.sniff">
-          <value>false</value>
-        </entry>
-      </map>
-    </property>  
-    <property name="addresses">
-      <map>
-        <entry key="localhost">
-          <value>9300</value>
-        </entry>
-      </map>
-    </property>
+    <constructor-arg>
+      <list>
+        <ref bean="localhost"/>
+      </list>
+    </constructor-arg>
   </bean>
   
   <bean class="org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils">

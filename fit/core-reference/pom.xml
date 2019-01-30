@@ -465,7 +465,7 @@ under the License.
     </profile>
   
     <profile>
-      <id>elasticsearch</id>
+      <id>elasticsearch-it</id>
       
       <dependencies>
         <dependency>

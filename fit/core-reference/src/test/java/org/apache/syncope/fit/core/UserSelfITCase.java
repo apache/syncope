@@ -62,6 +62,7 @@ import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
+import org.apache.syncope.fit.ElasticsearchDetector;
 import org.apache.syncope.fit.FlowableDetector;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -345,6 +346,13 @@ public class UserSelfITCase extends AbstractITCase {
         anonClient.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "Rossi");
 
         // SYNCOPE-1293:get users with token not null before requesting password reset
+        if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
         PagedResult<UserTO> after = userService.search(new AnyQuery.Builder().fiql("token!=$null").build());
         assertEquals(before.getTotalCount() + 1, after.getTotalCount());
 

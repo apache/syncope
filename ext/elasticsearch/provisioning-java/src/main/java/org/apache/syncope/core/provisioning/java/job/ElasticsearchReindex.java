@@ -34,11 +34,12 @@ import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
-import org.elasticsearch.client.Client;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.quartz.JobExecutionException;
@@ -50,7 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
 
     @Autowired
-    private Client client;
+    private RestHighLevelClient client;
 
     @Autowired
     private ElasticsearchUtils elasticsearchUtils;
@@ -80,13 +81,14 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
 
                 LOG.debug("Indexing users...");
                 for (int page = 1; page <= (userDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+
                     for (User user : userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                        IndexResponse response = client.prepareIndex(
+                        IndexRequest request = new IndexRequest(
                                 elasticsearchUtils.getContextDomainName(AnyTypeKind.USER),
                                 AnyTypeKind.USER.name(),
                                 user.getKey()).
-                                setSource(elasticsearchUtils.builder(user)).
-                                get();
+                                source(elasticsearchUtils.builder(user));
+                        IndexResponse response = client.index(request, RequestOptions.DEFAULT);
                         LOG.debug("Index successfully created for {}: {}", user, response);
                     }
                 }
@@ -94,12 +96,12 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                 LOG.debug("Indexing groups...");
                 for (int page = 1; page <= (groupDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                     for (Group group : groupDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                        IndexResponse response = client.prepareIndex(
+                        IndexRequest request = new IndexRequest(
                                 elasticsearchUtils.getContextDomainName(AnyTypeKind.GROUP),
                                 AnyTypeKind.GROUP.name(),
                                 group.getKey()).
-                                setSource(elasticsearchUtils.builder(group)).
-                                get();
+                                source(elasticsearchUtils.builder(group));
+                        IndexResponse response = client.index(request, RequestOptions.DEFAULT);
                         LOG.debug("Index successfully created for {}: {}", group, response);
                     }
                 }
@@ -107,12 +109,12 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                 LOG.debug("Indexing any objects...");
                 for (int page = 1; page <= (anyObjectDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                     for (AnyObject anyObject : anyObjectDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                        IndexResponse response = client.prepareIndex(
+                        IndexRequest request = new IndexRequest(
                                 elasticsearchUtils.getContextDomainName(AnyTypeKind.ANY_OBJECT),
                                 AnyTypeKind.ANY_OBJECT.name(),
                                 anyObject.getKey()).
-                                setSource(elasticsearchUtils.builder(anyObject)).
-                                get();
+                                source(elasticsearchUtils.builder(anyObject));
+                        IndexResponse response = client.index(request, RequestOptions.DEFAULT);
                         LOG.debug("Index successfully created for {}: {}", anyObject, response);
                     }
                 }
@@ -126,16 +128,12 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
         return "SUCCESS";
     }
 
-    private void removeIndexIfExists(final AnyTypeKind kind)
-            throws InterruptedException, ExecutionException {
+    private void removeIndexIfExists(final AnyTypeKind kind) throws IOException {
+        if (client.indices().exists(
+                new GetIndexRequest().indices(elasticsearchUtils.getContextDomainName(kind)), RequestOptions.DEFAULT)) {
 
-        IndicesExistsResponse existsIndexResponse = client.admin().indices().
-                exists(new IndicesExistsRequest(elasticsearchUtils.getContextDomainName(kind))).
-                get();
-        if (existsIndexResponse.isExists()) {
-            AcknowledgedResponse acknowledgedResponse = client.admin().indices().
-                    delete(new DeleteIndexRequest(elasticsearchUtils.getContextDomainName(kind))).
-                    get();
+            AcknowledgedResponse acknowledgedResponse = client.indices().delete(
+                    new DeleteIndexRequest(elasticsearchUtils.getContextDomainName(kind)), RequestOptions.DEFAULT);
             LOG.debug("Successfully removed {}: {}",
                     elasticsearchUtils.getContextDomainName(kind), acknowledgedResponse);
         }
@@ -175,9 +173,9 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                 endArray().
                 endObject();
 
-        CreateIndexResponse response = client.admin().indices().
-                create(new CreateIndexRequest(elasticsearchUtils.getContextDomainName(kind)).settings(settings).
-                        mapping(kind.name(), mapping)).get();
+        CreateIndexResponse response = client.indices().create(
+                new CreateIndexRequest(elasticsearchUtils.getContextDomainName(kind)).settings(settings).
+                        mapping(kind.name(), mapping), RequestOptions.DEFAULT);
         LOG.debug("Successfully created {} for {}: {}",
                 elasticsearchUtils.getContextDomainName(kind), kind.name(), response);
     }
