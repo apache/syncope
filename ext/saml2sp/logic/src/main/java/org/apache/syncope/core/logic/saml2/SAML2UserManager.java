@@ -38,7 +38,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
@@ -75,9 +74,6 @@ public class SAML2UserManager {
 
     @Autowired
     private UserDAO userDAO;
-
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
 
     @Autowired
     private IntAttrNameParser intAttrNameParser;

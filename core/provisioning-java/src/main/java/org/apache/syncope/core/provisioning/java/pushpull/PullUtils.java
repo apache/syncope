@@ -30,7 +30,6 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValid
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -81,12 +80,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class PullUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(PullUtils.class);
-
-    /**
-     * Schema DAO.
-     */
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
 
     /**
      * Any Object DAO.
