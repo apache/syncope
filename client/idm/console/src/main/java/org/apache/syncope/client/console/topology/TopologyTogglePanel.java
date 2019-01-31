@@ -41,6 +41,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.resources.AbstractResourceWizardBuilder;
+import org.apache.syncope.client.console.wizards.resources.ResourceProvision;
 import org.apache.syncope.client.console.wizards.resources.ResourceProvisionPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -158,6 +159,17 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         target.add(container);
 
         toggle(target, node, true);
+    }
+
+    @Override
+    protected String getTargetKey(final Serializable modelObject) {
+        String key = super.getTargetKey(modelObject);
+        if (modelObject instanceof ResourceProvision) {
+            key = ((ResourceProvision) modelObject).getKey();
+        } else if (modelObject instanceof TopologyNode) {
+            key = ((TopologyNode) modelObject).getKey();
+        }
+        return key;
     }
 
     private Fragment getEmptyFragment() {

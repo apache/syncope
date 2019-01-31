@@ -161,7 +161,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
     }
 
     @SuppressWarnings("cast")
-    private String getTargetKey(final Serializable modelObject) {
+    protected String getTargetKey(final Serializable modelObject) {
         final String key;
         if (modelObject == null) {
             key = new ResourceModel("actions", StringUtils.EMPTY).getObject();
