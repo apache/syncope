@@ -1025,6 +1025,18 @@ under the License.
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-ioc</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-spring</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
 
@@ -1373,6 +1385,16 @@ under the License.
         <artifactId>wicket</artifactId>
         <version>${wicket.version}</version>
         <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.wicket</groupId>
+        <artifactId>wicket-ioc</artifactId>
+        <version>${wicket.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.wicket</groupId>
+        <artifactId>wicket-spring</artifactId>
+        <version>${wicket.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.wicket</groupId>
