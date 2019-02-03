@@ -45,7 +45,7 @@ public class UserPatch extends AnyPatch {
 
     private BooleanReplacePatchItem mustChangePassword;
 
-	private BooleanReplacePatchItem passwordNeverExpires;
+    private BooleanReplacePatchItem passwordNeverExpires;
 
     private final Set<RelationshipPatch> relationships = new HashSet<>();
 
@@ -100,13 +100,13 @@ public class UserPatch extends AnyPatch {
         this.mustChangePassword = mustChangePassword;
     }
 
-	public BooleanReplacePatchItem getPasswordNeverExpires() {
-		return passwordNeverExpires;
-	}
+    public BooleanReplacePatchItem getPasswordNeverExpires() {
+        return passwordNeverExpires;
+    }
 
-	public void setPasswordNeverExpires(final BooleanReplacePatchItem passwordNeverExpires) {
-		this.passwordNeverExpires = passwordNeverExpires;
-	}
+    public void setPasswordNeverExpires(final BooleanReplacePatchItem passwordNeverExpires) {
+        this.passwordNeverExpires = passwordNeverExpires;
+    }
 
     @XmlElementWrapper(name = "relationships")
     @XmlElement(name = "relationship")
@@ -133,7 +133,7 @@ public class UserPatch extends AnyPatch {
     public boolean isEmpty() {
         return super.isEmpty()
                 && username == null && password == null && securityQuestion == null && securityAnswer == null
-				&& mustChangePassword == null && passwordNeverExpires == null && relationships.isEmpty() && memberships
-				.isEmpty() && roles.isEmpty();
+                && mustChangePassword == null && passwordNeverExpires == null && relationships.isEmpty() && memberships
+                .isEmpty() && roles.isEmpty();
     }
 }

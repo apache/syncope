@@ -88,9 +88,9 @@ public interface User extends
 
     void setMustChangePassword(boolean mustChangePassword);
 
-	boolean isPasswordNeverExpires();
+    boolean isPasswordNeverExpires();
 
-	void setPasswordNeverExpires(boolean passwordNeverExpires);
+    void setPasswordNeverExpires(boolean passwordNeverExpires);
 
     boolean add(Role role);
 

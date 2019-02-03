@@ -68,7 +68,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private boolean mustChangePassword;
 
-	private boolean passwordNeverExpires;
+    private boolean passwordNeverExpires;
 
     private final List<RelationshipTO> relationships = new ArrayList<>();
 
@@ -226,14 +226,14 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         this.mustChangePassword = mustChangePassword;
     }
 
-	@ApiModelProperty(readOnly = true)
-	public boolean isPasswordNeverExpires() {
-		return passwordNeverExpires;
-	}
+    @ApiModelProperty(readOnly = true)
+    public boolean isPasswordNeverExpires() {
+        return passwordNeverExpires;
+    }
 
-	public void setPasswordNeverExpires(final boolean passwordNeverExpires) {
-		this.passwordNeverExpires = passwordNeverExpires;
-	}
+    public void setPasswordNeverExpires(final boolean passwordNeverExpires) {
+        this.passwordNeverExpires = passwordNeverExpires;
+    }
 
     @JsonIgnore
     @Override

@@ -173,7 +173,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
 
         user.setMustChangePassword(userTO.isMustChangePassword());
-		user.setPasswordNeverExpires(userTO.isPasswordNeverExpires());
+        user.setPasswordNeverExpires(userTO.isPasswordNeverExpires());
 
         if (user.isMustChangePassword() && user.isPasswordNeverExpires()) {
             LOG.error("{} cannot be updated. Both passwordNeverExpires and mustChangePassword fields are selected",
@@ -362,11 +362,11 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             user.setMustChangePassword(userPatch.getMustChangePassword().getValue());
         }
 
-		if (userPatch.getPasswordNeverExpires() != null) {
-			user.setPasswordNeverExpires(userPatch.getPasswordNeverExpires().getValue());
-		}
+        if (userPatch.getPasswordNeverExpires() != null) {
+            user.setPasswordNeverExpires(userPatch.getPasswordNeverExpires().getValue());
+        }
 
-		if (user.isMustChangePassword() && user.isPasswordNeverExpires()) {
+        if (user.isMustChangePassword() && user.isPasswordNeverExpires()) {
             LOG.error("{} cannot be updated. Both passwordNeverExpires and mustChangePassword fields are selected",
                     user);
             SyncopeClientException invalidValues =
@@ -470,7 +470,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         if (attr.getSchema().isUniqueConstraint()) {
                             plainAttrValueDAO.delete(attr.getUniqueValue().getKey(), anyUtils.plainAttrValueClass());
                         } else {
-                            Collection<String> valuesToBeRemoved = 
+                            Collection<String> valuesToBeRemoved =
                                     CollectionUtils.collect(attr.getValues(), EntityUtils.keyTransformer());
                             for (String attrValueKey : valuesToBeRemoved) {
                                 plainAttrValueDAO.delete(attrValueKey, anyUtils.plainAttrValueClass());
