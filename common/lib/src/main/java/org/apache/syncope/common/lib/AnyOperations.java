@@ -291,6 +291,9 @@ public final class AnyOperations {
         result.setMustChangePassword(replacePatchItem(
                 updated.isMustChangePassword(), original.isMustChangePassword(), new BooleanReplacePatchItem()));
 
+		result.setPasswordNeverExpires(replacePatchItem(
+				updated.isPasswordNeverExpires(), original.isPasswordNeverExpires(), new BooleanReplacePatchItem()));
+
         // 4. roles
         if (!incremental) {
             for (String toRemove : CollectionUtils.subtract(original.getRoles(), updated.getRoles())) {

@@ -88,6 +88,10 @@ public interface User extends
 
     void setMustChangePassword(boolean mustChangePassword);
 
+	boolean isPasswordNeverExpires();
+
+	void setPasswordNeverExpires(boolean passwordNeverExpires);
+
     boolean add(Role role);
 
     List<? extends Role> getRoles();

@@ -172,6 +172,17 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
 
         user.setMustChangePassword(userTO.isMustChangePassword());
+		user.setPasswordNeverExpires(userTO.isPasswordNeverExpires());
+
+        if (user.isMustChangePassword() && user.isPasswordNeverExpires()) {
+            LOG.error("{} cannot be updated. Both passwordNeverExpires and mustChangePassword fields are selected",
+                    user);
+            SyncopeClientException invalidValues =
+                    SyncopeClientException.build(ClientExceptionType.InvalidValues);
+            invalidValues.getElements().add(String.format("%s cannot be updated. Both passwordNeverExpires and mustChangePassword fields are selected",
+                    user));
+            scce.addException(invalidValues);
+        }
 
         // security question / answer
         if (userTO.getSecurityQuestion() != null) {
@@ -348,6 +359,20 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         if (userPatch.getMustChangePassword() != null) {
             user.setMustChangePassword(userPatch.getMustChangePassword().getValue());
+        }
+
+		if (userPatch.getPasswordNeverExpires() != null) {
+			user.setPasswordNeverExpires(userPatch.getPasswordNeverExpires().getValue());
+		}
+
+		if (user.isMustChangePassword() && user.isPasswordNeverExpires()) {
+            LOG.error("{} cannot be updated. Both passwordNeverExpires and mustChangePassword fields are selected",
+                    user);
+            SyncopeClientException invalidValues =
+                    SyncopeClientException.build(ClientExceptionType.InvalidValues);
+            invalidValues.getElements().add(String.format("%s cannot be updated. Both passwordNeverExpires and mustChangePassword fields are selected",
+                    user));
+            scce.addException(invalidValues);
         }
 
         // roles

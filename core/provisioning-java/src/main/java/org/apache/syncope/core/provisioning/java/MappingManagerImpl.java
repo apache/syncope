@@ -531,6 +531,13 @@ public class MappingManagerImpl implements MappingManager {
                         }
                         break;
 
+					case "passwordNeverExpires":
+						if (reference instanceof User) {
+							attrValue.setBooleanValue(((User) reference).isPasswordNeverExpires());
+							values.add(attrValue);
+						}
+					break;
+
                     default:
                         try {
                             Object fieldValue = FieldUtils.readField(reference, intAttrName.getField(), true);
@@ -719,6 +726,12 @@ public class MappingManagerImpl implements MappingManager {
                         ((UserTO) anyTO).setMustChangePassword(BooleanUtils.toBoolean(values.get(0).toString()));
                     }
                     break;
+
+				case "passwordNeverExpires":
+					if (anyTO instanceof UserTO && !values.isEmpty() && values.get(0) != null) {
+						((UserTO) anyTO).setPasswordNeverExpires(BooleanUtils.toBoolean(values.get(0).toString()));
+					}
+					break;
 
                 case "userOwner":
                 case "groupOwner":

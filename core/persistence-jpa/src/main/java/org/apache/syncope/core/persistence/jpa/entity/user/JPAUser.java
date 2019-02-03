@@ -165,6 +165,11 @@ public class JPAUser
     @Max(1)
     private Integer mustChangePassword = getBooleanAsInteger(Boolean.FALSE);
 
+	@Basic
+	@Min(0)
+	@Max(1)
+	private Integer passwordNeverExpires = getBooleanAsInteger(Boolean.FALSE);
+
     /**
      * Provisioning external resources.
      */
@@ -446,6 +451,16 @@ public class JPAUser
     public void setMustChangePassword(final boolean mustChangePassword) {
         this.mustChangePassword = getBooleanAsInteger(mustChangePassword);
     }
+
+	@Override
+	public boolean isPasswordNeverExpires() {
+		return isBooleanAsInteger(passwordNeverExpires);
+	}
+
+	@Override
+	public void setPasswordNeverExpires(boolean passwordNeverExpires) {
+		this.passwordNeverExpires = getBooleanAsInteger(passwordNeverExpires);
+	}
 
     @Override
     public boolean isMustChangePassword() {
