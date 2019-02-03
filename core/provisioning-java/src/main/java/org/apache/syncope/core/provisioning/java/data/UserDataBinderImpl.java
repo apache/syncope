@@ -169,6 +169,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             LOG.debug("Password was not provided or not required to be stored");
         } else {
             setPassword(user, userTO.getPassword(), scce);
+            user.setChangePwdDate(new Date());
         }
 
         user.setMustChangePassword(userTO.isMustChangePassword());
