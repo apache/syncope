@@ -512,6 +512,8 @@ public class UserSelfITCase extends AbstractITCase {
         // 4. claim task from bellini, with role "User manager" and in groupForWorkflowApproval
         UserRequestService userService3 = clientFactory.create("bellini", ADMIN_PWD).
                 getService(UserRequestService.class);
+        assertEquals(1, userService3.getForms(
+                new UserRequestFormQuery.Builder().user(userTO.getKey()).build()).getTotalCount());
         form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);
         assertNotNull(form.getTaskId());
