@@ -19,7 +19,6 @@
 package org.apache.syncope.core.flowable.impl;
 
 import org.apache.syncope.core.flowable.api.UserRequestHandler;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -455,29 +454,15 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
             final int size,
             final List<OrderByClause> orderByClauses) {
 
-        Pair<Integer, List<UserRequestForm>> forms;
-
         TaskQuery query = engine.getTaskService().createTaskQuery().taskWithFormKey();
         if (userKey != null) {
             query.processInstanceBusinessKeyLike(FlowableRuntimeUtils.getProcBusinessKey("%", userKey));
         }
 
         String authUser = AuthContextUtils.getUsername();
-        if (adminUser.equals(authUser)) {
-            forms = getForms(query, page, size, orderByClauses);
-        } else {
-            User user = userDAO.findByUsername(authUser);
-            forms = getForms(query.taskCandidateOrAssigned(user.getUsername()), page, size, orderByClauses);
-
-            List<String> candidateGroups = new ArrayList<>(userDAO.findAllGroupNames(user));
-            if (!candidateGroups.isEmpty()) {
-                forms = getForms(query.taskCandidateGroupIn(candidateGroups), page, size, orderByClauses);
-            }
-        }
-
-        return forms == null
-                ? Pair.of(0, Collections.<UserRequestForm>emptyList())
-                : forms;
+        return adminUser.equals(authUser)
+                ? getForms(query, page, size, orderByClauses)
+                : getForms(query.taskCandidateOrAssigned(authUser), page, size, orderByClauses);
     }
 
     protected Pair<Integer, List<UserRequestForm>> getForms(
