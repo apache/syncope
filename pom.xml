@@ -468,7 +468,7 @@ under the License.
     
     <wicket.version>8.3.0</wicket.version>
     <wicket-jqueryui.version>8.1.0</wicket-jqueryui.version>
-    <wicket-bootstrap.version>2.0.6</wicket-bootstrap.version>
+    <wicket-bootstrap.version>2.0.7</wicket-bootstrap.version>
     <wicket-spring-boot.version>2.1.5</wicket-spring-boot.version>
 
     <angular.version>1.7.5</angular.version>
@@ -1025,18 +1025,6 @@ under the License.
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
           </exclusion>
-          <exclusion>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-ioc</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-spring</artifactId>
-          </exclusion>
         </exclusions>
       </dependency>
 
@@ -1385,16 +1373,7 @@ under the License.
         <artifactId>wicket</artifactId>
         <version>${wicket.version}</version>
         <type>pom</type>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.wicket</groupId>
-        <artifactId>wicket-ioc</artifactId>
-        <version>${wicket.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.wicket</groupId>
-        <artifactId>wicket-spring</artifactId>
-        <version>${wicket.version}</version>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.wicket</groupId>
@@ -1435,30 +1414,12 @@ under the License.
         <groupId>de.agilecoders.wicket</groupId>
         <artifactId>wicket-bootstrap-core</artifactId>
         <version>${wicket-bootstrap.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-request</artifactId>            
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-util</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>de.agilecoders.wicket</groupId>
         <artifactId>wicket-bootstrap-extensions</artifactId>
         <version>${wicket-bootstrap.version}</version>
         <exclusions>
-          <exclusion>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-request</artifactId>            
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-util</artifactId>
-          </exclusion>
           <exclusion>
             <groupId>com.google.javascript</groupId>
             <artifactId>closure-compiler</artifactId>
@@ -2204,7 +2165,7 @@ under the License.
       <plugin>
         <groupId>org.gaul</groupId>
         <artifactId>modernizer-maven-plugin</artifactId>
-        <version>1.7.1</version>
+        <version>1.8.0</version>
         <configuration>
           <javaVersion>${targetJdk}</javaVersion>
           <ignorePackages>
