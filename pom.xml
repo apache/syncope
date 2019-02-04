@@ -464,7 +464,7 @@ under the License.
     
     <wicket.version>8.3.0</wicket.version>
     <wicket-jqueryui.version>8.1.0</wicket-jqueryui.version>
-    <wicket-bootstrap.version>2.0.6</wicket-bootstrap.version>
+    <wicket-bootstrap.version>2.0.7</wicket-bootstrap.version>
 
     <angular.version>1.7.5</angular.version>
     <angular-resource.version>1.7.0</angular-resource.version>
@@ -2098,7 +2098,7 @@ under the License.
       <plugin>
         <groupId>org.gaul</groupId>
         <artifactId>modernizer-maven-plugin</artifactId>
-        <version>1.7.1</version>
+        <version>1.8.0</version>
         <configuration>
           <javaVersion>${targetJdk}</javaVersion>
           <ignorePackages>
