@@ -119,6 +119,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         // 4. claim task from bellini, with role "User manager" and in group 7
         UserWorkflowService userService3 = clientFactory.create("bellini", ADMIN_PWD).
                 getService(UserWorkflowService.class);
+        assertEquals(1, userService3.getForms(new WorkflowFormQuery.Builder().build()).getTotalCount());
         form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);
         assertNotNull(form.getTaskId());
@@ -308,7 +309,7 @@ public class UserWorkflowITCase extends AbstractITCase {
             exception = e;
         }
         assertNotNull(exception);
-        
+
         // 7. claim task again (as admin)
         form = userWorkflowService.claimForm(form.getTaskId());
         assertNotNull(form);

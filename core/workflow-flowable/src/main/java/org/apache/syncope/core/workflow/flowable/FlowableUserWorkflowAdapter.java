@@ -622,36 +622,13 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     public Pair<Integer, List<WorkflowFormTO>> getForms(
             final int page, final int size, final List<OrderByClause> orderByClauses) {
 
-        Pair<Integer, List<WorkflowFormTO>> forms = null;
-
         String authUser = AuthContextUtils.getUsername();
-        if (adminUser.equals(authUser)) {
-            forms = getForms(engine.getTaskService().createTaskQuery().
-                    taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE), page, size, orderByClauses);
-        } else {
-            User user = userDAO.findByUsername(authUser);
-            if (user == null) {
-                throw new NotFoundException("Syncope User " + authUser);
-            }
-
-            forms = getForms(engine.getTaskService().createTaskQuery().
-                    taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE).
-                    taskCandidateOrAssigned(user.getUsername()), page, size, orderByClauses);
-
-            List<String> candidateGroups = new ArrayList<>();
-            for (String groupName : userDAO.findAllGroupNames(user)) {
-                candidateGroups.add(groupName);
-            }
-            if (!candidateGroups.isEmpty()) {
-                forms = getForms(engine.getTaskService().createTaskQuery().
+        return adminUser.equals(authUser)
+                ? getForms(engine.getTaskService().createTaskQuery().
+                        taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE), page, size, orderByClauses)
+                : getForms(engine.getTaskService().createTaskQuery().
                         taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE).
-                        taskCandidateGroupIn(candidateGroups), page, size, orderByClauses);
-            }
-        }
-
-        return forms == null
-                ? Pair.of(0, Collections.<WorkflowFormTO>emptyList())
-                : forms;
+                        taskCandidateOrAssigned(authUser), page, size, orderByClauses);
     }
 
     protected Pair<Integer, List<WorkflowFormTO>> getForms(

@@ -259,6 +259,7 @@ under the License.
   <SyncopeRole_entitlements entitlement="ANYTYPE_READ" role_id="User manager"/>
   <SyncopeRole_entitlements entitlement="ANYTYPECLASS_LIST" role_id="User manager"/>
   <SyncopeRole_entitlements entitlement="ANYTYPECLASS_READ" role_id="User manager"/>
+  <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_LIST" role_id="User manager"/>
   <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_CLAIM" role_id="User manager"/>
   <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_SUBMIT" role_id="User manager"/>
   <SyncopeRole_Realm role_id="User manager" realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
