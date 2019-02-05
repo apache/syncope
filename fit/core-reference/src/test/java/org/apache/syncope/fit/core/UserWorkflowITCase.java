@@ -131,7 +131,6 @@ public class UserWorkflowITCase extends AbstractITCase {
             }
         }));
 
-        assertEquals(1, userService3.getForms(new WorkflowFormQuery.Builder().build()).getTotalCount());
         form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);
         assertNotNull(form.getTaskId());
