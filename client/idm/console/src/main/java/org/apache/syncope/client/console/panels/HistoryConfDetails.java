@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -65,7 +66,7 @@ public class HistoryConfDetails<T extends AbstractHistoryConf> extends Multileve
 
         // remove selected conf from list
         this.availableHistoryConfTOs = availableHistoryConfTOs.stream().
-                filter(object -> object.getKey().equals(selectedHistoryConfTO.getKey())).collect(Collectors.toList());
+                filter(object -> !object.getKey().equals(selectedHistoryConfTO.getKey())).collect(Collectors.toList());
         this.selectedHistoryConfTO = selectedHistoryConfTO;
 
         // add current conf to list
@@ -193,7 +194,7 @@ public class HistoryConfDetails<T extends AbstractHistoryConf> extends Multileve
             }
         });
         dropdownElem.setNullValid(true);
-        dropdownElem.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        dropdownElem.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
