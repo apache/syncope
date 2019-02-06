@@ -668,14 +668,20 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                                 MappingUtils.getPropagationItems(provision.getMapping().getItems()).iterator(),
                                 linkingMappingItems.iterator())));
 
-                for (MappingItem item : linkingMappingItems) {
-                    Attribute attr = obj.getAttributeByName(item.getExtAttrName());
-                    if (attr == null) {
+                if (obj == null) {
+                    for (MappingItem item : linkingMappingItems) {
                         virAttrCache.expire(task.getAnyType(), task.getEntityKey(), item.getIntAttrName());
-                    } else {
-                        VirAttrCacheValue cacheValue = new VirAttrCacheValue();
-                        cacheValue.setValues(attr.getValue());
-                        virAttrCache.put(task.getAnyType(), task.getEntityKey(), item.getIntAttrName(), cacheValue);
+                    }
+                } else {
+                    for (MappingItem item : linkingMappingItems) {
+                        Attribute attr = obj.getAttributeByName(item.getExtAttrName());
+                        if (attr == null) {
+                            virAttrCache.expire(task.getAnyType(), task.getEntityKey(), item.getIntAttrName());
+                        } else {
+                            VirAttrCacheValue cacheValue = new VirAttrCacheValue();
+                            cacheValue.setValues(attr.getValue());
+                            virAttrCache.put(task.getAnyType(), task.getEntityKey(), item.getIntAttrName(), cacheValue);
+                        }
                     }
                 }
             } catch (TimeoutException toe) {
