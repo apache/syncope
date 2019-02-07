@@ -73,8 +73,10 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
         type = new AjaxDropDownChoicePanel<>("type", getString("type"), new PropertyModel<>(schemaTO, "type"));
 
+        boolean isCreate = schemaTO == null || schemaTO.getKey() == null || schemaTO.getKey().isEmpty();
+
         type.setChoices(Arrays.asList(AttrSchemaType.values()));
-        type.setEnabled(schemaTO == null || schemaTO.getKey() == null || schemaTO.getKey().isEmpty());
+        type.setEnabled(isCreate);
         type.addRequiredLabel();
         add(type);
 
@@ -286,7 +288,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
                 "readonly", getString("readonly"), new PropertyModel<>(schemaTO, "readonly")));
 
         add(new AjaxCheckBoxPanel("uniqueConstraint",
-                getString("uniqueConstraint"), new PropertyModel<>(schemaTO, "uniqueConstraint")));
+                getString("uniqueConstraint"), new PropertyModel<>(schemaTO, "uniqueConstraint")).
+                setEnabled(isCreate));
     }
 
     private void showHide(final PlainSchemaTO schema, final AjaxDropDownChoicePanel<AttrSchemaType> type,
