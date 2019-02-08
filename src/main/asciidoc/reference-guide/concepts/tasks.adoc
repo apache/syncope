@@ -160,10 +160,10 @@ https://github.com/apache/syncope/tree/2_0_X/core/provisioning-java/src/main/jav
 endif::[]
 executed via the
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/notification/NotificationJob.java[NotificationJob^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/notification/NotificationJob.java[NotificationJob^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/2_0_X/core/logic/src/main/java/org/apache/syncope/core/logic/notification/NotificationJob.java[NotificationJob^]
+https://github.com/apache/syncope/tree/2_0_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/notification/NotificationJob.java[NotificationJob^]
 endif::[]
 and are permanently saved - for later re-execution or for examining the execution details - depending on the trace level
  set on the related <<notifications,notification>>.
