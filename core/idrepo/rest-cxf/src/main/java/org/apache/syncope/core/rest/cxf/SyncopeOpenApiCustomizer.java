@@ -57,9 +57,9 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
 
     private final Environment env;
 
-    private boolean inited = false;
-
     private List<String> domains;
+
+    private boolean inited = false;
 
     public SyncopeOpenApiCustomizer(final Environment env) {
         this.env = env;
@@ -68,19 +68,25 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
     private void init() {
         synchronized (this) {
             if (!inited) {
+                SyncopeJavaDocProvider javaDocProvider = null;
+
                 URL[] javaDocURLs = JavaDocUtils.getJavaDocURLs();
                 if (javaDocURLs == null) {
                     String[] javaDocPaths = JavaDocUtils.getJavaDocPaths(env);
                     if (javaDocPaths != null) {
                         try {
-                            super.setJavaDocPaths(javaDocPaths);
+                            javaDocProvider = new SyncopeJavaDocProvider(javaDocPaths);
                         } catch (Exception e) {
                             LOG.error("Could not set javadoc paths from {}", Arrays.asList(javaDocPaths), e);
                         }
                     }
                 } else {
-                    super.setJavaDocURLs(javaDocURLs);
+                    javaDocProvider = new SyncopeJavaDocProvider(javaDocURLs);
                 }
+                super.setJavadocProvider(javaDocProvider);
+
+                domains = new ArrayList<>(ApplicationContextProvider.getApplicationContext().
+                        getBean(DomainsHolder.class).getDomains().keySet());
 
                 inited = true;
             }
@@ -103,12 +109,6 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
 
     @Override
     protected void addParameters(final List<Parameter> parameters) {
-        if (domains == null) {
-            domains = new ArrayList<>(
-                    ApplicationContextProvider.getApplicationContext().
-                            getBean(DomainsHolder.class).getDomains().keySet());
-        }
-
         Optional<Parameter> domainHeaderParameter = parameters.stream().filter(parameter
                 -> parameter instanceof HeaderParameter && RESTHeaders.DOMAIN.equals(parameter.getName())).
                 findFirst();

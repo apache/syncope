@@ -42,6 +42,7 @@ import org.apache.cxf.staxutils.DocumentDepthProperties;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.cxf.validation.BeanValidationProvider;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.SyncopeFiqlParser;
 import org.apache.syncope.common.rest.api.DateParamConverterProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +85,7 @@ public class RESTCXFContext {
     @Bean
     public JAXBElementProvider<?> jaxbProvider() {
         JAXBElementProvider<?> jaxbProvider = new JAXBElementProvider<>();
-        jaxbProvider.setNamespacePrefixes(Collections.singletonMap("http://syncope.apache.org/30", "syncope30"));
+        jaxbProvider.setNamespacePrefixes(Collections.singletonMap(SyncopeConstants.NS, SyncopeConstants.NS_PREFIX));
 
         DocumentDepthProperties documentDepthProperties = new DocumentDepthProperties();
         documentDepthProperties.setInnerElementCountThreshold(500);
@@ -169,7 +170,7 @@ public class RESTCXFContext {
     public WadlGenerator wadlGenerator() {
         WadlGenerator wadlGenerator = new WadlGenerator();
         wadlGenerator.setApplicationTitle("Apache Syncope " + version);
-        wadlGenerator.setNamespacePrefix("syncope30");
+        wadlGenerator.setNamespacePrefix(SyncopeConstants.NS_PREFIX);
         wadlGenerator.setIncrementNamespacePrefix(false);
         wadlGenerator.setLinkAnyMediaTypeToXmlSchema(true);
         wadlGenerator.setUseJaxbContextForQnames(true);
