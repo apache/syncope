@@ -397,7 +397,7 @@ under the License.
     <spring-security.version>5.1.3.RELEASE</spring-security.version>
 
     <openjpa.version>3.0.0</openjpa.version>
-    <hikaricp.version>3.3.0</hikaricp.version>
+    <hikaricp.version>3.3.1</hikaricp.version>
     <hibernate-validator.version>6.0.13.Final</hibernate-validator.version>
 
     <jasypt.version>1.9.2</jasypt.version>
