@@ -424,8 +424,6 @@ under the License.
     <log4j.version>2.11.1</log4j.version>
     <disruptor.version>3.4.2</disruptor.version>
 
-    <commons-io.version>2.6</commons-io.version>
-    <commons-email.version>1.5</commons-email.version>
     <commons-jexl.version>3.1</commons-jexl.version>
     <commons-lang.version>3.8.1</commons-lang.version>
     <commons-text.version>1.6</commons-text.version>
@@ -1135,26 +1133,6 @@ under the License.
       </dependency>
       
       <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>${commons-io.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-email</artifactId>
-        <version>${commons-email.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-jexl3</artifactId>
         <version>${commons-jexl.version}</version>
@@ -1323,10 +1301,6 @@ under the License.
           <exclusion>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-email</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -2461,7 +2435,6 @@ under the License.
             <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/2.23.1/</link>
             <link>https://ci.apache.org/projects/wicket/apidocs/8.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
-            <link>https://commons.apache.org/proper/commons-io/javadocs/api-2.6/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
             <link>https://tika.apache.org/1.20/api/</link>
             <link>https://docs.spring.io/spring-boot/docs/current/api/</link>
