@@ -2180,6 +2180,7 @@ under the License.
         <version>0.8.3</version>
         <configuration>
           <append>true</append>
+	  <skip>${skipTests}</skip>
         </configuration>
         <executions>
           <execution>
