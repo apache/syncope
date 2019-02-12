@@ -1334,8 +1334,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals("surname", userTO.getPlainAttr("surname").get().getValues().get(0));
 
         // verify user exists on the backend REST service
-        WebClient webClient = WebClient.create(
-                "http://localhost:9080/syncope-fit-build-tools/cxf/rest/users/" + result.getEntity().getKey());
+        WebClient webClient = WebClient.create(BUILD_TOOLS_ADDRESS + "/rest/users/" + result.getEntity().getKey());
         Response response = webClient.get();
         assertEquals(200, response.getStatus());
         assertNotNull(response.getEntity());

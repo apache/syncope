@@ -712,7 +712,7 @@ public class ConnectorITCase extends AbstractITCase {
 
             conf = new HashSet<>();
             endpoint.getValues().clear();
-            endpoint.getValues().add("http://localhost:9080/syncope-fit-build-tools/cxf/soap/provisioning");
+            endpoint.getValues().add(BUILD_TOOLS_ADDRESS + "/soap/provisioning");
             conf.add(endpoint);
 
             resourceTO.getConfOverride().addAll(conf);

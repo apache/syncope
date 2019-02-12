@@ -43,6 +43,9 @@ under the License.
   <listener>
     <listener-class>org.apache.syncope.fit.buildtools.ConnIdStartStopListener</listener-class>
   </listener>
+  <listener>
+    <listener-class>org.apache.syncope.fit.buildtools.GreenMailStartStopListener</listener-class>
+  </listener>
   
   <servlet>
     <servlet-name>CXFServlet</servlet-name>

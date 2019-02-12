@@ -179,6 +179,11 @@ under the License.
     </dependency>
 
     <dependency>
+      <groupId>com.icegreen</groupId>
+      <artifactId>greenmail</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>net.tirasa.connid.bundles.db</groupId>
       <artifactId>net.tirasa.connid.bundles.db.table</artifactId>
       <version>${connid.database.version}</version>
