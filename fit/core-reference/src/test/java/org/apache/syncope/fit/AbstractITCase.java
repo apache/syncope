@@ -131,6 +131,8 @@ public abstract class AbstractITCase {
 
     protected static final String ADDRESS = "http://localhost:9080/syncope/rest";
 
+    protected static final String BUILD_TOOLS_ADDRESS = "http://localhost:9080/syncope-fit-build-tools/cxf";
+
     protected static final String ENV_KEY_CONTENT_TYPE = "jaxrsContentType";
 
     protected static final String RESOURCE_NAME_WS1 = "ws-target-resource-1";

@@ -191,7 +191,12 @@ under the License.
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-sql</artifactId>
     </dependency>
-    
+
+    <dependency>
+      <groupId>com.icegreen</groupId>
+      <artifactId>greenmail</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>

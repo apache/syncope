@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.Attr;
@@ -62,7 +63,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
 
         execNotificationTask(taskService, taskTO.getKey(), 50);
 
-        assertTrue(verifyMail(sender, subject, created.getRight()));
+        assertTrue(verifyMail(sender, subject, created.getRight(), 50));
 
         // verify message body
         taskTO = taskService.read(TaskType.NOTIFICATION, taskTO.getKey(), true);
@@ -85,7 +86,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
 
         execNotificationTask(taskService, taskTO.getKey(), 50);
 
-        assertTrue(verifyMail(sender, subject, created.getRight()));
+        assertTrue(verifyMail(sender, subject, created.getRight(), 50));
     }
 
     @Test
@@ -96,7 +97,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         configurationService.set(attr(origMaxRetries.getSchema(), "10"));
 
         // 2. Stop mail server to force errors while sending out e-mails
-        stopGreenMail();
+        WebClient.create(BUILD_TOOLS_ADDRESS + "/rest/greenMail/stop").post(null);
 
         try {
             // 3. create notification and user
@@ -122,7 +123,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
             }
         } finally {
             // start mail server again
-            startGreenMail();
+            WebClient.create(BUILD_TOOLS_ADDRESS + "/rest/greenMail/start").post(null);
             // reset number of retries
             configurationService.set(origMaxRetries);
         }
@@ -193,7 +194,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         } catch (InterruptedException e) {
         }
 
-        assertTrue(verifyMail(sender, subject, created.getRight()));
+        assertTrue(verifyMail(sender, subject, created.getRight(), 50));
 
         // verify that last exec status was updated
         taskTO = taskService.read(TaskType.NOTIFICATION, taskTO.getKey(), true);
@@ -216,7 +217,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
 
         execNotificationTask(taskService, taskTO.getKey(), 50);
 
-        assertTrue(verifyMail(sender, subject, created.getRight()));
+        assertTrue(verifyMail(sender, subject, created.getRight(), 50));
 
         // verify task
         taskTO = taskService.read(TaskType.NOTIFICATION, taskTO.getKey(), true);
@@ -286,7 +287,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
 
         execNotificationTask(taskService, taskTO.getKey(), 50);
 
-        assertTrue(verifyMail(sender, subject, "notificationtest@syncope.apache.org"));
+        assertTrue(verifyMail(sender, subject, "notificationtest@syncope.apache.org", 50));
     }
 
     @Test

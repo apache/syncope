@@ -66,11 +66,6 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.icegreen</groupId>
-      <artifactId>greenmail</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.syncope.client.idm</groupId>
       <artifactId>syncope-client-idm-lib</artifactId>
       <version>${project.version}</version>
@@ -265,7 +260,7 @@ under the License.
             <properties>
               <cargo.jvmargs>
                 -Dspring.profiles.active=embedded
-                -XX:+CMSClassUnloadingEnabled -Xmx1024m -Xms512m</cargo.jvmargs>
+                -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
             </properties>
           </configuration>
           <deployables>
@@ -1151,7 +1146,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>-Dspring.profiles.active=embedded
-                    -XX:+CMSClassUnloadingEnabled -Xmx2048m -Xms1024m</cargo.jvmargs>
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx2048m -Xms1024m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -1191,7 +1186,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>-Dspring.profiles.active=embedded
-                    -XX:+CMSClassUnloadingEnabled -Xmx2048m -Xms1024m</cargo.jvmargs>
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx2048m -Xms1024m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -1263,7 +1258,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>-Dspring.profiles.active=wildfly,embedded
-                    -XX:+CMSClassUnloadingEnabled -Xmx2048m -Xms1024m</cargo.jvmargs>
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx2048m -Xms1024m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -1310,7 +1305,7 @@ under the License.
                   <cargo.jvmargs>
                     -Dspring.profiles.active=embedded
                     -Xdebug -Djaxb.debug=true -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -XX:+CMSClassUnloadingEnabled -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -1347,9 +1342,9 @@ under the License.
                 <properties>
                   <cargo.jvmargs>
                     -Dspring.profiles.active=embedded
-                    -XXaltjvm=dcevm -javaagent:${settings.localRepository}/org/hotswapagent/hotswap-agent/${hotswap.version}/hotswap-agent-${hotswap.version}.jar=autoHotswap=true,disablePlugin=Spring
+                    -javaagent:${settings.localRepository}/org/hotswapagent/hotswap-agent/${hotswap.version}/hotswap-agent-${hotswap.version}.jar=autoHotswap=true,disablePlugin=Spring
                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
-                    -XX:+CMSClassUnloadingEnabled -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>

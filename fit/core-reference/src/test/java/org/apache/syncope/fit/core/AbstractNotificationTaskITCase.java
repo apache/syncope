@@ -19,9 +19,8 @@
 package org.apache.syncope.fit.core;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import com.icegreen.greenmail.util.GreenMail;
-import com.icegreen.greenmail.util.ServerSetup;
 import java.io.InputStream;
 import java.util.Properties;
 import javax.mail.Flags;
@@ -29,53 +28,28 @@ import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Store;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
 public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase {
 
     private static final String POP3_HOST = "localhost";
 
-    private static final int POP3_PORT = 1110;
-
-    private static String SMTP_HOST;
-
-    private static int SMTP_PORT;
-
-    private static GreenMail greenMail;
+    private static int POP3_PORT;
 
     @BeforeAll
-    public static void startGreenMail() {
+    public static void conf() {
         Properties props = new Properties();
-        try (InputStream propStream = ExceptionMapperITCase.class.getResourceAsStream("/mail.properties")) {
+        try (InputStream propStream = ExceptionMapperITCase.class.getResourceAsStream("/test.properties")) {
             props.load(propStream);
         } catch (Exception e) {
-            LOG.error("Could not load /mail.properties", e);
+            LOG.error("Could not load /test.properties", e);
         }
 
-        SMTP_HOST = props.getProperty("smtpHost");
-        assertNotNull(SMTP_HOST);
-        SMTP_PORT = Integer.parseInt(props.getProperty("smtpPort"));
-        assertNotNull(SMTP_PORT);
-
-        ServerSetup[] config = new ServerSetup[2];
-        config[0] = new ServerSetup(SMTP_PORT, SMTP_HOST, ServerSetup.PROTOCOL_SMTP);
-        config[1] = new ServerSetup(POP3_PORT, POP3_HOST, ServerSetup.PROTOCOL_POP3);
-        greenMail = new GreenMail(config);
-        greenMail.start();
+        POP3_PORT = Integer.parseInt(props.getProperty("testmail.pop3port"));
+        assertNotNull(POP3_PORT);
     }
 
-    @AfterAll
-    public static void stopGreenMail() {
-        if (greenMail != null) {
-            greenMail.stop();
-        }
-    }
-
-    protected boolean verifyMail(final String sender, final String subject, final String mailAddress) throws Exception {
-        LOG.info("Waiting for notification to be sent...");
-        greenMail.waitForIncomingEmail(1);
-
+    private boolean pop3(final String sender, final String subject, final String mailAddress) throws Exception {
         boolean found = false;
         try (Store store = Session.getDefaultInstance(System.getProperties()).getStore("pop3")) {
             store.connect(POP3_HOST, POP3_PORT, mailAddress, mailAddress);
@@ -95,5 +69,33 @@ public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase 
             inbox.close(true);
         }
         return found;
+    }
+
+    protected boolean verifyMail(
+            final String sender,
+            final String subject,
+            final String mailAddress,
+            final int maxWaitSeconds) throws Exception {
+
+        boolean read = false;
+
+        int i = 0;
+
+        // wait for completion (executions incremented)
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            read = pop3(sender, subject, mailAddress);
+
+            i++;
+        } while (!read && i < maxWaitSeconds);
+        if (i == maxWaitSeconds) {
+            fail("Timeout when attempting to read e-mail to  " + mailAddress);
+        }
+
+        return read;
     }
 }

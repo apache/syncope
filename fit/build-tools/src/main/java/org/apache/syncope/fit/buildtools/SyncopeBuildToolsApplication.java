@@ -108,6 +108,7 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
         sc.addListener(new ConnectorServerStartStopListener());
         sc.addListener(new ApacheDSStartStopListener());
         sc.addListener(new H2StartStopListener());
+        sc.addListener(new GreenMailStartStopListener());
 
         ServletRegistration.Dynamic apacheDS = sc.addServlet("ApacheDSRootDseServlet", ApacheDSRootDseServlet.class);
         apacheDS.addMapping("/apacheDS");
