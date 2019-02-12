@@ -509,6 +509,9 @@ under the License.
     <testconnectorserver.port>4554</testconnectorserver.port>
     <testconnectorserver.key>testconnectorserver</testconnectorserver.key>
 
+    <testmail.smtpport>2525</testmail.smtpport>
+    <testmail.pop3port>1110</testmail.pop3port>
+
     <test.csvdir.path>${project.build.directory}/test-csvdir</test.csvdir.path>
 
     <cargo.servlet.port>9080</cargo.servlet.port>
@@ -1166,6 +1169,18 @@ under the License.
         <artifactId>apacheds-service</artifactId>
         <version>2.0.0.AM25</version>
       </dependency>
+
+      <dependency>
+        <groupId>com.icegreen</groupId>
+        <artifactId>greenmail</artifactId>
+        <version>1.5.9</version>
+        <exclusions>
+          <exclusion>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
       
       <dependency>
         <groupId>org.jasypt</groupId>
@@ -1789,12 +1804,6 @@ under the License.
 
       <!-- TEST -->
       <dependency>
-        <groupId>com.icegreen</groupId>
-        <artifactId>greenmail</artifactId>
-        <version>1.5.9</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpkix-jdk15on</artifactId>
         <version>1.61</version>
@@ -2199,7 +2208,7 @@ under the License.
         <version>0.8.3</version>
         <configuration>
           <append>true</append>
-	  <skip>${skipTests}</skip>
+          <skip>${skipTests}</skip>
         </configuration>
         <executions>
           <execution>

@@ -141,7 +141,6 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         assertEquals(initialStatus, execution.getStatus());
 
         int i = 0;
-        int maxit = maxWaitSeconds;
 
         // wait for completion (executions incremented)
         do {
@@ -156,8 +155,8 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
             assertNotNull(taskTO.getExecutions());
 
             i++;
-        } while (preSyncSize == taskTO.getExecutions().size() && i < maxit);
-        if (i == maxit) {
+        } while (preSyncSize == taskTO.getExecutions().size() && i < maxWaitSeconds);
+        if (i == maxWaitSeconds) {
             fail("Timeout when executing task " + taskKey);
         }
         return taskTO.getExecutions().get(taskTO.getExecutions().size() - 1);

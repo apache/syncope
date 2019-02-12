@@ -33,9 +33,11 @@ under the License.
   <bean id="testds.port" class="java.lang.String">
     <constructor-arg value="${testds.port}"/>
   </bean>
+  
   <bean id="testdb.webport" class="java.lang.String">
     <constructor-arg value="${testdb.webport}"/>
-  </bean>  
+  </bean>
+
   <bean id="testconnectorserver.port" class="java.lang.String">
     <constructor-arg value="${testconnectorserver.port}"/>
   </bean>  
@@ -63,5 +65,11 @@ under the License.
   <bean id="testconnectorserver.ldap.bundle" class="java.lang.String">
     <constructor-arg value="net.tirasa.connid.bundles.ldap-${connid.ldap.version}.jar"/>
   </bean>
-    
+
+  <bean id="testmail.smtpport" class="java.lang.String">
+    <constructor-arg value="${testmail.smtpport}"/>
+  </bean>
+  <bean id="testmail.pop3port" class="java.lang.String">
+    <constructor-arg value="${testmail.pop3port}"/>
+  </bean>    
 </beans>
