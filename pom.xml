@@ -1228,8 +1228,39 @@ under the License.
 
       <dependency>
         <groupId>org.apache.directory.server</groupId>
-        <artifactId>apacheds-service</artifactId>
+        <artifactId>apacheds-core-api</artifactId>
         <version>${apacheds.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.directory.server</groupId>
+        <artifactId>apacheds-service-builder</artifactId>
+        <version>${apacheds.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-http-integration</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.directory.api</groupId>
+        <artifactId>api-ldap-codec-standalone</artifactId>
+        <version>${apachedirapi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.directory.api</groupId>
+        <artifactId>api-ldap-model</artifactId>
+        <version>${apachedirapi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.directory.api</groupId>
+        <artifactId>api-ldap-schema-data</artifactId>
+        <version>${apachedirapi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.directory.api</groupId>
+        <artifactId>api-util</artifactId>
+        <version>${apachedirapi.version}</version>
       </dependency>
 
       <dependency>
