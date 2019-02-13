@@ -109,17 +109,20 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     ReflectionUtils.doWithFields(BeanPanel.this.getDefaultModelObject().getClass(),
                             new FieldCallback() {
 
+                        @Override
                         public void doWith(final Field field) throws IllegalArgumentException, IllegalAccessException {
                             result.add(field.getName());
                         }
 
                     }, new FieldFilter() {
 
+                        @Override
                         public boolean matches(final Field field) {
-                            return !BeanPanel.this.excluded.contains(field.getName());
+                            return !field.isSynthetic() && !BeanPanel.this.excluded.contains(field.getName());
                         }
                     });
                 }
+
                 return result;
             }
         };

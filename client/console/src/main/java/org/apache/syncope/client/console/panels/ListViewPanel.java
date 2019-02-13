@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -139,8 +138,10 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
         final List<String> toBeIncluded;
         if (includes == null || includes.isEmpty()) {
             toBeIncluded = new ArrayList<>();
-            for (Field field : Arrays.asList(reference.getDeclaredFields())) {
-                toBeIncluded.add(field.getName());
+            for (Field field : reference.getDeclaredFields()) {
+                if (!field.isSynthetic()) {
+                    toBeIncluded.add(field.getName());
+                }
             }
         } else {
             toBeIncluded = includes;
@@ -154,11 +155,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
             listOfItems = new ArrayList<>();
         } else {
             listOfItems = list;
-            if (LOG.isDebugEnabled()) {
-                for (String field : toBeIncluded) {
-                    LOG.debug("Show field {}", field);
-                }
-            }
+            LOG.debug("Show fields {}", toBeIncluded);
         }
 
         addInnerObject(header(toBeIncluded));
