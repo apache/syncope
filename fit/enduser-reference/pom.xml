@@ -367,6 +367,7 @@ under the License.
       </build>
     </profile>
     
+    <!-- requires JAVA_HOME set to the latest JDK from https://github.com/TravaOpenJDK/trava-jdk-11-dcevm -->
     <profile>
       <id>hotswap</id>
       
@@ -387,12 +388,6 @@ under the License.
           <groupId>cglib</groupId>
           <artifactId>cglib-nodep</artifactId>
           <version>3.2.6</version>
-        </dependency>
-
-        <dependency>
-          <groupId>org.hotswapagent</groupId>
-          <artifactId>hotswap-agent</artifactId>
-          <scope>test</scope>
         </dependency>
       </dependencies>
 
@@ -446,7 +441,7 @@ under the License.
                 <properties>
                   <cargo.jvmargs>
                     -Dspring.profiles.active=embedded
-                    -XXaltjvm=dcevm -javaagent:${settings.localRepository}/org/hotswapagent/hotswap-agent/${hotswap.version}/hotswap-agent-${hotswap.version}.jar=autoHotswap=true,disablePlugin=Spring
+                    -javaagent:${java.home}/lib/hotswap/hotswap-agent.jar=autoHotswap=true,disablePlugin=Spring
                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
                     -XX:+CMSClassUnloadingEnabled -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>

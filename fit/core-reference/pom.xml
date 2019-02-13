@@ -1313,21 +1313,14 @@ under the License.
         </plugins>
       </build>
     </profile>
-    
+
+    <!-- requires JAVA_HOME set to the latest JDK from https://github.com/TravaOpenJDK/trava-jdk-11-dcevm -->
     <profile>
       <id>hotswap</id>
       
       <properties>
         <skipTests>true</skipTests>
       </properties>
-      
-      <dependencies>
-        <dependency>
-          <groupId>org.hotswapagent</groupId>
-          <artifactId>hotswap-agent</artifactId>
-          <scope>test</scope>
-        </dependency>
-      </dependencies>
       
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
@@ -1342,7 +1335,7 @@ under the License.
                 <properties>
                   <cargo.jvmargs>
                     -Dspring.profiles.active=embedded
-                    -javaagent:${settings.localRepository}/org/hotswapagent/hotswap-agent/${hotswap.version}/hotswap-agent-${hotswap.version}.jar=autoHotswap=true,disablePlugin=Spring
+                    -javaagent:${java.home}/lib/hotswap/hotswap-agent.jar=autoHotswap=true,disablePlugin=Spring
                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
                     -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
