@@ -152,11 +152,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
             listOfItems = new ArrayList<>();
         } else {
             listOfItems = list;
-            if (LOG.isDebugEnabled()) {
-                toBeIncluded.forEach(field -> {
-                    LOG.debug("Show field {}", field);
-                });
-            }
+            LOG.debug("Show fields {}", toBeIncluded);
         }
 
         addInnerObject(header(toBeIncluded));

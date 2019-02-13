@@ -131,7 +131,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
         for (String field : COL_NAMES.get(schemaType)) {
             Field clazzField = ReflectionUtils.findField(schemaType.getToClass(), field);
 
-            if (clazzField != null) {
+            if (clazzField != null && !clazzField.isSynthetic()) {
                 if (clazzField.getType().equals(Boolean.class) || clazzField.getType().equals(boolean.class)) {
                     columns.add(new BooleanPropertyColumn<>(new ResourceModel(field), field, field));
                 } else {
