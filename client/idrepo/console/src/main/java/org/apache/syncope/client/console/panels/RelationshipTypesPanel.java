@@ -122,7 +122,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
         final List<IColumn<RelationshipTypeTO, String>> columns = new ArrayList<>();
 
         for (Field field : RelationshipTypeTO.class.getDeclaredFields()) {
-            if (field != null && !Modifier.isStatic(field.getModifiers())) {
+            if (!field.isSynthetic() && !Modifier.isStatic(field.getModifiers())) {
                 final String fieldName = field.getName();
                 if (field.getType().isArray()
                         || Collection.class.isAssignableFrom(field.getType())

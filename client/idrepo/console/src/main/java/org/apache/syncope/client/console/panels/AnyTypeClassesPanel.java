@@ -119,7 +119,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
         final List<IColumn<AnyTypeClassTO, String>> columns = new ArrayList<>();
 
         for (Field field : AnyTypeClassTO.class.getDeclaredFields()) {
-            if (field != null && !Modifier.isStatic(field.getModifiers())) {
+            if (!field.isSynthetic() && !Modifier.isStatic(field.getModifiers())) {
                 final String fieldName = field.getName();
                 if (field.getType().isArray()
                         || Collection.class.isAssignableFrom(field.getType())

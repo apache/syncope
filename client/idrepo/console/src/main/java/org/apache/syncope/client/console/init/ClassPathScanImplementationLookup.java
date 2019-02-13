@@ -89,7 +89,7 @@ public class ClassPathScanImplementationLookup {
         classes.add(entityClass);
         classes.forEach(clazz -> {
             for (Field field : clazz.getDeclaredFields()) {
-                if (!Modifier.isStatic(field.getModifiers())
+                if (!field.isSynthetic() && !Modifier.isStatic(field.getModifiers())
                         && !Collection.class.isAssignableFrom(field.getType())
                         && !Map.class.isAssignableFrom(field.getType())) {
 

@@ -202,11 +202,11 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
             columns.add(new KeyPropertyColumn<>(new ResourceModel(name, name), name, name));
         } else if (Constants.DEFAULT_TOKEN_FIELD_NAME.equalsIgnoreCase(name)) {
             columns.add(new TokenColumn<>(new ResourceModel(name, name), name));
-        } else if (field != null
+        } else if (field != null && !field.isSynthetic()
                 && (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class))) {
 
             columns.add(new BooleanPropertyColumn<>(new ResourceModel(name, name), name, name));
-        } else if (field != null && field.getType().equals(Date.class)) {
+        } else if (field != null && !field.isSynthetic() && field.getType().equals(Date.class)) {
             columns.add(new DatePropertyColumn<>(new ResourceModel(name, name), name, name));
         } else {
             columns.add(new PropertyColumn<>(new ResourceModel(name, name), name, name));

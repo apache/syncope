@@ -95,19 +95,20 @@ public class BeanPanel<T extends Serializable> extends Panel {
         this.excluded.add("serialVersionUID");
         this.excluded.add("class");
 
-        final LoadableDetachableModel<List<String>> model = new LoadableDetachableModel<List<String>>() {
+        LoadableDetachableModel<List<String>> model = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
-                final List<String> result = new ArrayList<>();
+                List<String> result = new ArrayList<>();
 
                 if (BeanPanel.this.getDefaultModelObject() != null) {
-                    ReflectionUtils.doWithFields(BeanPanel.this.getDefaultModelObject().getClass(), field -> {
-                        result.add(field.getName());
-                    }, field -> !BeanPanel.this.excluded.contains(field.getName()));
+                    ReflectionUtils.doWithFields(BeanPanel.this.getDefaultModelObject().getClass(),
+                            field -> result.add(field.getName()),
+                            field -> !field.isSynthetic() && !BeanPanel.this.excluded.contains(field.getName()));
                 }
+
                 return result;
             }
         };
