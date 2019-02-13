@@ -417,6 +417,9 @@ under the License.
 
     <elasticsearch.version>6.6.0</elasticsearch.version>
 
+    <apacheds.version>2.0.0.AM25</apacheds.version>
+    <apachedirapi.version>2.0.0.AM2</apachedirapi.version>
+
     <log4j.version>2.11.2</log4j.version>
     <disruptor.version>3.4.2</disruptor.version>
 
@@ -1107,8 +1110,39 @@ under the License.
 
       <dependency>
         <groupId>org.apache.directory.server</groupId>
-        <artifactId>apacheds-service</artifactId>
-        <version>2.0.0.AM25</version>
+        <artifactId>apacheds-core-api</artifactId>
+        <version>${apacheds.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.directory.server</groupId>
+        <artifactId>apacheds-service-builder</artifactId>
+        <version>${apacheds.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-http-integration</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.directory.api</groupId>
+        <artifactId>api-ldap-codec-standalone</artifactId>
+        <version>${apachedirapi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.directory.api</groupId>
+        <artifactId>api-ldap-model</artifactId>
+        <version>${apachedirapi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.directory.api</groupId>
+        <artifactId>api-ldap-schema-data</artifactId>
+        <version>${apachedirapi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.directory.api</groupId>
+        <artifactId>api-util</artifactId>
+        <version>${apachedirapi.version}</version>
       </dependency>
 
       <dependency>
