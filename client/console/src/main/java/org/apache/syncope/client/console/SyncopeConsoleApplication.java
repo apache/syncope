@@ -62,6 +62,9 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.CsrfPreventionRequestCycleListener;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.resource.DynamicJQueryResourceReference;
@@ -213,6 +216,16 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
             getRequestCycleListeners().add(new CsrfPreventionRequestCycleListener());
         }
         getRequestCycleListeners().add(new SyncopeConsoleRequestCycleListener());
+        getRequestCycleListeners().add(new AbstractRequestCycleListener() {
+
+            @Override
+            public void onEndRequest(final RequestCycle cycle) {
+                WebResponse response = (WebResponse) cycle.getResponse();
+                response.setHeader("X-XSS-Protection", "1; mode=block");
+                response.setHeader("X-Content-Type-Options", "nosniff");
+                response.setHeader("X-Frame-Options", "sameorigin");
+            }
+        });
 
         mountPage("/login", getSignInPageClass());
 
