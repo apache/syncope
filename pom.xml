@@ -1267,12 +1267,12 @@ under the License.
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-i18n</artifactId>
-        <version>1.11</version>
+        <version>1.10</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-constants</artifactId>
-        <version>1.11</version>
+        <version>1.10</version>
       </dependency>
 
       <!-- Activiti -->
