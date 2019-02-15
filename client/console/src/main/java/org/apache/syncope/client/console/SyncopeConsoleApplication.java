@@ -58,7 +58,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.CsrfPreventionRequestCycleListener;
 import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
+import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.resource.AbstractResource;
@@ -208,8 +208,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
             getRequestCycleListeners().add(new CsrfPreventionRequestCycleListener());
         }
         getRequestCycleListeners().add(new SyncopeConsoleRequestCycleListener());
-
-        getRequestCycleListeners().add(new AbstractRequestCycleListener() {
+        getRequestCycleListeners().add(new IRequestCycleListener() {
 
             @Override
             public void onEndRequest(final RequestCycle cycle) {

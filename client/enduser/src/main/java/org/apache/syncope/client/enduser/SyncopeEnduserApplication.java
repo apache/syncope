@@ -50,7 +50,7 @@ import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
-import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
+import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.resource.AbstractResource;
@@ -307,8 +307,7 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                 }
             });
         }
-
-        getRequestCycleListeners().add(new AbstractRequestCycleListener() {
+        getRequestCycleListeners().add(new IRequestCycleListener() {
 
             @Override
             public void onEndRequest(final RequestCycle cycle) {
