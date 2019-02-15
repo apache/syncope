@@ -59,3 +59,4 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer impl
         return lookup;
     }
 }
+
