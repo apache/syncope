@@ -41,7 +41,7 @@ import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
-import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
+import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;
@@ -98,8 +98,8 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             header = ((AccessTokenTO) modelObject).getOwner();
         } else if (modelObject instanceof ExecTO) {
             header = ((ExecTO) modelObject).getKey();
-        } else if (modelObject instanceof ProvisioningTaskTO) {
-            header = ((ProvisioningTaskTO) modelObject).getName();
+        } else if (modelObject instanceof SchedTaskTO) {
+            header = ((SchedTaskTO) modelObject).getName();
         } else if (modelObject instanceof EntityTO) {
             header = ((EntityTO) modelObject).getKey();
         } else if (modelObject instanceof StatusBean) {

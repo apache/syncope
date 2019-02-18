@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
-import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
+import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.AttributeModifier;
@@ -200,8 +200,8 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
             key = ((AccessTokenTO) modelObject).getKey();
         } else if (modelObject instanceof ExecTO) {
             key = ((ExecTO) modelObject).getKey();
-        } else if (modelObject instanceof ProvisioningTaskTO) {
-            key = ((ProvisioningTaskTO) modelObject).getKey();
+        } else if (modelObject instanceof SchedTaskTO) {
+            key = ((SchedTaskTO) modelObject).getKey();
         } else if (modelObject instanceof EntityTO) {
             key = ((EntityTO) modelObject).getKey();
         } else if (modelObject instanceof StatusBean) {
