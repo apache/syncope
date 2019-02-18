@@ -307,14 +307,17 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                 }
             });
         }
+
         getRequestCycleListeners().add(new IRequestCycleListener() {
 
             @Override
             public void onEndRequest(final RequestCycle cycle) {
-                WebResponse response = (WebResponse) cycle.getResponse();
-                response.setHeader("X-XSS-Protection", "1; mode=block");
-                response.setHeader("X-Content-Type-Options", "nosniff");
-                response.setHeader("X-Frame-Options", "sameorigin");
+                if (cycle.getResponse() instanceof WebResponse) {
+                    WebResponse response = (WebResponse) cycle.getResponse();
+                    response.setHeader("X-XSS-Protection", "1; mode=block");
+                    response.setHeader("X-Content-Type-Options", "nosniff");
+                    response.setHeader("X-Frame-Options", "sameorigin");
+                }
             }
         });
     }

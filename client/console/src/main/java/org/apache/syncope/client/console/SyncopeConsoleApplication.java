@@ -59,6 +59,7 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.CsrfPreventionRequestCycleListener;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.cycle.IRequestCycleListener;
+import org.apache.wicket.protocol.ws.api.WebSocketResponse;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.resource.AbstractResource;
@@ -212,10 +213,12 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
             @Override
             public void onEndRequest(final RequestCycle cycle) {
-                WebResponse response = (WebResponse) cycle.getResponse();
-                response.setHeader("X-XSS-Protection", "1; mode=block");
-                response.setHeader("X-Content-Type-Options", "nosniff");
-                response.setHeader("X-Frame-Options", "sameorigin");
+                if (cycle.getResponse() instanceof WebResponse && !(cycle.getResponse() instanceof WebSocketResponse)) {
+                    WebResponse response = (WebResponse) cycle.getResponse();
+                    response.setHeader("X-XSS-Protection", "1; mode=block");
+                    response.setHeader("X-Content-Type-Options", "nosniff");
+                    response.setHeader("X-Frame-Options", "sameorigin");
+                }
             }
         });
 
