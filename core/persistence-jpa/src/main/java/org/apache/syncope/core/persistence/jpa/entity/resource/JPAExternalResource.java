@@ -127,13 +127,13 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     @NotNull
     private TraceLevel provisioningTraceLevel;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     private JPAPasswordPolicy passwordPolicy;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     private JPAAccountPolicy accountPolicy;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     private JPAPullPolicy pullPolicy;
 
     /**
