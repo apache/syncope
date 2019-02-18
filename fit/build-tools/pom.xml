@@ -76,9 +76,9 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>javax.xml.ws</groupId>
-      <artifactId>jaxws-api</artifactId>
-      <version>2.2.11</version>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-frontend-jaxws</artifactId>
+      <version>${cxf.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
@@ -105,6 +105,12 @@ under the License.
       <groupId>net.tirasa.connid.bundles.soap</groupId>
       <artifactId>soap-utilities</artifactId>
       <version>${connid.soap.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.cxf</groupId>
+          <artifactId>cxf-rt-frontend-jaxws</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -199,25 +205,6 @@ under the License.
       <groupId>com.icegreen</groupId>
       <artifactId>greenmail</artifactId>
     </dependency>
-
-    <dependency>
-      <groupId>net.tirasa.connid.bundles.db</groupId>
-      <artifactId>net.tirasa.connid.bundles.db.table</artifactId>
-      <version>${connid.database.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.tirasa.connid.bundles.db</groupId>
-      <artifactId>net.tirasa.connid.bundles.db.scriptedsql</artifactId>
-      <version>${connid.database.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.tirasa.connid.bundles</groupId>
-      <artifactId>net.tirasa.connid.bundles.rest</artifactId>
-      <version>${connid.rest.version}</version>
-      <scope>runtime</scope>
-    </dependency>
     
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -251,7 +238,58 @@ under the License.
   </dependencies>
 
   <build>
-    <plugins>      
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>set-bundles</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- repackage the ConnId SOAP bundle to avoid conflicts with local CXF's SOAP service implementation -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>repack-soap-bundle</id>
+            <phase>prepare-package</phase>
+            <configuration>
+              <target>
+                <unzip src="${bundles.directory}/net.tirasa.connid.bundles.soap-${connid.soap.version}.jar"
+                       dest="${bundles.directory}/soap">
+                  <patternset>
+                    <include name="META-INF/*"/>
+                    <include name="net/**"/>
+                    <include name="lib/soap-utilities-${connid.soap.version}.jar"/>
+                  </patternset>
+                </unzip>
+
+                <delete file="${bundles.directory}/net.tirasa.connid.bundles.soap-${connid.soap.version}.jar"/>
+
+                <jar destfile="${bundles.directory}/net.tirasa.connid.bundles.soap-${connid.soap.version}.jar"
+                     basedir="${bundles.directory}/soap"
+                     filesetmanifest="merge"/>                  
+
+                <delete dir="${bundles.directory}/soap"/>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
@@ -270,6 +308,10 @@ under the License.
                 <include>LICENSE</include>
                 <include>NOTICE</include>
               </includes>
+            </resource>
+            <resource>
+              <directory>${bundles.directory}</directory>
+              <targetPath>WEB-INF/bundles</targetPath>
             </resource>
           </webResources>
           <packagingExcludes>WEB-INF/classes/META-INF/LICENSE*,WEB-INF/classes/META-INF/NOTICE*,WEB-INF/classes/META-INF/DEPENDENCIES*</packagingExcludes>
