@@ -170,8 +170,6 @@ under the License.
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-fit-build-tools/WEB-INF/lib">
                   <fileset dir="../fit/core-reference/target/bundles/" includes="**/*" />
                 </copy>
-                <zip destfile="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-fit-build-tools.war" basedir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-fit-build-tools" />
-                <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-fit-build-tools" />
 
                 <!-- Tomcat shared libraries: H2, StAX2 API, Woodstox -->
                 <copy file="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" todir="${work.dir}/apache-tomcat-${tomcat.version}/lib" />

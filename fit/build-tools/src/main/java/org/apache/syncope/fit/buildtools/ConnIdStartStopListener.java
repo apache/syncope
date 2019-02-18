@@ -58,7 +58,7 @@ public class ConnIdStartStopListener implements ServletContextListener {
 
             URL url = null;
             try {
-                url = ctx.getResource("/WEB-INF/lib/"
+                url = ctx.getResource("/WEB-INF/bundles/"
                         + WebApplicationContextUtils.getWebApplicationContext(ctx).getBean(bundleFile, String.class));
             } catch (MalformedURLException e) {
                 // ignore
