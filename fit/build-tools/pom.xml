@@ -192,20 +192,6 @@ under the License.
       <groupId>com.icegreen</groupId>
       <artifactId>greenmail</artifactId>
     </dependency>
-
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-    </dependency>
     
     <dependency>
       <groupId>com.h2database</groupId>
@@ -256,7 +242,43 @@ under the License.
           </execution>
         </executions>
       </plugin>
-      
+
+      <!-- repackage the ConnId SOAP bundle to avoid conflicts with local CXF's SOAP service implementation -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>repack-soap-bundle</id>
+            <phase>prepare-package</phase>
+            <configuration>
+              <target>
+                <unzip src="${bundles.directory}/net.tirasa.connid.bundles.soap-${connid.soap.version}.jar"
+                       dest="${bundles.directory}/soap">
+                  <patternset>
+                    <include name="META-INF/*"/>
+                    <include name="net/**"/>
+                    <include name="lib/soap-utilities-${connid.soap.version}.jar"/>
+                  </patternset>
+                </unzip>
+
+                <delete file="${bundles.directory}/net.tirasa.connid.bundles.soap-${connid.soap.version}.jar"/>
+
+                <jar destfile="${bundles.directory}/net.tirasa.connid.bundles.soap-${connid.soap.version}.jar"
+                     basedir="${bundles.directory}/soap"
+                     filesetmanifest="merge"/>                  
+
+                <delete dir="${bundles.directory}/soap"/>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
