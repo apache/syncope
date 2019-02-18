@@ -41,7 +41,7 @@ import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
-import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
+import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.wicket.PageReference;
@@ -102,8 +102,8 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             header = ((ExecTO) modelObject).getKey();
         } else if (modelObject instanceof WorkflowDefinitionTO) {
             header = ((WorkflowDefinitionTO) modelObject).getName();
-        } else if (modelObject instanceof ProvisioningTaskTO) {
-            header = ((ProvisioningTaskTO) modelObject).getName();
+        } else if (modelObject instanceof SchedTaskTO) {
+            header = ((SchedTaskTO) modelObject).getName();
         } else if (modelObject instanceof WorkflowFormTO) {
             header = ((WorkflowFormTO) modelObject).getKey();
         } else if (modelObject instanceof EntityTO) {
