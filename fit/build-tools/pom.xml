@@ -51,10 +51,6 @@ under the License.
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-service-builder</artifactId>
       <version>${apacheds.version}</version>
     </dependency>
