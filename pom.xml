@@ -442,8 +442,8 @@ under the License.
     <connid.location>file:${bundles.directory}/</connid.location>
     <log.directory>${project.build.directory}/log</log.directory>
 
-    <swagger-core.version>2.0.6</swagger-core.version>    
-    <swagger-ui.version>3.20.5</swagger-ui.version>
+    <swagger-core.version>2.0.7</swagger-core.version>    
+    <swagger-ui.version>3.20.8</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
     <jquery.version>3.3.1-1</jquery.version>
