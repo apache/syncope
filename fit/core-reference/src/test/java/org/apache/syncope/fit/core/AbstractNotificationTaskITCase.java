@@ -51,7 +51,9 @@ public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase 
 
     private boolean pop3(final String sender, final String subject, final String mailAddress) throws Exception {
         boolean found = false;
-        try (Store store = Session.getDefaultInstance(System.getProperties()).getStore("pop3")) {
+        Store store = null;
+        try {
+            store = Session.getDefaultInstance(System.getProperties()).getStore("pop3");
             store.connect(POP3_HOST, POP3_PORT, mailAddress, mailAddress);
 
             Folder inbox = store.getFolder("INBOX");
@@ -67,6 +69,10 @@ public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase 
             }
 
             inbox.close(true);
+        } finally {
+            if (store != null) {
+                store.close();
+            }
         }
         return found;
     }

@@ -1343,6 +1343,10 @@ under the License.
             <artifactId>activation</artifactId>
           </exclusion>
           <exclusion>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+          </exclusion>
+          <exclusion>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
           </exclusion>
@@ -2470,7 +2474,7 @@ under the License.
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.0/apidocs/</link>
             <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/6.6.0/index.html</link>
-            <link>http://docs.swagger.io/swagger-core/v2.0.6/apidocs/</link>
+            <link>http://docs.swagger.io/swagger-core/v2.0.7/apidocs/</link>
           </links>
         </configuration>
         <reportSets>

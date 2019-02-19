@@ -41,10 +41,9 @@ public class InterruptableSmtpServer extends SmtpServer {
                 } catch (IOException e) {
                     // ignore
                 }
-                return null;
-            } else {
-                return super.createProtocolHandler(clientSocket);
             }
+
+            return super.createProtocolHandler(clientSocket);
         }
     }
 
