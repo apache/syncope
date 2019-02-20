@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -64,6 +65,7 @@ import org.elasticsearch.index.query.DisMaxQueryBuilder;
 import org.elasticsearch.index.query.MatchNoneQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
@@ -201,14 +203,17 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 (page <= 0 ? 0 : page - 1),
                 (itemsPerPage < 0 ? elasticsearchUtils.getIndexMaxResultWindow() : itemsPerPage),
                 sortBuilders(kind, orderBy));
+
+        SearchHit[] esResult = null;
         try {
-            return buildResult(Stream.of(client.search(request, RequestOptions.DEFAULT).getHits().getHits()).
-                    map(hit -> hit.getId()).collect(Collectors.toList()),
-                    kind);
-        } catch (IOException e) {
-            LOG.error("Search error", e);
-            return Collections.emptyList();
+            esResult = client.search(request, RequestOptions.DEFAULT).getHits().getHits();
+        } catch (Exception e) {
+            LOG.error("While searching in Elasticsearch", e);
         }
+
+        return ArrayUtils.isEmpty(esResult)
+                ? Collections.emptyList()
+                : buildResult(Stream.of(esResult).map(hit -> hit.getId()).collect(Collectors.toList()), kind);
     }
 
     private QueryBuilder getQueryBuilder(final SearchCond cond, final AnyTypeKind kind) {
