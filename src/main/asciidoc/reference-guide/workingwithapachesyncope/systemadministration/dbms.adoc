@@ -137,7 +137,7 @@ endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/2_1_X/core/persistence-jpa-json/src/main/resources/pgjsonb/views.xml[views.xml^]
 endif::[]
-then save both under `core/src/main/resources/`.
+then save all under `core/src/main/resources/`.
 
 Download
 ifeval::["{snapshotOrRelease}" == "release"]
