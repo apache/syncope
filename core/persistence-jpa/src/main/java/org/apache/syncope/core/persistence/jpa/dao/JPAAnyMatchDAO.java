@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import static org.apache.syncope.core.persistence.jpa.dao.AbstractDAO.LOG;
-
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
