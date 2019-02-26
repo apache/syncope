@@ -291,7 +291,7 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
         return IterableUtils.matchesAny(anyAttrValues, new Predicate<PlainAttrValue>() {
 
             @Override
-            @SuppressWarnings("unchecked")
+            @SuppressWarnings({ "unchecked", "rawtypes" })
             public boolean evaluate(final PlainAttrValue item) {
                 switch (cond.getType()) {
                     case EQ:
