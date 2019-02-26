@@ -160,7 +160,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             AnyTypeKind kind);
 
     protected Pair<PlainSchema, PlainAttrValue> check(final AttributeCond cond, final AnyTypeKind kind) {
-        AnyUtils attrUtils = anyUtilsFactory.getInstance(kind);
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(kind);
 
         PlainSchema schema = schemaDAO.find(cond.getSchema());
         if (schema == null) {
@@ -168,7 +168,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             throw new IllegalArgumentException();
         }
 
-        PlainAttrValue attrValue = attrUtils.newPlainAttrValue();
+        PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
         try {
             if (cond.getType() != AttributeCond.Type.LIKE
                     && cond.getType() != AttributeCond.Type.ILIKE
@@ -188,14 +188,14 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     protected Triple<PlainSchema, PlainAttrValue, AnyCond> check(final AnyCond cond, final AnyTypeKind kind) {
         AnyCond condClone = SerializationUtils.clone(cond);
 
-        AnyUtils attrUtils = anyUtilsFactory.getInstance(kind);
-
         // Keeps track of difference between entity's getKey() and JPA @Id fields
         if ("key".equals(condClone.getSchema())) {
             condClone.setSchema("id");
         }
 
-        Field anyField = ReflectionUtils.findField(attrUtils.anyClass(), condClone.getSchema());
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(kind);
+
+        Field anyField = ReflectionUtils.findField(anyUtils.anyClass(), condClone.getSchema());
         if (anyField == null) {
             LOG.warn("Ignoring invalid schema '{}'", condClone.getSchema());
             throw new IllegalArgumentException();
@@ -240,7 +240,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             }
         }
 
-        PlainAttrValue attrValue = attrUtils.newPlainAttrValue();
+        PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
         if (condClone.getType() != AttributeCond.Type.LIKE
                 && condClone.getType() != AttributeCond.Type.ILIKE
                 && condClone.getType() != AttributeCond.Type.ISNULL
@@ -373,13 +373,5 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         }
 
         return doSearch(adminRealms, cond, page, itemsPerPage, effectiveOrderBy, kind);
-    }
-
-    @Override
-    public <T extends Any<?>> boolean matches(final T any, final SearchCond cond) {
-        AnyCond keycond = new AnyCond(AttributeCond.Type.EQ);
-        keycond.setSchema("key");
-        keycond.setExpression(any.getKey());
-        return !search(SearchCond.getAndCond(SearchCond.getLeafCond(keycond), cond), any.getType().getKind()).isEmpty();
     }
 }

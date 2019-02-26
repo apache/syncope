@@ -105,10 +105,10 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         if (details) {
             // dynamic realms
-            anyObjectTO.getDynRealms().addAll(userDAO.findDynRealms(anyObject.getKey()));
+            anyObjectTO.getDynRealms().addAll(anyObjectDAO.findDynRealms(anyObject.getKey()));
 
             // relationships
-            CollectionUtils.collect(anyObjectDAO.findAllRelationships(anyObject), 
+            CollectionUtils.collect(anyObjectDAO.findAllRelationships(anyObject),
                     new Transformer<Relationship<Any<?>, Any<?>>, RelationshipTO>() {
 
                 @Override
@@ -376,7 +376,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                         if (attr.getSchema().isUniqueConstraint()) {
                             plainAttrValueDAO.delete(attr.getUniqueValue().getKey(), anyUtils.plainAttrValueClass());
                         } else {
-                            Collection<String> valuesToBeRemoved = 
+                            Collection<String> valuesToBeRemoved =
                                     CollectionUtils.collect(attr.getValues(), EntityUtils.keyTransformer());
                             for (String attrValueKey : valuesToBeRemoved) {
                                 plainAttrValueDAO.delete(attrValueKey, anyUtils.plainAttrValueClass());

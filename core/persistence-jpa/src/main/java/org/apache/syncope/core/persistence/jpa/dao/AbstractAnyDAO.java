@@ -39,7 +39,6 @@ import org.apache.commons.jexl3.parser.Token;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
-import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -77,8 +76,6 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
     private PlainSchemaDAO plainSchemaDAO;
 
-    private DerSchemaDAO derSchemaDAO;
-
     private DynRealmDAO dynRealmDAO;
 
     private AnyUtils anyUtils;
@@ -90,15 +87,6 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
             }
         }
         return plainSchemaDAO;
-    }
-
-    private DerSchemaDAO derSchemaDAO() {
-        synchronized (this) {
-            if (derSchemaDAO == null) {
-                derSchemaDAO = ApplicationContextProvider.getApplicationContext().getBean(DerSchemaDAO.class);
-            }
-        }
-        return derSchemaDAO;
     }
 
     protected DynRealmDAO dynRealmDAO() {
@@ -564,5 +552,4 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         }
         return result;
     }
-
 }

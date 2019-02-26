@@ -31,12 +31,11 @@ import org.apache.syncope.core.persistence.jpa.entity.JPADynRealm;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 
 @Repository
 public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO {
@@ -46,9 +45,10 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
     @Autowired
     private ApplicationEventPublisher publisher;
 
-    private AnySearchDAO searchDAO;
+    @Autowired
+    private AnyMatchDAO anyMatchDAO;
 
-    private AnySearchDAO jpaAnySearchDAO;
+    private AnySearchDAO searchDAO;
 
     private AnySearchDAO searchDAO() {
         synchronized (this) {
@@ -57,20 +57,6 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
             }
         }
         return searchDAO;
-    }
-
-    private AnySearchDAO jpaAnySearchDAO() {
-        synchronized (this) {
-            if (jpaAnySearchDAO == null) {
-                if (AopUtils.getTargetClass(searchDAO()).equals(JPAAnySearchDAO.class)) {
-                    jpaAnySearchDAO = searchDAO();
-                } else {
-                    jpaAnySearchDAO = (AnySearchDAO) ApplicationContextProvider.getBeanFactory().
-                            createBean(JPAAnySearchDAO.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-                }
-            }
-        }
-        return jpaAnySearchDAO;
     }
 
     @Override
@@ -98,7 +84,7 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
         clearDynMembers(merged);
 
         for (DynRealmMembership memb : merged.getDynMemberships()) {
-            List<Any<?>> matching = jpaAnySearchDAO().search(
+            List<Any<?>> matching = searchDAO().search(
                     SearchCondConverter.convert(memb.getFIQLCond()), memb.getAnyType().getKind());
             for (Any<?> any : matching) {
                 Query insert = entityManager().createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
@@ -138,26 +124,34 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
         for (DynRealm dynRealm : findAll()) {
             DynRealmMembership memb = dynRealm.getDynMembership(any.getType());
             if (memb != null) {
-                Query delete = entityManager().createNativeQuery(
-                        "DELETE FROM " + DYNMEMB_TABLE + " WHERE dynRealm_id=? AND any_id=?");
-                delete.setParameter(1, dynRealm.getKey());
-                delete.setParameter(2, any.getKey());
-                delete.executeUpdate();
+                boolean matches = anyMatchDAO.matches(any, SearchCondConverter.convert(memb.getFIQLCond()));
 
-                if (jpaAnySearchDAO().matches(any, SearchCondConverter.convert(memb.getFIQLCond()))) {
-                    Query insert = entityManager().createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
+                Query find = entityManager().createNativeQuery(
+                        "SELECT dynRealm_id FROM " + JPADynRealmDAO.DYNMEMB_TABLE + " WHERE any_id=?");
+                find.setParameter(1, any.getKey());
+                boolean existing = !find.getResultList().isEmpty();
+
+                if (matches && !existing) {
+                    Query insert = entityManager().
+                            createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
                     insert.setParameter(1, any.getKey());
                     insert.setParameter(2, dynRealm.getKey());
                     insert.executeUpdate();
+                } else if (!matches && existing) {
+                    Query delete = entityManager().createNativeQuery(
+                            "DELETE FROM " + DYNMEMB_TABLE + " WHERE dynRealm_id=? AND any_id=?");
+                    delete.setParameter(1, dynRealm.getKey());
+                    delete.setParameter(2, any.getKey());
+                    delete.executeUpdate();
                 }
             }
         }
     }
 
     @Override
-    public void removeDynMemberships(final String key) {
+    public void removeDynMemberships(final String anyKey) {
         Query delete = entityManager().createNativeQuery("DELETE FROM " + DYNMEMB_TABLE + " WHERE any_id=?");
-        delete.setParameter(1, key);
+        delete.setParameter(1, anyKey);
         delete.executeUpdate();
     }
 }

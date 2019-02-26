@@ -76,11 +76,10 @@ import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 
 @Repository
 public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
@@ -90,6 +89,9 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     public static final String ADYNMEMB_TABLE = "ADynGroupMembers";
 
     @Autowired
+    private AnyMatchDAO anyMatchDAO;
+
+    @Autowired
     private PlainAttrDAO plainAttrDAO;
 
     private UserDAO userDAO;
@@ -97,8 +99,6 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     private AnyObjectDAO anyObjectDAO;
 
     private AnySearchDAO searchDAO;
-
-    private AnySearchDAO jpaAnySearchDAO;
 
     private UserDAO userDAO() {
         synchronized (this) {
@@ -125,20 +125,6 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             }
         }
         return searchDAO;
-    }
-
-    private AnySearchDAO jpaAnySearchDAO() {
-        synchronized (this) {
-            if (jpaAnySearchDAO == null) {
-                if (AopUtils.getTargetClass(searchDAO()).equals(JPAAnySearchDAO.class)) {
-                    jpaAnySearchDAO = searchDAO();
-                } else {
-                    jpaAnySearchDAO = (AnySearchDAO) ApplicationContextProvider.getBeanFactory().
-                            createBean(JPAAnySearchDAO.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-                }
-            }
-        }
-        return jpaAnySearchDAO;
     }
 
     @Override
@@ -485,26 +471,35 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         Set<String> before = new HashSet<>();
         Set<String> after = new HashSet<>();
         for (ADynGroupMembership memb : findWithADynMemberships(anyObject.getType())) {
-            Query delete = entityManager().createNativeQuery(
-                    "DELETE FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
-            delete.setParameter(1, memb.getGroup().getKey());
-            delete.setParameter(2, anyObject.getKey());
-            if (delete.executeUpdate() > 0) {
+            boolean matches = anyMatchDAO.matches(
+                    anyObject,
+                    buildDynMembershipCond(memb.getFIQLCond(), memb.getGroup().getRealm()));
+            if (matches) {
+                after.add(memb.getGroup().getKey());
+            }
+
+            Query find = entityManager().createNativeQuery(
+                    "SELECT any_id FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
+            find.setParameter(1, memb.getGroup().getKey());
+            find.setParameter(2, anyObject.getKey());
+            boolean existing = !find.getResultList().isEmpty();
+            if (existing) {
                 before.add(memb.getGroup().getKey());
             }
 
-            if (jpaAnySearchDAO().matches(
-                    anyObject,
-                    buildDynMembershipCond(memb.getFIQLCond(), memb.getGroup().getRealm()))) {
-
+            if (matches && !existing) {
                 Query insert = entityManager().createNativeQuery(
                         "INSERT INTO " + ADYNMEMB_TABLE + " VALUES(?, ?, ?)");
                 insert.setParameter(1, anyObject.getType().getKey());
                 insert.setParameter(2, anyObject.getKey());
                 insert.setParameter(3, memb.getGroup().getKey());
                 insert.executeUpdate();
-
-                after.add(memb.getGroup().getKey());
+            } else if (!matches && existing) {
+                Query delete = entityManager().createNativeQuery(
+                        "DELETE FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
+                delete.setParameter(1, memb.getGroup().getKey());
+                delete.setParameter(2, anyObject.getKey());
+                delete.executeUpdate();
             }
 
             publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, memb.getGroup(), AuthContextUtils.getDomain()));
@@ -573,25 +568,34 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         Set<String> before = new HashSet<>();
         Set<String> after = new HashSet<>();
         for (UDynGroupMembership memb : findWithUDynMemberships()) {
-            Query delete = entityManager().createNativeQuery(
-                    "DELETE FROM " + UDYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
-            delete.setParameter(1, memb.getGroup().getKey());
-            delete.setParameter(2, user.getKey());
-            if (delete.executeUpdate() > 0) {
+            boolean matches = anyMatchDAO.matches(
+                    user,
+                    buildDynMembershipCond(memb.getFIQLCond(), memb.getGroup().getRealm()));
+            if (matches) {
+                after.add(memb.getGroup().getKey());
+            }
+
+            Query find = entityManager().createNativeQuery(
+                    "SELECT any_id FROM " + UDYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
+            find.setParameter(1, memb.getGroup().getKey());
+            find.setParameter(2, user.getKey());
+            boolean existing = !find.getResultList().isEmpty();
+            if (existing) {
                 before.add(memb.getGroup().getKey());
             }
 
-            if (jpaAnySearchDAO().matches(
-                    user,
-                    buildDynMembershipCond(memb.getFIQLCond(), memb.getGroup().getRealm()))) {
-
+            if (matches && !existing) {
                 Query insert = entityManager().createNativeQuery(
                         "INSERT INTO " + UDYNMEMB_TABLE + " VALUES(?, ?)");
                 insert.setParameter(1, user.getKey());
                 insert.setParameter(2, memb.getGroup().getKey());
                 insert.executeUpdate();
-
-                after.add(memb.getGroup().getKey());
+            } else if (!matches && existing) {
+                Query delete = entityManager().createNativeQuery(
+                        "DELETE FROM " + UDYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
+                delete.setParameter(1, memb.getGroup().getKey());
+                delete.setParameter(2, user.getKey());
+                delete.executeUpdate();
             }
 
             publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, memb.getGroup(), AuthContextUtils.getDomain()));

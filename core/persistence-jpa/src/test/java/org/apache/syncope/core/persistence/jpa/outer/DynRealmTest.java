@@ -38,9 +38,13 @@ import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 
 @Transactional("Master")
 public class DynRealmTest extends AbstractTest {
+
+    @Autowired
+    private AnyMatchDAO anyMatcher;
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
@@ -63,7 +67,7 @@ public class DynRealmTest extends AbstractTest {
         memb.setDynRealm(dynRealm);
         memb.setAnyType(anyTypeDAO.findUser());
         memb.setFIQLCond("cool==true");
-        
+
         dynRealm.add(memb);
         memb.setDynRealm(dynRealm);
 
@@ -88,7 +92,7 @@ public class DynRealmTest extends AbstractTest {
         assertFalse(matching.isEmpty());
 
         User user = matching.get(0);
-        assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(dynRealmCond)));
+        assertTrue(anyMatcher.matches(user, SearchCond.getLeafCond(dynRealmCond)));
 
         assertTrue(userDAO.findDynRealms(user.getKey()).contains(actual.getKey()));
     }

@@ -39,11 +39,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 
 @Repository
 public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
 
     public static final String DYNMEMB_TABLE = "DynRoleMembers";
+
+    @Autowired
+    private AnyMatchDAO anyMatchDAO;
 
     @Autowired
     private ApplicationEventPublisher publisher;
@@ -172,17 +176,26 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
     public void refreshDynMemberships(final User user) {
         for (Role role : findAll()) {
             if (role.getDynMembership() != null) {
-                Query delete = entityManager().createNativeQuery(
-                        "DELETE FROM " + DYNMEMB_TABLE + " WHERE role_id=? AND any_id=?");
-                delete.setParameter(1, role.getKey());
-                delete.setParameter(2, user.getKey());
-                delete.executeUpdate();
+                boolean matches =
+                        anyMatchDAO.matches(user, SearchCondConverter.convert(role.getDynMembership().getFIQLCond()));
 
-                if (searchDAO().matches(user, SearchCondConverter.convert(role.getDynMembership().getFIQLCond()))) {
-                    Query insert = entityManager().createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
+                Query find = entityManager().createNativeQuery(
+                        "SELECT any_id FROM " + DYNMEMB_TABLE + " WHERE role_id=?");
+                find.setParameter(1, role.getKey());
+                boolean existing = !find.getResultList().isEmpty();
+
+                if (matches && !existing) {
+                    Query insert = entityManager().createNativeQuery(
+                            "INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
                     insert.setParameter(1, user.getKey());
                     insert.setParameter(2, role.getKey());
                     insert.executeUpdate();
+                } else if (!matches && existing) {
+                    Query delete = entityManager().createNativeQuery(
+                            "DELETE FROM " + DYNMEMB_TABLE + " WHERE role_id=? AND any_id=?");
+                    delete.setParameter(1, role.getKey());
+                    delete.setParameter(2, user.getKey());
+                    delete.executeUpdate();
                 }
             }
         }

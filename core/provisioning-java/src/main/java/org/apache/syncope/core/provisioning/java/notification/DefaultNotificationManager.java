@@ -40,6 +40,7 @@ import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
@@ -130,6 +131,9 @@ public class DefaultNotificationManager implements NotificationManager {
      */
     @Autowired
     private AnySearchDAO searchDAO;
+
+    @Autowired
+    private AnyMatchDAO anyMatchDAO;
 
     /**
      * Task DAO.
@@ -351,7 +355,8 @@ public class DefaultNotificationManager implements NotificationManager {
                     LOG.debug("No events found about {}", any);
                 } else if (anyType == null || any == null
                         || notification.getAbout(anyType) == null
-                        || searchDAO.matches(any, SearchCondConverter.convert(notification.getAbout(anyType).get()))) {
+                        || anyMatchDAO.matches(
+                                any, SearchCondConverter.convert(notification.getAbout(anyType).get()))) {
 
                     LOG.debug("Creating notification task for event {} about {}", currentEvent, any);
 
