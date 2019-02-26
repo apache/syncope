@@ -57,14 +57,13 @@ public class TestFileRewriteAuditAppender extends DefaultRewriteAuditAppender {
         String pathPrefix = StringUtils.replace(mainFile.getFileName(), "core.log", StringUtils.EMPTY);
 
         targetAppender = FileAppender.newBuilder().
-                withName(getTargetAppenderName()).
+                setName(getTargetAppenderName()).
                 withAppend(true).
                 withFileName(pathPrefix + getTargetAppenderName() + ".log").
-                withLayout(
-                        PatternLayout.newBuilder()
-                                .withPattern("%d{HH:mm:ss.SSS} %-5level %logger - %msg%n")
-                                .build())
-                .build();
+                setLayout(PatternLayout.newBuilder().
+                        withPattern("%d{HH:mm:ss.SSS} %-5level %logger - %msg%n").
+                        build()).
+                build();
     }
 
     @Override
@@ -76,5 +75,4 @@ public class TestFileRewriteAuditAppender extends DefaultRewriteAuditAppender {
     public RewritePolicy getRewritePolicy() {
         return TestRewritePolicy.createPolicy();
     }
-
 }

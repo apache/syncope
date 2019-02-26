@@ -434,7 +434,7 @@ under the License.
 
     <joda.version>2.10.1</joda.version>
 
-    <h2.version>1.4.197</h2.version>
+    <h2.version>1.4.198</h2.version>
 
     <junit.version>5.4.0</junit.version>
 
@@ -444,7 +444,7 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
 
     <swagger-core.version>2.0.7</swagger-core.version>    
-    <swagger-ui.version>3.20.8</swagger-ui.version>
+    <swagger-ui.version>3.20.9</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
     <jquery.version>3.3.1-1</jquery.version>
@@ -2098,7 +2098,7 @@ under the License.
         <plugin>
           <groupId>com.github.eirslett</groupId>
           <artifactId>frontend-maven-plugin</artifactId>
-          <version>1.6</version>
+          <version>1.7.5</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
