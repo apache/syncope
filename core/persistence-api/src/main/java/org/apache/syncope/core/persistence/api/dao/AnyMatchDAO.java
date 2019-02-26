@@ -18,26 +18,18 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.DynRealm;
 
-public interface DynRealmDAO extends DAO<DynRealm> {
+public interface AnyMatchDAO extends DAO<Any<?>> {
 
-    DynRealm find(String key);
-
-    List<DynRealm> findAll();
-
-    DynRealm save(DynRealm dynRealm);
-
-    DynRealm saveAndRefreshDynMemberships(DynRealm dynRealm);
-
-    void delete(String key);
-
-    void clearDynMembers(DynRealm dynRealm);
-
-    void refreshDynMemberships(Any<?> any);
-
-    void removeDynMemberships(String anyKey);
-
+    /**
+     * Verify if any matches the given search condition.
+     *
+     * @param any to be checked
+     * @param cond to be verified
+     * @param <T> any
+     * @return true if any matches cond
+     */
+    <T extends Any<?>> boolean matches(T any, SearchCond cond);
 }

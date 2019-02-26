@@ -353,12 +353,4 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
 
         return doSearch(adminRealms, cond, page, itemsPerPage, effectiveOrderBy, kind);
     }
-
-    @Override
-    public <T extends Any<?>> boolean matches(final T any, final SearchCond cond) {
-        AnyCond keycond = new AnyCond(AttributeCond.Type.EQ);
-        keycond.setSchema("key");
-        keycond.setExpression(any.getKey());
-        return !search(SearchCond.getAndCond(SearchCond.getLeafCond(keycond), cond), any.getType().getKind()).isEmpty();
-    }
 }

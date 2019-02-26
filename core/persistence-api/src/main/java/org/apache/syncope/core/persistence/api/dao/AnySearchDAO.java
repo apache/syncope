@@ -65,14 +65,4 @@ public interface AnySearchDAO extends DAO<Any<?>> {
     <T extends Any<?>> List<T> search(
             Set<String> adminRealms, SearchCond searchCondition, int page, int itemsPerPage,
             List<OrderByClause> orderBy, AnyTypeKind kind);
-
-    /**
-     * Verify if any matches the given search condition.
-     *
-     * @param any to be checked
-     * @param searchCondition to be verified
-     * @param <T> any
-     * @return true if any matches searchCondition
-     */
-    <T extends Any<?>> boolean matches(T any, SearchCond searchCondition);
 }
