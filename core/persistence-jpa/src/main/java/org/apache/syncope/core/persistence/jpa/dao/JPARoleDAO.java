@@ -20,12 +20,11 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -46,6 +45,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
 
     public static final String DYNMEMB_TABLE = "DynRoleMembers";
+
+    @Autowired
+    private AnyMatchDAO anyMatchDAO;
 
     @Autowired
     private ApplicationEventPublisher publisher;
@@ -170,39 +172,33 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
 
     @Transactional
     @Override
-    @SuppressWarnings("unchecked")
     public void refreshDynMemberships(final User user) {
         Query query = entityManager().createNativeQuery(
                 "SELECT role_id FROM " + DYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, user.getKey());
 
-        Set<String> before = new HashSet<>();
-        query.getResultList().stream().
-                map(resultKey -> resultKey instanceof Object[]
-                ? (String) ((Object[]) resultKey)[0]
-                : ((String) resultKey)).
-                forEach(role -> before.add((String) role));
+        findAll().stream().filter(role -> role.getDynMembership() != null).forEach(role -> {
+            boolean matches =
+                    anyMatchDAO.matches(user, SearchCondConverter.convert(role.getDynMembership().getFIQLCond()));
 
-        Set<String> after = new HashSet<>();
-        findAll().stream().
-                filter(role -> role.getDynMembership() != null
-                && searchDAO.matches(user, SearchCondConverter.convert(role.getDynMembership().getFIQLCond()))
-                && !before.contains(role.getKey())).
-                forEach(role -> {
-                    Query insert = entityManager().createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
-                    insert.setParameter(1, user.getKey());
-                    insert.setParameter(2, role.getKey());
-                    insert.executeUpdate();
+            Query find = entityManager().createNativeQuery(
+                    "SELECT any_id FROM " + DYNMEMB_TABLE + " WHERE role_id=?");
+            find.setParameter(1, role.getKey());
+            boolean existing = !find.getResultList().isEmpty();
 
-                    after.add(role.getKey());
-                });
-
-        before.stream().filter(role -> !after.contains(role)).forEach(role -> {
-            Query delete = entityManager().createNativeQuery(
-                    "DELETE FROM " + DYNMEMB_TABLE + " WHERE role_id=? AND any_id=?");
-            delete.setParameter(1, role);
-            delete.setParameter(2, user.getKey());
-            delete.executeUpdate();
+            if (matches && !existing) {
+                Query insert = entityManager().createNativeQuery(
+                        "INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
+                insert.setParameter(1, user.getKey());
+                insert.setParameter(2, role.getKey());
+                insert.executeUpdate();
+            } else if (!matches && existing) {
+                Query delete = entityManager().createNativeQuery(
+                        "DELETE FROM " + DYNMEMB_TABLE + " WHERE role_id=? AND any_id=?");
+                delete.setParameter(1, role.getKey());
+                delete.setParameter(2, user.getKey());
+                delete.executeUpdate();
+            }
         });
     }
 
