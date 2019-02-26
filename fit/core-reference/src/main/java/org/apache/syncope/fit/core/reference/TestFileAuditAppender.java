@@ -67,14 +67,13 @@ public class TestFileAuditAppender extends DefaultAuditAppender {
                 + File.separator
                 : StringUtils.replace(mainFile.getFileName(), "core.log", StringUtils.EMPTY);
 
-        targetAppender = FileAppender.newBuilder()
-                .withName(getTargetAppenderName())
-                .withAppend(true)
-                .withFileName(pathPrefix + getTargetAppenderName() + ".log")
-                .withLayout(
-                        PatternLayout.newBuilder()
-                                .withPattern("%d{HH:mm:ss.SSS} %-5level %logger - %msg%n")
-                                .build()).
+        targetAppender = FileAppender.newBuilder().
+                setName(getTargetAppenderName()).
+                withAppend(true).
+                withFileName(pathPrefix + getTargetAppenderName() + ".log").
+                setLayout(PatternLayout.newBuilder().
+                        withPattern("%d{HH:mm:ss.SSS} %-5level %logger - %msg%n").
+                        build()).
                 build();
     }
 
@@ -82,5 +81,4 @@ public class TestFileAuditAppender extends DefaultAuditAppender {
     public String getTargetAppenderName() {
         return "audit_for_" + domainName + "_norewrite_file";
     }
-
 }

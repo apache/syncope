@@ -61,20 +61,20 @@ public class SyslogRewriteAuditAppender extends DefaultRewriteAuditAppender {
 
     @Override
     public void initTargetAppender() {
-        targetAppender = SyslogAppender.newSyslogAppenderBuilder()
-                .withName(getTargetAppenderName())
-                .withHost("localhost")
-                .withPort(514)
-                .withProtocol(Protocol.UDP)
-                .withLayout(
-                        PatternLayout.newBuilder().withPattern("%d{ISO8601} %-5level %logger - %msg%n").build())
-                .setFacility(Facility.LOCAL1)
-                .build();
+        targetAppender = SyslogAppender.newSyslogAppenderBuilder().
+                setName(getTargetAppenderName()).
+                withHost("localhost").
+                withPort(514).
+                withProtocol(Protocol.UDP).
+                setLayout(PatternLayout.newBuilder().
+                        withPattern("%d{ISO8601} %-5level %logger - %msg%n").
+                        build()).
+                setFacility(Facility.LOCAL1).
+                build();
     }
 
     @Override
     public String getTargetAppenderName() {
         return "audit_for_" + domainName + "_syslog";
     }
-
 }

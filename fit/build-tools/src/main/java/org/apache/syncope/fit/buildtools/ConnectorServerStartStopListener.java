@@ -76,7 +76,7 @@ public class ConnectorServerStartStopListener implements ServletContextListener 
                     ctx.getEnvironment().getProperty("testconnectorserver.key", String.class).toCharArray()));
 
             server.start();
-            LOG.info("ConnId connector server listening on port " + server.getPort());
+            LOG.info("ConnId connector server listening on port {}", server.getPort());
         } catch (Exception e) {
             LOG.error("Could not start ConnId connector server", e);
         }
