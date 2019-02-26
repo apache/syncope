@@ -227,7 +227,7 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
         return not ? !found : found;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private boolean matches(
             final List<? extends PlainAttrValue> anyAttrValues,
             final PlainAttrValue attrValue,
