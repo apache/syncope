@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -47,6 +48,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.AttributableTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -63,6 +65,7 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
@@ -112,7 +115,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
             @Override
             public WebMarkupContainer getPanel(final String panelId) {
-                return new PlainSchemas(panelId, schemas, attrTOs);
+                return new PlainSchemasOwn(panelId, schemas, attrTOs);
             }
         }), Model.of(0)).setOutputMarkupId(true));
 
@@ -133,10 +136,19 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
                     @Override
                     public WebMarkupContainer getPanel(final String panelId) {
-                        return new PlainSchemas(
+                        return new PlainSchemasMemberships(
                                 panelId,
                                 membershipSchemas.get(membershipTO.getGroupKey()),
-                                new ListModel<>(getAttrsFromTO(membershipTO)));
+                                new LoadableDetachableModel<AttributableTO>() { // SYNCOPE-1439
+
+                            private static final long serialVersionUID = 526768546610546553L;
+
+                            @Override
+                            protected AttributableTO load() {
+                                return membershipTO;
+                            }
+
+                        });
                     }
                 }), Model.of(-1)).setOutputMarkupId(true));
             }
@@ -363,15 +375,91 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
         return panel;
     }
 
-    public class PlainSchemas extends Schemas {
+    protected class PlainSchemasMemberships extends PlainSchemas<AttributableTO> {
+
+        private static final long serialVersionUID = 456754923340249215L;
+
+        public PlainSchemasMemberships(
+                final String id,
+                final Map<String, PlainSchemaTO> schemas,
+                final IModel<AttributableTO> attributableTO) {
+
+            super(id, schemas, attributableTO);
+
+            final List<AttrTO> res = new ArrayList<>(attributableTO.getObject().getPlainAttrs());
+            Collections.sort(res, new AttrComparator());
+
+            add(new ListView<AttrTO>("schemas",
+                    new ListModel<AttrTO>(res)) {
+
+                private static final long serialVersionUID = 5306618783986001008L;
+
+                @Override
+                @SuppressWarnings({ "unchecked", "rawtypes" })
+                protected void populateItem(final ListItem<AttrTO> item) {
+                    final AttrTO attrTO = item.getModelObject();
+
+                    AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
+                    if (mode == AjaxWizard.Mode.TEMPLATE
+                            || !schemas.get(attrTO.getSchema()).isMultivalue()) {
+
+                        FieldPanel.class.cast(panel).setNewModel(new Model() {
+
+                            private static final long serialVersionUID = -4214654722524358000L;
+
+                            @Override
+                            public Serializable getObject() {
+                                return attributableTO.getObject().getPlainAttr(attrTO.getSchema()).
+                                        getValues().isEmpty()
+                                                ? null
+                                                : attributableTO.getObject().getPlainAttr(attrTO.getSchema()).
+                                                        getValues().get(0);
+                            }
+
+                            @Override
+                            public void setObject(final Serializable object) {
+                                attributableTO.getObject().getPlainAttr(attrTO.getSchema()).getValues().clear();
+                                if (object != null) {
+                                    attributableTO.getObject().getPlainAttr(attrTO.getSchema()).
+                                            getValues().add(object.toString());
+                                }
+                            }
+                        });
+                    } else {
+                        panel = new MultiFieldPanel.Builder<>(
+                                new ListModel<String>() {
+
+                            private static final long serialVersionUID = -1765231556272935141L;
+
+                            @Override
+                            public List<String> getObject() {
+                                return attributableTO.getObject().getPlainAttr(attrTO.getSchema()).getValues();
+                            }
+                        }).build(
+                                "panel",
+                                attrTO.getSchema(),
+                                FieldPanel.class.cast(panel));
+                        // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
+                        ((MultiFieldPanel) panel).setReadOnly(schemas.get(attrTO.getSchema()).isReadonly());
+                    }
+                    item.add(panel);
+
+                    setExternalAction(attrTO, panel);
+                }
+            });
+        }
+    }
+
+    protected class PlainSchemasOwn extends PlainSchemas<List<AttrTO>> {
 
         private static final long serialVersionUID = -4730563859116024676L;
 
-        public PlainSchemas(
+        public PlainSchemasOwn(
                 final String id,
-                final Map<String, PlainSchemaTO> availableSchemas,
+                final Map<String, PlainSchemaTO> schemas,
                 final IModel<List<AttrTO>> attrTOs) {
-            super(id);
+
+            super(id, schemas, attrTOs);
 
             add(new ListView<AttrTO>("schemas", attrTOs) {
 
@@ -382,9 +470,10 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 protected void populateItem(final ListItem<AttrTO> item) {
                     AttrTO attrTO = item.getModelObject();
 
-                    AbstractFieldPanel<?> panel = getFieldPanel(availableSchemas.get(attrTO.getSchema()));
+                    AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
                     if (mode == AjaxWizard.Mode.TEMPLATE
-                            || !availableSchemas.get(attrTO.getSchema()).isMultivalue()) {
+                            || !schemas.get(attrTO.getSchema()).isMultivalue()) {
+
                         FieldPanel.class.cast(panel).setNewModel(attrTO.getValues());
                     } else {
                         panel = new MultiFieldPanel.Builder<>(
@@ -393,35 +482,54 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                                 attrTO.getSchema(),
                                 FieldPanel.class.cast(panel));
                         // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
-                        ((MultiFieldPanel) panel).setReadOnly(availableSchemas.get(attrTO.getSchema()).isReadonly());
+                        ((MultiFieldPanel) panel).setReadOnly(schemas.get(attrTO.getSchema()).isReadonly());
                     }
                     item.add(panel);
 
-                    if (previousObject != null
-                            && (previousObject.getPlainAttr(attrTO.getSchema()) == null
-                            || !ListUtils.isEqualList(
-                                    ListUtils.select(previousObject.getPlainAttr(attrTO.getSchema()).getValues(),
-                                            new Predicate<String>() {
-
-                                        @Override
-                                        public boolean evaluate(final String object) {
-                                            return StringUtils.isNotEmpty(object);
-                                        }
-                                    }), ListUtils.select(attrTO.getValues(),
-                                            new Predicate<String>() {
-
-                                        @Override
-                                        public boolean evaluate(final String object) {
-                                            return StringUtils.isNotEmpty(object);
-                                        }
-                                    })))) {
-                        List<String> oldValues = previousObject.getPlainAttr(attrTO.getSchema()) == null
-                                ? Collections.<String>emptyList()
-                                : previousObject.getPlainAttr(attrTO.getSchema()).getValues();
-                        panel.showExternAction(new LabelInfo("externalAction", oldValues));
-                    }
+                    setExternalAction(attrTO, panel);
                 }
             });
         }
     }
+
+    protected class PlainSchemas<T> extends Schemas {
+
+        private static final long serialVersionUID = -8563704881825476824L;
+
+        public PlainSchemas(
+                final String id,
+                final Map<String, PlainSchemaTO> schemas,
+                final IModel<T> model) {
+
+            super(id);
+        }
+
+        protected void setExternalAction(final AttrTO attrTO, final AbstractFieldPanel<?> panel) {
+            if (previousObject != null
+                    && (previousObject.getPlainAttr(attrTO.getSchema()) == null
+                    || !ListUtils.isEqualList(
+                            ListUtils.select(previousObject.getPlainAttr(attrTO.getSchema()).getValues(),
+                                    new Predicate<String>() {
+
+                                @Override
+                                public boolean evaluate(final String object) {
+                                    return StringUtils.isNotEmpty(object);
+                                }
+                            }), ListUtils.select(attrTO.getValues(),
+                                    new Predicate<String>() {
+
+                                @Override
+                                public boolean evaluate(final String object) {
+                                    return StringUtils.isNotEmpty(object);
+                                }
+                            })))) {
+
+                List<String> oldValues = previousObject.getPlainAttr(attrTO.getSchema()) == null
+                        ? Collections.<String>emptyList()
+                        : previousObject.getPlainAttr(attrTO.getSchema()).getValues();
+                panel.showExternAction(new LabelInfo("externalAction", oldValues));
+            }
+        }
+    }
+
 }
