@@ -452,7 +452,7 @@ under the License.
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
     
-    <bootstrap.version>3.4.0</bootstrap.version>
+    <bootstrap.version>3.4.1</bootstrap.version>
     <bootstrap-select.version>1.12.4</bootstrap-select.version>
     <bootstrap-fileinput.version>4.4.8</bootstrap-fileinput.version>
     <bootbox.version>4.4.0</bootbox.version>
