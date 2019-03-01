@@ -305,18 +305,10 @@ under the License.
         <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/test/resources</targetPath>
         <includes>
           <include>enduser.properties</include>
-          <include>saml2sp-agent.properties</include>
           <include>customFormAttributes.json</include>
           <include>customTemplate.json</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>../fit/enduser-reference/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/test/resources</targetPath>
-        <includes>
-          <include>enduser.properties</include>
+          <include>saml2sp-agent.properties</include>
           <include>oidcclient-agent.properties</include>
-          <include>customFormAttributes.json</include>
         </includes>
       </resource>
       <resource>
