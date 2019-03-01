@@ -82,7 +82,7 @@ under the License.
       <to uri="propagate:delete?anyTypeKind=GROUP"/>
       <bean ref="gwfAdapter" method="delete(${body})"/>
       <setBody>
-        <simple>${property.statuses}</simple>
+        <simple>${exchangeProperty.statuses}</simple>
       </setBody>
       <to uri="direct:deleteGroupPort"/>
       <doCatch>        

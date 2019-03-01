@@ -63,7 +63,7 @@ under the License.
       <to uri="propagate:delete?anyTypeKind=ANY_OBJECT"/>
       <bean ref="awfAdapter" method="delete(${body})"/>
       <setBody>
-        <simple>${property.statuses}</simple>
+        <simple>${exchangeProperty.statuses}</simple>
       </setBody>
       <to uri="direct:deleteAnyObjectPort"/>
       <doCatch>        

@@ -25,7 +25,7 @@ under the License.
       <simple>${body}</simple>
     </setProperty>
     <doTry>
-      <bean method="create(${body},${property.disablePwdPolicyCheck},${property.enabled})"
+      <bean method="create(${body},${exchangeProperty.disablePwdPolicyCheck},${exchangeProperty.enabled})"
             ref="uwfAdapter" />
       <to uri="propagate:create?anyTypeKind=USER"/>
       <to uri="direct:createPort"/>
@@ -86,7 +86,7 @@ under the License.
       <to uri="propagate:delete?anyTypeKind=USER"/>
       <bean ref="uwfAdapter" method="delete(${body})"/>
       <setBody>
-        <simple>${property.statuses}</simple>
+        <simple>${exchangeProperty.statuses}</simple>
       </setBody>
       <to uri="direct:deletePort"/>
       <doCatch>        
@@ -138,7 +138,7 @@ under the License.
   <route id="activateUser">
     <from uri="direct:activateUser"/>
     <doTry>
-      <bean ref="uwfAdapter" method="activate(${body}, ${property.token})"/>
+      <bean ref="uwfAdapter" method="activate(${body}, ${exchangeProperty.token})"/>
       <to uri="direct:userStatusPropagation"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -232,7 +232,7 @@ under the License.
   <route id="confirmPwdReset">
     <from uri="direct:confirmPwdReset"/>
     <doTry>
-      <bean ref="uwfAdapter" method="confirmPasswordReset(${property.key},${property.token},${property.password})"/>
+      <bean ref="uwfAdapter" method="confirmPasswordReset(${exchangeProperty.key},${exchangeProperty.token},${exchangeProperty.password})"/>
       <to uri="propagate:confirmPasswordReset?anyTypeKind=USER"/>
       <to uri="direct:confirmPwdResetPort"/>
       <doCatch>        

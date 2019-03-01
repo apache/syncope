@@ -26,9 +26,9 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.PollingConsumer;
 import org.apache.camel.ProducerTemplate;
-import org.apache.camel.impl.DefaultExchange;
-import org.apache.camel.impl.DefaultMessage;
 import org.apache.camel.model.RoutesDefinition;
+import org.apache.camel.support.DefaultExchange;
+import org.apache.camel.support.DefaultMessage;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,12 +62,8 @@ abstract class AbstractCamelProvisioningManager {
     }
 
     protected void sendMessage(final String uri, final Object body, final Map<String, Object> properties) {
-        Exchange exchange = new DefaultExchange(contextFactory.getCamelContext());
-
-        for (Map.Entry<String, Object> property : properties.entrySet()) {
-            exchange.setProperty(property.getKey(), property.getValue());
-            LOG.debug("Added property {}", property.getKey());
-        }
+        DefaultExchange exchange = new DefaultExchange(contextFactory.getCamelContext());
+        exchange.setProperties(properties);
 
         DefaultMessage message = new DefaultMessage(contextFactory.getCamelContext());
         message.setBody(body);
