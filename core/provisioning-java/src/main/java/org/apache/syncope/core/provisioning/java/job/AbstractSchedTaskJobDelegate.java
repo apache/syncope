@@ -107,6 +107,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
 
         if (!task.isActive()) {
             LOG.info("Task {} not active, aborting...", taskKey);
+            return;
         }
 
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
