@@ -200,7 +200,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 adminRealms,
                 cond,
                 kind,
-                (page <= 0 ? 0 : page - 1),
+                (itemsPerPage * (page <= 0 ? 0 : page - 1)),
                 (itemsPerPage < 0 ? elasticsearchUtils.getIndexMaxResultWindow() : itemsPerPage),
                 sortBuilders(kind, orderBy));
 

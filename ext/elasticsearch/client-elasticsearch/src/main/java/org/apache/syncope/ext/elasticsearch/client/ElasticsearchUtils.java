@@ -58,6 +58,10 @@ public class ElasticsearchUtils {
 
     private int retryOnConflict = 5;
 
+    private int numberOfShards = 1;
+
+    private int numberOfReplicas = 1;
+
     public void setIndexMaxResultWindow(final int indexMaxResultWindow) {
         this.indexMaxResultWindow = indexMaxResultWindow;
     }
@@ -72,6 +76,22 @@ public class ElasticsearchUtils {
 
     public int getRetryOnConflict() {
         return retryOnConflict;
+    }
+
+    public int getNumberOfShards() {
+        return numberOfShards;
+    }
+
+    public void setNumberOfShards(final int numberOfShards) {
+        this.numberOfShards = numberOfShards;
+    }
+
+    public int getNumberOfReplicas() {
+        return numberOfReplicas;
+    }
+
+    public void setNumberOfReplicas(final int numberOfReplicas) {
+        this.numberOfReplicas = numberOfReplicas;
     }
 
     /**

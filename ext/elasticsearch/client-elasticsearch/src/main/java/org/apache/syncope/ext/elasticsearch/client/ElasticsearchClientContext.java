@@ -46,6 +46,8 @@ public class ElasticsearchClientContext {
         ElasticsearchUtils utils = new ElasticsearchUtils();
         utils.setIndexMaxResultWindow(10000);
         utils.setRetryOnConflict(5);
+        utils.setNumberOfShards(1);
+        utils.setNumberOfReplicas(1);
         return utils;
     }
 }

@@ -156,6 +156,10 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                 endObject().
                 endObject().
                 endObject().
+                startObject("index").
+                field("number_of_shards", elasticsearchUtils.getNumberOfShards()).
+                field("number_of_replicas", elasticsearchUtils.getNumberOfReplicas()).
+                endObject().
                 endObject();
 
         XContentBuilder mapping = XContentFactory.jsonBuilder().
@@ -174,7 +178,8 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                 endObject();
 
         CreateIndexResponse response = client.indices().create(
-                new CreateIndexRequest(elasticsearchUtils.getContextDomainName(kind)).settings(settings).
+                new CreateIndexRequest(elasticsearchUtils.getContextDomainName(kind)).
+                        settings(settings).
                         mapping(kind.name(), mapping), RequestOptions.DEFAULT);
         LOG.debug("Successfully created {} for {}: {}",
                 elasticsearchUtils.getContextDomainName(kind), kind.name(), response);
