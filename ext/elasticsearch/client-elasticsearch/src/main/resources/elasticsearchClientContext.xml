@@ -38,6 +38,8 @@ under the License.
   <bean class="org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils">
     <property name="indexMaxResultWindow" value="10000"/>
     <property name="retryOnConflict" value="5"/>
+    <property name="numberOfShards" value="1"/>
+    <property name="numberOfReplicas" value="1"/>
   </bean>
   <bean class="org.apache.syncope.ext.elasticsearch.client.ElasticsearchIndexManager"/>
   
