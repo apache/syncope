@@ -181,7 +181,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             final AnyTypeKind kind) {
 
         SearchRequestBuilder builder = searchRequestBuilder(adminRealms, cond, kind).
-                setFrom(page <= 0 ? 0 : page - 1).
+                setFrom(itemsPerPage * (page <= 0 ? 0 : page - 1)).
                 setSize(itemsPerPage < 0 ? elasticsearchUtils.getIndexMaxResultWindow() : itemsPerPage);
         addSort(builder, kind, orderBy);
 
