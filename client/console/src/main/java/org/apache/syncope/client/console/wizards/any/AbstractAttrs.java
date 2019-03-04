@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
@@ -172,8 +173,8 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
     @Override
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
-        if (org.apache.cxf.common.util.CollectionUtils.isEmpty(attrTOs.getObject())
-                && org.apache.cxf.common.util.CollectionUtils.isEmpty(membershipTOs.getObject())) {
+        if (CollectionUtils.isEmpty(attrTOs.getObject())
+                && CollectionUtils.isEmpty(membershipTOs.getObject())) {
             response.render(OnDomReadyHeaderItem.forScript(
                     String.format("$('#emptyPlaceholder').append(\"%s\"); $('#attributes').hide();",
                             getString("attribute.empty.list"))));

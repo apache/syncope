@@ -56,8 +56,8 @@ import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.protocol.http.CsrfPreventionRequestCycleListener;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.protocol.ws.WebSocketAwareCsrfPreventionRequestCycleListener;
 import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.protocol.ws.api.WebSocketResponse;
 import org.apache.wicket.request.cycle.RequestCycle;
@@ -206,7 +206,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         getMarkupSettings().setCompressWhitespace(true);
 
         if (BooleanUtils.toBoolean(csrf)) {
-            getRequestCycleListeners().add(new CsrfPreventionRequestCycleListener());
+            getRequestCycleListeners().add(new WebSocketAwareCsrfPreventionRequestCycleListener());
         }
         getRequestCycleListeners().add(new SyncopeConsoleRequestCycleListener());
         getRequestCycleListeners().add(new IRequestCycleListener() {
