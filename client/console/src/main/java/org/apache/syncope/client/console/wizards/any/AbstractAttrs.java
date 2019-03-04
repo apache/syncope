@@ -176,8 +176,8 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
     @Override
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
-        if (org.apache.cxf.common.util.CollectionUtils.isEmpty(attrTOs.getObject())
-                && org.apache.cxf.common.util.CollectionUtils.isEmpty(membershipTOs.getObject())) {
+        if (CollectionUtils.isEmpty(attrTOs.getObject())
+                && CollectionUtils.isEmpty(membershipTOs.getObject())) {
             response.render(OnDomReadyHeaderItem.forScript(
                     String.format("$('#emptyPlaceholder').append(\"%s\"); $('#attributes').hide();",
                             getString("attribute.empty.list"))));
