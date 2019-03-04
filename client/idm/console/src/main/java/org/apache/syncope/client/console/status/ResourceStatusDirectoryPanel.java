@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.status.AbstractStatusBeanProvider;
 import org.apache.syncope.client.console.commons.status.StatusBean;
@@ -228,12 +229,12 @@ public class ResourceStatusDirectoryPanel
 
     @Override
     protected ResourceStatusDataProvider dataProvider() {
-        return new ResourceStatusDataProvider();
+        return new ResourceStatusDataProvider(rows);
     }
 
     @Override
     protected String paginatorRowsKey() {
-        return StringUtils.EMPTY;
+        return Constants.PREF_RECONCILIATION_PAGINATOR_ROWS;
     }
 
     protected class ResourceStatusDataProvider extends AbstractStatusBeanProvider {
@@ -244,8 +245,8 @@ public class ResourceStatusDirectoryPanel
 
         private final AbstractAnyRestClient<? extends AnyTO> restClient;
 
-        public ResourceStatusDataProvider() {
-            super(AnyTypeKind.USER.name().equals(type) ? "username" : "name");
+        public ResourceStatusDataProvider(final int paginatorRows) {
+            super(paginatorRows, AnyTypeKind.USER.name().equals(type) ? "username" : "name");
 
             if (StringUtils.isEmpty(type)) {
                 fiql = null;
