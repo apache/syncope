@@ -31,8 +31,8 @@ public abstract class AbstractStatusBeanProvider extends DirectoryDataProvider<S
 
     protected final SortableDataProviderComparator<StatusBean> comparator;
 
-    public AbstractStatusBeanProvider(final String sort) {
-        super(10);
+    public AbstractStatusBeanProvider(final int paginatorRows, final String sort) {
+        super(paginatorRows);
 
         setSort(sort, SortOrder.ASCENDING);
         comparator = new SortableDataProviderComparator<>(this);
