@@ -26,7 +26,6 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.PredicateUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
@@ -273,20 +272,20 @@ public class AnyStatusDirectoryPanel
 
     @Override
     protected AnyStatusProvider dataProvider() {
-        return new AnyStatusProvider();
+        return new AnyStatusProvider(rows);
     }
 
     @Override
     protected String paginatorRowsKey() {
-        return StringUtils.EMPTY;
+        return Constants.PREF_RESOURCE_STATUS_PAGINATOR_ROWS;
     }
 
     protected class AnyStatusProvider extends AbstractStatusBeanProvider {
 
         private static final long serialVersionUID = 4586969457669796621L;
 
-        AnyStatusProvider() {
-            super("resource");
+        AnyStatusProvider(final int paginatorRows) {
+            super(paginatorRows, "resource");
         }
 
         @Override
