@@ -40,6 +40,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
+import org.apache.cxf.jaxrs.model.doc.JavaDocProvider;
 import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -68,20 +69,20 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
     private void init() {
         synchronized (this) {
             if (!inited) {
-                SyncopeJavaDocProvider javaDocProvider = null;
+                JavaDocProvider javaDocProvider = null;
 
                 URL[] javaDocURLs = JavaDocUtils.getJavaDocURLs();
                 if (javaDocURLs == null) {
                     String[] javaDocPaths = JavaDocUtils.getJavaDocPaths(env);
                     if (javaDocPaths != null) {
                         try {
-                            javaDocProvider = new SyncopeJavaDocProvider(javaDocPaths);
+                            javaDocProvider = new JavaDocProvider(javaDocPaths);
                         } catch (Exception e) {
                             LOG.error("Could not set javadoc paths from {}", Arrays.asList(javaDocPaths), e);
                         }
                     }
                 } else {
-                    javaDocProvider = new SyncopeJavaDocProvider(javaDocURLs);
+                    javaDocProvider = new JavaDocProvider(javaDocURLs);
                 }
                 super.setJavadocProvider(javaDocProvider);
 
