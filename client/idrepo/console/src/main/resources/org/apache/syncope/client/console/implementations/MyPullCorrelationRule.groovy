@@ -20,13 +20,13 @@ import groovy.transform.CompileStatic
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond
 import org.apache.syncope.core.persistence.api.entity.resource.Provision
-import org.identityconnectors.framework.common.objects.ConnectorObject
+import org.identityconnectors.framework.common.objects.SyncDelta
 
 @CompileStatic
 class MyPullCorrelationRule implements PullCorrelationRule {
 
   @Override
-  SearchCond getSearchCond(ConnectorObject connObj, Provision provision) {
+  SearchCond getSearchCond(SyncDelta syncDelta, Provision provision) {
     
   }
 }
