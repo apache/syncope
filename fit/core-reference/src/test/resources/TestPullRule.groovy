@@ -22,7 +22,7 @@ import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision
-import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.SyncDelta
 
 /**
  * Test pull rule relying on {@code email} attribute value.
@@ -31,11 +31,11 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 class TestPullRule implements PullCorrelationRule {
 
   @Override
-  SearchCond getSearchCond(final ConnectorObject connObj, final Provision provision) {
+  SearchCond getSearchCond(final SyncDelta syncDelta, final Provision provision) {
     AttributeCond cond = new AttributeCond();
     cond.setSchema("email");
     cond.setType(AttributeCond.Type.EQ);
-    cond.setExpression(connObj.getName().getNameValue());
+    cond.setExpression(syncDelta.getObject().getName().getNameValue());
 
     return SearchCond.getLeafCond(cond);
   }

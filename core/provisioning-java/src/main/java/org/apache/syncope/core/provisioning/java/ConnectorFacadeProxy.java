@@ -339,7 +339,6 @@ public class ConnectorFacadeProxy implements Connector {
             public boolean handle(final ConnectorObject object) {
                 return handler.handle(new SyncDeltaBuilder().
                         setObject(object).
-                        setUid(object.getUid()).
                         setDeltaType(SyncDeltaType.CREATE_OR_UPDATE).
                         setToken(new SyncToken("")).
                         build());
