@@ -28,10 +28,10 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
+import org.identityconnectors.framework.common.objects.SyncDelta;
 
 public class PlainAttrsPullCorrelationRule implements PullCorrelationRule {
 
@@ -45,7 +45,7 @@ public class PlainAttrsPullCorrelationRule implements PullCorrelationRule {
     }
 
     @Override
-    public SearchCond getSearchCond(final ConnectorObject connObj) {
+    public SearchCond getSearchCond(final SyncDelta syncDelta) {
         Map<String, Item> mappingItems = new HashMap<>();
         for (Item item : provision.getMapping().getItems()) {
             mappingItems.put(item.getIntAttrName(), item);
@@ -58,7 +58,7 @@ public class PlainAttrsPullCorrelationRule implements PullCorrelationRule {
             Item mappingItem = mappingItems.get(schema);
             Attribute attr = mappingItem == null
                     ? null
-                    : connObj.getAttributeByName(mappingItem.getExtAttrName());
+                    : syncDelta.getObject().getAttributeByName(mappingItem.getExtAttrName());
             if (attr == null) {
                 throw new IllegalArgumentException(
                         "Connector object does not contains the attributes to perform the search: " + schema);

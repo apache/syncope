@@ -20,8 +20,8 @@ package org.apache.syncope.fit.core.reference;
 
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
+import org.identityconnectors.framework.common.objects.SyncDelta;
 
 /**
  * Test pull rule relying on <tt>email</tt> attribute value.
@@ -29,11 +29,11 @@ import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
 public class TestPullRule implements PullCorrelationRule {
 
     @Override
-    public SearchCond getSearchCond(final ConnectorObject connObj) {
+    public SearchCond getSearchCond(final SyncDelta syncDelta) {
         AttributeCond cond = new AttributeCond();
         cond.setSchema("email");
         cond.setType(AttributeCond.Type.EQ);
-        cond.setExpression(connObj.getName().getNameValue());
+        cond.setExpression(syncDelta.getObject().getName().getNameValue());
 
         return SearchCond.getLeafCond(cond);
     }

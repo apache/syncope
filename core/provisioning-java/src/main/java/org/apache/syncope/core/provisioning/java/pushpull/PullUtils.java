@@ -64,6 +64,10 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.SearchResult;
+import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
+import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.slf4j.Logger;
@@ -150,7 +154,13 @@ public class PullUtils {
 
             ConnectorObject connObj = found.iterator().next();
             try {
-                List<String> anyKeys = match(connObj, provision, anyUtils);
+                List<String> anyKeys = match(
+                        new SyncDeltaBuilder().
+                                setToken(new SyncToken("")).
+                                setDeltaType(SyncDeltaType.CREATE_OR_UPDATE).
+                                setObject(connObj).
+                                build(),
+                        provision, anyUtils);
                 if (anyKeys.isEmpty()) {
                     LOG.debug("No matching {} found for {}, aborting", anyUtils.anyTypeKind(), connObj);
                 } else {
@@ -169,13 +179,13 @@ public class PullUtils {
     }
 
     private List<String> findByConnObjectKey(
-            final ConnectorObject connObj, final Provision provision, final AnyUtils anyUtils) {
+            final SyncDelta syncDelta, final Provision provision, final AnyUtils anyUtils) {
 
         String connObjectKey = null;
 
         MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
         if (connObjectKeyItem != null) {
-            Attribute connObjectKeyAttr = connObj.getAttributeByName(connObjectKeyItem.getExtAttrName());
+            Attribute connObjectKeyAttr = syncDelta.getObject().getAttributeByName(connObjectKeyItem.getExtAttrName());
             if (connObjectKeyAttr != null) {
                 connObjectKey = AttributeUtil.getStringValue(connObjectKeyAttr);
             }
@@ -268,10 +278,10 @@ public class PullUtils {
     }
 
     private List<String> findByCorrelationRule(
-            final ConnectorObject connObj, final PullCorrelationRule rule, final AnyTypeKind type) {
+            final SyncDelta syncDelta, final PullCorrelationRule rule, final AnyTypeKind type) {
 
         List<String> result = new ArrayList<>();
-        for (Any<?> any : searchDAO.search(rule.getSearchCond(connObj), type)) {
+        for (Any<?> any : searchDAO.search(rule.getSearchCond(syncDelta), type)) {
             result.add(any.getKey());
         }
 
@@ -281,13 +291,13 @@ public class PullUtils {
     /**
      * Finds internal entities based on external attributes and mapping.
      *
-     * @param connObj external attributes
+     * @param syncDelta change operation, including external attributes
      * @param provision mapping
      * @param anyUtils any utils
      * @return list of matching users' / groups' / any objects' keys
      */
     public List<String> match(
-            final ConnectorObject connObj,
+            final SyncDelta syncDelta,
             final Provision provision,
             final AnyUtils anyUtils) {
 
@@ -315,10 +325,10 @@ public class PullUtils {
 
         try {
             return pullRule == null
-                    ? findByConnObjectKey(connObj, provision, anyUtils)
-                    : findByCorrelationRule(connObj, pullRule, anyUtils.anyTypeKind());
+                    ? findByConnObjectKey(syncDelta, provision, anyUtils)
+                    : findByCorrelationRule(syncDelta, pullRule, anyUtils.anyTypeKind());
         } catch (RuntimeException e) {
-            LOG.error("Could not match {} with any existing {}", connObj, provision.getAnyType(), e);
+            LOG.error("Could not match {} with any existing {}", syncDelta, provision.getAnyType(), e);
             return Collections.<String>emptyList();
         }
     }
@@ -326,19 +336,19 @@ public class PullUtils {
     /**
      * Finds internal realms based on external attributes and mapping.
      *
-     * @param connObj external attributes
+     * @param syncDelta change operation, including external attributes
      * @param orgUnit mapping
      * @return list of matching realms' keys.
      */
     public List<String> match(
-            final ConnectorObject connObj,
+            final SyncDelta syncDelta,
             final OrgUnit orgUnit) {
 
         String connObjectKey = null;
 
         OrgUnitItem connObjectKeyItem = orgUnit.getConnObjectKeyItem();
         if (connObjectKeyItem != null) {
-            Attribute connObjectKeyAttr = connObj.getAttributeByName(connObjectKeyItem.getExtAttrName());
+            Attribute connObjectKeyAttr = syncDelta.getObject().getAttributeByName(connObjectKeyItem.getExtAttrName());
             if (connObjectKeyAttr != null) {
                 connObjectKey = AttributeUtil.getStringValue(connObjectKeyAttr);
             }

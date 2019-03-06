@@ -19,7 +19,7 @@
 package org.apache.syncope.core.provisioning.api.pushpull;
 
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.SyncDelta;
 
 /**
  * Interface for correlation rule to be evaluated during PullJob execution.
@@ -29,8 +29,8 @@ public interface PullCorrelationRule {
     /**
      * Return a search condition.
      *
-     * @param connObj connector object.
-     * @return search condition.
+     * @param syncDelta change operation, including external attributes
+     * @return search condition
      */
-    SearchCond getSearchCond(ConnectorObject connObj);
+    SearchCond getSearchCond(SyncDelta syncDelta);
 }

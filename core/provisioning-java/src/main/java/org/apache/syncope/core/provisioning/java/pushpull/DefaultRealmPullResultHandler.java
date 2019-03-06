@@ -678,7 +678,7 @@ public class DefaultRealmPullResultHandler
         LOG.debug("Transformed {} for {} as {}",
                 processed.getDeltaType(), processed.getUid().getUidValue(), processed.getObject().getObjectClass());
 
-        List<String> keys = pullUtils.match(processed.getObject(), orgUnit);
+        List<String> keys = pullUtils.match(processed, orgUnit);
         LOG.debug("Match found for {} as {}: {}",
                 processed.getUid().getUidValue(), processed.getObject().getObjectClass(), keys);
 

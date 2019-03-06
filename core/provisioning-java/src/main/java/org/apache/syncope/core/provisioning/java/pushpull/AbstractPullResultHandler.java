@@ -729,7 +729,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 processed.getDeltaType(), processed.getUid().getUidValue(), processed.getObject().getObjectClass());
 
         try {
-            List<String> keys = pullUtils.match(processed.getObject(), provision, anyUtils);
+            List<String> keys = pullUtils.match(processed, provision, anyUtils);
             LOG.debug("Match(es) found for {} as {}: {}",
                     processed.getUid().getUidValue(), processed.getObject().getObjectClass(), keys);
 
