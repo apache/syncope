@@ -1353,7 +1353,7 @@ under the License.
               <container>
                 <containerId>glassfish5x</containerId>
                 <zipUrlInstaller>
-                  <url>https://s3-eu-west-1.amazonaws.com/payara.fish/Payara+Downloads/5.183/payara-5.183.zip</url>
+                  <url>https://repo1.maven.org/maven2/fish/payara/distributions/payara/5.191/payara-5.191.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
