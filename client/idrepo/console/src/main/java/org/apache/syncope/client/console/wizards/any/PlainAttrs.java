@@ -48,8 +48,6 @@ import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.AttributableTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -72,6 +70,8 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.Attributable;
 
 public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
@@ -116,7 +116,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
             @Override
             public WebMarkupContainer getPanel(final String panelId) {
-                return new PlainSchemasOwn(panelId, schemas, attrTOs);
+                return new PlainSchemasOwn(panelId, schemas, attrs);
             }
         }), Model.of(0)).setOutputMarkupId(true));
 
@@ -140,12 +140,12 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                         return new PlainSchemasMemberships(
                                 panelId,
                                 membershipSchemas.get(membershipTO.getGroupKey()),
-                                new LoadableDetachableModel<AttributableTO>() { // SYNCOPE-1439
+                                new LoadableDetachableModel<Attributable>() { // SYNCOPE-1439
 
                             private static final long serialVersionUID = 526768546610546553L;
 
                             @Override
-                            protected AttributableTO load() {
+                            protected Attributable load() {
                                 return membershipTO;
                             }
 
@@ -389,19 +389,19 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
         return panel;
     }
 
-    protected class PlainSchemasMemberships extends PlainSchemas<AttributableTO> {
+    protected class PlainSchemasMemberships extends PlainSchemas<Attributable> {
 
         private static final long serialVersionUID = 456754923340249215L;
 
         public PlainSchemasMemberships(
                 final String id,
                 final Map<String, PlainSchemaTO> schemas,
-                final IModel<AttributableTO> attributableTO) {
+                final IModel<Attributable> attributableTO) {
 
             super(id, schemas, attributableTO);
 
-            add(new ListView<AttrTO>("schemas",
-                    new ListModel<AttrTO>(new ArrayList<AttrTO>(
+            add(new ListView<Attr>("schemas",
+                    new ListModel<Attr>(new ArrayList<Attr>(
                             attributableTO.getObject().getPlainAttrs().stream().sorted(attrComparator).
                                     collect(Collectors.toList())))) {
 
@@ -409,8 +409,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
                 @Override
                 @SuppressWarnings({ "unchecked", "rawtypes" })
-                protected void populateItem(final ListItem<AttrTO> item) {
-                    AttrTO attrTO = item.getModelObject();
+                protected void populateItem(final ListItem<Attr> item) {
+                    Attr attrTO = item.getModelObject();
 
                     AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
                     if (mode == AjaxWizard.Mode.TEMPLATE
@@ -461,14 +461,14 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
         }
     }
 
-    protected class PlainSchemasOwn extends PlainSchemas<List<AttrTO>> {
+    protected class PlainSchemasOwn extends PlainSchemas<List<Attr>> {
 
         private static final long serialVersionUID = -4730563859116024676L;
 
         public PlainSchemasOwn(
                 final String id,
                 final Map<String, PlainSchemaTO> schemas,
-                final IModel<List<AttrTO>> attrTOs) {
+                final IModel<List<Attr>> attrTOs) {
 
             super(id, schemas, attrTOs);
 
@@ -515,8 +515,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             super(id);
         }
 
-        protected void setExternalAction(final AttrTO attrTO, final AbstractFieldPanel<?> panel) {
-            Optional<AttrTO> prevAttr = previousObject == null
+        protected void setExternalAction(final Attr attrTO, final AbstractFieldPanel<?> panel) {
+            Optional<Attr> prevAttr = previousObject == null
                     ? Optional.empty()
                     : previousObject.getPlainAttr(attrTO.getSchema());
             if (previousObject != null
