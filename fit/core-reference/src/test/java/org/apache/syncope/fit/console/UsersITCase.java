@@ -58,6 +58,10 @@ public class UsersITCase extends AbstractConsoleITCase {
                 "body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:"
                 + "searchFormContainer:search:multiValueContainer:innerForm:content:view:0:panel:container:value:"
                 + "textField", TextField.class);
+        TESTER.assertComponent(
+                "body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:"
+                + "searchFormContainer:search:multiValueContainer:innerForm:content:view:1:panel:container:value:"
+                + "textField", TextField.class);
     }
 
     @Test
@@ -320,6 +324,215 @@ public class UsersITCase extends AbstractConsoleITCase {
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
+    }
+
+    @Test
+    public void editUserMemberships() {
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:btn", Constants.ON_CLICK);
+        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:dropdown-menu:buttons:2:button",
+                Constants.ON_CLICK);
+
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
+
+        Component component = findComponentByProp("username", CONTAINER
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
+        assertNotNull(component);
+
+        // click on "edit"
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:0:action:action");
+
+        FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+
+        // add "additional" group in order to show membership attributes
+        formTester.setValue("view:groupsContainer:groups:paletteField:recorder", "additional,root,otherchild");
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:buttons:next",
+                Constants.ON_CLICK);
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+
+        // open membership attributes accordion
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:"
+                + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:title",
+                Constants.ON_CLICK);
+
+        // edit multivalue text field, set 2 elements in total
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:"
+                + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:"
+                + "body:content:schemas:5:panel:multiValueContainer:innerForm:content:view:0:panel:field",
+                TextField.class);
+        formTester.setValue("view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:content:"
+                + "schemas:5:panel:multiValueContainer:innerForm:content:view:0:panel:field", "2019-03-05");
+
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(TAB_PANEL + "outerObjectsRepeater:0:"
+                + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:"
+                + "body:content:schemas:5:panel:multiValueContainer:innerForm:content:view:0:panelPlus:add"));
+
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:"
+                + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:"
+                + "body:content:schemas:5:panel:multiValueContainer:innerForm:content:view:1:panel:field",
+                TextField.class);
+        formTester.setValue("view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:content:"
+                + "schemas:5:panel:multiValueContainer:innerForm:content:view:1:panel:field", "2019-03-06");
+
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(TAB_PANEL + "outerObjectsRepeater:0:"
+                + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:"
+                + "body:content:schemas:5:panel:multiValueContainer:innerForm:content:view:1:panelPlus:add"));
+
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:finish");
+
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+
+        TESTER.assertComponent(TAB_PANEL
+                + "outerObjectsRepeater:0:outer:form:content:customResultBody:resources:firstLevelContainer:first:"
+                + "container:content:group:beans:0:fields:1:field", Label.class);
+
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:action:actionRepeater:0:action:action");
+
+        // reopen form and go to Plain Attributes page...
+        component = findComponentByProp("username", CONTAINER
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
+        assertNotNull(component);
+
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:0:action:action");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+
+        // add "additional" group in order to show membership attributes
+        formTester.setValue("view:groupsContainer:groups:paletteField:recorder", "additional,root,otherchild");
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:buttons:next",
+                Constants.ON_CLICK);
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+
+        // open membership attributes accordion
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:"
+                + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:title",
+                Constants.ON_CLICK);
+
+        // ... check multivalue field values has been saved
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:"
+                + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:"
+                + "body:content:schemas:5:panel:multiValueContainer:innerForm:content:view:0:panel:field",
+                TextField.class);
+
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:"
+                + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:"
+                + "body:content:schemas:5:panel:multiValueContainer:innerForm:content:view:1:panel:field",
+                TextField.class);
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(2019, Calendar.MARCH, 5, 0, 0, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        Calendar cal2 = Calendar.getInstance();
+        cal2.set(2019, Calendar.MARCH, 6, 0, 0, 0);
+        cal2.set(Calendar.MILLISECOND, 0);
+        TESTER.assertModelValue(TAB_PANEL + "outerObjectsRepeater:0:"
+                + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:content:"
+                + "schemas:5:panel:multiValueContainer:innerForm:content:view:0:panel:field", cal.getTime());
+        TESTER.assertModelValue(TAB_PANEL + "outerObjectsRepeater:0:"
+                + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:content:"
+                + "schemas:5:panel:multiValueContainer:innerForm:content:view:1:panel:field", cal2.getTime());
+
+        // ... remove all values from multivalue field
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:"
+                + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:"
+                + "content:schemas:5:panel:multiValueContainer:innerForm:content:view:1:drop",
+                Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:"
+                + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:"
+                + "content:schemas:5:panel:multiValueContainer:innerForm:content:view:0:drop",
+                Constants.ON_CLICK);
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:finish");
+
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+
+        TESTER.assertComponent(TAB_PANEL
+                + "outerObjectsRepeater:0:outer:form:content:customResultBody:resources:firstLevelContainer:first:"
+                + "container:content:group:beans:0:fields:1:field", Label.class);
+
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:action:actionRepeater:0:action:action");
+
+        // reopen form and go to Plain Attributes page...
+        component = findComponentByProp("username", CONTAINER
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
+        assertNotNull(component);
+
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:0:action:action");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+
+        // add "additional" group in order to show membership attributes
+        formTester.setValue("view:groupsContainer:groups:paletteField:recorder", "additional,root,otherchild");
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:buttons:next",
+                Constants.ON_CLICK);
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+
+        // open membership attributes accordion
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:"
+                + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:title",
+                Constants.ON_CLICK);
+
+        // ... check multivalue field is now empty
+        TESTER.assertModelValue(TAB_PANEL + "outerObjectsRepeater:0:"
+                + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:content:"
+                + "schemas:5:panel:multiValueContainer:innerForm:content:view:0:panel:field", null);
+        component = findComponentByProp("syncope-path", TAB_PANEL + "outerObjectsRepeater:0:"
+                + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:"
+                + "content:schemas:5:panel:multiValueContainer:innerForm",
+                TAB_PANEL + "outerObjectsRepeater:0:"
+                + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:"
+                + "content:schemas:5:panel:multiValueContainer:innerForm:content:view:1:panel:field");
+        assertNull(component);
+
+        // close the wizard
+        formTester.submit("buttons:cancel");
     }
 
     @Test

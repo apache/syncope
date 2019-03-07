@@ -187,14 +187,15 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
                 updated.getVirAttrs().add(virAttrTO);
             }
         }
+
         if (updated instanceof GroupableRelatableTO && original instanceof GroupableRelatableTO) {
             GroupableRelatableTO.class.cast(original).getMemberships().forEach(oMemb -> {
                 GroupableRelatableTO.class.cast(updated).getMembership(oMemb.getGroupKey()).ifPresent(uMemb -> {
                     oMemb.getPlainAttrs().stream().
-                            filter(attr -> uMemb.getPlainAttr(attr.getSchema()).isPresent()).
+                            filter(attr -> !uMemb.getPlainAttr(attr.getSchema()).isPresent()).
                             forEach(attr -> uMemb.getPlainAttrs().add(attr));
                     oMemb.getVirAttrs().stream().
-                            filter(attr -> uMemb.getVirAttr(attr.getSchema()).isPresent()).
+                            filter(attr -> !uMemb.getVirAttr(attr.getSchema()).isPresent()).
                             forEach(attr -> uMemb.getVirAttrs().add(attr));
                 });
             });
@@ -211,4 +212,5 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
             });
         }
     }
+
 }
