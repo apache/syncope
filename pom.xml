@@ -514,9 +514,6 @@ under the License.
 
     <tomcat.version>9.0.16</tomcat.version>
 
-    <nodejs.version>v8.11.4</nodejs.version>    
-    <protractor.version>5.4.0</protractor.version>    
-
     <docker.postgresql.version>11.1</docker.postgresql.version>
     <docker.mariadb.version>10.4</docker.mariadb.version>
 
@@ -2122,16 +2119,6 @@ under the License.
           <version>4.1</version>
         </plugin>
 
-        <plugin>
-          <groupId>com.github.klieber</groupId>
-          <artifactId>phantomjs-maven-plugin</artifactId>
-          <version>0.7</version>
-        </plugin>      
-        <plugin>
-          <groupId>com.github.eirslett</groupId>
-          <artifactId>frontend-maven-plugin</artifactId>
-          <version>1.7.5</version>
-        </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>

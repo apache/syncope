@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.enduser.markup.html.form;
 
-import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
-
 import static de.agilecoders.wicket.jquery.JQuery.$;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.BootstrapFileInputField;
@@ -38,8 +36,9 @@ import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.commons.PreviewUtils;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.syncope.client.ui.commons.markup.html.form.BaseBinaryFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -58,13 +57,15 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
 
 public class BinaryFieldPanel extends BaseBinaryFieldPanel {
 
     private static final long serialVersionUID = 6264462604183088931L;
 
-    private static final PreviewUtils PREVIEW_UTILS = PreviewUtils.getInstance();
+    @SpringBean
+    private PreviewUtils previewUtils;
 
     private final String mimeType;
 
@@ -101,7 +102,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
         this.fileKey = fileKey;
         this.mimeType = mimeType;
 
-        previewer = PREVIEW_UTILS.getPreviewer(mimeType);
+        previewer = previewUtils.getPreviewer(mimeType);
 
         maxUploadSize = SyncopeWebApplication.get().getMaxUploadFileSizeMB() == null
                 ? null
@@ -277,7 +278,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
         if (StringUtils.isNotBlank(modelObj)) {
             final Component panelPreview;
             if (previewer == null) {
-                panelPreview = PREVIEW_UTILS.getDefaultPreviewer(mimeType);
+                panelPreview = previewUtils.getDefaultPreviewer(mimeType);
             } else {
                 panelPreview = previewer.preview(modelObj);
             }
