@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<dataset>
+  <Realm id="ea696a4f-e77a-4ef1-be67-8f8093bc8686" name="/"/>  
+
+  <SyncopeSchema id="password.cipher.algorithm"/>
+  <PlainSchema id="password.cipher.algorithm" type="String"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+  <!-- notificationjob.cronExpression:
+  + not existing: NotificationJob runs according to NotificationJob.DEFAULT_CRON_EXP
+  + provided as empty string: NotificationJob disabled
+  + provided as non-empty string: NotificationJob runs according to the given value -->
+  <SyncopeSchema id="notificationjob.cronExpression"/>
+  <PlainSchema id="notificationjob.cronExpression" type="String"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  
+  <SyncopeSchema id="notification.maxRetries"/>
+  <PlainSchema id="notification.maxRetries" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+  <SyncopeSchema id="token.length"/>
+  <PlainSchema id="token.length" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+  <SyncopeSchema id="token.expireTime"/>
+  <PlainSchema id="token.expireTime" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+  <SyncopeSchema id="selfRegistration.allowed"/>
+  <PlainSchema id="selfRegistration.allowed" type="Boolean"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+  <SyncopeSchema id="passwordReset.allowed"/>
+  <PlainSchema id="passwordReset.allowed" type="Boolean"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+  <SyncopeSchema id="passwordReset.securityQuestion"/>
+  <PlainSchema id="passwordReset.securityQuestion" type="Boolean"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+  <SyncopeSchema id="authentication.attributes"/>
+  <PlainSchema id="authentication.attributes" type="String" multivalue="1" uniqueConstraint="0" readonly="0"/>
+
+  <SyncopeSchema id="authentication.statuses"/>
+  <PlainSchema id="authentication.statuses" type="String" multivalue="1" uniqueConstraint="0" readonly="0"/>
+
+  <!-- Save user login date upon successful authentication -->
+  <SyncopeSchema id="log.lastlogindate"/>
+  <PlainSchema id="log.lastlogindate" type="Boolean"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+  <!-- Return hashed password values when reading users -->
+  <SyncopeSchema id="return.password.value"/>
+  <PlainSchema id="return.password.value" type="Boolean"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  
+  <!--  JWT lifetime in minutes -->                   
+  <SyncopeSchema id="jwt.lifetime.minutes"/>
+  <PlainSchema id="jwt.lifetime.minutes" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+    
+  <!--  Connector and Resource configuration history -->                   
+  <SyncopeSchema id="connector.conf.history.size"/>
+  <PlainSchema id="connector.conf.history.size" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  
+  <SyncopeSchema id="resource.conf.history.size"/>
+  <PlainSchema id="resource.conf.history.size" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  
+  <SyncopeConf id="cd64d66f-6fff-4008-b966-a06b1cc1436d"
+               plainAttrs="[{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;SSHA256&quot;}],&quot;schema&quot;:&quot;password.cipher.algorithm&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;&quot;}],&quot;schema&quot;:&quot;notificationjob.cronExpression&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:3}],&quot;schema&quot;:&quot;notification.maxRetries&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:256}],&quot;schema&quot;:&quot;token.length&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:60}],&quot;schema&quot;:&quot;token.expireTime&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;selfRegistration.allowed&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;passwordReset.allowed&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;passwordReset.securityQuestion&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;username&quot;},{&quot;stringValue&quot;:&quot;email&quot;}],&quot;schema&quot;:&quot;authentication.attributes&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;created&quot;},{&quot;stringValue&quot;:&quot;active&quot;}],&quot;schema&quot;:&quot;authentication.statuses&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;log.lastlogindate&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:false}],&quot;schema&quot;:&quot;return.password.value&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:120}],&quot;schema&quot;:&quot;jwt.lifetime.minutes&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:10}],&quot;schema&quot;:&quot;connector.conf.history.size&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:10}],&quot;schema&quot;:&quot;resource.conf.history.size&quot;}]"/>
+
+  <AnyType id="USER" kind="USER"/>
+  <AnyTypeClass id="BaseUser"/>
+  <AnyType_AnyTypeClass anyType_id="USER" anyTypeClass_id="BaseUser"/>
+
+  <AnyType id="GROUP" kind="GROUP"/>
+  <AnyTypeClass id="BaseGroup"/>
+  <AnyType_AnyTypeClass anyType_id="GROUP" anyTypeClass_id="BaseGroup"/>
+        
+  <!-- Actual plain schemas -->
+  <Implementation id="EmailAddressValidator" type="VALIDATOR" engine="JAVA"
+                  body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
+  <SyncopeSchema id="email"/>
+  <PlainSchema id="email" type="String" anyTypeClass_id="BaseUser"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               validator_id="EmailAddressValidator"/>
+  
+  <Implementation id="BinaryValidator" type="VALIDATOR" engine="JAVA"
+                  body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValidator"/>
+
+  <Implementation id="PullJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>
+  <Implementation id="PushJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate"/>
+
+
+  <Implementation id="ExpiredAccessTokenCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup"/>
+  <Task DTYPE="SchedTask" id="89de5014-e3f5-4462-84d8-d97575740baf" name="Access Token Cleanup Task"  active="1"
+        jobDelegate_id="ExpiredAccessTokenCleanup" cronExpression="0 0/5 * * * ?"/>
+  <Implementation id="ExpiredBatchCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.job.ExpiredBatchCleanup"/>
+  <Task DTYPE="SchedTask" id="8ea0ea51-ce08-4fe3-a0c8-c281b31b5893" name="Expired Batch Operations Cleanup Task"  active="1"
+        jobDelegate_id="ExpiredBatchCleanup" cronExpression="0 0/5 * * * ?"/>
+
+  <!-- Password reset notifications -->
+  <MailTemplate id="requestPasswordReset"
+                textTemplate="Hi,
+a password reset was request for ${user.getUsername()}.
+
+In order to complete this request, you need to visit this link:
+
+http://localhost:9080/syncope-enduser/app/#!/confirmpasswordreset?token=${input.get(0).replaceAll(' ', '%20')}
+
+If you did not request this reset, just ignore the present e-mail.
+
+Best regards."
+                htmlTemplate="&lt;html&gt;
+&lt;body&gt;
+&lt;p&gt;Hi,
+a password reset was request for ${user.getUsername()}.&lt;/p&gt;
+
+&lt;p&gt;In order to complete this request, you need to visit this 
+&lt;a href=&quot;http://localhost:9080/syncope-enduser/app/#!/confirmpasswordreset?token=${input.get(0).replaceAll(' ', '%20')}&quot;&gt;link&lt;/a&gt;&lt;/p&gt;.
+
+&lt;p&gt;If you did not request this reset, just ignore the present e-mail.&lt;/p&gt;
+
+&lt;p&gt;Best regards.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;"/>
+  <MailTemplate id="confirmPasswordReset"
+                textTemplate="Hi,
+we are happy to inform you that the password request was successfully executed for your account.
+
+Best regards."
+                htmlTemplate="&lt;html&gt;
+&lt;body&gt;
+&lt;p&gt;Hi,&lt;/br&gt;
+we are happy to inform you that the password request was successfully executed for your account.&lt;/p&gt;
+
+&lt;p&gt;Best regards.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;"/>
+
+  <Notification id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" active="1" recipientAttrName="email" selfAsRecipient="1" 
+                sender="admin@syncope.apache.org" subject="Password Reset request" template_id="requestPasswordReset" 
+                traceLevel="FAILURES"/> 
+  <AnyAbout id="a328f2e6-25e9-4cc1-badf-7425d7be4b39" anyType_id="USER" notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" filter="token!=$null"/>
+  <Notification_events notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
+  
+  <Notification id="bef0c250-e8a7-4848-bb63-2564fc409ce2" active="1" recipientAttrName="email" selfAsRecipient="1" 
+                sender="admin@syncope.apache.org" subject="Password Reset successful" template_id="confirmPasswordReset" 
+                traceLevel="FAILURES"/> 
+  <Notification_events notification_id="bef0c250-e8a7-4848-bb63-2564fc409ce2" event="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>
+
+  <ReportTemplate id="empty"/>  
+
+  <Report id="c3520ad9-179f-49e7-b315-d684d216dd97" name="reconciliation" active="1" template_id="empty"/>
+  <Implementation id="ReconciliationReportletConf" type="REPORTLET" engine="JAVA"
+                  body='{"@class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
+  <ReportReportlet report_id="c3520ad9-179f-49e7-b315-d684d216dd97" implementation_id="ReconciliationReportletConf"/>
+
+</dataset>

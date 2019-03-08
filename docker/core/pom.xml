@@ -56,7 +56,7 @@ under the License.
 
     <dependency>
       <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-persistence-jpa-json</artifactId>
+      <artifactId>syncope-core-persistence-jpa</artifactId>
       <version>${project.version}</version>
     </dependency>
     
@@ -143,7 +143,7 @@ under the License.
     <dependency>
       <groupId>com.microsoft.sqlserver</groupId>
       <artifactId>mssql-jdbc</artifactId>
-      <version>${jdbc.mssql.version}8</version>
+      <version>${jdbc.mssql.version}11</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -178,10 +178,12 @@ under the License.
             <phase>process-resources</phase>
             <configuration>
               <target>
-                <copy file="${settings.localRepository}/org/postgresql/postgresql/${jdbc.postgresql.version}/postgresql-${jdbc.postgresql.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true" />
-                <copy file="${settings.localRepository}/mysql/mysql-connector-java/${jdbc.mysql.version}/mysql-connector-java-${jdbc.mysql.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true" />
-                <copy file="${settings.localRepository}/org/mariadb/jdbc/mariadb-java-client/${jdbc.mariadb.version}/mariadb-java-client-${jdbc.mariadb.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true" />
-                <copy file="${settings.localRepository}/com/microsoft/sqlserver/mssql-jdbc/${jdbc.mssql.version}8/mssql-jdbc-${jdbc.mssql.version}8.jar" todir="${project.build.outputDirectory}/lib" overwrite="true" />
+                <copy file="${settings.localRepository}/org/postgresql/postgresql/${jdbc.postgresql.version}/postgresql-${jdbc.postgresql.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
+                <copy file="${settings.localRepository}/mysql/mysql-connector-java/${jdbc.mysql.version}/mysql-connector-java-${jdbc.mysql.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
+                <copy file="${settings.localRepository}/org/mariadb/jdbc/mariadb-java-client/${jdbc.mariadb.version}/mariadb-java-client-${jdbc.mariadb.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
+                <copy file="${settings.localRepository}/com/microsoft/sqlserver/mssql-jdbc/${jdbc.mssql.version}11/mssql-jdbc-${jdbc.mssql.version}11.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
+
+                <copy file="${basedir}/../../core/persistence-jpa-json/target/syncope-core-persistence-jpa-json-${project.version}.jar" todir="${project.build.outputDirectory}/pgjsonb" overwrite="true"/>
               </target>
             </configuration>
             <goals>

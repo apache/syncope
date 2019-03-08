@@ -22,6 +22,13 @@ cd /opt/syncope/conf
 rm -f provisioning.properties
 ln -s provisioning.properties.$DBMS provisioning.properties
 
+rm -f persistence.properties
+if [ $DBMS = "pgjsonb" ]; then
+  ln -s persistence.properties.pgjsonb persistence.properties
+else
+  ln -s persistence.properties.all persistence.properties
+fi
+
 rm -f views.xml
 ln -s views.xml.$DBMS views.xml
 
@@ -33,9 +40,21 @@ fi
 
 cd domains
 
+if [ $DBMS = "pgjsonb" ]; then
+  mv MasterContent.xml MasterContent.xml.all
+  ln -s MasterContent.xml.pgjsonb MasterContent.xml
+else
+  rm -f MasterContent.xml
+  mv MasterContent.xml.all MasterContent.xml
+fi
+
 rm -f Master.properties
 ln -s Master.properties.$DBMS Master.properties
 
+if [ $DBMS = "pgjsonb" ]; then
+export LOADER_PATH="/opt/syncope/conf,/opt/syncope/lib,/opt/syncope/pgjsonb"
+else
 export LOADER_PATH="/opt/syncope/conf,/opt/syncope/lib"
+fi
 java -Dfile.encoding=UTF-8 -server -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m \
  -XX:+DisableExplicitGC -Djava.security.egd=file:/dev/./urandom -jar /opt/syncope/lib/syncope.war
