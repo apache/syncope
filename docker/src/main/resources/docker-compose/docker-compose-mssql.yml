@@ -33,7 +33,7 @@ services:
    syncope:
      depends_on:
        - db
-     image: apache/syncope:${syncope.version}
+     image: apache/syncope:${SYNCOPE_VERSION}
      ports:
        - "18080:8080"
      restart: always
@@ -50,7 +50,7 @@ services:
    syncope-console:
      depends_on:
        - syncope
-     image: apache/syncope-console:${syncope.version}
+     image: apache/syncope-console:${SYNCOPE_VERSION}
      ports:
        - "28080:8080"
      restart: always
@@ -62,7 +62,7 @@ services:
    syncope-enduser:
      depends_on:
        - syncope
-     image: apache/syncope-enduser:${syncope.version}
+     image: apache/syncope-enduser:${SYNCOPE_VERSION}
      ports:
        - "38080:8080"
      restart: always

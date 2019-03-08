@@ -32,12 +32,20 @@ export DEBCONF_TERSE true
 mkdir -p /usr/share/man/man1/
 
 ######
+# Additional APT repositories
+######
+apt-get -q update && apt-get -q install -y wget
+
+wget -q -O - http://repos.azulsystems.com/RPM-GPG-KEY-azulsystems | tee /etc/apt/trusted.gpg.d/zulu.asc
+echo 'deb http://repos.azulsystems.com/debian stable main' > /etc/apt/sources.list.d/zulu.list
+
+######
 # Install packages
 ######
 apt-get -q update \
   && apt-get -q install -y \
     xtail \
-    openjdk-8-jdk \
+    zulu-8 \
     tomcat8 \
     libservlet3.1-java \
   && apt-get clean
@@ -57,4 +65,4 @@ echo "JAVA_OPTS=\"\${JAVA_OPTS} -Dfile.encoding=UTF-8 -server \
 -XX:PermSize=256m -XX:MaxPermSize=256m -XX:+DisableExplicitGC \
 -Djava.security.egd=file:/dev/./urandom\"" >> /etc/default/tomcat8
 
-echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> /etc/default/tomcat8
+echo "JAVA_HOME=/usr/lib/jvm/zulu-8-amd64" >> /etc/default/tomcat8
