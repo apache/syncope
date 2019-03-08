@@ -18,14 +18,45 @@
 # under the License.
 
 cd /etc/apache-syncope
+
 rm -f provisioning.properties
 ln -s provisioning.properties.$DBMS provisioning.properties
+
+rm -f persistence.properties
+if [ $DBMS = "pgjsonb" ]; then
+  ln -s persistence.properties.pgjsonb persistence.properties
+else
+  ln -s persistence.properties.all persistence.properties
+fi
+
 rm -f views.xml
 ln -s views.xml.$DBMS views.xml
 
+if [ $DBMS = "pgjsonb" ]; then
+  ln -s indexes.xml.pgjsonb indexes.xml
+else
+  rm -f indexes.xml
+fi
+
 cd domains
+
+if [ $DBMS = "pgjsonb" ]; then
+  mv MasterContent.xml MasterContent.xml.all
+  ln -s MasterContent.xml.pgjsonb MasterContent.xml
+else
+  rm -f MasterContent.xml
+  mv MasterContent.xml.all MasterContent.xml
+fi
+
 rm -f Master.properties
 ln -s Master.properties.$DBMS Master.properties
+
+if [ $DBMS = "pgjsonb" ]; then
+  mkdir -p /tmp/WEB-INF/lib
+  cp /etc/apache-syncope/syncope-core-persistence-jpa-json-*.jar /tmp/WEB-INF/lib
+  cd /tmp
+  jar uvf /usr/share/apache-syncope/syncope-deb-core-*.war WEB-INF/lib/
+fi
 
 /etc/init.d/tomcat8 start
 

@@ -92,6 +92,7 @@ under the License.
                 <copy file="${settings.localRepository}/com/microsoft/sqlserver/mssql-jdbc/${jdbc.mssql.version}8/mssql-jdbc-${jdbc.mssql.version}8.jar" todir="${project.build.directory}/classes" overwrite="true" />
 
                 <copy file="${basedir}/../../deb/core/target/apache-syncope-${project.version}.deb" todir="${project.build.directory}/classes" overwrite="true" />
+                <copy file="${basedir}/../../core/persistence-jpa-json/target/syncope-core-persistence-jpa-json-${project.version}.jar" todir="${project.build.directory}/classes" overwrite="true" />
               </target>
             </configuration>
             <goals>

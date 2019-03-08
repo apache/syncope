@@ -15,20 +15,18 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# Full deployment (Core, Console, Enduser) on MS SQL Server
+# Full deployment (Core, Console, Enduser) on PostgreSQL with JSONB support
 
 version: '3.3'
 
 services:
    db:
-     image: mcmoe/mssqldocker:latest
+     image: postgres:11.2
      restart: always
      environment:
-       ACCEPT_EULA: Y
-       SA_PASSWORD: 2astazeY
-       MSSQL_DB: syncope
-       MSSQL_USER: syncope
-       MSSQL_PASSWORD: Syncope123
+       POSTGRES_DB: syncope
+       POSTGRES_USER: syncope
+       POSTGRES_PASSWORD: syncope
 
    syncope:
      depends_on:
@@ -38,11 +36,10 @@ services:
        - "18080:8080"
      restart: always
      environment:
-       DBMS: mssql
-       DB_URL: jdbc:sqlserver://db:1433;databaseName=syncope
-       DB_SCHEMA: dbo
+       DBMS: pgjsonb
+       DB_URL: jdbc:postgresql://db:5432/syncope?stringtype=unspecified
        DB_USER: syncope
-       DB_PASSWORD: Syncope123
+       DB_PASSWORD: syncope
        DB_POOL_MAX: 10
        DB_POOL_MIN: 2
        OPENJPA_REMOTE_COMMIT: sjvm

@@ -14,25 +14,15 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+Master.driverClassName=org.postgresql.Driver
+Master.url=${DB_URL}
+Master.schema=
+Master.username=${DB_USER}
+Master.password=${DB_PASSWORD}
+Master.databasePlatform=org.apache.openjpa.jdbc.sql.PostgresDictionary
+Master.orm=META-INF/spring-orm-pgjsonb.xml
 
-FROM debian:stable-slim
-MAINTAINER dev@syncope.apache.org
+Master.pool.maxActive=${DB_POOL_MAX}
+Master.pool.minIdle=${DB_POOL_MIN}
 
-RUN set -x
-
-COPY *.jar /tmp/
-
-COPY *.deb /tmp/
-
-COPY *.properties* /etc/apache-syncope/
-COPY *.xml* /etc/apache-syncope/
-COPY domains/* /etc/apache-syncope/domains/
-
-COPY build.sh /tmp
-RUN chmod 755 /tmp/build.sh && sync && /tmp/build.sh && rm /tmp/build.sh
-
-COPY startup.sh /sbin
-RUN chmod 755 /sbin/startup.sh
-CMD ["/sbin/startup.sh"]
-
-EXPOSE 8080
+Master.audit.sql=audit.sql
