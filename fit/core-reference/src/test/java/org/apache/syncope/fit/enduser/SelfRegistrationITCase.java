@@ -20,13 +20,13 @@ package org.apache.syncope.fit.enduser;
 
 import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.wicket.markup.html.form.TextField;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Disabled("WIP")
 public class SelfRegistrationITCase extends AbstractEnduserITCase {
 
     @Test
-    @Ignore("WIP")
     public void selfCreate() {
         TESTER.startPage(Login.class);
         TESTER.assertRenderedPage(Login.class);
@@ -41,7 +41,6 @@ public class SelfRegistrationITCase extends AbstractEnduserITCase {
     }
 
     @Test
-    @Ignore("WIP")
     public void selfUpdate() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
     }
