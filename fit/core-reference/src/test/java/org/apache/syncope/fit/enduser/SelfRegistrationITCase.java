@@ -20,11 +20,13 @@ package org.apache.syncope.fit.enduser;
 
 import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.wicket.markup.html.form.TextField;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 public class SelfRegistrationITCase extends AbstractEnduserITCase {
 
     @Test
+    @Ignore("WIP")
     public void selfCreate() {
         TESTER.startPage(Login.class);
         TESTER.assertRenderedPage(Login.class);
@@ -32,62 +34,6 @@ public class SelfRegistrationITCase extends AbstractEnduserITCase {
         TESTER.clickLink("self-registration");
 
         TESTER.assertComponent("body:wizard:form:username", TextField.class);
-        
-//        Component component = findComponentByProp("username", CONTAINER
-//                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "puccini");
-//        assertNotNull(component);
-//
-//        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-//        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-//                + "actions:actions:actionRepeater:0:action:action");
-//
-//        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
-//                TextField.class);
-//
-//        FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
-//        assertNotNull(formTester);
-//
-//        formTester.submit("buttons:next");
-//
-//        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
-//        assertNotNull(formTester);
-//        formTester.submit("buttons:next");
-//
-//        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
-//        assertNotNull(formTester);
-//        formTester.submit("buttons:next");
-//
-//        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
-//        assertNotNull(formTester);
-//        formTester.submit("buttons:next");
-//
-//        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
-//        assertNotNull(formTester);
-//        formTester.submit("buttons:next");
-//
-//        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
-//        assertNotNull(formTester);
-//        formTester.submit("buttons:next");
-//
-//        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
-//        assertNotNull(formTester);
-//        formTester.submit("buttons:next");
-//
-//        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
-//        assertNotNull(formTester);
-//        formTester.submit("buttons:finish");
-//
-//        TESTER.assertInfoMessages("Operation executed successfully");
-//
-//        TESTER.assertComponent(TAB_PANEL
-//                + "outerObjectsRepeater:0:outer:form:content:customResultBody:resources:firstLevelContainer:first:"
-//                + "container:content:group:beans:0:fields:1:field", Label.class);
-//
-//        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:action:actionRepeater:0:action:action");
-//
-//        component = findComponentByProp("username", CONTAINER
-//                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "puccini");
-//        assertNotNull(component);
     }
 
     @Test
@@ -95,6 +41,7 @@ public class SelfRegistrationITCase extends AbstractEnduserITCase {
     }
 
     @Test
+    @Ignore("WIP")
     public void selfUpdate() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
     }
