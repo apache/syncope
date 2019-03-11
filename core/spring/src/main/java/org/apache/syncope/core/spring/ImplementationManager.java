@@ -104,10 +104,19 @@ public final class ImplementationManager {
                         rule = (AccountRule) ApplicationContextProvider.getBeanFactory().
                                 getSingleton(ruleClass.getName());
                     } else {
-                        rule = (AccountRule) ApplicationContextProvider.getBeanFactory().
-                                createBean(ruleClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                        ApplicationContextProvider.getBeanFactory().
-                                registerSingleton(ruleClass.getName(), rule);
+                        // to avoid concurrency issues
+                        synchronized (ImplementationManager.class) {
+                            // double check for performance reasons
+                            if (ApplicationContextProvider.getBeanFactory().containsSingleton(ruleClass.getName())) {
+                                rule = (AccountRule) ApplicationContextProvider.getBeanFactory().
+                                        getSingleton(ruleClass.getName());
+                            } else {
+                                rule = (AccountRule) ApplicationContextProvider.getBeanFactory().
+                                        createBean(ruleClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                                ApplicationContextProvider.getBeanFactory().
+                                        registerSingleton(ruleClass.getName(), rule);
+                            }
+                        }
                     }
                     rule.setConf(ruleConf);
                 }
@@ -138,10 +147,19 @@ public final class ImplementationManager {
                         rule = (PasswordRule) ApplicationContextProvider.getBeanFactory().
                                 getSingleton(ruleClass.getName());
                     } else {
-                        rule = (PasswordRule) ApplicationContextProvider.getBeanFactory().
-                                createBean(ruleClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                        ApplicationContextProvider.getBeanFactory().
-                                registerSingleton(ruleClass.getName(), rule);
+                        // to avoid concurrency issues
+                        synchronized (ImplementationManager.class) {
+                            // double check for performance reasons
+                            if (ApplicationContextProvider.getBeanFactory().containsSingleton(ruleClass.getName())) {
+                                rule = (PasswordRule) ApplicationContextProvider.getBeanFactory().
+                                        getSingleton(ruleClass.getName());
+                            } else {
+                                rule = (PasswordRule) ApplicationContextProvider.getBeanFactory().
+                                        createBean(ruleClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                                ApplicationContextProvider.getBeanFactory().
+                                        registerSingleton(ruleClass.getName(), rule);
+                            }
+                        }
                     }
                     rule.setConf(ruleConf);
                 }
@@ -173,10 +191,19 @@ public final class ImplementationManager {
                         rule = (PullCorrelationRule) ApplicationContextProvider.getBeanFactory().
                                 getSingleton(ruleClass.getName());
                     } else {
-                        rule = (PullCorrelationRule) ApplicationContextProvider.getBeanFactory().
-                                createBean(ruleClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                        ApplicationContextProvider.getBeanFactory().
-                                registerSingleton(ruleClass.getName(), rule);
+                        // to avoid concurrency issues
+                        synchronized (ImplementationManager.class) {
+                            // double check for performance reasons
+                            if (ApplicationContextProvider.getBeanFactory().containsSingleton(ruleClass.getName())) {
+                                rule = (PullCorrelationRule) ApplicationContextProvider.getBeanFactory().
+                                        getSingleton(ruleClass.getName());
+                            } else {
+                                rule = (PullCorrelationRule) ApplicationContextProvider.getBeanFactory().
+                                        createBean(ruleClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                                ApplicationContextProvider.getBeanFactory().
+                                        registerSingleton(ruleClass.getName(), rule);
+                            }
+                        }
                     }
                     rule.setConf(ruleConf);
                 }
@@ -208,10 +235,19 @@ public final class ImplementationManager {
                         rule = (PushCorrelationRule) ApplicationContextProvider.getBeanFactory().
                                 getSingleton(ruleClass.getName());
                     } else {
-                        rule = (PushCorrelationRule) ApplicationContextProvider.getBeanFactory().
-                                createBean(ruleClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                        ApplicationContextProvider.getBeanFactory().
-                                registerSingleton(ruleClass.getName(), rule);
+                        // to avoid concurrency issues
+                        synchronized (ImplementationManager.class) {
+                            // double check for performance reasons
+                            if (ApplicationContextProvider.getBeanFactory().containsSingleton(ruleClass.getName())) {
+                                rule = (PushCorrelationRule) ApplicationContextProvider.getBeanFactory().
+                                        getSingleton(ruleClass.getName());
+                            } else {
+                                rule = (PushCorrelationRule) ApplicationContextProvider.getBeanFactory().
+                                        createBean(ruleClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                                ApplicationContextProvider.getBeanFactory().
+                                        registerSingleton(ruleClass.getName(), rule);
+                            }
+                        }
                     }
                     rule.setConf(ruleConf);
                 }
