@@ -68,6 +68,8 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
         this.baseModal = baseModal;
         this.application = application;
 
+        restClient = new ApplicationRestClient();
+
         disableCheckBoxes();
         enableExitButton();
 
