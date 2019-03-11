@@ -46,7 +46,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -88,19 +87,16 @@ public class ApplicationDirectoryPanel extends
         modal.size(Modal.Size.Medium);
         modal.addSubmitButton();
         setFooterVisibility(true);
-        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                updateResultTable(target);
-                modal.show(false);
-            }
+        modal.setWindowClosedCallback(target -> {
+            updateResultTable(target);
+            modal.show(false);
         });
 
         privilegeModal.size(Modal.Size.Large);
-        setWindowClosedReloadCallback(privilegeModal);
+        privilegeModal.setWindowClosedCallback(target -> {
+            updateResultTable(target);
+            modal.show(false);
+        });
         addOuterObject(privilegeModal);
 
         AjaxLink<Void> newApplLink = new AjaxLink<Void>("add") {
