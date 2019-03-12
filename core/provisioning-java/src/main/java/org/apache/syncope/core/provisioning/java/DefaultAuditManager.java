@@ -30,6 +30,7 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(readOnly = true)
@@ -72,6 +73,7 @@ public class DefaultAuditManager implements AuditManager {
         return auditRequested;
     }
 
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Override
     public void audit(final AfterHandlingEvent event) {
         audit(
@@ -86,6 +88,7 @@ public class DefaultAuditManager implements AuditManager {
                 event.getInput());
     }
 
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Override
     public void audit(
             final String who,
