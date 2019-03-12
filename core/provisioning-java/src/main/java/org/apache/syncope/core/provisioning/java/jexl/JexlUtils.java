@@ -198,13 +198,15 @@ public final class JexlUtils {
 
     public static void addAttrTOsToContext(final Collection<AttrTO> attrs, final JexlContext jexlContext) {
         attrs.stream().filter(attr -> attr.getSchema() != null).forEach(attr -> {
-            String expressionValue = attr.getValues().isEmpty()
+            Object value = attr.getValues().isEmpty()
                     ? StringUtils.EMPTY
-                    : attr.getValues().get(0);
+                    : attr.getValues().size() == 1
+                    ? attr.getValues().get(0)
+                    : attr.getValues();
 
-            LOG.debug("Add attribute {} with value {}", attr.getSchema(), expressionValue);
+            LOG.debug("Add attribute {} with value {}", attr.getSchema(), value);
 
-            jexlContext.set(attr.getSchema(), expressionValue);
+            jexlContext.set(attr.getSchema(), value);
         });
     }
 
@@ -213,13 +215,15 @@ public final class JexlUtils {
 
         attrs.stream().filter(attr -> attr.getSchema() != null).forEach(attr -> {
             List<String> attrValues = attr.getValuesAsStrings();
-            String expressionValue = attrValues.isEmpty()
+            Object value = attrValues.isEmpty()
                     ? StringUtils.EMPTY
-                    : attrValues.get(0);
+                    : attrValues.size() == 1
+                    ? attrValues.get(0)
+                    : attrValues;
 
-            LOG.debug("Add attribute {} with value {}", attr.getSchema().getKey(), expressionValue);
+            LOG.debug("Add attribute {} with value {}", attr.getSchema().getKey(), value);
 
-            jexlContext.set(attr.getSchema().getKey(), expressionValue);
+            jexlContext.set(attr.getSchema().getKey(), value);
         });
     }
 
