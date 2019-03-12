@@ -18,8 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
+import java.util.List;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.core.provisioning.api.LogicActions;
 
 public class DefaultLogicActions implements LogicActions {
@@ -30,7 +32,7 @@ public class DefaultLogicActions implements LogicActions {
     }
 
     @Override
-    public <A extends AnyTO> A afterCreate(final A input) {
+    public <A extends AnyTO> A afterCreate(final A input, final List<PropagationStatus> statuses) {
         return input;
     }
 
@@ -40,7 +42,7 @@ public class DefaultLogicActions implements LogicActions {
     }
 
     @Override
-    public <A extends AnyTO> A afterUpdate(final A input) {
+    public <A extends AnyTO> A afterUpdate(final A input, final List<PropagationStatus> statuses) {
         return input;
     }
 
@@ -50,7 +52,7 @@ public class DefaultLogicActions implements LogicActions {
     }
 
     @Override
-    public <A extends AnyTO> A afterDelete(final A input) {
+    public <A extends AnyTO> A afterDelete(final A input, final List<PropagationStatus> statuses) {
         return input;
     }
 

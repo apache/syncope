@@ -18,8 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
+import java.util.List;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.PropagationStatus;
 
 /**
  * Interface for actions to be performed during business logic execution.
@@ -28,13 +30,13 @@ public interface LogicActions {
 
     <A extends AnyTO> A beforeCreate(A input);
 
-    <A extends AnyTO> A afterCreate(A input);
+    <A extends AnyTO> A afterCreate(A input, List<PropagationStatus> statuses);
 
     <P extends AnyPatch> P beforeUpdate(P input);
 
-    <A extends AnyTO> A afterUpdate(A input);
+    <A extends AnyTO> A afterUpdate(A input, List<PropagationStatus> statuses);
 
     <A extends AnyTO> A beforeDelete(A input);
 
-    <A extends AnyTO> A afterDelete(A input);
+    <A extends AnyTO> A afterDelete(A input, List<PropagationStatus> statuses);
 }
