@@ -163,7 +163,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
         TO any = input;
 
         for (LogicActions action : actions) {
-            any = action.afterCreate(any);
+            any = action.afterCreate(any, statuses);
         }
 
         ProvisioningResult<TO> result = new ProvisioningResult<>();
@@ -194,7 +194,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
         TO any = input;
 
         for (LogicActions action : actions) {
-            any = action.afterUpdate(any);
+            any = action.afterUpdate(any, statuses);
         }
 
         ProvisioningResult<TO> result = new ProvisioningResult<>();
@@ -210,7 +210,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
         TO any = input;
 
         for (LogicActions action : actions) {
-            any = action.afterDelete(any);
+            any = action.afterDelete(any, statuses);
         }
 
         ProvisioningResult<TO> result = new ProvisioningResult<>();
