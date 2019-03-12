@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
+import java.util.List;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.PropagationStatus;
 
 /**
  * Interface for actions to be performed during business logic execution.
@@ -31,7 +33,7 @@ public interface LogicActions {
         return input;
     }
 
-    default <A extends AnyTO> A afterCreate(A input) {
+    default <A extends AnyTO> A afterCreate(A input, List<PropagationStatus> statuses) {
         return input;
     }
 
@@ -39,7 +41,7 @@ public interface LogicActions {
         return input;
     }
 
-    default <A extends AnyTO> A afterUpdate(A input) {
+    default <A extends AnyTO> A afterUpdate(A input, List<PropagationStatus> statuses) {
         return input;
     }
 
@@ -47,7 +49,7 @@ public interface LogicActions {
         return input;
     }
 
-    default <A extends AnyTO> A afterDelete(A input) {
+    default <A extends AnyTO> A afterDelete(A input, List<PropagationStatus> statuses) {
         return input;
     }
 }
