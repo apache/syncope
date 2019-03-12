@@ -23,12 +23,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 
 public class AuditEntry implements Serializable {
 
     private static final long serialVersionUID = -2299082316063743582L;
+
+    private static final String MASKED_VALUE = "<MASKED>";
 
     private final String who;
 
@@ -52,28 +55,35 @@ public class AuditEntry implements Serializable {
 
         this.who = who;
         this.logger = logger;
-        this.before = filterUserPassword(before);
-        this.output = filterUserPassword(output);
+        this.before = maskSensitive(before);
+        this.output = maskSensitive(output);
         this.input = ArrayUtils.clone(input);
         if (this.input != null) {
             for (int i = 0; i < this.input.length; i++) {
-                this.input[i] = filterUserPassword(this.input[i]);
+                this.input[i] = maskSensitive(this.input[i]);
             }
         }
     }
 
-    private Object filterUserPassword(final Object object) {
-        Object filtered;
+    private Object maskSensitive(final Object object) {
+        Object masked;
 
         if (object instanceof UserTO) {
-            UserTO user = SerializationUtils.clone((UserTO) object);
-            user.setPassword(null);
-            filtered = user;
+            masked = SerializationUtils.clone((UserTO) object);
+            if (((UserTO) masked).getPassword() != null) {
+                ((UserTO) masked).setPassword(MASKED_VALUE);
+            }
+            if (((UserTO) masked).getSecurityAnswer() != null) {
+                ((UserTO) masked).setSecurityAnswer(MASKED_VALUE);
+            }
+        } else if (object instanceof UserPatch && ((UserPatch) object).getPassword() != null) {
+            masked = SerializationUtils.clone((UserPatch) object);
+            ((UserPatch) masked).getPassword().setValue(MASKED_VALUE);
         } else {
-            filtered = object;
+            masked = object;
         }
 
-        return filtered;
+        return masked;
     }
 
     public String getWho() {
@@ -95,5 +105,4 @@ public class AuditEntry implements Serializable {
     public Object[] getInput() {
         return input;
     }
-
 }
