@@ -93,13 +93,13 @@ public class LoggerLoader implements SyncopeLoader {
         };
         ColumnMapping[] columnMappings = new ColumnMapping[0];
 
-        for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
-            Appender appender = ctx.getConfiguration().getAppender("audit_for_" + entry.getKey());
+        domainsHolder.getDomains().forEach((key, value) -> {
+            Appender appender = ctx.getConfiguration().getAppender("audit_for_" + key);
             if (appender == null) {
                 appender = JdbcAppender.newBuilder().
-                        withName("audit_for_" + entry.getKey()).
-                        withIgnoreExceptions(false).
-                        setConnectionSource(new DataSourceConnectionSource(entry.getKey(), entry.getValue())).
+                        setName("audit_for_" + key).
+                        setIgnoreExceptions(false).
+                        setConnectionSource(new DataSourceConnectionSource(key, value)).
                         setBufferSize(0).
                         setTableName("SYNCOPEAUDIT").
                         setColumnConfigs(columnConfigs).
@@ -109,15 +109,15 @@ public class LoggerLoader implements SyncopeLoader {
                 ctx.getConfiguration().addAppender(appender);
             }
 
-            LoggerConfig logConf = new LoggerConfig(AuditLoggerName.getAuditLoggerName(entry.getKey()), null, false);
+            LoggerConfig logConf = new LoggerConfig(AuditLoggerName.getAuditLoggerName(key), null, false);
             logConf.addAppender(appender, Level.DEBUG, null);
             logConf.setLevel(Level.DEBUG);
             ctx.getConfiguration().addLogger(logConf.getName(), logConf);
 
             // SYNCOPE-1144 For each custom audit appender class add related appenders to log4j logger
-            auditAppenders(entry.getKey()).forEach(auditAppender -> {
+            auditAppenders(key).forEach(auditAppender -> {
                 auditAppender.getEvents().stream().
-                        map(event -> AuditLoggerName.getAuditEventLoggerName(entry.getKey(), event.toLoggerName())).
+                        map(event -> AuditLoggerName.getAuditEventLoggerName(key, event.toLoggerName())).
                         forEachOrdered(domainAuditLoggerName -> {
                             LoggerConfig eventLogConf = ctx.getConfiguration().getLoggerConfig(domainAuditLoggerName);
                             boolean isRootLogConf = LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName());
@@ -132,11 +132,11 @@ public class LoggerLoader implements SyncopeLoader {
                         });
             });
 
-            AuthContextUtils.execWithAuthContext(entry.getKey(), () -> {
+            AuthContextUtils.execWithAuthContext(key, () -> {
                 loggerAccessor.synchronizeLog4J(ctx);
                 return null;
             });
-        }
+        });
 
         ctx.updateLoggers();
     }

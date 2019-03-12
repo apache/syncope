@@ -38,7 +38,6 @@ import java.util.Properties;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.log.EventCategory;
 import org.apache.syncope.common.lib.log.LogAppender;
@@ -46,6 +45,7 @@ import org.apache.syncope.common.lib.log.LogStatement;
 import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
+import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -53,7 +53,9 @@ import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.common.lib.types.LoggerType;
+import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.rest.api.LoggerWrapper;
 import org.apache.syncope.core.logic.ConnectorLogic;
 import org.apache.syncope.core.logic.ReportLogic;
@@ -370,5 +372,82 @@ public class LoggerITCase extends AbstractITCase {
                 filter(object -> "UserLogic".equals(object.getCategory())).findAny().get();
         assertNotNull(userLogic);
         assertEquals(1, userLogic.getEvents().stream().filter(event -> "create".equals(event)).count());
+    }
+
+    @Test
+    public void issueSYNCOPE1446() {
+        AuditLoggerName createSuccess = new AuditLoggerName(
+                AuditElements.EventCategoryType.PROPAGATION,
+                AnyTypeKind.ANY_OBJECT.name().toLowerCase(),
+                RESOURCE_NAME_DBSCRIPTED,
+                "create",
+                AuditElements.Result.SUCCESS);
+        AuditLoggerName createFailure = new AuditLoggerName(
+                AuditElements.EventCategoryType.PROPAGATION,
+                AnyTypeKind.ANY_OBJECT.name().toLowerCase(),
+                RESOURCE_NAME_DBSCRIPTED,
+                "create",
+                AuditElements.Result.FAILURE);
+        AuditLoggerName updateSuccess = new AuditLoggerName(
+                AuditElements.EventCategoryType.PROPAGATION,
+                AnyTypeKind.ANY_OBJECT.name().toLowerCase(),
+                RESOURCE_NAME_DBSCRIPTED,
+                "update",
+                AuditElements.Result.SUCCESS);
+        AuditLoggerName updateFailure = new AuditLoggerName(
+                AuditElements.EventCategoryType.PROPAGATION,
+                AnyTypeKind.ANY_OBJECT.name().toLowerCase(),
+                RESOURCE_NAME_DBSCRIPTED,
+                "update",
+                AuditElements.Result.FAILURE);
+        try {
+            // 1. setup audit for propagation
+            LoggerTO loggerTO = new LoggerTO();
+            loggerTO.setKey(createSuccess.toLoggerName());
+            loggerTO.setLevel(LoggerLevel.DEBUG);
+            loggerService.update(LoggerType.AUDIT, loggerTO);
+
+            loggerTO.setKey(createFailure.toLoggerName());
+            loggerService.update(LoggerType.AUDIT, loggerTO);
+
+            loggerTO.setKey(updateSuccess.toLoggerName());
+            loggerService.update(LoggerType.AUDIT, loggerTO);
+
+            loggerTO.setKey(updateFailure.toLoggerName());
+            loggerService.update(LoggerType.AUDIT, loggerTO);
+
+            // 2. push on resource
+            PushTaskTO pushTask = new PushTaskTO();
+            pushTask.setPerformCreate(true);
+            pushTask.setPerformUpdate(true);
+            pushTask.setUnmatchingRule(UnmatchingRule.PROVISION);
+            pushTask.setMatchingRule(MatchingRule.UPDATE);
+            reconciliationService.push(
+                    AnyTypeKind.ANY_OBJECT, "fc6dbc3a-6c07-4965-8781-921e7401a4a5", RESOURCE_NAME_DBSCRIPTED, pushTask);
+        } catch (Exception e) {
+            LOG.error("Unexpected exception", e);
+            fail(e.getMessage());
+        } finally {
+            try {
+                loggerService.delete(LoggerType.AUDIT, createSuccess.toLoggerName());
+            } catch (Exception e) {
+                // ignore
+            }
+            try {
+                loggerService.delete(LoggerType.AUDIT, createFailure.toLoggerName());
+            } catch (Exception e) {
+                // ignore
+            }
+            try {
+                loggerService.delete(LoggerType.AUDIT, updateSuccess.toLoggerName());
+            } catch (Exception e) {
+                // ignore
+            }
+            try {
+                loggerService.delete(LoggerType.AUDIT, updateFailure.toLoggerName());
+            } catch (Exception e) {
+                // ignore
+            }
+        }
     }
 }
