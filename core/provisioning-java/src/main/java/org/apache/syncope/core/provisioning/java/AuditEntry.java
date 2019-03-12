@@ -23,12 +23,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 
 public class AuditEntry extends AbstractBaseBean {
 
     private static final long serialVersionUID = -2299082316063743582L;
+
+    private static final String MASKED_VALUE = "<MASKED>";
 
     private final String who;
 
@@ -52,23 +55,30 @@ public class AuditEntry extends AbstractBaseBean {
 
         this.who = who;
         this.logger = logger;
-        this.before = filterUserPassword(before);
-        this.output = filterUserPassword(output);
+        this.before = maskSensitive(before);
+        this.output = maskSensitive(output);
         this.input = ArrayUtils.clone(input);
         if (this.input != null) {
             for (int i = 0; i < this.input.length; i++) {
-                this.input[i] = filterUserPassword(this.input[i]);
+                this.input[i] = maskSensitive(this.input[i]);
             }
         }
     }
 
-    private Object filterUserPassword(final Object object) {
+    private Object maskSensitive(final Object object) {
         Object filtered;
 
         if (object instanceof UserTO) {
-            UserTO user = SerializationUtils.clone((UserTO) object);
-            user.setPassword(null);
-            filtered = user;
+            filtered = SerializationUtils.clone((UserTO) object);
+            if (((UserTO) filtered).getPassword() != null) {
+                ((UserTO) filtered).setPassword(MASKED_VALUE);
+            }
+            if (((UserTO) filtered).getSecurityAnswer() != null) {
+                ((UserTO) filtered).setSecurityAnswer(MASKED_VALUE);
+            }
+        } else if (object instanceof UserPatch && ((UserPatch) object).getPassword() != null) {
+            filtered = SerializationUtils.clone((UserPatch) object);
+            ((UserPatch) filtered).getPassword().setValue(MASKED_VALUE);
         } else {
             filtered = object;
         }
@@ -95,5 +105,4 @@ public class AuditEntry extends AbstractBaseBean {
     public Object[] getInput() {
         return input;
     }
-
 }
