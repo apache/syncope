@@ -416,7 +416,7 @@ under the License.
     <slf4j.version>1.7.26</slf4j.version>
     <opensaml.version>3.3.0</opensaml.version>
 
-    <elasticsearch.version>6.6.1</elasticsearch.version>
+    <elasticsearch.version>6.6.2</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM25</apacheds.version>
     <apachedirapi.version>2.0.0.AM2</apachedirapi.version>
@@ -433,7 +433,7 @@ under the License.
 
     <joda.version>2.10.1</joda.version>
 
-    <h2.version>1.4.198</h2.version>
+    <h2.version>1.4.199</h2.version>
 
     <junit.version>5.4.0</junit.version>
 
@@ -2465,7 +2465,7 @@ under the License.
             <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.0/apidocs/</link>
-            <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/6.6.1/index.html</link>
+            <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/6.6.2/index.html</link>
             <link>http://docs.swagger.io/swagger-core/v2.0.7/apidocs/</link>
           </links>
         </configuration>
