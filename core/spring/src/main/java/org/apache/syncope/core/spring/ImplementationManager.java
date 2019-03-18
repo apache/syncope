@@ -57,24 +57,14 @@ public final class ImplementationManager {
 
             case JAVA:
             default:
-                Reportlet reportlet = null;
-
                 ReportletConf reportletConf = POJOHelper.deserialize(impl.getBody(), ReportletConf.class);
                 Class<? extends Reportlet> reportletClass = ApplicationContextProvider.getApplicationContext().
                         getBean(ImplementationLookup.class).getReportletClass(reportletConf.getClass());
-                if (reportletClass == null) {
+
+                Reportlet reportlet = buildJavaWithConf(reportletClass);
+                if (reportlet == null) {
                     LOG.warn("Could not find matching reportlet for {}", reportletConf.getClass());
                 } else {
-                    // fetch (or create) reportlet
-                    if (ApplicationContextProvider.getBeanFactory().containsSingleton(reportletClass.getName())) {
-                        reportlet = (Reportlet) ApplicationContextProvider.getBeanFactory().
-                                getSingleton(reportletClass.getName());
-                    } else {
-                        reportlet = (Reportlet) ApplicationContextProvider.getBeanFactory().
-                                createBean(reportletClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                        ApplicationContextProvider.getBeanFactory().
-                                registerSingleton(reportletClass.getName(), reportlet);
-                    }
                     reportlet.setConf(reportletConf);
                 }
 
@@ -91,24 +81,14 @@ public final class ImplementationManager {
 
             case JAVA:
             default:
-                AccountRule rule = null;
-
                 AccountRuleConf ruleConf = POJOHelper.deserialize(impl.getBody(), AccountRuleConf.class);
                 Class<? extends AccountRule> ruleClass = ApplicationContextProvider.getApplicationContext().
                         getBean(ImplementationLookup.class).getAccountRuleClass(ruleConf.getClass());
-                if (ruleClass == null) {
+
+                AccountRule rule = buildJavaWithConf(ruleClass);
+                if (rule == null) {
                     LOG.warn("Could not find matching account rule for {}", impl.getClass());
                 } else {
-                    // fetch (or create) rule
-                    if (ApplicationContextProvider.getBeanFactory().containsSingleton(ruleClass.getName())) {
-                        rule = (AccountRule) ApplicationContextProvider.getBeanFactory().
-                                getSingleton(ruleClass.getName());
-                    } else {
-                        rule = (AccountRule) ApplicationContextProvider.getBeanFactory().
-                                createBean(ruleClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                        ApplicationContextProvider.getBeanFactory().
-                                registerSingleton(ruleClass.getName(), rule);
-                    }
                     rule.setConf(ruleConf);
                 }
 
@@ -125,24 +105,14 @@ public final class ImplementationManager {
 
             case JAVA:
             default:
-                PasswordRule rule = null;
-
                 PasswordRuleConf ruleConf = POJOHelper.deserialize(impl.getBody(), PasswordRuleConf.class);
                 Class<? extends PasswordRule> ruleClass = ApplicationContextProvider.getApplicationContext().
                         getBean(ImplementationLookup.class).getPasswordRuleClass(ruleConf.getClass());
-                if (ruleClass == null) {
+
+                PasswordRule rule = buildJavaWithConf(ruleClass);
+                if (rule == null) {
                     LOG.warn("Could not find matching password rule for {}", impl.getClass());
                 } else {
-                    // fetch (or create) rule
-                    if (ApplicationContextProvider.getBeanFactory().containsSingleton(ruleClass.getName())) {
-                        rule = (PasswordRule) ApplicationContextProvider.getBeanFactory().
-                                getSingleton(ruleClass.getName());
-                    } else {
-                        rule = (PasswordRule) ApplicationContextProvider.getBeanFactory().
-                                createBean(ruleClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                        ApplicationContextProvider.getBeanFactory().
-                                registerSingleton(ruleClass.getName(), rule);
-                    }
                     rule.setConf(ruleConf);
                 }
 
@@ -159,25 +129,15 @@ public final class ImplementationManager {
 
             case JAVA:
             default:
-                PullCorrelationRule rule = null;
-
                 PullCorrelationRuleConf ruleConf =
                         POJOHelper.deserialize(impl.getBody(), PullCorrelationRuleConf.class);
                 Class<? extends PullCorrelationRule> ruleClass = ApplicationContextProvider.getApplicationContext().
                         getBean(ImplementationLookup.class).getPullCorrelationRuleClass(ruleConf.getClass());
-                if (ruleClass == null) {
+
+                PullCorrelationRule rule = buildJavaWithConf(ruleClass);
+                if (rule == null) {
                     LOG.warn("Could not find matching pull correlation rule for {}", impl.getClass());
                 } else {
-                    // fetch (or create) rule
-                    if (ApplicationContextProvider.getBeanFactory().containsSingleton(ruleClass.getName())) {
-                        rule = (PullCorrelationRule) ApplicationContextProvider.getBeanFactory().
-                                getSingleton(ruleClass.getName());
-                    } else {
-                        rule = (PullCorrelationRule) ApplicationContextProvider.getBeanFactory().
-                                createBean(ruleClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                        ApplicationContextProvider.getBeanFactory().
-                                registerSingleton(ruleClass.getName(), rule);
-                    }
                     rule.setConf(ruleConf);
                 }
 
@@ -194,25 +154,15 @@ public final class ImplementationManager {
 
             case JAVA:
             default:
-                PushCorrelationRule rule = null;
-
                 PushCorrelationRuleConf ruleConf =
                         POJOHelper.deserialize(impl.getBody(), PushCorrelationRuleConf.class);
                 Class<? extends PushCorrelationRule> ruleClass = ApplicationContextProvider.getApplicationContext().
                         getBean(ImplementationLookup.class).getPushCorrelationRuleClass(ruleConf.getClass());
-                if (ruleClass == null) {
+
+                PushCorrelationRule rule = buildJavaWithConf(ruleClass);
+                if (rule == null) {
                     LOG.warn("Could not find matching push correlation rule for {}", impl.getClass());
                 } else {
-                    // fetch (or create) rule
-                    if (ApplicationContextProvider.getBeanFactory().containsSingleton(ruleClass.getName())) {
-                        rule = (PushCorrelationRule) ApplicationContextProvider.getBeanFactory().
-                                getSingleton(ruleClass.getName());
-                    } else {
-                        rule = (PushCorrelationRule) ApplicationContextProvider.getBeanFactory().
-                                createBean(ruleClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                        ApplicationContextProvider.getBeanFactory().
-                                registerSingleton(ruleClass.getName(), rule);
-                    }
                     rule.setConf(ruleConf);
                 }
 
@@ -263,6 +213,31 @@ public final class ImplementationManager {
 
         return (T) ApplicationContextProvider.getBeanFactory().
                 createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T buildJavaWithConf(final Class<T> clazz) {
+        T bean = null;
+
+        if (clazz != null) {
+            if (ApplicationContextProvider.getBeanFactory().containsSingleton(clazz.getName())) {
+                bean = (T) ApplicationContextProvider.getBeanFactory().getSingleton(clazz.getName());
+            } else {
+                try {
+                    bean = (T) ApplicationContextProvider.getBeanFactory().
+                            createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                    ApplicationContextProvider.getBeanFactory().registerSingleton(clazz.getName(), bean);
+                } catch (IllegalStateException e) {
+                    LOG.debug("While attempting to register {}", clazz.getName(), e);
+
+                    // if this exception was raised, it means another bean for same name is already registered,
+                    // revert to it
+                    bean = (T) ApplicationContextProvider.getBeanFactory().getSingleton(clazz.getName());
+                }
+            }
+        }
+
+        return bean;
     }
 
     public static Class<?> purge(final String implementation) {
