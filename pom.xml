@@ -466,7 +466,7 @@ under the License.
     <chartjs.version>1.0.2</chartjs.version>
     
     <wicket.version>8.3.0</wicket.version>
-    <wicket-jqueryui.version>8.1.0</wicket-jqueryui.version>
+    <wicket-jqueryui.version>8.3.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>2.0.7</wicket-bootstrap.version>
 
     <angular.version>1.7.5</angular.version>
@@ -518,7 +518,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.16</tomcat.version>
+    <tomcat.version>9.0.17</tomcat.version>
 
     <nodejs.version>v8.11.4</nodejs.version>    
     <protractor.version>5.4.0</protractor.version>    
