@@ -465,7 +465,7 @@ under the License.
     <chartjs.version>1.0.2</chartjs.version>
     
     <wicket.version>8.3.0</wicket.version>
-    <wicket-jqueryui.version>8.1.0</wicket-jqueryui.version>
+    <wicket-jqueryui.version>8.3.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>2.0.7</wicket-bootstrap.version>
     <wicket-spring-boot.version>2.1.5</wicket-spring-boot.version>
 
@@ -512,7 +512,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.16</tomcat.version>
+    <tomcat.version>9.0.17</tomcat.version>
 
     <docker.postgresql.version>11.2</docker.postgresql.version>
     <docker.mariadb.version>10.4</docker.mariadb.version>
