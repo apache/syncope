@@ -33,8 +33,8 @@ import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.impl.db.DbIdGenerator;
 import org.flowable.engine.repository.ProcessDefinition;
-import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,12 +92,13 @@ public class FlowableLoader implements SyncopeCoreLoader {
                 FlowableDeployUtils.deployModel(processEngine, procDef);
 
                 LOG.debug("Flowable Workflow definition loaded for domain {}", domain);
-            }
 
-            // jump to the next ID block
-            for (int i = 0; i < processEngine.getProcessEngineConfiguration().getIdBlockSize(); i++) {
-                SpringProcessEngineConfiguration.class.cast(processEngine.getProcessEngineConfiguration()).
-                        getIdGenerator().getNextId();
+                if (processEngine.getProcessEngineConfiguration().getIdGenerator() instanceof DbIdGenerator) {
+                    // jump to the next ID block
+                    for (int i = 0; i < processEngine.getProcessEngineConfiguration().getIdBlockSize(); i++) {
+                        processEngine.getProcessEngineConfiguration().getIdGenerator().getNextId();
+                    }
+                }
             }
         }
     }

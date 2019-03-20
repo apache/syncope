@@ -28,7 +28,9 @@ import org.apache.syncope.core.flowable.support.SyncopeIdmIdentityService;
 import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.apache.syncope.core.workflow.java.WorkflowContext;
 import org.flowable.common.engine.impl.AbstractEngineConfiguration;
+import org.flowable.common.engine.impl.cfg.IdGenerator;
 import org.flowable.common.engine.impl.history.HistoryLevel;
+import org.flowable.engine.impl.db.DbIdGenerator;
 import org.flowable.idm.spring.SpringIdmEngineConfiguration;
 import org.flowable.idm.spring.configurator.SpringIdmEngineConfigurator;
 import org.flowable.spring.SpringProcessEngineConfiguration;
@@ -103,6 +105,20 @@ public class WorkflowFlowableContext {
         return new SyncopeEntitiesVariableType();
     }
 
+    /**
+     * This is called to generate unique identifiers for database entities used by Flowable.
+     *
+     * Consider to switch to {@link import org.flowable.common.engine.impl.persistence.StrongUuidGenerator} in
+     * high-demanding production environments.
+     *
+     * @return {@link IdGenerator} used by Flowable
+     */
+    @ConditionalOnMissingBean
+    @Bean
+    public IdGenerator idGenerator() {
+        return new DbIdGenerator();
+    }
+
     @ConditionalOnMissingBean
     @Bean
     @Scope("prototype")
@@ -115,6 +131,7 @@ public class WorkflowFlowableContext {
         conf.setIdmEngineConfigurator(syncopeIdmEngineConfigurator());
         conf.setCustomPreVariableTypes(Arrays.asList(syncopeEntitiesVariableType()));
         conf.setFormHandlerHelper(syncopeFormHandlerHelper());
+        conf.setIdGenerator(idGenerator());
         return conf;
     }
 
