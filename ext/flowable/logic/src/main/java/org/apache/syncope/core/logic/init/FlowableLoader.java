@@ -22,7 +22,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Resource;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
@@ -32,9 +31,8 @@ import org.apache.syncope.core.flowable.support.DomainProcessEngine;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
-import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.impl.db.DbIdGenerator;
 import org.flowable.engine.repository.ProcessDefinition;
-import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,39 +58,38 @@ public class FlowableLoader implements SyncopeLoader {
     public void load() {
         EntitlementsHolder.getInstance().init(FlowableEntitlement.values());
 
-        byte[] wfDef = new byte[0];
-
         try (InputStream wfIn = userWorkflowDef.getResource().getInputStream()) {
-            wfDef = IOUtils.toByteArray(wfIn);
+            byte[] wfDef = IOUtils.toByteArray(wfIn);
+
+            dpEngine.getEngines().forEach((domain, processEngine) -> {
+                List<ProcessDefinition> processes = processEngine.getRepositoryService().
+                        createProcessDefinitionQuery().processDefinitionKey(FlowableRuntimeUtils.WF_PROCESS_ID).
+                        list();
+                LOG.debug(FlowableRuntimeUtils.WF_PROCESS_ID + " Flowable processes in repository: {}", processes);
+
+                // Only loads process definition from file if not found in repository
+                if (processes.isEmpty()) {
+                    processEngine.getRepositoryService().createDeployment().addInputStream(
+                            userWorkflowDef.getResource().getFilename(), new ByteArrayInputStream(wfDef)).deploy();
+
+                    ProcessDefinition procDef = processEngine.getRepositoryService().createProcessDefinitionQuery().
+                            processDefinitionKey(FlowableRuntimeUtils.WF_PROCESS_ID).latestVersion().
+                            singleResult();
+
+                    FlowableDeployUtils.deployModel(processEngine, procDef);
+
+                    LOG.debug("Flowable Workflow definition loaded for domain {}", domain);
+
+                    if (processEngine.getProcessEngineConfiguration().getIdGenerator() instanceof DbIdGenerator) {
+                        // jump to the next ID block
+                        for (int i = 0; i < processEngine.getProcessEngineConfiguration().getIdBlockSize(); i++) {
+                            processEngine.getProcessEngineConfiguration().getIdGenerator().getNextId();
+                        }
+                    }
+                }
+            });
         } catch (IOException e) {
             LOG.error("While loading " + userWorkflowDef.getResource().getFilename(), e);
-        }
-
-        for (Map.Entry<String, ProcessEngine> entry : dpEngine.getEngines().entrySet()) {
-            List<ProcessDefinition> processes = entry.getValue().getRepositoryService().
-                    createProcessDefinitionQuery().processDefinitionKey(FlowableRuntimeUtils.WF_PROCESS_ID).
-                    list();
-            LOG.debug(FlowableRuntimeUtils.WF_PROCESS_ID + " Flowable processes in repository: {}", processes);
-
-            // Only loads process definition from file if not found in repository
-            if (processes.isEmpty()) {
-                entry.getValue().getRepositoryService().createDeployment().addInputStream(
-                        userWorkflowDef.getResource().getFilename(), new ByteArrayInputStream(wfDef)).deploy();
-
-                ProcessDefinition procDef = entry.getValue().getRepositoryService().createProcessDefinitionQuery().
-                        processDefinitionKey(FlowableRuntimeUtils.WF_PROCESS_ID).latestVersion().
-                        singleResult();
-
-                FlowableDeployUtils.deployModel(entry.getValue(), procDef);
-
-                LOG.debug("Flowable Workflow definition loaded for domain {}", entry.getKey());
-            }
-
-            // jump to the next ID block
-            for (int i = 0; i < entry.getValue().getProcessEngineConfiguration().getIdBlockSize(); i++) {
-                SpringProcessEngineConfiguration.class.cast(entry.getValue().getProcessEngineConfiguration()).
-                        getIdGenerator().getNextId();
-            }
         }
     }
 }

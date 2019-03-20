@@ -184,6 +184,10 @@ under the License.
       <appender-ref ref="mainFile"/>
       <appender-ref ref="main"/>
     </asyncLogger>
+    <asyncLogger name="org.hibernate.validator" additivity="false" level="ERROR">
+      <appender-ref ref="mainFile"/>
+      <appender-ref ref="main"/>
+    </asyncLogger>
     <asyncLogger name="com.zaxxer.hikari" additivity="false" level="ERROR">
       <appender-ref ref="mainFile"/>
       <appender-ref ref="main"/>
