@@ -20,7 +20,7 @@ package org.apache.syncope.fit.buildtools.cxf;
 
 import javax.ws.rs.core.Context;
 import org.apache.cxf.jaxrs.ext.MessageContext;
-import com.icegreen.greenmail.smtp.InterruptableGreenMail;
+import com.icegreen.greenmail.util.InterruptableGreenMail;
 import org.apache.syncope.fit.buildtools.GreenMailStartStopListener;
 import com.icegreen.greenmail.smtp.InterruptableSmtpServer;
 import org.slf4j.Logger;
