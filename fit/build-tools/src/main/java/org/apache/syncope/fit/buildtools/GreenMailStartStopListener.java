@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.fit.buildtools;
 
-import com.icegreen.greenmail.smtp.InterruptableGreenMail;
+import com.icegreen.greenmail.util.InterruptableGreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
