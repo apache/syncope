@@ -125,11 +125,11 @@ with actual value matching the _about_ condition as introduced above, can be use
 ====
 [source]
 ----
-Hi ${user.getPlainAttr("firstname").values[0]} ${user.getPlainAttr("surname").values[0]},
+Hi ${user.getPlainAttr("firstname").get().values[0]} ${user.getPlainAttr("surname").get().values[0]},
   welcome to Syncope!
 
 Your username is ${user.username}.
-Your email address is ${user.getPlainAttr("email").values[0]}.
+Your email address is ${user.getPlainAttr("email").get().values[0]}.
 
 Best regards.
 ----
@@ -141,10 +141,10 @@ Best regards.
 ----
 <html>
   <body>
-    <h3>Hi ${user.getPlainAttr("firstname").values[0]} ${user.getPlainAttr("surname").values[0]},
+    <h3>Hi ${user.getPlainAttr("firstname").get().values[0]} ${user.getPlainAttr("surname").get().values[0]},
       welcome to Syncope!</h3>
     <p>Your username is ${user.username}.<br/>
-    Your email address is ${user.getPlainAttr("email").values[0]}.</p>
+    Your email address is ${user.getPlainAttr("email").get().values[0]}.</p>
     <p>Best regards.</p>
   </body>
 </html>
