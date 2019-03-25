@@ -81,7 +81,9 @@ public class ImplementationManagerTest {
                             Thread.yield();
                         }
                         try {
-                            ImplementationManager.buildPasswordRule(implementation).orElseThrow();
+                            ImplementationManager.buildPasswordRule(implementation).orElseThrow(() -> {
+                                throw new IllegalStateException("No implementation returned");
+                            });
                         } catch (Exception e) {
                             errorMessages.add(e.getLocalizedMessage());
                             errorCount.incrementAndGet();
