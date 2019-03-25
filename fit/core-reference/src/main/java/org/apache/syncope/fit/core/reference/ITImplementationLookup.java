@@ -42,6 +42,7 @@ import org.apache.syncope.common.lib.report.StaticReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.logic.init.ElasticsearchInit;
+import org.apache.syncope.core.logic.init.EnableFlowableForTestUsers;
 import org.apache.syncope.core.provisioning.java.job.report.AuditReportlet;
 import org.apache.syncope.core.provisioning.java.job.report.GroupReportlet;
 import org.apache.syncope.core.provisioning.java.job.report.ReconciliationReportlet;
@@ -73,6 +74,7 @@ import org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActi
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SyncopeJWTSSOProvider;
+import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -233,7 +235,13 @@ public class ITImplementationLookup implements ImplementationLookup {
     };
 
     @Autowired
+    private UserWorkflowAdapter uwf;
+
+    @Autowired
     private AnySearchDAO anySearchDAO;
+
+    @Autowired(required = false)
+    private EnableFlowableForTestUsers enableFlowableForTestUsers;
 
     @Autowired(required = false)
     private ElasticsearchInit elasticsearchInit;
@@ -245,6 +253,14 @@ public class ITImplementationLookup implements ImplementationLookup {
 
     @Override
     public void load(final String domain, final DataSource datasource) {
+        // in case the Flowable extension is enabled, enable modifications for test users
+        if (enableFlowableForTestUsers != null && AopUtils.getTargetClass(uwf).getName().contains("Flowable")) {
+                AuthContextUtils.execWithAuthContext(domain, () -> {
+                    enableFlowableForTestUsers.init(datasource);
+                    return null;
+                });
+        }
+
         // in case the Elasticsearch extension is enabled, reinit a clean index for all available domains
         if (elasticsearchInit != null && AopUtils.getTargetClass(anySearchDAO).getName().contains("Elasticsearch")) {
             AuthContextUtils.execWithAuthContext(domain, () -> {

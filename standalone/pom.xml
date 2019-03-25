@@ -278,6 +278,14 @@ under the License.
         <filtering>true</filtering>
       </resource>
       <resource>
+        <directory>../fit/core-reference/src/test/resources</directory>
+        <includes>
+          <include>mail.properties</include>
+        </includes>
+        <targetPath>core</targetPath>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
         <directory>../fit/core-reference/src/test/resources/scriptedsql</directory>
         <targetPath>core/scriptedsql</targetPath>
         <filtering>true</filtering>
