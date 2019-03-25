@@ -183,6 +183,13 @@ under the License.
         </includes>
       </resource>      
       <resource>
+        <directory>../fit/core-reference/src/test/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
+        <includes>
+          <include>mail.properties</include>
+        </includes>
+      </resource>
+      <resource>
         <directory>../fit/core-reference/src/test/resources/scriptedsql</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources/scriptedsql</targetPath>
       </resource>

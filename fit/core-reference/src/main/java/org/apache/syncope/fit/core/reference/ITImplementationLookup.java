@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.sql.DataSource;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
@@ -42,6 +41,7 @@ import org.apache.syncope.common.lib.report.StaticReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.logic.init.ElasticsearchInit;
+import org.apache.syncope.core.logic.init.EnableFlowableForTestUsers;
 import org.apache.syncope.core.provisioning.java.job.report.AuditReportlet;
 import org.apache.syncope.core.provisioning.java.job.report.GroupReportlet;
 import org.apache.syncope.core.provisioning.java.job.report.ReconciliationReportlet;
@@ -74,6 +74,7 @@ import org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActi
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SyncopeJWTSSOProvider;
+import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -234,10 +235,16 @@ public class ITImplementationLookup implements ImplementationLookup {
     };
 
     @Autowired
+    private UserWorkflowAdapter uwf;
+
+    @Autowired
     private AnySearchDAO anySearchDAO;
 
     @Autowired
     private DomainsHolder domainsHolder;
+
+    @Autowired
+    private EnableFlowableForTestUsers enableFlowableForTestUsers;
 
     @Autowired
     private ElasticsearchInit elasticsearchInit;
@@ -249,14 +256,24 @@ public class ITImplementationLookup implements ImplementationLookup {
 
     @Override
     public void load() {
+        // in case the Flowable extension is enabled, enable modifications for test users
+        if (AopUtils.getTargetClass(uwf).getName().contains("Flowable")) {
+            domainsHolder.getDomains().forEach((domain, datasource) -> {
+                AuthContextUtils.execWithAuthContext(domain, () -> {
+                    enableFlowableForTestUsers.init(datasource);
+                    return null;
+                });
+            });
+        }
+
         // in case the Elasticsearch extension is enabled, reinit a clean index for all available domains
         if (AopUtils.getTargetClass(anySearchDAO).getName().contains("Elasticsearch")) {
-            for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
-                AuthContextUtils.execWithAuthContext(entry.getKey(), () -> {
+            domainsHolder.getDomains().forEach((domain, datasource) -> {
+                AuthContextUtils.execWithAuthContext(domain, () -> {
                     elasticsearchInit.init();
                     return null;
                 });
-            }
+            });
         }
     }
 
