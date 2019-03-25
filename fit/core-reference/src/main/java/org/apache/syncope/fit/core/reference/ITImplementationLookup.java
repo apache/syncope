@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core.reference;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -69,8 +70,10 @@ import org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActi
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SyncopeJWTSSOProvider;
+import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * Static implementation providing information about the integration test environment.
@@ -206,6 +209,9 @@ public class ITImplementationLookup implements ImplementationLookup {
     };
 
     @Autowired
+    private UserWorkflowAdapter uwf;
+
+    @Autowired
     private AnySearchDAO anySearchDAO;
 
     @Autowired
@@ -221,6 +227,41 @@ public class ITImplementationLookup implements ImplementationLookup {
 
     @Override
     public void load() {
+        // in case Activiti is enabled, enable modifications for test users
+        if (AopUtils.getTargetClass(uwf).getName().contains("Activiti")) {
+            for (final Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
+                AuthContextUtils.execWithAuthContext(entry.getKey(), new AuthContextUtils.Executable<Void>() {
+
+                    @Override
+                    public Void exec() {
+                        JdbcTemplate jdbcTemplate = new JdbcTemplate(entry.getValue());
+                        String procDef = jdbcTemplate.queryForObject(
+                                "SELECT ID_ FROM ACT_RE_PROCDEF WHERE KEY_=?", String.class, "userWorkflow");
+
+                        int counter = 0;
+                        for (String user : jdbcTemplate.queryForList("SELECT id FROM SyncopeUser", String.class)) {
+                            int value = counter++;
+                            jdbcTemplate.update("INSERT INTO "
+                                    + "ACT_RU_EXECUTION(ID_,REV_,PROC_INST_ID_,BUSINESS_KEY_,PROC_DEF_ID_,ACT_ID_,"
+                                    + "IS_ACTIVE_,IS_CONCURRENT_,IS_SCOPE_,IS_EVENT_SCOPE_,SUSPENSION_STATE_) "
+                                    + "VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+                                    value, 2, value, "userWorkflow:" + user, procDef, "active",
+                                    true, false, true, false, true);
+
+                            value = counter++;
+                            jdbcTemplate.update("INSERT INTO "
+                                    + "ACT_RU_TASK(ID_,REV_,EXECUTION_ID_,PROC_INST_ID_,PROC_DEF_ID_,NAME_,"
+                                    + "TASK_DEF_KEY_,PRIORITY_,CREATE_TIME_) "
+                                    + "VALUES(?,?,?,?,?,?,?,?,?)",
+                                    value, 2, value - 1, value - 1, procDef, "Active", "active", 50, new Date());
+                        }
+
+                        return null;
+                    }
+                });
+            }
+        }
+
         // in case the Elasticsearch extension is enabled, reinit a clean index for all available domains
         if (AopUtils.getTargetClass(anySearchDAO).getName().contains("Elasticsearch")) {
             for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
