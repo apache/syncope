@@ -103,39 +103,6 @@ under the License.
           </execution>
         </executions>
       </plugin>
-
-      <!-- Adds Flowable test content -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>xml-maven-plugin</artifactId>
-        <inherited>true</inherited>
-        <executions>
-          <execution>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>transform</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <transformationSets>
-            <transformationSet>
-              <dir>${project.build.outputDirectory}/core</dir>
-              <includes>
-                <include>domains/MasterContent.xml</include>
-              </includes>
-              <outputDir>${project.build.outputDirectory}/core</outputDir>
-              <stylesheet>${basedir}/../fit/core-reference/src/test/resources/addFlowableToContent.xsl</stylesheet>
-              <outputProperties>
-                <outputProperty>
-                  <name>indent</name>
-                  <value>yes</value>
-                </outputProperty>
-              </outputProperties>
-            </transformationSet>
-          </transformationSets>
-        </configuration>
-      </plugin>
           
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
