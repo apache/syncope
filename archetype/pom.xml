@@ -220,7 +220,6 @@ under the License.
         <directory>../fit/core-reference/src/test/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
         <includes>
-          <include>addFlowableToContent.xsl</include>
           <include>keystore</include>
         </includes>
       </resource>
