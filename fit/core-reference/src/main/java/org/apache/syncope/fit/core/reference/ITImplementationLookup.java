@@ -254,6 +254,8 @@ public class ITImplementationLookup implements ImplementationLookup {
                                     + "TASK_DEF_KEY_,PRIORITY_,CREATE_TIME_) "
                                     + "VALUES(?,?,?,?,?,?,?,?,?)",
                                     value, 2, value - 1, value - 1, procDef, "Active", "active", 50, new Date());
+
+                            jdbcTemplate.update("UPDATE SyncopeUser SET workflowId=? WHERE id=?", value - 1, user);
                         }
 
                         return null;
