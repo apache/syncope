@@ -403,7 +403,7 @@ under the License.
 
     <jasypt.version>1.9.2</jasypt.version>
 
-    <quartz.version>2.3.0</quartz.version>
+    <quartz.version>2.3.1</quartz.version>
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
