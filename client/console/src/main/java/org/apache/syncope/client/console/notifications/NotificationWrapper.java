@@ -77,7 +77,7 @@ public class NotificationWrapper implements Serializable {
     }
 
     public Map<String, String> getAboutFIQLs() {
-        if (CollectionUtils.isEmpty(this.aboutClauses)) {
+        if (CollectionUtils.isEmpty(this.aboutClauses) || this.aboutClauses.get(0).getValue().isEmpty()) {
             return this.notificationTO.getAbouts();
         } else {
             Map<String, String> res = new HashMap<>();
