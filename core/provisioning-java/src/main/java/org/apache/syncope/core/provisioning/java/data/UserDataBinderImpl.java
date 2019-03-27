@@ -70,6 +70,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
+import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -329,6 +330,15 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         if (userPatch.getMustChangePassword() != null) {
             user.setMustChangePassword(userPatch.getMustChangePassword().getValue());
+
+            propByRes.addAll(
+                    ResourceOperation.UPDATE,
+                    anyUtils.getAllResources(toBeUpdated).stream().
+                            filter(resource -> resource.getProvision(toBeUpdated.getType()).isPresent()).
+                            filter(resource -> MappingUtils.hasMustChangePassword(
+                            resource.getProvision(toBeUpdated.getType()).get())).
+                            map(Entity::getKey).
+                            collect(Collectors.toSet()));
         }
 
         // roles
@@ -422,7 +432,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     plainAttrValueDAO.deleteAll(attr, anyUtils);
                     plainAttrDAO.delete(attr);
                 });
-                
+
                 if (membPatch.getOperation() == PatchOperation.DELETE) {
                     groupDAO.findAllResourceKeys(membership.getRightEnd().getKey()).stream().
                             filter(resource -> reasons.containsKey(resource)).
