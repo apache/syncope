@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.Predicate;
@@ -250,11 +249,11 @@ public final class MappingUtils {
         return provision != null && provision.getMapping() != null
                 && IterableUtils.matchesAny(provision.getMapping().getItems(), new Predicate<MappingItem>() {
 
-            @Override
-            public boolean evaluate(final MappingItem mappingItem) {
-                return "mustChangePassword".equals(mappingItem.getIntAttrName());
-            }
-        });
+                    @Override
+                    public boolean evaluate(final MappingItem mappingItem) {
+                        return "mustChangePassword".equals(mappingItem.getIntAttrName());
+                    }
+                });
     }
 
     /**

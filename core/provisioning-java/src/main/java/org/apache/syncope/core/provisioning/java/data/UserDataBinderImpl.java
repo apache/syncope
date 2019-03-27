@@ -350,11 +350,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         if (userPatch.getMustChangePassword() != null) {
             user.setMustChangePassword(userPatch.getMustChangePassword().getValue());
-            Set<ExternalResource> externalResources = anyUtils.getAllResources(toBeUpdated);
 
-            for (ExternalResource resource : externalResources) {
-                Provision provision = resource.getProvision(toBeUpdated.getType());
-                if (MappingUtils.hasMustChangePassword(provision)) {
+            for (ExternalResource resource : anyUtils.getAllResources(toBeUpdated)) {
+                if (MappingUtils.hasMustChangePassword(resource.getProvision(toBeUpdated.getType()))) {
                     propByRes.add(ResourceOperation.UPDATE, resource.getKey());
                 }
             }
@@ -454,7 +452,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         if (attr.getSchema().isUniqueConstraint()) {
                             plainAttrValueDAO.delete(attr.getUniqueValue().getKey(), anyUtils.plainAttrValueClass());
                         } else {
-                            Collection<String> valuesToBeRemoved = 
+                            Collection<String> valuesToBeRemoved =
                                     CollectionUtils.collect(attr.getValues(), EntityUtils.keyTransformer());
                             for (String attrValueKey : valuesToBeRemoved) {
                                 plainAttrValueDAO.delete(attrValueKey, anyUtils.plainAttrValueClass());
