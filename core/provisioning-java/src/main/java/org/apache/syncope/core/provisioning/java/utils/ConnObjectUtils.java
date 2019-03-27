@@ -253,7 +253,7 @@ public class ConnObjectUtils {
                         updatedUser.setPassword(null);
                     }
 
-                    updatedUser.setSecurityQuestion(updatedUser.getSecurityQuestion());
+                    updatedUser.setSecurityQuestion(originalUser.getSecurityQuestion());
                     updatedUser.setMustChangePassword(originalUser.isMustChangePassword());
 
                     anyUR = (U) AnyOperations.diff(updatedUser, originalUser, true);
