@@ -60,6 +60,7 @@ import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
+import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
@@ -349,6 +350,14 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         if (userPatch.getMustChangePassword() != null) {
             user.setMustChangePassword(userPatch.getMustChangePassword().getValue());
+            Set<ExternalResource> externalResources = anyUtils.getAllResources(toBeUpdated);
+
+            for (ExternalResource resource : externalResources) {
+                Provision provision = resource.getProvision(toBeUpdated.getType());
+                if (MappingUtils.hasMustChangePassword(provision)) {
+                    propByRes.add(ResourceOperation.UPDATE, resource.getKey());
+                }
+            }
         }
 
         // roles
