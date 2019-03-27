@@ -44,6 +44,7 @@ import org.apache.syncope.common.lib.patch.RelationshipPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -56,6 +57,7 @@ import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -349,6 +351,15 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         if (userPatch.getMustChangePassword() != null) {
             user.setMustChangePassword(userPatch.getMustChangePassword().getValue());
+            Set<ExternalResource> externalResources = anyUtils.getAllResources(toBeUpdated);
+
+            for (ExternalResource resource : externalResources) {
+                Provision provision = resource.getProvision(toBeUpdated.getType());
+                if (provision != null && provision.getMapping() != null && isMustChangePwdMappingItemConfigured(
+                        provision.getMapping())) {
+                    propByRes.add(ResourceOperation.UPDATE, resource.getKey());
+                }
+            }
         }
 
         // roles
@@ -666,6 +677,15 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     @Override
     public UserTO getUserTO(final String key) {
         return getUserTO(userDAO.authFind(key), true);
+    }
+
+    private boolean isMustChangePwdMappingItemConfigured(Mapping mapping) {
+        for (MappingItem item: mapping.getItems()) {
+            if ("mustChangePassword".equals(item.getIntAttrName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

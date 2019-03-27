@@ -266,7 +266,6 @@ public class ConnObjectUtils {
                     }
 
                     updatedUser.setSecurityQuestion(updatedUser.getSecurityQuestion());
-                    updatedUser.setMustChangePassword(originalUser.isMustChangePassword());
 
                     anyPatch = (T) AnyOperations.diff(updatedUser, originalUser, true);
                     break;
