@@ -52,6 +52,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.fit.AbstractITCase;
+import org.apache.syncope.fit.ElasticsearchDetector;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -280,6 +281,13 @@ public class MembershipITCase extends AbstractITCase {
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
             // 5. verify that pulled user has
+            if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
             PagedResult<UserTO> users = userService.search(new AnyQuery.Builder().
                     realm("/").
                     fiql(SyncopeClient.getUserSearchConditionBuilder().
