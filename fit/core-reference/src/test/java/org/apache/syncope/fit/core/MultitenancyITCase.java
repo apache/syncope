@@ -71,6 +71,7 @@ import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
+import org.apache.syncope.fit.ElasticsearchDetector;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -228,6 +229,13 @@ public class MultitenancyITCase extends AbstractITCase {
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(status));
 
             // verify that pulled user is found
+            if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
             PagedResult<UserTO> matchingUsers = adminClient.getService(UserService.class).search(new AnyQuery.Builder().
                     realm(SyncopeConstants.ROOT_REALM).
                     fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").query()).
