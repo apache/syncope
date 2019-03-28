@@ -214,12 +214,6 @@ public final class MappingUtils {
         return builder.build();
     }
 
-    public static boolean hasMustChangePassword(final Provision provision) {
-        return provision != null && provision.getMapping() != null
-                && provision.getMapping().getItems().stream().
-                        anyMatch(mappingItem -> "mustChangePassword".equals(mappingItem.getIntAttrName()));
-    }
-
     /**
      * Private default constructor, for static-only classes.
      */

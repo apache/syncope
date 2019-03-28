@@ -71,7 +71,6 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
-import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -336,7 +335,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     ResourceOperation.UPDATE,
                     anyUtils.getAllResources(toBeUpdated).stream().
                             filter(resource -> resource.getProvision(toBeUpdated.getType()).isPresent()).
-                            filter(resource -> MappingUtils.hasMustChangePassword(
+                            filter(resource -> mappingManager.hasMustChangePassword(
                             resource.getProvision(toBeUpdated.getType()).get())).
                             map(Entity::getKey).
                             collect(Collectors.toSet()));
