@@ -858,4 +858,12 @@ public class MappingManagerImpl implements MappingManager {
             }
         }
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public boolean hasMustChangePassword(final Provision provision) {
+        return provision != null && provision.getMapping() != null
+                && provision.getMapping().getItems().stream().
+                        anyMatch(mappingItem -> "mustChangePassword".equals(mappingItem.getIntAttrName()));
+    }
 }
