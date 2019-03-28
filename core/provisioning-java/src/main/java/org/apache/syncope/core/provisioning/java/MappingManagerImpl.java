@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.BooleanUtils;
@@ -850,5 +851,18 @@ public class MappingManagerImpl implements MappingManager {
                 default:
             }
         }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public boolean hasMustChangePassword(final Provision provision) {
+        return provision != null && provision.getMapping() != null
+                && IterableUtils.matchesAny(provision.getMapping().getItems(), new Predicate<MappingItem>() {
+
+                    @Override
+                    public boolean evaluate(final MappingItem mappingItem) {
+                        return "mustChangePassword".equals(mappingItem.getIntAttrName());
+                    }
+                });
     }
 }

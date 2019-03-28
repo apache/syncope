@@ -107,4 +107,12 @@ public interface MappingManager {
      * @param realmTO realm
      */
     void setIntValues(Item orgUnitItem, Attribute attr, RealmTO realmTO);
+
+    /**
+     * Checks if there is a mapping item in the given {@link Provision} for {@code mustChangePassword}.
+     *
+     * @param provision provision
+     * @return if there is a mapping item in the given provision for {@code mustChangePassword}
+     */
+    boolean hasMustChangePassword(Provision provision);
 }

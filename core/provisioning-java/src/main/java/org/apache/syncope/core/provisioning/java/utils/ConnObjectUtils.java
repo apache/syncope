@@ -267,7 +267,7 @@ public class ConnObjectUtils {
 
                     updatedUser.setSecurityQuestion(originalUser.getSecurityQuestion());
 
-                    if (!MappingUtils.hasMustChangePassword(provision)) {
+                    if (!mappingManager.hasMustChangePassword(provision)) {
                         updatedUser.setMustChangePassword(originalUser.isMustChangePassword());
                     }
 
