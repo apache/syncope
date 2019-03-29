@@ -52,7 +52,7 @@ import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.wicket.PageReference;
@@ -341,7 +341,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
             @Override
             protected List<String> load() {
-                return implRestClient.list(ImplementationType.RECIPIENTS_PROVIDER).stream().
+                return implRestClient.list(IdRepoImplementationType.RECIPIENTS_PROVIDER).stream().
                         map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };

@@ -26,7 +26,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.jpa.validation.entity.ImplementationCheck;
 
@@ -45,8 +44,7 @@ public class JPAImplementation extends AbstractProvidedKeyEntity implements Impl
     private ImplementationEngine engine;
 
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private ImplementationType type;
+    private String type;
 
     @Lob
     private String body;
@@ -62,12 +60,12 @@ public class JPAImplementation extends AbstractProvidedKeyEntity implements Impl
     }
 
     @Override
-    public ImplementationType getType() {
+    public String getType() {
         return type;
     }
 
     @Override
-    public void setType(final ImplementationType type) {
+    public void setType(final String type) {
         this.type = type;
     }
 
@@ -80,5 +78,4 @@ public class JPAImplementation extends AbstractProvidedKeyEntity implements Impl
     public void setBody(final String body) {
         this.body = body;
     }
-
 }

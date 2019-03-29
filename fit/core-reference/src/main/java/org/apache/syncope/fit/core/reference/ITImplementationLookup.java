@@ -40,7 +40,8 @@ import org.apache.syncope.common.lib.report.ReconciliationReportletConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.report.StaticReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.logic.init.ElasticsearchInit;
 import org.apache.syncope.core.logic.init.EnableFlowableForTestUsers;
 import org.apache.syncope.core.provisioning.java.job.report.AuditReportlet;
@@ -150,15 +151,14 @@ public class ITImplementationLookup implements ImplementationLookup {
     private static final Set<Class<?>> AUDITAPPENDER_CLASSES = new HashSet<>(
             Arrays.asList(TestFileAuditAppender.class, TestFileRewriteAuditAppender.class));
 
-    private static final Map<ImplementationType, Set<String>> CLASS_NAMES =
-            new HashMap<ImplementationType, Set<String>>() {
+    private static final Map<String, Set<String>> CLASS_NAMES = new HashMap<String, Set<String>>() {
 
         private static final long serialVersionUID = 3109256773218160485L;
 
         {
             Set<String> classNames = ITImplementationLookup.JWTSSOPROVIDER_CLASSES.stream().
                     map(Class::getName).collect(Collectors.toSet());
-            put(ImplementationType.JWT_SSO_PROVIDER, classNames);
+            put(IdRepoImplementationType.JWT_SSO_PROVIDER, classNames);
 
             classNames = new HashSet<>();
             classNames.add(ReconciliationReportletConf.class.getName());
@@ -166,30 +166,30 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames.add(GroupReportletConf.class.getName());
             classNames.add(AuditReportletConf.class.getName());
             classNames.add(StaticReportletConf.class.getName());
-            put(ImplementationType.REPORTLET, classNames);
+            put(IdRepoImplementationType.REPORTLET, classNames);
 
             classNames = ITImplementationLookup.ACCOUNT_RULE_CLASSES.values().stream().
                     map(Class::getName).collect(Collectors.toSet());
-            put(ImplementationType.ACCOUNT_RULE, classNames);
+            put(IdRepoImplementationType.ACCOUNT_RULE, classNames);
 
             classNames = ITImplementationLookup.PASSWORD_RULE_CLASSES.values().stream().
                     map(Class::getName).collect(Collectors.toSet());
-            put(ImplementationType.PASSWORD_RULE, classNames);
+            put(IdRepoImplementationType.PASSWORD_RULE, classNames);
 
             classNames = new HashSet<>();
             classNames.add(DateToDateItemTransformer.class.getName());
             classNames.add(DateToLongItemTransformer.class.getName());
-            put(ImplementationType.ITEM_TRANSFORMER, classNames);
+            put(IdMImplementationType.ITEM_TRANSFORMER, classNames);
 
             classNames = new HashSet<>();
             classNames.add(TestSampleJobDelegate.class.getName());
-            put(ImplementationType.TASKJOB_DELEGATE, classNames);
+            put(IdRepoImplementationType.TASKJOB_DELEGATE, classNames);
 
             classNames = new HashSet<>();
-            put(ImplementationType.RECON_FILTER_BUILDER, classNames);
+            put(IdMImplementationType.RECON_FILTER_BUILDER, classNames);
 
             classNames = new HashSet<>();
-            put(ImplementationType.LOGIC_ACTIONS, classNames);
+            put(IdRepoImplementationType.LOGIC_ACTIONS, classNames);
 
             classNames = new HashSet<>();
             classNames.add(LDAPMembershipPropagationActions.class.getName());
@@ -197,40 +197,40 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames.add(DBPasswordPropagationActions.class.getName());
             classNames.add(AzurePropagationActions.class.getName());
             classNames.add(GoogleAppsPropagationActions.class.getName());
-            put(ImplementationType.PROPAGATION_ACTIONS, classNames);
+            put(IdMImplementationType.PROPAGATION_ACTIONS, classNames);
 
             classNames = new HashSet<>();
             classNames.add(LDAPPasswordPullActions.class.getName());
             classNames.add(TestPullActions.class.getName());
             classNames.add(LDAPMembershipPullActions.class.getName());
             classNames.add(DBPasswordPullActions.class.getName());
-            put(ImplementationType.PULL_ACTIONS, classNames);
+            put(IdMImplementationType.PULL_ACTIONS, classNames);
 
             classNames = new HashSet<>();
-            put(ImplementationType.PUSH_ACTIONS, classNames);
+            put(IdMImplementationType.PUSH_ACTIONS, classNames);
 
             classNames = new HashSet<>();
             classNames.add(DummyPullCorrelationRule.class.getName());
-            put(ImplementationType.PULL_CORRELATION_RULE, classNames);
+            put(IdMImplementationType.PULL_CORRELATION_RULE, classNames);
 
             classNames = new HashSet<>();
             classNames.add(DummyPushCorrelationRule.class.getName());
-            put(ImplementationType.PUSH_CORRELATION_RULE, classNames);
+            put(IdMImplementationType.PUSH_CORRELATION_RULE, classNames);
 
             classNames = new HashSet<>();
             classNames.add(BasicValidator.class.getName());
             classNames.add(EmailAddressValidator.class.getName());
             classNames.add(AlwaysTrueValidator.class.getName());
             classNames.add(BinaryValidator.class.getName());
-            put(ImplementationType.VALIDATOR, classNames);
+            put(IdRepoImplementationType.VALIDATOR, classNames);
 
             classNames = new HashSet<>();
             classNames.add(TestNotificationRecipientsProvider.class.getName());
-            put(ImplementationType.RECIPIENTS_PROVIDER, classNames);
+            put(IdRepoImplementationType.RECIPIENTS_PROVIDER, classNames);
 
             classNames = ITImplementationLookup.AUDITAPPENDER_CLASSES.stream().
                     map(Class::getName).collect(Collectors.toSet());
-            put(ImplementationType.AUDIT_APPENDER, classNames);
+            put(IdRepoImplementationType.AUDIT_APPENDER, classNames);
         }
     };
 
@@ -255,10 +255,10 @@ public class ITImplementationLookup implements ImplementationLookup {
     public void load(final String domain, final DataSource datasource) {
         // in case the Flowable extension is enabled, enable modifications for test users
         if (enableFlowableForTestUsers != null && AopUtils.getTargetClass(uwf).getName().contains("Flowable")) {
-                AuthContextUtils.execWithAuthContext(domain, () -> {
-                    enableFlowableForTestUsers.init(datasource);
-                    return null;
-                });
+            AuthContextUtils.execWithAuthContext(domain, () -> {
+                enableFlowableForTestUsers.init(datasource);
+                return null;
+            });
         }
 
         // in case the Elasticsearch extension is enabled, reinit a clean index for all available domains
@@ -271,7 +271,7 @@ public class ITImplementationLookup implements ImplementationLookup {
     }
 
     @Override
-    public Set<String> getClassNames(final ImplementationType type) {
+    public Set<String> getClassNames(final String type) {
         return CLASS_NAMES.get(type);
     }
 

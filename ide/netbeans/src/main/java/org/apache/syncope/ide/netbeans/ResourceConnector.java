@@ -24,16 +24,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.ide.netbeans.service.MailTemplateManagerService;
 import org.apache.syncope.ide.netbeans.service.ReportTemplateManagerService;
 import org.apache.syncope.ide.netbeans.service.ImplementationManagerService;
+import org.apache.syncope.ide.netbeans.service.SyncopeManagerService;
 import org.apache.syncope.ide.netbeans.view.ResourceExplorerTopComponent;
 import org.openide.util.NbPreferences;
 
 public final class ResourceConnector {
+
+    private static SyncopeManagerService SYNCOPE_MANAGER_SERVICE;
 
     private static MailTemplateManagerService MAIL_TEMPLATE_MANAGER_SERVICE;
 
     private static ReportTemplateManagerService REPORT_TEMPLATE_MANAGER_SERVICE;
 
     private static ImplementationManagerService IMPLEMENTATION_MANAGER_SERVICE;
+
+    private static final Object SYNCOPE_MONITOR = new Object();
 
     private static final Object MAIL_TEMPLATE_MONITOR = new Object();
 
@@ -42,6 +47,17 @@ public final class ResourceConnector {
     private static final Object IMPLEMENTATION_MONITOR = new Object();
 
     private ResourceConnector() {
+    }
+
+    public static SyncopeManagerService getSyncopeManagerService() {
+        synchronized (SYNCOPE_MONITOR) {
+            ConnectionParams connParams = getConnectionParams();
+            SYNCOPE_MANAGER_SERVICE = new SyncopeManagerService(
+                    connParams.getUrl(),
+                    connParams.getUsername(),
+                    connParams.getPassword());
+        }
+        return SYNCOPE_MANAGER_SERVICE;
     }
 
     public static MailTemplateManagerService getMailTemplateManagerService() throws IOException {

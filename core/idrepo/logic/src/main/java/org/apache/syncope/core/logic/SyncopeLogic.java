@@ -25,7 +25,6 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -44,7 +43,8 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.EntitlementsHolder;
+import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
@@ -81,7 +81,6 @@ import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
-import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
@@ -283,14 +282,13 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                 PLATFORM_INFO.getPersistenceInfo().
                         setConfDAO(AopUtils.getTargetClass(confDAO).getName());
 
-                Arrays.stream(ImplementationType.values()).
-                        forEach(type -> {
-                            JavaImplInfo javaImplInfo = new JavaImplInfo();
-                            javaImplInfo.setType(type);
-                            javaImplInfo.getClasses().addAll(implLookup.getClassNames(type));
+                ImplementationTypesHolder.getInstance().getValues().forEach(type -> {
+                    JavaImplInfo javaImplInfo = new JavaImplInfo();
+                    javaImplInfo.setType(type);
+                    javaImplInfo.getClasses().addAll(implLookup.getClassNames(type));
 
-                            PLATFORM_INFO.getJavaImplInfos().add(javaImplInfo);
-                        });
+                    PLATFORM_INFO.getJavaImplInfos().add(javaImplInfo);
+                });
             }
 
             PLATFORM_INFO.setSelfRegAllowed(isSelfRegAllowed());
@@ -299,6 +297,9 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
 
             PLATFORM_INFO.getEntitlements().clear();
             PLATFORM_INFO.getEntitlements().addAll(EntitlementsHolder.getInstance().getValues());
+
+            PLATFORM_INFO.getImplementationTypes().clear();
+            PLATFORM_INFO.getImplementationTypes().addAll(ImplementationTypesHolder.getInstance().getValues());
 
             AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(), () -> {
                 PLATFORM_INFO.getAnyTypes().clear();

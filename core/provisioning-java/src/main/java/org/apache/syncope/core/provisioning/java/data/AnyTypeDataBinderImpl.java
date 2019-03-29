@@ -36,7 +36,7 @@ import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
+import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;

@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -238,7 +238,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
             @Override
             protected List<String> load() {
-                return implRestClient.list(ImplementationType.VALIDATOR).stream().
+                return implRestClient.list(IdRepoImplementationType.VALIDATOR).stream().
                         map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };

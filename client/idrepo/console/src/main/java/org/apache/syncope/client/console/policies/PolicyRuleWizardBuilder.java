@@ -34,8 +34,8 @@ import org.apache.syncope.common.lib.policy.ComposablePolicy;
 import org.apache.syncope.common.lib.policy.RuleConf;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxEventBehavior;
@@ -59,7 +59,7 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
 
     private final PolicyType type;
 
-    private final ImplementationType implementationType;
+    private final String implementationType;
 
     public PolicyRuleWizardBuilder(
             final String policy,
@@ -72,8 +72,8 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
         this.policy = policy;
         this.type = type;
         this.implementationType = type == PolicyType.ACCOUNT
-                ? ImplementationType.ACCOUNT_RULE
-                : ImplementationType.PASSWORD_RULE;
+                ? IdRepoImplementationType.ACCOUNT_RULE
+                : IdRepoImplementationType.PASSWORD_RULE;
     }
 
     @Override
@@ -127,12 +127,12 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
             List<String> choices;
             switch (type) {
                 case ACCOUNT:
-                    choices = implementationClient.list(ImplementationType.ACCOUNT_RULE).stream().
+                    choices = implementationClient.list(IdRepoImplementationType.ACCOUNT_RULE).stream().
                             map(EntityTO::getKey).sorted().collect(Collectors.toList());
                     break;
 
                 case PASSWORD:
-                    choices = implementationClient.list(ImplementationType.PASSWORD_RULE).stream().
+                    choices = implementationClient.list(IdRepoImplementationType.PASSWORD_RULE).stream().
                             map(EntityTO::getKey).sorted().collect(Collectors.toList());
                     break;
 

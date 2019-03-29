@@ -36,7 +36,7 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Size;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -143,7 +143,7 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
     @Override
     public boolean add(final Implementation action) {
         checkType(action, JPAImplementation.class);
-        checkImplementationType(action, ImplementationType.LOGIC_ACTIONS);
+        checkImplementationType(action, IdRepoImplementationType.LOGIC_ACTIONS);
         return actions.contains((JPAImplementation) action) || actions.add((JPAImplementation) action);
     }
 

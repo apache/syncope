@@ -24,7 +24,6 @@ import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
@@ -33,7 +32,7 @@ import org.apache.syncope.core.persistence.api.dao.Reportlet;
 
 public interface ImplementationLookup extends SyncopeCoreLoader {
 
-    Set<String> getClassNames(ImplementationType type);
+    Set<String> getClassNames(String type);
 
     Set<Class<?>> getJWTSSOProviderClasses();
 

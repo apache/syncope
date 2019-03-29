@@ -32,8 +32,8 @@ import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -113,7 +113,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             PushTaskTO pushTaskTO = (PushTaskTO) provisioningTaskTO;
 
             Implementation jobDelegate = pushTaskTO.getJobDelegate() == null
-                    ? implementationDAO.find(ImplementationType.TASKJOB_DELEGATE).stream().
+                    ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
                             filter(impl -> PushJobDelegate.class.getName().equals(impl.getBody())).
                             findFirst().orElse(null)
                     : implementationDAO.find(pushTaskTO.getJobDelegate());
@@ -121,7 +121,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                 jobDelegate = entityFactory.newEntity(Implementation.class);
                 jobDelegate.setKey(PushJobDelegate.class.getSimpleName());
                 jobDelegate.setEngine(ImplementationEngine.JAVA);
-                jobDelegate.setType(ImplementationType.TASKJOB_DELEGATE);
+                jobDelegate.setType(IdRepoImplementationType.TASKJOB_DELEGATE);
                 jobDelegate.setBody(PushJobDelegate.class.getName());
                 jobDelegate = implementationDAO.save(jobDelegate);
             }
@@ -157,7 +157,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             PullTaskTO pullTaskTO = (PullTaskTO) provisioningTaskTO;
 
             Implementation jobDelegate = pullTaskTO.getJobDelegate() == null
-                    ? implementationDAO.find(ImplementationType.TASKJOB_DELEGATE).stream().
+                    ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
                             filter(impl -> PullJobDelegate.class.getName().equals(impl.getBody())).
                             findFirst().orElse(null)
                     : implementationDAO.find(pullTaskTO.getJobDelegate());
@@ -165,7 +165,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                 jobDelegate = entityFactory.newEntity(Implementation.class);
                 jobDelegate.setKey(PullJobDelegate.class.getSimpleName());
                 jobDelegate.setEngine(ImplementationEngine.JAVA);
-                jobDelegate.setType(ImplementationType.TASKJOB_DELEGATE);
+                jobDelegate.setType(IdRepoImplementationType.TASKJOB_DELEGATE);
                 jobDelegate.setBody(PullJobDelegate.class.getName());
                 jobDelegate = implementationDAO.save(jobDelegate);
             }

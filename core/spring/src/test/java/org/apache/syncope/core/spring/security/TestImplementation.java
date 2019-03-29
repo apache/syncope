@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 
 public class TestImplementation implements Implementation {
@@ -49,12 +49,12 @@ public class TestImplementation implements Implementation {
     }
 
     @Override
-    public ImplementationType getType() {
-        return ImplementationType.PASSWORD_RULE;
+    public String getType() {
+        return IdRepoImplementationType.PASSWORD_RULE;
     }
 
     @Override
-    public void setType(ImplementationType type) {
+    public void setType(String type) {
         // nothing to do
     }
 

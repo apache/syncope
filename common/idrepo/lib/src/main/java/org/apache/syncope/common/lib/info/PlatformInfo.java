@@ -30,7 +30,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.types.ImplementationType;
 
 @XmlRootElement(name = "platformInfo")
 @XmlType
@@ -279,6 +278,8 @@ public class PlatformInfo implements Serializable {
 
     private final Set<String> entitlements = new HashSet<>();
 
+    private final Set<String> implementationTypes = new HashSet<>();
+
     private final Set<JavaImplInfo> javaImplInfos = new HashSet<>();
 
     public String getVersion() {
@@ -363,9 +364,16 @@ public class PlatformInfo implements Serializable {
         return entitlements;
     }
 
+    @XmlElementWrapper(name = "implementationTypes")
+    @XmlElement(name = "implementationType")
+    @JsonProperty("implementationTypes")
+    public Set<String> getImplementationTypes() {
+        return implementationTypes;
+    }
+
     @JsonIgnore
-    public Optional<JavaImplInfo> getJavaImplInfo(final ImplementationType type) {
-        return javaImplInfos.stream().filter(javaImplInfo -> javaImplInfo.getType() == type).findFirst();
+    public Optional<JavaImplInfo> getJavaImplInfo(final String type) {
+        return javaImplInfos.stream().filter(javaImplInfo -> javaImplInfo.getType().equals(type)).findFirst();
     }
 
     @XmlElementWrapper(name = "javaImplInfos")

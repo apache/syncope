@@ -71,11 +71,12 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
@@ -799,12 +800,13 @@ public class UserIssuesITCase extends AbstractITCase {
     public void issueSYNCOPE420() throws IOException {
         ImplementationTO logicActions;
         try {
-            logicActions = implementationService.read(ImplementationType.LOGIC_ACTIONS, "DoubleValueLogicActions");
+            logicActions = implementationService.read(
+                    IdRepoImplementationType.LOGIC_ACTIONS, "DoubleValueLogicActions");
         } catch (SyncopeClientException e) {
             logicActions = new ImplementationTO();
             logicActions.setKey("DoubleValueLogicActions");
             logicActions.setEngine(ImplementationEngine.GROOVY);
-            logicActions.setType(ImplementationType.LOGIC_ACTIONS);
+            logicActions.setType(IdRepoImplementationType.LOGIC_ACTIONS);
             logicActions.setBody(org.apache.commons.io.IOUtils.toString(
                     getClass().getResourceAsStream("/DoubleValueLogicActions.groovy"), StandardCharsets.UTF_8));
             Response response = implementationService.create(logicActions);
@@ -989,7 +991,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ImplementationTO propagationActions = new ImplementationTO();
         propagationActions.setKey(DBPasswordPropagationActions.class.getSimpleName());
         propagationActions.setEngine(ImplementationEngine.JAVA);
-        propagationActions.setType(ImplementationType.PROPAGATION_ACTIONS);
+        propagationActions.setType(IdMImplementationType.PROPAGATION_ACTIONS);
         propagationActions.setBody(DBPasswordPropagationActions.class.getName());
         Response response = implementationService.create(propagationActions);
         propagationActions = implementationService.read(
@@ -1039,7 +1041,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ImplementationTO propagationActions = new ImplementationTO();
         propagationActions.setKey(LDAPPasswordPropagationActions.class.getSimpleName());
         propagationActions.setEngine(ImplementationEngine.JAVA);
-        propagationActions.setType(ImplementationType.PROPAGATION_ACTIONS);
+        propagationActions.setType(IdMImplementationType.PROPAGATION_ACTIONS);
         propagationActions.setBody(LDAPPasswordPropagationActions.class.getName());
         Response response = implementationService.create(propagationActions);
         propagationActions = implementationService.read(
@@ -1231,7 +1233,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ImplementationTO rule = new ImplementationTO();
         rule.setKey("DefaultPasswordRuleConf" + getUUIDString());
         rule.setEngine(ImplementationEngine.JAVA);
-        rule.setType(ImplementationType.PASSWORD_RULE);
+        rule.setType(IdRepoImplementationType.PASSWORD_RULE);
         rule.setBody(POJOHelper.serialize(ruleConf));
         Response response = implementationService.create(rule);
         rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));

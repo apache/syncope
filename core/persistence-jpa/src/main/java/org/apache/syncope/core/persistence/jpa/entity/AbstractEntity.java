@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.Objects;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.slf4j.Logger;
@@ -37,8 +36,8 @@ public abstract class AbstractEntity implements Entity {
         }
     }
 
-    protected void checkImplementationType(final Implementation object, final ImplementationType expected) {
-        if (object != null && object.getType() != expected) {
+    protected void checkImplementationType(final Implementation object, final String expected) {
+        if (object != null && !object.getType().equals(expected)) {
             throw new ClassCastException("Expected " + expected + ", got " + object.getType());
         }
     }

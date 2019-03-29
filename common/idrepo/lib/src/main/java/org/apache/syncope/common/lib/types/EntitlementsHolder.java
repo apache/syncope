@@ -16,16 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api;
+package org.apache.syncope.common.lib.types;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.syncope.common.lib.types.AnyEntitlement;
-
-public final class EntitlementsHolder {
+public final class EntitlementsHolder extends ValueHolder<String> {
 
     private static final Object MONITOR = new Object();
 
@@ -40,14 +36,8 @@ public final class EntitlementsHolder {
         return INSTANCE;
     }
 
-    private final Set<String> values = Collections.synchronizedSet(new HashSet<>());
-
     private EntitlementsHolder() {
         // private constructor for singleton
-    }
-
-    public void init(final Collection<String> values) {
-        this.values.addAll(values);
     }
 
     public Set<String> addFor(final String anyType) {
@@ -70,9 +60,5 @@ public final class EntitlementsHolder {
         }
 
         return removed;
-    }
-
-    public Set<String> getValues() {
-        return Collections.unmodifiableSet(values);
     }
 }

@@ -29,7 +29,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPan
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -52,7 +52,7 @@ public class ResourceDetailsPanel extends WizardStep {
 
         @Override
         protected List<String> load() {
-            return implRestClient.list(ImplementationType.PROPAGATION_ACTIONS).stream().
+            return implRestClient.list(IdMImplementationType.PROPAGATION_ACTIONS).stream().
                     map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };

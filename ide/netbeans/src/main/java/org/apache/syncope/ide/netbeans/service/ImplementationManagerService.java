@@ -23,7 +23,6 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.to.ImplementationTO;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
 
 public class ImplementationManagerService {
@@ -35,11 +34,11 @@ public class ImplementationManagerService {
         service = syncopeClient.getService(ImplementationService.class);
     }
 
-    public List<ImplementationTO> list(final ImplementationType type) {
+    public List<ImplementationTO> list(final String type) {
         return service.list(type);
     }
 
-    public ImplementationTO read(final ImplementationType type, final String key) {
+    public ImplementationTO read(final String type, final String key) {
         return service.read(type, key);
     }
 
@@ -47,7 +46,7 @@ public class ImplementationManagerService {
         return Response.Status.CREATED.getStatusCode() == service.create(implementationTO).getStatus();
     }
 
-    public boolean delete(final ImplementationType type, final String key) {
+    public boolean delete(final String type, final String key) {
         return Response.Status.NO_CONTENT.getStatusCode() == service.delete(type, key).getStatus();
     }
 

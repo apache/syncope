@@ -22,7 +22,6 @@ import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.ImplementationTO;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.core.logic.ImplementationLogic;
@@ -36,12 +35,12 @@ public class ImplementationServiceImpl extends AbstractServiceImpl implements Im
     private ImplementationLogic logic;
 
     @Override
-    public List<ImplementationTO> list(final ImplementationType type) {
+    public List<ImplementationTO> list(final String type) {
         return logic.list(type);
     }
 
     @Override
-    public ImplementationTO read(final ImplementationType type, final String key) {
+    public ImplementationTO read(final String type, final String key) {
         return logic.read(type, key);
     }
 
@@ -61,9 +60,8 @@ public class ImplementationServiceImpl extends AbstractServiceImpl implements Im
     }
 
     @Override
-    public Response delete(final ImplementationType type, final String key) {
+    public Response delete(final String type, final String key) {
         logic.delete(type, key);
         return Response.noContent().build();
     }
-
 }

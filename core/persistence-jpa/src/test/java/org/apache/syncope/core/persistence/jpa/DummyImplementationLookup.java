@@ -25,7 +25,6 @@ import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
@@ -47,7 +46,7 @@ public class DummyImplementationLookup implements ImplementationLookup {
     }
 
     @Override
-    public Set<String> getClassNames(final ImplementationType type) {
+    public Set<String> getClassNames(final String type) {
         return Collections.emptySet();
     }
 

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

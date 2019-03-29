@@ -34,9 +34,9 @@ import java.util.UUID;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -276,7 +276,7 @@ public class TaskTest extends AbstractTest {
         Implementation pullActions = entityFactory.newEntity(Implementation.class);
         pullActions.setKey("PullActions" + UUID.randomUUID().toString());
         pullActions.setEngine(ImplementationEngine.JAVA);
-        pullActions.setType(ImplementationType.PULL_ACTIONS);
+        pullActions.setType(IdMImplementationType.PULL_ACTIONS);
         pullActions.setBody(PullActions.class.getName());
         pullActions = implementationDAO.save(pullActions);
 
@@ -298,7 +298,7 @@ public class TaskTest extends AbstractTest {
         Implementation pullActions = entityFactory.newEntity(Implementation.class);
         pullActions.setKey("syncope144");
         pullActions.setEngine(ImplementationEngine.JAVA);
-        pullActions.setType(ImplementationType.PULL_ACTIONS);
+        pullActions.setType(IdMImplementationType.PULL_ACTIONS);
         pullActions.setBody(PullActions.class.getName());
         pullActions = implementationDAO.save(pullActions);
 

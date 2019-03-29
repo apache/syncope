@@ -49,8 +49,8 @@ import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
@@ -74,7 +74,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
 
     private final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
-    private final LoadableDetachableModel<Map<String, ImplementationTO>> implementations;
+    private final IModel<Map<String, ImplementationTO>> implementations;
 
     private final IModel<List<CorrelationRule>> model;
 
@@ -94,8 +94,8 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
             @Override
             protected Map<String, ImplementationTO> load() {
                 return implRestClient.list(policyTO instanceof PullPolicyTO
-                        ? ImplementationType.PULL_CORRELATION_RULE
-                        : ImplementationType.PUSH_CORRELATION_RULE).stream().
+                        ? IdMImplementationType.PULL_CORRELATION_RULE
+                        : IdMImplementationType.PUSH_CORRELATION_RULE).stream().
                         collect(Collectors.toMap(EntityTO::getKey, Function.identity()));
             }
         };

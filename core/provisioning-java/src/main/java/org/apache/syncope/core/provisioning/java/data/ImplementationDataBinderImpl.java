@@ -25,8 +25,9 @@ import org.apache.syncope.common.lib.policy.RuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
@@ -69,7 +70,7 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
     public void update(final Implementation implementation, final ImplementationTO implementationTO) {
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidImplementation);
 
-        if (implementation.getType() != null && implementation.getType() != implementationTO.getType()) {
+        if (implementation.getType() != null && !implementation.getType().equals(implementationTO.getType())) {
             sce.getElements().add("ImplementationType cannot be changed");
             throw sce;
         }
@@ -87,59 +88,59 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
         if (implementation.getEngine() == ImplementationEngine.JAVA) {
             Class<?> base = null;
             switch (implementation.getType()) {
-                case REPORTLET:
+                case IdRepoImplementationType.REPORTLET:
                     base = Reportlet.class;
                     break;
 
-                case ACCOUNT_RULE:
+                case IdRepoImplementationType.ACCOUNT_RULE:
                     base = AccountRule.class;
                     break;
 
-                case PASSWORD_RULE:
+                case IdRepoImplementationType.PASSWORD_RULE:
                     base = PasswordRule.class;
                     break;
 
-                case ITEM_TRANSFORMER:
+                case IdMImplementationType.ITEM_TRANSFORMER:
                     base = ItemTransformer.class;
                     break;
 
-                case TASKJOB_DELEGATE:
+                case IdRepoImplementationType.TASKJOB_DELEGATE:
                     base = SchedTaskJobDelegate.class;
                     break;
 
-                case RECON_FILTER_BUILDER:
+                case IdMImplementationType.RECON_FILTER_BUILDER:
                     base = ReconFilterBuilder.class;
                     break;
 
-                case LOGIC_ACTIONS:
+                case IdRepoImplementationType.LOGIC_ACTIONS:
                     base = LogicActions.class;
                     break;
 
-                case PROPAGATION_ACTIONS:
+                case IdMImplementationType.PROPAGATION_ACTIONS:
                     base = PropagationActions.class;
                     break;
 
-                case PULL_ACTIONS:
+                case IdMImplementationType.PULL_ACTIONS:
                     base = PullActions.class;
                     break;
 
-                case PUSH_ACTIONS:
+                case IdMImplementationType.PUSH_ACTIONS:
                     base = PushActions.class;
                     break;
 
-                case PULL_CORRELATION_RULE:
+                case IdMImplementationType.PULL_CORRELATION_RULE:
                     base = PullCorrelationRule.class;
                     break;
 
-                case PUSH_CORRELATION_RULE:
+                case IdMImplementationType.PUSH_CORRELATION_RULE:
                     base = PushCorrelationRule.class;
                     break;
 
-                case VALIDATOR:
+                case IdRepoImplementationType.VALIDATOR:
                     base = Validator.class;
                     break;
 
-                case RECIPIENTS_PROVIDER:
+                case IdRepoImplementationType.RECIPIENTS_PROVIDER:
                     base = RecipientsProvider.class;
                     break;
 
@@ -151,41 +152,46 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
                 throw sce;
             }
 
-            if (implementation.getType() == ImplementationType.REPORTLET) {
-                ReportletConf reportlet = POJOHelper.deserialize(implementation.getBody(), ReportletConf.class);
-                if (reportlet == null) {
-                    sce.getElements().add("Could not deserialize as ReportletConf");
-                    throw sce;
-                }
-            } else if (implementation.getType() == ImplementationType.ACCOUNT_RULE
-                    || implementation.getType() == ImplementationType.PASSWORD_RULE
-                    || implementation.getType() == ImplementationType.PULL_CORRELATION_RULE
-                    || implementation.getType() == ImplementationType.PUSH_CORRELATION_RULE) {
+            switch (implementation.getType()) {
+                case IdRepoImplementationType.REPORTLET:
+                    ReportletConf reportlet = POJOHelper.deserialize(implementation.getBody(), ReportletConf.class);
+                    if (reportlet == null) {
+                        sce.getElements().add("Could not deserialize as ReportletConf");
+                        throw sce;
+                    }
+                    break;
 
-                RuleConf rule = POJOHelper.deserialize(implementation.getBody(), RuleConf.class);
-                if (rule == null) {
-                    sce.getElements().add("Could not deserialize as neither "
-                            + "Account, Password, Pull nor Push Correlation RuleConf");
-                    throw sce;
-                }
-            } else {
-                Class<?> clazz = null;
-                try {
-                    clazz = Class.forName(implementation.getBody());
-                } catch (Exception e) {
-                    LOG.error("Class '{}' not found", implementation.getBody(), e);
-                    sce.getElements().add("No Java class found: " + implementation.getBody());
-                    throw sce;
-                }
-                if (!base.isAssignableFrom(clazz)) {
-                    sce.getElements().add(
-                            "Java class " + implementation.getBody() + " must comply with " + base.getName());
-                    throw sce;
-                }
-                if (Modifier.isAbstract(clazz.getModifiers())) {
-                    sce.getElements().add("Java class " + implementation.getBody() + " is abstract");
-                    throw sce;
-                }
+                case IdRepoImplementationType.ACCOUNT_RULE:
+                case IdRepoImplementationType.PASSWORD_RULE:
+                case IdMImplementationType.PULL_CORRELATION_RULE:
+                case IdMImplementationType.PUSH_CORRELATION_RULE:
+                    RuleConf rule = POJOHelper.deserialize(implementation.getBody(), RuleConf.class);
+                    if (rule == null) {
+                        sce.getElements().add("Could not deserialize as neither "
+                                + "Account, Password, Pull nor Push Correlation RuleConf");
+                        throw sce;
+                    }
+                    break;
+
+                default:
+                    Class<?> clazz = null;
+                    try {
+                        clazz = Class.forName(implementation.getBody());
+                    } catch (Exception e) {
+                        LOG.error("Class '{}' not found", implementation.getBody(), e);
+                        sce.getElements().add("No Java class found: " + implementation.getBody());
+                        throw sce;
+                    }
+                    if (!base.isAssignableFrom(clazz)) {
+                        sce.getElements().add(
+                                "Java class " + implementation.getBody() + " must comply with " + base.getName());
+                        throw sce;
+                    }
+                    if (Modifier.isAbstract(clazz.getModifiers())) {
+                        sce.getElements().add("Java class " + implementation.getBody() + " is abstract");
+                        throw sce;
+                    }
+                    break;
             }
         }
     }

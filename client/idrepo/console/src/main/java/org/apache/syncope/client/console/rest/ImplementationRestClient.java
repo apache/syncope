@@ -20,18 +20,17 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.List;
 import org.apache.syncope.common.lib.to.ImplementationTO;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
 
 public class ImplementationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -4111950555473526287L;
 
-    public List<ImplementationTO> list(final ImplementationType type) {
+    public List<ImplementationTO> list(final String type) {
         return getService(ImplementationService.class).list(type);
     }
 
-    public ImplementationTO read(final ImplementationType type, final String key) {
+    public ImplementationTO read(final String type, final String key) {
         return getService(ImplementationService.class).read(type, key);
     }
 
@@ -43,7 +42,7 @@ public class ImplementationRestClient extends BaseRestClient {
         getService(ImplementationService.class).update(implementation);
     }
 
-    public void delete(final ImplementationType type, final String key) {
+    public void delete(final String type, final String key) {
         getService(ImplementationService.class).delete(type, key);
     }
 }

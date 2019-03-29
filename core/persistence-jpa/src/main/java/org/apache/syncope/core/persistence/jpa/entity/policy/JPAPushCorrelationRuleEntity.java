@@ -22,7 +22,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 
@@ -39,8 +39,8 @@ public class JPAPushCorrelationRuleEntity extends AbstractCorrelationRuleEntity 
     private JPAPushPolicy pushPolicy;
 
     @Override
-    protected ImplementationType getImplementationType() {
-        return ImplementationType.PUSH_CORRELATION_RULE;
+    protected String getImplementationType() {
+        return IdMImplementationType.PUSH_CORRELATION_RULE;
     }
 
     @Override

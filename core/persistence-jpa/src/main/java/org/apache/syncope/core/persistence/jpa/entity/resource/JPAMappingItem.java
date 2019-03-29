@@ -28,7 +28,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
@@ -68,7 +68,7 @@ public class JPAMappingItem extends AbstractItem implements MappingItem {
     @Override
     public boolean add(final Implementation transformer) {
         checkType(transformer, JPAImplementation.class);
-        checkImplementationType(transformer, ImplementationType.ITEM_TRANSFORMER);
+        checkImplementationType(transformer, IdMImplementationType.ITEM_TRANSFORMER);
         return transformers.contains((JPAImplementation) transformer)
                 || transformers.add((JPAImplementation) transformer);
     }
@@ -77,5 +77,4 @@ public class JPAMappingItem extends AbstractItem implements MappingItem {
     public List<? extends Implementation> getTransformers() {
         return transformers;
     }
-
 }

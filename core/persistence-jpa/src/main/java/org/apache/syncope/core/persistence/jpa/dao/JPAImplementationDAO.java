@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
@@ -38,7 +37,7 @@ public class JPAImplementationDAO extends AbstractDAO<Implementation> implements
     }
 
     @Override
-    public List<Implementation> find(final ImplementationType type) {
+    public List<Implementation> findByType(final String type) {
         TypedQuery<Implementation> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAImplementation.class.getSimpleName() + " e WHERE e.type=:type",
                 Implementation.class);

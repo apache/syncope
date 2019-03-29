@@ -49,10 +49,10 @@ import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -76,7 +76,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
     @Test
     public void getPushActionsClasses() {
         Set<String> actions = syncopeService.platform().
-                getJavaImplInfo(ImplementationType.PUSH_ACTIONS).get().getClasses();
+                getJavaImplInfo(IdMImplementationType.PUSH_ACTIONS).get().getClasses();
         assertNotNull(actions);
     }
 

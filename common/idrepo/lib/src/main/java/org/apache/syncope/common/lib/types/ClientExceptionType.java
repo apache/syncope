@@ -33,6 +33,7 @@ public enum ClientExceptionType {
     HasChildren(Response.Status.BAD_REQUEST),
     InvalidPrivilege(Response.Status.BAD_REQUEST),
     InvalidImplementation(Response.Status.BAD_REQUEST),
+    InvalidImplementationType(Response.Status.NOT_FOUND),
     InvalidSecurityAnswer(Response.Status.BAD_REQUEST),
     InvalidEntity(Response.Status.BAD_REQUEST),
     InvalidLogger(Response.Status.BAD_REQUEST),

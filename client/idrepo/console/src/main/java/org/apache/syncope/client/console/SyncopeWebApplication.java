@@ -69,6 +69,8 @@ import org.apache.wicket.util.lang.Args;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.syncope.client.console.commons.ExternalResourceProvider;
+import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
+import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
@@ -137,6 +139,10 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
     private VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider;
 
     private AnyDirectoryPanelAditionalActionLinksProvider anyDirectoryPanelAditionalActionLinksProvider;
+
+    private ImplementationInfoProvider implementationInfoProvider;
+
+    private PolicyTabProvider policyTabProvider;
 
     private Map<String, Class<? extends BasePage>> pageClasses;
 
@@ -225,6 +231,9 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         statusProvider = lookup.getStatusProvider();
         virSchemaDetailsPanelProvider = lookup.getVirSchemaDetailsPanelProvider();
         anyDirectoryPanelAditionalActionLinksProvider = lookup.getAnyDirectoryPanelAditionalActionLinksProvider();
+        implementationInfoProvider = lookup.getImplementationInfoProvider();
+        policyTabProvider = lookup.getPolicyTabProvider();
+
         lookup.getPageClasses().
                 forEach(cls -> MetaDataRoleAuthorizationStrategy.authorize(cls, Constants.ROLE_AUTHENTICATED));
 
@@ -396,5 +405,13 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     public AnyDirectoryPanelAditionalActionLinksProvider getAnyDirectoryPanelAditionalActionLinksProvider() {
         return anyDirectoryPanelAditionalActionLinksProvider;
+    }
+
+    public ImplementationInfoProvider getImplementationInfoProvider() {
+        return implementationInfoProvider;
+    }
+
+    public PolicyTabProvider getPolicyTabProvider() {
+        return policyTabProvider;
     }
 }

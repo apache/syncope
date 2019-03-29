@@ -30,8 +30,9 @@ import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -113,7 +114,7 @@ public class PolicyTest extends AbstractTest {
         Implementation impl1 = entityFactory.newEntity(Implementation.class);
         impl1.setKey(pullURuleName);
         impl1.setEngine(ImplementationEngine.JAVA);
-        impl1.setType(ImplementationType.PULL_CORRELATION_RULE);
+        impl1.setType(IdMImplementationType.PULL_CORRELATION_RULE);
         impl1.setBody(PullCorrelationRule.class.getName());
         impl1 = implementationDAO.save(impl1);
 
@@ -126,7 +127,7 @@ public class PolicyTest extends AbstractTest {
         Implementation impl2 = entityFactory.newEntity(Implementation.class);
         impl2.setKey(pullGRuleName);
         impl2.setEngine(ImplementationEngine.JAVA);
-        impl2.setType(ImplementationType.PULL_CORRELATION_RULE);
+        impl2.setType(IdMImplementationType.PULL_CORRELATION_RULE);
         impl2.setBody(PullCorrelationRule.class.getName());
         impl2 = implementationDAO.save(impl2);
 
@@ -158,7 +159,7 @@ public class PolicyTest extends AbstractTest {
         Implementation rule = entityFactory.newEntity(Implementation.class);
         rule.setKey("PasswordRule" + UUID.randomUUID().toString());
         rule.setEngine(ImplementationEngine.JAVA);
-        rule.setType(ImplementationType.PASSWORD_RULE);
+        rule.setType(IdRepoImplementationType.PASSWORD_RULE);
         rule.setBody(POJOHelper.serialize(ruleConf));
         rule = implementationDAO.save(rule);
 

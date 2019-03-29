@@ -37,7 +37,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.ImplementationTO;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
@@ -56,10 +55,12 @@ public interface ImplementationService extends JAXRSService {
      * @param type implementation type
      * @return list of all implementations.
      */
+    @Parameter(name = "type", description = "Implementation's type", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @GET
     @Path("{type}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    List<ImplementationTO> list(@NotNull @PathParam("type") ImplementationType type);
+    List<ImplementationTO> list(@NotNull @PathParam("type") String type);
 
     /**
      * Returns implementation with matching type and key.
@@ -68,10 +69,14 @@ public interface ImplementationService extends JAXRSService {
      * @param key key of implementation to be read
      * @return implementation with matching key
      */
+    @Parameter(name = "type", description = "Implementation's type", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
+    @Parameter(name = "key", description = "Implementation's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @GET
     @Path("{type}/{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    ImplementationTO read(@NotNull @PathParam("type") ImplementationType type, @NotNull @PathParam("key") String key);
+    ImplementationTO read(@NotNull @PathParam("type") String type, @NotNull @PathParam("key") String key);
 
     /**
      * Creates a new implementation.
@@ -80,7 +85,7 @@ public interface ImplementationService extends JAXRSService {
      * @return Response object featuring Location header of created implementation
      */
     @Parameter(name = "type", description = "Implementation's type", in = ParameterIn.PATH, schema =
-            @Schema(implementation = ImplementationType.class))
+            @Schema(type = "string"))
     @Parameter(name = "key", description = "Implementation's key", in = ParameterIn.PATH, schema =
             @Schema(type = "string"))
     @POST
@@ -96,7 +101,7 @@ public interface ImplementationService extends JAXRSService {
      * @return an empty response if operation was successful
      */
     @Parameter(name = "type", description = "Implementation's type", in = ParameterIn.PATH, schema =
-            @Schema(implementation = ImplementationType.class))
+            @Schema(type = "string"))
     @Parameter(name = "key", description = "Implementation's key", in = ParameterIn.PATH, schema =
             @Schema(type = "string"))
     @PUT
@@ -112,9 +117,12 @@ public interface ImplementationService extends JAXRSService {
      * @param key key for implementation to be deleted
      * @return an empty response if operation was successful
      */
+    @Parameter(name = "type", description = "Implementation's type", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
+    @Parameter(name = "key", description = "Implementation's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @DELETE
     @Path("{type}/{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response delete(@NotNull @PathParam("type") ImplementationType type, @NotNull @PathParam("key") String key);
-
+    Response delete(@NotNull @PathParam("type") String type, @NotNull @PathParam("key") String key);
 }

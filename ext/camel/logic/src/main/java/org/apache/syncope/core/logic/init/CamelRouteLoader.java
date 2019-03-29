@@ -31,7 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CamelEntitlement;
-import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
+import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
@@ -89,7 +89,7 @@ public class CamelRouteLoader implements SyncopeCoreLoader {
 
     @Override
     public void load() {
-        EntitlementsHolder.getInstance().init(CamelEntitlement.values());
+        EntitlementsHolder.getInstance().addAll(CamelEntitlement.values());
     }
 
     @Override

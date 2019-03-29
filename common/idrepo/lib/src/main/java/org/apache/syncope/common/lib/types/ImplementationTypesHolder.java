@@ -18,26 +18,22 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import javax.xml.bind.annotation.XmlEnum;
+public final class ImplementationTypesHolder extends ValueHolder<String> {
 
-@XmlEnum
-public enum ImplementationType {
+    private static final Object MONITOR = new Object();
 
-    JWT_SSO_PROVIDER,
-    REPORTLET,
-    ACCOUNT_RULE,
-    PASSWORD_RULE,
-    ITEM_TRANSFORMER,
-    TASKJOB_DELEGATE,
-    RECON_FILTER_BUILDER,
-    LOGIC_ACTIONS,
-    PROPAGATION_ACTIONS,
-    PULL_ACTIONS,
-    PUSH_ACTIONS,
-    PULL_CORRELATION_RULE,
-    PUSH_CORRELATION_RULE,
-    VALIDATOR,
-    RECIPIENTS_PROVIDER,
-    AUDIT_APPENDER;
+    private static ImplementationTypesHolder INSTANCE;
 
+    public static ImplementationTypesHolder getInstance() {
+        synchronized (MONITOR) {
+            if (INSTANCE == null) {
+                INSTANCE = new ImplementationTypesHolder();
+            }
+        }
+        return INSTANCE;
+    }
+
+    private ImplementationTypesHolder() {
+        // private constructor for singleton
+    }
 }

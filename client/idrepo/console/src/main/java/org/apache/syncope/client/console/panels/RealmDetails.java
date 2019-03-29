@@ -34,7 +34,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.PolicyRenderer;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -86,7 +86,7 @@ public class RealmDetails extends Panel {
 
         @Override
         protected List<String> load() {
-            return implRestClient.list(ImplementationType.LOGIC_ACTIONS).stream().
+            return implRestClient.list(IdRepoImplementationType.LOGIC_ACTIONS).stream().
                     map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };

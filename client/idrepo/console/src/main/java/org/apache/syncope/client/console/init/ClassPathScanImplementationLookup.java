@@ -63,6 +63,10 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.util.ClassUtils;
 import org.apache.syncope.client.console.commons.ExternalResourceProvider;
+import org.apache.syncope.client.console.commons.IdRepoImplementationInfoProvider;
+import org.apache.syncope.client.console.commons.IdRepoPolicyTabProvider;
+import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
+import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 
@@ -110,6 +114,10 @@ public class ClassPathScanImplementationLookup {
 
     private AnyDirectoryPanelAditionalActionLinksProvider anyDirectoryPanelAditionalActionLinksProvider =
             new EmptyAnyDirectoryPanelAditionalActionLinksProvider();
+
+    private ImplementationInfoProvider implementationInfoProvider = new IdRepoImplementationInfoProvider(this);
+
+    private PolicyTabProvider policyTabProvider = new IdRepoPolicyTabProvider();
 
     private List<Class<? extends BasePage>> pages;
 
@@ -180,6 +188,8 @@ public class ClassPathScanImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(StatusProvider.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(VirSchemaDetailsPanelProvider.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AnyDirectoryPanelAditionalActionLinksProvider.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(ImplementationInfoProvider.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(PolicyTabProvider.class));
 
         scanner.findCandidateComponents(getBasePackage()).forEach(bd -> {
             try {
@@ -273,6 +283,24 @@ public class ClassPathScanImplementationLookup {
                                             getConstructor().newInstance();
 
                         }
+                    } else if (ImplementationInfoProvider.class.isAssignableFrom(clazz)) {
+                        if (!clazz.equals(IdRepoImplementationInfoProvider.class)
+                                && !clazz.isInstance(implementationInfoProvider)) {
+
+                            implementationInfoProvider =
+                                    (ImplementationInfoProvider) clazz.
+                                            getConstructor(ClassPathScanImplementationLookup.class).newInstance(this);
+
+                        }
+                    } else if (PolicyTabProvider.class.isAssignableFrom(clazz)) {
+                        if (!clazz.equals(IdRepoPolicyTabProvider.class)
+                                && !clazz.isInstance(policyTabProvider)) {
+
+                            policyTabProvider =
+                                    (PolicyTabProvider) clazz.
+                                            getConstructor().newInstance();
+
+                        }
                     }
                 }
             } catch (Throwable t) {
@@ -323,12 +351,21 @@ public class ClassPathScanImplementationLookup {
         LOG.debug("Pull Correlation Rule configurations found: {}", pullCorrelationRuleConfs);
         LOG.debug("Push Correlation Rule configurations found: {}", pushCorrelationRuleConfs);
         LOG.debug("Wicket Resources found: {}", resources);
+
         LOG.debug("{}: {}", ExternalResourceProvider.class.getSimpleName(),
                 resourceProvider.getClass().getSimpleName());
         LOG.debug("{}: {}", AnyWizardBuilderAdditionalSteps.class.getSimpleName(),
                 anyWizardBuilderAdditionalSteps.getClass().getSimpleName());
         LOG.debug("{}: {}", StatusProvider.class.getSimpleName(),
                 statusProvider.getClass().getSimpleName());
+        LOG.debug("{}: {}", VirSchemaDetailsPanelProvider.class.getSimpleName(),
+                virSchemaDetailsPanelProvider.getClass().getSimpleName());
+        LOG.debug("{}: {}", AnyDirectoryPanelAditionalActionLinksProvider.class.getSimpleName(),
+                anyDirectoryPanelAditionalActionLinksProvider.getClass().getSimpleName());
+        LOG.debug("{}: {}", ImplementationInfoProvider.class.getSimpleName(),
+                implementationInfoProvider.getClass().getSimpleName());
+        LOG.debug("{}: {}", PolicyTabProvider.class.getSimpleName(),
+                policyTabProvider.getClass().getSimpleName());
     }
 
     public Class<? extends AbstractBinaryPreviewer> getPreviewerClass(final String mimeType) {
@@ -343,26 +380,6 @@ public class ClassPathScanImplementationLookup {
             }
         }
         return previewer;
-    }
-
-    public ExternalResourceProvider getResourceProvider() {
-        return resourceProvider;
-    }
-
-    public AnyWizardBuilderAdditionalSteps getAnyWizardBuilderAdditionalSteps() {
-        return anyWizardBuilderAdditionalSteps;
-    }
-
-    public StatusProvider getStatusProvider() {
-        return statusProvider;
-    }
-
-    public VirSchemaDetailsPanelProvider getVirSchemaDetailsPanelProvider() {
-        return virSchemaDetailsPanelProvider;
-    }
-
-    public AnyDirectoryPanelAditionalActionLinksProvider getAnyDirectoryPanelAditionalActionLinksProvider() {
-        return anyDirectoryPanelAditionalActionLinksProvider;
     }
 
     public List<Class<? extends BasePage>> getPageClasses() {
@@ -411,5 +428,33 @@ public class ClassPathScanImplementationLookup {
 
     public List<Class<? extends AbstractResource>> getResources() {
         return resources;
+    }
+
+    public ExternalResourceProvider getResourceProvider() {
+        return resourceProvider;
+    }
+
+    public AnyWizardBuilderAdditionalSteps getAnyWizardBuilderAdditionalSteps() {
+        return anyWizardBuilderAdditionalSteps;
+    }
+
+    public StatusProvider getStatusProvider() {
+        return statusProvider;
+    }
+
+    public VirSchemaDetailsPanelProvider getVirSchemaDetailsPanelProvider() {
+        return virSchemaDetailsPanelProvider;
+    }
+
+    public AnyDirectoryPanelAditionalActionLinksProvider getAnyDirectoryPanelAditionalActionLinksProvider() {
+        return anyDirectoryPanelAditionalActionLinksProvider;
+    }
+
+    public ImplementationInfoProvider getImplementationInfoProvider() {
+        return implementationInfoProvider;
+    }
+
+    public PolicyTabProvider getPolicyTabProvider() {
+        return policyTabProvider;
     }
 }

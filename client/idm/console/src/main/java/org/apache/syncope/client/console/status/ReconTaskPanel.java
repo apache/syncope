@@ -36,7 +36,7 @@ import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.wicket.PageReference;
@@ -67,7 +67,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
 
         @Override
         protected List<String> load() {
-            return implRestClient.list(ImplementationType.PULL_ACTIONS).stream().
+            return implRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
                     map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };
@@ -78,7 +78,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
 
         @Override
         protected List<String> load() {
-            return implRestClient.list(ImplementationType.PUSH_ACTIONS).stream().
+            return implRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
                     map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };

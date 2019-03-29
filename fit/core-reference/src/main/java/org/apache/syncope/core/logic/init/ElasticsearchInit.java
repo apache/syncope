@@ -19,8 +19,8 @@
 package org.apache.syncope.core.logic.init;
 
 import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.logic.TaskLogic;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -46,7 +46,7 @@ public class ElasticsearchInit {
 
     @Transactional
     public void init() {
-        Implementation reindex = implementationDAO.find(ImplementationType.TASKJOB_DELEGATE).
+        Implementation reindex = implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).
                 stream().
                 filter(impl -> impl.getEngine() == ImplementationEngine.JAVA
                 && ES_REINDEX.equals(impl.getBody())).
@@ -55,7 +55,7 @@ public class ElasticsearchInit {
             reindex = entityFactory.newEntity(Implementation.class);
             reindex.setKey(ES_REINDEX);
             reindex.setEngine(ImplementationEngine.JAVA);
-            reindex.setType(ImplementationType.TASKJOB_DELEGATE);
+            reindex.setType(IdRepoImplementationType.TASKJOB_DELEGATE);
             reindex.setBody(ES_REINDEX);
             reindex = implementationDAO.save(reindex);
         }

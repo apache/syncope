@@ -75,8 +75,8 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
@@ -939,7 +939,7 @@ public class UserITCase extends AbstractITCase {
         ImplementationTO implementationTO = new ImplementationTO();
         implementationTO.setKey("TestAccountRuleConf" + UUID.randomUUID().toString());
         implementationTO.setEngine(ImplementationEngine.JAVA);
-        implementationTO.setType(ImplementationType.ACCOUNT_RULE);
+        implementationTO.setType(IdRepoImplementationType.ACCOUNT_RULE);
         implementationTO.setBody(POJOHelper.serialize(new TestAccountRuleConf()));
         Response response = implementationService.create(implementationTO);
         implementationTO.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -953,7 +953,7 @@ public class UserITCase extends AbstractITCase {
         implementationTO = new ImplementationTO();
         implementationTO.setKey("TestPasswordRuleConf" + UUID.randomUUID().toString());
         implementationTO.setEngine(ImplementationEngine.JAVA);
-        implementationTO.setType(ImplementationType.PASSWORD_RULE);
+        implementationTO.setType(IdRepoImplementationType.PASSWORD_RULE);
         implementationTO.setBody(POJOHelper.serialize(new TestPasswordRuleConf()));
         response = implementationService.create(implementationTO);
         implementationTO.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -1359,7 +1359,7 @@ public class UserITCase extends AbstractITCase {
         ImplementationTO rule = new ImplementationTO();
         rule.setKey("HaveIBeenPwnedPasswordRuleConf" + getUUIDString());
         rule.setEngine(ImplementationEngine.JAVA);
-        rule.setType(ImplementationType.PASSWORD_RULE);
+        rule.setType(IdRepoImplementationType.PASSWORD_RULE);
         rule.setBody(POJOHelper.serialize(new HaveIBeenPwnedPasswordRuleConf()));
         Response response = implementationService.create(rule);
         rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));

@@ -34,7 +34,7 @@ import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -227,11 +227,11 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
 
         Implementation jobDelegate = task.getJobDelegate() == null
                 ? task instanceof PullTask
-                        ? implementationDAO.find(ImplementationType.TASKJOB_DELEGATE).stream().
+                        ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
                                 filter(impl -> PullJobDelegate.class.getName().equals(impl.getBody())).
                                 findFirst().orElse(null)
                         : task instanceof PushTask
-                                ? implementationDAO.find(ImplementationType.TASKJOB_DELEGATE).stream().
+                                ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
                                         filter(impl -> PushJobDelegate.class.getName().equals(impl.getBody())).
                                         findFirst().orElse(null)
                                 : null

@@ -37,8 +37,8 @@ import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -232,7 +232,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         ImplementationTO recipientsProvider = new ImplementationTO();
         recipientsProvider.setKey(TestNotificationRecipientsProvider.class.getSimpleName());
         recipientsProvider.setEngine(ImplementationEngine.JAVA);
-        recipientsProvider.setType(ImplementationType.RECIPIENTS_PROVIDER);
+        recipientsProvider.setType(IdRepoImplementationType.RECIPIENTS_PROVIDER);
         recipientsProvider.setBody(TestNotificationRecipientsProvider.class.getName());
         Response response = implementationService.create(recipientsProvider);
         recipientsProvider = implementationService.read(

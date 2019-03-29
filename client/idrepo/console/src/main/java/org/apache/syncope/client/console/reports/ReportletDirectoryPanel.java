@@ -46,8 +46,8 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -223,7 +223,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
         private List<ReportletWrapper> getReportletWrappers(final ReportTO reportTO) {
             return reportTO.getReportlets().stream().map(reportlet -> {
-                ImplementationTO impl = implementationClient.read(ImplementationType.REPORTLET, reportlet);
+                ImplementationTO impl = implementationClient.read(IdRepoImplementationType.REPORTLET, reportlet);
 
                 ReportletWrapper wrapper = new ReportletWrapper(false).
                         setImplementationKey(impl.getKey()).

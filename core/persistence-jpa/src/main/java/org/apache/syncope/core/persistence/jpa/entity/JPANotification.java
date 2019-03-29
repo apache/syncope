@@ -34,7 +34,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -123,7 +123,7 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
     @Override
     public void setRecipientsProvider(final Implementation recipientsProvider) {
         checkType(recipientsProvider, JPAImplementation.class);
-        checkImplementationType(recipientsProvider, ImplementationType.RECIPIENTS_PROVIDER);
+        checkImplementationType(recipientsProvider, IdRepoImplementationType.RECIPIENTS_PROVIDER);
         this.recipientsProvider = (JPAImplementation) recipientsProvider;
     }
 

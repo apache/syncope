@@ -28,7 +28,7 @@ import org.apache.syncope.common.lib.collections.IteratorChain;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
@@ -82,7 +82,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
         List<PullActions> actions = new ArrayList<>();
         pullTaskTO.getActions().forEach(key -> {
             Implementation impl = implementationDAO.find(key);
-            if (impl == null || impl.getType() != ImplementationType.PULL_ACTIONS) {
+            if (impl == null || !IdMImplementationType.PULL_ACTIONS.equals(impl.getType())) {
                 LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key);
             } else {
                 try {

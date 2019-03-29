@@ -47,8 +47,8 @@ import org.apache.syncope.common.lib.policy.ComposablePolicy;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.RuleConf;
 import org.apache.syncope.common.lib.to.ImplementationTO;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -83,7 +83,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
     private final PolicyType type;
 
-    private final ImplementationType implementationType;
+    private final String implementationType;
 
     private final String policy;
 
@@ -96,8 +96,8 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
         this.baseModal = baseModal;
         this.type = type;
         this.implementationType = type == PolicyType.ACCOUNT
-                ? ImplementationType.ACCOUNT_RULE
-                : ImplementationType.PASSWORD_RULE;
+                ? IdRepoImplementationType.ACCOUNT_RULE
+                : IdRepoImplementationType.PASSWORD_RULE;
         this.policy = policy;
         this.restClient = new PolicyRestClient();
 

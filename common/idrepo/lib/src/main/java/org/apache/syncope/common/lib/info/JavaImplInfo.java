@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.types.ImplementationType;
 
 @XmlRootElement(name = "javaImplInfo")
 @XmlType
@@ -34,15 +33,15 @@ public class JavaImplInfo implements Serializable {
 
     private static final long serialVersionUID = 4036793959111794959L;
 
-    private ImplementationType type;
+    private String type;
 
     private final Set<String> classes = new HashSet<>();
 
-    public ImplementationType getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(final ImplementationType type) {
+    public void setType(final String type) {
         this.type = type;
     }
 

@@ -38,7 +38,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -59,9 +58,9 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
 
     private static final long serialVersionUID = 1868839768348072635L;
 
-    private final ImplementationType type;
+    private final String type;
 
-    public ImplementationDirectoryPanel(final String id, final ImplementationType type, final PageReference pageRef) {
+    public ImplementationDirectoryPanel(final String id, final String type, final PageReference pageRef) {
         super(id, pageRef, true);
         this.type = type;
 

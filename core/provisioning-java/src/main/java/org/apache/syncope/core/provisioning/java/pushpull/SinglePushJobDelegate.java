@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -60,7 +60,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
         List<PushActions> actions = new ArrayList<>();
         pushTaskTO.getActions().forEach(key -> {
             Implementation impl = implementationDAO.find(key);
-            if (impl == null || impl.getType() != ImplementationType.PUSH_ACTIONS) {
+            if (impl == null || !IdMImplementationType.PUSH_ACTIONS.equals(impl.getType())) {
                 LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key);
             } else {
                 try {

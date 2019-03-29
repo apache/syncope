@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic.init;
 
 import java.lang.reflect.Modifier;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -30,7 +29,9 @@ import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
+import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
@@ -72,7 +73,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
     private static final String DEFAULT_BASE_PACKAGE = "org.apache.syncope.core";
 
-    private Map<ImplementationType, Set<String>> classNames;
+    private Map<String, Set<String>> classNames;
 
     private Set<Class<?>> jwtSSOProviderClasses;
 
@@ -90,7 +91,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
     @Override
     public int getOrder() {
-        return Integer.MIN_VALUE;
+        return Integer.MAX_VALUE;
     }
 
     /**
@@ -105,10 +106,9 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
     @SuppressWarnings("unchecked")
     @Override
     public void load() {
-        classNames = new EnumMap<>(ImplementationType.class);
-        for (ImplementationType type : ImplementationType.values()) {
-            classNames.put(type, new HashSet<>());
-        }
+        classNames = new HashMap<>();
+        ImplementationTypesHolder.getInstance().getValues().
+                forEach(type -> classNames.put(type, new HashSet<>()));
 
         jwtSSOProviderClasses = new HashSet<>();
         reportletClasses = new HashMap<>();
@@ -143,7 +143,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 boolean isAbstractClazz = Modifier.isAbstract(clazz.getModifiers());
 
                 if (JWTSSOProvider.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(ImplementationType.JWT_SSO_PROVIDER).add(clazz.getName());
+                    classNames.get(IdRepoImplementationType.JWT_SSO_PROVIDER).add(clazz.getName());
                     jwtSSOProviderClasses.add(clazz);
                 }
 
@@ -152,7 +152,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     if (annotation == null) {
                         LOG.warn("Found Reportlet {} without declared configuration", clazz.getName());
                     } else {
-                        classNames.get(ImplementationType.REPORTLET).add(clazz.getName());
+                        classNames.get(IdRepoImplementationType.REPORTLET).add(clazz.getName());
                         reportletClasses.put(annotation.value(), (Class<? extends Reportlet>) clazz);
                     }
                 }
@@ -162,7 +162,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     if (annotation == null) {
                         LOG.warn("Found account policy rule {} without declared configuration", clazz.getName());
                     } else {
-                        classNames.get(ImplementationType.ACCOUNT_RULE).add(clazz.getName());
+                        classNames.get(IdRepoImplementationType.ACCOUNT_RULE).add(clazz.getName());
                         accountRuleClasses.put(annotation.value(), (Class<? extends AccountRule>) clazz);
                     }
                 }
@@ -172,7 +172,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     if (annotation == null) {
                         LOG.warn("Found password policy rule {} without declared configuration", clazz.getName());
                     } else {
-                        classNames.get(ImplementationType.PASSWORD_RULE).add(clazz.getName());
+                        classNames.get(IdRepoImplementationType.PASSWORD_RULE).add(clazz.getName());
                         passwordRuleClasses.put(annotation.value(), (Class<? extends PasswordRule>) clazz);
                     }
                 }
@@ -182,7 +182,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     if (annotation == null) {
                         LOG.warn("Found pull correlation rule {} without declared configuration", clazz.getName());
                     } else {
-                        classNames.get(ImplementationType.PULL_CORRELATION_RULE).add(clazz.getName());
+                        classNames.get(IdMImplementationType.PULL_CORRELATION_RULE).add(clazz.getName());
                         pullCRClasses.put(annotation.value(), (Class<? extends PullCorrelationRule>) clazz);
                     }
                 }
@@ -192,7 +192,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     if (annotation == null) {
                         LOG.warn("Found push correlation rule {} without declared configuration", clazz.getName());
                     } else {
-                        classNames.get(ImplementationType.PUSH_CORRELATION_RULE).add(clazz.getName());
+                        classNames.get(IdMImplementationType.PUSH_CORRELATION_RULE).add(clazz.getName());
                         pushCRClasses.put(annotation.value(), (Class<? extends PushCorrelationRule>) clazz);
                     }
                 }
@@ -200,7 +200,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 if (ItemTransformer.class.isAssignableFrom(clazz) && !isAbstractClazz
                         && !clazz.equals(JEXLItemTransformerImpl.class)) {
 
-                    classNames.get(ImplementationType.ITEM_TRANSFORMER).add(clazz.getName());
+                    classNames.get(IdMImplementationType.ITEM_TRANSFORMER).add(clazz.getName());
                 }
 
                 if (SchedTaskJobDelegate.class.isAssignableFrom(clazz) && !isAbstractClazz
@@ -208,39 +208,39 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                         && !PushJobDelegate.class.isAssignableFrom(clazz)
                         && !GroupMemberProvisionTaskJobDelegate.class.isAssignableFrom(clazz)) {
 
-                    classNames.get(ImplementationType.TASKJOB_DELEGATE).add(bd.getBeanClassName());
+                    classNames.get(IdRepoImplementationType.TASKJOB_DELEGATE).add(bd.getBeanClassName());
                 }
 
                 if (ReconFilterBuilder.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(ImplementationType.RECON_FILTER_BUILDER).add(bd.getBeanClassName());
+                    classNames.get(IdMImplementationType.RECON_FILTER_BUILDER).add(bd.getBeanClassName());
                 }
 
                 if (LogicActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(ImplementationType.LOGIC_ACTIONS).add(bd.getBeanClassName());
+                    classNames.get(IdRepoImplementationType.LOGIC_ACTIONS).add(bd.getBeanClassName());
                 }
 
                 if (PropagationActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(ImplementationType.PROPAGATION_ACTIONS).add(bd.getBeanClassName());
+                    classNames.get(IdMImplementationType.PROPAGATION_ACTIONS).add(bd.getBeanClassName());
                 }
 
                 if (PullActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(ImplementationType.PULL_ACTIONS).add(bd.getBeanClassName());
+                    classNames.get(IdMImplementationType.PULL_ACTIONS).add(bd.getBeanClassName());
                 }
 
                 if (PushActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(ImplementationType.PUSH_ACTIONS).add(bd.getBeanClassName());
+                    classNames.get(IdMImplementationType.PUSH_ACTIONS).add(bd.getBeanClassName());
                 }
 
                 if (Validator.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(ImplementationType.VALIDATOR).add(bd.getBeanClassName());
+                    classNames.get(IdRepoImplementationType.VALIDATOR).add(bd.getBeanClassName());
                 }
 
                 if (RecipientsProvider.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(ImplementationType.RECIPIENTS_PROVIDER).add(bd.getBeanClassName());
+                    classNames.get(IdRepoImplementationType.RECIPIENTS_PROVIDER).add(bd.getBeanClassName());
                 }
 
                 if (AuditAppender.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(ImplementationType.AUDIT_APPENDER).add(clazz.getName());
+                    classNames.get(IdRepoImplementationType.AUDIT_APPENDER).add(clazz.getName());
                     auditAppenderClasses.add(clazz);
                 }
             } catch (Throwable t) {
@@ -261,7 +261,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
     }
 
     @Override
-    public Set<String> getClassNames(final ImplementationType type) {
+    public Set<String> getClassNames(final String type) {
         return classNames.get(type);
     }
 

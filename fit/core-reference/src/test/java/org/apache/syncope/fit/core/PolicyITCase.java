@@ -43,8 +43,9 @@ import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PushPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.to.ImplementationTO;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
@@ -57,13 +58,13 @@ public class PolicyITCase extends AbstractITCase {
     private PullPolicyTO buildPullPolicyTO() throws IOException {
         ImplementationTO corrRule = null;
         try {
-            corrRule = implementationService.read(ImplementationType.PULL_CORRELATION_RULE, "TestPullRule");
+            corrRule = implementationService.read(IdMImplementationType.PULL_CORRELATION_RULE, "TestPullRule");
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                 corrRule = new ImplementationTO();
                 corrRule.setKey("TestPullRule");
                 corrRule.setEngine(ImplementationEngine.GROOVY);
-                corrRule.setType(ImplementationType.PULL_CORRELATION_RULE);
+                corrRule.setType(IdMImplementationType.PULL_CORRELATION_RULE);
                 corrRule.setBody(IOUtils.toString(
                         getClass().getResourceAsStream("/TestPullRule.groovy"), StandardCharsets.UTF_8));
                 Response response = implementationService.create(corrRule);
@@ -84,13 +85,13 @@ public class PolicyITCase extends AbstractITCase {
     private PushPolicyTO buildPushPolicyTO() throws IOException {
         ImplementationTO corrRule = null;
         try {
-            corrRule = implementationService.read(ImplementationType.PUSH_CORRELATION_RULE, "TestPushRule");
+            corrRule = implementationService.read(IdMImplementationType.PUSH_CORRELATION_RULE, "TestPushRule");
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                 corrRule = new ImplementationTO();
                 corrRule.setKey("TestPushRule");
                 corrRule.setEngine(ImplementationEngine.GROOVY);
-                corrRule.setType(ImplementationType.PUSH_CORRELATION_RULE);
+                corrRule.setType(IdMImplementationType.PUSH_CORRELATION_RULE);
                 corrRule.setBody(IOUtils.toString(
                         getClass().getResourceAsStream("/TestPushRule.groovy"), StandardCharsets.UTF_8));
                 Response response = implementationService.create(corrRule);
@@ -165,7 +166,8 @@ public class PolicyITCase extends AbstractITCase {
         assertNotNull(policy);
         assertNotEquals("ce93fcda-dc3a-4369-a7b0-a6108c261c85", policy.getKey());
 
-        ImplementationTO rule = implementationService.read(ImplementationType.PASSWORD_RULE, policy.getRules().get(0));
+        ImplementationTO rule = implementationService.read(
+                IdRepoImplementationType.PASSWORD_RULE, policy.getRules().get(0));
         assertNotNull(rule);
 
         DefaultPasswordRuleConf ruleConf = POJOHelper.deserialize(rule.getBody(), DefaultPasswordRuleConf.class);
@@ -202,7 +204,7 @@ public class PolicyITCase extends AbstractITCase {
     @Test
     public void getPullCorrelationRuleJavaClasses() {
         Set<String> classes = syncopeService.platform().
-                getJavaImplInfo(ImplementationType.PULL_CORRELATION_RULE).get().getClasses();
+                getJavaImplInfo(IdMImplementationType.PULL_CORRELATION_RULE).get().getClasses();
         assertEquals(1, classes.size());
         assertEquals(DummyPullCorrelationRule.class.getName(), classes.iterator().next());
     }
@@ -210,7 +212,7 @@ public class PolicyITCase extends AbstractITCase {
     @Test
     public void getPushCorrelationRuleJavaClasses() {
         Set<String> classes = syncopeService.platform().
-                getJavaImplInfo(ImplementationType.PUSH_CORRELATION_RULE).get().getClasses();
+                getJavaImplInfo(IdMImplementationType.PUSH_CORRELATION_RULE).get().getClasses();
         assertEquals(1, classes.size());
         assertEquals(DummyPushCorrelationRule.class.getName(), classes.iterator().next());
     }
@@ -227,7 +229,7 @@ public class PolicyITCase extends AbstractITCase {
         ImplementationTO rule = new ImplementationTO();
         rule.setKey("DefaultAccountRuleConf" + getUUIDString());
         rule.setEngine(ImplementationEngine.JAVA);
-        rule.setType(ImplementationType.ACCOUNT_RULE);
+        rule.setType(IdRepoImplementationType.ACCOUNT_RULE);
         rule.setBody(POJOHelper.serialize(ruleConf));
         Response response = implementationService.create(rule);
         rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -251,7 +253,7 @@ public class PolicyITCase extends AbstractITCase {
         ImplementationTO rule = new ImplementationTO();
         rule.setKey("DefaultAccountRuleConf" + getUUIDString());
         rule.setEngine(ImplementationEngine.JAVA);
-        rule.setType(ImplementationType.ACCOUNT_RULE);
+        rule.setType(IdRepoImplementationType.ACCOUNT_RULE);
         rule.setBody(POJOHelper.serialize(ruleConf));
         Response response = implementationService.create(rule);
         rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));

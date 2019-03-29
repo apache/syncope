@@ -43,8 +43,8 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ProvisionAction;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -390,13 +390,13 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             throw new NotFoundException("Group " + key);
         }
 
-        Implementation jobDelegate = implementationDAO.find(ImplementationType.TASKJOB_DELEGATE).stream().
+        Implementation jobDelegate = implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
                 filter(impl -> GroupMemberProvisionTaskJobDelegate.class.getName().equals(impl.getBody())).
                 findFirst().orElseGet(() -> {
                     Implementation caz = entityFactory.newEntity(Implementation.class);
                     caz.setKey(GroupMemberProvisionTaskJobDelegate.class.getSimpleName());
                     caz.setEngine(ImplementationEngine.JAVA);
-                    caz.setType(ImplementationType.TASKJOB_DELEGATE);
+                    caz.setType(IdRepoImplementationType.TASKJOB_DELEGATE);
                     caz.setBody(GroupMemberProvisionTaskJobDelegate.class.getName());
                     caz = implementationDAO.save(caz);
                     return caz;

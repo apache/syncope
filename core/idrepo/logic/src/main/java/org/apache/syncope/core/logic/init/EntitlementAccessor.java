@@ -18,9 +18,8 @@
  */
 package org.apache.syncope.core.logic.init;
 
-import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
+import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,10 +37,8 @@ public class EntitlementAccessor {
 
     @Transactional(readOnly = true)
     public void addEntitlementsForAnyTypes() {
-        for (AnyType anyType : anyTypeDAO.findAll()) {
-            if (anyType != anyTypeDAO.findUser() && anyType != anyTypeDAO.findGroup()) {
-                EntitlementsHolder.getInstance().addFor(anyType.getKey());
-            }
-        }
+        anyTypeDAO.findAll().stream().
+                filter(anyType -> anyType != anyTypeDAO.findUser() && anyType != anyTypeDAO.findGroup()).
+                forEach(anyType -> EntitlementsHolder.getInstance().addFor(anyType.getKey()));
     }
 }

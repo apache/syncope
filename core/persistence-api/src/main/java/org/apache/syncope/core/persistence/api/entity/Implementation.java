@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 
 public interface Implementation extends ProvidedKeyEntity {
 
@@ -27,9 +26,9 @@ public interface Implementation extends ProvidedKeyEntity {
 
     void setEngine(ImplementationEngine engine);
 
-    ImplementationType getType();
+    String getType();
 
-    void setType(ImplementationType type);
+    void setType(String type);
 
     String getBody();
 

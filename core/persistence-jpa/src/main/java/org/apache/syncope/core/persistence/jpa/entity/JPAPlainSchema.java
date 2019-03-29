@@ -31,7 +31,7 @@ import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -183,7 +183,7 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
     @Override
     public void setValidator(final Implementation validator) {
         checkType(validator, JPAImplementation.class);
-        checkImplementationType(validator, ImplementationType.VALIDATOR);
+        checkImplementationType(validator, IdRepoImplementationType.VALIDATOR);
         this.validator = (JPAImplementation) validator;
     }
 

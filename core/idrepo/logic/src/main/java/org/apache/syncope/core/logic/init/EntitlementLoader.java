@@ -19,10 +19,10 @@
 package org.apache.syncope.core.logic.init;
 
 import javax.sql.DataSource;
+import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +39,7 @@ public class EntitlementLoader implements SyncopeCoreLoader {
 
     @Override
     public void load() {
-        EntitlementsHolder.getInstance().init(StandardEntitlement.values());
+        EntitlementsHolder.getInstance().addAll(StandardEntitlement.values());
     }
 
     @Override

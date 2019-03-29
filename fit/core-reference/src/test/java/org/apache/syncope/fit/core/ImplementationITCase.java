@@ -28,8 +28,8 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.fit.AbstractITCase;
@@ -43,7 +43,7 @@ public class ImplementationITCase extends AbstractITCase {
         ImplementationTO implementationTO = new ImplementationTO();
         implementationTO.setKey(UUID.randomUUID().toString());
         implementationTO.setEngine(ImplementationEngine.JAVA);
-        implementationTO.setType(ImplementationType.PUSH_ACTIONS);
+        implementationTO.setType(IdMImplementationType.PUSH_ACTIONS);
         implementationTO.setBody(TestPullActions.class.getName());
 
         // fail because type is wrong
@@ -53,7 +53,7 @@ public class ImplementationITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidImplementation, e.getType());
         }
-        implementationTO.setType(ImplementationType.PULL_ACTIONS);
+        implementationTO.setType(IdMImplementationType.PULL_ACTIONS);
 
         Response response = implementationService.create(implementationTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
@@ -74,7 +74,7 @@ public class ImplementationITCase extends AbstractITCase {
         ImplementationTO implementationTO = new ImplementationTO();
         implementationTO.setKey(UUID.randomUUID().toString());
         implementationTO.setEngine(ImplementationEngine.JAVA);
-        implementationTO.setType(ImplementationType.PULL_ACTIONS);
+        implementationTO.setType(IdMImplementationType.PULL_ACTIONS);
         implementationTO.setBody(TestPullActions.class.getName());
 
         implementationService.create(implementationTO);

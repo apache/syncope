@@ -43,8 +43,8 @@ import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
@@ -96,7 +96,7 @@ public class ReportITCase extends AbstractITCase {
     @Test
     public void getReportletConfs() {
         Set<String> reportletConfs = syncopeService.platform().
-                getJavaImplInfo(ImplementationType.REPORTLET).get().getClasses();
+                getJavaImplInfo(IdRepoImplementationType.REPORTLET).get().getClasses();
         assertNotNull(reportletConfs);
         assertFalse(reportletConfs.isEmpty());
         assertTrue(reportletConfs.contains(UserReportletConf.class.getName()));
@@ -126,7 +126,7 @@ public class ReportITCase extends AbstractITCase {
         ImplementationTO reportlet1 = new ImplementationTO();
         reportlet1.setKey("UserReportletConf" + getUUIDString());
         reportlet1.setEngine(ImplementationEngine.JAVA);
-        reportlet1.setType(ImplementationType.REPORTLET);
+        reportlet1.setType(IdRepoImplementationType.REPORTLET);
         reportlet1.setBody(POJOHelper.serialize(new UserReportletConf("first")));
         Response response = implementationService.create(reportlet1);
         reportlet1.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -134,7 +134,7 @@ public class ReportITCase extends AbstractITCase {
         ImplementationTO reportlet2 = new ImplementationTO();
         reportlet2.setKey("UserReportletConf" + getUUIDString());
         reportlet2.setEngine(ImplementationEngine.JAVA);
-        reportlet2.setType(ImplementationType.REPORTLET);
+        reportlet2.setType(IdRepoImplementationType.REPORTLET);
         reportlet2.setBody(POJOHelper.serialize(new UserReportletConf("second")));
         response = implementationService.create(reportlet2);
         reportlet2.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -159,7 +159,7 @@ public class ReportITCase extends AbstractITCase {
         ImplementationTO reportlet1 = new ImplementationTO();
         reportlet1.setKey("UserReportletConf" + getUUIDString());
         reportlet1.setEngine(ImplementationEngine.JAVA);
-        reportlet1.setType(ImplementationType.REPORTLET);
+        reportlet1.setType(IdRepoImplementationType.REPORTLET);
         reportlet1.setBody(POJOHelper.serialize(new UserReportletConf("first")));
         Response response = implementationService.create(reportlet1);
         reportlet1.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -167,7 +167,7 @@ public class ReportITCase extends AbstractITCase {
         ImplementationTO reportlet2 = new ImplementationTO();
         reportlet2.setKey("UserReportletConf" + getUUIDString());
         reportlet2.setEngine(ImplementationEngine.JAVA);
-        reportlet2.setType(ImplementationType.REPORTLET);
+        reportlet2.setType(IdRepoImplementationType.REPORTLET);
         reportlet2.setBody(POJOHelper.serialize(new UserReportletConf("second")));
         response = implementationService.create(reportlet2);
         reportlet2.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -185,7 +185,7 @@ public class ReportITCase extends AbstractITCase {
         ImplementationTO reportlet3 = new ImplementationTO();
         reportlet3.setKey("UserReportletConf" + getUUIDString());
         reportlet3.setEngine(ImplementationEngine.JAVA);
-        reportlet3.setType(ImplementationType.REPORTLET);
+        reportlet3.setType(IdRepoImplementationType.REPORTLET);
         reportlet3.setBody(POJOHelper.serialize(new UserReportletConf("last")));
         response = implementationService.create(reportlet3);
         reportlet3.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -203,7 +203,7 @@ public class ReportITCase extends AbstractITCase {
         ImplementationTO reportlet1 = new ImplementationTO();
         reportlet1.setKey("UserReportletConf" + getUUIDString());
         reportlet1.setEngine(ImplementationEngine.JAVA);
-        reportlet1.setType(ImplementationType.REPORTLET);
+        reportlet1.setType(IdRepoImplementationType.REPORTLET);
         reportlet1.setBody(POJOHelper.serialize(new UserReportletConf("first")));
         Response response = implementationService.create(reportlet1);
         reportlet1.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -211,7 +211,7 @@ public class ReportITCase extends AbstractITCase {
         ImplementationTO reportlet2 = new ImplementationTO();
         reportlet2.setKey("UserReportletConf" + getUUIDString());
         reportlet2.setEngine(ImplementationEngine.JAVA);
-        reportlet2.setType(ImplementationType.REPORTLET);
+        reportlet2.setType(IdRepoImplementationType.REPORTLET);
         reportlet2.setBody(POJOHelper.serialize(new UserReportletConf("second")));
         response = implementationService.create(reportlet2);
         reportlet2.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -328,7 +328,7 @@ public class ReportITCase extends AbstractITCase {
             ImplementationTO auditReportlet = new ImplementationTO();
             auditReportlet.setKey("UserReportletConf" + getUUIDString());
             auditReportlet.setEngine(ImplementationEngine.JAVA);
-            auditReportlet.setType(ImplementationType.REPORTLET);
+            auditReportlet.setType(IdRepoImplementationType.REPORTLET);
             auditReportlet.setBody(POJOHelper.serialize(new AuditReportletConf("auditReportlet" + getUUIDString())));
             Response response = implementationService.create(auditReportlet);
             auditReportlet.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));

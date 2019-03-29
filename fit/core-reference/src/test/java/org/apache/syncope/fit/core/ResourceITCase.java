@@ -56,7 +56,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
@@ -106,7 +106,7 @@ public class ResourceITCase extends AbstractITCase {
     @Test
     public void getPropagationActionsClasses() {
         Set<String> actions = syncopeService.platform().
-                getJavaImplInfo(ImplementationType.PROPAGATION_ACTIONS).get().getClasses();
+                getJavaImplInfo(IdMImplementationType.PROPAGATION_ACTIONS).get().getClasses();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());
     }

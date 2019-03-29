@@ -25,7 +25,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
@@ -89,7 +89,7 @@ public class JPASchedTask extends AbstractTask implements SchedTask {
     @Override
     public void setJobDelegate(final Implementation jobDelegate) {
         checkType(jobDelegate, JPAImplementation.class);
-        checkImplementationType(jobDelegate, ImplementationType.TASKJOB_DELEGATE);
+        checkImplementationType(jobDelegate, IdRepoImplementationType.TASKJOB_DELEGATE);
         this.jobDelegate = (JPAImplementation) jobDelegate;
     }
 

@@ -79,9 +79,9 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -92,7 +92,6 @@ import org.apache.syncope.common.rest.api.beans.RemediationQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.TaskService;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
 import org.apache.syncope.core.spring.security.Encryptor;
@@ -116,13 +115,13 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ImplementationTO pullActions = null;
         try {
             pullActions = implementationService.read(
-                    ImplementationType.PULL_ACTIONS, TestPullActions.class.getSimpleName());
+                    IdMImplementationType.PULL_ACTIONS, TestPullActions.class.getSimpleName());
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                 pullActions = new ImplementationTO();
                 pullActions.setKey(TestPullActions.class.getSimpleName());
                 pullActions.setEngine(ImplementationEngine.JAVA);
-                pullActions.setType(ImplementationType.PULL_ACTIONS);
+                pullActions.setType(IdMImplementationType.PULL_ACTIONS);
                 pullActions.setBody(TestPullActions.class.getName());
                 Response response = implementationService.create(pullActions);
                 pullActions = implementationService.read(
@@ -140,7 +139,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
     @Test
     public void getPullActionsClasses() {
         Set<String> actions = syncopeService.platform().
-                getJavaImplInfo(ImplementationType.PULL_ACTIONS).get().getClasses();
+                getJavaImplInfo(IdMImplementationType.PULL_ACTIONS).get().getClasses();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());
     }
@@ -499,7 +498,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ImplementationTO transformer = new ImplementationTO();
         transformer.setKey("PrefixItemTransformer");
         transformer.setEngine(ImplementationEngine.GROOVY);
-        transformer.setType(ImplementationType.ITEM_TRANSFORMER);
+        transformer.setType(IdMImplementationType.ITEM_TRANSFORMER);
         transformer.setBody(IOUtils.toString(
                 getClass().getResourceAsStream("/PrefixItemTransformer.groovy"), StandardCharsets.UTF_8));
         Response response = implementationService.create(transformer);
@@ -589,7 +588,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             ImplementationTO reconFilterBuilder = new ImplementationTO();
             reconFilterBuilder.setKey("TestReconFilterBuilder");
             reconFilterBuilder.setEngine(ImplementationEngine.GROOVY);
-            reconFilterBuilder.setType(ImplementationType.RECON_FILTER_BUILDER);
+            reconFilterBuilder.setType(IdMImplementationType.RECON_FILTER_BUILDER);
             reconFilterBuilder.setBody(IOUtils.toString(
                     getClass().getResourceAsStream("/TestReconFilterBuilder.groovy"), StandardCharsets.UTF_8));
             Response response = implementationService.create(reconFilterBuilder);
@@ -907,13 +906,13 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // -----------------------------
         ImplementationTO corrRule = null;
         try {
-            corrRule = implementationService.read(ImplementationType.PULL_CORRELATION_RULE, "TestPullRule");
+            corrRule = implementationService.read(IdMImplementationType.PULL_CORRELATION_RULE, "TestPullRule");
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                 corrRule = new ImplementationTO();
                 corrRule.setKey("TestPullRule");
                 corrRule.setEngine(ImplementationEngine.GROOVY);
-                corrRule.setType(ImplementationType.PULL_CORRELATION_RULE);
+                corrRule.setType(IdMImplementationType.PULL_CORRELATION_RULE);
                 corrRule.setBody(IOUtils.toString(
                         getClass().getResourceAsStream("/TestPullRule.groovy"), StandardCharsets.UTF_8));
                 Response response = implementationService.create(corrRule);
@@ -1069,7 +1068,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ImplementationTO pullActions = new ImplementationTO();
         pullActions.setKey(DBPasswordPullActions.class.getSimpleName());
         pullActions.setEngine(ImplementationEngine.JAVA);
-        pullActions.setType(ImplementationType.PULL_ACTIONS);
+        pullActions.setType(IdMImplementationType.PULL_ACTIONS);
         pullActions.setBody(DBPasswordPullActions.class.getName());
         Response response = implementationService.create(pullActions);
         pullActions = implementationService.read(
@@ -1159,7 +1158,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             ImplementationTO pullActions = new ImplementationTO();
             pullActions.setKey(LDAPPasswordPullActions.class.getSimpleName());
             pullActions.setEngine(ImplementationEngine.JAVA);
-            pullActions.setType(ImplementationType.PULL_ACTIONS);
+            pullActions.setType(IdMImplementationType.PULL_ACTIONS);
             pullActions.setBody(LDAPPasswordPullActions.class.getName());
             Response response = implementationService.create(pullActions);
             pullActions = implementationService.read(

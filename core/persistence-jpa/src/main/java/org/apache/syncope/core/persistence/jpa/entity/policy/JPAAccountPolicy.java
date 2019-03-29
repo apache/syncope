@@ -29,7 +29,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -90,7 +90,7 @@ public class JPAAccountPolicy extends AbstractPolicy implements AccountPolicy {
     @Override
     public boolean add(final Implementation rule) {
         checkType(rule, JPAImplementation.class);
-        checkImplementationType(rule, ImplementationType.ACCOUNT_RULE);
+        checkImplementationType(rule, IdRepoImplementationType.ACCOUNT_RULE);
         return rules.contains((JPAImplementation) rule) || rules.add((JPAImplementation) rule);
     }
 

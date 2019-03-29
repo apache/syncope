@@ -20,15 +20,13 @@ package org.apache.syncope.ide.netbeans.view;
 
 import java.awt.Image;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,15 +46,17 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.ide.netbeans.PluginConstants;
 import org.apache.syncope.ide.netbeans.ResourceConnector;
 import org.apache.syncope.ide.netbeans.service.MailTemplateManagerService;
 import org.apache.syncope.ide.netbeans.service.ReportTemplateManagerService;
 import org.apache.syncope.ide.netbeans.service.ImplementationManagerService;
+import org.apache.syncope.ide.netbeans.service.SyncopeManagerService;
 import org.netbeans.api.editor.EditorRegistry;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -66,7 +66,6 @@ import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
-import org.openide.util.Cancellable;
 import org.openide.util.Exceptions;
 import org.openide.util.NbPreferences;
 import org.openide.util.RequestProcessor;
@@ -110,6 +109,8 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     private final DefaultMutableTreeNode reportXslts;
 
     private final DefaultMutableTreeNode groovyScripts;
+
+    private SyncopeManagerService syncopeManagerService;
 
     private MailTemplateManagerService mailTemplateManagerService;
 
@@ -243,9 +244,11 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                 || StringUtils.isBlank(prefs.get("port", null))
                 || StringUtils.isBlank(prefs.get("username", null))
                 || StringUtils.isBlank(prefs.get("password", null))) {
+
             new ServerDetailsView(null, true).setVisible(true);
         }
         try {
+            syncopeManagerService = ResourceConnector.getSyncopeManagerService();
             mailTemplateManagerService = ResourceConnector.getMailTemplateManagerService();
             reportTemplateManagerService = ResourceConnector.getReportTemplateManagerService();
             implementationManagerService = ResourceConnector.getImplementationManagerService();
@@ -253,32 +256,20 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             initTemplatesTree();
             // Load templates
             LOG.info("Loading Apache Syncope templates...");
-            Runnable tsk = new Runnable() {
+            Runnable tsk = () -> {
+                final ProgressHandle progr = ProgressHandle.createHandle("Loading Templates", () -> true);
 
-                @Override
-                public void run() {
-
-                    final ProgressHandle progr = ProgressHandle.createHandle("Loading Templates", new Cancellable() {
-
-                        @Override
-                        public boolean cancel() {
-                            return true;
-                        }
-                    });
-
-                    progr.start();
-                    progr.progress("Loading Templates.");
-                    addMailTemplates();
-                    addReportXslts();
-                    addGroovyScripts();
-                    progr.finish();
-                }
-
+                progr.start();
+                progr.progress("Loading Templates.");
+                addMailTemplates();
+                addReportXslts();
+                addGroovyScripts();
+                progr.finish();
             };
             REQUEST_PROCESSOR.post(tsk);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Generic Error", JOptionPane.ERROR_MESSAGE);
-            ServerDetailsView serverDetails = getRefreshServerDetails();
+            getRefreshServerDetails();
         } catch (Exception ex) {
             getRefreshServerDetails().setVisible(true);
         }
@@ -304,38 +295,33 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
     private void addMailTemplates() {
         List<MailTemplateTO> mailTemplateList = mailTemplateManagerService.list();
-        for (MailTemplateTO mailTemplate : mailTemplateList) {
-            this.mailTemplates.add(new DefaultMutableTreeNode(
-                    mailTemplate.getKey()));
-        }
+        mailTemplateList.forEach(mailTemplate -> {
+            this.mailTemplates.add(new DefaultMutableTreeNode(mailTemplate.getKey()));
+        });
         treeModel.reload();
     }
 
     private void addReportXslts() {
         List<ReportTemplateTO> reportTemplates = reportTemplateManagerService.list();
-        for (ReportTemplateTO reportTemplate : reportTemplates) {
-            reportXslts.add(new DefaultMutableTreeNode(
-                    reportTemplate.getKey()));
-        }
+        reportTemplates.forEach(reportTemplate -> {
+            reportXslts.add(new DefaultMutableTreeNode(reportTemplate.getKey()));
+        });
         treeModel.reload();
     }
 
     private void addGroovyScripts() {
-        for (ImplementationType type : ImplementationType.values()) {
-            String implType = type.toString();
-            DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(implType.toString());
-            if (implType.equals("JWT_SSO_PROVIDER") || implType.equals("AUDIT_APPENDER")) {
-                continue;
-            }
-            List<ImplementationTO> scripts = implementationManagerService.list(type);
-            for (ImplementationTO script : scripts) {
-                if (script.getEngine() == ImplementationEngine.GROOVY) {
-                    tempNode.add(new DefaultMutableTreeNode(
-                            script.getKey()));
-                }
-            }
-            groovyScripts.add(tempNode);
-        }
+        syncopeManagerService.getImplementationTypes().stream().
+                filter(type -> !IdRepoImplementationType.JWT_SSO_PROVIDER.equals(type)
+                && !IdRepoImplementationType.AUDIT_APPENDER.equals(type)).
+                forEach(type -> {
+
+                    DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(type);
+                    List<ImplementationTO> scripts = implementationManagerService.list(type);
+                    scripts.stream().
+                            filter((script) -> (script.getEngine() == ImplementationEngine.GROOVY)).
+                            forEach(script -> tempNode.add(new DefaultMutableTreeNode(script.getKey())));
+                    groovyScripts.add(tempNode);
+                });
 
         treeModel.reload();
     }
@@ -347,176 +333,154 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         menu.add(refreshItem);
         menu.add(resetConnectionItem);
 
-        refreshItem.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                // simulate close and open to refresh the tree
-                componentClosed();
-                componentOpened();
-            }
+        refreshItem.addActionListener(event -> {
+            // simulate close and open to refresh the tree
+            componentClosed();
+            componentOpened();
         });
 
-        resetConnectionItem.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent evt) {
-                ServerDetailsView serverDetails = getRefreshServerDetails();
-                // set previous preferences
-                Preferences prefs = NbPreferences.forModule(ResourceExplorerTopComponent.class);
-                serverDetails.setDetails(prefs.get("scheme", "http"),
-                        prefs.get("host", "localhost"),
-                        prefs.get("port", "8080"),
-                        prefs.get("username", StringUtils.EMPTY),
-                        prefs.get("password", StringUtils.EMPTY));
-                // reset connection preferences
-                prefs.remove("scheme");
-                prefs.remove("host");
-                prefs.remove("port");
-                prefs.remove("username");
-                prefs.remove("password");
-                serverDetails.setVisible(true);
-            }
+        resetConnectionItem.addActionListener(event -> {
+            ServerDetailsView serverDetails = getRefreshServerDetails();
+            // set previous preferences
+            Preferences prefs = NbPreferences.forModule(ResourceExplorerTopComponent.class);
+            serverDetails.setDetails(prefs.get("scheme", "http"),
+                    prefs.get("host", "localhost"),
+                    prefs.get("port", "8080"),
+                    prefs.get("username", StringUtils.EMPTY),
+                    prefs.get("password", StringUtils.EMPTY));
+            // reset connection preferences
+            prefs.remove("scheme");
+            prefs.remove("host");
+            prefs.remove("port");
+            prefs.remove("username");
+            prefs.remove("password");
+            serverDetails.setVisible(true);
         });
 
         menu.show(evt.getComponent(), evt.getX(), evt.getY());
     }
 
-    private void folderRightClickAction(final MouseEvent evt,
-            final DefaultMutableTreeNode node) {
+    private void folderRightClickAction(final MouseEvent evt, final DefaultMutableTreeNode node) {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem addItem = new JMenuItem("New");
         menu.add(addItem);
 
-        addItem.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent event) {
-                try {
-                    String name = JOptionPane.showInputDialog("Enter Name");
-                    if (StringUtils.isBlank(name)) {
-                        return;
-                    }
-
-                    DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
-                    boolean added = false;
-
-                    if (!"exit".equals(event.getActionCommand())) {
-                        if (PluginConstants.MAIL_TEMPLATES.equals(node.getUserObject())) {
-
-                            MailTemplateTO mailTemplate = new MailTemplateTO();
-                            mailTemplate.setKey(name);
-                            added = mailTemplateManagerService.create(mailTemplate);
-                            mailTemplateManagerService.setFormat(name,
-                                    MailTemplateFormat.HTML,
-                                    IOUtils.toInputStream("//Enter Content here", encodingPattern));
-                            mailTemplateManagerService.setFormat(name,
-                                    MailTemplateFormat.TEXT,
-                                    IOUtils.toInputStream("//Enter Content here", encodingPattern));
-                            openMailEditor(name);
-                        } else if (PluginConstants.GROOVY_SCRIPTS.equals(parent.getUserObject())) {
-                            ImplementationTO newNode = new ImplementationTO();
-                            ImplementationType type = getType((String) node.getUserObject());
-                            newNode.setKey(name);
-                            newNode.setEngine(ImplementationEngine.GROOVY);
-                            newNode.setType(type);
-                            String templateClassName = null;
-                            switch (type) {
-                                case REPORTLET:
-                                    templateClassName = "MyReportlet";
-                                    break;
-
-                                case ACCOUNT_RULE:
-                                    templateClassName = "MyAccountRule";
-                                    break;
-
-                                case PASSWORD_RULE:
-                                    templateClassName = "MyPasswordRule";
-                                    break;
-
-                                case ITEM_TRANSFORMER:
-                                    templateClassName = "MyItemTransformer";
-                                    break;
-
-                                case TASKJOB_DELEGATE:
-                                    templateClassName = "MySchedTaskJobDelegate";
-                                    break;
-
-                                case RECON_FILTER_BUILDER:
-                                    templateClassName = "MyReconFilterBuilder";
-                                    break;
-
-                                case LOGIC_ACTIONS:
-                                    templateClassName = "MyLogicActions";
-                                    break;
-
-                                case PROPAGATION_ACTIONS:
-                                    templateClassName = "MyPropagationActions";
-                                    break;
-
-                                case PULL_ACTIONS:
-                                    templateClassName = "MyPullActions";
-                                    break;
-
-                                case PUSH_ACTIONS:
-                                    templateClassName = "MyPushActions";
-                                    break;
-
-                                case PULL_CORRELATION_RULE:
-                                    templateClassName = "MyPullCorrelationRule";
-                                    break;
-
-                                case PUSH_CORRELATION_RULE:
-                                    templateClassName = "MyPushCorrelationRule";
-                                    break;
-
-                                case VALIDATOR:
-                                    templateClassName = "MyValidator";
-                                    break;
-
-                                case RECIPIENTS_PROVIDER:
-                                    templateClassName = "MyRecipientsProvider";
-                                    break;
-
-                                default:
-                            }
-                            newNode.setBody(IOUtils.toString(
-                                    getClass().getResourceAsStream("/org/apache/syncope/ide/netbeans/implementations/"
-                                            + templateClassName + ".groovy")));
-                            added = implementationManagerService.create(newNode);
-                            openScriptEditor(name, (String) node.getUserObject());
-                        } else {
-                            ReportTemplateTO reportTemplate = new ReportTemplateTO();
-                            reportTemplate.setKey(name);
-                            added = reportTemplateManagerService.create(reportTemplate);
-                            reportTemplateManagerService.setFormat(name,
-                                    ReportTemplateFormat.FO,
-                                    IOUtils.toInputStream("//Enter content here", encodingPattern));
-                            reportTemplateManagerService.setFormat(name,
-                                    ReportTemplateFormat.CSV,
-                                    IOUtils.toInputStream("//Enter content here", encodingPattern));
-                            reportTemplateManagerService.setFormat(name,
-                                    ReportTemplateFormat.HTML,
-                                    IOUtils.toInputStream("//Enter content here", encodingPattern));
-                            openReportEditor(name);
-                        }
-
-                        if (added) {
-                            node.add(new DefaultMutableTreeNode(name));
-                            treeModel.reload(node);
-                        } else {
-                            JOptionPane.showMessageDialog(
-                                    null, "Error while creating new element", "Error", JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
-                } catch (SyncopeClientException excp) {
-                    JOptionPane.showMessageDialog(null, excp.getMessage(), "Syncope Error", JOptionPane.ERROR_MESSAGE);
-                } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                } catch (Exception exc) {
-                    LOG.log(Level.WARNING, "Refreshing after exception");
-                    getRefreshServerDetails().setVisible(true);
+        addItem.addActionListener(event -> {
+            try {
+                String name1 = JOptionPane.showInputDialog("Enter Name");
+                if (StringUtils.isBlank(name1)) {
+                    return;
                 }
+                DefaultMutableTreeNode parent1 = (DefaultMutableTreeNode) node.getParent();
+                if (!"exit".equals(event.getActionCommand())) {
+                    boolean added;
+                    if (PluginConstants.MAIL_TEMPLATES.equals(node.getUserObject())) {
+                        MailTemplateTO mailTemplate = new MailTemplateTO();
+                        mailTemplate.setKey(name1);
+                        added = mailTemplateManagerService.create(mailTemplate);
+                        mailTemplateManagerService.setFormat(name1, MailTemplateFormat.HTML,
+                                IOUtils.toInputStream("//Enter Content here", encodingPattern));
+                        mailTemplateManagerService.setFormat(name1, MailTemplateFormat.TEXT,
+                                IOUtils.toInputStream("//Enter Content here", encodingPattern));
+                        openMailEditor(name1);
+                    } else if (PluginConstants.GROOVY_SCRIPTS.equals(parent1.getUserObject())) {
+                        ImplementationTO newNode = new ImplementationTO();
+                        String type = (String) node.getUserObject();
+                        newNode.setKey(name1);
+                        newNode.setEngine(ImplementationEngine.GROOVY);
+                        newNode.setType(type);
+                        String templateClassName = null;
+                        switch (type) {
+                            case IdRepoImplementationType.REPORTLET:
+                                templateClassName = "MyReportlet";
+                                break;
+
+                            case IdRepoImplementationType.ACCOUNT_RULE:
+                                templateClassName = "MyAccountRule";
+                                break;
+
+                            case IdRepoImplementationType.PASSWORD_RULE:
+                                templateClassName = "MyPasswordRule";
+                                break;
+
+                            case IdMImplementationType.ITEM_TRANSFORMER:
+                                templateClassName = "MyItemTransformer";
+                                break;
+
+                            case IdRepoImplementationType.TASKJOB_DELEGATE:
+                                templateClassName = "MySchedTaskJobDelegate";
+                                break;
+
+                            case IdMImplementationType.RECON_FILTER_BUILDER:
+                                templateClassName = "MyReconFilterBuilder";
+                                break;
+
+                            case IdRepoImplementationType.LOGIC_ACTIONS:
+                                templateClassName = "MyLogicActions";
+                                break;
+
+                            case IdMImplementationType.PROPAGATION_ACTIONS:
+                                templateClassName = "MyPropagationActions";
+                                break;
+
+                            case IdMImplementationType.PULL_ACTIONS:
+                                templateClassName = "MyPullActions";
+                                break;
+
+                            case IdMImplementationType.PUSH_ACTIONS:
+                                templateClassName = "MyPushActions";
+                                break;
+
+                            case IdMImplementationType.PULL_CORRELATION_RULE:
+                                templateClassName = "MyPullCorrelationRule";
+                                break;
+
+                            case IdMImplementationType.PUSH_CORRELATION_RULE:
+                                templateClassName = "MyPushCorrelationRule";
+                                break;
+
+                            case IdRepoImplementationType.VALIDATOR:
+                                templateClassName = "MyValidator";
+                                break;
+
+                            case IdRepoImplementationType.RECIPIENTS_PROVIDER:
+                                templateClassName = "MyRecipientsProvider";
+                                break;
+
+                            default:
+                        }
+                        newNode.setBody(IOUtils.toString(getClass().getResourceAsStream(
+                                "/org/apache/syncope/ide/netbeans/implementations/" + templateClassName + ".groovy"),
+                                StandardCharsets.UTF_8));
+                        added = implementationManagerService.create(newNode);
+                        openScriptEditor(name1, (String) node.getUserObject());
+                    } else {
+                        ReportTemplateTO reportTemplate = new ReportTemplateTO();
+                        reportTemplate.setKey(name1);
+                        added = reportTemplateManagerService.create(reportTemplate);
+                        reportTemplateManagerService.setFormat(name1, ReportTemplateFormat.FO,
+                                IOUtils.toInputStream("//Enter content here", encodingPattern));
+                        reportTemplateManagerService.setFormat(name1, ReportTemplateFormat.CSV,
+                                IOUtils.toInputStream("//Enter content here", encodingPattern));
+                        reportTemplateManagerService.setFormat(name1, ReportTemplateFormat.HTML,
+                                IOUtils.toInputStream("//Enter content here", encodingPattern));
+                        openReportEditor(name1);
+                    }
+                    if (added) {
+                        node.add(new DefaultMutableTreeNode(name1));
+                        treeModel.reload(node);
+                    } else {
+                        JOptionPane.showMessageDialog(
+                                null, "Error while creating new element", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            } catch (SyncopeClientException sce) {
+                JOptionPane.showMessageDialog(null, sce.getMessage(), "Syncope Error", JOptionPane.ERROR_MESSAGE);
+            } catch (IOException ioe) {
+                JOptionPane.showMessageDialog(null, ioe.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception e) {
+                LOG.log(Level.WARNING, "Refreshing after exception", e);
+                getRefreshServerDetails().setVisible(true);
             }
         });
 
@@ -529,37 +493,33 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         JMenuItem deleteItem = new JMenuItem("Delete");
         menu.add(deleteItem);
 
-        deleteItem.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                int result = JOptionPane.showConfirmDialog(null, "Are you sure to delete the item?");
-                if (result == JOptionPane.OK_OPTION) {
-                    DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
-                    String nodeName = (String) node.getUserObject();
-                    boolean deleted = false;
-                    try {
-                        if (PluginConstants.MAIL_TEMPLATES.equals(parent.getUserObject())) {
-                            deleted = mailTemplateManagerService.delete(nodeName);
-                        } else if (PluginConstants.REPORT_XSLTS.equals(parent.getUserObject())) {
-                            deleted = reportTemplateManagerService.delete(nodeName);
-                        } else {
-                            ImplementationType type = getType((String) parent.getUserObject());
-                            deleted = implementationManagerService.delete(type, nodeName);
-                        }
-                        if (deleted) {
-                            node.removeFromParent();
-                            treeModel.reload(parent);
-                        } else {
-                            JOptionPane.showMessageDialog(
-                                    null, "Error while deleting new element", "Error", JOptionPane.ERROR_MESSAGE);
-                        }
-                    } catch (SyncopeClientException exc) {
-                        JOptionPane.showMessageDialog(
-                                null, exc.getMessage(), "Syncope Error", JOptionPane.ERROR_MESSAGE);
-                    } catch (Exception ex) {
-                        getRefreshServerDetails().setVisible(true);
+        deleteItem.addActionListener(event -> {
+            int result = JOptionPane.showConfirmDialog(null, "Are you sure to delete the item?");
+            if (result == JOptionPane.OK_OPTION) {
+                DefaultMutableTreeNode parent1 = (DefaultMutableTreeNode) node.getParent();
+                String nodeName1 = (String) node.getUserObject();
+                try {
+                    boolean deleted;
+                    if (PluginConstants.MAIL_TEMPLATES.equals(parent1.getUserObject())) {
+                        deleted = mailTemplateManagerService.delete(nodeName1);
+                    } else if (PluginConstants.REPORT_XSLTS.equals(parent1.getUserObject())) {
+                        deleted = reportTemplateManagerService.delete(nodeName1);
+                    } else {
+                        String type = (String) parent1.getUserObject();
+                        deleted = implementationManagerService.delete(type, nodeName1);
                     }
+                    if (deleted) {
+                        node.removeFromParent();
+                        treeModel.reload(parent1);
+                    } else {
+                        JOptionPane.showMessageDialog(
+                                null, "Error while deleting new element", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (SyncopeClientException exc) {
+                    JOptionPane.showMessageDialog(
+                            null, exc.getMessage(), "Syncope Error", JOptionPane.ERROR_MESSAGE);
+                } catch (Exception ex) {
+                    getRefreshServerDetails().setVisible(true);
                 }
             }
         });
@@ -605,24 +565,19 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             fob.setAttribute("description", "TEXT");
             DataObject data = DataObject.find(fob);
             data.getLookup().lookup(OpenCookie.class).open();
-            data.addPropertyChangeListener(new PropertyChangeListener() {
-
-                @Override
-                public void propertyChange(final PropertyChangeEvent evt) {
-                    if (DataObject.PROP_MODIFIED.equals(evt.getPropertyName())) {
-                        //save item remotely
-                        LOG.info(String.format("Saving Mail template [%s]", name));
-                        saveContent();
-                    }
+            data.addPropertyChangeListener(event -> {
+                if (DataObject.PROP_MODIFIED.equals(event.getPropertyName())) {
+                    //save item remotely
+                    LOG.info(String.format("Saving Mail template [%s]", name));
+                    saveContent();
                 }
             });
         }
     }
 
     private void openScriptEditor(final String name, final String type) throws IOException {
-        ImplementationTO node = implementationManagerService.read(getType(type), name);
-        String groovyScriptsDirName = System.getProperty("java.io.tmpdir") + "/Groovy/"
-                + node.getType().toString() + "/";
+        ImplementationTO node = implementationManagerService.read(type, name);
+        String groovyScriptsDirName = System.getProperty("java.io.tmpdir") + "/Groovy/" + node.getType() + "/";
         File groovyScriptsDir = new File(groovyScriptsDirName);
         if (!groovyScriptsDir.exists()) {
             groovyScriptsDir.mkdirs();
@@ -634,18 +589,13 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
         DataObject data = DataObject.find(fob);
         data.getLookup().lookup(OpenCookie.class).open();
-        data.addPropertyChangeListener(new PropertyChangeListener() {
-
-            @Override
-            public void propertyChange(final PropertyChangeEvent evt) {
-                if (DataObject.PROP_MODIFIED.equals(evt.getPropertyName())) {
-                    //save item remotely
-                    LOG.info(String.format("Saving Groovy template [%s]", name));
-                    saveContent();
-                }
+        data.addPropertyChangeListener(event -> {
+            if (DataObject.PROP_MODIFIED.equals(event.getPropertyName())) {
+                //save item remotely
+                LOG.info(String.format("Saving Groovy template [%s]", name));
+                saveContent();
             }
         });
-
     }
 
     private void openReportEditor(final String name) throws IOException {
@@ -685,15 +635,11 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
             DataObject data = DataObject.find(fob);
             data.getLookup().lookup(OpenCookie.class).open();
-            data.addPropertyChangeListener(new PropertyChangeListener() {
-
-                @Override
-                public void propertyChange(final PropertyChangeEvent evt) {
-                    if (DataObject.PROP_MODIFIED.equals(evt.getPropertyName())) {
-                        //save item remotely
-                        LOG.info(String.format("Saving Report template [%s]", name));
-                        saveContent();
-                    }
+            data.addPropertyChangeListener(event -> {
+                if (DataObject.PROP_MODIFIED.equals(event.getPropertyName())) {
+                    //save item remotely
+                    LOG.info(String.format("Saving Report template [%s]", name));
+                    saveContent();
                 }
             });
         }
@@ -736,7 +682,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                         ReportTemplateFormat.CSV,
                         IOUtils.toInputStream(content, encodingPattern));
             } else if ("Groovy".equals(fileName)) {
-                ImplementationTO node = implementationManagerService.read(getType(templateType), key);
+                ImplementationTO node = implementationManagerService.read(templateType, key);
                 node.setBody(content);
                 implementationManagerService.update(node);
             }
@@ -744,24 +690,6 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             Exceptions.printStackTrace(e);
         } catch (Exception e) {
             getRefreshServerDetails().setVisible(true);
-        }
-    }
-
-    private ImplementationType getType(final String typeName) {
-        ImplementationType type = null;
-        for (ImplementationType implType : ImplementationType.values()) {
-            if (implType.toString().equals(typeName)) {
-                type = implType;
-            }
-
-        }
-        return (type);
-    }
-
-    private void closeComponent() {
-        boolean isClosed = this.close();
-        if (!isClosed) {
-            LOG.log(Level.SEVERE, "Unable to close {0}", getClass().getSimpleName());
         }
     }
 

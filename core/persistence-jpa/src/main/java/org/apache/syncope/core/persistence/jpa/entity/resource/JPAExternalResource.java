@@ -45,7 +45,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -361,7 +361,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     @Override
     public boolean add(final Implementation propagationAction) {
         checkType(propagationAction, JPAImplementation.class);
-        checkImplementationType(propagationAction, ImplementationType.PROPAGATION_ACTIONS);
+        checkImplementationType(propagationAction, IdMImplementationType.PROPAGATION_ACTIONS);
         return propagationActions.contains((JPAImplementation) propagationAction)
                 || propagationActions.add((JPAImplementation) propagationAction);
     }

@@ -27,7 +27,7 @@ import javax.sql.DataSource;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.PropertyUtils;
-import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
+import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.SAML2SPEntitlement;
 import org.apache.syncope.core.logic.saml2.SAML2IdPCache;
 import org.apache.syncope.core.logic.saml2.SAML2ReaderWriter;
@@ -89,7 +89,7 @@ public class SAML2SPLoader implements SyncopeCoreLoader {
 
     @Override
     public void load() {
-        EntitlementsHolder.getInstance().init(SAML2SPEntitlement.values());
+        EntitlementsHolder.getInstance().addAll(SAML2SPEntitlement.values());
 
         Properties props = PropertyUtils.read(getClass(), SAML2SP_LOGIC_PROPERTIES, "conf.directory");
         String confDirectory = props.getProperty("conf.directory");

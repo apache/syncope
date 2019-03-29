@@ -23,8 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -45,31 +46,31 @@ public class ImplementationTest extends AbstractTest {
 
         assertEquals(18, implementations.size());
 
-        implementations = implementationDAO.find(ImplementationType.PULL_ACTIONS);
+        implementations = implementationDAO.findByType(IdMImplementationType.PULL_ACTIONS);
         assertEquals(1, implementations.size());
 
-        implementations = implementationDAO.find(ImplementationType.PROPAGATION_ACTIONS);
+        implementations = implementationDAO.findByType(IdMImplementationType.PROPAGATION_ACTIONS);
         assertEquals(1, implementations.size());
 
-        implementations = implementationDAO.find(ImplementationType.TASKJOB_DELEGATE);
+        implementations = implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE);
         assertEquals(5, implementations.size());
 
-        implementations = implementationDAO.find(ImplementationType.REPORTLET);
+        implementations = implementationDAO.findByType(IdRepoImplementationType.REPORTLET);
         assertEquals(2, implementations.size());
 
-        implementations = implementationDAO.find(ImplementationType.ACCOUNT_RULE);
+        implementations = implementationDAO.findByType(IdRepoImplementationType.ACCOUNT_RULE);
         assertEquals(2, implementations.size());
 
-        implementations = implementationDAO.find(ImplementationType.PASSWORD_RULE);
+        implementations = implementationDAO.findByType(IdRepoImplementationType.PASSWORD_RULE);
         assertEquals(3, implementations.size());
 
-        implementations = implementationDAO.find(ImplementationType.VALIDATOR);
+        implementations = implementationDAO.findByType(IdRepoImplementationType.VALIDATOR);
         assertEquals(2, implementations.size());
 
-        implementations = implementationDAO.find(ImplementationType.PULL_CORRELATION_RULE);
+        implementations = implementationDAO.findByType(IdMImplementationType.PULL_CORRELATION_RULE);
         assertEquals(1, implementations.size());
 
-        implementations = implementationDAO.find(ImplementationType.PUSH_CORRELATION_RULE);
+        implementations = implementationDAO.findByType(IdMImplementationType.PUSH_CORRELATION_RULE);
         assertEquals(1, implementations.size());
     }
 
@@ -78,7 +79,7 @@ public class ImplementationTest extends AbstractTest {
         Implementation impl = entityFactory.newEntity(Implementation.class);
         impl.setKey("new");
         impl.setEngine(ImplementationEngine.GROOVY);
-        impl.setType(ImplementationType.VALIDATOR);
+        impl.setType(IdRepoImplementationType.VALIDATOR);
         impl.setBody("");
 
         Implementation actual = implementationDAO.save(impl);

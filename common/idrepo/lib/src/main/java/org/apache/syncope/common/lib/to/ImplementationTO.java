@@ -24,7 +24,6 @@ import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 
 @XmlRootElement(name = "implementation")
 @XmlType
@@ -36,7 +35,7 @@ public class ImplementationTO implements EntityTO {
 
     private ImplementationEngine engine;
 
-    private ImplementationType type;
+    private String type;
 
     private String body;
 
@@ -59,12 +58,12 @@ public class ImplementationTO implements EntityTO {
         this.engine = engine;
     }
 
-    public ImplementationType getType() {
+    public String getType() {
         return type;
     }
 
     @PathParam("type")
-    public void setType(final ImplementationType type) {
+    public void setType(final String type) {
         this.type = type;
     }
 

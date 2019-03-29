@@ -21,24 +21,19 @@ package org.apache.syncope.client.console.panels;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.console.commons.ImplementationInfoProvider.ViewMode;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -48,24 +43,13 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.io.IOUtils;
 
 public class ImplementationModalPanel extends AbstractModalPanel<ImplementationTO> {
 
     private static final long serialVersionUID = 5283548960927517342L;
 
-    private enum ViewMode {
-        JAVA_CLASS,
-        JSON_BODY,
-        GROOVY_BODY
-
-    }
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    @SpringBean
-    private ClassPathScanImplementationLookup lookup;
 
     private final ImplementationRestClient restClient = new ImplementationRestClient();
 
@@ -82,59 +66,15 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
 
         super(modal, pageRef);
         this.implementation = implementation;
-        this.viewMode = implementation.getEngine() == ImplementationEngine.GROOVY
-                ? ViewMode.GROOVY_BODY
-                : implementation.getType() == ImplementationType.REPORTLET
-                || implementation.getType() == ImplementationType.ACCOUNT_RULE
-                || implementation.getType() == ImplementationType.PASSWORD_RULE
-                || implementation.getType() == ImplementationType.PULL_CORRELATION_RULE
-                || implementation.getType() == ImplementationType.PUSH_CORRELATION_RULE
-                ? ViewMode.JSON_BODY
-                : ViewMode.JAVA_CLASS;
+        this.viewMode = SyncopeWebApplication.get().getImplementationInfoProvider().getViewMode(implementation);
         this.create = implementation.getKey() == null;
 
         add(new AjaxTextFieldPanel(
                 "key", "key", new PropertyModel<>(implementation, "key"), false).
                 addRequiredLabel().setEnabled(create));
 
-        List<String> classes = Collections.emptyList();
-        if (viewMode == ViewMode.JAVA_CLASS) {
-            Optional<JavaImplInfo> javaClasses = SyncopeConsoleSession.get().getPlatformInfo().
-                    getJavaImplInfo(implementation.getType());
-            classes = javaClasses.isPresent()
-                    ? new ArrayList<>(javaClasses.get().getClasses())
-                    : new ArrayList<>();
-        } else if (viewMode == ViewMode.JSON_BODY) {
-            switch (implementation.getType()) {
-                case REPORTLET:
-                    classes = lookup.getReportletConfs().keySet().stream().
-                            collect(Collectors.toList());
-                    break;
-
-                case ACCOUNT_RULE:
-                    classes = lookup.getAccountRuleConfs().keySet().stream().
-                            collect(Collectors.toList());
-                    break;
-
-                case PASSWORD_RULE:
-                    classes = lookup.getPasswordRuleConfs().keySet().stream().
-                            collect(Collectors.toList());
-                    break;
-
-                case PULL_CORRELATION_RULE:
-                    classes = lookup.getPullCorrelationRuleConfs().keySet().stream().
-                            collect(Collectors.toList());
-                    break;
-
-                case PUSH_CORRELATION_RULE:
-                    classes = lookup.getPushCorrelationRuleConfs().keySet().stream().
-                            collect(Collectors.toList());
-                    break;
-
-                default:
-            }
-        }
-        Collections.sort(classes);
+        List<String> classes = SyncopeWebApplication.get().getImplementationInfoProvider().
+                getClasses(implementation, viewMode);
 
         AjaxDropDownChoicePanel<String> javaClass = new AjaxDropDownChoicePanel<>(
                 "javaClass", "Class", new PropertyModel<>(implementation, "body"));
@@ -173,68 +113,8 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
         if (StringUtils.isBlank(implementation.getBody())
                 && implementation.getEngine() == ImplementationEngine.GROOVY) {
 
-            String templateClassName = null;
-
-            switch (implementation.getType()) {
-                case REPORTLET:
-                    templateClassName = "MyReportlet";
-                    break;
-
-                case ACCOUNT_RULE:
-                    templateClassName = "MyAccountRule";
-                    break;
-
-                case PASSWORD_RULE:
-                    templateClassName = "MyPasswordRule";
-                    break;
-
-                case ITEM_TRANSFORMER:
-                    templateClassName = "MyItemTransformer";
-                    break;
-
-                case TASKJOB_DELEGATE:
-                    templateClassName = "MySchedTaskJobDelegate";
-                    break;
-
-                case RECON_FILTER_BUILDER:
-                    templateClassName = "MyReconFilterBuilder";
-                    break;
-
-                case LOGIC_ACTIONS:
-                    templateClassName = "MyLogicActions";
-                    break;
-
-                case PROPAGATION_ACTIONS:
-                    templateClassName = "MyPropagationActions";
-                    break;
-
-                case PULL_ACTIONS:
-                    templateClassName = "MyPullActions";
-                    break;
-
-                case PUSH_ACTIONS:
-                    templateClassName = "MyPushActions";
-                    break;
-
-                case PULL_CORRELATION_RULE:
-                    templateClassName = "MyPullCorrelationRule";
-                    break;
-
-                case PUSH_CORRELATION_RULE:
-                    templateClassName = "MyPushCorrelationRule";
-                    break;
-
-                case VALIDATOR:
-                    templateClassName = "MyValidator";
-                    break;
-
-                case RECIPIENTS_PROVIDER:
-                    templateClassName = "MyRecipientsProvider";
-                    break;
-
-                default:
-            }
-
+            String templateClassName = SyncopeWebApplication.get().getImplementationInfoProvider().
+                    getGroovyTemplateClassName(implementation.getType());
             if (templateClassName != null) {
                 try {
                     implementation.setBody(StringUtils.substringAfter(IOUtils.toString(getClass().
@@ -261,31 +141,8 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
 
             @Override
             protected void onEvent(final AjaxRequestTarget target) {
-                Class<?> clazz = null;
-                switch (implementation.getType()) {
-                    case REPORTLET:
-                        clazz = lookup.getReportletConfs().get(jsonClass.getModelObject());
-                        break;
-
-                    case ACCOUNT_RULE:
-                        clazz = lookup.getAccountRuleConfs().get(jsonClass.getModelObject());
-                        break;
-
-                    case PASSWORD_RULE:
-                        clazz = lookup.getPasswordRuleConfs().get(jsonClass.getModelObject());
-                        break;
-
-                    case PULL_CORRELATION_RULE:
-                        clazz = lookup.getPullCorrelationRuleConfs().get(jsonClass.getModelObject());
-                        break;
-
-                    case PUSH_CORRELATION_RULE:
-                        clazz = lookup.getPushCorrelationRuleConfs().get(jsonClass.getModelObject());
-                        break;
-
-                    default:
-                }
-
+                Class<?> clazz = SyncopeWebApplication.get().getImplementationInfoProvider().
+                        getClass(implementation.getType(), jsonClass.getModelObject());
                 if (clazz != null) {
                     try {
                         target.appendJavaScript("editor.getDoc().setValue('"

@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.entity.policy;
 
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.CorrelationRuleEntity;
@@ -55,7 +54,7 @@ abstract class AbstractCorrelationRuleEntity extends AbstractGeneratedKeyEntity 
         return implementation;
     }
 
-    protected abstract ImplementationType getImplementationType();
+    protected abstract String getImplementationType();
 
     @Override
     public void setImplementation(final Implementation implementation) {

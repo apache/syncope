@@ -26,7 +26,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
+import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -75,15 +77,28 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
     @Autowired
     private NotificationDAO notificationDAO;
 
+    private void checkType(final String type) {
+        if (!ImplementationTypesHolder.getInstance().getValues().contains(type)) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidImplementationType);
+            sce.getElements().add("Implementation type not found: ");
+            throw sce;
+        }
+    }
+
     @PreAuthorize("hasRole('" + StandardEntitlement.IMPLEMENTATION_LIST + "')")
     @Transactional(readOnly = true)
-    public List<ImplementationTO> list(final ImplementationType type) {
-        return implementationDAO.find(type).stream().map(binder::getImplementationTO).collect(Collectors.toList());
+    public List<ImplementationTO> list(final String type) {
+        checkType(type);
+
+        return implementationDAO.findByType(type).stream().
+                map(binder::getImplementationTO).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.IMPLEMENTATION_READ + "')")
     @Transactional(readOnly = true)
-    public ImplementationTO read(final ImplementationType type, final String key) {
+    public ImplementationTO read(final String type, final String key) {
+        checkType(type);
+
         Implementation implementation = implementationDAO.find(key);
         if (implementation == null) {
             LOG.error("Could not find implementation '" + key + "'");
@@ -91,7 +106,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
             throw new NotFoundException(key);
         }
 
-        if (implementation.getType() != type) {
+        if (!implementation.getType().equals(type)) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
             sce.getElements().add("Found " + type + ", expected " + implementation.getType());
             throw sce;
@@ -107,6 +122,8 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
             sce.getElements().add("Implementation key");
             throw sce;
         }
+
+        checkType(implementationTO.getType());
 
         Implementation implementation = implementationDAO.find(implementationTO.getKey());
         if (implementation != null) {
@@ -125,6 +142,8 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
             throw new NotFoundException(implementationTO.getKey());
         }
 
+        checkType(implementationTO.getType());
+
         binder.update(implementation, implementationTO);
         implementation = implementationDAO.save(implementation);
 
@@ -132,7 +151,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.IMPLEMENTATION_DELETE + "')")
-    public void delete(final ImplementationType type, final String key) {
+    public void delete(final String type, final String key) {
         Implementation implementation = implementationDAO.find(key);
         if (implementation == null) {
             LOG.error("Could not find implementation '" + key + "'");
@@ -140,7 +159,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
             throw new NotFoundException(key);
         }
 
-        if (implementation.getType() != type) {
+        if (!implementation.getType().equals(type)) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
             sce.getElements().add("Found " + type + ", expected " + implementation.getType());
             throw sce;
@@ -148,59 +167,59 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
 
         boolean inUse = false;
         switch (implementation.getType()) {
-            case REPORTLET:
+            case IdRepoImplementationType.REPORTLET:
                 inUse = !reportDAO.findByReportlet(implementation).isEmpty();
                 break;
 
-            case ACCOUNT_RULE:
+            case IdRepoImplementationType.ACCOUNT_RULE:
                 inUse = !policyDAO.findByAccountRule(implementation).isEmpty();
                 break;
 
-            case PASSWORD_RULE:
+            case IdRepoImplementationType.PASSWORD_RULE:
                 inUse = !policyDAO.findByPasswordRule(implementation).isEmpty();
                 break;
 
-            case ITEM_TRANSFORMER:
+            case IdMImplementationType.ITEM_TRANSFORMER:
                 inUse = !resourceDAO.findByTransformer(implementation).isEmpty();
                 break;
 
-            case TASKJOB_DELEGATE:
+            case IdRepoImplementationType.TASKJOB_DELEGATE:
                 inUse = !taskDAO.findByDelegate(implementation).isEmpty();
                 break;
 
-            case RECON_FILTER_BUILDER:
+            case IdMImplementationType.RECON_FILTER_BUILDER:
                 inUse = !taskDAO.findByReconFilterBuilder(implementation).isEmpty();
                 break;
 
-            case LOGIC_ACTIONS:
+            case IdRepoImplementationType.LOGIC_ACTIONS:
                 inUse = !realmDAO.findByLogicActions(implementation).isEmpty();
                 break;
 
-            case PROPAGATION_ACTIONS:
+            case IdMImplementationType.PROPAGATION_ACTIONS:
                 inUse = !resourceDAO.findByPropagationActions(implementation).isEmpty();
                 break;
 
-            case PULL_ACTIONS:
+            case IdMImplementationType.PULL_ACTIONS:
                 inUse = !taskDAO.findByPullActions(implementation).isEmpty();
                 break;
 
-            case PUSH_ACTIONS:
+            case IdMImplementationType.PUSH_ACTIONS:
                 inUse = !taskDAO.findByPushActions(implementation).isEmpty();
                 break;
 
-            case PULL_CORRELATION_RULE:
+            case IdMImplementationType.PULL_CORRELATION_RULE:
                 inUse = !policyDAO.findByPullCorrelationRule(implementation).isEmpty();
                 break;
 
-            case PUSH_CORRELATION_RULE:
+            case IdMImplementationType.PUSH_CORRELATION_RULE:
                 inUse = !policyDAO.findByPushCorrelationRule(implementation).isEmpty();
                 break;
 
-            case VALIDATOR:
+            case IdRepoImplementationType.VALIDATOR:
                 inUse = !plainSchemaDAO.findByValidator(implementation).isEmpty();
                 break;
 
-            case RECIPIENTS_PROVIDER:
+            case IdRepoImplementationType.RECIPIENTS_PROVIDER:
                 inUse = !notificationDAO.findByRecipientsProvider(implementation).isEmpty();
                 break;
 
@@ -243,5 +262,4 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
 
         throw new UnresolvedReferenceException();
     }
-
 }

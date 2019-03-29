@@ -19,13 +19,12 @@
 package org.apache.syncope.client.console.pages;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.ImplementationDirectoryPanel;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -49,11 +48,11 @@ public class Implementations extends BasePage {
     }
 
     private List<ITab> buildTabList() {
-        return Arrays.stream(ImplementationType.values()).
-                filter(type -> type != ImplementationType.JWT_SSO_PROVIDER
-                && type != ImplementationType.AUDIT_APPENDER).
-                sorted(Comparator.comparing(ImplementationType::name)).
-                map(type -> new AbstractTab(Model.of(type.name())) {
+        return SyncopeConsoleSession.get().getPlatformInfo().getImplementationTypes().stream().
+                filter(type -> !IdRepoImplementationType.JWT_SSO_PROVIDER.equals(type)
+                && !IdRepoImplementationType.AUDIT_APPENDER.equals(type)).
+                sorted().
+                map(type -> new AbstractTab(Model.of(type)) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 

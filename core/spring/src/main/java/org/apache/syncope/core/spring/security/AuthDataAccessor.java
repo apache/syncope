@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -56,7 +57,6 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
-import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.framework.common.objects.Uid;

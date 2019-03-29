@@ -27,7 +27,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
@@ -76,7 +76,7 @@ public class JPAPasswordPolicy extends AbstractPolicy implements PasswordPolicy 
     @Override
     public boolean add(final Implementation rule) {
         checkType(rule, JPAImplementation.class);
-        checkImplementationType(rule, ImplementationType.PASSWORD_RULE);
+        checkImplementationType(rule, IdRepoImplementationType.PASSWORD_RULE);
         return rules.contains((JPAImplementation) rule) || rules.add((JPAImplementation) rule);
     }
 

@@ -25,12 +25,12 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 import org.apache.commons.io.IOUtils;
+import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
 import org.apache.syncope.core.flowable.impl.FlowableDeployUtils;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
-import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.impl.db.DbIdGenerator;
@@ -58,7 +58,7 @@ public class FlowableLoader implements SyncopeCoreLoader {
 
     @Override
     public void load() {
-        EntitlementsHolder.getInstance().init(FlowableEntitlement.values());
+        EntitlementsHolder.getInstance().addAll(FlowableEntitlement.values());
     }
 
     @Override

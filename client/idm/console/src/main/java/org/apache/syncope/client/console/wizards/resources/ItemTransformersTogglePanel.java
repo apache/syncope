@@ -28,7 +28,7 @@ import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
@@ -66,7 +66,7 @@ public class ItemTransformersTogglePanel extends TogglePanel<Serializable> {
         Form<?> form = new Form<>("form");
         addInnerObject(form);
 
-        List<String> choices = implRestClient.list(ImplementationType.ITEM_TRANSFORMER).stream().
+        List<String> choices = implRestClient.list(IdMImplementationType.ITEM_TRANSFORMER).stream().
                 map(EntityTO::getKey).sorted().collect(Collectors.toList());
 
         form.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).setRenderer(new IChoiceRenderer<String>() {

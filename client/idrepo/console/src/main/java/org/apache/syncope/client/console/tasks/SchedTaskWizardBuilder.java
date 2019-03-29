@@ -23,8 +23,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -33,13 +33,11 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoiceP
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -58,9 +56,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
     private static final long serialVersionUID = 5945391813567245081L;
 
-    private final TaskRestClient taskRestClient = new TaskRestClient();
-
-    private final ImplementationRestClient implRestClient = new ImplementationRestClient();
+    private final TaskRestClient restClient = new TaskRestClient();
 
     private final TaskType type;
 
@@ -95,9 +91,9 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
         modelObject.setCronExpression(crontabPanel.getCronExpression());
         if (modelObject.getKey() == null) {
-            taskRestClient.create(type, modelObject);
+            restClient.create(type, modelObject);
         } else {
-            taskRestClient.update(type, modelObject);
+            restClient.update(type, modelObject);
         }
         return modelObject;
     }
@@ -117,49 +113,17 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
         private static final long serialVersionUID = -3043839139187792810L;
 
-        private final IModel<List<String>> taskJobDelegates = new LoadableDetachableModel<List<String>>() {
+        private final IModel<List<String>> taskJobDelegates = SyncopeWebApplication.get().
+                getImplementationInfoProvider().getTaskJobDelegates();
 
-            private static final long serialVersionUID = 5275935387613157437L;
+        private final IModel<List<String>> reconFilterBuilders = SyncopeWebApplication.get().
+                getImplementationInfoProvider().getReconFilterBuilders();
 
-            @Override
-            protected List<String> load() {
-                return implRestClient.list(ImplementationType.TASKJOB_DELEGATE).stream().
-                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
-            }
-        };
+        private final IModel<List<String>> pullActions = SyncopeWebApplication.get().
+                getImplementationInfoProvider().getPullActions();
 
-        private final IModel<List<String>> reconFilterBuilders = new LoadableDetachableModel<List<String>>() {
-
-            private static final long serialVersionUID = 5275935387613157437L;
-
-            @Override
-            protected List<String> load() {
-                return implRestClient.list(ImplementationType.RECON_FILTER_BUILDER).stream().
-                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
-            }
-        };
-
-        private final IModel<List<String>> pullActions = new LoadableDetachableModel<List<String>>() {
-
-            private static final long serialVersionUID = 5275935387613157437L;
-
-            @Override
-            protected List<String> load() {
-                return implRestClient.list(ImplementationType.PULL_ACTIONS).stream().
-                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
-            }
-        };
-
-        private final IModel<List<String>> pushActions = new LoadableDetachableModel<List<String>>() {
-
-            private static final long serialVersionUID = 5275935387613157437L;
-
-            @Override
-            protected List<String> load() {
-                return implRestClient.list(ImplementationType.PUSH_ACTIONS).stream().
-                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
-            }
-        };
+        private final IModel<List<String>> pushActions = SyncopeWebApplication.get().
+                getImplementationInfoProvider().getPushActions();
 
         public Profile(final SchedTaskTO taskTO) {
             AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name", new PropertyModel<>(taskTO, "name"),

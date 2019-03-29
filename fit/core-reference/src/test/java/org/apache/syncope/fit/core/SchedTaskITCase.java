@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
-import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
@@ -53,7 +53,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
     @Test
     public void getJobClasses() {
         Set<String> jobClasses = syncopeService.platform().
-                getJavaImplInfo(ImplementationType.TASKJOB_DELEGATE).get().getClasses();
+                getJavaImplInfo(IdRepoImplementationType.TASKJOB_DELEGATE).get().getClasses();
         assertNotNull(jobClasses);
         assertFalse(jobClasses.isEmpty());
     }
@@ -90,7 +90,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
     @Test
     public void deferred() {
         ImplementationTO taskJobDelegate = implementationService.read(
-                ImplementationType.TASKJOB_DELEGATE, TestSampleJobDelegate.class.getSimpleName());
+                IdRepoImplementationType.TASKJOB_DELEGATE, TestSampleJobDelegate.class.getSimpleName());
         assertNotNull(taskJobDelegate);
 
         SchedTaskTO task = new SchedTaskTO();
@@ -136,7 +136,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
     @Test
     public void issueSYNCOPE144() {
         ImplementationTO taskJobDelegate = implementationService.read(
-                ImplementationType.TASKJOB_DELEGATE, TestSampleJobDelegate.class.getSimpleName());
+                IdRepoImplementationType.TASKJOB_DELEGATE, TestSampleJobDelegate.class.getSimpleName());
         assertNotNull(taskJobDelegate);
 
         SchedTaskTO task = new SchedTaskTO();
@@ -171,7 +171,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         int old_size = jobs.size();
 
         ImplementationTO taskJobDelegate = implementationService.read(
-                ImplementationType.TASKJOB_DELEGATE, TestSampleJobDelegate.class.getSimpleName());
+                IdRepoImplementationType.TASKJOB_DELEGATE, TestSampleJobDelegate.class.getSimpleName());
         assertNotNull(taskJobDelegate);
 
         SchedTaskTO task = new SchedTaskTO();

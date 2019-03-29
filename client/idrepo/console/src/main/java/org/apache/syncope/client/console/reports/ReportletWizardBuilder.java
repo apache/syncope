@@ -31,8 +31,8 @@ import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -65,7 +65,7 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
     protected Serializable onApplyInternal(final ReportletWrapper modelObject) {
         if (modelObject.getImplementationEngine() == ImplementationEngine.JAVA) {
             ImplementationTO reportlet = implementationClient.read(
-                    ImplementationType.REPORTLET, modelObject.getImplementationKey());
+                    IdRepoImplementationType.REPORTLET, modelObject.getImplementationKey());
             try {
                 reportlet.setBody(MAPPER.writeValueAsString(modelObject.getConf()));
                 implementationClient.update(reportlet);
@@ -97,9 +97,9 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
 
         public Profile(final ReportletWrapper reportlet) {
             final AjaxDropDownChoicePanel<String> conf = new AjaxDropDownChoicePanel<>(
-                    "reportlet", getString("reportlet"), new PropertyModel<String>(reportlet, "implementationKey"));
+                    "reportlet", getString("reportlet"), new PropertyModel<>(reportlet, "implementationKey"));
 
-            conf.setChoices(implementationClient.list(ImplementationType.REPORTLET).stream().
+            conf.setChoices(implementationClient.list(IdRepoImplementationType.REPORTLET).stream().
                     map(EntityTO::getKey).sorted().collect(Collectors.toList()));
             conf.addRequiredLabel();
             conf.setNullValid(false);
@@ -111,7 +111,7 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
                 @Override
                 protected void onEvent(final AjaxRequestTarget target) {
                     ImplementationTO impl = implementationClient.read(
-                            ImplementationType.REPORTLET, conf.getModelObject());
+                            IdRepoImplementationType.REPORTLET, conf.getModelObject());
                     reportlet.setImplementationEngine(impl.getEngine());
                     if (impl.getEngine() == ImplementationEngine.JAVA) {
                         try {

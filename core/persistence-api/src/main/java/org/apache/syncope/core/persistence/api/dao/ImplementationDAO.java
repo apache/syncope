@@ -19,19 +19,17 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 
 public interface ImplementationDAO extends DAO<Implementation> {
 
     Implementation find(String key);
 
-    List<Implementation> find(ImplementationType type);
+    List<Implementation> findByType(String type);
 
     List<Implementation> findAll();
 
     Implementation save(Implementation implementation);
 
     void delete(String key);
-
 }
