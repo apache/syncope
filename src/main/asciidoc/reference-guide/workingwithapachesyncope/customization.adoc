@@ -828,7 +828,7 @@ An empty `attributes` field translates to skip filtering and show all attributes
 ```
 shows all `PLAIN` attributes.
 
-If all attributes are to be hidden, please use [[customization-enduser-template]] to hide the full wizard step, instead.
+If all attributes are to be hidden, please use <<customization-enduser-template>> to hide the full wizard step, instead.
 ====
 
 [NOTE]
