@@ -38,7 +38,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -121,7 +121,7 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
         };
         ((WebMarkupContainer) get("container:content")).addOrReplace(replaceAddLink);
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.IMPLEMENTATION_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.IMPLEMENTATION_CREATE);
     }
 
     @Override
@@ -149,7 +149,7 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
                 modal.header(new StringResourceModel("any.edit", Model.of(model.getObject())));
                 modal.show(true);
             }
-        }, ActionLink.ActionType.EDIT, StandardEntitlement.IMPLEMENTATION_UPDATE);
+        }, ActionLink.ActionType.EDIT, IdRepoEntitlement.IMPLEMENTATION_UPDATE);
 
         panel.add(new ActionLink<ImplementationTO>() {
 
@@ -168,7 +168,7 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.IMPLEMENTATION_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.IMPLEMENTATION_DELETE, true);
 
         return panel;
     }

@@ -50,7 +50,7 @@ import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.core.logic.cocoon.FopSerializer;
@@ -93,7 +93,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     @Autowired
     private EntityFactory entityFactory;
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_CREATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_CREATE + "')")
     public ReportTO create(final ReportTO reportTO) {
         Report report = entityFactory.newEntity(Report.class);
         binder.getReport(report, reportTO);
@@ -115,7 +115,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         return binder.getReportTO(report);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_UPDATE + "')")
     public ReportTO update(final ReportTO reportTO) {
         Report report = reportDAO.find(reportTO.getKey());
         if (report == null) {
@@ -141,13 +141,13 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         return binder.getReportTO(report);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_LIST + "')")
     @Transactional(readOnly = true)
     public List<ReportTO> list() {
         return reportDAO.findAll().stream().map(binder::getReportTO).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_READ + "')")
     @Transactional(readOnly = true)
     public ReportTO read(final String key) {
         Report report = reportDAO.find(key);
@@ -157,7 +157,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         return binder.getReportTO(report);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_EXECUTE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_EXECUTE + "')")
     @Override
     public ExecTO execute(final String key, final Date startAt, final boolean dryRun) {
         Report report = reportDAO.find(key);
@@ -197,7 +197,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         return result;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_READ + "')")
     public ReportExec getReportExec(final String executionKey) {
         ReportExec reportExec = reportExecDAO.find(executionKey);
         if (reportExec == null) {
@@ -213,7 +213,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         return reportExec;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_READ + "')")
     public void exportExecutionResult(final OutputStream os, final ReportExec reportExec,
             final ReportExecExportFormat format) {
 
@@ -284,7 +284,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         }
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_DELETE + "')")
     public ReportTO delete(final String key) {
         Report report = reportDAO.find(key);
         if (report == null) {
@@ -297,7 +297,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         return deletedReport;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_READ + "')")
     @Override
     public Pair<Integer, List<ExecTO>> listExecutions(
             final String key, final int page, final int size, final List<OrderByClause> orderByClauses) {
@@ -315,14 +315,14 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         return Pair.of(count, result);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_LIST + "')")
     @Override
     public List<ExecTO> listRecentExecutions(final int max) {
         return reportExecDAO.findRecent(max).stream().
                 map(reportExec -> binder.getExecTO(reportExec)).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_DELETE + "')")
     @Override
     public ExecTO deleteExecution(final String executionKey) {
         ReportExec reportExec = reportExecDAO.find(executionKey);
@@ -335,7 +335,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         return reportExecToDelete;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_DELETE + "')")
     @Override
     public List<BatchResponseItem> deleteExecutions(
             final String key,
@@ -376,13 +376,13 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
                 : Triple.of(JobType.REPORT, key, binder.buildRefDesc(report));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_LIST + "')")
     @Override
     public List<JobTO> listJobs() {
         return super.doListJobs(false);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_READ + "')")
     @Override
     public JobTO getJob(final String key) {
         Report report = reportDAO.find(key);
@@ -406,7 +406,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         return jobTO;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_EXECUTE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_EXECUTE + "')")
     @Override
     public void actionJob(final String key, final JobAction action) {
         Report report = reportDAO.find(key);

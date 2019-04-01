@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -51,7 +51,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
     @Autowired
     private AnyObjectDAO anyObjectDAO;
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPE_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_READ + "')")
     @Transactional(readOnly = true)
     public AnyTypeTO read(final String key) {
         AnyType anyType = anyTypeDAO.find(key);
@@ -64,13 +64,13 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
         return binder.getAnyTypeTO(anyType);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPE_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_LIST + "')")
     @Transactional(readOnly = true)
     public List<AnyTypeTO> list() {
         return anyTypeDAO.findAll().stream().map(binder::getAnyTypeTO).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPE_CREATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_CREATE + "')")
     public AnyTypeTO create(final AnyTypeTO anyTypeTO) {
         if (StringUtils.isBlank(anyTypeTO.getKey())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
@@ -84,7 +84,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
         return binder.getAnyTypeTO(anyTypeDAO.save(binder.create(anyTypeTO)));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPE_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_UPDATE + "')")
     public AnyTypeTO update(final AnyTypeTO anyTypeTO) {
         AnyType anyType = anyTypeDAO.find(anyTypeTO.getKey());
         if (anyType == null) {
@@ -99,7 +99,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
         return binder.getAnyTypeTO(anyTypeDAO.save(anyType));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPE_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_DELETE + "')")
     public AnyTypeTO delete(final String key) {
         AnyType anyType = anyTypeDAO.find(key);
         if (anyType == null) {

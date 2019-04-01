@@ -22,7 +22,7 @@ import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 
-public class EmptyVirSchemaDetailsPanelProvider implements VirSchemaDetailsPanelProvider {
+public class IdRepoVirSchemaDetailsPanelProvider implements VirSchemaDetailsPanelProvider {
 
     private static final long serialVersionUID = 1972241879030801082L;
 

@@ -29,7 +29,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
@@ -90,7 +90,7 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
                     downloadBehavior.setDetails(model.getObject().getKey(), ReportExecExportFormat.CSV);
                     downloadBehavior.initiate(target);
                 }
-            }, ActionLink.ActionType.EXPORT_CSV, StandardEntitlement.REPORT_READ);
+            }, ActionLink.ActionType.EXPORT_CSV, IdRepoEntitlement.REPORT_READ);
 
             panel.add(new ActionLink<ExecTO>() {
 
@@ -101,7 +101,7 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
                     downloadBehavior.setDetails(model.getObject().getKey(), ReportExecExportFormat.HTML);
                     downloadBehavior.initiate(target);
                 }
-            }, ActionLink.ActionType.EXPORT_HTML, StandardEntitlement.REPORT_READ);
+            }, ActionLink.ActionType.EXPORT_HTML, IdRepoEntitlement.REPORT_READ);
 
             panel.add(new ActionLink<ExecTO>() {
 
@@ -112,7 +112,7 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
                     downloadBehavior.setDetails(model.getObject().getKey(), ReportExecExportFormat.PDF);
                     downloadBehavior.initiate(target);
                 }
-            }, ActionLink.ActionType.EXPORT_PDF, StandardEntitlement.REPORT_READ);
+            }, ActionLink.ActionType.EXPORT_PDF, IdRepoEntitlement.REPORT_READ);
 
             panel.add(new ActionLink<ExecTO>() {
 
@@ -123,7 +123,7 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
                     downloadBehavior.setDetails(model.getObject().getKey(), ReportExecExportFormat.RTF);
                     downloadBehavior.initiate(target);
                 }
-            }, ActionLink.ActionType.EXPORT_RTF, StandardEntitlement.REPORT_READ);
+            }, ActionLink.ActionType.EXPORT_RTF, IdRepoEntitlement.REPORT_READ);
 
             panel.add(new ActionLink<ExecTO>() {
 
@@ -134,7 +134,7 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
                     downloadBehavior.setDetails(model.getObject().getKey(), ReportExecExportFormat.XML);
                     downloadBehavior.initiate(target);
                 }
-            }, ActionLink.ActionType.EXPORT_XML, StandardEntitlement.REPORT_READ);
+            }, ActionLink.ActionType.EXPORT_XML, IdRepoEntitlement.REPORT_READ);
         }
     }
 

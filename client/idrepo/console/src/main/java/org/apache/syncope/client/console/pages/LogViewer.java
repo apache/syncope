@@ -26,7 +26,7 @@ import org.apache.syncope.client.console.panels.LogStatementPanel;
 import org.apache.syncope.client.console.rest.LoggerRestClient;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.common.lib.log.LogStatement;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.AjaxSelfUpdatingTimerBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -55,7 +55,7 @@ public class LogViewer extends WebPage {
 
         final AjaxDropDownChoicePanel<String> appenders = new AjaxDropDownChoicePanel<>(
                 "appenders", "Appender", new Model<>(), false);
-        MetaDataRoleAuthorizationStrategy.authorize(appenders, ENABLE, StandardEntitlement.LOG_READ);
+        MetaDataRoleAuthorizationStrategy.authorize(appenders, ENABLE, IdRepoEntitlement.LOG_READ);
         appenders.setChoices(restClient.listMemoryAppenders());
         viewer.add(appenders);
 

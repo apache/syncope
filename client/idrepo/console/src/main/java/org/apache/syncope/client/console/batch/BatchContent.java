@@ -55,7 +55,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
@@ -387,7 +387,7 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                     }
                     ((BasePage) getPage()).getNotificationPanel().refresh(target);
                 }
-            }, action, StandardEntitlement.CONFIGURATION_LIST).hideLabel();
+            }, action, IdRepoEntitlement.CONFIGURATION_LIST).hideLabel();
         }
     }
 }

@@ -38,7 +38,7 @@ import org.apache.syncope.client.console.wizards.DynRealmWrapper;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DynRealmTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -59,8 +59,8 @@ public class DynRealmDirectoryPanel extends
 
     protected DynRealmDirectoryPanel(final String id, final Builder builder) {
         super(id, builder);
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.DYNREALM_CREATE);
-        setReadOnly(!SyncopeConsoleSession.get().owns(StandardEntitlement.DYNREALM_UPDATE));
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.DYNREALM_CREATE);
+        setReadOnly(!SyncopeConsoleSession.get().owns(IdRepoEntitlement.DYNREALM_UPDATE));
 
         disableCheckBoxes();
         setShowResultPage(true);
@@ -92,7 +92,7 @@ public class DynRealmDirectoryPanel extends
             }
         };
         ((WebMarkupContainer) get("container:content")).addOrReplace(newDynRealmlLink);
-        MetaDataRoleAuthorizationStrategy.authorize(newDynRealmlLink, RENDER, StandardEntitlement.DYNREALM_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(newDynRealmlLink, RENDER, IdRepoEntitlement.DYNREALM_CREATE);
 
         initResultTable();
     }
@@ -131,7 +131,7 @@ public class DynRealmDirectoryPanel extends
                 modal.show(true);
                 target.add(modal);
             }
-        }, ActionLink.ActionType.EDIT, StandardEntitlement.DYNREALM_UPDATE);
+        }, ActionLink.ActionType.EDIT, IdRepoEntitlement.DYNREALM_UPDATE);
 
         panel.add(new ActionLink<DynRealmTO>() {
 
@@ -150,7 +150,7 @@ public class DynRealmDirectoryPanel extends
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.DYNREALM_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.DYNREALM_DELETE, true);
 
         return panel;
     }

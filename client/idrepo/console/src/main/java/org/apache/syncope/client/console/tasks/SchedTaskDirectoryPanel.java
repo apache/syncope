@@ -41,7 +41,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.Acti
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -100,7 +100,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
         this.addNewItemPanelBuilder(new SchedTaskWizardBuilder<>(taskType, schedTaskTO, pageRef), true);
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.TASK_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.TASK_CREATE);
 
         enableExitButton();
         setFooterVisibility(false);
@@ -196,7 +196,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
                 viewTask(taskTO, target);
             }
-        }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ);
+        }, ActionLink.ActionType.VIEW, IdRepoEntitlement.TASK_READ);
 
         panel.add(new ActionLink<T>() {
 
@@ -214,7 +214,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                                         Model.of(Pair.of(
                                                 ActionLink.ActionType.EDIT, model.getObject())))));
             }
-        }, ActionLink.ActionType.EDIT, StandardEntitlement.TASK_UPDATE);
+        }, ActionLink.ActionType.EDIT, IdRepoEntitlement.TASK_UPDATE);
 
         panel.add(new ActionLink<T>() {
 
@@ -231,7 +231,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                                         SchedTaskDirectoryPanel.this,
                                         Model.of(Pair.of(ActionLink.ActionType.CLONE, model.getObject())))));
             }
-        }, ActionLink.ActionType.CLONE, StandardEntitlement.TASK_CREATE);
+        }, ActionLink.ActionType.CLONE, IdRepoEntitlement.TASK_CREATE);
 
         panel.add(new ActionLink<T>() {
 
@@ -243,7 +243,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 startAt.setExecutionDetail(model.getObject().getKey(), model.getObject().getName(), target);
                 startAt.toggle(target, true);
             }
-        }, ActionLink.ActionType.EXECUTE, StandardEntitlement.TASK_EXECUTE);
+        }, ActionLink.ActionType.EXECUTE, IdRepoEntitlement.TASK_EXECUTE);
 
         addFurtherActions(panel, model);
 
@@ -265,7 +265,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.TASK_DELETE, true);
 
         return panel;
     }

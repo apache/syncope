@@ -30,7 +30,7 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -85,7 +85,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
             public void onClick(final AjaxRequestTarget target, final ConnObjectTO modelObject) {
                 viewConnObject(modelObject, target);
             }
-        }, ActionLink.ActionType.VIEW, StandardEntitlement.RESOURCE_GET_CONNOBJECT).
+        }, ActionLink.ActionType.VIEW, IdMEntitlement.RESOURCE_GET_CONNOBJECT).
                 setItems(listOfItems).
                 includes(ConnIdSpecialName.UID,
                         ConnIdSpecialName.NAME,

@@ -47,7 +47,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.logic.init.LoggerLoader;
 import org.apache.syncope.core.persistence.api.dao.DomainDAO;
@@ -91,7 +91,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
     @Autowired
     private EntityFactory entityFactory;
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.LOG_LIST + "') and authentication.details.domain == "
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.LOG_LIST + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     @Transactional(readOnly = true)
     public List<LogAppender> memoryAppenders() {
@@ -102,7 +102,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
         }).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.LOG_READ + "') and authentication.details.domain == "
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.LOG_READ + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     @Transactional(readOnly = true)
     public List<LogStatement> getLastLogStatements(final String memoryAppender) {
@@ -123,7 +123,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
         }).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.LOG_LIST + "') and authentication.details.domain == "
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.LOG_LIST + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     @Transactional(readOnly = true)
     public List<LoggerTO> listLogs() {
@@ -134,7 +134,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
                 collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_LIST + "')")
     @Transactional(readOnly = true)
     public List<AuditLoggerName> listAudits() {
         return list(LoggerType.AUDIT).stream().
@@ -159,7 +159,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
         throw sce;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.LOG_READ + "') and authentication.details.domain == "
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.LOG_READ + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     @Transactional(readOnly = true)
     public LoggerTO readLog(final String name) {
@@ -168,7 +168,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
                 orElseThrow(() -> new NotFoundException("Logger " + name));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_READ + "')")
     @Transactional(readOnly = true)
     public LoggerTO readAudit(final String name) {
         return listAudits().stream().
@@ -238,13 +238,13 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
         return result;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.LOG_SET_LEVEL + "') and authentication.details.domain == "
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.LOG_SET_LEVEL + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     public LoggerTO setLogLevel(final String name, final Level level) {
         return setLevel(name, level, LoggerType.LOG);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_ENABLE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_ENABLE + "')")
     public void enableAudit(final AuditLoggerName auditLoggerName) {
         try {
             setLevel(auditLoggerName.toLoggerName(), Level.DEBUG, LoggerType.AUDIT);
@@ -288,13 +288,13 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
         return loggerToDelete;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.LOG_DELETE + "') and authentication.details.domain == "
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.LOG_DELETE + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     public LoggerTO deleteLog(final String name) {
         return delete(name, LoggerType.LOG);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_DISABLE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_DISABLE + "')")
     public void disableAudit(final AuditLoggerName auditLoggerName) {
         try {
             delete(auditLoggerName.toLoggerName(), LoggerType.AUDIT);
@@ -307,8 +307,8 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
         }
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_LIST + "') "
-            + "or hasRole('" + StandardEntitlement.NOTIFICATION_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_LIST + "') "
+            + "or hasRole('" + IdRepoEntitlement.NOTIFICATION_LIST + "')")
     public List<EventCategory> listAuditEvents() {
         // use set to avoid duplications or null elements
         Set<EventCategory> events = new HashSet<>();

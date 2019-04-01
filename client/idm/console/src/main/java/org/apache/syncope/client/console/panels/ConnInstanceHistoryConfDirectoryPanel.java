@@ -40,7 +40,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;
@@ -117,7 +117,7 @@ public abstract class ConnInstanceHistoryConfDirectoryPanel extends DirectoryPan
                 viewConfiguration(modelObject, target);
                 target.add(modal);
             }
-        }, ActionLink.ActionType.VIEW, StandardEntitlement.CONNECTOR_HISTORY_LIST);
+        }, ActionLink.ActionType.VIEW, IdMEntitlement.CONNECTOR_HISTORY_LIST);
 
         // -- restore
         panel.add(new ActionLink<ConnInstanceHistoryConfTO>() {
@@ -137,7 +137,7 @@ public abstract class ConnInstanceHistoryConfDirectoryPanel extends DirectoryPan
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.RESTORE, StandardEntitlement.CONNECTOR_HISTORY_RESTORE);
+        }, ActionLink.ActionType.RESTORE, IdMEntitlement.CONNECTOR_HISTORY_RESTORE);
 
         // -- delete
         panel.add(new ActionLink<ConnInstanceHistoryConfTO>() {
@@ -158,7 +158,7 @@ public abstract class ConnInstanceHistoryConfDirectoryPanel extends DirectoryPan
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.CONNECTOR_HISTORY_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdMEntitlement.CONNECTOR_HISTORY_DELETE, true);
 
         return panel;
     }

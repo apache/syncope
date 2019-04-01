@@ -32,7 +32,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -131,8 +131,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     protected void securityChecks(final Group group) {
         Map<String, Set<String>> authorizations = AuthContextUtils.getAuthorizations();
-        Set<String> authRealms = authorizations.containsKey(StandardEntitlement.GROUP_READ)
-                ? authorizations.get(StandardEntitlement.GROUP_READ)
+        Set<String> authRealms = authorizations.containsKey(IdRepoEntitlement.GROUP_READ)
+                ? authorizations.get(IdRepoEntitlement.GROUP_READ)
                 : Collections.emptySet();
 
         boolean authorized = authRealms.stream().anyMatch(realm -> group.getRealm().getFullPath().startsWith(realm)

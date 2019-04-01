@@ -18,15 +18,22 @@
  */
 package org.apache.syncope.client.console.commons;
 
-import java.util.Collections;
-import java.util.List;
+import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
+import org.apache.syncope.client.ui.commons.wizards.any.AnyForm;
+import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
+import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.wicket.extensions.wizard.WizardModel;
 
-public class EmptyExternalResourceProvider implements ExternalResourceProvider {
+public class IdRepoAnyWizardBuilderAdditionalSteps implements AnyWizardBuilderAdditionalSteps {
 
-    private static final long serialVersionUID = 3002474783308961295L;
+    private static final long serialVersionUID = -2693000486786910671L;
 
     @Override
-    public List<String> get() {
-        return Collections.emptyList();
+    public <A extends AnyTO> WizardModel buildModelSteps(
+            final AnyWrapper<A> modelObject,
+            final WizardModel wizardModel,
+            final AbstractAnyFormLayout<A, ? extends AnyForm<A>> formLayoutInfo) {
+
+        return wizardModel;
     }
 }

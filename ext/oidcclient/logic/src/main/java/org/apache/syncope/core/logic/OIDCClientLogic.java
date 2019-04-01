@@ -53,7 +53,7 @@ import org.apache.syncope.common.lib.to.OIDCLogoutRequestTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.logic.model.TokenEndpointResponse;
 import org.apache.syncope.core.logic.oidc.OIDCUserManager;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -109,7 +109,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         return op;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public OIDCLoginRequestTO createLoginRequest(final String redirectURI, final String opName) {
         // 1. look for Provider
         OIDCProvider op = getOIDCProvider(opName);
@@ -125,7 +125,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         return requestTO;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public OIDCLoginResponseTO login(final String redirectURI, final String authorizationCode, final String opName) {
         OIDCProvider op = getOIDCProvider(opName);
 
@@ -429,7 +429,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         return userInfo;
     }
 
-    @PreAuthorize("isAuthenticated() and not(hasRole('" + StandardEntitlement.ANONYMOUS + "'))")
+    @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.ANONYMOUS + "'))")
     public OIDCLogoutRequestTO createLogoutRequest(final String op) {
         OIDCLogoutRequestTO logoutRequest = new OIDCLogoutRequestTO();
         logoutRequest.setEndSessionEndpoint(getOIDCProvider(op).getEndSessionEndpoint());

@@ -46,7 +46,7 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -291,7 +291,7 @@ public class Groups extends AbstractGroups {
                     collect(Collectors.toList());
 
             dynMemberships = new ArrayList<>();
-            if (SyncopeConsoleSession.get().owns(StandardEntitlement.GROUP_SEARCH) && !conditions.isEmpty()) {
+            if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.GROUP_SEARCH) && !conditions.isEmpty()) {
                 dynMemberships.addAll(groupRestClient.search(
                         SyncopeConstants.ROOT_REALM,
                         searchConditionBuilder.or(conditions).query(),

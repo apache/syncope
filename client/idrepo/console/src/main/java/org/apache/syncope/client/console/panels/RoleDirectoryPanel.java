@@ -53,7 +53,7 @@ import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -78,8 +78,8 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
     protected RoleDirectoryPanel(final String id, final Builder builder) {
         super(id, builder);
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.ROLE_CREATE);
-        setReadOnly(!SyncopeConsoleSession.get().owns(StandardEntitlement.ROLE_UPDATE));
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.ROLE_CREATE);
+        setReadOnly(!SyncopeConsoleSession.get().owns(IdRepoEntitlement.ROLE_UPDATE));
 
         disableCheckBoxes();
         setShowResultPage(true);
@@ -139,7 +139,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                                 new RoleWrapper(new RoleRestClient().read(model.getObject().getKey())),
                                 target));
             }
-        }, ActionLink.ActionType.EDIT, StandardEntitlement.ROLE_READ);
+        }, ActionLink.ActionType.EDIT, IdRepoEntitlement.ROLE_READ);
 
         panel.add(new ActionLink<RoleTO>() {
 
@@ -152,7 +152,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                 send(RoleDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.NewItemActionEvent<>(new RoleWrapper(clone), target));
             }
-        }, ActionLink.ActionType.CLONE, StandardEntitlement.ROLE_CREATE);
+        }, ActionLink.ActionType.CLONE, IdRepoEntitlement.ROLE_CREATE);
 
         panel.add(new ActionLink<RoleTO>() {
 
@@ -191,7 +191,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                         MetaDataRoleAuthorizationStrategy.authorize(
                                 panel,
                                 WebPage.RENDER,
-                                StandardEntitlement.USER_SEARCH);
+                                IdRepoEntitlement.USER_SEARCH);
 
                         return panel;
                     }
@@ -202,7 +202,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                 membersModal.show(true);
                 target.add(membersModal);
             }
-        }, ActionLink.ActionType.MEMBERS, StandardEntitlement.USER_SEARCH);
+        }, ActionLink.ActionType.MEMBERS, IdRepoEntitlement.USER_SEARCH);
 
         panel.add(new ActionLink<RoleTO>() {
 
@@ -237,7 +237,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                 utilityModal.show(true);
                 target.add(utilityModal);
             }
-        }, ActionLink.ActionType.LAYOUT_EDIT, StandardEntitlement.ROLE_UPDATE);
+        }, ActionLink.ActionType.LAYOUT_EDIT, IdRepoEntitlement.ROLE_UPDATE);
         panel.add(new ActionLink<RoleTO>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
@@ -255,7 +255,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.ROLE_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.ROLE_DELETE, true);
 
         return panel;
     }

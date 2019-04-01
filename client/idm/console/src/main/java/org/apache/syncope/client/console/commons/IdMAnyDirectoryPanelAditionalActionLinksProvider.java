@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -73,7 +73,7 @@ public class IdMAnyDirectoryPanelAditionalActionLinksProvider
                 modal.show(true);
             }
         }, ActionLink.ActionType.ENABLE);
-        enable.setEntitlements(StandardEntitlement.USER_UPDATE);
+        enable.setEntitlements(IdRepoEntitlement.USER_UPDATE);
         enable.setOnConfirm(false);
         enable.setRealms(realm, modelObject.getDynRealms());
         actions.add(enable);
@@ -101,7 +101,7 @@ public class IdMAnyDirectoryPanelAditionalActionLinksProvider
             }
         }, ActionLink.ActionType.MANAGE_RESOURCES);
         manageResources.setEntitlements(
-                String.format("%s,%s", StandardEntitlement.USER_READ, StandardEntitlement.USER_UPDATE));
+                String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE));
         manageResources.setOnConfirm(false);
         manageResources.setRealms(realm, modelObject.getDynRealms());
         actions.add(manageResources);
@@ -142,7 +142,7 @@ public class IdMAnyDirectoryPanelAditionalActionLinksProvider
             }
         }, ActionLink.ActionType.MANAGE_RESOURCES);
         manageResources.setEntitlements(
-                String.format("%s,%s", StandardEntitlement.GROUP_READ, StandardEntitlement.GROUP_UPDATE));
+                String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.GROUP_UPDATE));
         manageResources.setOnConfirm(false);
         manageResources.setRealms(realm, modelObject.getDynRealms());
         actions.add(manageResources);

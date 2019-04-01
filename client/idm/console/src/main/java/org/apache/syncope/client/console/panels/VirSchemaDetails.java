@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.PropertyModel;
 
@@ -121,7 +121,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
                 if (selectedResource != null) {
                     String adminRealm = getAdminRealm(selectedResource.getConnector());
 
-                    if (SyncopeConsoleSession.get().owns(StandardEntitlement.CONNECTOR_READ, adminRealm)) {
+                    if (SyncopeConsoleSession.get().owns(IdMEntitlement.CONNECTOR_READ, adminRealm)) {
                         extAttrName.setChoices(getExtAttrNames());
                         target.add(extAttrName);
                     }
@@ -147,7 +147,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
             ResourceTO resource = resourceRestClient.read(resourceKey);
             String adminRealm = getAdminRealm(resource.getConnector());
 
-            if (SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_READ, adminRealm)) {
+            if (SyncopeConsoleSession.get().owns(IdMEntitlement.RESOURCE_READ, adminRealm)) {
                 selectedResource = resource;
                 selectedResource.getProvisions().forEach(provisionTO -> {
                     anyTypes.put(provisionTO.getAnyType(), provisionTO.getObjectClass());

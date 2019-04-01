@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -55,7 +55,7 @@ public class ConnInstanceTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<GrantedAuthority> authorities = StandardEntitlement.values().stream().
+        List<GrantedAuthority> authorities = IdMEntitlement.values().stream().
                 map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
                 collect(Collectors.toList());
 

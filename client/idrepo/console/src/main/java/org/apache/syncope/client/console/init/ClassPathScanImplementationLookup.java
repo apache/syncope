@@ -38,11 +38,11 @@ import org.apache.syncope.client.console.annotations.IdMPage;
 import org.apache.syncope.client.console.annotations.Resource;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
-import org.apache.syncope.client.console.commons.EmptyAnyDirectoryPanelAditionalActionLinksProvider;
-import org.apache.syncope.client.console.commons.EmptyAnyWizardBuilderAdditionalSteps;
-import org.apache.syncope.client.console.commons.EmptyExternalResourceProvider;
-import org.apache.syncope.client.console.commons.EmptyStatusProvider;
-import org.apache.syncope.client.console.commons.EmptyVirSchemaDetailsPanelProvider;
+import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAditionalActionLinksProvider;
+import org.apache.syncope.client.console.commons.IdRepoAnyWizardBuilderAdditionalSteps;
+import org.apache.syncope.client.console.commons.IdRepoExternalResourceProvider;
+import org.apache.syncope.client.console.commons.IdRepoStatusProvider;
+import org.apache.syncope.client.console.commons.IdRepoVirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SSOLoginFormPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
@@ -103,17 +103,17 @@ public class ClassPathScanImplementationLookup {
         });
     }
 
-    private ExternalResourceProvider resourceProvider = new EmptyExternalResourceProvider();
+    private ExternalResourceProvider resourceProvider = new IdRepoExternalResourceProvider();
 
     private AnyWizardBuilderAdditionalSteps anyWizardBuilderAdditionalSteps =
-            new EmptyAnyWizardBuilderAdditionalSteps();
+            new IdRepoAnyWizardBuilderAdditionalSteps();
 
-    private StatusProvider statusProvider = new EmptyStatusProvider();
+    private StatusProvider statusProvider = new IdRepoStatusProvider();
 
-    private VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider = new EmptyVirSchemaDetailsPanelProvider();
+    private VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider = new IdRepoVirSchemaDetailsPanelProvider();
 
     private AnyDirectoryPanelAditionalActionLinksProvider anyDirectoryPanelAditionalActionLinksProvider =
-            new EmptyAnyDirectoryPanelAditionalActionLinksProvider();
+            new IdRepoAnyDirectoryPanelAditionalActionLinksProvider();
 
     private ImplementationInfoProvider implementationInfoProvider = new IdRepoImplementationInfoProvider(this);
 
@@ -247,35 +247,35 @@ public class ClassPathScanImplementationLookup {
                                     Resource.class.getName(), clazz.getName());
                         }
                     } else if (ExternalResourceProvider.class.isAssignableFrom(clazz)) {
-                        if (!clazz.equals(EmptyExternalResourceProvider.class)
+                        if (!clazz.equals(IdRepoExternalResourceProvider.class)
                                 && !clazz.isInstance(resourceProvider)) {
 
                             resourceProvider = (ExternalResourceProvider) clazz.
                                     getConstructor().newInstance();
                         }
                     } else if (AnyWizardBuilderAdditionalSteps.class.isAssignableFrom(clazz)) {
-                        if (!clazz.equals(EmptyAnyWizardBuilderAdditionalSteps.class)
+                        if (!clazz.equals(IdRepoAnyWizardBuilderAdditionalSteps.class)
                                 && !clazz.isInstance(anyWizardBuilderAdditionalSteps)) {
 
                             anyWizardBuilderAdditionalSteps = (AnyWizardBuilderAdditionalSteps) clazz.
                                     getConstructor().newInstance();
                         }
                     } else if (StatusProvider.class.isAssignableFrom(clazz)) {
-                        if (!clazz.equals(EmptyStatusProvider.class)
+                        if (!clazz.equals(IdRepoStatusProvider.class)
                                 && !clazz.isInstance(statusProvider)) {
 
                             statusProvider = (StatusProvider) clazz.
                                     getConstructor().newInstance();
                         }
                     } else if (VirSchemaDetailsPanelProvider.class.isAssignableFrom(clazz)) {
-                        if (!clazz.equals(EmptyVirSchemaDetailsPanelProvider.class)
+                        if (!clazz.equals(IdRepoVirSchemaDetailsPanelProvider.class)
                                 && !clazz.isInstance(virSchemaDetailsPanelProvider)) {
 
                             virSchemaDetailsPanelProvider = (VirSchemaDetailsPanelProvider) clazz.
                                     getConstructor().newInstance();
                         }
                     } else if (AnyDirectoryPanelAditionalActionLinksProvider.class.isAssignableFrom(clazz)) {
-                        if (!clazz.equals(EmptyAnyDirectoryPanelAditionalActionLinksProvider.class)
+                        if (!clazz.equals(IdRepoAnyDirectoryPanelAditionalActionLinksProvider.class)
                                 && !clazz.isInstance(anyDirectoryPanelAditionalActionLinksProvider)) {
 
                             anyDirectoryPanelAditionalActionLinksProvider =

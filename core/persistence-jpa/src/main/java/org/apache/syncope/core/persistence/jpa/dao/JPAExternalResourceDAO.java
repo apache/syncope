@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -107,7 +107,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
             return null;
         }
 
-        Set<String> authRealms = AuthContextUtils.getAuthorizations().get(StandardEntitlement.RESOURCE_READ);
+        Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.RESOURCE_READ);
         if (authRealms == null || authRealms.isEmpty()
                 || !authRealms.stream().anyMatch(realm -> resource.getConnector() != null
                 && resource.getConnector().getAdminRealm().getFullPath().startsWith(realm))) {
@@ -179,7 +179,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
 
     @Override
     public List<ExternalResource> findAll() {
-        final Set<String> authRealms = AuthContextUtils.getAuthorizations().get(StandardEntitlement.RESOURCE_LIST);
+        final Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.RESOURCE_LIST);
         if (authRealms == null || authRealms.isEmpty()) {
             return Collections.emptyList();
         }

@@ -43,7 +43,7 @@ import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -117,7 +117,7 @@ public class ParametersDirectoryPanel
         modal.size(Modal.Size.Medium);
         initResultTable();
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.CONFIGURATION_SET);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.CONFIGURATION_SET);
     }
 
     public ParametersDirectoryPanel(final String id, final Builder<Attr, Attr, ConfRestClient> builder) {
@@ -187,7 +187,7 @@ public class ParametersDirectoryPanel
                 modalDetails.setContent(new ParametersEditModalPanel(modalDetails, model.getObject(), pageRef));
                 modalDetails.show(true);
             }
-        }, ActionLink.ActionType.EDIT, StandardEntitlement.CONFIGURATION_SET);
+        }, ActionLink.ActionType.EDIT, IdRepoEntitlement.CONFIGURATION_SET);
 
         panel.add(new ActionLink<Attr>() {
 
@@ -207,7 +207,7 @@ public class ParametersDirectoryPanel
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.CONFIGURATION_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.CONFIGURATION_DELETE, true);
 
         return panel;
     }

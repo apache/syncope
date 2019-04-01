@@ -41,7 +41,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.Acti
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.ComposablePolicy;
 import org.apache.syncope.common.lib.policy.PolicyTO;
@@ -106,7 +106,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
         this.addNewItemPanelBuilder(
                 new PolicyRuleWizardBuilder(policy, type, new PolicyRuleWrapper(true), pageRef), true);
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.POLICY_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.POLICY_UPDATE);
         initResultTable();
     }
 
@@ -157,7 +157,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
                             new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
                 }
             }
-        }, ActionLink.ActionType.EDIT, StandardEntitlement.POLICY_UPDATE);
+        }, ActionLink.ActionType.EDIT, IdRepoEntitlement.POLICY_UPDATE);
         panel.add(new ActionLink<PolicyRuleWrapper>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -181,7 +181,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.POLICY_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.POLICY_DELETE, true);
 
         return panel;
     }
@@ -200,7 +200,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
                     customActionOnFinishCallback(target);
                 }
             }
-        }, ActionLink.ActionType.RELOAD, StandardEntitlement.POLICY_LIST).hideLabel();
+        }, ActionLink.ActionType.RELOAD, IdRepoEntitlement.POLICY_LIST).hideLabel();
         return panel;
     }
 

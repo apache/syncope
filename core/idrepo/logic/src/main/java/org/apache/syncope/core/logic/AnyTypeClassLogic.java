@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
@@ -46,7 +46,7 @@ public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO
     @Autowired
     private AnyTypeClassDAO anyTypeClassDAO;
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPECLASS_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPECLASS_READ + "')")
     @Transactional(readOnly = true)
     public AnyTypeClassTO read(final String key) {
         AnyTypeClass anyType = anyTypeClassDAO.find(key);
@@ -59,13 +59,13 @@ public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO
         return binder.getAnyTypeClassTO(anyType);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPECLASS_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPECLASS_LIST + "')")
     @Transactional(readOnly = true)
     public List<AnyTypeClassTO> list() {
         return anyTypeClassDAO.findAll().stream().map(binder::getAnyTypeClassTO).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPECLASS_CREATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPECLASS_CREATE + "')")
     public AnyTypeClassTO create(final AnyTypeClassTO anyTypeClassTO) {
         if (StringUtils.isBlank(anyTypeClassTO.getKey())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
@@ -78,7 +78,7 @@ public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO
         return binder.getAnyTypeClassTO(anyTypeClassDAO.save(binder.create(anyTypeClassTO)));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPECLASS_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPECLASS_UPDATE + "')")
     public AnyTypeClassTO update(final AnyTypeClassTO anyTypeClassTO) {
         AnyTypeClass anyType = anyTypeClassDAO.find(anyTypeClassTO.getKey());
         if (anyType == null) {
@@ -92,7 +92,7 @@ public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO
         return binder.getAnyTypeClassTO(anyType);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPECLASS_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPECLASS_DELETE + "')")
     public AnyTypeClassTO delete(final String key) {
         AnyTypeClass anyTypeClass = anyTypeClassDAO.find(key);
         if (anyTypeClass == null) {

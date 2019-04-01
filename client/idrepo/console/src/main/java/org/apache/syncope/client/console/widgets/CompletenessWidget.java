@@ -30,7 +30,7 @@ import org.apache.syncope.client.console.pages.Policies;
 import org.apache.syncope.client.console.pages.Security;
 import org.apache.syncope.client.console.pages.Types;
 import org.apache.syncope.common.lib.info.NumbersInfo;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -75,7 +75,7 @@ public class CompletenessWidget extends BaseWidget {
 
         policies = BookmarkablePageLinkBuilder.build("policies", Policies.class);
         policies.setOutputMarkupPlaceholderTag(true);
-        MetaDataRoleAuthorizationStrategy.authorize(policies, WebPage.ENABLE, StandardEntitlement.POLICY_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(policies, WebPage.ENABLE, IdRepoEntitlement.POLICY_LIST);
         actions.add(policies);
         policies.setVisible(
                 !confCompleteness.get(NumbersInfo.ConfItem.ACCOUNT_POLICY.name())
@@ -84,13 +84,13 @@ public class CompletenessWidget extends BaseWidget {
         notifications = BookmarkablePageLinkBuilder.build("notifications", Notifications.class);
         notifications.setOutputMarkupPlaceholderTag(true);
         MetaDataRoleAuthorizationStrategy.authorize(
-                notifications, WebPage.ENABLE, StandardEntitlement.NOTIFICATION_LIST);
+                notifications, WebPage.ENABLE, IdRepoEntitlement.NOTIFICATION_LIST);
         actions.add(notifications);
         notifications.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.NOTIFICATION.name()));
 
         types = BookmarkablePageLinkBuilder.build("types", Types.class);
         types.setOutputMarkupPlaceholderTag(true);
-        MetaDataRoleAuthorizationStrategy.authorize(types, WebPage.ENABLE, StandardEntitlement.SCHEMA_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(types, WebPage.ENABLE, IdRepoEntitlement.SCHEMA_LIST);
         actions.add(types);
         types.setVisible(
                 !confCompleteness.get(NumbersInfo.ConfItem.VIR_SCHEMA.name())
@@ -103,7 +103,7 @@ public class CompletenessWidget extends BaseWidget {
 
         roles = BookmarkablePageLinkBuilder.build("roles", Security.class);
         roles.setOutputMarkupPlaceholderTag(true);
-        MetaDataRoleAuthorizationStrategy.authorize(roles, WebPage.ENABLE, StandardEntitlement.ROLE_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(roles, WebPage.ENABLE, IdRepoEntitlement.ROLE_LIST);
         actions.add(roles);
         roles.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.ROLE.name()));
     }

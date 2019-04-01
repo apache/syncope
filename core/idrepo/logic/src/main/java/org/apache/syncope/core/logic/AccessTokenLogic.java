@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -104,7 +104,7 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
         delete(accessToken.getKey());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ACCESS_TOKEN_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ACCESS_TOKEN_LIST + "')")
     public Pair<Integer, List<AccessTokenTO>> list(
             final int page,
             final int size,
@@ -118,7 +118,7 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
         return Pair.of(count, result);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ACCESS_TOKEN_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ACCESS_TOKEN_DELETE + "')")
     public void delete(final String key) {
         accessTokenDAO.delete(key);
     }

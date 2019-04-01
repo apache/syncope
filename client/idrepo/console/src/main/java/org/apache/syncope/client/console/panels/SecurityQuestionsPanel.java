@@ -40,7 +40,7 @@ import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -98,7 +98,7 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
         modal.size(Modal.Size.Large);
         initResultTable();
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.SECURITY_QUESTION_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.SECURITY_QUESTION_CREATE);
     }
 
     private SecurityQuestionsPanel(
@@ -149,7 +149,7 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
                 send(SecurityQuestionsPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
-        }, ActionLink.ActionType.EDIT, StandardEntitlement.SECURITY_QUESTION_UPDATE);
+        }, ActionLink.ActionType.EDIT, IdRepoEntitlement.SECURITY_QUESTION_UPDATE);
         panel.add(new ActionLink<SecurityQuestionTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -167,7 +167,7 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.TASK_DELETE, true);
 
         return panel;
     }

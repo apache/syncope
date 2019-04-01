@@ -31,7 +31,7 @@ import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -79,21 +79,21 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         }
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_CREATE + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_CREATE + "')")
     public ConnInstanceTO create(final ConnInstanceTO connInstanceTO) {
         if (connInstanceTO.getAdminRealm() == null) {
             throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);
         }
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.CONNECTOR_CREATE),
+                AuthContextUtils.getAuthorizations().get(IdMEntitlement.CONNECTOR_CREATE),
                 connInstanceTO.getAdminRealm());
         securityChecks(effectiveRealms, connInstanceTO.getAdminRealm(), null);
 
         return binder.getConnInstanceTO(connInstanceDAO.save(binder.getConnInstance(connInstanceTO)));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_UPDATE + "')")
     public ConnInstanceTO update(final ConnInstanceTO connInstanceTO) {
         if (connInstanceTO.getAdminRealm() == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidConnInstance);
@@ -102,14 +102,14 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         }
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.CONNECTOR_UPDATE),
+                AuthContextUtils.getAuthorizations().get(IdMEntitlement.CONNECTOR_UPDATE),
                 connInstanceTO.getAdminRealm());
         securityChecks(effectiveRealms, connInstanceTO.getAdminRealm(), connInstanceTO.getKey());
 
         return binder.getConnInstanceTO(binder.update(connInstanceTO));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_DELETE + "')")
     public ConnInstanceTO delete(final String key) {
         ConnInstance connInstance = connInstanceDAO.authFind(key);
         if (connInstance == null) {
@@ -117,7 +117,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         }
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.CONNECTOR_DELETE),
+                AuthContextUtils.getAuthorizations().get(IdMEntitlement.CONNECTOR_DELETE),
                 connInstance.getAdminRealm().getFullPath());
         securityChecks(effectiveRealms, connInstance.getAdminRealm().getFullPath(), connInstance.getKey());
 
@@ -135,7 +135,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         return deleted;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_LIST + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_LIST + "')")
     @Transactional(readOnly = true)
     public List<ConnInstanceTO> list(final String lang) {
         CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
@@ -155,7 +155,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
                 }).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public ConnInstanceTO read(final String key, final String lang) {
         CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
@@ -168,7 +168,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         return binder.getConnInstanceTO(connInstance);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public List<ConnBundleTO> getBundles(final String lang) {
         if (StringUtils.isBlank(lang)) {
@@ -201,7 +201,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         return connectorBundleTOs;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
 
     public List<ConnIdObjectClassTO> buildObjectClassInfo(
             final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
@@ -231,7 +231,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         }).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public void check(final ConnInstanceTO connInstanceTO) {
         if (connInstanceTO.getAdminRealm() == null) {
@@ -241,7 +241,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         connFactory.createConnector(binder.getConnInstance(connInstanceTO)).test();
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public ConnInstanceTO readByResource(final String resourceName, final String lang) {
         CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
@@ -255,7 +255,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         return connInstance;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_RELOAD + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_RELOAD + "')")
     @Transactional(readOnly = true)
     public void reload() {
         connFactory.unload();

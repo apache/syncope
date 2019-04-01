@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.widgets.JobWidget;
 import org.apache.syncope.client.console.widgets.ReconciliationWidget;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -36,17 +36,17 @@ public class DashboardControlPanel extends Panel {
         JobWidget job = new JobWidget("job", pageRef);
         MetaDataRoleAuthorizationStrategy.authorize(job, Component.RENDER,
                 String.format("%s,%s,%s",
-                        StandardEntitlement.NOTIFICATION_LIST,
-                        StandardEntitlement.TASK_LIST,
-                        StandardEntitlement.REPORT_LIST));
+                        IdRepoEntitlement.NOTIFICATION_LIST,
+                        IdRepoEntitlement.TASK_LIST,
+                        IdRepoEntitlement.REPORT_LIST));
         add(job);
 
         ReconciliationWidget reconciliation = new ReconciliationWidget("reconciliation", pageRef);
         MetaDataRoleAuthorizationStrategy.authorize(job, Component.RENDER,
                 String.format("%s,%s,%s",
-                        StandardEntitlement.REPORT_EXECUTE,
-                        StandardEntitlement.REPORT_READ,
-                        StandardEntitlement.REPORT_LIST));
+                        IdRepoEntitlement.REPORT_EXECUTE,
+                        IdRepoEntitlement.REPORT_READ,
+                        IdRepoEntitlement.REPORT_LIST));
         add(reconciliation);
     }
 }

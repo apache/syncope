@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceHistoryConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -46,7 +46,7 @@ public class ConnectorHistoryLogic extends AbstractTransactionalLogic<ConnInstan
     @Autowired
     private ConnInstanceDataBinder binder;
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_HISTORY_LIST + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_HISTORY_LIST + "')")
     @Transactional(readOnly = true)
     public List<ConnInstanceHistoryConfTO> list(final String key) {
         ConnInstance connInstance = connInstanceDAO.find(key);
@@ -58,7 +58,7 @@ public class ConnectorHistoryLogic extends AbstractTransactionalLogic<ConnInstan
                 map(binder::getConnInstanceHistoryConfTO).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_HISTORY_RESTORE + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_HISTORY_RESTORE + "')")
     public void restore(final String key) {
         ConnInstanceHistoryConf connInstanceHistoryConf = connInstanceHistoryConfDAO.find(key);
         if (connInstanceHistoryConf == null) {
@@ -68,7 +68,7 @@ public class ConnectorHistoryLogic extends AbstractTransactionalLogic<ConnInstan
         binder.update(connInstanceHistoryConf.getConf());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_HISTORY_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_HISTORY_DELETE + "')")
     public void delete(final String key) {
         ConnInstanceHistoryConf connInstanceHistoryConf = connInstanceHistoryConfDAO.find(key);
         if (connInstanceHistoryConf == null) {

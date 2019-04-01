@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
@@ -43,7 +43,7 @@ public class RoleITCase extends AbstractITCase {
         RoleTO role = new RoleTO();
         role.setKey(name + getUUIDString());
         role.getRealms().add("/even");
-        role.getEntitlements().add(StandardEntitlement.LOG_SET_LEVEL);
+        role.getEntitlements().add(IdRepoEntitlement.LOG_SET_LEVEL);
 
         return role;
     }
@@ -62,7 +62,7 @@ public class RoleITCase extends AbstractITCase {
     public void read() {
         RoleTO roleTO = roleService.read("Search for realm evenTwo");
         assertNotNull(roleTO);
-        assertTrue(roleTO.getEntitlements().contains(StandardEntitlement.USER_READ));
+        assertTrue(roleTO.getEntitlements().contains(IdRepoEntitlement.USER_READ));
     }
 
     @Test
@@ -70,8 +70,8 @@ public class RoleITCase extends AbstractITCase {
         RoleTO role = new RoleTO();
         role.getRealms().add(SyncopeConstants.ROOT_REALM);
         role.getRealms().add("/even/two");
-        role.getEntitlements().add(StandardEntitlement.LOG_LIST);
-        role.getEntitlements().add(StandardEntitlement.LOG_SET_LEVEL);
+        role.getEntitlements().add(IdRepoEntitlement.LOG_LIST);
+        role.getEntitlements().add(IdRepoEntitlement.LOG_SET_LEVEL);
 
         try {
             createRole(role);

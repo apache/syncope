@@ -31,7 +31,7 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -90,7 +90,7 @@ public class SyncopeEnduserSession extends WebSession {
         try {
             selfTO = client.self().getRight();
         } catch (ForbiddenException e) {
-            LOG.warn("Could not read self(), probably in a {} scenario", StandardEntitlement.MUST_CHANGE_PASSWORD, e);
+            LOG.warn("Could not read self(), probably in a {} scenario", IdRepoEntitlement.MUST_CHANGE_PASSWORD, e);
 
             selfTO = new UserTO();
             selfTO.setUsername(username);

@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -53,7 +53,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
         return securityQuestionDAO.findAll().stream().map(binder::getSecurityQuestionTO).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.SECURITY_QUESTION_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.SECURITY_QUESTION_READ + "')")
     @Transactional(readOnly = true)
     public SecurityQuestionTO read(final String key) {
         SecurityQuestion securityQuestion = securityQuestionDAO.find(key);
@@ -66,12 +66,12 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
         return binder.getSecurityQuestionTO(securityQuestion);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.SECURITY_QUESTION_CREATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.SECURITY_QUESTION_CREATE + "')")
     public SecurityQuestionTO create(final SecurityQuestionTO securityQuestionTO) {
         return binder.getSecurityQuestionTO(securityQuestionDAO.save(binder.create(securityQuestionTO)));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.SECURITY_QUESTION_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.SECURITY_QUESTION_UPDATE + "')")
     public SecurityQuestionTO update(final SecurityQuestionTO securityQuestionTO) {
         SecurityQuestion securityQuestion = securityQuestionDAO.find(securityQuestionTO.getKey());
         if (securityQuestion == null) {
@@ -86,7 +86,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
         return binder.getSecurityQuestionTO(securityQuestion);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.SECURITY_QUESTION_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.SECURITY_QUESTION_DELETE + "')")
     public SecurityQuestionTO delete(final String key) {
         SecurityQuestion securityQuestion = securityQuestionDAO.find(key);
         if (securityQuestion == null) {
@@ -100,7 +100,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
         return deleted;
     }
 
-    @PreAuthorize("isAnonymous() or hasRole('" + StandardEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("isAnonymous() or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public SecurityQuestionTO readByUser(final String username) {
         if (username == null) {
             throw new NotFoundException("Null username");

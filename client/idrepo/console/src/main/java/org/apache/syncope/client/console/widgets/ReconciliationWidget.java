@@ -59,7 +59,7 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
@@ -153,7 +153,7 @@ public class ReconciliationWidget extends BaseWidget {
         this.reconciliationReportKey = SyncopeWebApplication.get().getReconciliationReportKey();
 
         ReportTO reconciliationReport = null;
-        if (SyncopeConsoleSession.get().owns(StandardEntitlement.REPORT_READ)) {
+        if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.REPORT_READ)) {
             try {
                 reconciliationReport = restClient.read(reconciliationReportKey);
             } catch (Exception e) {
@@ -190,7 +190,7 @@ public class ReconciliationWidget extends BaseWidget {
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(refresh, Component.RENDER, StandardEntitlement.REPORT_EXECUTE);
+        MetaDataRoleAuthorizationStrategy.authorize(refresh, Component.RENDER, IdRepoEntitlement.REPORT_EXECUTE);
         container.add(refresh);
     }
 
@@ -266,7 +266,7 @@ public class ReconciliationWidget extends BaseWidget {
         ReconciliationReport report = null;
 
         Optional<ExecTO> exec = Optional.empty();
-        if (SyncopeConsoleSession.get().owns(StandardEntitlement.REPORT_LIST)) {
+        if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.REPORT_LIST)) {
             exec = restClient.listRecentExecutions(ROWS).stream().
                     filter(e -> reconciliationReportKey.equals(e.getRefKey())).findFirst();
         }

@@ -48,7 +48,8 @@ import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -139,7 +140,7 @@ public class ResourceStatusDirectoryPanel
                 target.add(multiLevelPanelRef);
                 getTogglePanel().close(target);
             }
-        }, ActionLink.ActionType.VIEW, StandardEntitlement.RESOURCE_GET_CONNOBJECT);
+        }, ActionLink.ActionType.VIEW, IdMEntitlement.RESOURCE_GET_CONNOBJECT);
 
         panel.add(new ActionLink<StatusBean>() {
 
@@ -164,7 +165,7 @@ public class ResourceStatusDirectoryPanel
                 target.add(multiLevelPanelRef);
                 getTogglePanel().close(target);
             }
-        }, ActionLink.ActionType.RECONCILIATION_PUSH, StandardEntitlement.TASK_EXECUTE);
+        }, ActionLink.ActionType.RECONCILIATION_PUSH, IdRepoEntitlement.TASK_EXECUTE);
 
         panel.add(new ActionLink<StatusBean>() {
 
@@ -189,7 +190,7 @@ public class ResourceStatusDirectoryPanel
                 target.add(multiLevelPanelRef);
                 getTogglePanel().close(target);
             }
-        }, ActionLink.ActionType.RECONCILIATION_PULL, StandardEntitlement.TASK_EXECUTE);
+        }, ActionLink.ActionType.RECONCILIATION_PULL, IdRepoEntitlement.TASK_EXECUTE);
 
         return panel;
     }

@@ -41,7 +41,7 @@ import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ResourceHistoryConfTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;
@@ -118,7 +118,7 @@ public abstract class ResourceHistoryConfDirectoryPanel extends DirectoryPanel<
                 viewConfiguration(modelObject, target);
                 target.add(modal);
             }
-        }, ActionLink.ActionType.VIEW, StandardEntitlement.RESOURCE_HISTORY_LIST);
+        }, ActionLink.ActionType.VIEW, IdMEntitlement.RESOURCE_HISTORY_LIST);
 
         // -- restore
         panel.add(new ActionLink<ResourceHistoryConfTO>() {
@@ -138,7 +138,7 @@ public abstract class ResourceHistoryConfDirectoryPanel extends DirectoryPanel<
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.RESTORE, StandardEntitlement.RESOURCE_HISTORY_RESTORE);
+        }, ActionLink.ActionType.RESTORE, IdMEntitlement.RESOURCE_HISTORY_RESTORE);
 
         // -- delete
         panel.add(new ActionLink<ResourceHistoryConfTO>() {
@@ -159,7 +159,7 @@ public abstract class ResourceHistoryConfDirectoryPanel extends DirectoryPanel<
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_HISTORY_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdMEntitlement.RESOURCE_HISTORY_DELETE, true);
 
         return panel;
     }

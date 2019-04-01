@@ -45,7 +45,7 @@ import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
@@ -105,7 +105,7 @@ public class Ownership extends WizardStep implements ICondition {
         // -----------------------------------------------------------------
         final ActionPermissions permissions = new ActionPermissions();
         setMetaData(MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS, permissions);
-        permissions.authorize(RENDER, new Roles(StandardEntitlement.USER_SEARCH));
+        permissions.authorize(RENDER, new Roles(IdRepoEntitlement.USER_SEARCH));
         // -----------------------------------------------------------------
 
         setTitleModel(new ResourceModel("group.ownership"));

@@ -40,7 +40,7 @@ import org.apache.syncope.client.ui.commons.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -96,7 +96,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
         }, true);
 
         initResultTable();
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.ANYTYPE_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.ANYTYPE_CREATE);
     }
 
     @Override
@@ -167,7 +167,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
                 send(AnyTypesPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
-        }, ActionLink.ActionType.EDIT, StandardEntitlement.ANYTYPE_UPDATE);
+        }, ActionLink.ActionType.EDIT, IdRepoEntitlement.ANYTYPE_UPDATE);
         panel.add(new ActionLink<AnyTypeTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -187,7 +187,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.ANYTYPE_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.ANYTYPE_DELETE, true);
 
         return panel;
     }

@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -80,12 +80,12 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
             throw new NotFoundException(fullPath);
         }
 
-        final boolean admin = AuthContextUtils.getAuthorizations().keySet().contains(StandardEntitlement.REALM_LIST);
+        final boolean admin = AuthContextUtils.getAuthorizations().keySet().contains(IdRepoEntitlement.REALM_LIST);
         return realmDAO.findDescendants(realm).stream().
                 map(descendant -> binder.getRealmTO(descendant, admin)).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REALM_CREATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REALM_CREATE + "')")
     public ProvisioningResult<RealmTO> create(final String parentPath, final RealmTO realmTO) {
         Realm parent;
         if (StringUtils.isBlank(realmTO.getParent())) {
@@ -131,7 +131,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         return result;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REALM_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REALM_UPDATE + "')")
     public ProvisioningResult<RealmTO> update(final RealmTO realmTO) {
         Realm realm = realmDAO.findByFullPath(realmTO.getFullPath());
         if (realm == null) {
@@ -153,7 +153,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         return result;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REALM_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REALM_DELETE + "')")
     public ProvisioningResult<RealmTO> delete(final String fullPath) {
         Realm realm = realmDAO.findByFullPath(fullPath);
         if (realm == null) {

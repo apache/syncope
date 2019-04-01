@@ -39,7 +39,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.provisioning.api.utils.policy.AccountPolicyException;
 import org.apache.syncope.core.provisioning.api.utils.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -155,8 +155,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 && !AuthContextUtils.getUsername().equals(user.getUsername())) {
 
             Map<String, Set<String>> authorizations = AuthContextUtils.getAuthorizations();
-            Set<String> authRealms = authorizations.containsKey(StandardEntitlement.USER_READ)
-                    ? authorizations.get(StandardEntitlement.USER_READ)
+            Set<String> authRealms = authorizations.containsKey(IdRepoEntitlement.USER_READ)
+                    ? authorizations.get(IdRepoEntitlement.USER_READ)
                     : Collections.emptySet();
             boolean authorized = authRealms.stream().
                     anyMatch(realm -> user.getRealm().getFullPath().startsWith(realm));

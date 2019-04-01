@@ -43,7 +43,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -120,7 +120,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
             protected boolean statusCondition(final Serializable modelObject) {
                 return wizardInModal;
             }
-        }, ActionType.CHANGE_VIEW, StandardEntitlement.USER_READ).hideLabel();
+        }, ActionType.CHANGE_VIEW, IdRepoEntitlement.USER_READ).hideLabel();
         return panel;
     }
 
@@ -140,7 +140,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                                 target));
             }
         }, ActionType.EDIT,
-                String.format("%s,%s", StandardEntitlement.USER_READ, StandardEntitlement.USER_UPDATE)).
+                String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE)).
                 setRealms(realm, model.getObject().getDynRealms());
 
         panel.add(new ActionLink<UserTO>() {
@@ -160,7 +160,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
             protected boolean statusCondition(final UserTO modelObject) {
                 return addAjaxLink.isVisibleInHierarchy() && realm.startsWith(SyncopeConstants.ROOT_REALM);
             }
-        }, ActionType.CLONE, StandardEntitlement.USER_CREATE).setRealm(realm);
+        }, ActionType.CLONE, IdRepoEntitlement.USER_CREATE).setRealm(realm);
 
         panel.add(new ActionLink<UserTO>() {
 
@@ -183,7 +183,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionType.MUSTCHANGEPASSWORD, StandardEntitlement.USER_UPDATE).
+        }, ActionType.MUSTCHANGEPASSWORD, IdRepoEntitlement.USER_UPDATE).
                 setRealms(realm, model.getObject().getDynRealms());
 
         if (wizardInModal) {
@@ -207,7 +207,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
                     displayAttributeModal.show(true);
                 }
-            }, ActionType.PASSWORD_MANAGEMENT, StandardEntitlement.USER_UPDATE).
+            }, ActionType.PASSWORD_MANAGEMENT, IdRepoEntitlement.USER_UPDATE).
                     setRealms(realm, model.getObject().getDynRealms());
 
             if (SyncopeConsoleSession.get().getPlatformInfo().isPwdResetAllowed()
@@ -232,7 +232,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
-                }, ActionType.REQUEST_PASSWORD_RESET, StandardEntitlement.USER_UPDATE).
+                }, ActionType.REQUEST_PASSWORD_RESET, IdRepoEntitlement.USER_UPDATE).
                         setRealms(realm, model.getObject().getDynRealms());
             }
 
@@ -255,7 +255,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     utilityModal.header(new StringResourceModel("any.propagation.tasks", model));
                     utilityModal.show(true);
                 }
-            }, ActionType.PROPAGATION_TASKS, StandardEntitlement.TASK_LIST);
+            }, ActionType.PROPAGATION_TASKS, IdRepoEntitlement.TASK_LIST);
 
             panel.add(new ActionLink<UserTO>() {
 
@@ -269,7 +269,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     utilityModal.show(true);
                     target.add(utilityModal);
                 }
-            }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST);
+            }, ActionType.NOTIFICATION_TASKS, IdRepoEntitlement.TASK_LIST);
         }
 
         panel.add(new ActionLink<UserTO>() {
@@ -295,7 +295,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
             protected boolean statusCondition(final UserTO modelObject) {
                 return realm.startsWith(SyncopeConstants.ROOT_REALM);
             }
-        }, ActionType.DELETE, StandardEntitlement.USER_DELETE, true).setRealm(realm);
+        }, ActionType.DELETE, IdRepoEntitlement.USER_DELETE, true).setRealm(realm);
 
         return panel;
     }

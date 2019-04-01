@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -49,7 +49,7 @@ public class RoleTest extends AbstractTest {
         assertNotNull(role.getKey());
         assertFalse(role.getRealms().isEmpty());
         assertFalse(role.getEntitlements().isEmpty());
-        assertTrue(role.getEntitlements().contains(StandardEntitlement.USER_SEARCH));
+        assertTrue(role.getEntitlements().contains(IdRepoEntitlement.USER_SEARCH));
     }
 
     @Test
@@ -68,8 +68,8 @@ public class RoleTest extends AbstractTest {
         role.setKey("new");
         role.add(realmDAO.getRoot());
         role.add(realmDAO.findByFullPath("/even/two"));
-        role.getEntitlements().add(StandardEntitlement.LOG_LIST);
-        role.getEntitlements().add(StandardEntitlement.LOG_SET_LEVEL);
+        role.getEntitlements().add(IdRepoEntitlement.LOG_LIST);
+        role.getEntitlements().add(IdRepoEntitlement.LOG_SET_LEVEL);
 
         Role actual = roleDAO.save(role);
         assertNotNull(actual);

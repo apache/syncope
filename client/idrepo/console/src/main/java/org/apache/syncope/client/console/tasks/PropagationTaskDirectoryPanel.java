@@ -36,7 +36,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.Acti
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -126,7 +126,7 @@ public abstract class PropagationTaskDirectoryPanel
                 PropagationTaskDirectoryPanel.this.getTogglePanel().close(target);
                 viewTask(taskTO, target);
             }
-        }, ActionLink.ActionType.VIEW_EXECUTIONS, StandardEntitlement.TASK_READ);
+        }, ActionLink.ActionType.VIEW_EXECUTIONS, IdRepoEntitlement.TASK_READ);
 
         // [SYNCOPE-1115] - Display attributes for propagation tasks
         panel.add(new ActionLink<PropagationTaskTO>() {
@@ -138,7 +138,7 @@ public abstract class PropagationTaskDirectoryPanel
                 PropagationTaskDirectoryPanel.this.getTogglePanel().close(target);
                 viewTaskDetails(modelObject, target);
             }
-        }, ActionLink.ActionType.VIEW_DETAILS, StandardEntitlement.TASK_READ);
+        }, ActionLink.ActionType.VIEW_DETAILS, IdRepoEntitlement.TASK_READ);
 
         panel.add(new ActionLink<PropagationTaskTO>() {
 
@@ -157,7 +157,7 @@ public abstract class PropagationTaskDirectoryPanel
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.EXECUTE, StandardEntitlement.TASK_EXECUTE);
+        }, ActionLink.ActionType.EXECUTE, IdRepoEntitlement.TASK_EXECUTE);
 
         panel.add(new ActionLink<PropagationTaskTO>() {
 
@@ -177,7 +177,7 @@ public abstract class PropagationTaskDirectoryPanel
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.TASK_DELETE, true);
 
         return panel;
     }

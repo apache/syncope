@@ -34,7 +34,8 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
@@ -167,7 +168,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         return connObjectTO;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_GET_CONNOBJECT + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")
     public ReconStatus status(final AnyTypeKind anyTypeKind, final String anyKey, final String resourceKey) {
         Pair<Any<?>, Provision> init = init(anyTypeKind, anyKey, resourceKey);
 
@@ -178,7 +179,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         return status;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
     public void push(
             final AnyTypeKind anyTypeKind,
             final String anyKey,
@@ -206,7 +207,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         }
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
     public void pull(
             final AnyTypeKind anyTypeKind,
             final String anyKey,

@@ -30,7 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import javax.persistence.Query;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -112,8 +112,8 @@ public class RoleTest extends AbstractTest {
         role.setKey("new");
         role.add(realmDAO.getRoot());
         role.add(realmDAO.findByFullPath("/even/two"));
-        role.getEntitlements().add(StandardEntitlement.LOG_LIST);
-        role.getEntitlements().add(StandardEntitlement.LOG_SET_LEVEL);
+        role.getEntitlements().add(IdRepoEntitlement.LOG_LIST);
+        role.getEntitlements().add(IdRepoEntitlement.LOG_SET_LEVEL);
 
         DynRoleMembership dynMembership = entityFactory.newEntity(DynRoleMembership.class);
         dynMembership.setFIQLCond("cool==true");
@@ -176,8 +176,8 @@ public class RoleTest extends AbstractTest {
         role.setKey("new");
         role.add(realmDAO.getRoot());
         role.add(realmDAO.findByFullPath("/even/two"));
-        role.getEntitlements().add(StandardEntitlement.LOG_LIST);
-        role.getEntitlements().add(StandardEntitlement.LOG_SET_LEVEL);
+        role.getEntitlements().add(IdRepoEntitlement.LOG_LIST);
+        role.getEntitlements().add(IdRepoEntitlement.LOG_SET_LEVEL);
 
         role = roleDAO.save(role);
         assertNotNull(role);

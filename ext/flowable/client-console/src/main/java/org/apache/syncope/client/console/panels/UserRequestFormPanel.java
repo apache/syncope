@@ -34,7 +34,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.UserRequestFormProperty;
 import org.apache.syncope.common.lib.to.UserRequestForm;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -187,7 +187,7 @@ public abstract class UserRequestFormPanel extends Panel {
                 viewDetails(target);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(userDetails, ENABLE, StandardEntitlement.USER_READ);
+        MetaDataRoleAuthorizationStrategy.authorize(userDetails, ENABLE, IdRepoEntitlement.USER_READ);
 
         boolean enabled = form.getUserTO() != null;
         userDetails.setVisible(enabled).setEnabled(enabled);

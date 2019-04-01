@@ -41,7 +41,6 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -172,7 +171,7 @@ public class StatusPanel extends Panel {
         if (!enableConnObjectLink) {
             connObjectLink.disable();
         }
-        builder.addAction(connObjectLink, ActionLink.ActionType.VIEW, StandardEntitlement.RESOURCE_GET_CONNOBJECT);
+        SyncopeWebApplication.get().getStatusProvider().addConnObjectLink(builder, connObjectLink);
 
         builder.addAction(new ActionLink<StatusBean>() {
 

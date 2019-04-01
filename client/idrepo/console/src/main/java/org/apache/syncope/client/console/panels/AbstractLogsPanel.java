@@ -30,7 +30,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoiceP
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerLevel;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -70,7 +70,7 @@ public abstract class AbstractLogsPanel<T extends Serializable> extends Panel {
                 if ("level".equalsIgnoreCase(key)) {
                     final AjaxDropDownChoicePanel<LoggerLevel> loggerTOs = new AjaxDropDownChoicePanel<>(
                             "field", getString("level"), Model.of(loggerTO.getLevel()), false);
-                    MetaDataRoleAuthorizationStrategy.authorize(loggerTOs, ENABLE, StandardEntitlement.LOG_SET_LEVEL);
+                    MetaDataRoleAuthorizationStrategy.authorize(loggerTOs, ENABLE, IdRepoEntitlement.LOG_SET_LEVEL);
 
                     loggerTOs.hideLabel();
                     loggerTOs.setChoices(Arrays.asList(LoggerLevel.values()));

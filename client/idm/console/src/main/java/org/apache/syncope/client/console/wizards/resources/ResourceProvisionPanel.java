@@ -41,7 +41,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -166,7 +166,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 }
             }
-        }, ActionLink.ActionType.MAPPING, StandardEntitlement.RESOURCE_READ).
+        }, ActionLink.ActionType.MAPPING, IdMEntitlement.RESOURCE_READ).
                 addAction(new ActionLink<ResourceProvision>() {
 
                     private static final long serialVersionUID = -7780999687733432439L;
@@ -184,7 +184,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
-                }, ActionLink.ActionType.SET_LATEST_SYNC_TOKEN, StandardEntitlement.RESOURCE_UPDATE).
+                }, ActionLink.ActionType.SET_LATEST_SYNC_TOKEN, IdMEntitlement.RESOURCE_UPDATE).
                 addAction(new ActionLink<ResourceProvision>() {
 
                     private static final long serialVersionUID = -7780999687733432439L;
@@ -202,7 +202,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
-                }, ActionLink.ActionType.REMOVE_SYNC_TOKEN, StandardEntitlement.RESOURCE_UPDATE).
+                }, ActionLink.ActionType.REMOVE_SYNC_TOKEN, IdMEntitlement.RESOURCE_UPDATE).
                 addAction(new ActionLink<ResourceProvision>() {
 
                     private static final long serialVersionUID = -3722207913631435544L;
@@ -218,12 +218,12 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                         checkAddButton(adminRealm);
                         send(ResourceProvisionPanel.this, Broadcast.DEPTH, new ListViewReload<>(target));
                     }
-                }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_UPDATE, true);
+                }, ActionLink.ActionType.DELETE, IdMEntitlement.RESOURCE_UPDATE, true);
 
         builder.addNewItemPanelBuilder(wizard);
 
         list = builder.build("provision");
-        list.setReadOnly(!SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_UPDATE, adminRealm));
+        list.setReadOnly(!SyncopeConsoleSession.get().owns(IdMEntitlement.RESOURCE_UPDATE, adminRealm));
 
         addAjaxLink = new AjaxLink<ResourceProvision>("add") {
 
@@ -328,7 +328,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
     }
 
     private void checkAddButton(final String adminRealm) {
-        boolean enabled = SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_UPDATE, adminRealm)
+        boolean enabled = SyncopeConsoleSession.get().owns(IdMEntitlement.RESOURCE_UPDATE, adminRealm)
                 && !getAnyTypes().getObject().isEmpty();
         addAjaxLink.setVisible(enabled);
         objectTypeTogglePanel.setEnabled(enabled);

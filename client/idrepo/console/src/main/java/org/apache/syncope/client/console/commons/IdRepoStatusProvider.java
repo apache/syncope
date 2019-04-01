@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.commons;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.panels.ListViewPanel;
@@ -28,10 +29,22 @@ import org.apache.syncope.client.ui.commons.status.ConnObjectWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 
-public interface StatusProvider extends Serializable {
+public class IdRepoStatusProvider implements StatusProvider {
 
-    List<Triple<ConnObjectTO, ConnObjectWrapper, String>> get(AnyTO any, Collection<String> resources);
+    private static final long serialVersionUID = -7948190795547208134L;
 
-    <T extends Serializable> void addConnObjectLink(
-            ListViewPanel.Builder<T> builder, ActionLink<T> connObjectLink);
+    @Override
+    public List<Triple<ConnObjectTO, ConnObjectWrapper, String>> get(
+            final AnyTO any, final Collection<String> resources) {
+
+        return Collections.emptyList();
+    }
+
+    @Override
+    public <T extends Serializable> void addConnObjectLink(
+            final ListViewPanel.Builder<T> builder,
+            final ActionLink<T> connObjectLink) {
+
+        // do nothing
+    }
 }

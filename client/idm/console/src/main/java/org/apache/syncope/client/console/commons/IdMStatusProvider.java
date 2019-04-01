@@ -18,15 +18,19 @@
  */
 package org.apache.syncope.client.console.commons;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.ui.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.console.status.ReconStatusUtils;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 
 public class IdMStatusProvider implements StatusProvider {
 
@@ -43,5 +47,13 @@ public class IdMStatusProvider implements StatusProvider {
                 new ConnObjectWrapper(any, status.getLeft(), status.getRight().getOnResource()),
                 null)).
                 collect(Collectors.toList());
+    }
+
+    @Override
+    public <T extends Serializable> void addConnObjectLink(
+            final ListViewPanel.Builder<T> builder,
+            final ActionLink<T> connObjectLink) {
+
+        builder.addAction(connObjectLink, ActionLink.ActionType.VIEW, IdMEntitlement.RESOURCE_GET_CONNOBJECT);
     }
 }

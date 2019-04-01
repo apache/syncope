@@ -41,7 +41,7 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -152,7 +152,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                     utilityModal.header(new StringResourceModel("any.propagation.tasks", model));
                     utilityModal.show(true);
                 }
-            }, ActionType.PROPAGATION_TASKS, StandardEntitlement.TASK_LIST);
+            }, ActionType.PROPAGATION_TASKS, IdRepoEntitlement.TASK_LIST);
 
             panel.add(new ActionLink<AnyObjectTO>() {
 
@@ -167,7 +167,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                     utilityModal.show(true);
                     target.add(utilityModal);
                 }
-            }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST);
+            }, ActionType.NOTIFICATION_TASKS, IdRepoEntitlement.TASK_LIST);
         }
 
         panel.add(new ActionLink<AnyObjectTO>() {

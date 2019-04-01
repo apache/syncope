@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
@@ -145,8 +145,8 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
                     panel = new JobActionPanel(componentId, jobTO, false, ProvisioningTaskDirectoryPanel.this, pageRef);
                     MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
                             String.format("%s,%s",
-                                    StandardEntitlement.TASK_EXECUTE,
-                                    StandardEntitlement.TASK_UPDATE));
+                                    IdRepoEntitlement.TASK_EXECUTE,
+                                    IdRepoEntitlement.TASK_UPDATE));
                 } catch (Exception e) {
                     LOG.error("Could not get job for task {}", rowModel.getObject().getKey(), e);
                     panel = new Label(componentId, Model.of());

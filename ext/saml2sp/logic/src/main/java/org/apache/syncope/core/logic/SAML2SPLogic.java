@@ -44,7 +44,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.logic.saml2.SAML2ReaderWriter;
 import org.apache.syncope.core.logic.saml2.SAML2IdPCache;
 import org.apache.syncope.core.logic.saml2.SAML2IdPEntity;
@@ -252,7 +252,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         return idp;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public SAML2RequestTO createLoginRequest(final String spEntityID, final String idpEntityID) {
         check();
 
@@ -357,7 +357,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         return requestTO;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public SAML2LoginResponseTO validateLoginResponse(final SAML2ReceivedResponseTO response) {
         check();
 
@@ -555,7 +555,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         return responseTO;
     }
 
-    @PreAuthorize("isAuthenticated() and not(hasRole('" + StandardEntitlement.ANONYMOUS + "'))")
+    @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.ANONYMOUS + "'))")
     public SAML2RequestTO createLogoutRequest(final String accessToken, final String spEntityID) {
         check();
 
@@ -636,7 +636,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         return requestTO;
     }
 
-    @PreAuthorize("isAuthenticated() and not(hasRole('" + StandardEntitlement.ANONYMOUS + "'))")
+    @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.ANONYMOUS + "'))")
     public void validateLogoutResponse(final String accessToken, final SAML2ReceivedResponseTO response) {
         check();
 

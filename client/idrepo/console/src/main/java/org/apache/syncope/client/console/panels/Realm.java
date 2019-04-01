@@ -50,7 +50,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -104,7 +104,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         List<ITab> tabs = new ArrayList<>();
 
         tabs.add(new ITabComponent(new Model<>("DETAILS"),
-                StandardEntitlement.REALM_CREATE, StandardEntitlement.REALM_UPDATE, StandardEntitlement.REALM_DELETE) {
+                IdRepoEntitlement.REALM_CREATE, IdRepoEntitlement.REALM_UPDATE, IdRepoEntitlement.REALM_DELETE) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 
@@ -122,7 +122,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                         public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
                             onClickCreate(target);
                         }
-                    }, ActionLink.ActionType.CREATE, StandardEntitlement.REALM_CREATE).hideLabel();
+                    }, ActionLink.ActionType.CREATE, IdRepoEntitlement.REALM_CREATE).hideLabel();
 
                     actionPanel.add(new ActionLink<RealmTO>(realmTO) {
 
@@ -132,7 +132,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                         public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
                             onClickEdit(target, realmTO);
                         }
-                    }, ActionLink.ActionType.EDIT, StandardEntitlement.REALM_UPDATE).hideLabel();
+                    }, ActionLink.ActionType.EDIT, IdRepoEntitlement.REALM_UPDATE).hideLabel();
 
                     actionPanel.add(new ActionLink<RealmTO>(realmTO) {
 
@@ -142,7 +142,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                         public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
                             onClickTemplate(target);
                         }
-                    }, ActionLink.ActionType.TEMPLATE, StandardEntitlement.REALM_UPDATE).hideLabel();
+                    }, ActionLink.ActionType.TEMPLATE, IdRepoEntitlement.REALM_UPDATE).hideLabel();
 
                     actionPanel.add(new ActionLink<RealmTO>(realmTO) {
 
@@ -152,7 +152,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                         public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
                             onClickDelete(target, realmTO);
                         }
-                    }, ActionLink.ActionType.DELETE, StandardEntitlement.REALM_DELETE, true).hideLabel();
+                    }, ActionLink.ActionType.DELETE, IdRepoEntitlement.REALM_DELETE, true).hideLabel();
                 }
 
                 RealmDetails panel = new RealmDetails(panelId, realmTO, actionPanel, false);
@@ -243,7 +243,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         builder.withChecks(ListViewPanel.CheckAvailability.NONE);
         builder.setReuseItem(false);
 
-        builder.addAction(new ActionLink<PropagationStatus>() {
+        ActionLink<PropagationStatus> connObjectLink = new ActionLink<PropagationStatus>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -258,7 +258,8 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
             public void onClick(final AjaxRequestTarget target, final PropagationStatus status) {
                 mlp.next(status.getResource(), new RemoteRealmPanel(status), target);
             }
-        }, ActionLink.ActionType.VIEW, StandardEntitlement.RESOURCE_GET_CONNOBJECT);
+        };
+        SyncopeWebApplication.get().getStatusProvider().addConnObjectLink(builder, connObjectLink);
 
         builder.addAction(new ActionLink<PropagationStatus>() {
 

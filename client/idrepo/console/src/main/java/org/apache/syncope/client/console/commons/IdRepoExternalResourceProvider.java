@@ -18,22 +18,15 @@
  */
 package org.apache.syncope.client.console.commons;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang3.tuple.Triple;
-import org.apache.syncope.client.ui.commons.status.ConnObjectWrapper;
-import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
 
-public class EmptyStatusProvider implements StatusProvider {
+public class IdRepoExternalResourceProvider implements ExternalResourceProvider {
 
-    private static final long serialVersionUID = -7948190795547208134L;
+    private static final long serialVersionUID = 3002474783308961295L;
 
     @Override
-    public List<Triple<ConnObjectTO, ConnObjectWrapper, String>> get(
-            final AnyTO any, final Collection<String> resources) {
-
+    public List<String> get() {
         return Collections.emptyList();
     }
 }

@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.ApplicationTO;
 import org.apache.syncope.common.lib.to.PrivilegeTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.Application;
@@ -44,7 +44,7 @@ public class ApplicationLogic extends AbstractTransactionalLogic<ApplicationTO> 
     @Autowired
     private ApplicationDAO applicationDAO;
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.APPLICATION_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.APPLICATION_READ + "')")
     @Transactional(readOnly = true)
     public ApplicationTO read(final String key) {
         Application application = applicationDAO.find(key);
@@ -57,7 +57,7 @@ public class ApplicationLogic extends AbstractTransactionalLogic<ApplicationTO> 
         return binder.getApplicationTO(application);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.APPLICATION_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.APPLICATION_READ + "')")
     @Transactional(readOnly = true)
     public PrivilegeTO readPrivilege(final String key) {
         Privilege privilege = applicationDAO.findPrivilege(key);
@@ -70,18 +70,18 @@ public class ApplicationLogic extends AbstractTransactionalLogic<ApplicationTO> 
         return binder.getPrivilegeTO(privilege);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.APPLICATION_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.APPLICATION_LIST + "')")
     @Transactional(readOnly = true)
     public List<ApplicationTO> list() {
         return applicationDAO.findAll().stream().map(binder::getApplicationTO).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.APPLICATION_CREATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.APPLICATION_CREATE + "')")
     public ApplicationTO create(final ApplicationTO applicationTO) {
         return binder.getApplicationTO(applicationDAO.save(binder.create(applicationTO)));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.APPLICATION_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.APPLICATION_UPDATE + "')")
     public ApplicationTO update(final ApplicationTO applicationTO) {
         Application application = applicationDAO.find(applicationTO.getKey());
         if (application == null) {
@@ -92,7 +92,7 @@ public class ApplicationLogic extends AbstractTransactionalLogic<ApplicationTO> 
         return binder.getApplicationTO(applicationDAO.save(binder.update(application, applicationTO)));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.APPLICATION_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.APPLICATION_DELETE + "')")
     public ApplicationTO delete(final String key) {
         Application application = applicationDAO.find(key);
         if (application == null) {

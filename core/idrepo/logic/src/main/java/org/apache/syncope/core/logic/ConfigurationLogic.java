@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
@@ -65,7 +65,7 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<EntityTO> {
     @Autowired
     private AnyObjectWorkflowAdapter awfAdapter;
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONFIGURATION_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.CONFIGURATION_DELETE + "')")
     public void delete(final String schema) {
         Optional<? extends CPlainAttr> conf = confDAO.find(schema);
         if (!conf.isPresent()) {
@@ -78,12 +78,12 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<EntityTO> {
         confDAO.delete(schema);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONFIGURATION_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.CONFIGURATION_LIST + "')")
     public List<Attr> list() {
         return binder.getConf();
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONFIGURATION_GET + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.CONFIGURATION_GET + "')")
     @Transactional(readOnly = true)
     public Attr get(final String schema) {
         Attr result;
@@ -104,12 +104,12 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<EntityTO> {
         return result;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONFIGURATION_SET + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.CONFIGURATION_SET + "')")
     public void set(final Attr value) {
         confDAO.save(binder.getAttr(value));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONFIGURATION_EXPORT + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.CONFIGURATION_EXPORT + "')")
     @Transactional(readOnly = true)
     public void export(final OutputStream os) {
         try {

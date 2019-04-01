@@ -30,7 +30,7 @@ import org.apache.syncope.client.console.pages.Remediations;
 import org.apache.syncope.client.console.rest.RemediationRestClient;
 import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.common.lib.to.RemediationTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -87,8 +87,8 @@ public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
 
     @Override
     protected int getLatestAlertsSize() {
-        return SyncopeConsoleSession.get().owns(StandardEntitlement.REMEDIATION_LIST)
-                && SyncopeConsoleSession.get().owns(StandardEntitlement.REMEDIATION_READ)
+        return SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_LIST)
+                && SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_READ)
                 ? restClient.countRemediations()
                 : 0;
     }
@@ -102,8 +102,8 @@ public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
             @Override
             public List<RemediationTO> getObject() {
                 List<RemediationTO> updatedRemediations;
-                if (SyncopeConsoleSession.get().owns(StandardEntitlement.REMEDIATION_LIST)
-                        && SyncopeConsoleSession.get().owns(StandardEntitlement.REMEDIATION_READ)) {
+                if (SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_LIST)
+                        && SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_READ)) {
 
                     updatedRemediations = restClient.getRemediations(1, MAX_SIZE, new SortParam<>("instant", true));
                 } else {
@@ -118,7 +118,7 @@ public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
     @Override
     protected AbstractLink getEventsLink(final String linkid) {
         BookmarkablePageLink<Remediations> remediations = BookmarkablePageLinkBuilder.build(linkid, Remediations.class);
-        MetaDataRoleAuthorizationStrategy.authorize(remediations, WebPage.ENABLE, StandardEntitlement.REMEDIATION_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(remediations, WebPage.ENABLE, IdMEntitlement.REMEDIATION_LIST);
         return remediations;
     }
 

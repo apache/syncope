@@ -39,7 +39,7 @@ import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ApplicationTO;
 import org.apache.syncope.common.lib.to.PrivilegeTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -76,7 +76,7 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
 
         this.addNewItemPanelBuilder(new PrivilegeWizardBuilder(application, new PrivilegeTO(), pageRef), true);
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.APPLICATION_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.APPLICATION_UPDATE);
         initResultTable();
     }
 
@@ -104,7 +104,7 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
                 send(PrivilegeDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
-        }, ActionLink.ActionType.EDIT, StandardEntitlement.APPLICATION_UPDATE);
+        }, ActionLink.ActionType.EDIT, IdRepoEntitlement.APPLICATION_UPDATE);
 
         panel.add(new ActionLink<PrivilegeTO>() {
 
@@ -124,7 +124,7 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.APPLICATION_UPDATE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.APPLICATION_UPDATE, true);
 
         return panel;
     }

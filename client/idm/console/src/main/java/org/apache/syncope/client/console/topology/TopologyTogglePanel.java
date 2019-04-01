@@ -48,7 +48,8 @@ import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -197,7 +198,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
         };
         fragment.add(reload);
-        MetaDataRoleAuthorizationStrategy.authorize(reload, RENDER, StandardEntitlement.CONNECTOR_RELOAD);
+        MetaDataRoleAuthorizationStrategy.authorize(reload, RENDER, IdMEntitlement.CONNECTOR_RELOAD);
 
         AjaxLink<String> tasks = new IndicatingAjaxLink<String>("tasks") {
 
@@ -216,7 +217,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
         };
         fragment.add(tasks);
-        MetaDataRoleAuthorizationStrategy.authorize(tasks, RENDER, StandardEntitlement.TASK_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(tasks, RENDER, IdRepoEntitlement.TASK_LIST);
 
         return fragment;
     }
@@ -250,7 +251,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
         };
         fragment.add(create);
-        MetaDataRoleAuthorizationStrategy.authorize(create, RENDER, StandardEntitlement.CONNECTOR_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(create, RENDER, IdMEntitlement.CONNECTOR_CREATE);
 
         return fragment;
     }
@@ -277,7 +278,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(delete, RENDER, StandardEntitlement.CONNECTOR_DELETE);
+        MetaDataRoleAuthorizationStrategy.authorize(delete, RENDER, IdMEntitlement.CONNECTOR_DELETE);
         fragment.add(delete);
 
         AjaxLink<String> create = new IndicatingAjaxLink<String>("create") {
@@ -306,7 +307,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
 
         };
-        MetaDataRoleAuthorizationStrategy.authorize(create, RENDER, StandardEntitlement.RESOURCE_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(create, RENDER, IdMEntitlement.RESOURCE_CREATE);
         fragment.add(create);
 
         AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
@@ -323,7 +324,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 target.add(modal.setContent(new ConnectorWizardBuilder(connInstance, pageRef).
                         build(BaseModal.CONTENT_ID,
                                 SyncopeConsoleSession.get().
-                                        owns(StandardEntitlement.CONNECTOR_UPDATE, connInstance.getAdminRealm())
+                                        owns(IdMEntitlement.CONNECTOR_UPDATE, connInstance.getAdminRealm())
                                 ? AjaxWizard.Mode.EDIT
                                 : AjaxWizard.Mode.READONLY)));
 
@@ -338,7 +339,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
 
         };
-        MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.CONNECTOR_READ);
+        MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, IdMEntitlement.CONNECTOR_READ);
         fragment.add(edit);
 
         AjaxLink<String> history = new IndicatingAjaxLink<String>("history") {
@@ -365,7 +366,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
 
         };
-        MetaDataRoleAuthorizationStrategy.authorize(history, RENDER, StandardEntitlement.CONNECTOR_HISTORY_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(history, RENDER, IdMEntitlement.CONNECTOR_HISTORY_LIST);
         fragment.add(history);
 
         return fragment;
@@ -393,7 +394,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(delete, RENDER, StandardEntitlement.RESOURCE_DELETE);
+        MetaDataRoleAuthorizationStrategy.authorize(delete, RENDER, IdMEntitlement.RESOURCE_DELETE);
         fragment.add(delete);
 
         AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
@@ -411,7 +412,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 target.add(modal.setContent(new ResourceWizardBuilder(resource, pageRef).
                         build(BaseModal.CONTENT_ID,
                                 SyncopeConsoleSession.get().
-                                        owns(StandardEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())
+                                        owns(IdMEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())
                                 ? AjaxWizard.Mode.EDIT
                                 : AjaxWizard.Mode.READONLY)));
 
@@ -425,7 +426,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
 
         };
-        MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.RESOURCE_READ);
+        MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, IdMEntitlement.RESOURCE_READ);
         fragment.add(edit);
 
         AjaxLink<String> status = new IndicatingAjaxLink<String>("reconciliation") {
@@ -448,7 +449,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
 
         };
-        MetaDataRoleAuthorizationStrategy.authorize(status, RENDER, StandardEntitlement.USER_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(status, RENDER, IdRepoEntitlement.USER_UPDATE);
         fragment.add(status);
 
         AjaxLink<String> provision = new IndicatingAjaxLink<String>("provision") {
@@ -461,7 +462,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 ConnInstanceTO connInstance = connectorRestClient.read(resource.getConnector());
 
                 if (SyncopeConsoleSession.get().
-                        owns(StandardEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())) {
+                        owns(IdMEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())) {
 
                     provisionModal.addSubmitButton();
                 } else {
@@ -484,7 +485,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
 
         };
-        MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.RESOURCE_READ);
+        MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, IdMEntitlement.RESOURCE_READ);
         fragment.add(provision);
 
         AjaxLink<String> explore = new IndicatingAjaxLink<String>("explore") {
@@ -506,7 +507,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
 
         };
-        MetaDataRoleAuthorizationStrategy.authorize(explore, RENDER, StandardEntitlement.RESOURCE_LIST_CONNOBJECT);
+        MetaDataRoleAuthorizationStrategy.authorize(explore, RENDER, IdMEntitlement.RESOURCE_LIST_CONNOBJECT);
         fragment.add(explore);
 
         AjaxLink<String> propagation = new IndicatingAjaxLink<String>("propagation") {
@@ -529,7 +530,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
 
         };
-        MetaDataRoleAuthorizationStrategy.authorize(propagation, RENDER, StandardEntitlement.TASK_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(propagation, RENDER, IdRepoEntitlement.TASK_LIST);
         fragment.add(propagation);
 
         AjaxLink<String> pull = new IndicatingAjaxLink<String>("pull") {
@@ -549,7 +550,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
 
         };
-        MetaDataRoleAuthorizationStrategy.authorize(pull, RENDER, StandardEntitlement.TASK_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(pull, RENDER, IdRepoEntitlement.TASK_LIST);
         fragment.add(pull);
 
         AjaxLink<String> push = new IndicatingAjaxLink<String>("push") {
@@ -569,7 +570,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
 
         };
-        MetaDataRoleAuthorizationStrategy.authorize(push, RENDER, StandardEntitlement.TASK_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(push, RENDER, IdRepoEntitlement.TASK_LIST);
         fragment.add(push);
 
         AjaxLink<String> history = new IndicatingAjaxLink<String>("history") {
@@ -596,7 +597,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
 
         };
-        MetaDataRoleAuthorizationStrategy.authorize(history, RENDER, StandardEntitlement.RESOURCE_HISTORY_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(history, RENDER, IdMEntitlement.RESOURCE_HISTORY_LIST);
         fragment.add(history);
 
         // [SYNCOPE-1161] - Option to clone a resource
@@ -647,7 +648,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
 
         };
-        MetaDataRoleAuthorizationStrategy.authorize(clone, RENDER, StandardEntitlement.RESOURCE_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(clone, RENDER, IdMEntitlement.RESOURCE_CREATE);
         fragment.add(clone);
 
         return fragment;

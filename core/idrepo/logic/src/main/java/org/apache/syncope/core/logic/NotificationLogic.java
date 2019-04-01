@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.entity.Notification;
@@ -49,7 +49,7 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     @Autowired
     private NotificationDataBinder binder;
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.NOTIFICATION_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.NOTIFICATION_READ + "')")
     @Transactional(readOnly = true)
     public NotificationTO read(final String key) {
         Notification notification = notificationDAO.find(key);
@@ -62,18 +62,18 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
         return binder.getNotificationTO(notification);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.NOTIFICATION_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.NOTIFICATION_LIST + "')")
     @Transactional(readOnly = true)
     public List<NotificationTO> list() {
         return notificationDAO.findAll().stream().map(binder::getNotificationTO).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.NOTIFICATION_CREATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.NOTIFICATION_CREATE + "')")
     public NotificationTO create(final NotificationTO notificationTO) {
         return binder.getNotificationTO(notificationDAO.save(binder.create(notificationTO)));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.NOTIFICATION_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.NOTIFICATION_UPDATE + "')")
     public NotificationTO update(final NotificationTO notificationTO) {
         Notification notification = notificationDAO.find(notificationTO.getKey());
         if (notification == null) {
@@ -87,7 +87,7 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
         return binder.getNotificationTO(notification);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.NOTIFICATION_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.NOTIFICATION_DELETE + "')")
     public NotificationTO delete(final String key) {
         Notification notification = notificationDAO.find(key);
         if (notification == null) {
@@ -108,13 +108,13 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
                 : null;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.NOTIFICATION_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.NOTIFICATION_LIST + "')")
     public JobTO getJob() {
         List<JobTO> jobs = super.doListJobs(false);
         return jobs.isEmpty() ? null : jobs.get(0);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.NOTIFICATION_EXECUTE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.NOTIFICATION_EXECUTE + "')")
     public void actionJob(final JobAction action) {
         super.doActionJob(JobManager.NOTIFICATION_JOB, action);
     }

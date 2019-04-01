@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
-public final class StandardEntitlement {
+public final class IdRepoEntitlement {
 
     public static final String ANONYMOUS = "ANONYMOUS";
 
@@ -131,44 +131,6 @@ public final class StandardEntitlement {
     public static final String GROUP_UPDATE = "GROUP_UPDATE";
 
     public static final String GROUP_DELETE = "GROUP_DELETE";
-
-    public static final String RESOURCE_LIST = "RESOURCE_LIST";
-
-    public static final String RESOURCE_CREATE = "RESOURCE_CREATE";
-
-    public static final String RESOURCE_READ = "RESOURCE_READ";
-
-    public static final String RESOURCE_UPDATE = "RESOURCE_UPDATE";
-
-    public static final String RESOURCE_DELETE = "RESOURCE_DELETE";
-
-    public static final String RESOURCE_GET_CONNOBJECT = "RESOURCE_GET_CONNOBJECT";
-
-    public static final String RESOURCE_LIST_CONNOBJECT = "RESOURCE_LIST_CONNOBJECT";
-
-    public static final String RESOURCE_HISTORY_LIST = "RESOURCE_HISTORY_LIST";
-
-    public static final String RESOURCE_HISTORY_RESTORE = "RESOURCE_HISTORY_RESTORE";
-
-    public static final String RESOURCE_HISTORY_DELETE = "RESOURCE_HISTORY_DELETE";
-
-    public static final String CONNECTOR_LIST = "CONNECTOR_LIST";
-
-    public static final String CONNECTOR_CREATE = "CONNECTOR_CREATE";
-
-    public static final String CONNECTOR_READ = "CONNECTOR_READ";
-
-    public static final String CONNECTOR_UPDATE = "CONNECTOR_UPDATE";
-
-    public static final String CONNECTOR_DELETE = "CONNECTOR_DELETE";
-
-    public static final String CONNECTOR_RELOAD = "CONNECTOR_RELOAD";
-
-    public static final String CONNECTOR_HISTORY_LIST = "CONNECTOR_HISTORY_LIST";
-
-    public static final String CONNECTOR_HISTORY_RESTORE = "CONNECTOR_HISTORY_RESTORE";
-
-    public static final String CONNECTOR_HISTORY_DELETE = "CONNECTOR_HISTORY_DELETE";
 
     public static final String CONFIGURATION_EXPORT = "CONFIGURATION_EXPORT";
 
@@ -284,19 +246,11 @@ public final class StandardEntitlement {
 
     public static final String IMPLEMENTATION_DELETE = "IMPLEMENTATION_DELETE";
 
-    public static final String REMEDIATION_LIST = "REMEDIATION_LIST";
-
-    public static final String REMEDIATION_READ = "REMEDIATION_READ";
-
-    public static final String REMEDIATION_REMEDY = "REMEDIATION_REMEDY";
-
-    public static final String REMEDIATION_DELETE = "REMEDIATION_DELETE";
-
     private static final Set<String> VALUES;
 
     static {
         Set<String> values = new TreeSet<>();
-        for (Field field : StandardEntitlement.class.getDeclaredFields()) {
+        for (Field field : IdRepoEntitlement.class.getDeclaredFields()) {
             if (Modifier.isStatic(field.getModifiers()) && String.class.equals(field.getType())) {
                 values.add(field.getName());
             }
@@ -310,7 +264,7 @@ public final class StandardEntitlement {
         return VALUES;
     }
 
-    private StandardEntitlement() {
+    private IdRepoEntitlement() {
         // private constructor for static utility class
     }
 }

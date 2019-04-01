@@ -22,7 +22,7 @@ import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.ui.commons.wizards.any.AbstractResources;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 
@@ -39,7 +39,7 @@ public class Resources extends AbstractResources {
         final ActionPermissions permissions = new ActionPermissions();
         setMetaData(MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS, permissions);
         permissions.authorize(RENDER,
-                new org.apache.wicket.authroles.authorization.strategies.role.Roles(StandardEntitlement.RESOURCE_LIST));
+                new org.apache.wicket.authroles.authorization.strategies.role.Roles(IdMEntitlement.RESOURCE_LIST));
         // -----------------------------------------------------------------
     }
 

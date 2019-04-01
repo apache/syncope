@@ -63,7 +63,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
@@ -106,19 +106,19 @@ public class AuthenticationITCase extends AbstractITCase {
         Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(
                 new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY)).self();
         assertEquals(1, self.getLeft().size());
-        assertTrue(self.getLeft().keySet().contains(StandardEntitlement.ANONYMOUS));
+        assertTrue(self.getLeft().keySet().contains(IdRepoEntitlement.ANONYMOUS));
         assertEquals(ANONYMOUS_UNAME, self.getRight().getUsername());
 
         // 3. as admin
         self = adminClient.self();
         assertEquals(syncopeService.platform().getEntitlements().size(), self.getLeft().size());
-        assertFalse(self.getLeft().keySet().contains(StandardEntitlement.ANONYMOUS));
+        assertFalse(self.getLeft().keySet().contains(IdRepoEntitlement.ANONYMOUS));
         assertEquals(ADMIN_UNAME, self.getRight().getUsername());
 
         // 4. as user
         self = clientFactory.create("bellini", ADMIN_PWD).self();
         assertFalse(self.getLeft().isEmpty());
-        assertFalse(self.getLeft().keySet().contains(StandardEntitlement.ANONYMOUS));
+        assertFalse(self.getLeft().keySet().contains(IdRepoEntitlement.ANONYMOUS));
         assertEquals("bellini", self.getRight().getUsername());
     }
 
@@ -227,11 +227,11 @@ public class AuthenticationITCase extends AbstractITCase {
             // 1. create role for full user administration, under realm /even/two
             RoleTO role = new RoleTO();
             role.setKey("Delegated user admin");
-            role.getEntitlements().add(StandardEntitlement.USER_CREATE);
-            role.getEntitlements().add(StandardEntitlement.USER_UPDATE);
-            role.getEntitlements().add(StandardEntitlement.USER_DELETE);
-            role.getEntitlements().add(StandardEntitlement.USER_SEARCH);
-            role.getEntitlements().add(StandardEntitlement.USER_READ);
+            role.getEntitlements().add(IdRepoEntitlement.USER_CREATE);
+            role.getEntitlements().add(IdRepoEntitlement.USER_UPDATE);
+            role.getEntitlements().add(IdRepoEntitlement.USER_DELETE);
+            role.getEntitlements().add(IdRepoEntitlement.USER_SEARCH);
+            role.getEntitlements().add(IdRepoEntitlement.USER_READ);
             role.getRealms().add("/even/two");
 
             roleKey = roleService.create(role).getHeaderString(RESTHeaders.RESOURCE_KEY);

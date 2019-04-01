@@ -16,24 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.commons;
+package org.apache.syncope.core.logic.init;
 
-import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
-import org.apache.syncope.client.ui.commons.wizards.any.AnyForm;
-import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
-import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.wicket.extensions.wizard.WizardModel;
+import org.apache.syncope.common.lib.types.EntitlementsHolder;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
+import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
+import org.springframework.stereotype.Component;
 
-public class EmptyAnyWizardBuilderAdditionalSteps implements AnyWizardBuilderAdditionalSteps {
-
-    private static final long serialVersionUID = -2693000486786910671L;
+@Component
+public class IdMEntitlementLoader implements SyncopeCoreLoader {
 
     @Override
-    public <A extends AnyTO> WizardModel buildModelSteps(
-            final AnyWrapper<A> modelObject,
-            final WizardModel wizardModel,
-            final AbstractAnyFormLayout<A, ? extends AnyForm<A>> formLayoutInfo) {
+    public int getOrder() {
+        return 900;
+    }
 
-        return wizardModel;
+    @Override
+    public void load() {
+        EntitlementsHolder.getInstance().addAll(IdMEntitlement.values());
     }
 }

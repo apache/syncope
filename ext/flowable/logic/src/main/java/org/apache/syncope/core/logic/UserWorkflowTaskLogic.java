@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowTask;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -61,13 +61,13 @@ public class UserWorkflowTaskLogic extends AbstractTransactionalLogic<EntityTO> 
     private UserDAO userDAO;
 
     @PreAuthorize("hasRole('" + FlowableEntitlement.WORKFLOW_TASK_LIST + "') "
-            + "and hasRole('" + StandardEntitlement.USER_READ + "')")
+            + "and hasRole('" + IdRepoEntitlement.USER_READ + "')")
     public List<WorkflowTask> getAvailableTasks(final String key) {
         User user = userDAO.authFind(key);
         return wfTaskManager.getAvailableTasks(user.getKey());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
     public UserTO executeNextTask(final WorkflowTaskExecInput workflowTaskExecInput) {
         WorkflowResult<String> updated = wfTaskManager.executeNextTask(workflowTaskExecInput);
 

@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.ResourceHistoryConfTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceHistoryConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -46,7 +46,7 @@ public class ResourceHistoryLogic extends AbstractTransactionalLogic<ResourceHis
     @Autowired
     private ResourceDataBinder binder;
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_HISTORY_LIST + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_HISTORY_LIST + "')")
     @Transactional(readOnly = true)
     public List<ResourceHistoryConfTO> list(final String key) {
         ExternalResource resource = resourceDAO.find(key);
@@ -58,7 +58,7 @@ public class ResourceHistoryLogic extends AbstractTransactionalLogic<ResourceHis
                 map(binder::getResourceHistoryConfTO).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_HISTORY_RESTORE + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_HISTORY_RESTORE + "')")
     public void restore(final String key) {
         ExternalResourceHistoryConf resourceHistoryConf = resourceHistoryConfDAO.find(key);
         if (resourceHistoryConf == null) {
@@ -68,7 +68,7 @@ public class ResourceHistoryLogic extends AbstractTransactionalLogic<ResourceHis
         binder.update(resourceHistoryConf.getEntity(), resourceHistoryConf.getConf());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_HISTORY_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_HISTORY_DELETE + "')")
     public void delete(final String key) {
         ExternalResourceHistoryConf resourceHistoryConf = resourceHistoryConfDAO.find(key);
         if (resourceHistoryConf == null) {

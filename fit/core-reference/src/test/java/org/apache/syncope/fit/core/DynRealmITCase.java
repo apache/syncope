@@ -43,7 +43,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.DynRealmService;
 import org.apache.syncope.common.rest.api.service.GroupService;
@@ -107,11 +107,11 @@ public class DynRealmITCase extends AbstractITCase {
             // 2. create role for such dynamic realm
             role = new RoleTO();
             role.setKey("Administer LDAP" + getUUIDString());
-            role.getEntitlements().add(StandardEntitlement.USER_SEARCH);
-            role.getEntitlements().add(StandardEntitlement.USER_READ);
-            role.getEntitlements().add(StandardEntitlement.USER_UPDATE);
-            role.getEntitlements().add(StandardEntitlement.GROUP_READ);
-            role.getEntitlements().add(StandardEntitlement.GROUP_UPDATE);
+            role.getEntitlements().add(IdRepoEntitlement.USER_SEARCH);
+            role.getEntitlements().add(IdRepoEntitlement.USER_READ);
+            role.getEntitlements().add(IdRepoEntitlement.USER_UPDATE);
+            role.getEntitlements().add(IdRepoEntitlement.GROUP_READ);
+            role.getEntitlements().add(IdRepoEntitlement.GROUP_UPDATE);
             role.getDynRealms().add(dynRealm.getKey());
 
             role = createRole(role);

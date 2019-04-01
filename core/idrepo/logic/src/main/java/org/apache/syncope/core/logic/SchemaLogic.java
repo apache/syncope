@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
@@ -90,7 +90,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
         return found;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.SCHEMA_CREATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.SCHEMA_CREATE + "')")
     @SuppressWarnings("unchecked")
     public <T extends SchemaTO> T create(final SchemaType schemaType, final T schemaTO) {
         if (StringUtils.isBlank(schemaTO.getKey())) {
@@ -123,7 +123,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
         return created;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.SCHEMA_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.SCHEMA_DELETE + "')")
     public void delete(final SchemaType schemaType, final String schemaKey) {
         if (!doesSchemaExist(schemaType, schemaKey)) {
             throw new NotFoundException(schemaType + "/" + schemaKey);
@@ -218,7 +218,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
         return read;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.SCHEMA_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.SCHEMA_UPDATE + "')")
     public <T extends SchemaTO> void update(final SchemaType schemaType, final T schemaTO) {
         if (!doesSchemaExist(schemaType, schemaTO.getKey())) {
             throw new NotFoundException(schemaType + "/" + schemaTO.getKey());

@@ -33,7 +33,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
@@ -70,7 +70,7 @@ public class Roles extends WizardStep implements ICondition {
         final ActionPermissions permissions = new ActionPermissions();
         setMetaData(MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS, permissions);
         permissions.authorize(RENDER,
-                new org.apache.wicket.authroles.authorization.strategies.role.Roles(StandardEntitlement.ROLE_LIST));
+                new org.apache.wicket.authroles.authorization.strategies.role.Roles(IdRepoEntitlement.ROLE_LIST));
         // -----------------------------------------------------------------
 
         this.setOutputMarkupId(true);

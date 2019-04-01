@@ -36,7 +36,7 @@ import org.apache.syncope.client.console.widgets.ExtAlertWidget;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -135,7 +135,7 @@ public class BasePage extends BaseWebPage {
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(
-                dbExportLink, WebPage.RENDER, StandardEntitlement.CONFIGURATION_EXPORT);
+                dbExportLink, WebPage.RENDER, IdRepoEntitlement.CONFIGURATION_EXPORT);
         body.add(dbExportLink);
 
         // menu
@@ -147,14 +147,14 @@ public class BasePage extends BaseWebPage {
         body.add(liContainer);
 
         BookmarkablePageLink<? extends BasePage> link = BookmarkablePageLinkBuilder.build("realms", Realms.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.REALM_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.REALM_LIST);
 
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("reports"));
         body.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("reports", Reports.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.REPORT_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.REPORT_LIST);
         liContainer.add(link);
 
         List<Class<? extends BasePage>> idmPageClasses = lookup.getIdMPageClasses();
@@ -206,25 +206,25 @@ public class BasePage extends BaseWebPage {
         liContainer = new WebMarkupContainer(getLIContainerId("audit"));
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("audit", Audit.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.AUDIT_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.AUDIT_LIST);
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("implementations"));
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("implementations", Implementations.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.IMPLEMENTATION_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.IMPLEMENTATION_LIST);
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("logs"));
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("logs", Logs.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.LOG_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.LOG_LIST);
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("types"));
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("types", Types.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.SCHEMA_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.SCHEMA_LIST);
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("security"));
@@ -232,26 +232,26 @@ public class BasePage extends BaseWebPage {
         link = BookmarkablePageLinkBuilder.build("security", Security.class);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER,
                 String.format("%s,%s",
-                        StandardEntitlement.ROLE_LIST,
-                        StandardEntitlement.APPLICATION_LIST));
+                        IdRepoEntitlement.ROLE_LIST,
+                        IdRepoEntitlement.APPLICATION_LIST));
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("policies"));
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("policies", Policies.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.POLICY_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.POLICY_LIST);
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("notifications"));
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("notifications", Notifications.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.NOTIFICATION_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.NOTIFICATION_LIST);
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("parameters"));
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("parameters", Parameters.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.CONFIGURATION_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.CONFIGURATION_LIST);
         liContainer.add(link);
 
         body.add(new AjaxLink<Void>("collapse") {

@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -60,7 +60,7 @@ public class MultitenancyTest extends AbstractTest {
 
     @BeforeAll
     public static void setAuthContext() {
-        List<GrantedAuthority> authorities = StandardEntitlement.values().stream().
+        List<GrantedAuthority> authorities = IdMEntitlement.values().stream().
                 map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
                 collect(Collectors.toList());
 

@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
@@ -102,7 +102,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @Autowired
     private TaskUtilsFactory taskUtilsFactory;
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_CREATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_CREATE + "')")
     public <T extends SchedTaskTO> T createSchedTask(final TaskType type, final T taskTO) {
         TaskUtils taskUtils = taskUtilsFactory.getInstance(taskTO);
         if (taskUtils.getType() != type) {
@@ -130,7 +130,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         return binder.getTaskTO(task, taskUtils, false);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_UPDATE + "')")
     public <T extends SchedTaskTO> T updateSchedTask(final TaskType type, final SchedTaskTO taskTO) {
         SchedTask task = taskDAO.find(taskTO.getKey());
         if (task == null) {
@@ -163,7 +163,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         return binder.getTaskTO(task, taskUtils, false);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_LIST + "')")
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     public <T extends TaskTO> Pair<Integer, List<T>> search(
@@ -199,7 +199,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         }
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_READ + "')")
     @Transactional(readOnly = true)
     public <T extends TaskTO> T read(final TaskType type, final String key, final boolean details) {
         Task task = taskDAO.find(key);
@@ -217,7 +217,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         return binder.getTaskTO(task, taskUtilsFactory.getInstance(task), details);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
     @Override
     public ExecTO execute(final String key, final Date startAt, final boolean dryRun) {
         Task task = taskDAO.find(key);
@@ -302,7 +302,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         return result;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_DELETE + "')")
     public <T extends TaskTO> T delete(final TaskType type, final String key) {
         Task task = taskDAO.find(key);
         if (task == null) {
@@ -329,7 +329,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         return taskToDelete;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_READ + "')")
     @Override
     public Pair<Integer, List<ExecTO>> listExecutions(
             final String key, final int page, final int size, final List<OrderByClause> orderByClauses) {
@@ -347,14 +347,14 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         return Pair.of(count, result);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_LIST + "')")
     @Override
     public List<ExecTO> listRecentExecutions(final int max) {
         return taskExecDAO.findRecent(max).stream().
                 map(taskExec -> binder.getExecTO(taskExec)).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_DELETE + "')")
     @Override
     public ExecTO deleteExecution(final String execKey) {
         TaskExec taskExec = taskExecDAO.find(execKey);
@@ -367,7 +367,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         return taskExecutionToDelete;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_DELETE + "')")
     @Override
     public List<BatchResponseItem> deleteExecutions(
             final String key,
@@ -411,13 +411,13 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 : Triple.of(JobType.TASK, key, binder.buildRefDesc(task));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_LIST + "')")
     @Override
     public List<JobTO> listJobs() {
         return super.doListJobs(true);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_READ + "')")
     @Override
     public JobTO getJob(final String key) {
         Task task = taskDAO.find(key);
@@ -441,7 +441,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         return jobTO;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
     @Override
     public void actionJob(final String key, final JobAction action) {
         Task task = taskDAO.find(key);

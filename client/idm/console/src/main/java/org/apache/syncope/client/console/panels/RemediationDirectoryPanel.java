@@ -69,7 +69,8 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -97,7 +98,7 @@ public class RemediationDirectoryPanel
 
         initResultTable();
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.REMEDIATION_REMEDY);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdMEntitlement.REMEDIATION_REMEDY);
     }
 
     @Override
@@ -135,15 +136,15 @@ public class RemediationDirectoryPanel
                 modal.show(true);
                 target.add(modal);
             }
-        }, ActionLink.ActionType.VIEW_DETAILS, StandardEntitlement.REMEDIATION_READ);
+        }, ActionLink.ActionType.VIEW_DETAILS, IdMEntitlement.REMEDIATION_READ);
 
         if (model.getObject().getOperation() == ResourceOperation.DELETE) {
             String entitlements = StringUtils.join(new String[] {
-                StandardEntitlement.REMEDIATION_REMEDY,
+                IdMEntitlement.REMEDIATION_REMEDY,
                 AnyTypeKind.USER.name().equals(model.getObject().getAnyType())
-                ? StandardEntitlement.USER_DELETE
+                ? IdRepoEntitlement.USER_DELETE
                 : AnyTypeKind.GROUP.name().equals(model.getObject().getAnyType())
-                ? StandardEntitlement.GROUP_DELETE
+                ? IdRepoEntitlement.GROUP_DELETE
                 : AnyEntitlement.DELETE.getFor(model.getObject().getAnyType()) }, ",");
 
             panel.add(new ActionLink<RemediationTO>() {
@@ -167,18 +168,18 @@ public class RemediationDirectoryPanel
         } else {
             String entitlements = model.getObject().getOperation() == ResourceOperation.CREATE
                     ? StringUtils.join(new String[] {
-                StandardEntitlement.REMEDIATION_REMEDY,
+                IdMEntitlement.REMEDIATION_REMEDY,
                 AnyTypeKind.USER.name().equals(model.getObject().getAnyType())
-                ? StandardEntitlement.USER_CREATE
+                ? IdRepoEntitlement.USER_CREATE
                 : AnyTypeKind.GROUP.name().equals(model.getObject().getAnyType())
-                ? StandardEntitlement.GROUP_CREATE
+                ? IdRepoEntitlement.GROUP_CREATE
                 : AnyEntitlement.CREATE.getFor(model.getObject().getAnyType()) }, ",")
                     : StringUtils.join(new String[] {
-                StandardEntitlement.REMEDIATION_REMEDY,
+                IdMEntitlement.REMEDIATION_REMEDY,
                 AnyTypeKind.USER.name().equals(model.getObject().getAnyType())
-                ? StandardEntitlement.USER_UPDATE
+                ? IdRepoEntitlement.USER_UPDATE
                 : AnyTypeKind.GROUP.name().equals(model.getObject().getAnyType())
-                ? StandardEntitlement.GROUP_UPDATE
+                ? IdRepoEntitlement.GROUP_UPDATE
                 : AnyEntitlement.UPDATE.getFor(model.getObject().getAnyType()) }, ",");
 
             panel.add(new ActionLink<RemediationTO>() {
@@ -293,7 +294,7 @@ public class RemediationDirectoryPanel
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.REMEDIATION_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdMEntitlement.REMEDIATION_DELETE, true);
 
         return panel;
     }

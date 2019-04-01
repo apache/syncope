@@ -41,7 +41,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.Acti
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -94,7 +94,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
         this.addNewItemPanelBuilder(
                 new ReportletWizardBuilder(report, new ReportletWrapper(true), pageRef), true);
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.REPORT_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.REPORT_UPDATE);
         initResultTable();
     }
 
@@ -145,7 +145,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                             new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
                 }
             }
-        }, ActionLink.ActionType.EDIT, StandardEntitlement.REPORT_UPDATE);
+        }, ActionLink.ActionType.EDIT, IdRepoEntitlement.REPORT_UPDATE);
         panel.add(new ActionLink<ReportletWrapper>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -167,7 +167,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.REPORT_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.REPORT_DELETE, true);
 
         return panel;
     }
@@ -186,7 +186,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                     customActionOnFinishCallback(target);
                 }
             }
-        }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).hideLabel();
+        }, ActionLink.ActionType.RELOAD, IdRepoEntitlement.TASK_LIST).hideLabel();
         return panel;
     }
 

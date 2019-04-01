@@ -40,7 +40,7 @@ import org.apache.syncope.client.ui.commons.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -97,7 +97,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
         }, true);
 
         initResultTable();
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.ANYTYPE_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.ANYTYPE_CREATE);
     }
 
     @Override
@@ -168,7 +168,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
                 send(AnyTypeClassesPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
-        }, ActionLink.ActionType.EDIT, StandardEntitlement.ANYTYPECLASS_UPDATE);
+        }, ActionLink.ActionType.EDIT, IdRepoEntitlement.ANYTYPECLASS_UPDATE);
 
         panel.add(new ActionLink<AnyTypeClassTO>() {
 
@@ -187,7 +187,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.ANYTYPECLASS_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.ANYTYPECLASS_DELETE, true);
 
         return panel;
     }

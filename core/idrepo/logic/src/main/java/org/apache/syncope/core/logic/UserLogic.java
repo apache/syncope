@@ -41,7 +41,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
@@ -86,7 +86,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     @Autowired
     protected SyncopeLogic syncopeLogic;
 
-    @PreAuthorize("isAuthenticated() and not(hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "'))")
+    @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
     @Transactional(readOnly = true)
     public Pair<String, UserTO> selfRead() {
         return Pair.of(
@@ -94,14 +94,14 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 binder.returnUserTO(binder.getAuthenticatedUserTO()));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_READ + "')")
     @Transactional(readOnly = true)
     @Override
     public UserTO read(final String key) {
         return binder.returnUserTO(binder.getUserTO(key));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_SEARCH + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_SEARCH + "')")
     @Transactional(readOnly = true)
     @Override
     public Pair<Integer, List<UserTO>> search(
@@ -111,11 +111,11 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             final boolean details) {
 
         int count = searchDAO.count(RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realm),
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_SEARCH), realm),
                 searchCond == null ? userDAO.getAllMatchingCond() : searchCond, AnyTypeKind.USER);
 
         List<User> matching = searchDAO.search(RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realm),
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_SEARCH), realm),
                 searchCond == null ? userDAO.getAllMatchingCond() : searchCond,
                 page, size, orderBy, AnyTypeKind.USER);
         List<UserTO> result = matching.stream().
@@ -125,12 +125,12 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         return Pair.of(count, result);
     }
 
-    @PreAuthorize("isAnonymous() or hasRole('" + StandardEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("isAnonymous() or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public ProvisioningResult<UserTO> selfCreate(final UserCR createReq, final boolean nullPriorityAsync) {
         return doCreate(createReq, true, nullPriorityAsync);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_CREATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_CREATE + "')")
     public ProvisioningResult<UserTO> create(final UserCR createReq, final boolean nullPriorityAsync) {
         return doCreate(createReq, false, nullPriorityAsync);
     }
@@ -148,7 +148,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         if (!self) {
             Set<String> effectiveRealms = RealmUtils.getEffective(
-                    AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_CREATE),
+                    AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_CREATE),
                     before.getLeft().getRealm());
             securityChecks(effectiveRealms, before.getLeft().getRealm(), null);
         }
@@ -160,8 +160,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     }
 
     @PreAuthorize("isAuthenticated() "
-            + "and not(hasRole('" + StandardEntitlement.ANONYMOUS + "')) "
-            + "and not(hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "'))")
+            + "and not(hasRole('" + IdRepoEntitlement.ANONYMOUS + "')) "
+            + "and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
     public ProvisioningResult<UserTO> selfUpdate(final UserUR userUR, final boolean nullPriorityAsync) {
         UserTO userTO = binder.getAuthenticatedUserTO();
         userUR.setKey(userTO.getKey());
@@ -179,7 +179,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         return updated;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
     @Override
     public ProvisioningResult<UserTO> update(final UserUR userUR, final boolean nullPriorityAsync) {
         return doUpdate(userUR, false, nullPriorityAsync);
@@ -198,7 +198,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 && StringUtils.isNotBlank(before.getLeft().getRealm().getValue())) {
 
             Set<String> effectiveRealms = RealmUtils.getEffective(
-                    AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
+                    AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_UPDATE),
                     before.getLeft().getRealm().getValue());
             authDynRealms =
                     securityChecks(effectiveRealms, before.getLeft().getRealm().getValue(), before.getLeft().getKey());
@@ -239,12 +239,12 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         return updated;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
     public ProvisioningResult<UserTO> status(final StatusR statusR, final boolean nullPriorityAsync) {
         // security checks
         UserTO toUpdate = binder.getUserTO(statusR.getKey());
         Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_UPDATE),
                 toUpdate.getRealm());
         securityChecks(effectiveRealms, toUpdate.getRealm(), toUpdate.getKey());
 
@@ -261,7 +261,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 Collections.<String>emptySet());
     }
 
-    @PreAuthorize("isAuthenticated() and not(hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "'))")
+    @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
     public ProvisioningResult<UserTO> selfStatus(final StatusR statusR, final boolean nullPriorityAsync) {
         statusR.setKey(userDAO.findKey(AuthContextUtils.getUsername()));
         Pair<String, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusR, nullPriorityAsync);
@@ -274,7 +274,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 Collections.<String>emptySet());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "')")
     public ProvisioningResult<UserTO> mustChangePassword(final String password, final boolean nullPriorityAsync) {
         UserUR userUR = new UserUR();
         userUR.setPassword(new PasswordPatch.Builder().value(password).build());
@@ -282,7 +282,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         return selfUpdate(userUR, nullPriorityAsync);
     }
 
-    @PreAuthorize("isAnonymous() or hasRole('" + StandardEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("isAnonymous() or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional
     public void requestPasswordReset(final String username, final String securityAnswer) {
         if (username == null) {
@@ -303,7 +303,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         provisioningManager.requestPasswordReset(user.getKey());
     }
 
-    @PreAuthorize("isAnonymous() or hasRole('" + StandardEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("isAnonymous() or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional
     public void confirmPasswordReset(final String token, final String password) {
         User user = userDAO.findByToken(token);
@@ -314,14 +314,14 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     }
 
     @PreAuthorize("isAuthenticated() "
-            + "and not(hasRole('" + StandardEntitlement.ANONYMOUS + "')) "
-            + "and not(hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "'))")
+            + "and not(hasRole('" + IdRepoEntitlement.ANONYMOUS + "')) "
+            + "and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
     public ProvisioningResult<UserTO> selfDelete(final boolean nullPriorityAsync) {
         UserTO userTO = binder.getAuthenticatedUserTO();
         return doDelete(userTO, true, nullPriorityAsync);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_DELETE + "')")
     @Override
     public ProvisioningResult<UserTO> delete(final String key, final boolean nullPriorityAsync) {
         UserTO userTO = binder.getUserTO(key);
@@ -335,7 +335,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         if (!self) {
             Set<String> effectiveRealms = RealmUtils.getEffective(
-                    AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_DELETE),
+                    AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_DELETE),
                     before.getLeft().getRealm());
             securityChecks(effectiveRealms, before.getLeft().getRealm(), before.getLeft().getKey());
         }
@@ -361,13 +361,13 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         return afterDelete(binder.returnUserTO(deletedTO), statuses, before.getRight());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
     @Override
     public UserTO unlink(final String key, final Collection<String> resources) {
         // security checks
         UserTO user = binder.getUserTO(key);
         Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_UPDATE),
                 user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
@@ -380,13 +380,13 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         return binder.returnUserTO(binder.getUserTO(provisioningManager.unlink(req)));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
     @Override
     public UserTO link(final String key, final Collection<String> resources) {
         // security checks
         UserTO user = binder.getUserTO(key);
         Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_UPDATE),
                 user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
@@ -399,7 +399,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         return binder.returnUserTO(binder.getUserTO(provisioningManager.link(req)));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
     @Override
     public ProvisioningResult<UserTO> unassign(
             final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
@@ -407,7 +407,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         // security checks
         UserTO user = binder.getUserTO(key);
         Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_UPDATE),
                 user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
@@ -420,7 +420,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         return update(req, nullPriorityAsync);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
     @Override
     public ProvisioningResult<UserTO> assign(
             final String key,
@@ -432,7 +432,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         // security checks
         UserTO user = binder.getUserTO(key);
         Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_UPDATE),
                 user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
@@ -450,7 +450,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         return update(req, nullPriorityAsync);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
     @Override
     public ProvisioningResult<UserTO> deprovision(
             final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
@@ -458,7 +458,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         // security checks
         UserTO user = binder.getUserTO(key);
         Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_UPDATE),
                 user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
@@ -470,7 +470,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         return result;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
     @Override
     public ProvisioningResult<UserTO> provision(
             final String key,
@@ -482,7 +482,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         // security checks
         UserTO user = binder.getUserTO(key);
         Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_UPDATE),
                 user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 

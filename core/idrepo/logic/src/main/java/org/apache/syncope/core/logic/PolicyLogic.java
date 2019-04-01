@@ -26,7 +26,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
@@ -50,7 +50,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
     @Autowired
     private PolicyUtilsFactory policyUtilsFactory;
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_CREATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.POLICY_CREATE + "')")
     public <T extends PolicyTO> T create(final PolicyType type, final T policyTO) {
         PolicyUtils policyUtils = policyUtilsFactory.getInstance(policyTO);
         if (policyUtils.getType() != type) {
@@ -62,7 +62,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
         return binder.getPolicyTO(policyDAO.save(binder.create(policyTO)));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.POLICY_UPDATE + "')")
     public PolicyTO update(final PolicyType type, final PolicyTO policyTO) {
         Policy policy = policyDAO.find(policyTO.getKey());
 
@@ -76,7 +76,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
         return binder.getPolicyTO(policyDAO.save(binder.update(policy, policyTO)));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.POLICY_LIST + "')")
     @Transactional(readOnly = true)
     public <T extends PolicyTO> List<T> list(final PolicyType type) {
         PolicyUtils policyUtils = policyUtilsFactory.getInstance(type);
@@ -85,7 +85,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
                 <T>map(binder::getPolicyTO).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.POLICY_READ + "')")
     @Transactional(readOnly = true)
     public <T extends PolicyTO> T read(final PolicyType type, final String key) {
         Policy policy = policyDAO.find(key);
@@ -103,7 +103,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
         return binder.getPolicyTO(policy);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.POLICY_DELETE + "')")
     public <T extends PolicyTO> T delete(final PolicyType type, final String key) {
         Policy policy = policyDAO.find(key);
         if (policy == null) {

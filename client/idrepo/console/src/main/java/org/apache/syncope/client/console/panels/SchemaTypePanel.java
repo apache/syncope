@@ -46,7 +46,7 @@ import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -98,7 +98,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
         this.restClient = new SchemaRestClient();
 
         initResultTable();
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.SCHEMA_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.SCHEMA_CREATE);
     }
 
     @Override
@@ -171,7 +171,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
                 send(SchemaTypePanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
-        }, ActionLink.ActionType.EDIT, StandardEntitlement.SCHEMA_UPDATE);
+        }, ActionLink.ActionType.EDIT, IdRepoEntitlement.SCHEMA_UPDATE);
         panel.add(new ActionLink<SchemaTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -202,7 +202,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.SCHEMA_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.SCHEMA_DELETE, true);
 
         return panel;
     }

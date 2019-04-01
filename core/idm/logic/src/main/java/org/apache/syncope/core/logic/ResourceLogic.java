@@ -37,7 +37,7 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -122,7 +122,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_CREATE + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_CREATE + "')")
     public ResourceTO create(final ResourceTO resourceTO) {
         if (StringUtils.isBlank(resourceTO.getKey())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
@@ -138,7 +138,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.RESOURCE_CREATE),
+                AuthContextUtils.getAuthorizations().get(IdMEntitlement.RESOURCE_CREATE),
                 connInstance.getAdminRealm().getFullPath());
         securityChecks(effectiveRealms, connInstance.getAdminRealm().getFullPath(), null);
 
@@ -149,7 +149,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return binder.getResourceTO(resourceDAO.save(binder.create(resourceTO)));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_UPDATE + "')")
     public ResourceTO update(final ResourceTO resourceTO) {
         ExternalResource resource = resourceDAO.authFind(resourceTO.getKey());
         if (resource == null) {
@@ -157,14 +157,14 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.RESOURCE_UPDATE),
+                AuthContextUtils.getAuthorizations().get(IdMEntitlement.RESOURCE_UPDATE),
                 resource.getConnector().getAdminRealm().getFullPath());
         securityChecks(effectiveRealms, resource.getConnector().getAdminRealm().getFullPath(), resource.getKey());
 
         return binder.getResourceTO(resourceDAO.save(binder.update(resource, resourceTO)));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_UPDATE + "')")
     public void setLatestSyncToken(final String key, final String anyTypeKey) {
         ExternalResource resource = resourceDAO.authFind(key);
         if (resource == null) {
@@ -200,14 +200,14 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.RESOURCE_UPDATE),
+                AuthContextUtils.getAuthorizations().get(IdMEntitlement.RESOURCE_UPDATE),
                 resource.getConnector().getAdminRealm().getFullPath());
         securityChecks(effectiveRealms, resource.getConnector().getAdminRealm().getFullPath(), resource.getKey());
 
         resourceDAO.save(resource);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_UPDATE + "')")
     public void removeSyncToken(final String key, final String anyTypeKey) {
         ExternalResource resource = resourceDAO.authFind(key);
         if (resource == null) {
@@ -233,14 +233,14 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.RESOURCE_UPDATE),
+                AuthContextUtils.getAuthorizations().get(IdMEntitlement.RESOURCE_UPDATE),
                 resource.getConnector().getAdminRealm().getFullPath());
         securityChecks(effectiveRealms, resource.getConnector().getAdminRealm().getFullPath(), resource.getKey());
 
         resourceDAO.save(resource);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_DELETE + "')")
     public ResourceTO delete(final String key) {
         ExternalResource resource = resourceDAO.authFind(key);
         if (resource == null) {
@@ -248,7 +248,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.RESOURCE_DELETE),
+                AuthContextUtils.getAuthorizations().get(IdMEntitlement.RESOURCE_DELETE),
                 resource.getConnector().getAdminRealm().getFullPath());
         securityChecks(effectiveRealms, resource.getConnector().getAdminRealm().getFullPath(), resource.getKey());
 
@@ -259,7 +259,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return resourceToDelete;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_READ + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_READ + "')")
     @Transactional(readOnly = true)
     public ResourceTO read(final String key) {
         ExternalResource resource = resourceDAO.authFind(key);
@@ -270,7 +270,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return binder.getResourceTO(resource);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_LIST + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_LIST + "')")
     @Transactional(readOnly = true)
     public List<ResourceTO> list() {
         return resourceDAO.findAll().stream().map(binder::getResourceTO).collect(Collectors.toList());
@@ -295,7 +295,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return ImmutableTriple.of(resource, anyType, provision.get());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_GET_CONNOBJECT + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")
     @Transactional(readOnly = true)
     public ConnObjectTO readConnObject(final String key, final String anyTypeKey, final String anyKey) {
         Triple<ExternalResource, AnyType, Provision> init = connObjectInit(key, anyTypeKey);
@@ -350,7 +350,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return ConnObjectUtils.getConnObjectTO(connectorObject);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_LIST_CONNOBJECT + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_LIST_CONNOBJECT + "')")
     @Transactional(readOnly = true)
     public Pair<SearchResult, List<ConnObjectTO>> listConnObjects(final String key, final String anyTypeKey,
             final int size, final String pagedResultsCookie, final List<OrderByClause> orderBy) {
@@ -407,7 +407,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return Pair.of(searchResult, connObjects);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public void check(final ResourceTO resourceTO) {
         ConnInstance connInstance = connInstanceDAO.find(resourceTO.getConnector());

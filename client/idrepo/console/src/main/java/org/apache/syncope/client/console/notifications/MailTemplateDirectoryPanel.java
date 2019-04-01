@@ -41,7 +41,7 @@ import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -103,7 +103,7 @@ public class MailTemplateDirectoryPanel
 
         initResultTable();
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.MAIL_TEMPLATE_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.MAIL_TEMPLATE_CREATE);
     }
 
     @Override
@@ -133,7 +133,7 @@ public class MailTemplateDirectoryPanel
                 utilityModal.show(true);
                 target.add(utilityModal);
             }
-        }, ActionLink.ActionType.HTML, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
+        }, ActionLink.ActionType.HTML, IdRepoEntitlement.MAIL_TEMPLATE_UPDATE);
 
         panel.add(new ActionLink<MailTemplateTO>() {
 
@@ -151,7 +151,7 @@ public class MailTemplateDirectoryPanel
                 utilityModal.show(true);
                 target.add(utilityModal);
             }
-        }, ActionLink.ActionType.TEXT, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
+        }, ActionLink.ActionType.TEXT, IdRepoEntitlement.MAIL_TEMPLATE_UPDATE);
 
         panel.add(new ActionLink<MailTemplateTO>() {
 
@@ -170,7 +170,7 @@ public class MailTemplateDirectoryPanel
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.MAIL_TEMPLATE_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.MAIL_TEMPLATE_DELETE, true);
 
         return panel;
     }

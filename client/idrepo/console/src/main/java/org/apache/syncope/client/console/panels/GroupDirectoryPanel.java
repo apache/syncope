@@ -54,7 +54,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ProvisionAction;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -128,7 +128,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                     setWizardInModal(false).build(id);
 
                             MetaDataRoleAuthorizationStrategy.authorize(
-                                    panel, WebPage.RENDER, StandardEntitlement.USER_SEARCH);
+                                    panel, WebPage.RENDER, IdRepoEntitlement.USER_SEARCH);
                         } else {
                             String query = SyncopeClient.getAnyObjectSearchConditionBuilder(type).and(
                                     SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()),
@@ -196,7 +196,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 displayAttributeModal.header(new ResourceModel("any.attr.display"));
                 displayAttributeModal.show(true);
             }
-        }, ActionType.CHANGE_VIEW, StandardEntitlement.GROUP_READ).hideLabel();
+        }, ActionType.CHANGE_VIEW, IdRepoEntitlement.GROUP_READ).hideLabel();
         return panel;
     }
 
@@ -215,7 +215,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                 restClient.read(model.getObject().getKey())), target));
             }
         }, ActionType.EDIT,
-                String.format("%s,%s", StandardEntitlement.GROUP_READ, StandardEntitlement.GROUP_UPDATE)).
+                String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.GROUP_UPDATE)).
                 setRealms(realm, model.getObject().getDynRealms());
 
         panel.add(new ActionLink<GroupTO>() {
@@ -234,7 +234,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             protected boolean statusCondition(final GroupTO modelObject) {
                 return realm.startsWith(SyncopeConstants.ROOT_REALM);
             }
-        }, ActionType.CLONE, StandardEntitlement.GROUP_CREATE).setRealm(realm);
+        }, ActionType.CLONE, IdRepoEntitlement.GROUP_CREATE).setRealm(realm);
 
         panel.add(new ActionLink<GroupTO>() {
 
@@ -247,7 +247,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 typeExtensionsModal.header(new StringResourceModel("typeExtensions", model));
                 typeExtensionsModal.show(true);
             }
-        }, ActionType.TYPE_EXTENSIONS, StandardEntitlement.GROUP_UPDATE).
+        }, ActionType.TYPE_EXTENSIONS, IdRepoEntitlement.GROUP_UPDATE).
                 setRealms(realm, model.getObject().getDynRealms());
 
         panel.add(new ActionLink<GroupTO>() {
@@ -265,7 +265,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 return false;
             }
         }, ActionType.MEMBERS,
-                String.format("%s,%s", StandardEntitlement.GROUP_READ, StandardEntitlement.GROUP_UPDATE)).
+                String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.GROUP_UPDATE)).
                 setRealms(realm, model.getObject().getDynRealms());
 
         panel.add(new ActionLink<GroupTO>() {
@@ -286,7 +286,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }, ActionType.PROVISION_MEMBERS,
-                String.format("%s,%s", StandardEntitlement.TASK_CREATE, StandardEntitlement.TASK_EXECUTE)).
+                String.format("%s,%s", IdRepoEntitlement.TASK_CREATE, IdRepoEntitlement.TASK_EXECUTE)).
                 setRealm(realm);
 
         panel.add(new ActionLink<GroupTO>() {
@@ -307,7 +307,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }, ActionType.DEPROVISION_MEMBERS,
-                String.format("%s,%s", StandardEntitlement.TASK_CREATE, StandardEntitlement.TASK_EXECUTE)).
+                String.format("%s,%s", IdRepoEntitlement.TASK_CREATE, IdRepoEntitlement.TASK_EXECUTE)).
                 setRealm(realm);
 
         SyncopeWebApplication.get().getAnyDirectoryPanelAditionalActionLinksProvider().get(
@@ -328,7 +328,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 utilityModal.header(new StringResourceModel("any.propagation.tasks", model));
                 utilityModal.show(true);
             }
-        }, ActionType.PROPAGATION_TASKS, StandardEntitlement.TASK_LIST);
+        }, ActionType.PROPAGATION_TASKS, IdRepoEntitlement.TASK_LIST);
 
         panel.add(new ActionLink<GroupTO>() {
 
@@ -341,7 +341,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 utilityModal.header(new StringResourceModel("any.notification.tasks", model));
                 utilityModal.show(true);
             }
-        }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST);
+        }, ActionType.NOTIFICATION_TASKS, IdRepoEntitlement.TASK_LIST);
 
         panel.add(new ActionLink<GroupTO>() {
 
@@ -365,7 +365,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             protected boolean statusCondition(final GroupTO modelObject) {
                 return realm.startsWith(SyncopeConstants.ROOT_REALM);
             }
-        }, ActionType.DELETE, StandardEntitlement.GROUP_DELETE, true).setRealm(realm);
+        }, ActionType.DELETE, IdRepoEntitlement.GROUP_DELETE, true).setRealm(realm);
 
         return panel;
     }

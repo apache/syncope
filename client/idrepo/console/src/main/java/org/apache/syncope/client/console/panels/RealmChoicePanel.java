@@ -40,7 +40,7 @@ import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.DynRealmTO;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -289,7 +289,7 @@ public class RealmChoicePanel extends Panel {
         realms.setAlignment(AlignmentBehavior.Alignment.RIGHT);
         realms.setType(Buttons.Type.Menu);
 
-        MetaDataRoleAuthorizationStrategy.authorize(realms, ENABLE, StandardEntitlement.REALM_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(realms, ENABLE, IdRepoEntitlement.REALM_LIST);
 
         container.addOrReplace(realms);
     }

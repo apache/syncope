@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -85,7 +85,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
         }
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.IMPLEMENTATION_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.IMPLEMENTATION_LIST + "')")
     @Transactional(readOnly = true)
     public List<ImplementationTO> list(final String type) {
         checkType(type);
@@ -94,7 +94,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
                 map(binder::getImplementationTO).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.IMPLEMENTATION_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.IMPLEMENTATION_READ + "')")
     @Transactional(readOnly = true)
     public ImplementationTO read(final String type, final String key) {
         checkType(type);
@@ -115,7 +115,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
         return binder.getImplementationTO(implementation);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.IMPLEMENTATION_CREATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.IMPLEMENTATION_CREATE + "')")
     public ImplementationTO create(final ImplementationTO implementationTO) {
         if (StringUtils.isBlank(implementationTO.getKey())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
@@ -133,7 +133,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
         return binder.getImplementationTO(implementationDAO.save(binder.create(implementationTO)));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.IMPLEMENTATION_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.IMPLEMENTATION_UPDATE + "')")
     public ImplementationTO update(final ImplementationTO implementationTO) {
         Implementation implementation = implementationDAO.find(implementationTO.getKey());
         if (implementation == null) {
@@ -150,7 +150,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
         return binder.getImplementationTO(implementation);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.IMPLEMENTATION_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.IMPLEMENTATION_DELETE + "')")
     public void delete(final String type, final String key) {
         Implementation implementation = implementationDAO.find(key);
         if (implementation == null) {

@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -39,7 +39,7 @@ public class DashboardAccessTokensPanel extends Panel {
 
         }.disableCheckBoxes().build("accessTokens");
         MetaDataRoleAuthorizationStrategy.authorize(
-                accessTokens, Component.RENDER, StandardEntitlement.ACCESS_TOKEN_LIST);
+                accessTokens, Component.RENDER, IdRepoEntitlement.ACCESS_TOKEN_LIST);
         add(accessTokens);
     }
 

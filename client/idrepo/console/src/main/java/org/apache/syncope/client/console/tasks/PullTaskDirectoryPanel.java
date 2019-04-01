@@ -24,7 +24,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.to.PullTaskTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -65,6 +65,6 @@ public abstract class PullTaskDirectoryPanel extends ProvisioningTaskDirectoryPa
                 templates.setTargetObject(model.getObject());
                 templates.toggle(target, true);
             }
-        }, ActionLink.ActionType.TEMPLATE, StandardEntitlement.TASK_UPDATE).disableIndicator();
+        }, ActionLink.ActionType.TEMPLATE, IdRepoEntitlement.TASK_UPDATE).disableIndicator();
     }
 }

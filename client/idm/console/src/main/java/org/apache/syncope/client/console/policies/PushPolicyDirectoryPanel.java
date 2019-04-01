@@ -23,7 +23,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.policy.PushPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -47,7 +47,7 @@ public class PushPolicyDirectoryPanel extends PolicyDirectoryPanel<PushPolicyTO>
 
         this.addNewItemPanelBuilder(
                 new PolicyModalPanelBuilder<>(PolicyType.PUSH, defaultItem, modal, pageRef), true);
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.POLICY_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.POLICY_CREATE);
 
         initResultTable();
     }
@@ -73,10 +73,10 @@ public class PushPolicyDirectoryPanel extends PolicyDirectoryPanel<PushPolicyTO>
                         "policy.rules", PushPolicyDirectoryPanel.this, Model.of(model.getObject())));
 
                 MetaDataRoleAuthorizationStrategy.authorize(
-                        policySpecModal.getForm(), ENABLE, StandardEntitlement.POLICY_UPDATE);
+                        policySpecModal.getForm(), ENABLE, IdRepoEntitlement.POLICY_UPDATE);
 
                 policySpecModal.show(true);
             }
-        }, ActionLink.ActionType.COMPOSE, StandardEntitlement.POLICY_UPDATE);
+        }, ActionLink.ActionType.COMPOSE, IdRepoEntitlement.POLICY_UPDATE);
     }
 }

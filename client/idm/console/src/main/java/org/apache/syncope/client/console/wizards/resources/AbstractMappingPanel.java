@@ -39,7 +39,7 @@ import org.apache.syncope.client.console.widgets.JEXLTransformerWidget;
 import org.apache.syncope.client.console.widgets.ItemTransformerWidget;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -290,7 +290,7 @@ public abstract class AbstractMappingPanel extends Panel {
                             target.add(AbstractMappingPanel.this);
                         }
                     }
-                }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_UPDATE, true).hideLabel();
+                }, ActionLink.ActionType.DELETE, IdMEntitlement.RESOURCE_UPDATE, true).hideLabel();
                 item.add(actions);
                 // -------------------------------
 

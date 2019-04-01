@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.RoleTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -43,7 +43,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     @Autowired
     private RoleDAO roleDAO;
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ROLE_READ + "')")
     @Transactional(readOnly = true)
     public RoleTO read(final String key) {
         Role role = roleDAO.find(key);
@@ -56,18 +56,18 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
         return binder.getRoleTO(role);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ROLE_LIST + "')")
     @Transactional(readOnly = true)
     public List<RoleTO> list() {
         return roleDAO.findAll().stream().map(binder::getRoleTO).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_CREATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ROLE_CREATE + "')")
     public RoleTO create(final RoleTO roleTO) {
         return binder.getRoleTO(binder.create(roleTO));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ROLE_UPDATE + "')")
     public RoleTO update(final RoleTO roleTO) {
         Role role = roleDAO.find(roleTO.getKey());
         if (role == null) {
@@ -78,7 +78,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
         return binder.getRoleTO(binder.update(role, roleTO));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ROLE_DELETE + "')")
     public RoleTO delete(final String key) {
         Role role = roleDAO.find(key);
         if (role == null) {
@@ -111,7 +111,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
         return consoleLayout;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ROLE_UPDATE + "')")
     public void setConsoleLayoutInfo(final String key, final String consoleLayout) {
         Role role = roleDAO.find(key);
         if (role == null) {

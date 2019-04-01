@@ -40,7 +40,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -147,7 +147,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
                         new AjaxWizard.EditItemActionEvent<>(
                                 restClient.getPolicy(type, model.getObject().getKey()), target));
             }
-        }, ActionLink.ActionType.EDIT, StandardEntitlement.POLICY_UPDATE);
+        }, ActionLink.ActionType.EDIT, IdRepoEntitlement.POLICY_UPDATE);
 
         panel.add(new ActionLink<T>() {
 
@@ -160,7 +160,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
                 send(PolicyDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(clone, target));
             }
-        }, ActionLink.ActionType.CLONE, StandardEntitlement.POLICY_CREATE);
+        }, ActionLink.ActionType.CLONE, IdRepoEntitlement.POLICY_CREATE);
 
         addCustomActions(panel, model);
 
@@ -182,7 +182,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.POLICY_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.POLICY_DELETE, true);
 
         return panel;
     }

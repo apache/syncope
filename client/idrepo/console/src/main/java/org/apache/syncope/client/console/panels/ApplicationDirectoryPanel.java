@@ -41,7 +41,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ApplicationTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PrivilegeTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -78,8 +78,8 @@ public class ApplicationDirectoryPanel extends
 
     protected ApplicationDirectoryPanel(final String id, final Builder builder) {
         super(id, builder);
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.APPLICATION_CREATE);
-        setReadOnly(!SyncopeConsoleSession.get().owns(StandardEntitlement.APPLICATION_UPDATE));
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.APPLICATION_CREATE);
+        setReadOnly(!SyncopeConsoleSession.get().owns(IdRepoEntitlement.APPLICATION_UPDATE));
 
         disableCheckBoxes();
         setShowResultPage(true);
@@ -112,7 +112,7 @@ public class ApplicationDirectoryPanel extends
             }
         };
         ((WebMarkupContainer) get("container:content")).addOrReplace(newApplLink);
-        MetaDataRoleAuthorizationStrategy.authorize(newApplLink, RENDER, StandardEntitlement.APPLICATION_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(newApplLink, RENDER, IdRepoEntitlement.APPLICATION_CREATE);
 
         initResultTable();
     }
@@ -166,7 +166,7 @@ public class ApplicationDirectoryPanel extends
                 modal.show(true);
                 target.add(modal);
             }
-        }, ActionLink.ActionType.EDIT, StandardEntitlement.APPLICATION_UPDATE);
+        }, ActionLink.ActionType.EDIT, IdRepoEntitlement.APPLICATION_UPDATE);
 
         panel.add(new ActionLink<ApplicationTO>() {
 
@@ -181,11 +181,11 @@ public class ApplicationDirectoryPanel extends
                         "application.privileges", ApplicationDirectoryPanel.this, Model.of(model.getObject())));
 
                 MetaDataRoleAuthorizationStrategy.authorize(
-                        privilegeModal.getForm(), ENABLE, StandardEntitlement.APPLICATION_UPDATE);
+                        privilegeModal.getForm(), ENABLE, IdRepoEntitlement.APPLICATION_UPDATE);
 
                 privilegeModal.show(true);
             }
-        }, ActionLink.ActionType.COMPOSE, StandardEntitlement.APPLICATION_UPDATE);
+        }, ActionLink.ActionType.COMPOSE, IdRepoEntitlement.APPLICATION_UPDATE);
 
         panel.add(new ActionLink<ApplicationTO>() {
 
@@ -204,7 +204,7 @@ public class ApplicationDirectoryPanel extends
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.APPLICATION_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.APPLICATION_DELETE, true);
 
         return panel;
     }

@@ -41,7 +41,7 @@ import org.apache.syncope.client.ui.commons.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -99,7 +99,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
         }, true);
 
         initResultTable();
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.RELATIONSHIPTYPE_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.RELATIONSHIPTYPE_CREATE);
     }
 
     @Override
@@ -171,7 +171,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
                 send(RelationshipTypesPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
-        }, ActionLink.ActionType.EDIT, StandardEntitlement.RELATIONSHIPTYPE_UPDATE);
+        }, ActionLink.ActionType.EDIT, IdRepoEntitlement.RELATIONSHIPTYPE_UPDATE);
         panel.add(new ActionLink<RelationshipTypeTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -189,7 +189,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.RELATIONSHIPTYPE_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.RELATIONSHIPTYPE_DELETE, true);
 
         return panel;
     }

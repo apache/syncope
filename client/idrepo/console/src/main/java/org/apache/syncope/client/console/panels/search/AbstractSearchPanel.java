@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.search.SearchableFields;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -127,7 +127,7 @@ public abstract class AbstractSearchPanel extends Panel {
         super(id);
         populate();
         Pair<IModel<Map<String, String>>, Integer> groupInfo =
-                SyncopeConsoleSession.get().owns(StandardEntitlement.GROUP_SEARCH)
+                SyncopeConsoleSession.get().owns(IdRepoEntitlement.GROUP_SEARCH)
                 ? Pair.of(groupNames, groupRestClient.count(SyncopeConstants.ROOT_REALM, null, null))
                 : Pair.of(groupNames, 0);
 

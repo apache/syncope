@@ -31,7 +31,7 @@ import org.apache.syncope.client.console.rest.LoggerRestClient;
 import org.apache.syncope.common.lib.log.EventCategory;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
@@ -73,13 +73,13 @@ public class Audit extends BasePage {
 
             @Override
             protected List<String> getListAuthRoles() {
-                return Collections.singletonList(StandardEntitlement.AUDIT_LIST);
+                return Collections.singletonList(IdRepoEntitlement.AUDIT_LIST);
             }
 
             @Override
             protected List<String> getChangeAuthRoles() {
                 return Arrays.asList(
-                        new String[] { StandardEntitlement.AUDIT_ENABLE, StandardEntitlement.AUDIT_DISABLE });
+                        new String[] { IdRepoEntitlement.AUDIT_ENABLE, IdRepoEntitlement.AUDIT_DISABLE });
             }
 
             @Override

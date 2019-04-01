@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -220,7 +220,7 @@ public class SchemaTypeWizardBuilder extends BaseAjaxWizardBuilder<SchemaTO> {
                                 target.add(Labels.this);
                             }
                         }
-                    }, ActionLink.ActionType.DELETE, StandardEntitlement.SCHEMA_UPDATE, true).hideLabel();
+                    }, ActionLink.ActionType.DELETE, IdRepoEntitlement.SCHEMA_UPDATE, true).hideLabel();
                     item.add(actions);
                 }
             };

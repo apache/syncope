@@ -47,7 +47,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AjaxEventBehavior;
@@ -64,7 +64,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.util.time.Duration;
 
-@IdMPage(label = "Topology", icon = "fa-plug", listEntitlement = StandardEntitlement.RESOURCE_LIST, priority = 0)
+@IdMPage(label = "Topology", icon = "fa-plug", listEntitlement = IdMEntitlement.RESOURCE_LIST, priority = 0)
 public class Topology extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271272L;
@@ -183,7 +183,7 @@ public class Topology extends BasePage {
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 target.appendJavaScript("zoomIn($('#drawing')[0]);");
             }
-        }, ActionLink.ActionType.ZOOM_IN, StandardEntitlement.CONNECTOR_LIST).disableIndicator().hideLabel();
+        }, ActionLink.ActionType.ZOOM_IN, IdMEntitlement.CONNECTOR_LIST).disableIndicator().hideLabel();
         zoomActionPanel.add(new ActionLink<Serializable>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -192,7 +192,7 @@ public class Topology extends BasePage {
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 target.appendJavaScript("zoomOut($('#drawing')[0]);");
             }
-        }, ActionLink.ActionType.ZOOM_OUT, StandardEntitlement.CONNECTOR_LIST).disableIndicator().hideLabel();
+        }, ActionLink.ActionType.ZOOM_OUT, IdMEntitlement.CONNECTOR_LIST).disableIndicator().hideLabel();
 
         body.add(zoomActionPanel);
         // -----------------------------------------

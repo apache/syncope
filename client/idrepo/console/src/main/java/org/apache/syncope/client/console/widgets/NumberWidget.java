@@ -28,7 +28,7 @@ import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.syncope.client.console.pages.Realms;
 import org.apache.syncope.client.console.pages.Security;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
@@ -56,13 +56,13 @@ public class NumberWidget extends BaseWidget {
             case "totalUsers":
                 pageParameters.add("selectedIndex", 1);
                 responsePage = Realms.class;
-                isAuthorized = SyncopeConsoleSession.get().owns(StandardEntitlement.USER_SEARCH);
+                isAuthorized = SyncopeConsoleSession.get().owns(IdRepoEntitlement.USER_SEARCH);
                 break;
 
             case "totalGroups":
                 pageParameters.add("selectedIndex", 2);
                 responsePage = Realms.class;
-                isAuthorized = SyncopeConsoleSession.get().owns(StandardEntitlement.GROUP_SEARCH);
+                isAuthorized = SyncopeConsoleSession.get().owns(IdRepoEntitlement.GROUP_SEARCH);
                 break;
 
             case "totalAny1OrRoles":
@@ -78,7 +78,7 @@ public class NumberWidget extends BaseWidget {
                     isAuthorized = SyncopeConsoleSession.get().owns(label + "_SEARCH");
                 } else {
                     responsePage = Security.class;
-                    isAuthorized = SyncopeConsoleSession.get().owns(StandardEntitlement.ROLE_LIST);
+                    isAuthorized = SyncopeConsoleSession.get().owns(IdRepoEntitlement.ROLE_LIST);
                 }
                 break;
 

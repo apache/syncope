@@ -47,7 +47,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -258,7 +258,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                         anyTypeTO.getClasses(),
                         formLayoutInfo.getLeft(),
                         pageRef)).build(id);
-                MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER, StandardEntitlement.USER_SEARCH);
+                MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER, IdRepoEntitlement.USER_SEARCH);
                 break;
 
             case GROUP:

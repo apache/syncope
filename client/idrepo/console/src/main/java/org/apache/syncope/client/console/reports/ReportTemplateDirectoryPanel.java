@@ -39,7 +39,7 @@ import org.apache.syncope.client.ui.commons.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -104,7 +104,7 @@ public class ReportTemplateDirectoryPanel
 
         initResultTable();
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.MAIL_TEMPLATE_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.MAIL_TEMPLATE_CREATE);
     }
 
     @Override
@@ -134,7 +134,7 @@ public class ReportTemplateDirectoryPanel
                 utilityModal.show(true);
                 target.add(utilityModal);
             }
-        }, ActionLink.ActionType.FO_EDIT, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
+        }, ActionLink.ActionType.FO_EDIT, IdRepoEntitlement.MAIL_TEMPLATE_UPDATE);
 
         panel.add(new ActionLink<ReportTemplateTO>() {
 
@@ -152,7 +152,7 @@ public class ReportTemplateDirectoryPanel
                 utilityModal.show(true);
                 target.add(utilityModal);
             }
-        }, ActionLink.ActionType.HTML, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
+        }, ActionLink.ActionType.HTML, IdRepoEntitlement.MAIL_TEMPLATE_UPDATE);
 
         panel.add(new ActionLink<ReportTemplateTO>() {
 
@@ -170,7 +170,7 @@ public class ReportTemplateDirectoryPanel
                 utilityModal.show(true);
                 target.add(utilityModal);
             }
-        }, ActionLink.ActionType.TEXT, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
+        }, ActionLink.ActionType.TEXT, IdRepoEntitlement.MAIL_TEMPLATE_UPDATE);
 
         panel.add(new ActionLink<ReportTemplateTO>() {
 
@@ -189,7 +189,7 @@ public class ReportTemplateDirectoryPanel
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.MAIL_TEMPLATE_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.MAIL_TEMPLATE_DELETE, true);
 
         return panel;
     }

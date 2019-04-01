@@ -43,7 +43,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.NotificationTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -78,7 +78,7 @@ public class NotificationDirectoryPanel
 
         initResultTable();
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.NOTIFICATION_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.NOTIFICATION_CREATE);
     }
 
     @Override
@@ -112,7 +112,7 @@ public class NotificationDirectoryPanel
                         new AjaxWizard.EditItemActionEvent<>(
                                 new NotificationWrapper(restClient.read(model.getObject().getKey())), target));
             }
-        }, ActionLink.ActionType.EDIT, StandardEntitlement.NOTIFICATION_UPDATE);
+        }, ActionLink.ActionType.EDIT, IdRepoEntitlement.NOTIFICATION_UPDATE);
 
         panel.add(new ActionLink<NotificationTO>() {
 
@@ -126,7 +126,7 @@ public class NotificationDirectoryPanel
                 utilityModal.show(true);
                 target.add(utilityModal);
             }
-        }, ActionLink.ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST);
+        }, ActionLink.ActionType.NOTIFICATION_TASKS, IdRepoEntitlement.TASK_LIST);
 
         panel.add(new ActionLink<NotificationTO>() {
 
@@ -145,7 +145,7 @@ public class NotificationDirectoryPanel
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.NOTIFICATION_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.NOTIFICATION_DELETE, true);
 
         return panel;
     }

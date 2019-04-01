@@ -59,7 +59,7 @@ import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -221,16 +221,16 @@ public class JobWidget extends BaseWidget {
     private List<JobTO> getUpdatedAvailable() {
         List<JobTO> updatedAvailable = new ArrayList<>();
 
-        if (SyncopeConsoleSession.get().owns(StandardEntitlement.NOTIFICATION_LIST)) {
+        if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.NOTIFICATION_LIST)) {
             JobTO notificationJob = notificationRestClient.getJob();
             if (notificationJob != null) {
                 updatedAvailable.add(notificationJob);
             }
         }
-        if (SyncopeConsoleSession.get().owns(StandardEntitlement.TASK_LIST)) {
+        if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.TASK_LIST)) {
             updatedAvailable.addAll(taskRestClient.listJobs());
         }
-        if (SyncopeConsoleSession.get().owns(StandardEntitlement.REPORT_LIST)) {
+        if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.REPORT_LIST)) {
             updatedAvailable.addAll(reportRestClient.listJobs());
         }
 
@@ -240,10 +240,10 @@ public class JobWidget extends BaseWidget {
     private List<ExecTO> getUpdatedRecent() {
         List<ExecTO> updatedRecent = new ArrayList<>();
 
-        if (SyncopeConsoleSession.get().owns(StandardEntitlement.TASK_LIST)) {
+        if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.TASK_LIST)) {
             updatedRecent.addAll(taskRestClient.listRecentExecutions(10));
         }
-        if (SyncopeConsoleSession.get().owns(StandardEntitlement.REPORT_LIST)) {
+        if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.REPORT_LIST)) {
             updatedRecent.addAll(reportRestClient.listRecentExecutions(10));
         }
 
@@ -360,10 +360,10 @@ public class JobWidget extends BaseWidget {
                     JobActionPanel panel = new JobActionPanel(componentId, jobTO, true, JobWidget.this, pageRef);
                     MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
                             String.format("%s,%s,%s,%s",
-                                    StandardEntitlement.TASK_EXECUTE,
-                                    StandardEntitlement.REPORT_EXECUTE,
-                                    StandardEntitlement.TASK_UPDATE,
-                                    StandardEntitlement.REPORT_UPDATE));
+                                    IdRepoEntitlement.TASK_EXECUTE,
+                                    IdRepoEntitlement.REPORT_EXECUTE,
+                                    IdRepoEntitlement.TASK_UPDATE,
+                                    IdRepoEntitlement.REPORT_UPDATE));
                     cellItem.add(panel);
                 }
 
@@ -442,7 +442,7 @@ public class JobWidget extends BaseWidget {
                 protected boolean statusCondition(final JobTO modelObject) {
                     return !(null != jobTO.getType() && JobType.NOTIFICATION.equals(jobTO.getType()));
                 }
-            }, ActionType.EDIT, StandardEntitlement.TASK_UPDATE);
+            }, ActionType.EDIT, IdRepoEntitlement.TASK_UPDATE);
 
             panel.add(new ActionLink<JobTO>() {
 
@@ -466,7 +466,7 @@ public class JobWidget extends BaseWidget {
 
                                 MetaDataRoleAuthorizationStrategy.authorize(
                                         reportModal.getForm(),
-                                        ENABLE, StandardEntitlement.REPORT_UPDATE);
+                                        ENABLE, IdRepoEntitlement.REPORT_UPDATE);
 
                                 reportModal.header(new StringResourceModel(
                                         "reportlet.conf", AvailableJobsPanel.this, new Model<>(reportTO)));
@@ -490,7 +490,7 @@ public class JobWidget extends BaseWidget {
                             || JobType.NOTIFICATION.equals(jobTO.getType())));
                 }
 
-            }, ActionType.COMPOSE, StandardEntitlement.TASK_UPDATE);
+            }, ActionType.COMPOSE, IdRepoEntitlement.TASK_UPDATE);
 
             panel.add(new ActionLink<JobTO>() {
 
@@ -533,7 +533,7 @@ public class JobWidget extends BaseWidget {
                             && !JobType.NOTIFICATION.equals(jobTO.getType())
                             && (jobTO.isScheduled() && !jobTO.isRunning()));
                 }
-            }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE, true);
+            }, ActionLink.ActionType.DELETE, IdRepoEntitlement.TASK_DELETE, true);
 
             return panel;
         }
@@ -648,7 +648,7 @@ public class JobWidget extends BaseWidget {
                     detailModal.show(true);
                     target.add(detailModal);
                 }
-            }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ);
+            }, ActionLink.ActionType.VIEW, IdRepoEntitlement.TASK_READ);
             return panel;
         }
 

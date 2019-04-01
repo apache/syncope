@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
@@ -59,7 +59,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
         return mailTemplateTO;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.MAIL_TEMPLATE_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.MAIL_TEMPLATE_READ + "')")
     @Transactional(readOnly = true)
     public MailTemplateTO read(final String key) {
         MailTemplate mailTemplate = mailTemplateDAO.find(key);
@@ -72,14 +72,14 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
         return getMailTemplateTO(key);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.MAIL_TEMPLATE_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.MAIL_TEMPLATE_LIST + "')")
     @Transactional(readOnly = true)
     public List<MailTemplateTO> list() {
         return mailTemplateDAO.findAll().stream().
                 map(template -> getMailTemplateTO(template.getKey())).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.MAIL_TEMPLATE_CREATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.MAIL_TEMPLATE_CREATE + "')")
     public MailTemplateTO create(final String key) {
         if (mailTemplateDAO.find(key) != null) {
             throw new DuplicateException(key);
@@ -91,7 +91,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
         return getMailTemplateTO(key);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.MAIL_TEMPLATE_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.MAIL_TEMPLATE_READ + "')")
     public String getFormat(final String key, final MailTemplateFormat format) {
         MailTemplate mailTemplate = mailTemplateDAO.find(key);
         if (mailTemplate == null) {
@@ -112,7 +112,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
         return template;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.MAIL_TEMPLATE_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.MAIL_TEMPLATE_UPDATE + "')")
     public void setFormat(final String key, final MailTemplateFormat format, final String template) {
         MailTemplate mailTemplate = mailTemplateDAO.find(key);
         if (mailTemplate == null) {
@@ -130,7 +130,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
         mailTemplateDAO.save(mailTemplate);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.MAIL_TEMPLATE_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.MAIL_TEMPLATE_DELETE + "')")
     public MailTemplateTO delete(final String key) {
         MailTemplate mailTemplate = mailTemplateDAO.find(key);
         if (mailTemplate == null) {

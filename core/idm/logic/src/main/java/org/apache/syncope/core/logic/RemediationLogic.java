@@ -34,7 +34,7 @@ import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RemediationTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -63,7 +63,7 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
     @Autowired
     private RemediationDAO remediationDAO;
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REMEDIATION_LIST + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_LIST + "')")
     @Transactional(readOnly = true)
     public Pair<Integer, List<RemediationTO>> list(
             final int page,
@@ -78,7 +78,7 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
         return Pair.of(count, result);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REMEDIATION_READ + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_READ + "')")
     @Transactional(readOnly = true)
     public RemediationTO read(final String key) {
         Remediation remediation = remediationDAO.find(key);
@@ -91,7 +91,7 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
         return binder.getRemediationTO(remediation);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REMEDIATION_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_DELETE + "')")
     public void delete(final String key) {
         Remediation remediation = remediationDAO.find(key);
         if (remediation == null) {
@@ -103,7 +103,7 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
         remediationDAO.delete(remediation);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REMEDIATION_REMEDY + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_REMEDY + "')")
     public ProvisioningResult<?> remedy(final String key, final AnyCR anyCR, final boolean nullPriorityAsync) {
         Remediation remediation = remediationDAO.find(key);
         if (remediation == null) {
@@ -132,7 +132,7 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
         return result;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REMEDIATION_REMEDY + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_REMEDY + "')")
     public ProvisioningResult<?> remedy(final String key, final AnyUR anyUR, final boolean nullPriorityAsync) {
         Remediation remediation = remediationDAO.find(key);
         if (remediation == null) {
@@ -161,7 +161,7 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
         return result;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REMEDIATION_REMEDY + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_REMEDY + "')")
     public ProvisioningResult<?> remedy(final String key, final String anyKey, final boolean nullPriorityAsync) {
         Remediation remediation = remediationDAO.find(key);
         if (remediation == null) {

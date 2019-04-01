@@ -35,7 +35,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
@@ -115,7 +115,7 @@ public abstract class NotificationTaskDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
                 viewTask(taskTO, target);
             }
-        }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ);
+        }, ActionLink.ActionType.VIEW, IdRepoEntitlement.TASK_READ);
         panel.add(new ActionLink<NotificationTaskTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -124,7 +124,7 @@ public abstract class NotificationTaskDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
                 viewMailBody(MailTemplateFormat.TEXT, taskTO.getTextBody(), target);
             }
-        }, ActionLink.ActionType.TEXT, StandardEntitlement.TASK_READ);
+        }, ActionLink.ActionType.TEXT, IdRepoEntitlement.TASK_READ);
         panel.add(new ActionLink<NotificationTaskTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -133,7 +133,7 @@ public abstract class NotificationTaskDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
                 viewMailBody(MailTemplateFormat.HTML, taskTO.getHtmlBody(), target);
             }
-        }, ActionLink.ActionType.HTML, StandardEntitlement.TASK_READ);
+        }, ActionLink.ActionType.HTML, IdRepoEntitlement.TASK_READ);
         panel.add(new ActionLink<NotificationTaskTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -151,7 +151,7 @@ public abstract class NotificationTaskDirectoryPanel
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.EXECUTE, StandardEntitlement.TASK_EXECUTE);
+        }, ActionLink.ActionType.EXECUTE, IdRepoEntitlement.TASK_EXECUTE);
         panel.add(new ActionLink<NotificationTaskTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -170,7 +170,7 @@ public abstract class NotificationTaskDirectoryPanel
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.TASK_DELETE, true);
 
         return panel;
     }

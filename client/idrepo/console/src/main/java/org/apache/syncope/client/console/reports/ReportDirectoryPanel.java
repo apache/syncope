@@ -43,7 +43,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.Acti
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.widgets.JobActionPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
@@ -82,7 +82,7 @@ public abstract class ReportDirectoryPanel
         this.restClient = new ReportRestClient();
 
         this.addNewItemPanelBuilder(new ReportWizardBuilder(new ReportTO(), pageRef), true);
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.REPORT_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.REPORT_CREATE);
 
         modal.size(Modal.Size.Large);
         initResultTable();
@@ -143,8 +143,8 @@ public abstract class ReportDirectoryPanel
                     panel = new JobActionPanel(componentId, jobTO, false, ReportDirectoryPanel.this, pageRef);
                     MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
                             String.format("%s,%s",
-                                    StandardEntitlement.REPORT_EXECUTE,
-                                    StandardEntitlement.REPORT_UPDATE));
+                                    IdRepoEntitlement.REPORT_EXECUTE,
+                                    IdRepoEntitlement.REPORT_UPDATE));
                 } catch (Exception e) {
                     LOG.error("Could not get job for report {}", rowModel.getObject().getKey(), e);
                     panel = new Label(componentId, Model.of());
@@ -185,7 +185,7 @@ public abstract class ReportDirectoryPanel
                         new AjaxWizard.EditItemActionEvent<>(
                                 restClient.read(model.getObject().getKey()), target));
             }
-        }, ActionLink.ActionType.EDIT, StandardEntitlement.REPORT_UPDATE);
+        }, ActionLink.ActionType.EDIT, IdRepoEntitlement.REPORT_UPDATE);
 
         panel.add(new ActionLink<ReportTO>() {
 
@@ -198,7 +198,7 @@ public abstract class ReportDirectoryPanel
                 send(ReportDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(clone, target));
             }
-        }, ActionLink.ActionType.CLONE, StandardEntitlement.REPORT_CREATE);
+        }, ActionLink.ActionType.CLONE, IdRepoEntitlement.REPORT_CREATE);
 
         panel.add(new ActionLink<ReportTO>() {
 
@@ -211,13 +211,9 @@ public abstract class ReportDirectoryPanel
 
                 modal.header(new StringResourceModel(
                         "reportlet.conf", ReportDirectoryPanel.this, Model.of(model.getObject())));
-
-                MetaDataRoleAuthorizationStrategy.authorize(
-                        modal.getForm(), ENABLE, StandardEntitlement.RESOURCE_UPDATE);
-
                 modal.show(true);
             }
-        }, ActionLink.ActionType.COMPOSE, StandardEntitlement.REPORT_UPDATE);
+        }, ActionLink.ActionType.COMPOSE, IdRepoEntitlement.REPORT_UPDATE);
 
         panel.add(new ActionLink<ReportTO>() {
 
@@ -227,7 +223,7 @@ public abstract class ReportDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
                 viewReport(model.getObject(), target);
             }
-        }, ActionLink.ActionType.VIEW, StandardEntitlement.REPORT_READ);
+        }, ActionLink.ActionType.VIEW, IdRepoEntitlement.REPORT_READ);
 
         panel.add(new ActionLink<ReportTO>() {
 
@@ -239,7 +235,7 @@ public abstract class ReportDirectoryPanel
                         model.getObject().getKey(), model.getObject().getName(), target);
                 startAt.toggle(target, true);
             }
-        }, ActionLink.ActionType.EXECUTE, StandardEntitlement.REPORT_EXECUTE);
+        }, ActionLink.ActionType.EXECUTE, IdRepoEntitlement.REPORT_EXECUTE);
 
         panel.add(new ActionLink<ReportTO>() {
 
@@ -259,7 +255,7 @@ public abstract class ReportDirectoryPanel
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.REPORT_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.REPORT_DELETE, true);
         return panel;
     }
 

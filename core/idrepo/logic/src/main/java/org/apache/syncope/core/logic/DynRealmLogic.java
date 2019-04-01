@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.DynRealmTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
@@ -42,7 +42,7 @@ public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
     @Autowired
     private DynRealmDAO dynRealmDAO;
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.DYNREALM_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.DYNREALM_READ + "')")
     @Transactional(readOnly = true)
     public DynRealmTO read(final String key) {
         DynRealm dynRealm = dynRealmDAO.find(key);
@@ -60,12 +60,12 @@ public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
         return dynRealmDAO.findAll().stream().map(binder::getDynRealmTO).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.DYNREALM_CREATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.DYNREALM_CREATE + "')")
     public DynRealmTO create(final DynRealmTO dynRealmTO) {
         return binder.getDynRealmTO(binder.create(dynRealmTO));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.DYNREALM_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.DYNREALM_UPDATE + "')")
     public DynRealmTO update(final DynRealmTO dynRealmTO) {
         DynRealm dynRealm = dynRealmDAO.find(dynRealmTO.getKey());
         if (dynRealm == null) {
@@ -76,7 +76,7 @@ public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
         return binder.getDynRealmTO(binder.update(dynRealm, dynRealmTO));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.DYNREALM_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.DYNREALM_DELETE + "')")
     public DynRealmTO delete(final String key) {
         DynRealm dynRealm = dynRealmDAO.find(key);
         if (dynRealm == null) {

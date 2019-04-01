@@ -39,7 +39,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
@@ -119,7 +119,7 @@ public abstract class ExecutionsDirectoryPanel
                 next(new StringResourceModel("execution.view", ExecutionsDirectoryPanel.this, model).
                         getObject(), new ExecMessage(model.getObject().getMessage()), target);
             }
-        }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ);
+        }, ActionLink.ActionType.VIEW, IdRepoEntitlement.TASK_READ);
         panel.add(new ActionLink<ExecTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -136,7 +136,7 @@ public abstract class ExecutionsDirectoryPanel
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.TASK_DELETE, true);
 
         addFurtherAcions(panel, model);
 

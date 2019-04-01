@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
@@ -59,7 +59,7 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
         return reportTemplateTO;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_TEMPLATE_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_TEMPLATE_READ + "')")
     @Transactional(readOnly = true)
     public ReportTemplateTO read(final String key) {
         ReportTemplate reportTemplate = reportTemplateDAO.find(key);
@@ -72,14 +72,14 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
         return getReportTemplateTO(key);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_TEMPLATE_LIST + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_TEMPLATE_LIST + "')")
     @Transactional(readOnly = true)
     public List<ReportTemplateTO> list() {
         return reportTemplateDAO.findAll().stream().
                 map(template -> getReportTemplateTO(template.getKey())).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_TEMPLATE_CREATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_TEMPLATE_CREATE + "')")
     public ReportTemplateTO create(final String key) {
         if (reportTemplateDAO.find(key) != null) {
             throw new DuplicateException(key);
@@ -91,7 +91,7 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
         return getReportTemplateTO(key);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_TEMPLATE_READ + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_TEMPLATE_READ + "')")
     public String getFormat(final String key, final ReportTemplateFormat format) {
         ReportTemplate reportTemplate = reportTemplateDAO.find(key);
         if (reportTemplate == null) {
@@ -114,7 +114,7 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
         return template;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_TEMPLATE_UPDATE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_TEMPLATE_UPDATE + "')")
     public void setFormat(final String key, final ReportTemplateFormat format, final String template) {
         ReportTemplate reportTemplate = reportTemplateDAO.find(key);
         if (reportTemplate == null) {
@@ -142,7 +142,7 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
         reportTemplateDAO.save(reportTemplate);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_TEMPLATE_DELETE + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_TEMPLATE_DELETE + "')")
     public ReportTemplateTO delete(final String key) {
         ReportTemplate reportTemplate = reportTemplateDAO.find(key);
         if (reportTemplate == null) {

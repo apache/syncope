@@ -33,7 +33,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -254,7 +254,7 @@ public abstract class DirectoryPanel<
                     target.add(container);
                 }
             }
-        }, ActionLink.ActionType.RELOAD, StandardEntitlement.USER_SEARCH).hideLabel();
+        }, ActionLink.ActionType.RELOAD, IdRepoEntitlement.USER_SEARCH).hideLabel();
         return panel;
     }
 

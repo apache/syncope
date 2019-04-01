@@ -28,7 +28,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 
-public class EmptyAnyDirectoryPanelAditionalActionLinksProvider
+public class IdRepoAnyDirectoryPanelAditionalActionLinksProvider
         implements AnyDirectoryPanelAditionalActionLinksProvider {
 
     private static final long serialVersionUID = 121356001392126568L;
