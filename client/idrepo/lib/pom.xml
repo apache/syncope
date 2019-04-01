@@ -65,6 +65,12 @@ under the License.
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>javax.xml.ws</groupId>
+      <artifactId>jaxws-api</artifactId>
+    </dependency>
+    
     <dependency>
       <groupId>org.apache.syncope.common.idrepo</groupId>
       <artifactId>syncope-common-idrepo-rest-api</artifactId>
