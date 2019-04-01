@@ -107,8 +107,16 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
     @Override
     public void load() {
         classNames = new HashMap<>();
-        ImplementationTypesHolder.getInstance().getValues().
-                forEach(type -> classNames.put(type, new HashSet<>()));
+        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
+        ImplementationTypesHolder.getInstance().getValues().forEach((typeName, typeInterface) -> {
+            classNames.put(typeName, new HashSet<>());
+            try {
+                scanner.addIncludeFilter(new AssignableTypeFilter(
+                        ClassUtils.resolveClassName(typeInterface, ClassUtils.getDefaultClassLoader())));
+            } catch (IllegalArgumentException e) {
+                LOG.error("Could not find class {}, ignoring...", e);
+            }
+        });
 
         jwtSSOProviderClasses = new HashSet<>();
         reportletClasses = new HashMap<>();
@@ -117,24 +125,6 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         pullCRClasses = new HashMap<>();
         pushCRClasses = new HashMap<>();
         auditAppenderClasses = new HashSet<>();
-
-        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
-        scanner.addIncludeFilter(new AssignableTypeFilter(JWTSSOProvider.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(Reportlet.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(AccountRule.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(PasswordRule.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(PullCorrelationRule.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(PushCorrelationRule.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(ItemTransformer.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(SchedTaskJobDelegate.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(ReconFilterBuilder.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(LogicActions.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(PropagationActions.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(PullActions.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(PushActions.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(Validator.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(RecipientsProvider.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(AuditAppender.class));
 
         scanner.findCandidateComponents(getBasePackage()).forEach(bd -> {
             try {

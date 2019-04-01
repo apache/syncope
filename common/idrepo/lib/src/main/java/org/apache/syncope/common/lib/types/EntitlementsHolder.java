@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.common.lib.types;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class EntitlementsHolder extends ValueHolder<String> {
+public final class EntitlementsHolder {
 
     private static final Object MONITOR = new Object();
 
@@ -36,8 +38,14 @@ public final class EntitlementsHolder extends ValueHolder<String> {
         return INSTANCE;
     }
 
+    private final Set<String> values = Collections.synchronizedSet(new HashSet<>());
+
     private EntitlementsHolder() {
         // private constructor for singleton
+    }
+
+    public void addAll(final Collection<String> values) {
+        this.values.addAll(values);
     }
 
     public Set<String> addFor(final String anyType) {
@@ -60,5 +68,9 @@ public final class EntitlementsHolder extends ValueHolder<String> {
         }
 
         return removed;
+    }
+
+    public Set<String> getValues() {
+        return Collections.unmodifiableSet(values);
     }
 }

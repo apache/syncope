@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface OIDCProvider extends Entity {
 
@@ -88,6 +87,7 @@ public interface OIDCProvider extends Entity {
 
     boolean add(OIDCProviderItem item);
 
-    Set<String> getActionsClassNames();
+    boolean add(Implementation action);
 
+    List<? extends Implementation> getActions();
 }

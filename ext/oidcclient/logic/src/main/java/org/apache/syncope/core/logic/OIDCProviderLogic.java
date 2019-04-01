@@ -22,7 +22,6 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.core.MediaType;
@@ -33,7 +32,6 @@ import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.OIDCProviderTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.OIDCClientEntitlement;
-import org.apache.syncope.core.logic.init.OIDCClientClassPathScanImplementationLookup;
 import org.apache.syncope.core.logic.model.OIDCProviderDiscoveryDocument;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.OIDCProviderDAO;
@@ -52,14 +50,6 @@ public class OIDCProviderLogic extends AbstractTransactionalLogic<OIDCProviderTO
 
     @Autowired
     private OIDCProviderDataBinder binder;
-
-    @Autowired
-    private OIDCClientClassPathScanImplementationLookup implLookup;
-
-    @PreAuthorize("isAuthenticated()")
-    public Set<String> getActionsClasses() {
-        return implLookup.getActionsClasses();
-    }
 
     private OIDCProviderDiscoveryDocument getDiscoveryDocument(final String issuer) {
         String discoveryDocumentURL = issuer + "/.well-known/openid-configuration";

@@ -20,7 +20,6 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.OIDCProviderTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -34,11 +33,6 @@ public class OIDCProviderServiceImpl extends AbstractServiceImpl implements OIDC
 
     @Autowired
     private OIDCProviderLogic logic;
-
-    @Override
-    public Set<String> getActionsClasses() {
-        return logic.getActionsClasses();
-    }
 
     @Override
     public Response create(final OIDCProviderTO oidcProviderTO) {

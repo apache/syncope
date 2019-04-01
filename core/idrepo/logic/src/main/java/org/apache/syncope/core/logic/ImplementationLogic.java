@@ -78,7 +78,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
     private NotificationDAO notificationDAO;
 
     private void checkType(final String type) {
-        if (!ImplementationTypesHolder.getInstance().getValues().contains(type)) {
+        if (!ImplementationTypesHolder.getInstance().getValues().containsKey(type)) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidImplementationType);
             sce.getElements().add("Implementation type not found: ");
             throw sce;

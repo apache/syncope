@@ -19,22 +19,22 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import org.apache.syncope.common.lib.types.OIDCClientImplementationType;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.OIDCProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCProviderItem;
 import org.apache.syncope.core.persistence.api.entity.OIDCUserTemplate;
@@ -95,12 +95,13 @@ public class JPAOIDCProvider extends AbstractGeneratedKeyEntity implements OIDCP
     @NotNull
     private Boolean updateMatching = false;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "actionClassName")
-    @CollectionTable(name = TABLE + "_actionsClassNames",
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "OIDCProviderAction",
             joinColumns =
-            @JoinColumn(name = "oidcOP_id", referencedColumnName = "id"))
-    private Set<String> actionsClassNames = new HashSet<>();
+            @JoinColumn(name = "op_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "implementation_id"))
+    private List<JPAImplementation> actions = new ArrayList<>();
 
     @Override
     public String getName() {
@@ -266,8 +267,14 @@ public class JPAOIDCProvider extends AbstractGeneratedKeyEntity implements OIDCP
     }
 
     @Override
-    public Set<String> getActionsClassNames() {
-        return actionsClassNames;
+    public boolean add(final Implementation action) {
+        checkType(action, JPAImplementation.class);
+        checkImplementationType(action, OIDCClientImplementationType.OP_ACTION);
+        return actions.contains((JPAImplementation) action) || actions.add((JPAImplementation) action);
     }
 
+    @Override
+    public List<? extends Implementation> getActions() {
+        return actions;
+    }
 }

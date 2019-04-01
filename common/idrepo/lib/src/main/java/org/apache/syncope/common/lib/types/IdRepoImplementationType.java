@@ -18,11 +18,8 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 
 public final class IdRepoImplementationType {
 
@@ -44,19 +41,18 @@ public final class IdRepoImplementationType {
 
     public static final String AUDIT_APPENDER = "AUDIT_APPENDER";
 
-    private static final Set<String> VALUES;
+    private static final Map<String, String> VALUES = Map.ofEntries(
+            Pair.of(JWT_SSO_PROVIDER, "org.apache.syncope.core.spring.security.JWTSSOProvider"),
+            Pair.of(REPORTLET, "org.apache.syncope.core.persistence.api.dao.Reportlet"),
+            Pair.of(ACCOUNT_RULE, "org.apache.syncope.core.persistence.api.dao.AccountRule"),
+            Pair.of(PASSWORD_RULE, "org.apache.syncope.core.persistence.api.dao.PasswordRule"),
+            Pair.of(TASKJOB_DELEGATE, "org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate"),
+            Pair.of(LOGIC_ACTIONS, "org.apache.syncope.core.provisioning.api.LogicActions"),
+            Pair.of(VALIDATOR, "org.apache.syncope.core.persistence.api.attrvalue.validation.Validator"),
+            Pair.of(RECIPIENTS_PROVIDER, "org.apache.syncope.core.provisioning.api.notification.RecipientsProvider"),
+            Pair.of(AUDIT_APPENDER, "org.apache.syncope.core.logic.audit.AuditAppender"));
 
-    static {
-        Set<String> values = new TreeSet<>();
-        for (Field field : IdRepoImplementationType.class.getDeclaredFields()) {
-            if (Modifier.isStatic(field.getModifiers()) && String.class.equals(field.getType())) {
-                values.add(field.getName());
-            }
-        }
-        VALUES = Collections.unmodifiableSet(values);
-    }
-
-    public static Set<String> values() {
+    public static Map<String, String> values() {
         return VALUES;
     }
 

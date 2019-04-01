@@ -31,8 +31,10 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCProviderDAO;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.OIDCEntityFactory;
 import org.apache.syncope.core.persistence.api.entity.OIDCProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCProviderItem;
@@ -51,13 +53,14 @@ public class OIDCProviderDataBinderImpl implements OIDCProviderDataBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(OIDCProviderDataBinder.class);
 
-    private static final String[] ITEM_IGNORE_PROPERTIES = { "key", "purpose" };
-
     @Autowired
     private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private OIDCProviderDAO oidcOPDAO;
+
+    @Autowired
+    private ImplementationDAO implementationDAO;
 
     @Autowired
     private OIDCEntityFactory entityFactory;
@@ -214,8 +217,16 @@ public class OIDCProviderDataBinderImpl implements OIDCProviderDataBinder {
         });
         populateItems(opTO, op, allowedSchemas);
 
-        op.getActionsClassNames().clear();
-        op.getActionsClassNames().addAll(opTO.getActionsClassNames());
+        opTO.getActions().forEach(action -> {
+            Implementation implementation = implementationDAO.find(action);
+            if (implementation == null) {
+                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", action);
+            } else {
+                op.add(implementation);
+            }
+        });
+        // remove all implementations not contained in the TO
+        op.getActions().removeIf(impl -> !opTO.getActions().contains(impl.getKey()));
 
         return oidcOPDAO.save(op);
     }
@@ -266,7 +277,8 @@ public class OIDCProviderDataBinderImpl implements OIDCProviderDataBinder {
 
         populateItems(op, opTO);
 
-        opTO.getActionsClassNames().addAll(op.getActionsClassNames());
+        opTO.getActions().addAll(
+                op.getActions().stream().map(Entity::getKey).collect(Collectors.toList()));
 
         return opTO;
     }

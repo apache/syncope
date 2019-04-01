@@ -37,7 +37,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.OIDCProviderTO;
 import java.util.List;
-import java.util.Set;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
@@ -53,16 +52,6 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
     @SecurityRequirement(name = "Bearer") })
 @Path("oidcclient/providers")
 public interface OIDCProviderService extends JAXRSService {
-
-    /**
-     * Returns the list of available OIDCProviderActions implementations.
-     *
-     * @return the list of available OIDCProviderActions implementations
-     */
-    @GET
-    @Path("actionsClasses")
-    @Produces({ MediaType.APPLICATION_JSON })
-    Set<String> getActionsClasses();
 
     /**
      * Returns a list of all defined OIDC Providers.

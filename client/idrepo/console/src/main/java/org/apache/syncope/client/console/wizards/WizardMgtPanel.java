@@ -56,8 +56,6 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
 
     private static final long serialVersionUID = -4152438633429194882L;
 
-    protected static final String WIZARD_ID = "wizard";
-
     private boolean readOnly = false;
 
     private final String actualId;

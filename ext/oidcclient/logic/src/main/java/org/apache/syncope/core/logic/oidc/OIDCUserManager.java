@@ -55,11 +55,10 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.ImplementationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -164,16 +163,11 @@ public class OIDCUserManager {
 
     private List<OIDCProviderActions> getActions(final OIDCProvider op) {
         List<OIDCProviderActions> actions = new ArrayList<>();
-
-        op.getActionsClassNames().forEach(className -> {
+        op.getActions().forEach(impl -> {
             try {
-                Class<?> actionsClass = Class.forName(className);
-                OIDCProviderActions opActions = (OIDCProviderActions) ApplicationContextProvider.getBeanFactory().
-                        createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-
-                actions.add(opActions);
+                actions.add(ImplementationManager.build(impl));
             } catch (Exception e) {
-                LOG.warn("Class '{}' not found", className, e);
+                LOG.warn("While building {}", impl, e);
             }
         });
 

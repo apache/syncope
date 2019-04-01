@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -282,12 +283,15 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                 PLATFORM_INFO.getPersistenceInfo().
                         setConfDAO(AopUtils.getTargetClass(confDAO).getName());
 
-                ImplementationTypesHolder.getInstance().getValues().forEach(type -> {
-                    JavaImplInfo javaImplInfo = new JavaImplInfo();
-                    javaImplInfo.setType(type);
-                    javaImplInfo.getClasses().addAll(implLookup.getClassNames(type));
+                ImplementationTypesHolder.getInstance().getValues().forEach((typeName, typeInterface) -> {
+                    Set<String> classNames = implLookup.getClassNames(typeName);
+                    if (classNames != null) {
+                        JavaImplInfo javaImplInfo = new JavaImplInfo();
+                        javaImplInfo.setType(typeName);
+                        javaImplInfo.getClasses().addAll(classNames);
 
-                    PLATFORM_INFO.getJavaImplInfos().add(javaImplInfo);
+                        PLATFORM_INFO.getJavaImplInfos().add(javaImplInfo);
+                    }
                 });
             }
 
@@ -299,7 +303,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
             PLATFORM_INFO.getEntitlements().addAll(EntitlementsHolder.getInstance().getValues());
 
             PLATFORM_INFO.getImplementationTypes().clear();
-            PLATFORM_INFO.getImplementationTypes().addAll(ImplementationTypesHolder.getInstance().getValues());
+            PLATFORM_INFO.getImplementationTypes().addAll(ImplementationTypesHolder.getInstance().getValues().keySet());
 
             AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(), () -> {
                 PLATFORM_INFO.getAnyTypes().clear();

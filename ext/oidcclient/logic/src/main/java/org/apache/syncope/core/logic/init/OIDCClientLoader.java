@@ -19,7 +19,9 @@
 package org.apache.syncope.core.logic.init;
 
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
+import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.common.lib.types.OIDCClientEntitlement;
+import org.apache.syncope.common.lib.types.OIDCClientImplementationType;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.springframework.stereotype.Component;
 
@@ -34,5 +36,6 @@ public class OIDCClientLoader implements SyncopeCoreLoader {
     @Override
     public void load() {
         EntitlementsHolder.getInstance().addAll(OIDCClientEntitlement.values());
+        ImplementationTypesHolder.getInstance().putAll(OIDCClientImplementationType.values());
     }
 }

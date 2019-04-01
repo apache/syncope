@@ -18,11 +18,8 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 
 public final class IdMImplementationType {
 
@@ -40,19 +37,16 @@ public final class IdMImplementationType {
 
     public static final String PUSH_CORRELATION_RULE = "PUSH_CORRELATION_RULE";
 
-    private static final Set<String> VALUES;
+    private static final Map<String, String> VALUES = Map.ofEntries(
+            Pair.of(ITEM_TRANSFORMER, "org.apache.syncope.core.spring.security.JWTSSOProvider"),
+            Pair.of(RECON_FILTER_BUILDER, "org.apache.syncope.core.persistence.api.dao.Reportlet"),
+            Pair.of(PROPAGATION_ACTIONS, "org.apache.syncope.core.persistence.api.dao.AccountRule"),
+            Pair.of(PULL_ACTIONS, "org.apache.syncope.core.persistence.api.dao.PasswordRule"),
+            Pair.of(PUSH_ACTIONS, "org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate"),
+            Pair.of(PULL_CORRELATION_RULE, "org.apache.syncope.core.provisioning.api.LogicActions"),
+            Pair.of(PUSH_CORRELATION_RULE, "org.apache.syncope.core.persistence.api.attrvalue.validation.Validator"));
 
-    static {
-        Set<String> values = new TreeSet<>();
-        for (Field field : IdMImplementationType.class.getDeclaredFields()) {
-            if (Modifier.isStatic(field.getModifiers()) && String.class.equals(field.getType())) {
-                values.add(field.getName());
-            }
-        }
-        VALUES = Collections.unmodifiableSet(values);
-    }
-
-    public static Set<String> values() {
+    public static Map<String, String> values() {
         return VALUES;
     }
 

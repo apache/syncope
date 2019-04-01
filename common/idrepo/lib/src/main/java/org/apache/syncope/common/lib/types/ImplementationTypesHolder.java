@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.common.lib.types;
 
-public final class ImplementationTypesHolder extends ValueHolder<String> {
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+public final class ImplementationTypesHolder {
 
     private static final Object MONITOR = new Object();
 
@@ -33,7 +37,21 @@ public final class ImplementationTypesHolder extends ValueHolder<String> {
         return INSTANCE;
     }
 
+    private final Map<String, String> values = Collections.synchronizedMap(new HashMap<>());
+
     private ImplementationTypesHolder() {
         // private constructor for singleton
     }
+
+    public void putAll(final Map<String, String> value2Class) {
+        this.values.putAll(value2Class);
+    }
+
+    public Map<String, String> getValues() {
+        return Collections.unmodifiableMap(values);
+    }
+
+//    public String getClass(final String implementationType) {
+//        return values.get(implementationType);
+//    }
 }

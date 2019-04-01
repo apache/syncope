@@ -18,20 +18,21 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 
-abstract class ValueHolder<T> {
+public final class OIDCClientImplementationType {
 
-    protected final Set<T> values = Collections.synchronizedSet(new HashSet<>());
+    public static final String OP_ACTION = "OP_ACTION";
 
-    public void addAll(final Collection<T> values) {
-        this.values.addAll(values);
+    private static final Map<String, String> VALUES = Map.ofEntries(
+            Pair.of(OP_ACTION, "org.apache.syncope.core.provisioning.api.OIDCProviderActions"));
+
+    public static Map<String, String> values() {
+        return VALUES;
     }
 
-    public Set<T> getValues() {
-        return Collections.unmodifiableSet(values);
+    private OIDCClientImplementationType() {
+        // private constructor for static utility class
     }
 }

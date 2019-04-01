@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
-import java.util.Set;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.OIDCProviderTO;
 import org.apache.syncope.common.rest.api.service.OIDCProviderService;
@@ -30,10 +29,6 @@ public class OIDCProviderRestClient extends BaseRestClient {
 
     public List<OIDCProviderTO> list() {
         return getService(OIDCProviderService.class).list();
-    }
-
-    public Set<String> getActionsClasses() {
-        return getService(OIDCProviderService.class).getActionsClasses();
     }
 
     public void create(final OIDCProviderTO op) {
@@ -55,5 +50,4 @@ public class OIDCProviderRestClient extends BaseRestClient {
     public void delete(final String key) {
         getService(OIDCProviderService.class).delete(key);
     }
-
 }

@@ -33,6 +33,6 @@ public class IdMImplementationTypeLoader implements SyncopeCoreLoader {
 
     @Override
     public void load() {
-        ImplementationTypesHolder.getInstance().addAll(IdMImplementationType.values());
+        ImplementationTypesHolder.getInstance().putAll(IdMImplementationType.values());
     }
 }
