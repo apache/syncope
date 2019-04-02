@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.metrics.routepolicy.MetricsRoutePolicyFactory;
+import org.apache.camel.model.ModelHelper;
 import org.apache.camel.model.RoutesDefinition;
 import org.apache.camel.spring.SpringCamelContext;
 import org.apache.commons.io.IOUtils;
@@ -68,7 +69,8 @@ public class SyncopeCamelContext {
 
     private void loadRouteDefinitions(final List<String> routes) {
         try {
-            RoutesDefinition routeDefs = camelContext.loadRoutesDefinition(
+            RoutesDefinition routeDefs = ModelHelper.loadRoutesDefinition(
+                    camelContext,
                     IOUtils.toInputStream("<routes xmlns=\"http://camel.apache.org/schema/spring\">"
                             + StringUtils.join(routes)
                             + "</routes>", StandardCharsets.UTF_8));
