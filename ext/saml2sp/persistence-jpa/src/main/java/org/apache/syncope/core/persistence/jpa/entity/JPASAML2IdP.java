@@ -24,19 +24,21 @@ import java.util.Optional;
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
+import org.apache.syncope.common.lib.types.SAML2SPImplementationType;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdPItem;
 import org.apache.syncope.core.persistence.api.entity.SAML2UserTemplate;
@@ -86,14 +88,16 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "idp")
     private JPASAML2UserTemplate userTemplate;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "actionClassName")
-    @CollectionTable(name = TABLE + "_actionsClassNames",
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "SAML2IdPAction",
             joinColumns =
-            @JoinColumn(name = "saml2IdP_id", referencedColumnName = "id"))
-    private List<String> actionsClassNames = new ArrayList<>();
+            @JoinColumn(name = "saml2idp_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "implementation_id"))
+    private List<JPAImplementation> actions = new ArrayList<>();
 
-    private String requestedAuthnContextProviderClassName;
+    @OneToOne
+    private JPAImplementation requestedAuthnContextProvider;
 
     @Override
     public String getEntityID() {
@@ -219,17 +223,27 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
     }
 
     @Override
-    public List<String> getActionsClassNames() {
-        return actionsClassNames;
+    public boolean add(final Implementation action) {
+        checkType(action, JPAImplementation.class);
+        checkImplementationType(action, SAML2SPImplementationType.IDP_ACTIONS);
+        return actions.contains((JPAImplementation) action) || actions.add((JPAImplementation) action);
     }
 
     @Override
-    public String getRequestedAuthnContextProviderClassName() {
-        return requestedAuthnContextProviderClassName;
+    public List<? extends Implementation> getActions() {
+        return actions;
     }
 
     @Override
-    public void setRequestedAuthnContextProviderClassName(final String requestedAuthnContextProviderClassName) {
-        this.requestedAuthnContextProviderClassName = requestedAuthnContextProviderClassName;
+    public JPAImplementation getRequestedAuthnContextProvider() {
+        return requestedAuthnContextProvider;
+    }
+
+    @Override
+    public void setRequestedAuthnContextProvider(final Implementation requestedAuthnContextProvider) {
+        checkType(requestedAuthnContextProvider, JPAImplementation.class);
+        checkImplementationType(
+                requestedAuthnContextProvider, SAML2SPImplementationType.REQUESTED_AUTHN_CONTEXT_PROVIDER);
+        this.requestedAuthnContextProvider = (JPAImplementation) requestedAuthnContextProvider;
     }
 }

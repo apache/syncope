@@ -50,6 +50,7 @@ import org.apache.syncope.core.logic.saml2.SAML2IdPCache;
 import org.apache.syncope.core.logic.saml2.SAML2IdPEntity;
 import org.apache.syncope.core.logic.saml2.SAML2UserManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
@@ -98,13 +99,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.DefaultRequestedAuthnContextProvider;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.opensaml.core.xml.schema.XSAny;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.util.ResourceUtils;
 
 @Component
@@ -140,6 +140,9 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
 
     @Autowired
     private AccessTokenDAO accessTokenDAO;
+
+    @Autowired
+    private ImplementationDAO implementationDAO;
 
     @Autowired
     private AuthDataAccessor authDataAccessor;
@@ -294,14 +297,12 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         nameIDPolicy.setSPNameQualifier(spEntityID);
 
         RequestedAuthnContextProvider requestedAuthnContextProvider = new DefaultRequestedAuthnContextProvider();
-        if (idp.getRequestedAuthnContextProviderClassName() != null) {
+        if (idp.getRequestedAuthnContextProvider() != null) {
             try {
-                Class<?> actionsClass = Class.forName(idp.getRequestedAuthnContextProviderClassName());
-                requestedAuthnContextProvider = (RequestedAuthnContextProvider) ApplicationContextProvider.
-                        getBeanFactory().createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+                ImplementationManager.build(implementationDAO.find(idp.getRequestedAuthnContextProvider()));
             } catch (Exception e) {
                 LOG.warn("Cannot instantiate '{}', reverting to {}",
-                        idp.getRequestedAuthnContextProviderClassName(),
+                        idp.getRequestedAuthnContextProvider(),
                         DefaultRequestedAuthnContextProvider.class.getName(), e);
             }
         }

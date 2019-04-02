@@ -32,8 +32,10 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.SAML2EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdPItem;
@@ -57,6 +59,9 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
 
     @Autowired
     private SAML2IdPDAO saml2IdPDAO;
+
+    @Autowired
+    private ImplementationDAO implementationDAO;
 
     @Autowired
     private SAML2EntityFactory entityFactory;
@@ -208,10 +213,28 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         });
         populateItems(idpTO, idp, allowedSchemas);
 
-        idp.getActionsClassNames().clear();
-        idp.getActionsClassNames().addAll(idpTO.getActionsClassNames());
+        idpTO.getActions().forEach(action -> {
+            Implementation implementation = implementationDAO.find(action);
+            if (implementation == null) {
+                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", action);
+            } else {
+                idp.add(implementation);
+            }
+        });
+        // remove all implementations not contained in the TO
+        idp.getActions().removeIf(impl -> !idpTO.getActions().contains(impl.getKey()));
 
-        idp.setRequestedAuthnContextProviderClassName(idpTO.getRequestedAuthnContextProviderClassName());
+        if (idpTO.getRequestedAuthnContextProvider() == null) {
+            idp.setRequestedAuthnContextProvider(null);
+        } else {
+            Implementation implementation = implementationDAO.find(idpTO.getRequestedAuthnContextProvider());
+            if (implementation == null) {
+                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                        idpTO.getRequestedAuthnContextProvider());
+            } else {
+                idp.setRequestedAuthnContextProvider(implementation);
+            }
+        }
 
         return saml2IdPDAO.save(idp);
     }
@@ -258,9 +281,12 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
 
         populateItems(idp, idpTO);
 
-        idpTO.getActionsClassNames().addAll(idp.getActionsClassNames());
+        idpTO.getActions().addAll(
+                idp.getActions().stream().map(Entity::getKey).collect(Collectors.toList()));
 
-        idpTO.setRequestedAuthnContextProviderClassName(idp.getRequestedAuthnContextProviderClassName());
+        if (idp.getRequestedAuthnContextProvider() != null) {
+            idpTO.setRequestedAuthnContextProvider(idp.getRequestedAuthnContextProvider().getKey());
+        }
 
         return idpTO;
     }

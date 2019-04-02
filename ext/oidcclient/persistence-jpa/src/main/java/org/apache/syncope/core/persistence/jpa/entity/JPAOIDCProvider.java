@@ -269,7 +269,7 @@ public class JPAOIDCProvider extends AbstractGeneratedKeyEntity implements OIDCP
     @Override
     public boolean add(final Implementation action) {
         checkType(action, JPAImplementation.class);
-        checkImplementationType(action, OIDCClientImplementationType.OP_ACTION);
+        checkImplementationType(action, OIDCClientImplementationType.OP_ACTIONS);
         return actions.contains((JPAImplementation) action) || actions.add((JPAImplementation) action);
     }
 

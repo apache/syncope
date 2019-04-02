@@ -71,7 +71,7 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
 
         @Override
         protected List<String> load() {
-            return implRestClient.list(OIDCClientImplementationType.OP_ACTION).stream().
+            return implRestClient.list(OIDCClientImplementationType.OP_ACTIONS).stream().
                     map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };

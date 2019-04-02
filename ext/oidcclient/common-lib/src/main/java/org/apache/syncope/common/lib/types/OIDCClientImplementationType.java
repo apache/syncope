@@ -23,10 +23,10 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public final class OIDCClientImplementationType {
 
-    public static final String OP_ACTION = "OP_ACTION";
+    public static final String OP_ACTIONS = "OP_ACTIONS";
 
     private static final Map<String, String> VALUES = Map.ofEntries(
-            Pair.of(OP_ACTION, "org.apache.syncope.core.provisioning.api.OIDCProviderActions"));
+            Pair.of(OP_ACTIONS, "org.apache.syncope.core.provisioning.api.OIDCProviderActions"));
 
     public static Map<String, String> values() {
         return VALUES;

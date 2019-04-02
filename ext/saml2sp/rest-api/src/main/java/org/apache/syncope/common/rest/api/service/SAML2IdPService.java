@@ -28,7 +28,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Set;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -52,26 +51,6 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
     @SecurityRequirement(name = "Bearer") })
 @Path("saml2sp/identityProviders")
 public interface SAML2IdPService extends JAXRSService {
-
-    /**
-     * Returns the list of available SAML2IdPActions implementations.
-     *
-     * @return the list of available SAML2IdPActions implementations
-     */
-    @GET
-    @Path("actionsClasses")
-    @Produces({ MediaType.APPLICATION_JSON })
-    Set<String> getActionsClasses();
-
-    /**
-     * Returns the list of available RequestedAuthnContextProviders implementations.
-     *
-     * @return the list of available RequestedAuthnContextProviders implementations
-     */
-    @GET
-    @Path("requestedAuthnContextProviders")
-    @Produces({ MediaType.APPLICATION_JSON })
-    Set<String> getRequestedAuthnContextProviderClasses();
 
     /**
      * Returns a list of all defined SAML 2.0 Identity Providers.

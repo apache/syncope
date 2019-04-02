@@ -60,9 +60,9 @@ public class SAML2IdPTO implements EntityTO, ItemContainerTO {
 
     private final List<ItemTO> items = new ArrayList<>();
 
-    private final List<String> actionsClassNames = new ArrayList<>();
+    private final List<String> actions = new ArrayList<>();
 
-    private String requestedAuthnContextProviderClassName;
+    private String requestedAuthnContextProvider;
 
     @Override
     public String getKey() {
@@ -199,18 +199,18 @@ public class SAML2IdPTO implements EntityTO, ItemContainerTO {
         return this.items.remove(item);
     }
 
-    @XmlElementWrapper(name = "actionsClassNames")
-    @XmlElement(name = "actionsClassNames")
+    @XmlElementWrapper(name = "actions")
+    @XmlElement(name = "action")
     @JsonProperty("actions")
-    public List<String> getActionsClassNames() {
-        return actionsClassNames;
+    public List<String> getActions() {
+        return actions;
     }
 
-    public String getRequestedAuthnContextProviderClassName() {
-        return requestedAuthnContextProviderClassName;
+    public String getRequestedAuthnContextProvider() {
+        return requestedAuthnContextProvider;
     }
 
-    public void setRequestedAuthnContextProviderClassName(final String requestedAuthnContextProviderClassName) {
-        this.requestedAuthnContextProviderClassName = requestedAuthnContextProviderClassName;
+    public void setRequestedAuthnContextProvider(final String requestedAuthnContextProvider) {
+        this.requestedAuthnContextProvider = requestedAuthnContextProvider;
     }
 }

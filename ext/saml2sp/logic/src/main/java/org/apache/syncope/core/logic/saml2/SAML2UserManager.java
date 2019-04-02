@@ -38,6 +38,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
@@ -55,11 +56,10 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.ImplementationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,6 +74,9 @@ public class SAML2UserManager {
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private ImplementationDAO implementationDAO;
 
     @Autowired
     private IntAttrNameParser intAttrNameParser;
@@ -174,16 +177,11 @@ public class SAML2UserManager {
 
     private List<SAML2IdPActions> getActions(final SAML2IdPEntity idp) {
         List<SAML2IdPActions> actions = new ArrayList<>();
-
-        idp.getActionsClassNames().forEach(className -> {
+        idp.getActions().forEach(impl -> {
             try {
-                Class<?> actionsClass = Class.forName(className);
-                SAML2IdPActions idpActions = (SAML2IdPActions) ApplicationContextProvider.getBeanFactory().
-                        createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-
-                actions.add(idpActions);
+                actions.add(ImplementationManager.build(implementationDAO.find(impl)));
             } catch (Exception e) {
-                LOG.warn("Class '{}' not found", className, e);
+                LOG.warn("While building {}", impl, e);
             }
         });
 

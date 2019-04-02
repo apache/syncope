@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -35,10 +34,9 @@ import org.apache.syncope.common.lib.to.SAML2IdPTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.common.lib.types.SAML2SPEntitlement;
-import org.apache.syncope.core.logic.init.SAML2SPClassPathScanImplementationLookup;
-import org.apache.syncope.core.logic.saml2.SAML2ReaderWriter;
 import org.apache.syncope.core.logic.saml2.SAML2IdPCache;
 import org.apache.syncope.core.logic.saml2.SAML2IdPEntity;
+import org.apache.syncope.core.logic.saml2.SAML2ReaderWriter;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
@@ -69,20 +67,7 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
     private SAML2IdPDAO idpDAO;
 
     @Autowired
-    private SAML2SPClassPathScanImplementationLookup implLookup;
-
-    @Autowired
     private SAML2ReaderWriter saml2rw;
-
-    @PreAuthorize("isAuthenticated()")
-    public Set<String> getActionsClasses() {
-        return implLookup.getActionsClasses();
-    }
-
-    @PreAuthorize("isAuthenticated()")
-    public Set<String> getRequestedAuthnContextProviderClasses() {
-        return implLookup.getRequestedAuthnContextProvidersClasses();
-    }
 
     private SAML2IdPTO complete(final SAML2IdP idp, final SAML2IdPTO idpTO) {
         SAML2IdPEntity idpEntity = cache.get(idpTO.getEntityID());

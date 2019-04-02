@@ -18,36 +18,26 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 
-public final class ImplementationTypesHolder {
+public final class SAML2SPImplementationType {
 
-    private static final Object MONITOR = new Object();
+    public static final String IDP_ACTIONS = "IDP_ACTIONS";
 
-    private static ImplementationTypesHolder INSTANCE;
+    public static final String REQUESTED_AUTHN_CONTEXT_PROVIDER = "REQUESTED_AUTHN_CONTEXT_PROVIDER";
 
-    public static ImplementationTypesHolder getInstance() {
-        synchronized (MONITOR) {
-            if (INSTANCE == null) {
-                INSTANCE = new ImplementationTypesHolder();
-            }
-        }
-        return INSTANCE;
+    private static final Map<String, String> VALUES = Map.ofEntries(
+            Pair.of(IDP_ACTIONS,
+                    "org.apache.syncope.core.provisioning.api.SAML2IdPActions"),
+            Pair.of(REQUESTED_AUTHN_CONTEXT_PROVIDER,
+                    "org.apache.syncope.core.provisioning.api.RequestedAuthnContextProvider"));
+
+    public static Map<String, String> values() {
+        return VALUES;
     }
 
-    private final Map<String, String> values = Collections.synchronizedMap(new HashMap<>());
-
-    private ImplementationTypesHolder() {
-        // private constructor for singleton
-    }
-
-    public void putAll(final Map<String, String> value2Class) {
-        this.values.putAll(value2Class);
-    }
-
-    public Map<String, String> getValues() {
-        return Collections.unmodifiableMap(values);
+    private SAML2SPImplementationType() {
+        // private constructor for static utility class
     }
 }
