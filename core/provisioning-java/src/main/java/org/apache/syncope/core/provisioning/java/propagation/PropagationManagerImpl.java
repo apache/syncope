@@ -211,11 +211,13 @@ public class PropagationManagerImpl implements PropagationManager {
         UserUR userUR = wfResult.getResult().getLeft();
 
         // Propagate password update only to requested resources
-        List<PropagationTaskInfo> tasks = new ArrayList<>();
+        List<PropagationTaskInfo> tasks;
         if (userUR.getPassword() == null) {
             // a. no specific password propagation request: generate propagation tasks for any resource associated
             tasks = getUserUpdateTasks(wfResult, false, null);
         } else {
+            tasks = new ArrayList<>();
+
             // b. generate the propagation task list in two phases: first the ones containing password,
             // the the rest (with no password)
             WorkflowResult<Pair<UserUR, Boolean>> pwdWFResult = new WorkflowResult<>(
@@ -244,6 +246,8 @@ public class PropagationManagerImpl implements PropagationManager {
             if (!noPwdWFResult.getPropByRes().isEmpty()) {
                 tasks.addAll(getUserUpdateTasks(noPwdWFResult, false, pwdResourceNames));
             }
+
+            tasks = tasks.stream().distinct().collect(Collectors.toList());
         }
 
         return tasks;
