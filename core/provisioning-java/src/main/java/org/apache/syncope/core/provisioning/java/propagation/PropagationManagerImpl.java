@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -213,11 +214,13 @@ public class PropagationManagerImpl implements PropagationManager {
         UserPatch userPatch = wfResult.getResult().getKey();
 
         // Propagate password update only to requested resources
-        List<PropagationTaskInfo> tasks = new ArrayList<>();
+        List<PropagationTaskInfo> tasks;
         if (userPatch.getPassword() == null) {
             // a. no specific password propagation request: generate propagation tasks for any resource associated
             tasks = getUserUpdateTasks(wfResult, false, null);
         } else {
+            Set<PropagationTaskInfo> taskSet = new LinkedHashSet<>();
+
             // b. generate the propagation task list in two phases: first the ones containing password,
             // the the rest (with no password)
             WorkflowResult<Pair<UserPatch, Boolean>> pwdWFResult = new WorkflowResult<>(
@@ -239,7 +242,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 }, toBeExcluded);
                 toBeExcluded.removeAll(pwdResourceNames);
 
-                tasks.addAll(getUserUpdateTasks(pwdWFResult, true, toBeExcluded));
+                taskSet.addAll(getUserUpdateTasks(pwdWFResult, true, toBeExcluded));
             }
 
             WorkflowResult<Pair<UserPatch, Boolean>> noPwdWFResult = new WorkflowResult<>(
@@ -249,8 +252,10 @@ public class PropagationManagerImpl implements PropagationManager {
             noPwdWFResult.getPropByRes().removeAll(pwdResourceNames);
             noPwdWFResult.getPropByRes().purge();
             if (!noPwdWFResult.getPropByRes().isEmpty()) {
-                tasks.addAll(getUserUpdateTasks(noPwdWFResult, false, pwdResourceNames));
+                taskSet.addAll(getUserUpdateTasks(noPwdWFResult, false, pwdResourceNames));
             }
+
+            tasks = new ArrayList<>(taskSet);
         }
 
         return tasks;
