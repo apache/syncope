@@ -79,6 +79,7 @@ under the License.
   <modules>
     <module>idrepo</module>
     <module>idm</module>
+    <module>am</module>
   </modules>
 
 </project>

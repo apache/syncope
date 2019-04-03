@@ -1030,6 +1030,14 @@ under the License.
       </dependency>
 
       <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>Greenwich.SR1</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-core</artifactId>
         <version>${spring.version}</version>
@@ -2238,14 +2246,12 @@ under the License.
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>1.6.2</version>
+        <version>1.6.3</version>
         <dependencies>
           <dependency>
             <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
+            <artifactId>groovy-ant</artifactId>
             <version>${groovy.version}</version>
-            <scope>runtime</scope>
-            <type>pom</type>
           </dependency>
         </dependencies>
         <executions>
@@ -2715,6 +2721,7 @@ under the License.
     <module>common</module>
     <module>core</module>
     <module>client</module>
+    <module>sra</module>
     <module>fit</module>
     <module>ext</module>
     <module>archetype</module>

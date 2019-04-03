@@ -97,10 +97,10 @@ under the License.
           </plugin>
         </plugins>
       </build>
-
-      <modules>
-	<module>netbeans</module>
-      </modules>
     </profile>
   </profiles>
+  
+  <modules>
+    <module>netbeans</module>
+  </modules>
 </project>

@@ -46,6 +46,7 @@ under the License.
     <module>core</module>
     <module>console</module>
     <module>enduser</module>
+    <module>sra</module>
   </modules>
 
   <build>
