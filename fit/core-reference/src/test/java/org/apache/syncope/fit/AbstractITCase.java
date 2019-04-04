@@ -119,6 +119,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.common.rest.api.service.BpmnProcessService;
+import org.apache.syncope.common.rest.api.service.GatewayRouteService;
 import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
 
 public abstract class AbstractITCase {
@@ -265,6 +266,8 @@ public abstract class AbstractITCase {
 
     protected static RemediationService remediationService;
 
+    protected static GatewayRouteService gatewayRouteService;
+
     protected static CamelRouteService camelRouteService;
 
     protected static SAML2SPService saml2SpService;
@@ -343,6 +346,7 @@ public abstract class AbstractITCase {
         securityQuestionService = adminClient.getService(SecurityQuestionService.class);
         implementationService = adminClient.getService(ImplementationService.class);
         remediationService = adminClient.getService(RemediationService.class);
+        gatewayRouteService = adminClient.getService(GatewayRouteService.class);
         camelRouteService = adminClient.getService(CamelRouteService.class);
         saml2SpService = adminClient.getService(SAML2SPService.class);
         saml2IdPService = adminClient.getService(SAML2IdPService.class);

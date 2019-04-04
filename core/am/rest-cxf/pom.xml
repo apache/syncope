@@ -22,76 +22,65 @@ under the License.
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.apache.syncope</groupId>
-    <artifactId>syncope-core</artifactId>
+    <groupId>org.apache.syncope.core</groupId>
+    <artifactId>syncope-core-am</artifactId>
     <version>3.0.0-SNAPSHOT</version>
   </parent>
 
-  <name>Apache Syncope Core Persistence API</name>
-  <description>Apache Syncope Core Persistence API</description>
-  <groupId>org.apache.syncope.core</groupId>
-  <artifactId>syncope-core-persistence-api</artifactId>
+  <name>Apache Syncope Core AM REST CXF</name>
+  <description>Apache Syncope Core AM REST CXF</description>
+  <groupId>org.apache.syncope.core.am</groupId>
+  <artifactId>syncope-core-am-rest-cxf</artifactId>
   <packaging>jar</packaging>
   
   <properties>
-    <rootpom.basedir>${basedir}/../..</rootpom.basedir>
+    <rootpom.basedir>${basedir}/../../..</rootpom.basedir>
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
+    <dependency> 
+      <groupId>javax.servlet</groupId> 
+      <artifactId>javax.servlet-api</artifactId> 
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-core</artifactId>
+      <groupId>org.apache.syncope.common.am</groupId>
+      <artifactId>syncope-common-am-rest-api</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
     </dependency>
-
+    
     <dependency>
-      <groupId>net.tirasa.connid</groupId>
-      <artifactId>connector-framework</artifactId>
+      <groupId>org.apache.syncope.core.idrepo</groupId>
+      <artifactId>syncope-core-idrepo-rest-cxf</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>net.tirasa.connid</groupId>
-      <artifactId>connector-framework-internal</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>net.tirasa.connid</groupId>
-      <artifactId>slf4j-logging</artifactId>
-    </dependency>
-      
-    <dependency>
-      <groupId>org.apache.syncope.common.idm</groupId>
-      <artifactId>syncope-common-idm-lib</artifactId>
+      <groupId>org.apache.syncope.core.am</groupId>
+      <artifactId>syncope-core-am-logic</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.syncope.common.am</groupId>
-      <artifactId>syncope-common-am-lib</artifactId>
+      <artifactId>syncope-common-am-rest-api</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    
-    <!-- TEST -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <version>${slf4j.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
   <build>
-    <plugins>
+    <plugins>            
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
     </plugins>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
   </build>
 </project>

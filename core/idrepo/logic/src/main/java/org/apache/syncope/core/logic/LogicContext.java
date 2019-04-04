@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.logic;
 
+import java.lang.reflect.InvocationTargetException;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
@@ -53,17 +54,19 @@ public class LogicContext implements EnvironmentAware {
 
     @Bean
     public LogicInvocationHandler logicInvocationHandler()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, 
+            NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
 
         return (LogicInvocationHandler) Class.forName(env.getProperty("logicInvocationHandler")).
-                newInstance();
+                getDeclaredConstructor().newInstance();
     }
 
     @Bean
     public ImplementationLookup classPathScanImplementationLookup()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, 
+            NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
 
         return (ImplementationLookup) Class.forName(env.getProperty("classPathScanImplementationLookup")).
-                newInstance();
+                getDeclaredConstructor().newInstance();
     }
 }

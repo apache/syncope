@@ -2558,4 +2558,7 @@ $$ }&#10;
   <SyncopeLogger logName="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" logLevel="DEBUG" logType="AUDIT"/>
   
   <SecurityQuestion id="887028ea-66fc-41e7-b397-620d7ea6dfbb" content="What's your mother's maiden name?"/>
+
+  <GatewayRoute id="ec7bada2-3dd6-460c-8441-65521d005ffa" name="basic1" target="http://httpbin.org:80" status="PUBLISHED"
+                predicates="[{&quot;cond&quot;:null,&quot;factory&quot;:&quot;METHOD&quot;,&quot;args&quot;:&quot;GET&quot;}]"/>
 </dataset>

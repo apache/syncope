@@ -22,7 +22,7 @@ under the License.
   <appenders>
 
     <RollingRandomAccessFile name="main" fileName="${log.directory}/sra.log"
-                             filePattern="${log.directory}/console-%d{yyyy-MM-dd}.log.gz"
+                             filePattern="${log.directory}/sra-%d{yyyy-MM-dd}.log.gz"
                              immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
@@ -33,6 +33,18 @@ under the License.
       </Policies>
     </RollingRandomAccessFile>
     
+    <RollingRandomAccessFile name="access" fileName="${log.directory}/sra-access.log"
+                             filePattern="${log.directory}/sra-access-%d{yyyy-MM-dd}.log.gz"
+                             immediateFlush="false" append="true">
+      <PatternLayout>
+        <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
+      </PatternLayout>
+      <Policies>
+        <TimeBasedTriggeringPolicy/>
+        <SizeBasedTriggeringPolicy size="250 MB"/>
+      </Policies>
+    </RollingRandomAccessFile>
+
   </appenders>
 
   <loggers>
@@ -44,7 +56,12 @@ under the License.
     <asyncLogger name="org.apache.syncope.sra" additivity="false" level="INFO">
       <appender-ref ref="main"/>
     </asyncLogger>
-    
+
+    <!-- Requires -Dreactor.netty.http.server.accessLogEnabled=true to work-->
+    <asyncLogger name="reactor.netty.http.server.AccessLog" additivity="false" level="INFO">
+      <appender-ref ref="access"/>
+    </asyncLogger>
+
     <root level="INFO">
       <appender-ref ref="main"/>
     </root>

@@ -79,6 +79,7 @@ under the License.
   <modules>
     <module>idrepo</module>
     <module>idm</module>
+    <module>am</module>
     <module>persistence-api</module>
     <module>persistence-jpa</module>
     <module>persistence-jpa-json</module>

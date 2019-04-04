@@ -130,6 +130,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnit;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
+import org.apache.syncope.core.persistence.api.entity.GatewayRoute;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
@@ -300,6 +301,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPARemediation();
         } else if (reference.equals(Batch.class)) {
             result = (E) new JPABatch();
+        } else if (reference.equals(GatewayRoute.class)) {
+            result = (E) new JPAGatewayRoute();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }
