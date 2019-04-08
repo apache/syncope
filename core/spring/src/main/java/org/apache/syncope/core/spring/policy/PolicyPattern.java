@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.utils.policy;
+package org.apache.syncope.core.spring.policy;
 
 import java.util.regex.Pattern;
 
@@ -38,11 +38,17 @@ public final class PolicyPattern {
 
     public static final Pattern LAST_ALPHANUMERIC = Pattern.compile(".*\\w");
 
-    public static final Pattern NON_ALPHANUMERIC = Pattern.compile(".*\\W.*");
+    public static final Pattern NON_ALPHANUMERIC =
+            Pattern.compile(".*[~!@#$%^&*_\\-`(){}\\[\\]:;\"'<>,.?/\\=\\+\\\\\\|].*");
 
-    public static final Pattern FIRST_NON_ALPHANUMERIC = Pattern.compile("\\W.*");
+    public static final Pattern FIRST_NON_ALPHANUMERIC =
+            Pattern.compile("[~!@#$%^&*_\\-`(){}\\[\\]:;\"'<>,.?/\\=\\+\\\\\\|].*");
 
-    public static final Pattern LAST_NON_ALPHANUMERIC = Pattern.compile(".*\\W");
+    public static final Pattern LAST_NON_ALPHANUMERIC =
+            Pattern.compile(".*[~!@#$%^&*_\\-`(){}\\[\\]:;\"'<>,.?/\\=\\+\\\\\\|]");
+
+    public static final char[] NON_ALPHANUMERIC_CHARS_FOR_PASSWORD_VALUES = {
+        '!', '£', '%', '&', '(', ')', '?', '#', '$' };
 
     private PolicyPattern() {
         // private constructor for static utility class
