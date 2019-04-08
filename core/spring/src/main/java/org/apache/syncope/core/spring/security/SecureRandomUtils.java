@@ -57,7 +57,7 @@ public final class SecureRandomUtils {
         return FOR_NUMBERS.generate(1);
     }
 
-    public static String generateRandomSpecialCharacter(final char[] characters) {
+    public static String generateRandomNonAlphanumericChar(final char[] characters) {
         return new RandomStringGenerator.Builder().
                 usingRandom(new SecureTextRandomProvider()).
                 filteredBy(new CharacterPredicate() {

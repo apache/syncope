@@ -27,8 +27,8 @@ import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
-import org.apache.syncope.core.persistence.jpa.dao.DefaultAccountRule;
-import org.apache.syncope.core.persistence.jpa.dao.DefaultPasswordRule;
+import org.apache.syncope.core.spring.policy.DefaultAccountRule;
+import org.apache.syncope.core.spring.policy.DefaultPasswordRule;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -27,8 +27,8 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
-import org.apache.syncope.core.provisioning.api.utils.policy.InvalidPasswordRuleConf;
-import org.apache.syncope.core.provisioning.api.utils.policy.PolicyPattern;
+import org.apache.syncope.core.spring.policy.InvalidPasswordRuleConf;
+import org.apache.syncope.core.spring.policy.PolicyPattern;
 import org.junit.Test;
 
 public class PasswordGeneratorTest {

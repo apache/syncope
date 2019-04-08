@@ -16,22 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.utils.policy;
+package org.apache.syncope.core.spring.policy;
 
-/**
- * Raise when the merge of two or more PasswordRuleconf instances led to an inconsistent condition.
- *
- * @see org.apache.syncope.common.lib.policy.PasswordRuleConf
- */
-public class InvalidPasswordRuleConf extends Exception {
+public class AccountPolicyException extends PolicyException {
 
-    private static final long serialVersionUID = 4810651743226663580L;
+    private static final long serialVersionUID = 2779416455067691813L;
 
-    public InvalidPasswordRuleConf(final String msg) {
-        super(msg);
+    public AccountPolicyException() {
+        super();
     }
 
-    public InvalidPasswordRuleConf(final String msg, final Exception e) {
-        super(msg, e);
+    public AccountPolicyException(final String message) {
+        super(message);
     }
 }
