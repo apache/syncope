@@ -465,7 +465,7 @@ under the License.
     <font-awesome.filename>font-awesome.min.css</font-awesome.filename>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>9.8.0</highlightjs.version>
-    <codemirror.version>5.40.2</codemirror.version>
+    <codemirror.version>5.45.0</codemirror.version>
     <googlediffmatchpath.version>895a9512bb</googlediffmatchpath.version>
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>1.0.2</chartjs.version>
@@ -1054,7 +1054,7 @@ under the License.
       <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
-        <version>1.9.2</version>
+        <version>1.9.3</version>
       </dependency>
       
       <dependency>
@@ -2584,7 +2584,7 @@ under the License.
           <plugin>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctor-maven-plugin</artifactId>
-            <version>1.5.8</version>
+            <version>1.6.0</version>
             <dependencies>
               <dependency>
                 <groupId>org.asciidoctor</groupId>
