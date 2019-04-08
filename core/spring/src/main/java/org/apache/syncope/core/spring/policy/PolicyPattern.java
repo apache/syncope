@@ -39,13 +39,13 @@ public final class PolicyPattern {
     public static final Pattern LAST_ALPHANUMERIC = Pattern.compile(".*\\w");
 
     public static final Pattern NON_ALPHANUMERIC =
-            Pattern.compile(".*[~!@#$%^&*_\\-`(){}\\[\\]:;\"'<>,.?/\\=\\+\\\\\\|].*");
+            Pattern.compile(".*[~!@#£$%^&*_\\-`(){}\\[\\]:;\"'<>,.?/\\=\\+\\\\\\|].*");
 
     public static final Pattern FIRST_NON_ALPHANUMERIC =
-            Pattern.compile("[~!@#$%^&*_\\-`(){}\\[\\]:;\"'<>,.?/\\=\\+\\\\\\|].*");
+            Pattern.compile("[~!@#£$%^&*_\\-`(){}\\[\\]:;\"'<>,.?/\\=\\+\\\\\\|].*");
 
     public static final Pattern LAST_NON_ALPHANUMERIC =
-            Pattern.compile(".*[~!@#$%^&*_\\-`(){}\\[\\]:;\"'<>,.?/\\=\\+\\\\\\|]");
+            Pattern.compile(".*[~!@#£$%^&*_\\-`(){}\\[\\]:;\"'<>,.?/\\=\\+\\\\\\|]");
 
     public static final char[] NON_ALPHANUMERIC_CHARS_FOR_PASSWORD_VALUES = {
         '!', '£', '%', '&', '(', ')', '?', '#', '$' };
