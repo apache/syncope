@@ -23,10 +23,10 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
-import org.apache.syncope.core.provisioning.api.utils.policy.InvalidPasswordRuleConf;
-import org.apache.syncope.core.provisioning.api.utils.policy.PolicyPattern;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.spring.ImplementationManager;
+import org.apache.syncope.core.spring.policy.InvalidPasswordRuleConf;
+import org.apache.syncope.core.spring.policy.PolicyPattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,8 +40,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class DefaultPasswordGenerator implements PasswordGenerator {
 
     private static final Logger LOG = LoggerFactory.getLogger(PasswordGenerator.class);
-
-    private static final char[] SPECIAL_CHARS = { '!', '£', '%', '&', '(', ')', '?', '#', '$' };
 
     private static final int VERY_MIN_LENGTH = 0;
 
@@ -308,7 +306,8 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
                 && !PolicyPattern.NON_ALPHANUMERIC.matcher(StringUtils.join(generatedPassword)).matches()) {
 
             generatedPassword[firstEmptyChar(generatedPassword)] =
-                    SecureRandomUtils.generateRandomSpecialCharacter(SPECIAL_CHARS);
+                    SecureRandomUtils.generateRandomNonAlphanumericChar(
+                            PolicyPattern.NON_ALPHANUMERIC_CHARS_FOR_PASSWORD_VALUES);
         }
     }
 

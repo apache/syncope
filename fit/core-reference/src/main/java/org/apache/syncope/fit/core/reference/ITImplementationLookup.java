@@ -60,11 +60,8 @@ import org.apache.syncope.core.persistence.jpa.attrvalue.validation.AlwaysTrueVa
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BasicValidator;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValidator;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator;
-import org.apache.syncope.core.persistence.jpa.dao.DefaultAccountRule;
-import org.apache.syncope.core.persistence.jpa.dao.DefaultPasswordRule;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPullCorrelationRule;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPushCorrelationRule;
-import org.apache.syncope.core.persistence.jpa.dao.HaveIBeenPwnedPasswordRule;
 import org.apache.syncope.core.provisioning.java.propagation.AzurePropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.GoogleAppsPropagationActions;
@@ -73,6 +70,9 @@ import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropaga
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
+import org.apache.syncope.core.spring.policy.DefaultAccountRule;
+import org.apache.syncope.core.spring.policy.DefaultPasswordRule;
+import org.apache.syncope.core.spring.policy.HaveIBeenPwnedPasswordRule;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SyncopeJWTSSOProvider;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;

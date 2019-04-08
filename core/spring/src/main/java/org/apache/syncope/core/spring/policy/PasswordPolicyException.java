@@ -16,17 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.utils.policy;
+package org.apache.syncope.core.spring.policy;
 
-public class AccountPolicyException extends PolicyException {
+public class PasswordPolicyException extends PolicyException {
 
-    private static final long serialVersionUID = 2779416455067691813L;
+    private static final long serialVersionUID = 8072104484395278469L;
 
-    public AccountPolicyException() {
+    public PasswordPolicyException() {
         super();
     }
 
-    public AccountPolicyException(final String message) {
+    public PasswordPolicyException(final String message) {
         super(message);
     }
 }
