@@ -26,6 +26,7 @@ import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
+import org.apache.syncope.client.ui.commons.wizards.exception.CaptchaNotMatchingException;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.request.PasswordPatch;
@@ -77,6 +78,12 @@ public class UserWizardBuilder extends AnyWizardBuilder implements UserForm {
 
     @Override
     protected Serializable onApplyInternal(final AnyWrapper<UserTO> modelObject) {
+        // captcha check
+        if (captcha != null && captcha.evaluate() && !captcha.captchaCheck()) {
+//            sendError("Entered captcha is not matching");
+            // force captcha redrawing
+            throw new CaptchaNotMatchingException();
+        }
         UserTO inner = modelObject.getInnerObject();
 
         ProvisioningResult<UserTO> result;

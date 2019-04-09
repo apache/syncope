@@ -42,6 +42,8 @@ public abstract class AnyWizardBuilder extends AbstractAnyWizardBuilder<UserTO> 
 
     protected UserFormLayoutInfo formLayoutInfo;
 
+    protected Captcha captcha;
+
     /**
      * Construct.
      *
@@ -125,6 +127,13 @@ public abstract class AnyWizardBuilder extends AbstractAnyWizardBuilder<UserTO> 
 
         if (formLayoutInfo.isResources()) {
             wizardModel.add(new Resources(modelObject));
+        }
+
+        if (SyncopeWebApplication.get().isCaptchaEnabled()) {
+            // add captcha
+            captcha = new Captcha();
+            captcha.setOutputMarkupId(true);
+            wizardModel.add(captcha);
         }
 
         return wizardModel;

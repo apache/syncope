@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.SubmitableModalPanel;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
+import org.apache.syncope.client.ui.commons.wizards.exception.CaptchaNotMatchingException;
 import org.apache.wicket.Application;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.Session;
@@ -215,6 +217,10 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
                 send(eventSink, Broadcast.EXACT, new NewItemCancelEvent<>(item, target));
             }
             sendWarning(getString("timeout"));
+            ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
+        } catch (CaptchaNotMatchingException ce) {
+            LOG.error("Wizard error on finish: captcha not matching");
+            sendError(getString(Constants.CAPTCHA_ERROR));
             ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
         } catch (Exception e) {
             LOG.error("Wizard error on finish", e);
@@ -397,6 +403,9 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
             return res.getRight();
         } catch (InterruptedException | ExecutionException e) {
+            if (e.getCause() instanceof CaptchaNotMatchingException) {
+                throw (CaptchaNotMatchingException) e.getCause();
+            }
             throw new RuntimeException(e);
         }
     }
