@@ -2138,6 +2138,12 @@ under the License.
           <artifactId>antlr4-maven-plugin</artifactId>
           <version>${antlr4.version}</version>
         </plugin>
+        
+        <plugin>
+          <groupId>nl.geodienstencentrum.maven</groupId>
+          <artifactId>sass-maven-plugin</artifactId>
+          <version>3.7.1</version>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -2411,7 +2417,7 @@ under the License.
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <tagNameFormat>syncope-@{project.version}</tagNameFormat>
         </configuration>
-      </plugin>
+      </plugin>      
     </plugins>
     
   </build>

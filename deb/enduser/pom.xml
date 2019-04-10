@@ -39,8 +39,8 @@ under the License.
   
   <dependencies>
     <dependency>
-      <groupId>org.apache.syncope.client</groupId>
-      <artifactId>syncope-client-enduser</artifactId>
+      <groupId>org.apache.syncope.client.idrepo</groupId>
+      <artifactId>syncope-client-idrepo-enduser</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -83,7 +83,7 @@ under the License.
         <filtering>true</filtering>
       </resource>
       <resource>
-       <directory>${project.basedir}/../../ext/saml2sp/agent/src/main/resources</directory>
+        <directory>${project.basedir}/../../ext/saml2sp/agent/src/main/resources</directory>
         <includes>
           <include>saml2sp-agent.properties</include>
         </includes>

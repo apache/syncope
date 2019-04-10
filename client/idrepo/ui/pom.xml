@@ -24,7 +24,7 @@ under the License.
     <artifactId>syncope-client-idrepo</artifactId>
     <version>3.0.0-SNAPSHOT</version>
   </parent>
-
+ 
   <name>Apache Syncope Client IdRepo UI Commons</name>
   <description>Apache Syncope Client IdRepo UI Commons</description>
   <groupId>org.apache.syncope.client.idrepo</groupId>
@@ -89,5 +89,40 @@ under the License.
       <version>${project.version}</version>
     </dependency>
   </dependencies>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>nl.geodienstencentrum.maven</groupId>
+        <artifactId>sass-maven-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>sass-compilation</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>update-stylesheets</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <resources>
+            <resource>
+              <source>
+                <directory>${basedir}/src/main/resources/META-INF/resources/ui-commons/css</directory>
+              </source>
+              <destination>${project.build.outputDirectory}/META-INF/resources/ui-commons/css</destination>
+            </resource>
+            <resource>
+              <source>
+                <directory>${basedir}/src/main/resources/META-INF/resources/ui-commons/css/accessibility</directory>
+              </source>
+              <destination>${project.build.outputDirectory}/META-INF/resources/ui-commons/css/accessibility</destination>
+            </resource>
+          </resources>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
   
 </project>

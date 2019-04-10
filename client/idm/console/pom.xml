@@ -50,6 +50,11 @@ under the License.
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.syncope.client.idrepo</groupId>
+      <artifactId>syncope-client-idrepo-ui-commons</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.syncope.client.idm</groupId>
       <artifactId>syncope-client-idm-lib</artifactId>
       <version>${project.version}</version>
@@ -61,6 +66,31 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+      
+      <plugin>
+        <groupId>nl.geodienstencentrum.maven</groupId>
+        <artifactId>sass-maven-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>sass-compilation</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>update-stylesheets</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <resources>
+            <resource>
+              <source>
+                <directory>${basedir}/src/main/resources/META-INF/resources/css</directory>
+              </source>
+              <destination>${project.build.outputDirectory}/META-INF/resources/css</destination>
+            </resource>
+          </resources>
+        </configuration>
       </plugin>
     </plugins>
     

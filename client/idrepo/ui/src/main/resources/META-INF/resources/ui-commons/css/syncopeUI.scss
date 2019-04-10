@@ -1,0 +1,1156 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+@import 'utils';
+
+
+pre {
+  @include white_space_pre_wrap;
+}
+
+/* Absolute Center Spinner */
+
+#veil {
+  display: none;
+  position: fixed;
+  z-index: 99999;
+  height: 2em;
+  width: 2em;
+  overflow: show;
+  margin: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  &:before {
+    content: '';
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  /* :not(:required) hides these rules from IE9 and below */
+  &:not(:required) {
+    /* hide "loading..." text */
+    font: 0/0 a;
+    color: transparent;
+    text-shadow: none;
+    background-color: transparent;
+    border: 0;
+    &:after {
+      content: '';
+      display: block;
+      font-size: 10px;
+      width: 1em;
+      height: 1em;
+      margin-top: -0.5em;
+      border-radius: 0.5em;
+
+      @include animation(spinner 2000ms infinite linear);
+      @include shadow(rgba(0, 0, 0, 0.75) 1.5em 0 0 0, 
+      rgba(0, 0, 0, 0.75) 1.1em 1.1em 0 0, 
+      rgba(0, 0, 0, 0.75) 0 1.5em 0 0, 
+      rgba(0, 0, 0, 0.75) -1.1em 1.1em 0 0, 
+      rgba(0, 0, 0, 0.5) -1.5em 0 0 0, 
+      rgba(0, 0, 0, 0.5) -1.1em -1.1em 0 0, 
+      rgba(0, 0, 0, 0.75) 0 -1.5em 0 0, 
+      rgba(0, 0, 0, 0.75) 1.1em -1.1em 0 0);
+    }
+  }
+}
+
+/* Transparent Overlay */
+
+/* Animation */
+
+@-webkit-keyframes spinner {
+  0% {
+    @include transform(rotate(0deg));
+  }
+
+  100% {
+    @include transform(rotate(360deg));
+  }
+}
+
+
+@-moz-keyframes spinner {
+  0% {
+    @include transform(rotate(0deg));
+  }
+
+  100% {
+    @include transform(rotate(360deg));
+  }
+}
+
+
+@-o-keyframes spinner {
+  0% {
+    @include transform(rotate(0deg));
+  }
+
+  100% {
+    @include transform(rotate(360deg));
+  }
+}
+
+
+@keyframes spinner {
+  0% {
+    @include transform(rotate(0deg));
+  }
+
+  100% {
+    @include transform(rotate(360deg));
+  }
+}
+
+
+.block-sidebar {
+  max-height: 100% !important;
+  overflow: auto !important;
+  padding-top: 90px !important;
+  padding-bottom: 50px !important;
+  position: fixed !important;
+  width: 245px !important;
+}
+
+.inner-control-sidebar {
+  position: fixed;
+  height: auto;
+}
+
+.content-margin-layout {
+  margin: 0px 230px 0px 0px !important;
+  padding: 20px !important;
+}
+
+.admin-content-page {
+  padding: 20px;
+  background: #ecf0f5;
+}
+
+.realms {
+  min-height: 554px;
+}
+
+.realm-header {
+  clear: both;
+  display: block;
+  display: inline-table;
+  margin: 0 0 10px;
+  line-height: 25px;
+}
+
+.realm-label {
+  float: left;
+  font-size: 16px;
+  label {
+    font-weight: 600 !important;
+  }
+}
+
+.realm-choice {
+  right: 0px;
+  position: absolute;
+}
+
+.realm-header .dropdown-menu li a {
+  text-align: left !important;
+  white-space: pre !important;
+  line-height: 7px;
+}
+
+.block-header {
+  position: fixed !important;
+  width: 100% !important;
+  top: 0 !important;
+}
+
+.block-footer {
+  position: fixed !important;
+  width: 100% !important;
+  bottom: 0px !important;
+}
+
+.logo-pos {
+  padding-top: 4px !important;
+  overflow: visible !important;
+}
+
+.angle {
+  border: medium none !important;
+  cursor: pointer;
+  display: inline-table !important;
+  float: right;
+  height: 30px;
+  overflow: hidden;
+  position: relative !important;
+  right: 0;
+  top: -30px;
+  width: 25%;
+  z-index: 3;
+}
+
+.main-header .logo {
+  height: 55px !important;
+}
+
+.w_caption h3 {
+  font-size: 16px;
+}
+
+.wicket-modal div.w_content_3 {
+  border: 1px solid #eee;
+  border-radius: 20px;
+  padding: 5px;
+}
+
+.tab-content {
+  margin-bottom: 10px;
+  margin-top: 5px;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 20px 20px 5px 20px;
+}
+
+.modal-body .tab-content .information {
+  position: relative !important;
+}
+
+.scrollable-tab-content {
+  overflow-y: auto;
+  max-height: 480px;
+}
+
+.inner-scrollable-tab-content {
+  height: 430px;
+  margin-top: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+a.help {
+  position: relative;
+  display: inline;
+  text-decoration: none;
+  span {
+    position: absolute;
+    width: 19em;
+    color: #000000;
+    background: whitesmoke;
+    visibility: hidden;
+    border-radius: 0px;
+    padding: 3px;
+    &:after {
+      position: absolute;
+      top: 50%;
+      left: 100%;
+      margin-top: -8px;
+      width: 0;
+      height: 0;
+    }
+    visibility: visible;
+    opacity: none;
+    right: 100%;
+    top: 50%;
+    margin-right: 4px;
+    margin-top: -11px;
+    border: 1px solid black;
+    z-index: 1000000;
+    a {
+      color: #463;
+      text-decoration: none;
+    }
+  }
+}
+
+.modal-open {
+  .modal {
+    overflow: hidden;
+  }
+}
+
+.modal-body {
+  max-height: 550px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.modal {
+  background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+  z-index: 7000 !important;
+}
+
+.wizard-step-title {
+  font-size: 18px !important;
+  font-weight: normal !important;
+  margin-bottom: 10px !important;
+}
+
+.wizard-view div.wizard-view {
+  max-height: 380px;
+  height: 380px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 50px 20px 50px 20px;
+}
+
+.wizard-view .wizard-form {
+  max-height: 450px;
+  height: 450px;
+}
+
+.modal-body .tab-content {
+  .wizard-view {
+    max-height: 330px !important;
+    height: 330px !important;
+  }
+  .wizard-form {
+    max-height: 400px !important;
+    height: 400px !important;
+  }
+}
+
+.wizard-view {
+  > div {
+    display: block;
+    height: 95%;
+    position: relative;
+  }
+  padding: 0px 5px;
+}
+
+.wizard-form {
+  height: 480px;
+  position: relative;
+  > div {
+    max-height: 440px;
+    height: 440px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0px;
+  }
+}
+
+.box-body .wizard-form {
+  height: 400px !important;
+  > div {
+    height: 360px !important;
+  }
+}
+
+.wizard-buttons {
+  padding: 10px 0px 5px 0px;
+  position: absolute;
+  bottom: 4px;
+  width: 100%;
+  div {
+    &.pull-left {
+      position: absolute;
+      left: 15px;
+    }
+    &.pull-right {
+      position: absolute;
+      right: 15px;
+    }
+  }
+}
+
+.wizard-step-title {
+  font-weight: bold;
+  font-size: medium;
+}
+
+.realms div.summarize {
+  margin: 50px 100px;
+}
+
+.navbar {
+  a {
+    height: 55px;
+  }
+  .footer a, .user-footer a {
+    height: 34px;
+  }
+}
+
+span.overridable div.checkbox {
+  float: right;
+  margin: 0px;
+  padding: 0px;
+  label div div.toggle-group label {
+    padding-left: 7px;
+  }
+}
+
+#outer.modal-lg, 
+#utilityModal.modal-lg {
+  max-width: 1200px;
+  width: 97%;
+}
+
+section#notifications .modal-lg {
+  max-width: 1200px;
+  width: 97%;
+}
+
+.details {
+  max-height: 401px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: block;
+}
+
+th.checkGroupColumn {
+  width: 20px;
+  text-align: center;
+  padding-right: 8px !important;
+}
+
+td.checkGroupColumn {
+  text-align: center;
+}
+
+/**
+  BEGIN - Style for Information panel
+*/
+
+.information {
+  margin: 30px 0px 0px 0px;
+  border: 1px solid #EEE;
+  font-size: 10px;
+  color: #888;
+  display: inline-table;
+  width: 100%;
+  clear: both;
+  float: none;
+  position: absolute;
+  bottom: -90px;
+  left: 0px;
+  padding: 2px;
+}
+.infolabel {
+  margin-left: 5px;
+  float: left;
+  width: 150px;
+  font-weight: bold;
+  color: #888;
+}
+.infoleft {
+  float: left;
+  display: inline-table;
+  width: 50%;
+}
+.inforight {
+  display: inline-table;
+  width: 50%;
+}
+.inforow {
+  display: inline-table;
+  width: 100%;
+}
+.wrap {
+  word-wrap: break-word;
+  width: 550px;
+  margin-left: 155px;
+}
+
+/**
+END - Style for Information panel
+*/
+
+#ownership div.toggle {
+  width: 110px !important;
+}
+
+.searchResult {
+  padding-top: 30px;
+  display: block;
+  clear: both;
+}
+
+.logs {
+  .input-group-addon .input-group-btn {
+    width: 130px !important;
+  }
+  .col_width {
+    width: 90% !important;
+  }
+  .box-header {
+    display: none !important;
+  }
+  .box {
+    border-top: 0px !important;
+  }
+}
+
+* {
+  &::after, &::before {
+    box-sizing: border-box;
+  }
+}
+
+.wicket-aa-container {
+  border-color: #eee;
+  box-shadow: none;
+  background-clip: padding-box;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
+  float: left;
+  font-size: 14px;
+  min-width: 160px;
+  max-height: 250px;
+  z-index: 7001 !important;
+}
+
+.wicket-aa ul {
+  list-style: none;
+  padding-left: 15px;
+}
+#startAt {
+  background-color: rgba(98, 98, 98, 0.98) !important;
+  color: #CCC;
+  right: 5px !important;
+  top: 100px !important;
+  min-width: 450px;
+  min-height: 130px !important;
+  z-index: 6000 !important;
+}
+#itemTransformersTogglePanel {
+  min-width: 1000px;
+}
+#startAtContainer {
+  padding: 15px;
+  input {
+    background-color: rgba(200, 200, 200, 0.6) !important;
+  }
+}
+
+/**
+START - startAt
+*/
+
+/**
+END - startAt
+*/
+
+/**
+START - Notifications
+*/
+/*Temporany fix diagonal stacking*/
+
+.k-popup.k-notification {
+  box-shadow: none;
+}
+
+.k-notification-error.k-group {
+  background: rgba(100%, 0%, 0%, 0.7);
+  color: red;
+}
+
+.errorNotification {
+  width: 300px;
+  height: 100px;
+  vertical-align: middle;
+  display: table-cell;
+  #level {
+    float: left;
+    padding-left: 10px;
+    font-size: 2em;
+    width: 2%;
+  }
+  #message {
+    float: right;
+    padding-left: 0px;
+    width: 85%;
+  }
+}
+
+.k-notification-success.k-group {
+  background: rgba(0%, 60%, 0%, 0.7);
+  color: #fff;
+}
+
+.successNotification {
+  width: 300px;
+  height: 100px;
+  vertical-align: middle;
+  display: table-cell;
+  #level {
+    float: left;
+    padding-left: 10px;
+    font-size: 2em;
+    width: 2%;
+  }
+  #message {
+    float: right;
+    padding-left: 0px;
+    width: 85%;
+  }
+}
+
+/**
+EN - Notifications
+*/
+
+/**
+START - Actions
+*/
+
+.actions > li > a {
+  padding: 5px 0px 5px 0px !important;
+}
+
+div.listview-actions a {
+  float: left;
+  padding: 5px 0px 5px 0px !important;
+}
+
+.action a.btn {
+  padding: 0px;
+}
+
+.btn-circle {
+  border-radius: 15px !important;
+  font-size: 12px;
+  height: 30px;
+  line-height: 1.42857;
+  padding: 6px 0;
+  text-align: center;
+  width: 30px;
+}
+
+.circular-actions a {
+  border-radius: 15px !important;
+  font-size: 12px;
+  height: 30px;
+  line-height: 1.42857;
+  padding: 6px 0;
+  text-align: center;
+  width: 30px;
+  &.btn {
+    background-color: #3c8dbc;
+    border-color: #367fa9;
+    color: #fff;
+  }
+}
+
+.btn-circle i, .circular-actions a i {
+  margin: 0px;
+}
+
+.multipanel-btn-minus {
+  padding: 0px 0px 0px 6px;
+  border: 0 none !important;
+}
+
+.multipanel-btn-plus {
+  padding: 15px 0px 8px 6px;
+  border: 0 none !important;
+}
+
+.multipanel-box {
+  padding: 5px;
+  display: inline-table;
+  margin: 0px;
+}
+
+/**
+END - Actions
+*/
+
+/**
+START - DataTable
+*/
+
+.dataTable {
+  clear: both;
+}
+
+/**
+END - DataTable
+*/
+
+/**
+START - Result page
+*/
+
+.attribute {
+  padding: 0px 4px 0px 4px;
+}
+
+.left {
+  float: left;
+  width: 50%;
+}
+
+.right {
+  float: right;
+  width: 50%;
+}
+
+span.highlight .attribute label {
+  color: red;
+}
+
+/**
+END - Result page
+*/
+
+.navbar-nav > .user-menu > .dropdown-menu > li.user-header {
+  height: auto !important;
+  padding: 10px;
+  text-align: center;
+}
+
+.nav-tabs-custom > .nav-tabs > li.active {
+  border-top-color: #d2d6de !important;
+}
+
+.code-deletion {
+  background-color: #ffdddd;
+  border-color: #f1c0c0;
+}
+
+.code-addition {
+  background-color: #dbffdb;
+  border-color: #c1e9c1;
+}
+
+/**
+START - AjaxDateTimePicker
+*/
+
+.input-auto-width {
+  width: auto !important;
+}
+
+.icon-top-position {
+  top: 5px !important;
+}
+
+/**
+END - AjaxDateTimePicker
+*/
+
+/**
+START - Search - AjaxDateTimePicker
+*/
+
+.searchBox .col-xs-12 {
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+}
+
+.clause {
+  display: block;
+  line-height: 34px;
+  width: 100%;
+  .operator {
+    width: 65px !important;
+    .checkbox {
+      margin: 0px !important;
+    }
+  }
+  .field {
+    line-height: 34px;
+    float: left;
+    padding: 0 3px 0px 0px;
+    display: inline-block !important;
+  }
+  .type {
+    width: 170px !important;
+    button {
+      width: 170px !important;
+    }
+  }
+  .property {
+    width: 300px;
+    button {
+      width: 300px;
+    }
+  }
+  .comparator {
+    width: 100px;
+    button {
+      width: 100px !important;
+    }
+  }
+  .value {
+    width: 220px;
+  }
+  .date {
+    width: 160px;
+  }
+  .hours {
+    width: 45px;
+  }
+  .separator {
+    width: 20px;
+    padding-left: 12px;
+  }
+  .action {
+    float: left;
+    padding: 0px 7px 0px;
+  }
+}
+
+.searchBox {
+  .input-group-addon:last-child {
+    border: 1px solid #ccc !important;
+  }
+  .input-group {
+    margin-top: 1px;
+  }
+}
+
+.custom-autocomplete-box li.selected {
+  background-color: #eee;
+}
+
+/**
+END - Search - AjaxDateTimePicker
+*/
+/**
+START - Parameters Details
+*/
+
+div#parametersForm {
+  min-height: 220px;
+}
+
+/**
+END - Parameters Details
+*/
+
+li.todoitem a {
+  cursor: default;
+}
+
+.popover {
+  max-width: 100%;
+}
+
+#popover:hover {
+  cursor: pointer;
+}
+
+.popover-content {
+  color: black;
+}
+
+.form-palette {
+  display: inline-block;
+  width: 119%;
+}
+
+.form-group-inline {
+  display: inline-table;
+  width: 100%;
+}
+
+div#userFilter {
+  #title {
+    margin: 10px 0 0 8px;
+    font-weight: bold;
+  }
+  #warning {
+    margin: 1px 0 5px 8px;
+    color: #e00000;
+    font-size: 9px;
+  }
+  #check {
+    margin: 1px 0 5px 8px;
+  }
+}
+
+.keyColumn {
+  width: 20px;
+}
+
+/**
+START - Alert widget onside menu
+*/
+
+.alert-widget {
+  > a {
+    > {
+      .label {
+        font-size: 9px;
+        line-height: 0.9;
+        padding: 2px 3px;
+        position: absolute;
+        margin-left: 10px;
+        text-align: center;
+        top: 0px;
+      }
+      i {
+        position: absolute;
+        top: 9px;
+      }
+    }
+    display: block;
+    position: relative;
+  }
+  text-align: center;
+  vertical-align: middle;
+  padding-right: 20px;
+  .dropdown-menu > li {
+    &.header {
+      background-color: #ffffff;
+      border-bottom: 1px solid #f4f4f4;
+      border-radius: 4px 4px 0 0;
+      color: #444444;
+      font-size: 14px;
+      padding: 7px 10px;
+    }
+    &.footer > a {
+      background-color: #fff;
+      border-radius: 0 0 4px 4px;
+      color: #444 !important;
+      font-size: 12px;
+      padding: 7px 10px;
+      text-align: center;
+    }
+    .menu {
+      list-style: outside none none;
+      padding: 10px;
+    }
+  }
+}
+
+/**
+END - Alert widget onside menu
+*/
+
+/**
+START - Transformers toggle panel
+*/
+
+.transformersTogglePanel {
+  background-color: rgba(140, 140, 140, 0.99) !important;
+  width: 1000px !important;
+}
+.transformersContainer {
+  padding: 15px;
+  input {
+    background-color: rgba(200, 200, 200, 0.6) !important;
+  }
+  #footer {
+    clear: both;
+    display: block;
+    text-align: right;
+    margin-top: 10px;
+  }
+  #body {
+    clear: both;
+    display: block;
+  }
+}
+.itemTransformersContainer #body {
+  select {
+    border: 1px solid #ccc !important;
+    background: rgba(240, 240, 240, 0.95) !important;
+  }
+  a {
+    color: #ccc !important;
+    cursor: pointer !important;
+  }
+}
+#jexlTransformersTogglePanel {
+  right: 400px;
+}
+
+/**
+END - Transformers toggle panel
+*/
+
+/**
+START - CRONTAB
+*/
+
+#schedule {
+  input, fieldset {
+    width: 50px;
+    float: left;
+  }
+}
+#templates {
+  padding-top: 30px;
+  clear: both;
+}
+
+/**
+END - CRONTAB
+*/
+
+/**
+START - EVENTS
+*/
+
+.events {
+  display: table-row;
+  width: 990px;
+}
+
+.selectedEvents {
+  display: inline-block;
+  height: 100px;
+  margin: 10px 10px 0 10px;
+  overflow-y: auto;
+}
+
+.eventSelection {
+  display: inline-table;
+  float: right;
+  width: 380px;
+  min-width: 530px;
+  #value {
+    height: auto;
+    overflow: hidden;
+    #custom {
+      width: auto;
+      overflow: hidden;
+    }
+    #customActions {
+      width: 85px;
+      float: right;
+    }
+  }
+}
+
+#selectionContainer select {
+  width: 585px;
+  min-width: 585px;
+}
+
+/**
+END - EVENTS
+*/
+
+fieldset.input-group {
+  width: 100%;
+}
+
+.modal-content > div {
+  &.modal-header, &.modal-footer {
+    background-color: #f0f0f0;
+    height: 64px;
+  }
+}
+
+.modal-body .box-body div.background-footer {
+  display: none !important;
+}
+
+.background-footer {
+  background-color: #f0f0f0;
+  display: block;
+  height: 64px;
+  margin-bottom: -15px;
+  margin-left: -30px;
+  margin-top: -25px;
+  width: 1300px;
+}
+
+.logviewer-btn {
+  padding: 0px 16px 20px 0px;
+  float: right;
+}
+
+#editUserChangePassword {
+  > label {
+    color: #e00000;
+  }
+}
+div > li {
+  list-style-type: none;
+}
+
+th ul.menu {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+#inline-actions ul.menu, 
+#tablehandling ul.menu, 
+.listview-actions ul.menu {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+#tablehandling ul.menu {
+  float: right;
+}
+
+th ul.menu li {
+  display: inline-block;
+}
+
+#inline-actions ul.menu li,
+#tablehandling ul.menu li, 
+.listview-actions ul.menu li {
+  display: inline-block;
+}
+
+th ul.menu li a {
+  margin-left: 5px;
+  display: inline-block !important;
+}
+
+#inline-actions ul.menu li a, 
+.listview-actions ul.menu li a, 
+#tablehandling ul.menu li a {
+  margin-left: 5px;
+  display: inline-block !important;
+}
+
+ul.menu {
+  li a {
+    display: block;
+    cursor: pointer !important;
+  }
+  i {
+    width: 35px;
+  }
+}
+
+#inline-actions ul.menu i, 
+#tablehandling ul.menu i {
+  width: auto !important;
+}
+
+.toggle-menu ul.menu li a {
+  padding: 0px;
+  text-align: left;
+}
+
+div#tablehandling ul.menu li a {
+  padding: 0px !important;
+}

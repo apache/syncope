@@ -24,19 +24,21 @@ under the License.
 
     <title>Apache Syncope</title>
 
-    <link rel="shortcut icon" href="img/favicon.png" type="image/png"/>
+    <link rel="shortcut icon" href="ui-commons/img/favicon.png" type="image/png"/>
 
     <link href="webjars/font-awesome/${font-awesome.version}/css/${font-awesome.filename}" rel="stylesheet" type="text/css"/>
     <link href="webjars/ionicons/${ionicons.version}/css/ionicons.min.css" rel="stylesheet" type="text/css"/>
-    <link href="css/fonts.css" rel="stylesheet" type="text/css"/>
+    <link href="ui-commons/css/fonts.css" rel="stylesheet" type="text/css"/>
 
     <link href="css/AdminLTE_plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet" type="text/css"/>
     <link href="css/AdminLTE_skins/skin-green-light.css" rel="stylesheet" type="text/css"/>
+    <link href="ui-commons/css/animations.css" rel="stylesheet" type="text/css"/>
+    <link href="ui-commons/css/syncopeUI.css" rel="stylesheet" type="text/css"/>
     <link href="css/syncopeConsole.css" rel="stylesheet" type="text/css"/>
 
     <!-- accessibility -->
-    <link href="css/accessibility.css" rel="stylesheet" type="text/css" />
-    <script type="text/javascript" src="js/accessibility.js"></script>
+    <link href="ui-commons/css/accessibility.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="ui-commons/js/accessibility.js"></script>
 
     <script type="text/javascript" src="webjars/bootbox/${bootbox.version}/bootbox.js"></script>
     <script type="text/javascript" src="webjars/jQuery-slimScroll/${jquery-slimscroll.version}/jquery.slimscroll.min.js"></script>
@@ -45,7 +47,7 @@ under the License.
       var proceed = false;
       // configure AdminLTE
       $.AdminLTE.options['enableBSToppltip'] = false;
-    </script>    
+    </script>
   </head>
   <body class="skin-green-light hold-transition sidebar-mini" wicket:id="body">
 
@@ -53,8 +55,8 @@ under the License.
       <span wicket:id="feedback"></span>
       <header class="main-header">
         <a href="#" class="logo logo-pos">
-          <span class="logo-mini"><img src="img/logo-mini.png"/></span>
-          <span class="logo-lg"><img src="img/logo.png"/></span>
+          <span class="logo-mini"><img src="ui-commons/img/logo-mini.png"/></span>
+          <span class="logo-lg"><img src="ui-commons/img/logo.png"/></span>
         </a>                
 
         <nav class="navbar navbar-static-top" role="navigation">

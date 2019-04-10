@@ -25,18 +25,23 @@ under the License.
 
     <title>Apache Syncope Enduser - Login</title>
 
-    <link rel="shortcut icon" href="img/favicon.png" type="image/png"/>
+    <link rel="shortcut icon" href="ui-commons/img/favicon.png" type="image/png"/>
 
     <link href="webjars/font-awesome/${font-awesome.version}/css/${font-awesome.filename}" rel="stylesheet" type="text/css" />
     <link href="webjars/ionicons/${ionicons.version}/css/ionicons.min.css" rel="stylesheet" type="text/css" />
-    <link href="css/fonts.css" rel="stylesheet" type="text/css"/>
+    <link href="ui-commons/css/fonts.css" rel="stylesheet" type="text/css"/>
 
-    <link href="css/login.css" rel="stylesheet" type="text/css" />
-    <link href="css/syncopeConsole.css" rel="stylesheet" type="text/css" />
+    <link href="ui-commons/css/animations.css" rel="stylesheet" type="text/css" />
+    <link href="ui-commons/css/syncopeUI.css" rel="stylesheet" type="text/css"/>
+    <link href="ui-commons/css/login.css" rel="stylesheet" type="text/css" />
+    <link href="css/syncopeEnduser.css" rel="stylesheet" type="text/css"/>
 
     <!-- accessibility -->
-    <link href="css/accessibility.css" rel="stylesheet" type="text/css" />
-    <script type="text/javascript" src="js/accessibility.js"></script>
+    <link href="ui-commons/css/accessibility.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="ui-commons/js/accessibility.js"></script>
+
+    <script type="text/javascript" src="webjars/bootbox/${bootbox.version}/bootbox.js"></script>
+    <script type="text/javascript" src="webjars/jQuery-slimScroll/${jquery-slimscroll.version}/jquery.slimscroll.min.js"></script>
   </head>
   <body class="skin-green-light hold-transition sidebar-mini" wicket:id="body">
     <div id="accessibility">
@@ -51,7 +56,55 @@ under the License.
         </i>
       </div>
     </div>
-    
+
+    <nav class="enduser_navbar navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+
+          <button type="button" 
+                  class="navbar-toggle" 
+                  data-toggle="collapse" 
+                  data-target="#navbar"
+                  aria-expanded="true" 
+                  aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+
+          <a class="navbar-brand" href="#">
+            <span class="logo-mini"><img alt="Brand" src="ui-commons/img/logo-mini.png"/></span>
+          </a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse in" aria-expanded="true">
+          <ul class="nav navbar-nav">
+            <li class="active">
+              <a href="#"> Details 
+                <span class="sr-only">(current)</span>
+              </a>
+            </li>
+
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" 
+                 data-toggle="dropdown" 
+                 role="button" 
+                 aria-haspopup="true" 
+                 aria-expanded="false">
+                User Requests
+                <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Start new requests</a></li>
+                <li><a href="#">View ongoing requests</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
     <div class="wrapper">
       <span wicket:id="feedback"></span>
 
@@ -60,5 +113,6 @@ under the License.
       </div>
     </div>
 
+    <div id="veil">Loading...</div>
   </body>
 </html>

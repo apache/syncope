@@ -20,20 +20,22 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
     <wicket:extend>
-      <div id="captchaButtons">
-        <img wicket:id="image" />
-      </div>
-      <div>
-        <button wicket:id="reloadButton" id="refresh" type="button" class="btn btn-default btn-xs fa fa-refresh" 
-                title="Refresh Captcha"></button>
-        <button id="infoLink" class="btn btn-default btn-xs fa fa-question-circle" title="What is this?"
-                onclick="window.open('https://it.wikipedia.org/wiki/CAPTCHA')"></button>
-      </div>
-      <div>
-        <input wicket:id="captcha" type="text" size="28" />
-      </div>
-      <div>
-        <wicket:message key="captcha.message">[CAPTCHA_MESSAGE]</wicket:message>
+      <div class="captcha_block">
+        <div id="captcha_buttons">
+          <img wicket:id="image" />
+        </div>
+        <div id="captcha_image" class="captcha_elem">
+          <button wicket:id="reloadButton" id="refresh" type="button" class="btn btn-default btn-xs fa fa-refresh" 
+                  title="Refresh Captcha"></button>
+          <button id="infoLink" class="btn btn-default btn-xs fa fa-question-circle" title="What is this?"
+                  onclick="window.open('https://it.wikipedia.org/wiki/CAPTCHA')"></button>
+        </div>
+        <div id="captcha_text" class="captcha_elem">
+          <input wicket:id="captcha" type="text" size="28" />
+        </div>
+        <div id="captcha_message" class="captcha_elem">
+          <wicket:message key="captcha.message">[CAPTCHA_MESSAGE]</wicket:message>
+        </div>
       </div>
     </wicket:extend>
   </wicket:panel>

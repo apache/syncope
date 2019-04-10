@@ -18,14 +18,12 @@
  */
 package org.apache.syncope.client.enduser;
 
-import org.apache.syncope.client.enduser.themes.EnduserTheme;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giffing.wicket.spring.boot.starter.app.WicketBootStandardWebApplication;
 import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
-import de.agilecoders.wicket.core.settings.SingleThemeProvider;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -242,9 +240,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
         // Application settings
         IBootstrapSettings settings = new BootstrapSettings();
-
-        // set theme provider
-        settings.setThemeProvider(new SingleThemeProvider(new EnduserTheme()));
 
         // install application settings
         Bootstrap.install(this, settings);
