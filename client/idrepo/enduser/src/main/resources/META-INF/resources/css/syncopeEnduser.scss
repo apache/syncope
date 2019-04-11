@@ -31,8 +31,9 @@ $palette_warning: #f7c899;
 $palette_disabled: rgba(189, 201, 206, 0.73);
 
 
-/* Methods
+/* SCSS Methods
 ============================================================================= */
+
 @mixin shadow($args...) {
   -moz-box-shadow: $args;
   -webkit-box-shadow: $args;
@@ -95,7 +96,8 @@ $desktop-width: 1024px;
 
 
 
-
+/* General
+============================================================================= */
 
 body, html {
   width: 100%;
@@ -103,8 +105,6 @@ body, html {
 }
 
 body {
-  font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-weight: 400;
   overflow-x: hidden;
   overflow-y: auto;
 
@@ -129,6 +129,37 @@ body {
 }
 
 
+
+/* Login
+============================================================================= */
+
+.btn {
+  &.btn-signin {
+    background-color: $palette_dark;
+    color: #ffffff;
+
+    &:hover, &:active, &:focus {
+      background-color: $palette_base;
+    }
+  }
+  &.btn-sso {
+    &:hover, &:active, &:focus {
+      background-color: $palette_base;
+    }
+  }
+}
+
+.form-signin {
+  .form-control:focus {
+    border-color: $palette_dark;
+    @include shadow(inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px $palette_dark);
+  }
+}
+
+
+
+/* Wizard layout
+============================================================================= */
 
 .content-wrapper {
   .wizard-form {
@@ -203,17 +234,19 @@ body {
 }
 
 .btn-primary {
-  color: inherit;
-  background-color: $palette_light;
-  border-color: $palette_lighter;
-
-  &:hover,
-    &.focus, 
-    &:focus,
-    &.active,
-    &:active {
+  &:not(.btn-signin) {
     color: inherit;
-    background-color: $palette_lighter;
+    background-color: $palette_light;
+    border-color: $palette_lighter;
+
+    &:hover,
+      &.focus, 
+      &:focus,
+      &.active,
+      &:active {
+      color: inherit;
+      background-color: $palette_lighter;
+    }
   }
 }
 
@@ -226,7 +259,6 @@ body {
 .callout-warning label {
   margin-bottom: 0;
 }
-
 
 /* From AdminLTE */
 .box {
@@ -244,9 +276,9 @@ body {
 
 
 
+
 /* Form elements
 ============================================================================= */
-
 
 /* 
 * Disabled elements
@@ -398,9 +430,9 @@ option {
 
 
 
-/* 
-* Navbar
-* ------------------------------ */
+/* Navbar
+============================================================================= */
+
 .enduser_navbar {
   position: absolute;
   width: 100%;

@@ -19,25 +19,22 @@
 
 @import 'utils';
 
-$background_green1: rgb(104, 145, 162);
-$background_green2: #00a65a;
 
 body, html {
   height: 100% !important;
   background-repeat: no-repeat;
-  background-image: linear-gradient($background_green1, $background_green2);
 }
+
+body {
+  font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 400;
+}
+
+
 
 .card-container.card {
   width: 350px;
   padding: 40px 40px;
-}
-
-.btn {
-  font-weight: 700;
-  height: 36px;
-  @include user_select(none);
-  cursor: default;
 }
 
 /*
@@ -63,20 +60,7 @@ body, html {
 /*
  * Form styles
  */
-.profile-name-card {
-  font-size: 16px;
-  font-weight: bold;
-  text-align: center;
-  margin: 10px 0 0;
-  min-height: 1em;
-}
-
 .form-signin {
-  #inputPassword {
-    direction: ltr;
-    height: 44px;
-    font-size: 16px;
-  }
   input {
     &[type=password], &[type=text] {
       width: 100%;
@@ -96,15 +80,17 @@ body, html {
     @include box_sizing(border-box);
   }
   .form-control:focus {
-    border-color: $background_green1;
     outline: 0;
-    @include shadow(inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px $background_green1);
   }
 }
 
 .btn {
+  font-weight: 700;
+  height: 36px;
+  cursor: default;
+  @include user_select(none);
+
   &.btn-signin {
-    background-color: $background_green1;
     padding: 0px;
     font-weight: 700;
     font-size: 14px;
@@ -112,10 +98,6 @@ body, html {
     @include border_radius(3px);
     border: none;
     @include transition(all, 0.218s, ease);
-
-    &:hover, &:active, &:focus {
-      background-color: $background_green2;
-    }
   }
   &.btn-sso {
     padding: 0px;
@@ -125,9 +107,5 @@ body, html {
     @include border_radius(3px);
     border: none;
     @include transition(all, 0.218s, ease);
-
-    &:hover, &:active, &:focus {
-      background-color: $background_green2;
-    }
   }
 }

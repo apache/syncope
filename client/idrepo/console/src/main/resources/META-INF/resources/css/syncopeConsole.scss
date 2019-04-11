@@ -16,3 +16,56 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+$background_console_darker: rgb(104, 145, 162);
+$background_console_dark: #00a65a;
+
+
+
+/* SCSS Methods
+============================================================================= */
+
+@mixin shadow($args...) {
+  -moz-box-shadow: $args;
+  -webkit-box-shadow: $args;
+  -o-box-shadow: $args;
+  box-shadow: $args;
+}
+
+
+
+
+
+/* General
+============================================================================= */
+
+body {
+  background-image: linear-gradient($background_console_darker, $background_console_dark);
+}
+
+
+
+/* Login
+============================================================================= */
+
+.form-signin {
+  .form-control:focus {
+    border-color: $background_console_darker;
+    @include shadow(inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px $background_console_darker);
+  }
+}
+
+.btn {
+  &.btn-signin {
+    background-color: $background_console_darker;
+
+    &:hover, &:active, &:focus {
+      background-color: $background_console_dark;
+    }
+  }
+  &.btn-sso {
+    &:hover, &:active, &:focus {
+      background-color: $background_console_dark;
+    }
+  }
+}
