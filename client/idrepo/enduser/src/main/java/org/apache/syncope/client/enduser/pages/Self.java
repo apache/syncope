@@ -45,7 +45,10 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
 
         body.add(buildWizard(SyncopeEnduserSession.get().isAuthenticated()
                 ? SyncopeEnduserSession.get().getSelfTO()
-                : buildNewUserTO()));
+                : buildNewUserTO(),
+                SyncopeEnduserSession.get().isAuthenticated()
+                ? AjaxWizard.Mode.EDIT
+                : AjaxWizard.Mode.CREATE));
     }
 
     @Override
@@ -67,7 +70,7 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
         super.onEvent(event);
     }
 
-    protected final AjaxWizard<AnyWrapper<UserTO>> buildWizard(final UserTO userTO) {
+    protected final AjaxWizard<AnyWrapper<UserTO>> buildWizard(final UserTO userTO, final AjaxWizard.Mode mode) {
         userWizardBuilder = new UserWizardBuilder(
                 null,
                 userTO,
@@ -75,7 +78,7 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
                 new UserFormLayoutInfo(),
                 this.getPageReference());
         userWizardBuilder.setItem(new UserWrapper(userTO));
-        return userWizardBuilder.build(WIZARD_ID, userTO == null ? AjaxWizard.Mode.CREATE : AjaxWizard.Mode.EDIT);
+        return userWizardBuilder.build(WIZARD_ID, mode);
     }
 
     private UserTO buildNewUserTO() {

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.ui.commons.markup.html.form;
 
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthBehavior;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -30,14 +31,23 @@ public class AjaxPasswordFieldPanel extends FieldPanel<String> {
     private static final long serialVersionUID = -5490115280336667460L;
 
     public AjaxPasswordFieldPanel(final String id, final String name, final IModel<String> model) {
-        this(id, name, model, true);
+        this(id, name, model, true, null);
+    }
+
+    public AjaxPasswordFieldPanel(final String id, final String name, final IModel<String> model,
+            final boolean enableOnChange) {
+        this(id, name, model, enableOnChange, null);
     }
 
     public AjaxPasswordFieldPanel(
-            final String id, final String name, final IModel<String> model, final boolean enableOnChange) {
+            final String id, final String name, final IModel<String> model, final boolean enableOnChange,
+            final PasswordStrengthBehavior passwordStrengthBehavior) {
         super(id, name, model);
 
         field = new PasswordTextField("passwordField", model);
+        if (passwordStrengthBehavior != null) {
+            field.add(passwordStrengthBehavior);
+        }
         add(field.setLabel(new ResourceModel(name, name)).setRequired(false).setOutputMarkupId(true));
 
         if (enableOnChange && !isReadOnly()) {

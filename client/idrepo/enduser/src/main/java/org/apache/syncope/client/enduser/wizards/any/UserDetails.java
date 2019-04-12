@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.enduser.wizards.any;
 
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthBehavior;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthConfig;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,7 +70,7 @@ public class UserDetails extends WizardStep {
 
     protected final UserTO userTO;
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public UserDetails(
             final UserWrapper wrapper,
             final boolean templateMode,
@@ -155,15 +157,6 @@ public class UserDetails extends WizardStep {
         // ------------------------
 
         // ------------------------
-        // Security Answer
-        // ------------------------
-        securityAnswer =
-                new AjaxTextFieldPanel("securityAnswer", "securityAnswer",
-                        new PropertyModel<>(userTO, "securityAnswer"), false);
-        add(securityAnswer.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true).setEnabled(false));
-        // ------------------------
-
-        // ------------------------
         // Security Question
         // ------------------------
         securityQuestion = new AjaxDropDownChoicePanel("securityQuestion", "securityQuestion", new PropertyModel<>(
@@ -210,6 +203,16 @@ public class UserDetails extends WizardStep {
 
         add(securityQuestion);
         // ------------------------
+
+        // ------------------------
+        // Security Answer
+        // ------------------------
+        securityAnswer =
+                new AjaxTextFieldPanel("securityAnswer", "securityAnswer",
+                        new PropertyModel<>(userTO, "securityAnswer"), false);
+        add(securityAnswer.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true).setEnabled(StringUtils.
+                isNotBlank(securityQuestion.getModelObject())));
+        // ------------------------
     }
 
     public static class EditUserPasswordPanel extends Panel {
@@ -223,7 +226,11 @@ public class UserDetails extends WizardStep {
             super(id);
             setOutputMarkupId(true);
             add(new Label("warning", new ResourceModel("password.change.warning")));
-            add(new PasswordPanel("passwordPanel", wrapper, templateMode));
+            add(new PasswordPanel("passwordPanel", wrapper, templateMode, new PasswordStrengthBehavior(
+                    new PasswordStrengthConfig()
+                            .withDebug(true)
+                            .withShowVerdictsInsideProgressBar(true)
+                            .withShowProgressBar(true))));
         }
 
     }

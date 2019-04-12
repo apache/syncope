@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.ui.commons.wizards.any;
 
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
@@ -38,6 +39,14 @@ public class PasswordPanel extends Panel {
             final String id,
             final UserWrapper wrapper,
             final boolean templateMode) {
+        this(id, wrapper, templateMode, null);
+    }
+
+    public PasswordPanel(
+            final String id,
+            final UserWrapper wrapper,
+            final boolean templateMode,
+            final PasswordStrengthBehavior passwordStrengthBehavior) {
 
         super(id);
         setOutputMarkupId(true);
@@ -46,7 +55,7 @@ public class PasswordPanel extends Panel {
         add(form);
 
         FieldPanel<String> confirmPasswordField = new AjaxPasswordFieldPanel(
-                "confirmPassword", "confirmPassword", new Model<>(), false);
+                "confirmPassword", "confirmPassword", new Model<>(), false, null);
 
         confirmPasswordField.setMarkupId("confirmPassword");
         confirmPasswordField.setPlaceholder("confirmPassword");
@@ -66,7 +75,11 @@ public class PasswordPanel extends Panel {
             passwordField.enableJexlHelp();
         } else {
             AjaxPasswordFieldPanel passwordField = new AjaxPasswordFieldPanel(
-                    "password", "password", new PropertyModel<>(wrapper.getInnerObject(), "password"), false);
+                    "password",
+                    "password",
+                    new PropertyModel<>(wrapper.getInnerObject(), "password"),
+                    false,
+                    passwordStrengthBehavior);
             passwordField.setRequired(true);
             passwordField.setMarkupId("password");
             passwordField.setPlaceholder("password");

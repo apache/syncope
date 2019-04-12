@@ -40,7 +40,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
 
     protected AjaxWizard.Mode mode = AjaxWizard.Mode.CREATE;
 
-    private final List<Component> outerObjects = new ArrayList<>();
+    protected final List<Component> outerObjects = new ArrayList<>();
 
     /**
      * Construct.

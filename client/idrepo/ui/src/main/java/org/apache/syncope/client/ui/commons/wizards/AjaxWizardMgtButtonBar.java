@@ -39,7 +39,7 @@ public class AjaxWizardMgtButtonBar<T extends Serializable> extends WizardButton
 
     private final AjaxWizard.Mode mode;
 
-    private boolean completed = false;
+    protected boolean completed = false;
 
     public AjaxWizardMgtButtonBar(final String id, final AjaxWizard<T> wizard, final AjaxWizard.Mode mode) {
         super(id, wizard);
