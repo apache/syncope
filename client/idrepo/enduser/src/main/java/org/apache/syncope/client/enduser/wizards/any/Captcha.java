@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.enduser.wizards.any;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -36,11 +35,7 @@ public class Captcha extends WizardStep implements WizardModel.ICondition {
     }
 
     public boolean captchaCheck() {
-        final String captchaText = captchaPanel.getCaptchaText();
-        final String randomText = captchaPanel.getRandomText();
-        return StringUtils.isBlank(captchaText) || StringUtils.isBlank(randomText)
-                ? false
-                : captchaText.equals(randomText);
+        return captchaPanel.captchaCheck();
     }
 
     public void reload() {

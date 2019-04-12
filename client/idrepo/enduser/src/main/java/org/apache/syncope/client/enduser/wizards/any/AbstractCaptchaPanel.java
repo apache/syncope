@@ -18,14 +18,13 @@
  */
 package org.apache.syncope.client.enduser.wizards.any;
 
+import org.apache.syncope.client.enduser.markup.html.form.AjaxCaptchaFieldPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.markup.html.captcha.CaptchaImageResource;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.form.RequiredTextField;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.Model;
 
 public abstract class AbstractCaptchaPanel<T> extends Panel {
 
@@ -33,7 +32,7 @@ public abstract class AbstractCaptchaPanel<T> extends Panel {
 
     protected String randomText;
 
-    protected String captchaText;
+    protected final Model<String> captchaText = new Model<>();
 
     protected final CaptchaImageResource captchaImageResource;
 
@@ -46,7 +45,7 @@ public abstract class AbstractCaptchaPanel<T> extends Panel {
         captchaImage.setOutputMarkupId(true);
         add(captchaImage);
 
-        AjaxButton realoadCaptchaButton = new AjaxButton("reloadButton") {
+        AjaxButton reloadCaptchaButton = new AjaxButton("reloadButton") {
 
             private static final long serialVersionUID = -957948639666058749L;
 
@@ -57,33 +56,17 @@ public abstract class AbstractCaptchaPanel<T> extends Panel {
             }
 
         };
-        realoadCaptchaButton.setDefaultFormProcessing(false);
-        add(realoadCaptchaButton);
+        reloadCaptchaButton.setDefaultFormProcessing(false);
+        add(reloadCaptchaButton);
 
-        add(new RequiredTextField<String>("captcha",
-                new PropertyModel<>(AbstractCaptchaPanel.this, "captchaText"), String.class) {
-
-            private static final long serialVersionUID = -5918382907429502528L;
-
-            @Override
-            protected void onComponentTag(final ComponentTag tag) {
-                super.onComponentTag(tag);
-                // clear the field after each render
-                tag.put("value", "");
-            }
-
-        });
-    }
-
-    public String getRandomText() {
-        return randomText;
-    }
-
-    public String getCaptchaText() {
-        return captchaText;
+        add(new AjaxCaptchaFieldPanel("captcha", "captcha", captchaText)
+                .setOutputMarkupId(true)
+                .setOutputMarkupPlaceholderTag(true));
     }
 
     protected abstract CaptchaImageResource createCaptchaImageResource();
 
     protected abstract void reload();
+
+    public abstract boolean captchaCheck();
 }

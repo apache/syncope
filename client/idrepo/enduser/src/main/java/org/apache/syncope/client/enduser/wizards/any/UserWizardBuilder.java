@@ -80,8 +80,6 @@ public class UserWizardBuilder extends AnyWizardBuilder implements UserForm {
     protected Serializable onApplyInternal(final AnyWrapper<UserTO> modelObject) {
         // captcha check
         if (captcha != null && captcha.evaluate() && !captcha.captchaCheck()) {
-//            sendError("Entered captcha is not matching");
-            // force captcha redrawing
             throw new CaptchaNotMatchingException();
         }
         UserTO inner = modelObject.getInnerObject();

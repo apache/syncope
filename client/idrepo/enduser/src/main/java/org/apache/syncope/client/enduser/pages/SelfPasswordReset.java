@@ -18,14 +18,31 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
+import org.apache.syncope.client.enduser.panels.SelfPwdResetPanel;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class SelfPasswordReset extends BaseEnduserWebPage {
 
     private static final long serialVersionUID = 164651008547631054L;
 
+    private final SelfPwdResetPanel pwdResetPanel;
+
     public SelfPasswordReset(final PageParameters parameters) {
         super(parameters);
+
+        WebMarkupContainer content = new WebMarkupContainer("content");
+        content.setOutputMarkupId(true);
+        body.add(content);
+
+        Form<?> form = new Form<>("selfPwdResetForm");
+        content.add(form);
+        
+        pwdResetPanel = new SelfPwdResetPanel("selfPwdResetPanel", getPageReference());
+        pwdResetPanel.setOutputMarkupId(true);
+
+        form.add(pwdResetPanel);
     }
 
 }

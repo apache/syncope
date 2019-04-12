@@ -88,7 +88,6 @@ public class Login extends BaseLogin {
             // not authenticated
             sendError(getString("login-error"));
             notificationPanel.refresh(target);
-
         }
     }
 

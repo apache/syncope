@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.wizards.any;
 
 import java.security.SecureRandom;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.RandomStringGenerator;
 import org.apache.wicket.extensions.markup.html.captcha.CaptchaImageResource;
 
@@ -55,6 +56,13 @@ public class CaptchaPanel<T> extends AbstractCaptchaPanel<T> {
     @Override
     protected void reload() {
         this.captchaImageResource.invalidate();
+    }
+
+    @Override
+    public boolean captchaCheck() {
+        return StringUtils.isBlank(captchaText.getObject()) || StringUtils.isBlank(randomText)
+                ? false
+                : captchaText.getObject().equals(randomText);
     }
 
 }
