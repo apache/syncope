@@ -148,7 +148,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     protected int doCount(final Set<String> adminRealms, final SearchCond cond, final AnyTypeKind kind) {
         SearchRequest request = searchRequest(adminRealms, cond, kind, 0, 0, Collections.emptyList());
         try {
-            return (int) client.search(request, RequestOptions.DEFAULT).getHits().getTotalHits();
+            return (int) client.search(request, RequestOptions.DEFAULT).getHits().getTotalHits().value;
         } catch (IOException e) {
             LOG.error("Search error", e);
             return 0;
