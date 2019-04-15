@@ -396,7 +396,7 @@ under the License.
     <spring.version>5.1.6.RELEASE</spring.version>
     <spring-security.version>5.1.5.RELEASE</spring-security.version>
 
-    <openjpa.version>3.0.0</openjpa.version>
+    <openjpa.version>3.1.0</openjpa.version>
     <hikaricp.version>3.3.1</hikaricp.version>
     <hibernate-validator.version>6.0.13.Final</hibernate-validator.version>
 
@@ -444,7 +444,7 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
 
     <swagger-core.version>2.0.7</swagger-core.version>    
-    <swagger-ui.version>3.20.9</swagger-ui.version>
+    <swagger-ui.version>3.22.0</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
     <jquery.version>3.3.1-1</jquery.version>
@@ -467,7 +467,7 @@ under the License.
     
     <wicket.version>8.4.0</wicket.version>
     <wicket-jqueryui.version>8.3.0</wicket-jqueryui.version>
-    <wicket-bootstrap.version>2.0.7</wicket-bootstrap.version>
+    <wicket-bootstrap.version>2.0.8</wicket-bootstrap.version>
 
     <angular.version>1.7.5</angular.version>
     <angular-resource.version>1.7.0</angular-resource.version>
