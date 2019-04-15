@@ -71,7 +71,6 @@ body, html {
   min-height: 1em;
 }
 
-.form-signin #inputPassword,
 .form-signin #inputPassword {
   direction: ltr;
   height: 44px;
@@ -89,6 +88,10 @@ body, html {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
+}
+
+.form-signin .dropdown {
+  width: 100% !important;
 }
 
 .form-signin .form-control:focus {
