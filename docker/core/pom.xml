@@ -183,7 +183,7 @@ under the License.
                 <copy file="${settings.localRepository}/org/mariadb/jdbc/mariadb-java-client/${jdbc.mariadb.version}/mariadb-java-client-${jdbc.mariadb.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
                 <copy file="${settings.localRepository}/com/microsoft/sqlserver/mssql-jdbc/${jdbc.mssql.version}11/mssql-jdbc-${jdbc.mssql.version}11.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
 
-                <copy file="${basedir}/../../core/persistence-jpa-json/target/syncope-core-persistence-jpa-json-${project.version}.jar" todir="${project.build.outputDirectory}/pgjsonb" overwrite="true"/>
+                <copy file="${basedir}/../../core/persistence-jpa-json/target/syncope-core-persistence-jpa-json-${project.version}.jar" todir="${project.build.outputDirectory}/jpa-json" overwrite="true"/>
               </target>
             </configuration>
             <goals>

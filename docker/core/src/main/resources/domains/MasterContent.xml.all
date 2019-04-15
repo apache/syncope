@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<dataset>
+  <Realm id="ea696a4f-e77a-4ef1-be67-8f8093bc8686" name="/"/>
+
+  <SyncopeConf id="cd64d66f-6fff-4008-b966-a06b1cc1436d"/>
+
+  <SyncopeSchema id="password.cipher.algorithm"/>
+  <PlainSchema id="password.cipher.algorithm" type="String"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="56db89b9-119e-4923-a16e-f42823b90c66" 
+              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="password.cipher.algorithm"/>
+  <CPlainAttrValue id="870323e8-8db6-4a64-b512-15f9fa094905" 
+                   attribute_id="56db89b9-119e-4923-a16e-f42823b90c66" stringValue="SSHA256"/>
+
+  <!-- notificationjob.cronExpression:
+  + not existing: NotificationJob runs according to NotificationJob.DEFAULT_CRON_EXP
+  + provided as empty string: NotificationJob disabled
+  + provided as non-empty string: NotificationJob runs according to the given value -->
+  <SyncopeSchema id="notificationjob.cronExpression"/>
+  <PlainSchema id="notificationjob.cronExpression" type="String"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="abd5a2d2-25ee-48b7-b5ca-76813b54a6f2"
+              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="notificationjob.cronExpression"/>
+  <CPlainAttrValue id="4828ea70-d151-4c16-b344-2d07b1956bee"
+                   attribute_id="abd5a2d2-25ee-48b7-b5ca-76813b54a6f2" stringValue=""/>
+  
+  <SyncopeSchema id="notification.maxRetries"/>
+  <PlainSchema id="notification.maxRetries" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="0523d7e6-af13-4e1e-9edb-e35971aacee7"
+              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="notification.maxRetries"/>
+  <CPlainAttrValue id="010e2bdc-0094-4918-bac3-d0d5ea17b54a"
+                   attribute_id="0523d7e6-af13-4e1e-9edb-e35971aacee7" longValue="3"/>
+
+  <SyncopeSchema id="token.length"/>
+  <PlainSchema id="token.length" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="58977caa-dcf7-4ae3-8591-7e3d0a395200"
+              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="token.length"/>
+  <CPlainAttrValue id="372e28e0-3af1-4774-b668-81aa84903b75"
+                   attribute_id="58977caa-dcf7-4ae3-8591-7e3d0a395200" longValue="256"/>
+
+  <SyncopeSchema id="token.expireTime"/>
+  <PlainSchema id="token.expireTime" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="01f69abd-df85-4e1b-bb88-ad570594e045"
+              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="token.expireTime"/>
+  <CPlainAttrValue id="963970cf-4af6-46bb-875b-a1b758ac8d05"
+                   attribute_id="01f69abd-df85-4e1b-bb88-ad570594e045" longValue="60"/>
+
+  <SyncopeSchema id="selfRegistration.allowed"/>
+  <PlainSchema id="selfRegistration.allowed" type="Boolean"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="7b19cefa-d606-477c-8431-c9464f53fe8b"
+              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="selfRegistration.allowed"/>
+  <CPlainAttrValue id="c8b9a0f1-0168-4e2a-95b8-4819fc70e620"
+                   attribute_id="7b19cefa-d606-477c-8431-c9464f53fe8b" booleanValue="1"/>
+
+  <SyncopeSchema id="passwordReset.allowed"/>
+  <PlainSchema id="passwordReset.allowed" type="Boolean"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="dc35cc97-6ed9-4bb2-bb3b-509f4cd8f3d3"
+              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="passwordReset.allowed"/>
+  <CPlainAttrValue id="b1ecea41-ab7c-4dd3-9e3e-b6baf0f98046"
+                   attribute_id="dc35cc97-6ed9-4bb2-bb3b-509f4cd8f3d3" booleanValue="1"/>
+
+  <SyncopeSchema id="passwordReset.securityQuestion"/>
+  <PlainSchema id="passwordReset.securityQuestion" type="Boolean"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="e5a712ad-53fd-4102-ba55-fb45caed5f7b"
+              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="passwordReset.securityQuestion"/>
+  <CPlainAttrValue id="b5e8e79d-8039-4318-9698-fe5e181ebe98"
+                   attribute_id="e5a712ad-53fd-4102-ba55-fb45caed5f7b" booleanValue="1"/>
+
+  <SyncopeSchema id="authentication.attributes"/>
+  <PlainSchema id="authentication.attributes" type="String" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="577c6c4d-7149-43c2-9821-9ab4510effbd"
+              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="authentication.attributes"/>
+  <CPlainAttrValue id="c13660b5-926c-47ea-946d-52db32dd492b"
+                   attribute_id="577c6c4d-7149-43c2-9821-9ab4510effbd" stringValue="username"/>
+  <CPlainAttrValue id="0f112dbd-00d4-441c-b732-331e7f348f8a"
+                   attribute_id="577c6c4d-7149-43c2-9821-9ab4510effbd" stringValue="email"/>
+
+  <SyncopeSchema id="authentication.statuses"/>
+  <PlainSchema id="authentication.statuses" type="String" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="888ae8e1-a295-4ee2-a15e-31dbf6dfc3f9"
+              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="authentication.statuses"/>
+  <CPlainAttrValue id="4b8e7d2b-f527-43a3-a2e2-5530dcab2f52"
+                   attribute_id="888ae8e1-a295-4ee2-a15e-31dbf6dfc3f9" stringValue="created"/>
+  <CPlainAttrValue id="f0c89f2c-ea87-4c95-a1cf-142bf6e6f523"
+                   attribute_id="888ae8e1-a295-4ee2-a15e-31dbf6dfc3f9" stringValue="active"/>
+
+  <!-- Save user login date upon successful authentication -->
+  <SyncopeSchema id="log.lastlogindate"/>
+  <PlainSchema id="log.lastlogindate" type="Boolean"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="9891c0a7-27ee-4215-9eea-ca32e580b4e4"
+              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="log.lastlogindate"/>
+  <CPlainAttrValue id="162dd874-0417-4bb9-9724-db1ff2952dd1"
+                   attribute_id="9891c0a7-27ee-4215-9eea-ca32e580b4e4" booleanValue="1"/>
+
+  <!-- Return hashed password values when reading users -->
+  <SyncopeSchema id="return.password.value"/>
+  <PlainSchema id="return.password.value" type="Boolean"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="bcfd7efc-0605-4b5e-b4bb-85c1d5f6493a"
+              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="return.password.value"/>
+  <CPlainAttrValue id="e5fa94db-b524-4309-908d-8198d0b3f779"
+                   attribute_id="bcfd7efc-0605-4b5e-b4bb-85c1d5f6493a" booleanValue="0"/>
+
+  <!--  JWT lifetime in minutes -->                   
+  <SyncopeSchema id="jwt.lifetime.minutes"/>
+  <PlainSchema id="jwt.lifetime.minutes" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="cfec3140-562d-459c-ac6a-e3e10758661d"
+              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="jwt.lifetime.minutes"/>
+  <CPlainAttrValue id="447e2456-3ff5-41bc-8ff1-cbb0567546cb"
+                   attribute_id="cfec3140-562d-459c-ac6a-e3e10758661d" longValue="120"/>
+  
+  <!--  Connector and Resource configuration history -->                   
+  <SyncopeSchema id="connector.conf.history.size"/>
+  <PlainSchema id="connector.conf.history.size" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="ae36c6ab-0f39-40d7-b6e6-3b8394547c9c"
+              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="connector.conf.history.size"/>
+  <CPlainAttrValue id="4989ce5d-7b42-4a5c-b725-54286888df10"
+                   attribute_id="ae36c6ab-0f39-40d7-b6e6-3b8394547c9c" longValue="10"/>
+  
+  <SyncopeSchema id="resource.conf.history.size"/>
+  <PlainSchema id="resource.conf.history.size" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="ae7ae53a-74cf-48b0-9a57-6d2c94928e60"
+              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="resource.conf.history.size"/>
+  <CPlainAttrValue id="059ac3e1-687f-4dd9-a28b-a23f8b436f31"
+                   attribute_id="ae7ae53a-74cf-48b0-9a57-6d2c94928e60" longValue="10"/>
+
+  <AnyType id="USER" kind="USER"/>
+  <AnyTypeClass id="BaseUser"/>
+  <AnyType_AnyTypeClass anyType_id="USER" anyTypeClass_id="BaseUser"/>
+
+  <AnyType id="GROUP" kind="GROUP"/>
+  <AnyTypeClass id="BaseGroup"/>
+  <AnyType_AnyTypeClass anyType_id="GROUP" anyTypeClass_id="BaseGroup"/>
+        
+  <!-- Actual plain schemas -->
+  <Implementation id="EmailAddressValidator" type="VALIDATOR" engine="JAVA"
+                  body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
+  <SyncopeSchema id="email"/>
+  <PlainSchema id="email" type="String" anyTypeClass_id="BaseUser"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               validator_id="EmailAddressValidator"/>
+  
+  <Implementation id="BinaryValidator" type="VALIDATOR" engine="JAVA"
+                  body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValidator"/>
+
+  <Implementation id="PullJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>
+  <Implementation id="PushJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate"/>
+
+
+  <Implementation id="ExpiredAccessTokenCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup"/>
+  <Task DTYPE="SchedTask" id="89de5014-e3f5-4462-84d8-d97575740baf" name="Access Token Cleanup Task"  active="1"
+        jobDelegate_id="ExpiredAccessTokenCleanup" cronExpression="0 0/5 * * * ?"/>
+  <Implementation id="ExpiredBatchCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.job.ExpiredBatchCleanup"/>
+  <Task DTYPE="SchedTask" id="8ea0ea51-ce08-4fe3-a0c8-c281b31b5893" name="Expired Batch Operations Cleanup Task"  active="1"
+        jobDelegate_id="ExpiredBatchCleanup" cronExpression="0 0/5 * * * ?"/>
+
+  <!-- Password reset notifications -->
+  <MailTemplate id="requestPasswordReset"
+                textTemplate="Hi,
+a password reset was request for ${user.getUsername()}.
+
+In order to complete this request, you need to visit this link:
+
+http://localhost:9080/syncope-enduser/app/#!/confirmpasswordreset?token=${input.get(0).replaceAll(' ', '%20')}
+
+If you did not request this reset, just ignore the present e-mail.
+
+Best regards."
+                htmlTemplate="&lt;html&gt;
+&lt;body&gt;
+&lt;p&gt;Hi,
+a password reset was request for ${user.getUsername()}.&lt;/p&gt;
+
+&lt;p&gt;In order to complete this request, you need to visit this 
+&lt;a href=&quot;http://localhost:9080/syncope-enduser/app/#!/confirmpasswordreset?token=${input.get(0).replaceAll(' ', '%20')}&quot;&gt;link&lt;/a&gt;&lt;/p&gt;.
+
+&lt;p&gt;If you did not request this reset, just ignore the present e-mail.&lt;/p&gt;
+
+&lt;p&gt;Best regards.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;"/>
+  <MailTemplate id="confirmPasswordReset"
+                textTemplate="Hi,
+we are happy to inform you that the password request was successfully executed for your account.
+
+Best regards."
+                htmlTemplate="&lt;html&gt;
+&lt;body&gt;
+&lt;p&gt;Hi,&lt;/br&gt;
+we are happy to inform you that the password request was successfully executed for your account.&lt;/p&gt;
+
+&lt;p&gt;Best regards.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;"/>
+
+  <Notification id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" active="1" recipientAttrName="email" selfAsRecipient="1" 
+                sender="admin@syncope.apache.org" subject="Password Reset request" template_id="requestPasswordReset" 
+                traceLevel="FAILURES"/> 
+  <AnyAbout id="a328f2e6-25e9-4cc1-badf-7425d7be4b39" anyType_id="USER" notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" filter="token!=$null"/>
+  <Notification_events notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
+  
+  <Notification id="bef0c250-e8a7-4848-bb63-2564fc409ce2" active="1" recipientAttrName="email" selfAsRecipient="1" 
+                sender="admin@syncope.apache.org" subject="Password Reset successful" template_id="confirmPasswordReset" 
+                traceLevel="FAILURES"/> 
+  <Notification_events notification_id="bef0c250-e8a7-4848-bb63-2564fc409ce2" event="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>
+
+  <ReportTemplate id="empty"/>  
+
+  <Report id="c3520ad9-179f-49e7-b315-d684d216dd97" name="reconciliation" active="1" template_id="empty"/>
+  <Implementation id="ReconciliationReportletConf" type="REPORTLET" engine="JAVA"
+                  body='{"@class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
+  <ReportReportlet report_id="c3520ad9-179f-49e7-b315-d684d216dd97" implementation_id="ReconciliationReportletConf"/>
+
+</dataset>

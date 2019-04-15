@@ -26,7 +26,7 @@ RUN mkdir /opt/syncope/bundles
 RUN mkdir /opt/syncope/conf
 RUN mkdir /opt/syncope/conf/domains
 RUN mkdir /opt/syncope/lib
-RUN mkdir /opt/syncope/pgjsonb
+RUN mkdir /opt/syncope/jpa-json
 RUN mkdir /opt/syncope/log
 
 COPY *.properties* /opt/syncope/conf/
@@ -36,7 +36,7 @@ COPY domains/* /opt/syncope/conf/domains/
 
 COPY bundles/*.jar /opt/syncope/bundles/
 COPY lib/*.jar /opt/syncope/lib/
-COPY pgjsonb/*.jar /opt/syncope/pgjsonb/
+COPY jpa-json/*.jar /opt/syncope/jpa-json/
 
 COPY lib/syncope-docker-core-*war /opt/syncope/lib/syncope.war
 
