@@ -82,6 +82,9 @@ body {
   .form-control:focus {
     outline: 0;
   }
+  .form-signin .dropdown {
+    width: 100% !important;
+  }
 }
 
 .btn {
