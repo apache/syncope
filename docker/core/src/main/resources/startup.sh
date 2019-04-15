@@ -25,6 +25,8 @@ ln -s provisioning.properties.$DBMS provisioning.properties
 rm -f persistence.properties
 if [ $DBMS = "pgjsonb" ]; then
   ln -s persistence.properties.pgjsonb persistence.properties
+elif [ $DBMS = "myjson" ]; then
+  ln -s persistence.properties.myjson persistence.properties
 else
   ln -s persistence.properties.all persistence.properties
 fi
@@ -34,6 +36,8 @@ ln -s views.xml.$DBMS views.xml
 
 if [ $DBMS = "pgjsonb" ]; then
   ln -s indexes.xml.pgjsonb indexes.xml
+elif [ $DBMS = "myjson" ]; then
+  ln -s indexes.xml.myjson indexes.xml
 else
   rm -f indexes.xml
 fi
@@ -43,6 +47,9 @@ cd domains
 if [ $DBMS = "pgjsonb" ]; then
   mv MasterContent.xml MasterContent.xml.all
   ln -s MasterContent.xml.pgjsonb MasterContent.xml
+elif [ $DBMS = "myjson" ]; then
+  mv MasterContent.xml MasterContent.xml.all
+  ln -s MasterContent.xml.myjson MasterContent.xml
 else
   rm -f MasterContent.xml
   mv MasterContent.xml.all MasterContent.xml
@@ -51,7 +58,7 @@ fi
 rm -f Master.properties
 ln -s Master.properties.$DBMS Master.properties
 
-if [ $DBMS = "pgjsonb" ]; then
+if [ $DBMS = "pgjsonb" ] || [ $DBMS = "myjson" ] ; then
   mkdir -p /tmp/WEB-INF/lib
   cp /etc/apache-syncope/syncope-core-persistence-jpa-json-*.jar /tmp/WEB-INF/lib
   cd /tmp
