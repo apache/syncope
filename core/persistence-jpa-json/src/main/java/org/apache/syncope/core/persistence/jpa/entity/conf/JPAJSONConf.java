@@ -75,7 +75,7 @@ public class JPAJSONConf extends JPAConf implements JSONAny<Conf>, Conf {
 
     @Override
     public boolean remove(final CPlainAttr attr) {
-        return plainAttrList.removeIf(pgattr -> pgattr.getSchemaKey().equals(attr.getSchema().getKey()));
+        return plainAttrList.removeIf(jsonAttr -> jsonAttr.getSchemaKey().equals(attr.getSchema().getKey()));
     }
 
     @Override

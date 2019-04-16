@@ -76,28 +76,28 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
-    private static final Pattern USERNAME_PATTERN =
+    protected static final Pattern USERNAME_PATTERN =
             Pattern.compile("^" + SyncopeConstants.NAME_PATTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     @Autowired
-    private RoleDAO roleDAO;
+    protected RoleDAO roleDAO;
 
     @Autowired
-    private AccessTokenDAO accessTokenDAO;
+    protected AccessTokenDAO accessTokenDAO;
 
     @Autowired
-    private RealmDAO realmDAO;
+    protected RealmDAO realmDAO;
 
     @Autowired
-    private GroupDAO groupDAO;
+    protected GroupDAO groupDAO;
 
     @Resource(name = "adminUser")
-    private String adminUser;
+    protected String adminUser;
 
     @Resource(name = "anonymousUser")
-    private String anonymousUser;
+    protected String anonymousUser;
 
     @Override
     protected AnyUtils init() {
@@ -221,7 +221,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         return entityManager().find(JPAUMembership.class, key);
     }
 
-    private List<PasswordPolicy> getPasswordPolicies(final User user) {
+    protected List<PasswordPolicy> getPasswordPolicies(final User user) {
         List<PasswordPolicy> policies = new ArrayList<>();
 
         PasswordPolicy policy;
@@ -255,7 +255,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         return query.getResultList();
     }
 
-    private List<AccountPolicy> getAccountPolicies(final User user) {
+    protected List<AccountPolicy> getAccountPolicies(final User user) {
         List<AccountPolicy> policies = new ArrayList<>();
 
         // add resource policies
@@ -374,7 +374,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         return ImmutablePair.of(suspend, propagateSuspension);
     }
 
-    private Pair<User, Pair<Set<String>, Set<String>>> doSave(final User user) {
+    protected Pair<User, Pair<Set<String>, Set<String>>> doSave(final User user) {
         // 1. save clear password value before save
         String clearPwd = user.getClearPassword();
 

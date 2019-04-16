@@ -76,9 +76,8 @@ public class JPAJSONAnyObject extends JPAAnyObject implements JSONAny<AnyObject>
 
     @Override
     public boolean remove(final APlainAttr attr) {
-        return plainAttrList.removeIf(pgattr
-                -> pgattr.getSchemaKey().equals(attr.getSchema().getKey())
-                && Objects.equals(pgattr.getMembershipKey(), ((JPAJSONAPlainAttr) attr).getMembershipKey()));
+        return plainAttrList.removeIf(jsonAttr -> jsonAttr.getSchemaKey().equals(attr.getSchema().getKey())
+                && Objects.equals(jsonAttr.getMembershipKey(), ((JPAJSONAPlainAttr) attr).getMembershipKey()));
     }
 
     @Override
@@ -89,30 +88,30 @@ public class JPAJSONAnyObject extends JPAAnyObject implements JSONAny<AnyObject>
     @Override
     public List<? extends APlainAttr> getPlainAttrs() {
         return plainAttrList.stream().
-                filter(pgattr -> pgattr.getMembershipKey() == null).
+                filter(attr -> attr.getMembershipKey() == null).
                 collect(Collectors.toList());
     }
 
     @Override
     public Optional<? extends APlainAttr> getPlainAttr(final String plainSchema) {
         return plainAttrList.stream().
-                filter(pgattr -> pgattr.getSchemaKey() != null && pgattr.getSchemaKey().equals(plainSchema)
-                && pgattr.getMembershipKey() == null).
+                filter(attr -> attr.getSchemaKey() != null && attr.getSchemaKey().equals(plainSchema)
+                && attr.getMembershipKey() == null).
                 findFirst();
     }
 
     @Override
     public Optional<? extends APlainAttr> getPlainAttr(final String plainSchema, final Membership<?> membership) {
         return plainAttrList.stream().
-                filter(pgattr -> pgattr.getSchemaKey() != null && pgattr.getSchemaKey().equals(plainSchema)
-                && pgattr.getMembershipKey() != null && pgattr.getMembershipKey().equals(membership.getKey())).
+                filter(attr -> attr.getSchemaKey() != null && attr.getSchemaKey().equals(plainSchema)
+                && attr.getMembershipKey() != null && attr.getMembershipKey().equals(membership.getKey())).
                 findFirst();
     }
 
     @Override
     public boolean remove(final AMembership membership) {
-        plainAttrList.removeIf(pgattr
-                -> pgattr.getMembershipKey() != null && pgattr.getMembershipKey().equals(membership.getKey()));
+        plainAttrList.removeIf(attr -> attr.getMembershipKey() != null
+                && attr.getMembershipKey().equals(membership.getKey()));
         return super.remove(membership);
     }
 }

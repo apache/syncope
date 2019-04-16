@@ -63,10 +63,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObjectDAO {
 
     @Autowired
-    private UserDAO userDAO;
+    protected UserDAO userDAO;
 
     @Autowired
-    private GroupDAO groupDAO;
+    protected GroupDAO groupDAO;
 
     @Override
     protected AnyUtils init() {
@@ -195,7 +195,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         return query.getResultList();
     }
 
-    private Pair<AnyObject, Pair<Set<String>, Set<String>>> doSave(final AnyObject anyObject) {
+    protected Pair<AnyObject, Pair<Set<String>, Set<String>>> doSave(final AnyObject anyObject) {
         AnyObject merged = super.save(anyObject);
         publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged, AuthContextUtils.getDomain()));
 
@@ -215,7 +215,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         return doSave(anyObject).getRight();
     }
 
-    private List<ARelationship> findARelationships(final AnyObject anyObject) {
+    protected List<ARelationship> findARelationships(final AnyObject anyObject) {
         TypedQuery<ARelationship> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAARelationship.class.getSimpleName()
                 + " e WHERE e.rightEnd=:anyObject", ARelationship.class);
@@ -224,7 +224,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         return query.getResultList();
     }
 
-    private List<URelationship> findURelationships(final AnyObject anyObject) {
+    protected List<URelationship> findURelationships(final AnyObject anyObject) {
         TypedQuery<URelationship> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAURelationship.class.getSimpleName()
                 + " e WHERE e.rightEnd=:anyObject", URelationship.class);

@@ -75,7 +75,7 @@ public class JPAJSONGroup extends JPAGroup implements JSONAny<Group>, Group {
 
     @Override
     public boolean remove(final GPlainAttr attr) {
-        return plainAttrList.removeIf(pgattr -> pgattr.getSchemaKey().equals(attr.getSchema().getKey()));
+        return plainAttrList.removeIf(jsonAttr -> jsonAttr.getSchemaKey().equals(attr.getSchema().getKey()));
     }
 
     @Override
