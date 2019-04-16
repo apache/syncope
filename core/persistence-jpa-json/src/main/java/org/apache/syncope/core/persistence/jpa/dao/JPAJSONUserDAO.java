@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUser;
@@ -28,6 +29,9 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
+import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 
 public class JPAJSONUserDAO extends JPAUserDAO {
 
@@ -67,6 +71,37 @@ public class JPAJSONUserDAO extends JPAUserDAO {
             final boolean ignoreCaseMatch) {
 
         return anyDAO().findByDerAttrValue(JPAJSONUser.TABLE, anyUtils(), schema, value, ignoreCaseMatch);
+    }
+
+    @Override
+    protected Pair<User, Pair<Set<String>, Set<String>>> doSave(final User user) {
+        // 1. save clear password value before save
+        String clearPwd = user.getClearPassword();
+
+        // 2. save
+        User merged = entityManager().merge(user);
+
+        // 3. set back the sole clear password value
+        JPAUser.class.cast(merged).setClearPassword(clearPwd);
+
+        // 4. enforce password and account policies
+        try {
+            enforcePolicies(merged);
+        } catch (InvalidEntityException e) {
+            entityManager().remove(merged);
+            throw e;
+        }
+
+        // ensure that entity listeners are invoked at this point
+        entityManager().flush();
+
+        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged, AuthContextUtils.getDomain()));
+
+        roleDAO.refreshDynMemberships(merged);
+        Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO.refreshDynMemberships(merged);
+        dynRealmDAO.refreshDynMemberships(merged);
+
+        return Pair.of(merged, dynGroupMembs);
     }
 
     @Override

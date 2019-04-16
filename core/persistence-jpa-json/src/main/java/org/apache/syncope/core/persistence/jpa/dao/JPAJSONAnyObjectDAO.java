@@ -19,6 +19,8 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
+import java.util.Set;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAJSONAnyObject;
@@ -26,6 +28,8 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 
 public class JPAJSONAnyObjectDAO extends JPAAnyObjectDAO {
 
@@ -65,6 +69,21 @@ public class JPAJSONAnyObjectDAO extends JPAAnyObjectDAO {
             final boolean ignoreCaseMatch) {
 
         return anyDAO().findByDerAttrValue(JPAJSONAnyObject.TABLE, anyUtils(), schema, value, ignoreCaseMatch);
+    }
+
+    @Override
+    protected Pair<AnyObject, Pair<Set<String>, Set<String>>> doSave(final AnyObject anyObject) {
+        AnyObject merged = entityManager().merge(anyObject);
+
+        // ensure that entity listeners are invoked at this point
+        entityManager().flush();
+
+        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged, AuthContextUtils.getDomain()));
+
+        Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO.refreshDynMemberships(merged);
+        dynRealmDAO.refreshDynMemberships(merged);
+
+        return Pair.of(merged, dynGroupMembs);
     }
 
     @Override
