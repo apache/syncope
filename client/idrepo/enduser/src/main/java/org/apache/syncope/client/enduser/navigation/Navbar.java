@@ -16,29 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.enduser.pages;
+package org.apache.syncope.client.enduser.navigation;
 
-import org.apache.syncope.client.enduser.navigation.Navbar;
-import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.markup.html.panel.Panel;
 
-public class BaseEnduserWebPage extends BaseWebPage {
+public class Navbar extends Panel {
 
-    private static final long serialVersionUID = 5760583420031293480L;
+    private static final long serialVersionUID = 1323251762654401168L;
 
-    protected final Navbar navbar;
-
-    public BaseEnduserWebPage() {
-        this(null);
-
-        body.add(navbar);
-    }
-
-    public BaseEnduserWebPage(final PageParameters parameters) {
-        super(parameters);
-
-        navbar = new Navbar("navbar");
-        body.add(navbar);
+    public Navbar(final String id) {
+        super(id);
+        setOutputMarkupId(true);
     }
 
 }

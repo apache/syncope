@@ -24,7 +24,6 @@ pre {
   @include white_space_pre_wrap;
 }
 
-/* Absolute Center Spinner */
 
 #veil {
   display: none;
@@ -79,53 +78,12 @@ pre {
   }
 }
 
-/* Transparent Overlay */
-
-/* Animation */
-
-@-webkit-keyframes spinner {
-  0% {
-    @include transform(rotate(0deg));
-  }
-
-  100% {
-    @include transform(rotate(360deg));
-  }
-}
 
 
-@-moz-keyframes spinner {
-  0% {
-    @include transform(rotate(0deg));
-  }
-
-  100% {
-    @include transform(rotate(360deg));
-  }
-}
 
 
-@-o-keyframes spinner {
-  0% {
-    @include transform(rotate(0deg));
-  }
-
-  100% {
-    @include transform(rotate(360deg));
-  }
-}
-
-
-@keyframes spinner {
-  0% {
-    @include transform(rotate(0deg));
-  }
-
-  100% {
-    @include transform(rotate(360deg));
-  }
-}
-
+/* General
+============================================================================= */
 
 .block-sidebar {
   max-height: 100% !important;
@@ -434,9 +392,11 @@ td.checkGroupColumn {
   text-align: center;
 }
 
-/**
-  BEGIN - Style for Information panel
-*/
+
+
+
+/* Style for Information panel
+============================================================================= */
 
 .information {
   margin: 30px 0px 0px 0px;
@@ -478,9 +438,6 @@ td.checkGroupColumn {
   margin-left: 155px;
 }
 
-/**
-END - Style for Information panel
-*/
 
 #ownership div.toggle {
   width: 110px !important;
@@ -532,6 +489,13 @@ END - Style for Information panel
   list-style: none;
   padding-left: 15px;
 }
+
+
+
+
+/* Startat
+============================================================================= */
+
 #startAt {
   background-color: rgba(98, 98, 98, 0.98) !important;
   color: #CCC;
@@ -551,17 +515,12 @@ END - Style for Information panel
   }
 }
 
-/**
-START - startAt
-*/
 
-/**
-END - startAt
-*/
 
-/**
-START - Notifications
-*/
+
+
+/* Notifications
+============================================================================= */
 /*Temporany fix diagonal stacking*/
 
 .k-popup.k-notification {
@@ -614,13 +573,13 @@ START - Notifications
   }
 }
 
-/**
-EN - Notifications
-*/
 
-/**
-START - Actions
-*/
+
+
+
+
+/* Actions
+============================================================================= */
 
 .actions > li > a {
   padding: 5px 0px 5px 0px !important;
@@ -680,25 +639,26 @@ div.listview-actions a {
   margin: 0px;
 }
 
-/**
-END - Actions
-*/
 
-/**
-START - DataTable
-*/
+
+
+
+
+
+/* Datatable
+============================================================================= */
 
 .dataTable {
   clear: both;
 }
 
-/**
-END - DataTable
-*/
 
-/**
-START - Result page
-*/
+
+
+
+
+/* Result page
+============================================================================= */
 
 .attribute {
   padding: 0px 4px 0px 4px;
@@ -717,10 +677,6 @@ START - Result page
 span.highlight .attribute label {
   color: red;
 }
-
-/**
-END - Result page
-*/
 
 .navbar-nav > .user-menu > .dropdown-menu > li.user-header {
   height: auto !important;
@@ -742,9 +698,11 @@ END - Result page
   border-color: #c1e9c1;
 }
 
-/**
-START - AjaxDateTimePicker
-*/
+
+
+
+/* AjaxDateTimePicker
+============================================================================= */
 
 .input-auto-width {
   width: auto !important;
@@ -754,13 +712,12 @@ START - AjaxDateTimePicker
   top: 5px !important;
 }
 
-/**
-END - AjaxDateTimePicker
-*/
 
-/**
-START - Search - AjaxDateTimePicker
-*/
+
+
+
+/* Search - AjaxDateTimePicker
+============================================================================= */
 
 .searchBox .col-xs-12 {
   padding-left: 0px !important;
@@ -833,20 +790,17 @@ START - Search - AjaxDateTimePicker
   background-color: #eee;
 }
 
-/**
-END - Search - AjaxDateTimePicker
-*/
-/**
-START - Parameters Details
-*/
+
+
+
+/* Parameters Details
+============================================================================= */
 
 div#parametersForm {
   min-height: 220px;
 }
 
-/**
-END - Parameters Details
-*/
+
 
 li.todoitem a {
   cursor: default;
@@ -893,9 +847,13 @@ div#userFilter {
   width: 20px;
 }
 
-/**
-START - Alert widget onside menu
-*/
+
+
+
+
+
+/* Alert widget onside menu
+============================================================================= */
 
 .alert-widget {
   > a {
@@ -944,13 +902,12 @@ START - Alert widget onside menu
   }
 }
 
-/**
-END - Alert widget onside menu
-*/
 
-/**
-START - Transformers toggle panel
-*/
+
+
+
+/* Transformers toggle panel
+============================================================================= */
 
 .transformersTogglePanel {
   background-color: rgba(140, 140, 140, 0.99) !important;
@@ -986,13 +943,13 @@ START - Transformers toggle panel
   right: 400px;
 }
 
-/**
-END - Transformers toggle panel
-*/
 
-/**
-START - CRONTAB
-*/
+
+
+
+
+/* Crontab
+============================================================================= */
 
 #schedule {
   input, fieldset {
@@ -1005,13 +962,11 @@ START - CRONTAB
   clear: both;
 }
 
-/**
-END - CRONTAB
-*/
 
-/**
-START - EVENTS
-*/
+
+
+/* Events
+============================================================================= */
 
 .events {
   display: table-row;
@@ -1049,9 +1004,11 @@ START - EVENTS
   min-width: 585px;
 }
 
-/**
-END - EVENTS
-*/
+
+
+
+/* Others
+============================================================================= */
 
 fieldset.input-group {
   width: 100%;
@@ -1153,4 +1110,33 @@ ul.menu {
 
 div#tablehandling ul.menu li a {
   padding: 0px !important;
+}
+
+
+
+
+
+/* Form wrappers
+============================================================================= */
+
+.custom_content_wrapper {
+  background-color: #ffffff;
+  border-radius: 10px;
+  @include shadow(0px 0px 20px 1px rgba(0,0,0,0.75));
+}
+
+
+
+
+/* Utility classes
+============================================================================= */
+
+.vertical_align {
+  @include flex;
+  @include flex_direction_column;
+  @include justify_content(center);
+}
+
+.max_height {
+  height: 100% !important;
 }

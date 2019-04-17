@@ -20,6 +20,7 @@
 
 /* SCSS Methods
 ============================================================================= */
+
 @mixin user_select($value) {
   webkit-user-select: $value;
   -moz-user-select: $value;
@@ -92,11 +93,38 @@
   -webkit-box-align: $value;
   align-items: $value;
 }
+@mixin flex_direction_row() {
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+}
+@mixin flex_direction_column() {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+@mixin flex_grow($value) {
+  -webkit-box-flex: $value;
+  -webkit-flex-grow: $value;
+  -ms-flex-positive: $value;
+  flex-grow: $value;
+}
+@mixin justify_content($value) {
+  -webkit-box-pack: $value;
+  -webkit-justify-content: $value;
+  -ms-flex-pack: $value;
+  justify-content: $value;
+}
 
 
 
 /* Breakpoints
 ============================================================================= */
+
 $tablet-width: 768px;
 $desktop-width: 1024px;
 

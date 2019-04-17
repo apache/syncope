@@ -43,7 +43,7 @@ under the License.
     <script type="text/javascript" src="webjars/bootbox/${bootbox.version}/bootbox.js"></script>
     <script type="text/javascript" src="webjars/jQuery-slimScroll/${jquery-slimscroll.version}/jquery.slimscroll.min.js"></script>
   </head>
-  <body class="skin-green-light hold-transition sidebar-mini" wicket:id="body">
+  <body wicket:id="body" class="skin-green-light hold-transition sidebar-mini">
     <div id="accessibility">
       <div id="change_contrast" class="btn-accessibility">
         <i aria-label="Toggle high contrast colors mode" tabindex="0" accesskey="H"
@@ -57,58 +57,12 @@ under the License.
       </div>
     </div>
 
-    <nav class="enduser_navbar navbar navbar-default">
-      <div class="container-fluid">
-        <div class="navbar-header">
-
-          <button type="button" 
-                  class="navbar-toggle" 
-                  data-toggle="collapse" 
-                  data-target="#navbar"
-                  aria-expanded="true" 
-                  aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-
-          <a class="navbar-brand" href="#">
-            <span class="logo-mini"><img alt="Brand" src="ui-commons/img/logo-mini.png"/></span>
-          </a>
-        </div>
-
-        <div id="navbar" class="navbar-collapse collapse in" aria-expanded="true">
-          <ul class="nav navbar-nav">
-            <li class="active">
-              <a href="#"> Details 
-                <span class="sr-only">(current)</span>
-              </a>
-            </li>
-
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" 
-                 data-toggle="dropdown" 
-                 role="button" 
-                 aria-haspopup="true" 
-                 aria-expanded="false">
-                User Requests
-                <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                <li><a href="#">Start new requests</a></li>
-                <li><a href="#">View ongoing requests</a></li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
+    <span wicket:id="navbar">[NAVBAR]</span>
 
     <div class="wrapper">
       <span wicket:id="feedback"></span>
 
-      <div class="content-wrapper">
+      <div class="content-wrapper custom_content_wrapper">
         <wicket:child/>
       </div>
     </div>

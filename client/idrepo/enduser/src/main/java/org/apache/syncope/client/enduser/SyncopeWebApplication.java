@@ -47,6 +47,7 @@ import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.enduser.pages.MustChangePassword;
 import org.apache.syncope.client.enduser.pages.Self;
+import org.apache.syncope.client.enduser.pages.SelfConfirmPasswordReset;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.common.lib.PropertyUtils;
@@ -283,6 +284,9 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
         });
 
+        // Confirm password reset page
+        mountPage("/confirmpasswordreset", SelfConfirmPasswordReset.class);
+
         for (Class<? extends AbstractResource> resource : lookup.getResources()) {
             Resource annotation = resource.getAnnotation(Resource.class);
             try {
@@ -301,7 +305,7 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
                 LOG.error("Could not instantiate {}", resource.getName(), e);
             }
         }
-        
+
         // enable component path
         if (getDebugSettings().isAjaxDebugModeEnabled()) {
             getDebugSettings().setComponentPathAttributeName("syncope-path");

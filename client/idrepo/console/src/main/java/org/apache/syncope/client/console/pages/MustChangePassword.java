@@ -24,6 +24,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.WebPage;
@@ -113,5 +114,7 @@ public class MustChangePassword extends WebPage {
         form.setDefaultButton(submitButton);
 
         add(form);
+
+        add(new AttributeModifier("style", "height: \"100%\""));
     }
 }

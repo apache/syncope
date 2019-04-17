@@ -120,13 +120,10 @@ body {
   > .wrapper .content-wrapper {
     width: 100%;
     margin: 0 2%;
-
-    background-color: #ffffff;
-    border-radius: 10px;
-
-    @include shadow(0px 0px 20px 1px rgba(0,0,0,0.75));
   }
 }
+
+
 
 
 
@@ -155,6 +152,15 @@ body {
     @include shadow(inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px $palette_dark);
   }
 }
+
+.login_link {
+  margin: 8px 0;
+
+  a {
+    text-decoration: none;
+  }
+}
+
 
 
 
@@ -203,7 +209,6 @@ body {
 
 }
 
-
 .wizard-buttons {
   display: table;
   height: 65px;
@@ -217,7 +222,7 @@ body {
 
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
-  background-color: #718a99;
+  background-color: $palette_darker;
 
   > div {
     display: table-cell;
@@ -246,6 +251,7 @@ body {
       &:active {
       color: inherit;
       background-color: $palette_lighter;
+      border-color: transparent;
     }
   }
 }
@@ -305,13 +311,6 @@ fieldset[disabled] .form-control {
 }
 
 
-/* 
-* Remove input placeholder on focus
-* ------------------------------ */
-input:focus::-webkit-input-placeholder { color:transparent; }
-input:focus:-moz-placeholder { color:transparent; } /* FF 4-18 */
-input:focus::-moz-placeholder { color:transparent; } /* FF 19+ */
-input:focus:-ms-input-placeholder { color:transparent; } /* IE 10+ */
 
 
 /* 
@@ -449,6 +448,15 @@ option {
     a {
       height: auto;
     }
+
+    > li {
+      > a {
+        &:focus, 
+          &:hover {
+          background-color: $palette_light;
+        }
+      }
+    }
   }
 
   .navbar-brand {
@@ -477,15 +485,32 @@ option {
       background-color: $palette_light;
     }
 
-    > li:not(.active):not(:hover):not(.open) > a {
-      color: #ffffff;
-      @include transition(.25s all ease);
+    > li {
+      &:not(.active):not(:hover):not(.open) {
+        > a {
+          &:not(:focus) {
+            color: #ffffff;
+          }
+          @include transition(.25s all ease);
+        }
+      }
     }
 
     @include phone {
-      .open {
-        .dropdown-menu > li > a {
-          color: #ffffff;
+      .dropdown {
+        a {
+          &.dropdown-toggle {
+            &:not(:focus) {
+              color: #ffffff;
+            }
+          }
+        }
+        &.open {
+          .dropdown-menu {
+            > li > a {
+              color: #ffffff;
+            }
+          }
         }
       }
     }
@@ -506,7 +531,7 @@ option {
     display: inline-block;
     position: absolute;
     border: 28px solid white;
-    border-color: transparent #718a99 transparent transparent; /* use the background color here */
+    border-color: transparent $palette_darker transparent transparent; /* use the background color here */
     top: 0px;
     right: -1px; /* 1px less than the other "before" element */
   }
@@ -536,3 +561,23 @@ option {
   }
 }
 
+
+
+/* Password Reset / Confirm Password Reset
+============================================================================= */
+
+.password_reset_wrapper {
+  padding-top: 25px;
+  padding-bottom: 25px;
+
+  .page-header {
+    text-align: center;
+  }
+  form {
+    text-align: center;
+
+    .password_reset_buttons {
+      padding-top: 30px;
+    }
+  }
+}

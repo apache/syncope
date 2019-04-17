@@ -22,7 +22,6 @@ import java.security.AccessControlException;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
 import javax.xml.ws.WebServiceException;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 import org.apache.wicket.core.request.handler.PageProvider;
@@ -62,7 +61,7 @@ public abstract class SyncopeUIRequestCycleListener implements IRequestCycleList
 
     @Override
     public IRequestHandler onException(final RequestCycle cycle, final Exception e) {
-        LOG.error("Exception found", ExceptionUtils.getStackTrace(e));
+        LOG.error("Exception found", e);
 
         PageParameters errorParameters = new PageParameters();
 

@@ -193,7 +193,7 @@ a password reset was request for ${user.getUsername()}.
 
 In order to complete this request, you need to visit this link:
 
-http://localhost:9080/syncope-enduser/app/#!/confirmpasswordreset?token=${input.get(0).replaceAll(' ', '%20')}
+http://localhost:9080/syncope-enduser/confirmpasswordreset?token=${input.get(0).replaceAll(' ', '%20')}
 
 If you did not request this reset, just ignore the present e-mail.
 
@@ -204,7 +204,7 @@ Best regards."
 a password reset was request for ${user.getUsername()}.&lt;/p&gt;
 
 &lt;p&gt;In order to complete this request, you need to visit this 
-&lt;a href=&quot;http://localhost:9080/syncope-enduser/app/#!/confirmpasswordreset?token=${input.get(0).replaceAll(' ', '%20')}&quot;&gt;link&lt;/a&gt;&lt;/p&gt;.
+&lt;a href=&quot;http://localhost:9080/syncope-enduser/confirmpasswordreset?token=${input.get(0).replaceAll(' ', '%20')}&quot;&gt;link&lt;/a&gt;&lt;/p&gt;.
 
 &lt;p&gt;If you did not request this reset, just ignore the present e-mail.&lt;/p&gt;
 

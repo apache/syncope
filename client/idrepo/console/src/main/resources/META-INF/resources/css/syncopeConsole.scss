@@ -19,6 +19,7 @@
 
 $background_console_darker: rgb(104, 145, 162);
 $background_console_dark: #00a65a;
+$background_console_white: #eee;
 
 
 
@@ -31,7 +32,6 @@ $background_console_dark: #00a65a;
   -o-box-shadow: $args;
   box-shadow: $args;
 }
-
 
 
 
@@ -67,5 +67,26 @@ body {
     &:hover, &:active, &:focus {
       background-color: $background_console_dark;
     }
+  }
+}
+
+
+
+/* Must Change Password
+============================================================================= */
+
+#mcp_wrapper {
+  height: 100%;
+
+  #mcp_logo {
+    background: $background_console_white;
+  }
+
+  .card {
+    height: 100%;
+  }
+
+  .custom_content_wrapper {
+    padding: 2% 2% 0 2%;
   }
 }

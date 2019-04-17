@@ -32,13 +32,16 @@ public class SelfPasswordReset extends BaseEnduserWebPage {
     public SelfPasswordReset(final PageParameters parameters) {
         super(parameters);
 
+        navbar.setEnabled(false);
+        navbar.setVisible(false);
+
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
         body.add(content);
 
         Form<?> form = new Form<>("selfPwdResetForm");
         content.add(form);
-        
+
         pwdResetPanel = new SelfPwdResetPanel("selfPwdResetPanel", getPageReference());
         pwdResetPanel.setOutputMarkupId(true);
 
