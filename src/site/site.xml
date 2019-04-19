@@ -46,7 +46,6 @@ under the License.
         <showFollowers>false</showFollowers>
       </twitter>
       <facebookLike/>
-      <googlePlusOne/>
     </fluidoSkin>
   </custom>
   
