@@ -2,6 +2,32 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.0.13
+================================================================================
+
+** Bug
+    * [SYNCOPE-1428] - APIs to read by key return 404 instead of 401 for not authenticated calls
+    * [SYNCOPE-1429] - Wildcard case-insesitive queries do not work with Elasticsearch
+    * [SYNCOPE-1430] - ItemTransformer for Date schemas throws NPE 
+    * [SYNCOPE-1438] - "changePwdDate" field is not initialized when create a new user with the specified password
+    * [SYNCOPE-1439] - User membership attributes not updated
+    * [SYNCOPE-1440] - Pagination of Users/Groups doesn't work as expected with Elasticsearch
+    * [SYNCOPE-1442] - Inactive Job with cron expression set is executed anyway 
+    * [SYNCOPE-1443] - Changing Display Rows number in Reconciliation Resource Panel doesn't work
+    * [SYNCOPE-1450] - Audit: sensitive information not masked by default during update
+    * [SYNCOPE-1452] - Notification about is not deleted after update
+    * [SYNCOPE-1453] - MappingItem with "mustChangePassword" field cannot be provisioned and updated during import
+    * [SYNCOPE-1454] - Avoid duplicated Propagation Tasks
+    * [SYNCOPE-1457] - NonAlphaNumeric policy pattern matches the "Not word" character class
+
+** Improvement
+    * [SYNCOPE-1433] - Unflag/flag uniqueness shouldn't be permitted
+    * [SYNCOPE-1434] - getRemoteObject into AbstractPropagationTaskExecutor does not check for null object before retrieving attribute from
+    * [SYNCOPE-1436] - Remove pullPolicy EAGER fetchType from JPAExternalResource
+    * [SYNCOPE-1441] - Perform in-memory match for dynamic conditions
+    * [SYNCOPE-1444] - Pull correlation rules: allow to discriminate ongoing event
+    * [SYNCOPE-1449] - Support multi-value attributes in JEXL expressions
+
 Release Notes - Syncope - Version 2.0.12
 ================================================================================
 
