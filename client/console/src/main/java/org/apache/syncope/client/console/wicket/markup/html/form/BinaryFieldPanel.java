@@ -28,6 +28,7 @@ import de.agilecoders.wicket.jquery.function.IFunction;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Base64;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
@@ -245,7 +246,9 @@ public class BinaryFieldPanel extends FieldPanel<String> {
 
     private Response buildResponse() {
         return Response.ok(new ByteArrayInputStream(Base64.getMimeDecoder().decode(getModelObject()))).
-                type(StringUtils.isBlank(mimeType) ? MediaType.APPLICATION_OCTET_STREAM : mimeType).build();
+                type(StringUtils.isBlank(mimeType) ? MediaType.APPLICATION_OCTET_STREAM : mimeType).
+                header(HttpHeaders.LOCATION, StringUtils.EMPTY).
+                build();
     }
 
     private void changePreviewer(final Component panelPreview) {
