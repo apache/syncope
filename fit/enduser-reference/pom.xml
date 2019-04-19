@@ -223,7 +223,6 @@ under the License.
         <dependency>
           <groupId>cglib</groupId>
           <artifactId>cglib-nodep</artifactId>
-          <version>3.2.6</version>
         </dependency>
       </dependencies>
 

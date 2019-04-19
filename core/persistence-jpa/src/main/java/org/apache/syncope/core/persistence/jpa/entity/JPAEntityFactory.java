@@ -63,10 +63,6 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrUnique
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
@@ -96,10 +92,6 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrUni
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
-import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttr;
-import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrValue;
-import org.apache.syncope.core.persistence.jpa.entity.conf.JPAConf;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrValue;
@@ -203,8 +195,6 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAAMembership();
         } else if (reference.equals(UMembership.class)) {
             result = (E) new JPAUMembership();
-        } else if (reference.equals(Conf.class)) {
-            result = (E) new JPAConf();
         } else if (reference.equals(AnyAbout.class)) {
             result = (E) new JPAAnyAbout();
         } else if (reference.equals(MailTemplate.class)) {
@@ -255,12 +245,6 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAGPlainAttrValue();
         } else if (reference.equals(GPlainAttrUniqueValue.class)) {
             result = (E) new JPAGPlainAttrUniqueValue();
-        } else if (reference.equals(CPlainAttr.class)) {
-            result = (E) new JPACPlainAttr();
-        } else if (reference.equals(CPlainAttrValue.class)) {
-            result = (E) new JPACPlainAttrValue();
-        } else if (reference.equals(CPlainAttrUniqueValue.class)) {
-            result = (E) new JPACPlainAttrUniqueValue();
         } else if (reference.equals(Report.class)) {
             result = (E) new JPAReport();
         } else if (reference.equals(ReportTemplate.class)) {
@@ -332,11 +316,6 @@ public class JPAEntityFactory implements EntityFactory {
     @Override
     public Class<? extends AnyObject> anyObjectClass() {
         return JPAAnyObject.class;
-    }
-
-    @Override
-    public Class<? extends Conf> confClass() {
-        return JPAConf.class;
     }
 
     @Override

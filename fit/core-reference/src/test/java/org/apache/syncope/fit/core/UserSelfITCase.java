@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import javax.sql.DataSource;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
@@ -40,6 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
@@ -66,16 +66,10 @@ import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.ElasticsearchDetector;
 import org.apache.syncope.fit.FlowableDetector;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@SpringJUnitConfig(locations = { "classpath:testJDBCEnv.xml" })
 public class UserSelfITCase extends AbstractITCase {
-
-    @Autowired
-    private DataSource testDataSource;
 
     @Test
     public void selfRegistrationAllowed() {
@@ -312,7 +306,7 @@ public class UserSelfITCase extends AbstractITCase {
     @Test
     public void passwordReset() {
         // 0. ensure that password request DOES require security question
-        configurationService.set(attr("passwordReset.securityQuestion", "true"));
+        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "passwordReset.securityQuestion", true);
 
         // 1. create an user with security question and answer
         UserCR user = UserITCase.getUniqueSample("pwdReset@syncope.apache.org");
@@ -386,7 +380,7 @@ public class UserSelfITCase extends AbstractITCase {
     @Test
     public void passwordResetWithoutSecurityQuestion() {
         // 0. disable security question for password reset
-        configurationService.set(attr("passwordReset.securityQuestion", "false"));
+        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "passwordReset.securityQuestion", false);
 
         // 1. create an user with security question and answer
         UserCR user = UserITCase.getUniqueSample("pwdResetNoSecurityQuestion@syncope.apache.org");
@@ -422,7 +416,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertNull(read.getToken());
 
         // 7. re-enable security question for password reset
-        configurationService.set(attr("passwordReset.securityQuestion", "true"));
+        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "passwordReset.securityQuestion", true);
     }
 
     @Test

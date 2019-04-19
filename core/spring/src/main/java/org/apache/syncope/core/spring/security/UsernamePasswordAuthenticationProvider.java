@@ -109,7 +109,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
                         adminPassword);
             } else {
                 final String domainToFind = domainKey;
-                authenticated = AuthContextUtils.execWithAuthContext(SyncopeConstants.MASTER_DOMAIN, () -> {
+                authenticated = AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> {
                     Domain domain = dataAccessor.findDomain(domainToFind);
 
                     return ENCRYPTOR.verify(
@@ -119,14 +119,14 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
                 });
             }
         } else {
-            final Pair<User, Boolean> authResult =
-                    AuthContextUtils.execWithAuthContext(domainKey, () -> dataAccessor.authenticate(authentication));
+            Pair<User, Boolean> authResult = AuthContextUtils.callAsAdmin(domainKey,
+                    () -> dataAccessor.authenticate(domainKey, authentication));
             authenticated = authResult.getValue();
             if (authResult.getLeft() != null && authResult.getRight() != null) {
                 username[0] = authResult.getLeft().getUsername();
 
                 if (!authResult.getRight()) {
-                    AuthContextUtils.execWithAuthContext(domainKey, () -> {
+                    AuthContextUtils.callAsAdmin(domainKey, () -> {
                         provisioningManager.internalSuspend(authResult.getLeft().getKey());
                         return null;
                     });
@@ -140,7 +140,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
         final boolean isAuthenticated = authenticated != null && authenticated;
         UsernamePasswordAuthenticationToken token;
         if (isAuthenticated) {
-            token = AuthContextUtils.execWithAuthContext(domainKey, () -> {
+            token = AuthContextUtils.callAsAdmin(domainKey, () -> {
                 UsernamePasswordAuthenticationToken token1 = new UsernamePasswordAuthenticationToken(
                         username[0],
                         null,
@@ -158,7 +158,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
             LOG.debug("User {} successfully authenticated, with entitlements {}",
                     username[0], token.getAuthorities());
         } else {
-            AuthContextUtils.execWithAuthContext(domainKey, () -> {
+            AuthContextUtils.callAsAdmin(domainKey, () -> {
                 dataAccessor.audit(
                         username[0],
                         AuditElements.EventCategoryType.LOGIC,

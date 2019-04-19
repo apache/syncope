@@ -18,75 +18,6 @@ specific language governing permissions and limitations
 under the License.
 -->
 <dataset>
-  <SyncopeSchema id="password.cipher.algorithm"/>
-  <PlainSchema id="password.cipher.algorithm" type="String"
-               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-
-  <!-- notificationjob.cronExpression:
-  + not existing: NotificationJob runs according to NotificationJob.DEFAULT_CRON_EXP
-  + provided as empty string: NotificationJob disabled
-  + provided as non-empty string: NotificationJob runs according to the given value -->
-  <SyncopeSchema id="notificationjob.cronExpression"/>
-  <PlainSchema id="notificationjob.cronExpression" type="String"
-               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  
-  <SyncopeSchema id="notification.maxRetries"/>
-  <PlainSchema id="notification.maxRetries" type="Long"
-               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-
-  <SyncopeSchema id="token.length"/>
-  <PlainSchema id="token.length" type="Long"
-               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-
-  <SyncopeSchema id="token.expireTime"/>
-  <PlainSchema id="token.expireTime" type="Long"
-               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-
-  <SyncopeSchema id="selfRegistration.allowed"/>
-  <PlainSchema id="selfRegistration.allowed" type="Boolean"
-               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-
-  <SyncopeSchema id="passwordReset.allowed"/>
-  <PlainSchema id="passwordReset.allowed" type="Boolean"
-               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-
-  <SyncopeSchema id="passwordReset.securityQuestion"/>
-  <PlainSchema id="passwordReset.securityQuestion" type="Boolean"
-               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-
-  <SyncopeSchema id="authentication.attributes"/>
-  <PlainSchema id="authentication.attributes" type="String" multivalue="1" uniqueConstraint="0" readonly="0"/>
-
-  <SyncopeSchema id="authentication.statuses"/>
-  <PlainSchema id="authentication.statuses" type="String" multivalue="1" uniqueConstraint="0" readonly="0"/>
-
-  <!-- Save user login date upon successful authentication -->
-  <SyncopeSchema id="log.lastlogindate"/>
-  <PlainSchema id="log.lastlogindate" type="Boolean"
-               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-
-  <!-- Return hashed password values when reading users -->
-  <SyncopeSchema id="return.password.value"/>
-  <PlainSchema id="return.password.value" type="Boolean"
-               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  
-  <!--  JWT lifetime in minutes -->                   
-  <SyncopeSchema id="jwt.lifetime.minutes"/>
-  <PlainSchema id="jwt.lifetime.minutes" type="Long"
-               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-    
-  <!--  Connector and Resource configuration history -->                   
-  <SyncopeSchema id="connector.conf.history.size"/>
-  <PlainSchema id="connector.conf.history.size" type="Long"
-               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  
-  <SyncopeSchema id="resource.conf.history.size"/>
-  <PlainSchema id="resource.conf.history.size" type="Long"
-               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  
-  <SyncopeConf id="cd64d66f-6fff-4008-b966-a06b1cc1436d"
-               plainAttrs="[{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;SHA1&quot;}],&quot;schema&quot;:&quot;password.cipher.algorithm&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;0/20 * * * * ?&quot;}],&quot;schema&quot;:&quot;notificationjob.cronExpression&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:3}],&quot;schema&quot;:&quot;notification.maxRetries&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:256}],&quot;schema&quot;:&quot;token.length&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:60}],&quot;schema&quot;:&quot;token.expireTime&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;selfRegistration.allowed&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;passwordReset.allowed&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;passwordReset.securityQuestion&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;username&quot;},{&quot;stringValue&quot;:&quot;userId&quot;}],&quot;schema&quot;:&quot;authentication.attributes&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;created&quot;},{&quot;stringValue&quot;:&quot;active&quot;}],&quot;schema&quot;:&quot;authentication.statuses&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;log.lastlogindate&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:false}],&quot;schema&quot;:&quot;return.password.value&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:120}],&quot;schema&quot;:&quot;jwt.lifetime.minutes&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:10}],&quot;schema&quot;:&quot;connector.conf.history.size&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:10}],&quot;schema&quot;:&quot;resource.conf.history.size&quot;}]"/>
-
   <!-- sample policies -->
   <PasswordPolicy id="ce93fcda-dc3a-4369-a7b0-a6108c261c85" description="a password policy"
                   historyLength="1" allowNullPassword="1"/>
@@ -2406,4 +2337,7 @@ $$ }&#10;
   <SyncopeLogger logName="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" logLevel="DEBUG" logType="AUDIT"/>
   
   <SecurityQuestion id="887028ea-66fc-41e7-b397-620d7ea6dfbb" content="What's your mother's maiden name?"/>
+  
+    <GatewayRoute id="ec7bada2-3dd6-460c-8441-65521d005ffa" name="basic1" target="http://httpbin.org:80" status="PUBLISHED"
+                predicates="[{&quot;cond&quot;:null,&quot;factory&quot;:&quot;METHOD&quot;,&quot;args&quot;:&quot;GET&quot;}]"/>
 </dataset>

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.workflow.java;
 
+import java.lang.reflect.InvocationTargetException;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
@@ -41,25 +42,28 @@ public class WorkflowContext implements EnvironmentAware {
 
     @Bean
     public UserWorkflowAdapter uwfAdapter()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException,
+            NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
 
         return (UserWorkflowAdapter) Class.forName(env.getProperty("uwfAdapter")).
-                newInstance();
+                getDeclaredConstructor().newInstance();
     }
 
     @Bean
     public GroupWorkflowAdapter gwfAdapter()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException,
+            NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
 
         return (GroupWorkflowAdapter) Class.forName(env.getProperty("gwfAdapter")).
-                newInstance();
+                getDeclaredConstructor().newInstance();
     }
 
     @Bean
     public AnyObjectWorkflowAdapter awfAdapter()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException,
+            NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
 
         return (AnyObjectWorkflowAdapter) Class.forName(env.getProperty("awfAdapter")).
-                newInstance();
+                getDeclaredConstructor().newInstance();
     }
 }

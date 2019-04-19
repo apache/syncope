@@ -19,6 +19,7 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.request.PasswordPatch;
@@ -44,7 +46,6 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -72,10 +73,10 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     protected AnySearchDAO searchDAO;
 
     @Autowired
-    protected ConfDAO confDAO;
+    protected AccessTokenDAO accessTokenDAO;
 
     @Autowired
-    protected AccessTokenDAO accessTokenDAO;
+    protected ConfParamOps confParamOps;
 
     @Autowired
     protected UserDataBinder binder;
@@ -169,7 +170,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         // Ensures that, if the self update above moves the user into a status from which no authentication
         // is possible, the existing Access Token is clean up to avoid issues with future authentications
-        if (!confDAO.getValuesAsStrings("authentication.statuses").contains(updated.getEntity().getStatus())) {
+        List<String> authStatuses = Arrays.asList(confParamOps.get(AuthContextUtils.getDomain(),
+                "authentication.statuses", new String[] {}, String[].class));
+        if (!authStatuses.contains(updated.getEntity().getStatus())) {
             String accessToken = accessTokenDAO.findByOwner(updated.getEntity().getUsername()).getKey();
             if (accessToken != null) {
                 accessTokenDAO.delete(accessToken);

@@ -19,14 +19,15 @@
 package org.apache.syncope.core.workflow.java;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -36,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Autowired
-    private ConfDAO confDAO;
+    private ConfParamOps confParamOps;
 
     @Override
     protected WorkflowResult<Pair<String, Boolean>> doCreate(
@@ -112,8 +113,8 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     @Override
     protected void doRequestPasswordReset(final User user) {
         user.generateToken(
-                confDAO.find("token.length", 256L).intValue(),
-                confDAO.find("token.expireTime", 60L).intValue());
+                confParamOps.get(AuthContextUtils.getDomain(), "token.length", 256, Integer.class),
+                confParamOps.get(AuthContextUtils.getDomain(), "token.expireTime", 60, Integer.class));
         userDAO.save(user);
     }
 

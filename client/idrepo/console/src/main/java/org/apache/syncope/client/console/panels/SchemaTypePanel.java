@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -36,7 +35,6 @@ import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SchemaTypePanel.SchemaProvider;
-import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -44,7 +42,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.SchemaTO;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
@@ -215,8 +212,6 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
         private final SchemaType schemaType;
 
-        private final ConfRestClient confRestClient = new ConfRestClient();
-
         private SchemaProvider(final int paginatorRows, final SchemaType schemaType) {
             super(paginatorRows);
 
@@ -225,22 +220,9 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
             comparator = new SortableDataProviderComparator<>(this);
         }
 
-        private List<SchemaTO> getSchemas() {
-            List<SchemaTO> schemas = restClient.getSchemas(this.schemaType, keyword);
-
-            if (SchemaType.PLAIN == this.schemaType) {
-                List<String> configurations = confRestClient.list().stream().
-                        map(Attr::getSchema).collect(Collectors.toList());
-
-                schemas.removeIf(schema -> configurations.contains(schema.getKey()));
-            }
-
-            return schemas;
-        }
-
         @Override
         public Iterator<SchemaTO> iterator(final long first, final long count) {
-            List<SchemaTO> schemas = getSchemas();
+            List<SchemaTO> schemas = restClient.getSchemas(this.schemaType, keyword);
             Collections.sort(schemas, comparator);
 
             return schemas.subList((int) first, (int) first + (int) count).iterator();
@@ -248,7 +230,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
         @Override
         public long size() {
-            return getSchemas().size();
+            return restClient.getSchemas(this.schemaType, keyword).size();
         }
 
         @Override

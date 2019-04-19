@@ -288,7 +288,7 @@ public class LoggerITCase extends AbstractITCase {
         LoggerTO connUpd = new LoggerTO();
         connUpd.setKey(auditLoggerConnUpd.toLoggerName());
 
-        try (InputStream propStream = getClass().getResourceAsStream("/core-test.properties")) {
+        try (InputStream propStream = getClass().getResourceAsStream("/test.properties")) {
             Properties props = new Properties();
             props.load(propStream);
 

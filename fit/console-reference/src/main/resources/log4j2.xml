@@ -41,6 +41,10 @@ under the License.
       <appender-ref ref="main"/>
     </asyncLogger>
 
+    <asyncLogger name="org.apache.syncope.common.keymaster" additivity="false" level="ERROR">
+      <appender-ref ref="main"/>
+    </asyncLogger>
+
     <asyncLogger name="org.apache.syncope.client.console" additivity="false" level="INFO">
       <appender-ref ref="main"/>
     </asyncLogger>

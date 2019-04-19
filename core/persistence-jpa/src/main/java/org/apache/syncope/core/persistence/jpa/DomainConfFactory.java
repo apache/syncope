@@ -143,11 +143,25 @@ public class DomainConfFactory implements EnvironmentAware {
 
         // domainContentXML
         registerBeanDefinition(domainName + "ContentXML",
-                BeanDefinitionBuilder.rootBeanDefinition(ResourceWithFallbackLoader.class)
-                        .addPropertyValue(
-                                "primary", "file:" + contentDirectory + "/domains/" + domainName + "Content.xml")
-                        .addPropertyValue(
-                                "fallback", "classpath:domains/" + domainName + "Content.xml")
-                        .getBeanDefinition());
+                BeanDefinitionBuilder.rootBeanDefinition(ResourceWithFallbackLoader.class).
+                        addPropertyValue(
+                                "primary",
+                                "file:" + contentDirectory + "/domains/" + domainName + "Content.xml").
+                        addPropertyValue(
+                                "fallback",
+                                "classpath:domains/" + domainName + "Content.xml").
+                        getBeanDefinition());
+
+        // domainKeymasterContentJSON
+        registerBeanDefinition(domainName + "KeymasterContentJSON",
+                BeanDefinitionBuilder.rootBeanDefinition(ResourceWithFallbackLoader.class).
+                        addPropertyValue(
+                                "primary",
+                                "file:" + contentDirectory + "/domains/" + domainName + "KeymasterContent.json").
+                        addPropertyValue(
+                                "fallback",
+                                "classpath:domains/" + domainName + "KeymasterContent.json").
+                        getBeanDefinition());
+
     }
 }

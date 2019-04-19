@@ -40,7 +40,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
-import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
@@ -100,15 +99,9 @@ import org.apache.syncope.fit.core.reference.TestPullActions;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@SpringJUnitConfig(locations = { "classpath:testJDBCEnv.xml" })
 public class PullTaskITCase extends AbstractTaskITCase {
-
-    @Autowired
-    private DataSource testDataSource;
 
     @BeforeAll
     public static void testPullActionsSetup() {
@@ -193,7 +186,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         InputStream srcStream = null;
         OutputStream dstStream = null;
         try {
-            propStream = getClass().getResourceAsStream("/core-test.properties");
+            propStream = getClass().getResourceAsStream("/test.properties");
             props.load(propStream);
 
             srcStream = new FileInputStream(props.getProperty("test.csv.src"));

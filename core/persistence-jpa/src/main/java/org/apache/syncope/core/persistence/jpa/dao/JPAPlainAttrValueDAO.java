@@ -26,8 +26,6 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
@@ -35,8 +33,6 @@ import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrValue;
-import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrUniqueValue;
@@ -50,10 +46,6 @@ public class JPAPlainAttrValueDAO extends AbstractDAO<PlainAttrValue> implements
 
         return AbstractPlainAttrValue.class.isAssignableFrom(reference)
                 ? (Class<? extends AbstractPlainAttrValue>) reference
-                : reference.equals(CPlainAttrValue.class)
-                ? JPACPlainAttrValue.class
-                : reference.equals(CPlainAttrUniqueValue.class)
-                ? JPACPlainAttrUniqueValue.class
                 : reference.equals(GPlainAttrValue.class)
                 ? JPAGPlainAttrValue.class
                 : reference.equals(GPlainAttrUniqueValue.class)

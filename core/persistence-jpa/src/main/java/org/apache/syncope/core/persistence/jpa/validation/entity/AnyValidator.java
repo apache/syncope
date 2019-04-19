@@ -27,7 +27,6 @@ import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 
@@ -57,25 +56,23 @@ public class AnyValidator extends AbstractValidator<AnyCheck, Any> {
     public boolean isValid(final Any any, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        if (!(any instanceof Conf)) {
-            AllowedSchemas<PlainSchema> allowedPlainSchemas =
-                    ApplicationContextProvider.getApplicationContext().getBean(AnyUtilsFactory.class).
-                            getInstance(any.getType().getKind()).dao().findAllowedSchemas(any, PlainSchema.class);
+        AllowedSchemas<PlainSchema> allowedPlainSchemas =
+                ApplicationContextProvider.getApplicationContext().getBean(AnyUtilsFactory.class).
+                        getInstance(any.getType().getKind()).dao().findAllowedSchemas(any, PlainSchema.class);
 
-            for (PlainAttr<?> attr : ((Any<?>) any).getPlainAttrs()) {
-                if (attr != null && !allowedPlainSchemas.forSelfContains(attr.getSchema().getKey())) {
-                    return raiseNotAllowedViolation(context, attr.getSchema().getKey(), null);
-                }
+        for (PlainAttr<?> attr : ((Any<?>) any).getPlainAttrs()) {
+            if (attr != null && !allowedPlainSchemas.forSelfContains(attr.getSchema().getKey())) {
+                return raiseNotAllowedViolation(context, attr.getSchema().getKey(), null);
             }
-            if (any instanceof GroupableRelatable) {
-                for (Membership<?> membership : ((GroupableRelatable<?, ?, ?, ?, ?>) any).getMemberships()) {
-                    for (PlainAttr<?> attr : ((GroupableRelatable<?, ?, ?, ?, ?>) any).getPlainAttrs(membership)) {
-                        if (attr != null && !allowedPlainSchemas.forMembershipsContains(
-                                membership.getRightEnd(), attr.getSchema().getKey())) {
+        }
+        if (any instanceof GroupableRelatable) {
+            for (Membership<?> membership : ((GroupableRelatable<?, ?, ?, ?, ?>) any).getMemberships()) {
+                for (PlainAttr<?> attr : ((GroupableRelatable<?, ?, ?, ?, ?>) any).getPlainAttrs(membership)) {
+                    if (attr != null && !allowedPlainSchemas.forMembershipsContains(
+                            membership.getRightEnd(), attr.getSchema().getKey())) {
 
-                            return raiseNotAllowedViolation(
-                                    context, attr.getSchema().getKey(), membership.getRightEnd());
-                        }
+                        return raiseNotAllowedViolation(
+                                context, attr.getSchema().getKey(), membership.getRightEnd());
                     }
                 }
             }

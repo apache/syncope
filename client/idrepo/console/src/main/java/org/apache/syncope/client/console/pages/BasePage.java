@@ -29,7 +29,7 @@ import org.apache.syncope.client.console.annotations.IdMPage;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.ui.commons.HttpResourceStream;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.console.rest.ConfRestClient;
+import org.apache.syncope.client.console.rest.SyncopeRestClient;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.widgets.ExtAlertWidget;
@@ -119,7 +119,8 @@ public class BasePage extends BaseWebPage {
             @Override
             public void onClick() {
                 try {
-                    HttpResourceStream stream = new HttpResourceStream(new ConfRestClient().dbExport());
+                    HttpResourceStream stream =
+                            new HttpResourceStream(new SyncopeRestClient().exportInternalStorageContent());
 
                     ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
                     rsrh.setFileName(stream.getFilename() == null
@@ -135,7 +136,7 @@ public class BasePage extends BaseWebPage {
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(
-                dbExportLink, WebPage.RENDER, IdRepoEntitlement.CONFIGURATION_EXPORT);
+                dbExportLink, WebPage.RENDER, IdRepoEntitlement.INTERNAL_STORAGE_EXPORT);
         body.add(dbExportLink);
 
         // menu
@@ -251,7 +252,7 @@ public class BasePage extends BaseWebPage {
         liContainer = new WebMarkupContainer(getLIContainerId("parameters"));
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("parameters", Parameters.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.CONFIGURATION_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.INTERNAL_STORAGE_EXPORT);
         liContainer.add(link);
 
         body.add(new AjaxLink<Void>("collapse") {

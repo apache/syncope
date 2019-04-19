@@ -41,6 +41,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -56,7 +57,6 @@ import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.core.logic.cocoon.FopSerializer;
 import org.apache.syncope.core.logic.cocoon.TextSerializer;
 import org.apache.syncope.core.logic.cocoon.XSLTTransformer;
-import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
@@ -67,6 +67,7 @@ import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.xmlgraphics.util.MimeConstants;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
@@ -79,13 +80,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
     @Autowired
-    private ConfDAO confDAO;
-
-    @Autowired
     private ReportDAO reportDAO;
 
     @Autowired
     private ReportExecDAO reportExecDAO;
+
+    @Autowired
+    private ConfParamOps confParamOps;
 
     @Autowired
     private ReportDataBinder binder;
@@ -103,7 +104,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             jobManager.register(
                     report,
                     null,
-                    confDAO.find("tasks.interruptMaxRetries", 1L));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getKey(), e);
 
@@ -129,7 +130,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             jobManager.register(
                     report,
                     null,
-                    confDAO.find("tasks.interruptMaxRetries", 1L));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getKey(), e);
 
@@ -175,7 +176,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             jobManager.register(
                     report,
                     startAt,
-                    confDAO.find("tasks.interruptMaxRetries", 1L));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
 
             scheduler.getScheduler().triggerJob(JobNamer.getJobKey(report));
         } catch (Exception e) {

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.logic;
 
+import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.info.NumbersInfo;
@@ -45,15 +47,16 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
+import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -147,13 +150,13 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
     private SecurityQuestionDAO securityQuestionDAO;
 
     @Autowired
-    private ConfDAO confDAO;
-
-    @Autowired
     private AnySearchDAO searchDAO;
 
     @Autowired
     private GroupDataBinder groupDataBinder;
+
+    @Autowired
+    private ConfParamOps confParamOps;
 
     @Resource(name = "version")
     private String version;
@@ -169,6 +172,9 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
 
     @Autowired
     private AnyObjectWorkflowAdapter awfAdapter;
+
+    @Autowired
+    private ContentExporter exporter;
 
     @Autowired
     private UserWorkflowAdapter uwfAdapter;
@@ -216,15 +222,15 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
     private ImplementationLookup implLookup;
 
     public boolean isSelfRegAllowed() {
-        return confDAO.find("selfRegistration.allowed", false);
+        return confParamOps.get(AuthContextUtils.getDomain(), "selfRegistration.allowed", false, Boolean.class);
     }
 
     public boolean isPwdResetAllowed() {
-        return confDAO.find("passwordReset.allowed", false);
+        return confParamOps.get(AuthContextUtils.getDomain(), "passwordReset.allowed", false, Boolean.class);
     }
 
     public boolean isPwdResetRequiringSecurityQuestions() {
-        return confDAO.find("passwordReset.securityQuestion", true);
+        return confParamOps.get(AuthContextUtils.getDomain(), "passwordReset.securityQuestion", true, Boolean.class);
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -234,6 +240,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                 PLATFORM_INFO = new PlatformInfo();
                 PLATFORM_INFO.setVersion(version);
                 PLATFORM_INFO.setBuildNumber(buildNumber);
+                PLATFORM_INFO.setKeymasterConfParamOps(AopUtils.getTargetClass(confParamOps).getName());
 
                 if (bundleManager.getLocations() != null) {
                     PLATFORM_INFO.getConnIdLocations().addAll(bundleManager.getLocations().stream().
@@ -280,8 +287,6 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                         setGroupDAO(AopUtils.getTargetClass(groupDAO).getName());
                 PLATFORM_INFO.getPersistenceInfo().
                         setAnyObjectDAO(AopUtils.getTargetClass(anyObjectDAO).getName());
-                PLATFORM_INFO.getPersistenceInfo().
-                        setConfDAO(AopUtils.getTargetClass(confDAO).getName());
 
                 ImplementationTypesHolder.getInstance().getValues().forEach((typeName, typeInterface) -> {
                     Set<String> classNames = implLookup.getClassNames(typeName);
@@ -305,7 +310,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
             PLATFORM_INFO.getImplementationTypes().clear();
             PLATFORM_INFO.getImplementationTypes().addAll(ImplementationTypesHolder.getInstance().getValues().keySet());
 
-            AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(), () -> {
+            AuthContextUtils.callAsAdmin(AuthContextUtils.getDomain(), () -> {
                 PLATFORM_INFO.getAnyTypes().clear();
                 PLATFORM_INFO.getAnyTypes().addAll(anyTypeDAO.findAll().stream().
                         map(Entity::getKey).collect(Collectors.toList()));
@@ -481,6 +486,22 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
         }
 
         return groupDataBinder.getTypeExtensionTO(typeExt.get());
+    }
+
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.INTERNAL_STORAGE_EXPORT + "')")
+    @Transactional(readOnly = true)
+    public void exportInternalStorageContent(final OutputStream os) {
+        try {
+            exporter.export(
+                    AuthContextUtils.getDomain(),
+                    os,
+                    uwfAdapter.getPrefix(),
+                    gwfAdapter.getPrefix(),
+                    awfAdapter.getPrefix());
+            LOG.debug("Interal storage content successfully exported");
+        } catch (Exception e) {
+            LOG.error("While exporting internal storage content", e);
+        }
     }
 
     @Override

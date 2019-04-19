@@ -50,11 +50,6 @@ under the License.
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.syncope.client.idrepo</groupId>
-      <artifactId>syncope-client-idrepo-ui-commons</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.syncope.client.idm</groupId>
       <artifactId>syncope-client-idm-lib</artifactId>
       <version>${project.version}</version>

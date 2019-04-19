@@ -495,7 +495,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
             if (idp.isCreateUnmatching()) {
                 LOG.debug("No user matching {}, about to create", keyValue);
 
-                username = AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(),
+                username = AuthContextUtils.callAsAdmin(AuthContextUtils.getDomain(),
                         () -> userManager.create(idp, responseTO, nameID.getValue()));
             } else if (idp.isSelfRegUnmatching()) {
                 responseTO.setNameID(nameID.getValue());
@@ -522,7 +522,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
             if (idp.isUpdateMatching()) {
                 LOG.debug("About to update {} for {}", matchingUsers.get(0), keyValue);
 
-                username = AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(), ()
+                username = AuthContextUtils.callAsAdmin(AuthContextUtils.getDomain(), ()
                         -> userManager.update(matchingUsers.get(0), idp, responseTO));
             } else {
                 username = matchingUsers.get(0);

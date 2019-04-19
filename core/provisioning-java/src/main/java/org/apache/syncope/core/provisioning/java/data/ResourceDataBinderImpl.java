@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.collections.IteratorChain;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -52,7 +53,6 @@ import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceHistoryConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -104,7 +104,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
     private ExternalResourceHistoryConfDAO resourceHistoryConfDAO;
 
     @Autowired
-    private ConfDAO confDAO;
+    private ConfParamOps confParamOps;
 
     @Autowired
     private ImplementationDAO implementationDAO;
@@ -139,7 +139,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
                 // 2. ensure the maximum history size is not exceeded
                 List<ExternalResourceHistoryConf> history = resourceHistoryConfDAO.findByEntity(resource);
-                long maxHistorySize = confDAO.find("resource.conf.history.size", 10L);
+                long maxHistorySize = confParamOps.get(
+                        AuthContextUtils.getDomain(), "resource.conf.history.size", 10L, Long.class);
                 if (maxHistorySize < history.size()) {
                     // always remove the last item since history was obtained  by a query with ORDER BY creation DESC
                     for (int i = 0; i < history.size() - maxHistorySize; i++) {

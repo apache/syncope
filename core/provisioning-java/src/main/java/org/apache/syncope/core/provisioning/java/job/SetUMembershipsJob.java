@@ -52,7 +52,7 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
         try {
-            AuthContextUtils.execWithAuthContext(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY), () -> {
+            AuthContextUtils.callAsAdmin(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY), () -> {
 
                 @SuppressWarnings("unchecked")
                 Map<String, Set<String>> membershipsBefore =

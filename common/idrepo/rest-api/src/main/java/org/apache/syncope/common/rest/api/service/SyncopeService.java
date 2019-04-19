@@ -173,4 +173,13 @@ public interface SyncopeService extends JAXRSService {
     @Path("/userTypeExtension/{groupName}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     TypeExtensionTO readUserTypeExtension(@NotNull @PathParam("groupName") String groupName);
+
+    /**
+     * Exports internal storage content as downloadable XML file.
+     *
+     * @return internal storage content as downloadable XML file
+     */
+    @GET
+    @Path("internalStorage/stream")
+    Response exportInternalStorageContent();
 }

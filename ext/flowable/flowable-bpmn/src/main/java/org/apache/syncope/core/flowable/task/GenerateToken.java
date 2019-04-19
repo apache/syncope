@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.core.flowable.task;
 
-import org.apache.syncope.core.persistence.api.dao.ConfDAO;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,15 +30,15 @@ import org.springframework.stereotype.Component;
 public class GenerateToken extends FlowableServiceTask {
 
     @Autowired
-    private ConfDAO confDAO;
+    private ConfParamOps confParamOps;
 
     @Override
     protected void doExecute(final DelegateExecution execution) {
         User user = execution.getVariable(FlowableRuntimeUtils.USER, User.class);
 
         user.generateToken(
-                confDAO.find("token.length", 256L).intValue(),
-                confDAO.find("token.expireTime", 60L).intValue());
+                confParamOps.get(AuthContextUtils.getDomain(), "token.length", 256, Integer.class),
+                confParamOps.get(AuthContextUtils.getDomain(), "token.expireTime", 60, Integer.class));
 
         execution.setVariable(FlowableRuntimeUtils.USER, user);
     }

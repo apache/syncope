@@ -31,11 +31,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.Application;
@@ -44,9 +42,9 @@ import org.apache.wicket.ThreadContext;
 import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
 import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 import org.apache.wicket.protocol.ws.api.message.TextMessage;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.CollectionUtils;
 
 public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
@@ -55,6 +53,9 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyWebSocketBehavior.class);
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    @SpringBean
+    private ConfParamOps confParamOps;
 
     private final Map<String, String> resources = Collections.<String, String>synchronizedMap(new HashMap<>());
 
@@ -79,22 +80,13 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
     public TopologyWebSocketBehavior() {
         // Handling with timeout as per SYNCOPE-1379
         try {
-            // Loop just to avoid NotFound exception raising on the Core side
-            for (Attr param : new ConfRestClient().list()) {
-                if (!CollectionUtils.isEmpty(param.getValues())) {
-                    try {
-                        if (CONNECTOR_TEST_TIMEOUT_PARAMETER.equalsIgnoreCase(param.getSchema())) {
-                            connectorTestTimeout = Integer.parseInt(param.getValues().get(0));
-                        } else if (RESOURCE_TEST_TIMEOUT_PARAMETER.equalsIgnoreCase(param.getSchema())) {
-                            resourceTestTimeout = Integer.parseInt(param.getValues().get(0));
-                        }
-                    } catch (NumberFormatException e) {
-                        LOG.warn("Invalid timeout {}", param);
-                    }
-                }
-            }
-        } catch (SyncopeClientException e) {
-            // ignore exception
+            connectorTestTimeout = confParamOps.get(SyncopeConsoleSession.get().getDomain(),
+                    CONNECTOR_TEST_TIMEOUT_PARAMETER, null, Integer.class);
+            resourceTestTimeout = confParamOps.get(SyncopeConsoleSession.get().getDomain(),
+                    RESOURCE_TEST_TIMEOUT_PARAMETER, null, Integer.class);
+        } catch (Exception e) {
+            LOG.debug("No {} or {} conf parameters found",
+                    CONNECTOR_TEST_TIMEOUT_PARAMETER, RESOURCE_TEST_TIMEOUT_PARAMETER, e);
         }
     }
 

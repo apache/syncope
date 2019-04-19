@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import java.util.Arrays;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import java.util.Collections;
 import java.util.Date;
@@ -26,13 +27,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -42,7 +43,6 @@ import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.DomainDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -52,7 +52,6 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.Domain;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AuditManager;
@@ -101,9 +100,6 @@ public class AuthDataAccessor {
     protected DomainDAO domainDAO;
 
     @Autowired
-    protected ConfDAO confDAO;
-
-    @Autowired
     protected RealmDAO realmDAO;
 
     @Autowired
@@ -120,6 +116,9 @@ public class AuthDataAccessor {
 
     @Autowired
     protected AccessTokenDAO accessTokenDAO;
+
+    @Autowired
+    private ConfParamOps confParamOps;
 
     @Autowired
     protected ConnectorFactory connFactory;
@@ -174,17 +173,16 @@ public class AuthDataAccessor {
      * Attempts to authenticate the given credentials against internal storage and pass-through resources (if
      * configured): the first succeeding causes global success.
      *
+     * @param domain domain
      * @param authentication given credentials
      * @return {@code null} if no matching user was found, authentication result otherwise
      */
     @Transactional(noRollbackFor = DisabledException.class)
-    public Pair<User, Boolean> authenticate(final Authentication authentication) {
+    public Pair<User, Boolean> authenticate(final String domain, final Authentication authentication) {
         User user = null;
 
-        Optional<? extends CPlainAttr> authAttrs = confDAO.find("authentication.attributes");
-        List<String> authAttrValues = authAttrs.isPresent()
-                ? authAttrs.get().getValuesAsStrings()
-                : Collections.singletonList("username");
+        List<String> authAttrValues = Arrays.asList(confParamOps.get(domain,
+                "authentication.attributes", new String[] { "username" }, String[].class));
         for (int i = 0; user == null && i < authAttrValues.size(); i++) {
             if ("username".equals(authAttrValues.get(i))) {
                 user = userDAO.findByUsername(authentication.getName());
@@ -210,14 +208,16 @@ public class AuthDataAccessor {
                 throw new DisabledException("User " + user.getUsername() + " is suspended");
             }
 
-            if (!confDAO.getValuesAsStrings("authentication.statuses").contains(user.getStatus())) {
+            List<String> authStatuses = Arrays.asList(confParamOps.get(domain,
+                    "authentication.statuses", new String[] {}, String[].class));
+            if (!authStatuses.contains(user.getStatus())) {
                 throw new DisabledException("User " + user.getUsername() + " not allowed to authenticate");
             }
 
             boolean userModified = false;
             authenticated = AuthDataAccessor.this.authenticate(user, authentication.getCredentials().toString());
             if (authenticated) {
-                if (confDAO.find("log.lastlogindate", true)) {
+                if (confParamOps.get(domain, "log.lastlogindate", true, Boolean.class)) {
                     user.setLastLoginDate(new Date());
                     userModified = true;
                 }
@@ -404,7 +404,9 @@ public class AuthDataAccessor {
                 throw new DisabledException("User " + username + " is suspended");
             }
 
-            if (!confDAO.getValuesAsStrings("authentication.statuses").contains(user.getStatus())) {
+            List<String> authStatuses = Arrays.asList(confParamOps.get(authentication.getDetails().getDomain(),
+                    "authentication.statuses", new String[] {}, String[].class));
+            if (!authStatuses.contains(user.getStatus())) {
                 throw new DisabledException("User " + username + " not allowed to authenticate");
             }
 

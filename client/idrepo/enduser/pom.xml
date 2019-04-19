@@ -94,7 +94,7 @@ under the License.
     
     <dependency>
       <groupId>org.apache.syncope.client.idrepo</groupId>
-      <artifactId>syncope-client-idrepo-ui-commons</artifactId>      
+      <artifactId>syncope-client-idrepo-common-ui</artifactId>      
       <version>${project.version}</version>
     </dependency>
 

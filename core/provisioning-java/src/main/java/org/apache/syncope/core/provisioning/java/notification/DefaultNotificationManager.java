@@ -28,10 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -43,7 +44,6 @@ import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
@@ -100,12 +100,6 @@ public class DefaultNotificationManager implements NotificationManager {
     private NotificationDAO notificationDAO;
 
     /**
-     * Configuration DAO.
-     */
-    @Autowired
-    private ConfDAO confDAO;
-
-    /**
      * AnyObject DAO.
      */
     @Autowired
@@ -154,6 +148,9 @@ public class DefaultNotificationManager implements NotificationManager {
     private AnyObjectDataBinder anyObjectDataBinder;
 
     @Autowired
+    private ConfParamOps confParamOps;
+
+    @Autowired
     private EntityFactory entityFactory;
 
     @Autowired
@@ -162,7 +159,7 @@ public class DefaultNotificationManager implements NotificationManager {
     @Transactional(readOnly = true)
     @Override
     public long getMaxRetries() {
-        return confDAO.find("notification.maxRetries", 0L);
+        return confParamOps.get(SyncopeConstants.MASTER_DOMAIN, "notification.maxRetries", 0L, Long.class);
     }
 
     /**
@@ -223,7 +220,7 @@ public class DefaultNotificationManager implements NotificationManager {
         }
 
         jexlVars.put("recipients", recipientTOs);
-        jexlVars.put("syncopeConf", this.findAllSyncopeConfs());
+        jexlVars.put("syncopeConf", confParamOps.list(SyncopeConstants.MASTER_DOMAIN));
         jexlVars.put("events", notification.getEvents());
 
         NotificationTask task = entityFactory.newEntity(NotificationTask.class);
@@ -474,10 +471,5 @@ public class DefaultNotificationManager implements NotificationManager {
             }
         }
         return count;
-    }
-
-    protected Map<String, String> findAllSyncopeConfs() {
-        return confDAO.get().getPlainAttrs().stream().collect(
-                Collectors.toMap(attr -> attr.getSchema().getKey(), attr -> attr.getValuesAsStrings().get(0)));
     }
 }

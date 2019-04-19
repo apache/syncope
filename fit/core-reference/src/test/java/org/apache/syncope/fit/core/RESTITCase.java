@@ -192,4 +192,20 @@ public class RESTITCase extends AbstractITCase {
         String contentType = WebClient.client(service).getResponse().getHeaderString(HttpHeaders.CONTENT_TYPE);
         assertTrue(contentType.startsWith(MediaType.APPLICATION_JSON));
     }
+
+    @Test
+    public void exportInternalStorageContent() throws IOException {
+        Response response = syncopeService.exportInternalStorageContent();
+        assertNotNull(response);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
+        assertTrue(response.getMediaType().toString().startsWith(MediaType.TEXT_XML));
+        String contentDisposition = response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION);
+        assertNotNull(contentDisposition);
+
+        Object entity = response.getEntity();
+        assertTrue(entity instanceof InputStream);
+        String configExport = IOUtils.toString((InputStream) entity, StandardCharsets.UTF_8.name());
+        assertFalse(configExport.isEmpty());
+        assertTrue(configExport.length() > 1000);
+    }
 }

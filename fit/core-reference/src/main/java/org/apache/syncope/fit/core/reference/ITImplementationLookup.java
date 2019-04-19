@@ -255,7 +255,7 @@ public class ITImplementationLookup implements ImplementationLookup {
     public void load(final String domain, final DataSource datasource) {
         // in case the Flowable extension is enabled, enable modifications for test users
         if (enableFlowableForTestUsers != null && AopUtils.getTargetClass(uwf).getName().contains("Flowable")) {
-            AuthContextUtils.execWithAuthContext(domain, () -> {
+            AuthContextUtils.callAsAdmin(domain, () -> {
                 enableFlowableForTestUsers.init(datasource);
                 return null;
             });
@@ -263,7 +263,7 @@ public class ITImplementationLookup implements ImplementationLookup {
 
         // in case the Elasticsearch extension is enabled, reinit a clean index for all available domains
         if (elasticsearchInit != null && AopUtils.getTargetClass(anySearchDAO).getName().contains("Elasticsearch")) {
-            AuthContextUtils.execWithAuthContext(domain, () -> {
+            AuthContextUtils.callAsAdmin(domain, () -> {
                 elasticsearchInit.init();
                 return null;
             });

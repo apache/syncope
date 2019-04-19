@@ -173,13 +173,13 @@ under the License.
     
     <resources>
       <resource>
-        <directory>${basedir}/src/main/resources</directory>
+        <directory>src/main/resources</directory>
         <filtering>true</filtering>
       </resource>
     </resources>
     <testResources>
       <testResource>
-        <directory>${basedir}/src/test/resources</directory>
+        <directory>src/test/resources</directory>
         <filtering>true</filtering>
       </testResource>
       <testResource>

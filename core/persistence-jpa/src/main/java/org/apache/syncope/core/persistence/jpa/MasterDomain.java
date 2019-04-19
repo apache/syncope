@@ -177,6 +177,14 @@ public class MasterDomain implements EnvironmentAware {
         return masterContentXML;
     }
 
+    @Bean("MasterKeymasterContentJSON")
+    public ResourceWithFallbackLoader masterKeymasterContentJSON() {
+        ResourceWithFallbackLoader masterKeymasterContentJSON = new ResourceWithFallbackLoader();
+        masterKeymasterContentJSON.setPrimary("file:" + contentDirectory + "/domains/MasterKeymasterContent.json");
+        masterKeymasterContentJSON.setFallback("classpath:domains/MasterKeymasterContent.json");
+        return masterKeymasterContentJSON;
+    }
+
     @Bean("MasterDatabaseSchema")
     public String masterDatabaseSchema() {
         return schema;

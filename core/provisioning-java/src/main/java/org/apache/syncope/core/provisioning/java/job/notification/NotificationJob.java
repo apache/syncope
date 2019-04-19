@@ -66,7 +66,7 @@ public class NotificationJob extends AbstractInterruptableJob {
 
         for (String domain : domainsHolder.getDomains().keySet()) {
             try {
-                AuthContextUtils.execWithAuthContext(domain, () -> {
+                AuthContextUtils.callAsAdmin(domain, () -> {
                     try {
                         delegate.execute();
                     } catch (Exception e) {

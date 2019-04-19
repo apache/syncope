@@ -61,15 +61,6 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.conf.JPAJSONConf">
-    <attributes>
-      <basic name="plainAttrs">
-        <column column-definition="jsonb"/>
-        <lob/>
-      </basic>
-    </attributes>
-  </entity>
-
   <entity class="org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup">
     <attributes>
       <many-to-one name="userOwner" target-entity="org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUser"/>

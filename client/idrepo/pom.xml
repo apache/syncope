@@ -41,6 +41,6 @@ under the License.
     <module>lib</module>
     <module>console</module>
     <module>enduser</module>
-    <module>ui</module>
+    <module>common-ui</module>
   </modules>
 </project>

@@ -22,6 +22,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.panels.ConfParam;
 import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.policies.PolicyRuleWrapper;
@@ -90,6 +91,8 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             header = ((ReportTO) modelObject).getName();
         } else if (modelObject instanceof Attr) {
             header = ((Attr) modelObject).getSchema();
+        } else if (modelObject instanceof ConfParam) {
+            header = ((ConfParam) modelObject).getSchema();
         } else if (modelObject instanceof PolicyTO) {
             header = ((PolicyTO) modelObject).getDescription();
         } else if (modelObject instanceof SecurityQuestionTO) {

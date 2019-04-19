@@ -28,20 +28,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.entity.Report;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
@@ -96,10 +94,10 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
     private ReportDAO reportDAO;
 
     @Autowired
-    private ConfDAO confDAO;
+    private ImplementationDAO implementationDAO;
 
     @Autowired
-    private ImplementationDAO implementationDAO;
+    private ConfParamOps confParamOps;
 
     private boolean disableQuartzInstance;
 
@@ -312,22 +310,24 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
             return;
         }
 
-        Pair<String, Long> conf = AuthContextUtils.execWithAuthContext(SyncopeConstants.MASTER_DOMAIN, () -> {
+        Pair<String, Long> conf = AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> {
             String notificationJobCronExpression = StringUtils.EMPTY;
 
-            Optional<? extends CPlainAttr> notificationJobCronExp = confDAO.find("notificationjob.cronExpression");
-            if (!notificationJobCronExp.isPresent()) {
+            String notificationJobCronExp = confParamOps.get(
+                    SyncopeConstants.MASTER_DOMAIN, "notificationjob.cronExpression", null, String.class);
+            if (notificationJobCronExp == null) {
                 notificationJobCronExpression = NotificationJob.DEFAULT_CRON_EXP;
-            } else if (!notificationJobCronExp.get().getValuesAsStrings().isEmpty()) {
-                notificationJobCronExpression = notificationJobCronExp.get().getValuesAsStrings().get(0);
+            } else if (!StringUtils.EMPTY.equals(notificationJobCronExp)) {
+                notificationJobCronExpression = notificationJobCronExp;
             }
 
-            long interruptMaxRetries = confDAO.find("tasks.interruptMaxRetries", 1L);
+            long interruptMaxRetries = confParamOps.get(
+                    SyncopeConstants.MASTER_DOMAIN, "tasks.interruptMaxRetries", 1L, Long.class);
 
             return Pair.of(notificationJobCronExpression, interruptMaxRetries);
         });
 
-        AuthContextUtils.execWithAuthContext(domain, () -> {
+        AuthContextUtils.callAsAdmin(domain, () -> {
             // 1. jobs for SchedTasks
             Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
             tasks.addAll(taskDAO.<PullTask>findAll(TaskType.PULL));

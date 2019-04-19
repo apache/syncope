@@ -28,7 +28,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
-import org.apache.syncope.core.persistence.jpa.entity.conf.JPAConf;
+import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.slf4j.Logger;
@@ -70,9 +70,9 @@ public class XMLContentLoader implements ContentLoader {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(datasource);
         boolean existingData;
         try {
-            existingData = jdbcTemplate.queryForObject("SELECT COUNT(0) FROM " + JPAConf.TABLE, Integer.class) > 0;
+            existingData = jdbcTemplate.queryForObject("SELECT COUNT(0) FROM " + JPARealm.TABLE, Integer.class) > 0;
         } catch (DataAccessException e) {
-            LOG.error("[{}] Could not access to table " + JPAConf.TABLE, domain, e);
+            LOG.error("[{}] Could not access table " + JPARealm.TABLE, domain, e);
             existingData = true;
         }
 

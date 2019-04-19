@@ -44,7 +44,7 @@ public class IdRepoEntitlementLoader implements SyncopeCoreLoader {
 
     @Override
     public void load(final String domain, final DataSource datasource) {
-        AuthContextUtils.execWithAuthContext(domain, () -> {
+        AuthContextUtils.callAsAdmin(domain, () -> {
             entitlementAccessor.addEntitlementsForAnyTypes();
             return null;
         });

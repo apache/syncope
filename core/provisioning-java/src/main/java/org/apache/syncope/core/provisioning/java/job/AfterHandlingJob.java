@@ -83,7 +83,7 @@ public class AfterHandlingJob extends AbstractInterruptableJob {
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
         try {
-            AuthContextUtils.execWithAuthContext(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY),
+            AuthContextUtils.callAsAdmin(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY),
                     () -> {
                         notificationManager.createTasks(
                                 (AfterHandlingEvent) context.getMergedJobDataMap().get(AfterHandlingEvent.JOBMAP_KEY));

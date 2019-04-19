@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -33,7 +34,6 @@ import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
-import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceHistoryConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -69,7 +69,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
     private RealmDAO realmDAO;
 
     @Autowired
-    private ConfDAO confDAO;
+    private ConfParamOps confParamOps;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -149,7 +149,8 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
             // 2. ensure the maximum history size is not exceeded
             List<ConnInstanceHistoryConf> history = connInstanceHistoryConfDAO.findByEntity(connInstance);
-            long maxHistorySize = confDAO.find("connector.conf.history.size", 10L);
+            long maxHistorySize = confParamOps.get(
+                    AuthContextUtils.getDomain(), "connector.conf.history.size", 10L, Long.class);
             if (maxHistorySize < history.size()) {
                 // always remove the last item since history was obtained  by a query with ORDER BY creation DESC
                 for (int i = 0; i < history.size() - maxHistorySize; i++) {

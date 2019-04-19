@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -34,4 +35,7 @@ public class SyncopeRestClient extends BaseRestClient {
         return getService(SyncopeService.class).system();
     }
 
+    public Response exportInternalStorageContent() {
+        return getService(SyncopeService.class).exportInternalStorageContent();
+    }
 }

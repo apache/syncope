@@ -24,10 +24,6 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
@@ -40,10 +36,6 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAJSONAPlainAtt
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAJSONAPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAJSONAPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAJSONAnyObject;
-import org.apache.syncope.core.persistence.jpa.entity.conf.JPAJSONCPlainAttr;
-import org.apache.syncope.core.persistence.jpa.entity.conf.JPAJSONCPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.jpa.entity.conf.JPAJSONCPlainAttrValue;
-import org.apache.syncope.core.persistence.jpa.entity.conf.JPAJSONConf;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAJSONGPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAJSONGPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAJSONGPlainAttrValue;
@@ -77,21 +69,12 @@ public abstract class JPAJSONEntityFactory extends JPAEntityFactory implements I
         } else if (reference.equals(AnyObject.class)) {
             result = (E) new JPAJSONAnyObject();
             ((JPAJSONAnyObject) result).setKey(SecureRandomUtils.generateRandomUUID().toString());
-        } else if (reference.equals(Conf.class)) {
-            result = (E) new JPAJSONConf();
-            ((JPAJSONConf) result).setKey(SecureRandomUtils.generateRandomUUID().toString());
         } else if (reference.equals(APlainAttr.class)) {
             result = (E) new JPAJSONAPlainAttr();
         } else if (reference.equals(APlainAttrValue.class)) {
             result = (E) new JPAJSONAPlainAttrValue();
         } else if (reference.equals(APlainAttrUniqueValue.class)) {
             result = (E) new JPAJSONAPlainAttrUniqueValue();
-        } else if (reference.equals(CPlainAttr.class)) {
-            result = (E) new JPAJSONCPlainAttr();
-        } else if (reference.equals(CPlainAttrValue.class)) {
-            result = (E) new JPAJSONCPlainAttrValue();
-        } else if (reference.equals(CPlainAttrUniqueValue.class)) {
-            result = (E) new JPAJSONCPlainAttrUniqueValue();
         } else if (reference.equals(GPlainAttr.class)) {
             result = (E) new JPAJSONGPlainAttr();
         } else if (reference.equals(GPlainAttrValue.class)) {
@@ -124,11 +107,6 @@ public abstract class JPAJSONEntityFactory extends JPAEntityFactory implements I
     @Override
     public Class<? extends AnyObject> anyObjectClass() {
         return JPAJSONAnyObject.class;
-    }
-
-    @Override
-    public Class<? extends Conf> confClass() {
-        return JPAJSONConf.class;
     }
 
     protected abstract Class<? extends JPAJSONAnyDAO> jpaJSONAnyDAOClass();

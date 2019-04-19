@@ -171,28 +171,4 @@ under the License.
       </unique-constraint>
     </table>
   </entity>
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrUniqueValue">
-    <table>
-      <unique-constraint>
-        <column-name>booleanValue</column-name>
-        <column-name>schema_id</column-name>
-      </unique-constraint>
-      <unique-constraint>
-        <column-name>dateValue</column-name>
-        <column-name>schema_id</column-name>
-      </unique-constraint>
-      <unique-constraint>
-        <column-name>stringValue</column-name>
-        <column-name>schema_id</column-name>
-      </unique-constraint>
-      <unique-constraint>
-        <column-name>doubleValue</column-name>
-        <column-name>schema_id</column-name>
-      </unique-constraint>
-      <unique-constraint>
-        <column-name>longValue</column-name>
-        <column-name>schema_id</column-name>
-      </unique-constraint>
-    </table>
-  </entity>  
 </entity-mappings>

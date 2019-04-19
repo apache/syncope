@@ -25,7 +25,6 @@ import javax.persistence.ValidationMode;
 import javax.validation.Validator;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
@@ -163,14 +162,6 @@ public class PersistenceContext implements EnvironmentAware {
             IllegalArgumentException, InvocationTargetException {
 
         return (AnyObjectDAO) Class.forName(env.getProperty("anyObject.dao")).getConstructor().newInstance();
-    }
-
-    @Bean
-    public ConfDAO confDAO()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
-            IllegalArgumentException, InvocationTargetException {
-
-        return (ConfDAO) Class.forName(env.getProperty("conf.dao")).getConstructor().newInstance();
     }
 
     @Bean

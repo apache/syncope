@@ -129,7 +129,7 @@ public class LoggerLoader implements SyncopeCoreLoader {
                         });
             });
 
-            AuthContextUtils.execWithAuthContext(domain, () -> {
+            AuthContextUtils.callAsAdmin(domain, () -> {
                 loggerAccessor.synchronizeLog4J(ctx);
                 return null;
             });

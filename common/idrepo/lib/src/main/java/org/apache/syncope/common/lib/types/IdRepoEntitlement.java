@@ -132,15 +132,7 @@ public final class IdRepoEntitlement {
 
     public static final String GROUP_DELETE = "GROUP_DELETE";
 
-    public static final String CONFIGURATION_EXPORT = "CONFIGURATION_EXPORT";
-
-    public static final String CONFIGURATION_LIST = "CONFIGURATION_LIST";
-
-    public static final String CONFIGURATION_GET = "CONFIGURATION_GET";
-
-    public static final String CONFIGURATION_SET = "CONFIGURATION_SET";
-
-    public static final String CONFIGURATION_DELETE = "CONFIGURATION_DELETE";
+    public static final String INTERNAL_STORAGE_EXPORT = "INTERNAL_STORAGE_EXPORT";
 
     public static final String TASK_LIST = "TASK_LIST";
 

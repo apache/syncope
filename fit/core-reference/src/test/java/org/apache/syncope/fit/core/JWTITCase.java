@@ -49,7 +49,7 @@ import org.apache.cxf.rs.security.jose.jws.NoneJwsSignatureProvider;
 import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
 import org.apache.cxf.rs.security.jose.jwt.JwtToken;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -557,10 +557,10 @@ public class JWTITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE1420() {
-        Attr orig = configurationService.get("jwt.lifetime.minutes");
+        Long orig = confParamOps.get(SyncopeConstants.MASTER_DOMAIN, "jwt.lifetime.minutes", null, Long.class);
         try {
             // set for immediate JWT expiration
-            configurationService.set(new Attr.Builder("jwt.lifetime.minutes").value("0").build());
+            confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "jwt.lifetime.minutes", 0);
 
             UserCR userCR = UserITCase.getUniqueSample("syncope164@syncope.apache.org");
             UserTO user = createUser(userCR).getEntity();
@@ -587,7 +587,7 @@ public class JWTITCase extends AbstractITCase {
             String newJWT = clientFactory.create(user.getUsername(), "password123").getJWT();
             assertNotEquals(jwt, newJWT);
         } finally {
-            configurationService.set(orig);
+            confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "jwt.lifetime.minutes", orig);
         }
     }
 }

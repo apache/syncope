@@ -173,8 +173,6 @@ public class PlatformInfo implements Serializable {
 
         private String anyObjectDAO;
 
-        private String confDAO;
-
         public String getEntityFactory() {
             return entityFactory;
         }
@@ -238,19 +236,13 @@ public class PlatformInfo implements Serializable {
         public void setAnyObjectDAO(final String anyObjectDAO) {
             this.anyObjectDAO = anyObjectDAO;
         }
-
-        public String getConfDAO() {
-            return confDAO;
-        }
-
-        public void setConfDAO(final String confDAO) {
-            this.confDAO = confDAO;
-        }
     }
 
     private String version;
 
     private String buildNumber;
+
+    private String keymasterConfParamOps;
 
     private final ProvisioningInfo provisioningInfo = new ProvisioningInfo();
 
@@ -288,6 +280,10 @@ public class PlatformInfo implements Serializable {
 
     public String getBuildNumber() {
         return buildNumber;
+    }
+
+    public String getKeymasterConfParamOps() {
+        return keymasterConfParamOps;
     }
 
     public ProvisioningInfo getProvisioningInfo() {
@@ -389,6 +385,10 @@ public class PlatformInfo implements Serializable {
 
     public void setBuildNumber(final String buildNumber) {
         this.buildNumber = buildNumber;
+    }
+
+    public void setKeymasterConfParamOps(final String keymasterConfParamOps) {
+        this.keymasterConfParamOps = keymasterConfParamOps;
     }
 
     public void setSelfRegAllowed(final boolean selfRegAllowed) {

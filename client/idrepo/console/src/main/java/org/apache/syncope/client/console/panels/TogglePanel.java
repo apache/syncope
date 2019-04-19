@@ -176,6 +176,8 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
             key = ((AnyObjectTO) ((AnyWrapper) modelObject).getInnerObject()).getKey();
         } else if (modelObject instanceof Attr) {
             key = ((Attr) modelObject).getSchema();
+        } else if (modelObject instanceof ConfParam) {
+            key = ((ConfParam) modelObject).getSchema();
         } else if (modelObject instanceof StatusBean) {
             key = StringUtils.isNotBlank(((StatusBean) modelObject).getResource())
                     ? ((StatusBean) modelObject).getResource() : ((StatusBean) modelObject).getKey();

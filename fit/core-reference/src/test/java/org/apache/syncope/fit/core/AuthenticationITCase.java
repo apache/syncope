@@ -29,7 +29,6 @@ import java.security.AccessControlException;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.sql.DataSource;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
@@ -75,15 +74,9 @@ import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.FlowableDetector;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@SpringJUnitConfig(locations = { "classpath:testJDBCEnv.xml" })
 public class AuthenticationITCase extends AbstractITCase {
-
-    @Autowired
-    private DataSource testDataSource;
 
     private int getFailedLogins(final UserService userService, final String userKey) {
         UserTO readUserTO = userService.read(userKey);

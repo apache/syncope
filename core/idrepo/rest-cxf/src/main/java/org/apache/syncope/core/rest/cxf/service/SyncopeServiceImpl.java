@@ -28,6 +28,7 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.Bus;
@@ -56,11 +57,14 @@ import org.apache.syncope.core.persistence.api.dao.BatchDAO;
 import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 public class SyncopeServiceImpl extends AbstractServiceImpl implements SyncopeService {
+
+    private static final String CONTENT_XML = "Content.xml";
 
     @Resource(name = "batchExecutor")
     private ThreadPoolTaskExecutor batchExecutor;
@@ -196,5 +200,16 @@ public class SyncopeServiceImpl extends AbstractServiceImpl implements SyncopeSe
         batchDAO.delete(boundary);
 
         return response;
+    }
+
+    @Override
+    public Response exportInternalStorageContent() {
+        StreamingOutput sout = (os) -> logic.exportInternalStorageContent(os);
+
+        return Response.ok(sout).
+                type(MediaType.TEXT_XML).
+                header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=" + AuthContextUtils.getDomain() + CONTENT_XML).
+                build();
     }
 }

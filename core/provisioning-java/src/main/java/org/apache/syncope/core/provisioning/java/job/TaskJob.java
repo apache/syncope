@@ -73,7 +73,7 @@ public class TaskJob extends AbstractInterruptableJob {
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
         try {
-            AuthContextUtils.execWithAuthContext(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY), () -> {
+            AuthContextUtils.callAsAdmin(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY), () -> {
                 try {
                     ImplementationDAO implementationDAO =
                             ApplicationContextProvider.getApplicationContext().getBean(ImplementationDAO.class);

@@ -54,7 +54,7 @@ public class PlainSchemaTest extends AbstractTest {
     @Test
     public void findAll() {
         List<PlainSchema> schemas = plainSchemaDAO.findAll();
-        assertEquals(41, schemas.size());
+        assertEquals(26, schemas.size());
     }
 
     @Test

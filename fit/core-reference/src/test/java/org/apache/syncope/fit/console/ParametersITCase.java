@@ -78,14 +78,17 @@ public class ParametersITCase extends AbstractConsoleITCase {
         TESTER.clickLink("body:content:parametersPanel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        FormTester formTester = TESTER.newFormTester(
-                "body:content:parametersPanel:container:content:modalDetails:form");
+        FormTester formTester =
+                TESTER.newFormTester("body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
+        formTester.submit("content:parametersCreateWizardPanel:form:buttons:next");
 
-        formTester.setValue("content:parametersDetailsPanel:container:parametersForm:panel:spinner", "70");
-        TESTER.clickLink("body:content:parametersPanel:"
-                + "container:content:modalDetails:dialog:footer:inputs:0:submit");
+        formTester = TESTER.newFormTester("body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
+        formTester.setValue("content:parametersCreateWizardPanel:form:view:content:attrs:0:panel:spinner", "70");
+                             
+        formTester.submit("content:parametersCreateWizardPanel:form:buttons:finish");
 
         TESTER.assertInfoMessages("Operation executed successfully");
+
         TESTER.cleanupFeedbackMessages();
         TESTER.assertRenderedPage(Parameters.class);
     }

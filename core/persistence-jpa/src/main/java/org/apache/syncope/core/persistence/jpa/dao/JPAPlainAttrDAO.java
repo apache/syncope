@@ -22,12 +22,10 @@ import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
-import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
 
@@ -36,9 +34,7 @@ public class JPAPlainAttrDAO extends AbstractDAO<PlainAttr<?>> implements PlainA
     public static <T extends PlainAttr<?>> Class<? extends AbstractPlainAttr<?>> getEntityReference(
             final Class<T> reference) {
 
-        return CPlainAttr.class.isAssignableFrom(reference)
-                ? JPACPlainAttr.class
-                : GPlainAttr.class.isAssignableFrom(reference)
+        return GPlainAttr.class.isAssignableFrom(reference)
                 ? JPAGPlainAttr.class
                 : APlainAttr.class.isAssignableFrom(reference)
                 ? JPAAPlainAttr.class

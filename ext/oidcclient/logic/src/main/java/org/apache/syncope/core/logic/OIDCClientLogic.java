@@ -310,7 +310,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
                 LOG.debug("No user matching {}, about to create", keyValue);
 
                 final String emailValue = userInfo.getEmail();
-                username = AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(),
+                username = AuthContextUtils.callAsAdmin(AuthContextUtils.getDomain(),
                         () -> userManager.create(op, responseTO, emailValue));
             } else if (op.isSelfRegUnmatching()) {
                 UserTO userTO = new UserTO();
@@ -338,7 +338,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
             if (op.isUpdateMatching()) {
                 LOG.debug("About to update {} for {}", matchingUsers.get(0), keyValue);
 
-                username = AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(),
+                username = AuthContextUtils.callAsAdmin(AuthContextUtils.getDomain(),
                         () -> userManager.update(matchingUsers.get(0), op, responseTO));
             } else {
                 username = matchingUsers.get(0);

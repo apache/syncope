@@ -23,5 +23,4 @@ any.search.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAJSONAnySearchDAO
 user.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONUserDAO
 group.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONGroupDAO
 anyObject.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONAnyObjectDAO
-conf.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONConfDAO
 openjpa.RemoteCommitProvider=${OPENJPA_REMOTE_COMMIT}

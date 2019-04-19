@@ -32,6 +32,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AttrPatch;
@@ -47,7 +48,6 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
-import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
@@ -83,9 +83,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     private RoleDAO roleDAO;
 
     @Autowired
-    private ConfDAO confDAO;
-
-    @Autowired
     private SecurityQuestionDAO securityQuestionDAO;
 
     @Autowired
@@ -93,6 +90,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     @Autowired
     private AccessTokenDAO accessTokenDAO;
+
+    @Autowired
+    private ConfParamOps confParamOps;
 
     @Resource(name = "adminUser")
     private String adminUser;
@@ -103,7 +103,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     @Transactional(readOnly = true)
     @Override
     public UserTO returnUserTO(final UserTO userTO) {
-        if (!confDAO.find("return.password.value", false)) {
+        if (!confParamOps.get(AuthContextUtils.getDomain(), "return.password.value", false, Boolean.class)) {
             userTO.setPassword(null);
         }
         return userTO;
@@ -133,7 +133,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     private void setPassword(final User user, final String password, final SyncopeClientCompositeException scce) {
         try {
-            String algorithm = confDAO.find("password.cipher.algorithm", CipherAlgorithm.AES.name());
+            String algorithm = confParamOps.get(AuthContextUtils.getDomain(),
+                    "password.cipher.algorithm", CipherAlgorithm.AES.name(), String.class);
             user.setPassword(password, CipherAlgorithm.valueOf(algorithm));
         } catch (IllegalArgumentException e) {
             SyncopeClientException invalidCiperAlgorithm = SyncopeClientException.build(ClientExceptionType.NotFound);

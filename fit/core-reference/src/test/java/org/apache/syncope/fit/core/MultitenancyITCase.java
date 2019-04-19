@@ -120,7 +120,7 @@ public class MultitenancyITCase extends AbstractITCase {
 
     @Test
     public void readPlainSchemas() {
-        assertEquals(12, adminClient.getService(SchemaService.class).
+        assertEquals(1, adminClient.getService(SchemaService.class).
                 search(new SchemaQuery.Builder().type(SchemaType.PLAIN).build()).size());
     }
 

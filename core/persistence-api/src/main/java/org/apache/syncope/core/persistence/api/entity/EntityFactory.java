@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
@@ -35,8 +34,6 @@ public interface EntityFactory {
     Class<? extends Group> groupClass();
 
     Class<? extends AnyObject> anyObjectClass();
-
-    Class<? extends Conf> confClass();
 
     Class<? extends AnySearchDAO> anySearchDAOClass();
 }

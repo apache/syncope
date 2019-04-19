@@ -65,6 +65,5 @@ public class TestInitializer implements InitializingBean, ApplicationContextAwar
                     "Two",
                     domainsHolder.getDomains().get("Two"));
         }
-
     }
 }

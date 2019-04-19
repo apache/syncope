@@ -48,33 +48,28 @@ public class CheckDomainFilter implements ContainerRequestFilter {
     public void filter(final ContainerRequestContext reqContext) throws IOException {
         final String domain = reqContext.getHeaderString(RESTHeaders.DOMAIN);
         if (domain != null && !SyncopeConstants.MASTER_DOMAIN.equals(domain)) {
-            AuthContextUtils.execWithAuthContext(
-                    SyncopeConstants.MASTER_DOMAIN, new AuthContextUtils.Executable<Void>() {
+            AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> {
+                if (domainDAO.find(domain) == null) {
+                    String message = "Domain '" + domain + "' not available";
 
-                @Override
-                public Void exec() {
-                    if (domainDAO.find(domain) == null) {
-                        String message = "Domain '" + domain + "' not available";
+                    ErrorTO error = new ErrorTO();
+                    error.setStatus(Response.Status.NOT_FOUND.getStatusCode());
+                    error.setType(ClientExceptionType.NotFound);
+                    error.getElements().add(message);
 
-                        ErrorTO error = new ErrorTO();
-                        error.setStatus(Response.Status.NOT_FOUND.getStatusCode());
-                        error.setType(ClientExceptionType.NotFound);
-                        error.getElements().add(message);
-
-                        reqContext.abortWith(Response.status(Response.Status.NOT_FOUND).
-                                entity(error).
-                                header(HttpHeaders.CONTENT_TYPE,
-                                        reqContext.getAcceptableMediaTypes().isEmpty()
-                                        ? MediaType.APPLICATION_JSON
-                                        : reqContext.getAcceptableMediaTypes().get(0).toString()).
-                                header(RESTHeaders.ERROR_CODE,
-                                        ClientExceptionType.NotFound.name()).
-                                header(RESTHeaders.ERROR_INFO,
-                                        ClientExceptionType.NotFound.getInfoHeaderValue(message)).
-                                build());
-                    }
-                    return null;
+                    reqContext.abortWith(Response.status(Response.Status.NOT_FOUND).
+                            entity(error).
+                            header(HttpHeaders.CONTENT_TYPE,
+                                    reqContext.getAcceptableMediaTypes().isEmpty()
+                                    ? MediaType.APPLICATION_JSON
+                                    : reqContext.getAcceptableMediaTypes().get(0).toString()).
+                            header(RESTHeaders.ERROR_CODE,
+                                    ClientExceptionType.NotFound.name()).
+                            header(RESTHeaders.ERROR_INFO,
+                                    ClientExceptionType.NotFound.getInfoHeaderValue(message)).
+                            build());
                 }
+                return null;
             });
         }
     }

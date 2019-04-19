@@ -21,17 +21,17 @@ package org.apache.syncope.core.logic.scim;
 import java.util.Base64;
 import java.util.Date;
 import javax.ws.rs.core.MediaType;
-import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMGeneralConf;
 import org.apache.syncope.common.lib.scim.types.SCIMEntitlement;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.core.logic.ConfigurationLogic;
 import org.apache.syncope.core.logic.SchemaLogic;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,25 +44,18 @@ public class SCIMConfManager {
     protected static final Logger LOG = LoggerFactory.getLogger(SCIMConfManager.class);
 
     @Autowired
-    private ConfigurationLogic configurationLogic;
+    private ConfParamOps confParamOps;
 
     @Autowired
     private SchemaLogic schemaLogic;
 
     @PreAuthorize("hasRole('" + SCIMEntitlement.SCIM_CONF_GET + "')")
     public SCIMConf get() {
-        Attr confTO = null;
-        try {
-            confTO = configurationLogic.get(SCIMConf.KEY);
-        } catch (Exception e) {
-            LOG.error("{} not found, reverting to default", SCIMConf.KEY);
-        }
-
         SCIMConf conf = null;
-        if (confTO != null) {
+        String confString = confParamOps.get(AuthContextUtils.getDomain(), SCIMConf.KEY, null, String.class);
+        if (confString != null) {
             try {
-                conf = POJOHelper.deserialize(
-                        new String(Base64.getDecoder().decode(confTO.getValues().get(0))), SCIMConf.class);
+                conf = POJOHelper.deserialize(new String(Base64.getDecoder().decode(confString)), SCIMConf.class);
             } catch (Exception e) {
                 LOG.error("Could not deserialize, reverting to default", e);
             }
@@ -89,8 +82,7 @@ public class SCIMConfManager {
         conf.setGeneralConf(new SCIMGeneralConf());
         conf.getGeneralConf().setLastChangeDate(new Date());
 
-        configurationLogic.set(new Attr.Builder(SCIMConf.KEY).
-                value(Base64.getEncoder().encodeToString(POJOHelper.serialize(conf).getBytes())).
-                build());
+        confParamOps.set(AuthContextUtils.getDomain(),
+                SCIMConf.KEY, Base64.getEncoder().encodeToString(POJOHelper.serialize(conf).getBytes()));
     }
 }

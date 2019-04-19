@@ -20,14 +20,11 @@ package org.apache.syncope.client.console.panels;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
-import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -78,7 +75,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
                 setAllowOrder(true).
                 setAllowMoveAll(true).
                 build("plainSchemas",
-                        new PropertyModel<List<String>>(this.anyTypeClassTO, "plainSchemas"),
+                        new PropertyModel<>(this.anyTypeClassTO, "plainSchemas"),
                         new ListModel<>(availablePlainSchemas));
         plainSchema.hideLabel();
         plainSchema.setOutputMarkupId(true);
@@ -88,7 +85,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
                 setAllowOrder(true).
                 setAllowMoveAll(true).
                 build("derSchemas",
-                        new PropertyModel<List<String>>(this.anyTypeClassTO, "derSchemas"),
+                        new PropertyModel<>(this.anyTypeClassTO, "derSchemas"),
                         new ListModel<>(availableDerSchemas));
         derSchema.hideLabel();
         derSchema.setOutputMarkupId(true);
@@ -98,7 +95,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
                 setAllowOrder(true).
                 setAllowMoveAll(true).
                 build("virSchemas",
-                        new PropertyModel<List<String>>(this.anyTypeClassTO, "virSchemas"),
+                        new PropertyModel<>(this.anyTypeClassTO, "virSchemas"),
                         new ListModel<>(availableVirSchemas));
         virSchema.hideLabel();
         virSchema.setOutputMarkupId(true);
@@ -106,10 +103,6 @@ public class AnyTypeClassDetailsPanel extends Panel {
     }
 
     private void buildAvailableSchemas(final String key) {
-
-        List<String> configurationSchemas = new ConfRestClient().list().stream().
-                map(Attr::getSchema).collect(Collectors.toList());
-
         new AnyTypeClassRestClient().list().stream().
                 filter(item -> key == null || !item.getKey().equals(key)).
                 forEach(item -> {
@@ -118,7 +111,6 @@ public class AnyTypeClassDetailsPanel extends Panel {
                     availableVirSchemas.removeAll(item.getVirSchemas());
                 });
 
-        availablePlainSchemas.removeAll(configurationSchemas);
         availablePlainSchemas.removeAll(LAYOUT_PARAMETERS);
     }
 }

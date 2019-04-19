@@ -28,12 +28,13 @@ import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactProducer;
 import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
 import org.apache.cxf.rs.security.jose.jwt.JwtToken;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
-import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureProvider;
@@ -56,7 +57,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
     private AccessTokenDAO accessTokenDAO;
 
     @Autowired
-    private ConfDAO confDAO;
+    private ConfParamOps confParamOps;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -105,7 +106,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
         Pair<String, Date> generated = generateJWT(
                 accessToken.getKey(),
                 subject,
-                confDAO.find("jwt.lifetime.minutes", 120L),
+                confParamOps.get(AuthContextUtils.getDomain(), "jwt.lifetime.minutes", 120L, Long.class),
                 claims);
 
         accessToken.setBody(generated.getLeft());
@@ -147,7 +148,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
         credentialChecker.checkIsDefaultJWSKeyInUse();
 
-        long duration = confDAO.find("jwt.lifetime.minutes", 120L);
+        long duration = confParamOps.get(AuthContextUtils.getDomain(), "jwt.lifetime.minutes", 120L, Long.class);
         long currentTime = new Date().getTime() / 1000L;
         long expiry = currentTime + 60L * duration;
         consumer.getJwtClaims().setExpiryTime(expiry);

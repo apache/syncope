@@ -18,11 +18,13 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import java.util.Collection;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -40,10 +42,7 @@ public final class AuthContextUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthContextUtils.class);
 
-    public interface Executable<T> {
-
-        T exec();
-    }
+    private static final String FAKE_PASSWORD = "FAKE_PASSWORD";
 
     public static String getUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -54,7 +53,7 @@ public final class AuthContextUtils {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
-                new User(newUsername, "FAKE_PASSWORD", auth.getAuthorities()),
+                new User(newUsername, FAKE_PASSWORD, auth.getAuthorities()),
                 auth.getCredentials(), auth.getAuthorities());
         newAuth.setDetails(auth.getDetails());
         SecurityContextHolder.getContext().setAuthentication(newAuth);
@@ -98,29 +97,45 @@ public final class AuthContextUtils {
         return domainKey;
     }
 
-    private static Authentication getFakeAuth(final String domain) {
-        List<GrantedAuthority> authorities = EntitlementsHolder.getInstance().getValues().stream().
-                map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
-                collect(Collectors.toList());
-
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                new User(ApplicationContextProvider.getBeanFactory().getBean("adminUser", String.class),
-                        "FAKE_PASSWORD", authorities), "FAKE_PASSWORD", authorities);
-        auth.setDetails(new SyncopeAuthenticationDetails(domain));
-        return auth;
-    }
-
-    public static <T> T execWithAuthContext(final String domain, final Executable<T> executable) {
+    private static <T> T call(final String domain, final Authentication fakeAuth, final Callable<T> callable) {
         Authentication original = SecurityContextHolder.getContext().getAuthentication();
-        SecurityContextHolder.getContext().setAuthentication(getFakeAuth(domain));
+        SecurityContextHolder.getContext().setAuthentication(fakeAuth);
         try {
-            return executable.exec();
-        } catch (Throwable t) {
-            LOG.debug("Error during execution with domain {} context", domain, t);
-            throw t;
+            return callable.call();
+        } catch (Exception e) {
+            LOG.debug("Error during execution with domain {} context", domain, e);
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            } else {
+                throw new RuntimeException(e);
+            }
         } finally {
             SecurityContextHolder.getContext().setAuthentication(original);
         }
+    }
+
+    public static <T> T callAs(
+            final String domain,
+            final String username,
+            final Collection<String> entitlements,
+            final Callable<T> callable) {
+
+        List<GrantedAuthority> authorities = entitlements.stream().
+                map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
+                collect(Collectors.toList());
+        UsernamePasswordAuthenticationToken fakeAuth = new UsernamePasswordAuthenticationToken(
+                new User(username, FAKE_PASSWORD, authorities), FAKE_PASSWORD, authorities);
+        fakeAuth.setDetails(new SyncopeAuthenticationDetails(domain));
+
+        return call(domain, fakeAuth, callable);
+    }
+
+    public static <T> T callAsAdmin(final String domain, final Callable<T> callable) {
+        return callAs(
+                domain,
+                ApplicationContextProvider.getBeanFactory().getBean("adminUser", String.class),
+                EntitlementsHolder.getInstance().getValues(),
+                callable);
     }
 
     /**

@@ -84,6 +84,7 @@ under the License.
     <module>elasticsearch</module>
     <module>scimv2</module>
     <module>oidcclient</module>
+    <module>self-keymaster</module>
   </modules>
 
 </project>
