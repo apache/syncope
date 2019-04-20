@@ -64,6 +64,12 @@ under the License.
     </dependency>
 
     <dependency>
+      <groupId>org.apache.curator</groupId>
+      <artifactId>curator-test</artifactId>
+      <version>2.13.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <scope>test</scope>
@@ -88,50 +94,8 @@ under the License.
       </plugin>
       
       <plugin>
-        <groupId>io.fabric8</groupId>
-        <artifactId>docker-maven-plugin</artifactId>
-        <configuration>
-          <images>
-            <image>
-              <name>zookeeper:${zookeeper.version}</name>
-              <run>
-                <ports>
-                  <port>2181:2181</port>
-                </ports>
-                <volumes>
-                  <bind>
-                    <volume>${project.build.outputDirectory}/zoo.cfg:/conf/zoo.cfg</volume>
-                    <volume>${project.build.outputDirectory}/java.env:/conf/java.env</volume>
-                    <volume>${project.build.outputDirectory}/server-jaas.conf:/conf/server-jaas.conf</volume>
-                    <volume>${project.build.outputDirectory}/client-jaas.conf:/conf/client-jaas.conf</volume>
-                  </bind>
-                </volumes>
-              </run>
-            </image>
-          </images>
-        </configuration>
-        <executions>
-          <execution>
-            <id>start-zookeeper</id>
-            <phase>pre-integration-test</phase>
-            <goals>
-              <goal>start</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>stop-zookeeper</id>
-            <phase>post-integration-test</phase>
-            <goals>
-              <goal>stop</goal>
-              <goal>remove</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
+        <artifactId>maven-surefire-plugin</artifactId>
         <inherited>true</inherited>
       </plugin>
     </plugins>
@@ -143,4 +107,63 @@ under the License.
       </resource>
     </resources>
   </build>
+  
+  <profiles>
+    <profile>
+      <id>zookeeper-it</id>
+
+      <build>
+        <plugins>
+
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>zookeeper:${zookeeper.version}</name>
+                  <run>
+                    <ports>
+                      <port>2181:2181</port>
+                    </ports>
+                    <volumes>
+                      <bind>
+                        <volume>${project.build.outputDirectory}/zoo.cfg:/conf/zoo.cfg</volume>
+                        <volume>${project.build.outputDirectory}/java.env:/conf/java.env</volume>
+                        <volume>${project.build.outputDirectory}/server-jaas.conf:/conf/server-jaas.conf</volume>
+                        <volume>${project.build.outputDirectory}/client-jaas.conf:/conf/client-jaas.conf</volume>
+                      </bind>
+                    </volumes>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-zookeeper</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-zookeeper</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+      
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <inherited>true</inherited>
+          </plugin>          
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

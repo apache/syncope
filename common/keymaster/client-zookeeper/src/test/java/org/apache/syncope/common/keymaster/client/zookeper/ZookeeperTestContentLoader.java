@@ -40,7 +40,7 @@ public class ZookeeperTestContentLoader implements InitializingBean {
             Map.Entry<String, JsonNode> param = itor.next();
             Object value = MAPPER.treeToValue(param.getValue(), Object.class);
             if (value != null) {
-                confParamOps.set(ZookeeperConfParamOpsITCase.DOMAIN, param.getKey(), value);
+                confParamOps.set(ZookeeperConfParamOpsTest.DOMAIN, param.getKey(), value);
             }
         }
     }
