@@ -66,7 +66,7 @@ public final class Constants {
     public static final String OPERATION_SUCCEEDED = "operation_succeeded";
 
     public static final String OPERATION_ERROR = "operation_error";
-    
+
     public static final String CAPTCHA_ERROR = "captcha_error";
 
     public static final String SEARCH_ERROR = "search_error";
@@ -188,6 +188,10 @@ public final class Constants {
     public static final String UNDEFINED_ICON = "glyphicon glyphicon-question-sign";
 
     public static final String NOT_FOUND_ICON = "glyphicon glyphicon-remove-circle";
+
+    public static final String NOTIFICATION_MSG_PARAM = "notificationMessage";
+
+    public static final String NOTIFICATION_LEVEL_PARAM = "notificationLevel";
 
     /**
      * ConnId's GuardedString is not in the classpath.

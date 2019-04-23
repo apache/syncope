@@ -21,13 +21,13 @@ package org.apache.syncope.client.enduser.pages;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.enduser.wizards.any.UserWizardBuilder;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.event.IEventSource;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -55,16 +55,15 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
     @SuppressWarnings("unchecked")
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
-            final AjaxWizard.NewItemEvent<AnyWrapper<UserTO>> newItemEvent = AjaxWizard.NewItemEvent.class.cast(event.
-                    getPayload());
-            final AjaxRequestTarget target = newItemEvent.getTarget();
-            final AnyWrapper<UserTO> item = newItemEvent.getItem();
             if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
                 SyncopeEnduserSession.get().invalidate();
                 setResponsePage(Login.class);
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 SyncopeEnduserSession.get().invalidate();
-                setResponsePage(LandingPage.class);
+
+                final PageParameters parameters = new PageParameters();
+                parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.wizard.success"));
+                setResponsePage(Login.class, parameters);
             }
         }
         super.onEvent(event);

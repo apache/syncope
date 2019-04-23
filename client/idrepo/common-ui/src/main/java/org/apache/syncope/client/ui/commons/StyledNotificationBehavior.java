@@ -28,9 +28,9 @@ public class StyledNotificationBehavior extends NotificationBehavior {
 
     private static final long serialVersionUID = -3985689554352173472L;
 
-    private static final String AUTOHIDEAFTER_SUCCESS = "3000";
+    public static final String AUTOHIDEAFTER_SUCCESS = "3000";
 
-    private static final String AUTOHIDEAFTER_ERROR = "0";
+    public static final String AUTOHIDEAFTER_ERROR = "0";
 
     public StyledNotificationBehavior(final String selector, final Options options) {
         super(selector, options);
@@ -39,13 +39,17 @@ public class StyledNotificationBehavior extends NotificationBehavior {
     @Override
     public void show(final IPartialPageRequestHandler handler, final Serializable message, final String level) {
         if (handler != null) {
-            handler.appendJavaScript(String.format("%s.options.autoHideAfter = %s; %s.show( { message: '%s' } , '%s');",
-                    this.widget(),
-                    Notification.SUCCESS.equalsIgnoreCase(level)
-                    || Notification.INFO.equalsIgnoreCase(level) ? AUTOHIDEAFTER_SUCCESS : AUTOHIDEAFTER_ERROR,
-                    this.widget(),
-                    this.format(String.valueOf(message), level),
-                    level.toLowerCase()));
+            handler.appendJavaScript(jQueryShow(this.format(String.valueOf(message), level), this.widget(), level));
         }
+    }
+
+    public static String jQueryShow(final CharSequence message, final String widget, final String level) {
+        return String.format("%s.options.autoHideAfter = %s; %s.show( { message: '%s' } , '%s');",
+                widget,
+                Notification.SUCCESS.equalsIgnoreCase(level)
+                || Notification.INFO.equalsIgnoreCase(level) ? AUTOHIDEAFTER_SUCCESS : AUTOHIDEAFTER_ERROR,
+                widget,
+                message,
+                level.toLowerCase());
     }
 }

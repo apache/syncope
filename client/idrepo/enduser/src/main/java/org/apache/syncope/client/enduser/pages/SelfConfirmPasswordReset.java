@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser.pages;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -96,7 +97,7 @@ public class SelfConfirmPasswordReset extends BaseEnduserWebPage {
                             .confirmPasswordReset(parameters.get("token").toString(),
                                     passwordField.getDefaultModelObjectAsString());
                     final PageParameters parameters = new PageParameters();
-                    parameters.add("successMessage", getString("self.confirm.pwd.reset.success"));
+                    parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.confirm.pwd.reset.success"));
                     setResponsePage(Login.class, parameters);
 
                 } catch (SyncopeClientException sce) {

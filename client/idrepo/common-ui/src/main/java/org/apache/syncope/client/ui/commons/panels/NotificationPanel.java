@@ -108,4 +108,9 @@ public class NotificationPanel extends Panel
     public List<FeedbackMessage> getModelObject() {
         return (List<FeedbackMessage>) this.getDefaultModelObject();
     }
+
+    public String getNotificationMarkupId() {
+        return this.notification.getMarkupId();
+    }
+    
 }

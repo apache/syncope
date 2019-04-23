@@ -18,14 +18,18 @@
  */
 package org.apache.syncope.client.ui.commons;
 
+import com.googlecode.wicket.kendo.ui.widget.notification.Notification;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
 import java.security.AccessControlException;
 import java.util.List;
 import java.util.Locale;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -55,12 +59,23 @@ public abstract class BaseLogin extends WebPage {
 
     private final TextField<String> passwordField;
 
+    protected String notificationMessage;
+
+    protected String notificationLevel;
+
     public BaseLogin(final PageParameters parameters) {
         super(parameters);
         setStatelessHint(true);
 
         notificationPanel = new NotificationPanel(Constants.FEEDBACK);
         add(notificationPanel);
+
+        if (!parameters.get("notificationMessage").isNull()) {
+            notificationMessage = parameters.get(Constants.NOTIFICATION_MSG_PARAM).toString();
+            notificationLevel = parameters.get(Constants.NOTIFICATION_LEVEL_PARAM).isEmpty()
+                    ? Notification.SUCCESS
+                    : parameters.get(Constants.NOTIFICATION_LEVEL_PARAM).toString();
+        }
 
         Label exceptionMessage = new Label("exceptionMessage");
         exceptionMessage.setOutputMarkupPlaceholderTag(true);
@@ -187,6 +202,16 @@ public abstract class BaseLogin extends WebPage {
 
             // set default value to English
             getModel().setObject(Locale.ENGLISH);
+        }
+    }
+
+    @Override
+    public void renderHead(final IHeaderResponse response) {
+        super.renderHead(response);
+        if (StringUtils.isNotBlank(notificationMessage)) {
+            response.render(OnLoadHeaderItem.forScript(StyledNotificationBehavior.jQueryShow(notificationMessage,
+                    String.format("jQuery('#%s').data('kendoNotification')",
+                            notificationPanel.getNotificationMarkupId()), notificationLevel)));
         }
     }
 }

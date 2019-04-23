@@ -118,7 +118,7 @@ public class SelfPwdResetPanel extends Panel implements IEventSource {
                         SyncopeEnduserSession.get().getService(UserSelfService.class)
                                 .requestPasswordReset(usernameText, securityAnswerModel.getObject());
                         final PageParameters parameters = new PageParameters();
-                        parameters.add("successMessage", getString("self.pwd.reset.success"));
+                        parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.pwd.reset.success"));
                         setResponsePage(Login.class, parameters);
                     } catch (SyncopeClientException sce) {
                         LOG.error("Unable to reset password of [{}]", usernameText, sce);
