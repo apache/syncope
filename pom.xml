@@ -2683,7 +2683,7 @@ under the License.
                 <phase>post-site</phase>
                 <configuration>
                   <target>
-                    <replace dir="${rootpom.basedir}/target/site" token="48px" value="71px">
+                    <replace dir="${rootpom.basedir}/target/site" token="48px" value="72px">
                       <include name="**/*.html" />
                     </replace>
                     <replace dir="${rootpom.basedir}/target/site" token="dropdown-toggle&quot;" value="dropdown-toggle&quot; data-toggle=&quot;dropdown&quot;">
