@@ -42,7 +42,16 @@ under the License.
     <dependency>
       <groupId>org.apache.syncope.client.idm</groupId>
       <artifactId>syncope-client-idm-console</artifactId>
-    </dependency>    
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.syncope.ext.self-keymaster</groupId>
+      <artifactId>syncope-ext-self-keymaster-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.common.keymaster</groupId>
+      <artifactId>syncope-common-keymaster-client-zookeeper</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

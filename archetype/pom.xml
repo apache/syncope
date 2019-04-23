@@ -171,6 +171,13 @@ under the License.
         </includes>
       </resource>
       <resource>
+        <directory>../ext/self-keymaster/client/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
+        <includes>
+          <include>keymaster.properties</include>
+        </includes>
+      </resource>
+      <resource>
         <directory>../fit/core-reference/src/main/resources/all</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources/all</targetPath>
         <excludes>
@@ -185,9 +192,17 @@ under the License.
         </includes>
       </resource>      
       <resource>
+        <directory>../fit/core-reference/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
+        <includes>
+          <include>keymaster.properties</include>
+        </includes>
+      </resource>
+      <resource>
         <directory>../fit/core-reference/src/test/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
         <includes>
+          <include>keystore</include>
           <include>mail.properties</include>
         </includes>
       </resource>
@@ -210,13 +225,6 @@ under the License.
       <resource>
         <directory>../fit/core-reference/src/main/webapp/WEB-INF</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/webapp/WEB-INF</targetPath>
-      </resource>
-      <resource>
-        <directory>../fit/core-reference/src/test/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
-        <includes>
-          <include>keystore</include>
-        </includes>
       </resource>
             
       <resource>
@@ -242,6 +250,13 @@ under the License.
         </includes>
       </resource>
       <resource>
+        <directory>../ext/self-keymaster/client/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources</targetPath>
+        <includes>
+          <include>keymaster.properties</include>
+        </includes>
+      </resource>
+      <resource>
         <directory>../fit/console-reference/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources</targetPath>
         <includes>
@@ -254,14 +269,8 @@ under the License.
         <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/test/resources</targetPath>
         <includes>
           <include>console.properties</include>
+          <include>keymaster.properties</include>
           <include>saml2sp-agent.properties</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>../fit/console-reference/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/test/resources</targetPath>
-        <includes>
-          <include>console.properties</include>
           <include>oidcclient-agent.properties</include>
         </includes>
       </resource>
@@ -271,13 +280,20 @@ under the License.
       </resource>
       
       <resource>
-        <directory>../client/enduser/src/main/resources</directory>
+        <directory>../client/idrepo/enduser/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/resources</targetPath>
         <includes>
           <include>application.properties</include>
           <include>enduser.properties</include>
           <include>customFormAttributes.json</include>
           <include>customTemplate.json</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>../ext/self-keymaster/client/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/resources</targetPath>
+        <includes>
+          <include>keymaster.properties</include>
         </includes>
       </resource>
       <resource>
@@ -295,10 +311,6 @@ under the License.
         </includes>
       </resource>
       <resource>
-        <directory>../client/enduser/src/main/resources/META-INF/resources/app</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/webapp/app</targetPath>
-      </resource>
-      <resource>
         <directory>../fit/enduser-reference/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/resources</targetPath>
         <includes>
@@ -313,6 +325,7 @@ under the License.
           <include>enduser.properties</include>
           <include>customFormAttributes.json</include>
           <include>customTemplate.json</include>
+          <include>keymaster.properties</include>
           <include>saml2sp-agent.properties</include>
           <include>oidcclient-agent.properties</include>
         </includes>

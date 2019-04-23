@@ -91,7 +91,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
     @Override
     public int getOrder() {
-        return Integer.MAX_VALUE;
+        return 250;
     }
 
     /**

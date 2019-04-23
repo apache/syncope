@@ -43,6 +43,17 @@ under the License.
       <artifactId>syncope-client-idrepo-enduser</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.ext.self-keymaster</groupId>
+      <artifactId>syncope-ext-self-keymaster-client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.common.keymaster</groupId>
+      <artifactId>syncope-common-keymaster-client-zookeeper</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     
     <!-- TEST -->
     <dependency>

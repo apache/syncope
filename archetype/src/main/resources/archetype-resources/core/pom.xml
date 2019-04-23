@@ -47,6 +47,23 @@ under the License.
       <groupId>org.apache.syncope.core.idm</groupId>
       <artifactId>syncope-core-idm-rest-cxf</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.core.am</groupId>
+      <artifactId>syncope-core-am-rest-cxf</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.ext.self-keymaster</groupId>
+      <artifactId>syncope-ext-self-keymaster-rest-cxf</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.self-keymaster</groupId>
+      <artifactId>syncope-ext-self-keymaster-persistence-jpa</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.common.keymaster</groupId>
+      <artifactId>syncope-common-keymaster-client-zookeeper</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
