@@ -58,4 +58,8 @@ public class UserSelfRestClient extends BaseRestClient {
         return update(etag, userUR);
     }
 
+    public void changePassword(final String password) {
+        getService(UserSelfService.class).mustChangePassword(password);
+    }
+
 }

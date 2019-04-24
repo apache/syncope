@@ -18,15 +18,54 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
-import org.apache.wicket.markup.html.WebPage;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.pages.AbstractMustChangePassword;
+import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-public class MustChangePassword extends WebPage {
+public class MustChangePassword extends AbstractMustChangePassword {
 
-    private static final long serialVersionUID = 164651008547631054L;
+    private static final long serialVersionUID = 8581970794722709800L;
+
+    protected UserSelfRestClient restClient = new UserSelfRestClient();
 
     public MustChangePassword(final PageParameters parameters) {
         super(parameters);
+    }
+
+    @Override
+    protected void doSubmit(final AjaxRequestTarget target) {
+        try {
+            restClient.changePassword(passwordField.getModelObject());
+
+            SyncopeEnduserSession.get().invalidate();
+
+            final PageParameters parameters = new PageParameters();
+            parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.pwd.change.success"));
+            setResponsePage(Login.class, parameters);
+
+            setResponsePage(getApplication().getHomePage(), parameters);
+        } catch (Exception e) {
+            LOG.error("While changing password for {}",
+                    SyncopeEnduserSession.get().getSelfTO().getUsername(), e);
+            SyncopeEnduserSession.get().error(StringUtils.isBlank(e.getMessage())
+                    ? e.getClass().getName() : e.getMessage());
+            notificationPanel.refresh(target);
+        }
+    }
+
+    @Override
+    protected UserTO getLoggedUser() {
+        return SyncopeEnduserSession.get().getSelfTO();
+    }
+
+    @Override
+    protected void doCancel() {
+        setResponsePage(Login.class);
     }
 
 }

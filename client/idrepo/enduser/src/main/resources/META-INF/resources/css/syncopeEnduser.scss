@@ -563,7 +563,7 @@ option {
 
 
 
-/* Password Reset / Confirm Password Reset
+/* Password Reset / Confirm Password Reset / Must Change Password
 ============================================================================= */
 
 .password_reset_wrapper {
@@ -580,4 +580,9 @@ option {
       padding-top: 30px;
     }
   }
+}
+
+#mcp_logo {
+  padding-top: 20px;
+  padding-bottom: 15px;
 }

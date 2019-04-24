@@ -42,7 +42,6 @@ import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Dashboard;
-import org.apache.syncope.client.console.pages.MustChangePassword;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.client.console.themes.AdminLTE;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
@@ -73,6 +72,7 @@ import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
+import org.apache.syncope.client.console.pages.MustChangePassword;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.request.component.IRequestablePage;
