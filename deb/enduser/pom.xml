@@ -45,6 +45,12 @@ under the License.
     </dependency>
 
     <dependency>
+      <groupId>org.apache.syncope.ext.self-keymaster</groupId>
+      <artifactId>syncope-ext-self-keymaster-client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.syncope.ext.flowable</groupId>
       <artifactId>syncope-ext-flowable-client-enduser</artifactId>
       <version>${project.version}</version>
@@ -78,6 +84,14 @@ under the License.
           <include>enduser.properties</include>
           <include>customFormAttributes.json</include>
           <include>customTemplate.json</include>
+        </includes>
+        <targetPath>${project.build.directory}/etc</targetPath>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/../../ext/self-keymaster/client/src/main/resources</directory>
+        <includes>
+          <include>keymaster.properties</include>
         </includes>
         <targetPath>${project.build.directory}/etc</targetPath>
         <filtering>true</filtering>

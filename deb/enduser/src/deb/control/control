@@ -12,3 +12,4 @@ Description: Apache Syncope enduser Web Application
  on systems and applications. IdM involves considering user attributes, roles, resources and
  entitlements in trying to give a decent answer to the question bumping up every time in an
  IT administrator's mind: Who has access to What, When, How, and Why?
+Homepage: http://syncope.apache.org

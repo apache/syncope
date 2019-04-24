@@ -133,7 +133,10 @@ $ sudo service tomcat8 stop
 . Install Apache Syncope core, console and enduser via the downloaded packages
 +
 [source,bash]
-$ sudo dpkg -i apache-syncope-*.deb
+$ sudo dpkg -i --force-overwrite apache-syncope-*.deb
++
+[WARNING]
+The `--force-overwrite` shall be used only when installing two or more packages on the same host
 +
 . Create a database for use with Apache Syncope
 +

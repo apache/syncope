@@ -171,6 +171,13 @@ under the License.
                     <copy file="../core/target/test-classes/connid.properties" 
                           todir="../core/target/syncope/WEB-INF/classes" 
                           overwrite="true"/>
+                    <copy file="../core/target/test-classes/keymaster.properties" 
+                          todir="../core/target/syncope/WEB-INF/classes" 
+                          overwrite="true"/>
+
+                    <copy file="../console/target/test-classes/keymaster.properties" 
+                          todir="../console/target/syncope-console/WEB-INF/classes" 
+                          overwrite="true"/>
 
                     <copy file="${project.build.directory}/test-classes/enduser.properties" 
                           todir="${project.build.directory}/${project.build.finalName}/WEB-INF/classes" 
