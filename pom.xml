@@ -2572,7 +2572,7 @@ under the License.
               <dependency>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctorj-pdf</artifactId>
-                <version>1.5.0-alpha.16</version>
+                <version>1.5.0-alpha.17</version>
               </dependency>
             </dependencies>
             <configuration>
