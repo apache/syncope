@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.annotations.ExtWidget;
+import org.apache.syncope.client.ui.commons.annotations.ExtWidget;
 import org.apache.syncope.client.console.pages.UserRequests;
 import org.apache.syncope.client.console.rest.UserRequestRestClient;
 import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;

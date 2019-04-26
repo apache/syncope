@@ -18,15 +18,23 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
+import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.navigation.Navbar;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
+import org.apache.wicket.Component;
+import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class BaseEnduserWebPage extends BaseWebPage {
 
     private static final long serialVersionUID = 5760583420031293480L;
 
     protected final Navbar navbar;
+
+    @SpringBean
+    protected ClassPathScanImplementationLookup lookup;
 
     public BaseEnduserWebPage() {
         this(null);
@@ -37,8 +45,23 @@ public class BaseEnduserWebPage extends BaseWebPage {
     public BaseEnduserWebPage(final PageParameters parameters) {
         super(parameters);
 
-        navbar = new Navbar("navbar");
+        navbar = new Navbar("navbar", lookup.getExtPageClasses());
         body.add(navbar);
+
+        if (getPage() instanceof BaseExtPage) {
+            navbar.getExtPages().add(new Behavior() {
+
+                private static final long serialVersionUID = 1469628524240283489L;
+
+                @Override
+                public void onComponentTag(final Component component, final ComponentTag tag) {
+                    tag.put("class", "treeview-menu menu-open");
+                    tag.put("style", "display: block;");
+                }
+
+            });
+
+        }
     }
 
 }

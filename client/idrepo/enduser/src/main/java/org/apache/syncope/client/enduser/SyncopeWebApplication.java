@@ -95,6 +95,16 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
     @Autowired
     private ClassPathScanImplementationLookup lookup;
 
+    private String scheme;
+
+    private String host;
+
+    private String port;
+
+    private String rootPath;
+
+    private String useGZIPCompression;
+
     private String domain;
 
     private String adminUser;
@@ -130,6 +140,17 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         // read enduser.properties
         Properties props = PropertyUtils.read(getClass(), ENDUSER_PROPERTIES, "enduser.directory");
 
+        scheme = props.getProperty("scheme");
+        Args.notNull(scheme, "<scheme>");
+        host = props.getProperty("host");
+        Args.notNull(host, "<host>");
+        port = props.getProperty("port");
+        Args.notNull(port, "<port>");
+        rootPath = props.getProperty("rootPath");
+        Args.notNull(rootPath, "<rootPath>");
+        useGZIPCompression = props.getProperty("useGZIPCompression");
+        Args.notNull(useGZIPCompression, "<useGZIPCompression>");
+
         domain = props.getProperty("domain", SyncopeConstants.MASTER_DOMAIN);
         adminUser = props.getProperty("adminUser");
         Args.notNull(adminUser, "<adminUser>");
@@ -144,16 +165,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         xsrfEnabled = Boolean.parseBoolean(props.getProperty("xsrf"));
         Args.notNull(xsrfEnabled, "<xsrf>");
 
-        String scheme = props.getProperty("scheme");
-        Args.notNull(scheme, "<scheme>");
-        String host = props.getProperty("host");
-        Args.notNull(host, "<host>");
-        String port = props.getProperty("port");
-        Args.notNull(port, "<port>");
-        String rootPath = props.getProperty("rootPath");
-        Args.notNull(rootPath, "<rootPath>");
-        String useGZIPCompression = props.getProperty("useGZIPCompression");
-        Args.notNull(useGZIPCompression, "<useGZIPCompression>");
         maxUploadFileSizeMB = props.getProperty("maxUploadFileSizeMB") == null
                 ? null
                 : Integer.valueOf(props.getProperty("maxUploadFileSizeMB"));
@@ -325,6 +336,12 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
     @Override
     public Session newSession(final Request request, final Response response) {
         return new SyncopeEnduserSession(request);
+    }
+
+    public SyncopeClientFactoryBean newClientFactory() {
+        return new SyncopeClientFactoryBean().
+                setAddress(scheme + "://" + host + ":" + port + StringUtils.prependIfMissing(rootPath, "/")).
+                setUseCompression(BooleanUtils.toBoolean(useGZIPCompression));
     }
 
     protected Class<? extends WebPage> getSignInPageClass() {

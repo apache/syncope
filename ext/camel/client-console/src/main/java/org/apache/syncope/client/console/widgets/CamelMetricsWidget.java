@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.widgets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.syncope.client.console.annotations.ExtWidget;
+import org.apache.syncope.client.ui.commons.annotations.ExtWidget;
 import org.apache.syncope.client.console.chartjs.Bar;
 import org.apache.syncope.client.console.chartjs.BarDataSet;
 import org.apache.syncope.client.console.chartjs.ChartJSPanel;

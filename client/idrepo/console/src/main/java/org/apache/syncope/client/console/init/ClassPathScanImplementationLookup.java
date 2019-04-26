@@ -32,8 +32,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.syncope.client.console.pages.BaseExtPage;
 import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
-import org.apache.syncope.client.console.annotations.ExtPage;
-import org.apache.syncope.client.console.annotations.ExtWidget;
+import org.apache.syncope.client.ui.commons.annotations.ExtPage;
+import org.apache.syncope.client.ui.commons.annotations.ExtWidget;
 import org.apache.syncope.client.console.annotations.IdMPage;
 import org.apache.syncope.client.console.annotations.Resource;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAditionalActionLinksProvider;
@@ -195,9 +195,9 @@ public class ClassPathScanImplementationLookup {
             try {
                 Class<?> clazz = ClassUtils.resolveClassName(
                         bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
-                boolean isAbsractClazz = Modifier.isAbstract(clazz.getModifiers());
+                boolean isAbstractClazz = Modifier.isAbstract(clazz.getModifiers());
 
-                if (!isAbsractClazz) {
+                if (!isAbstractClazz) {
                     if (BaseExtPage.class.isAssignableFrom(clazz)) {
                         if (clazz.isAnnotationPresent(ExtPage.class)) {
                             extPages.add((Class<? extends BaseExtPage>) clazz);

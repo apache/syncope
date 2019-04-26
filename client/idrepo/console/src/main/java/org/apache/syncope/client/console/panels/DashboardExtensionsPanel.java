@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.panels;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.console.annotations.ExtWidget;
+import org.apache.syncope.client.ui.commons.annotations.ExtWidget;
 import org.apache.syncope.client.console.widgets.BaseExtWidget;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;

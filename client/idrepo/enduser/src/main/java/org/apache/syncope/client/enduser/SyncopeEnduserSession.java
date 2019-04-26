@@ -32,6 +32,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -55,6 +56,8 @@ public class SyncopeEnduserSession extends WebSession {
 
     private final SyncopeClient anonymousClient;
 
+    private final SyncopeClientFactoryBean clientFactory;
+
     private SyncopeClient client;
 
     private final PlatformInfo platformInfo;
@@ -62,7 +65,7 @@ public class SyncopeEnduserSession extends WebSession {
     private UserTO selfTO;
 
     private final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<>());
-    
+
     private final ThreadPoolTaskExecutor executor;
 
     public static SyncopeEnduserSession get() {
@@ -71,12 +74,14 @@ public class SyncopeEnduserSession extends WebSession {
 
     public SyncopeEnduserSession(final Request request) {
         super(request);
+
+        clientFactory = SyncopeWebApplication.get().newClientFactory();
         anonymousClient = SyncopeWebApplication.get().getClientFactory().
                 create(new AnonymousAuthenticationHandler(
                         SyncopeWebApplication.get().getAnonymousUser(),
                         SyncopeWebApplication.get().getAnonymousKey()));
         platformInfo = anonymousClient.getService(SyncopeService.class).platform();
-        
+
         executor = new ThreadPoolTaskExecutor();
         executor.setWaitForTasksToCompleteOnShutdown(false);
         executor.setCorePoolSize(SyncopeWebApplication.get().getCorePoolSize());
@@ -177,6 +182,21 @@ public class SyncopeEnduserSession extends WebSession {
                 type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
 
         return serviceInstance;
+    }
+
+    public <T> T getService(final MediaType mediaType, final Class<T> serviceClass) {
+        T service;
+
+        synchronized (clientFactory) {
+            SyncopeClientFactoryBean.ContentType preType = clientFactory.getContentType();
+
+            clientFactory.setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
+            service = clientFactory.create(getJWT()).getService(serviceClass);
+
+            clientFactory.setContentType(preType);
+        }
+
+        return service;
     }
 
     public PlatformInfo getPlatformInfo() {

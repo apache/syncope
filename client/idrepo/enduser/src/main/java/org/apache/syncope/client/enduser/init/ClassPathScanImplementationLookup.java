@@ -24,7 +24,9 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.client.enduser.annotations.Resource;
+import org.apache.syncope.client.enduser.pages.BaseExtPage;
 import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
+import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.syncope.client.ui.commons.panels.SSOLoginFormPanel;
 import org.apache.wicket.request.resource.AbstractResource;
@@ -39,13 +41,15 @@ public class ClassPathScanImplementationLookup {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClassPathScanImplementationLookup.class);
 
-    private static final String DEFAULT_BASE_PACKAGE = "org.apache.syncope.client.enduser";
+    private static final String DEFAULT_BASE_PACKAGE = "org.apache.syncope";
 
-    private List<Class<? extends SSOLoginFormPanel>> ssoLoginFormPanels = new ArrayList<>();
+    private final List<Class<? extends SSOLoginFormPanel>> ssoLoginFormPanels = new ArrayList<>();
 
     private List<Class<? extends AbstractResource>> resources = new ArrayList<>();
 
-    private List<Class<? extends AbstractBinaryPreviewer>> previewers = new ArrayList<>();
+    private final List<Class<? extends AbstractBinaryPreviewer>> previewers = new ArrayList<>();
+
+    private final List<Class<? extends BaseExtPage>> extPages = new ArrayList<>();
 
     /**
      * This method can be overridden by subclasses to customize classpath scan.
@@ -58,19 +62,23 @@ public class ClassPathScanImplementationLookup {
 
     @SuppressWarnings("unchecked")
     public void load() {
-        resources = new ArrayList<>();
-        previewers = new ArrayList<>();
-
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AssignableTypeFilter(AbstractResource.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtPage.class));
 
         for (BeanDefinition bd : scanner.findCandidateComponents(getBasePackage())) {
             try {
                 Class<?> clazz = ClassUtils.resolveClassName(bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
-                boolean isAbsractClazz = Modifier.isAbstract(clazz.getModifiers());
-
-                if (!isAbsractClazz) {
-                    if (AbstractResource.class.isAssignableFrom(clazz)) {
+                boolean isAbstractClazz = Modifier.isAbstract(clazz.getModifiers());
+                if (!isAbstractClazz) {
+                    if (BaseExtPage.class.isAssignableFrom(clazz)) {
+                        if (clazz.isAnnotationPresent(ExtPage.class)) {
+                            extPages.add((Class<? extends BaseExtPage>) clazz);
+                        } else {
+                            LOG.error("Could not find annotation {} in {}, ignoring",
+                                    ExtPage.class.getName(), clazz.getName());
+                        }
+                    } else if (AbstractResource.class.isAssignableFrom(clazz)) {
                         if (clazz.isAnnotationPresent(Resource.class)) {
                             resources.add((Class<? extends AbstractResource>) clazz);
                         } else if (AbstractBinaryPreviewer.class.isAssignableFrom(clazz)) {
@@ -108,6 +116,10 @@ public class ClassPathScanImplementationLookup {
 
     public List<Class<? extends SSOLoginFormPanel>> getSSOLoginFormPanels() {
         return this.ssoLoginFormPanels;
+    }
+
+    public List<Class<? extends BaseExtPage>> getExtPageClasses() {
+        return extPages;
     }
 
 }

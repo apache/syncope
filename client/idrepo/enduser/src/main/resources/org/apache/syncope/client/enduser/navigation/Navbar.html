@@ -45,7 +45,7 @@ under the License.
           </a>
         </div>
 
-        <div id="navbar" class="navbar-collapse collapse in" aria-expanded="true">
+        <div id="navbarDetails" class="navbar-collapse collapse in" aria-expanded="true">
           <ul class="nav navbar-nav">
             <li class="active">
               <a href="#"
@@ -55,31 +55,11 @@ under the License.
                 <span class="sr-only">(current)</span>
               </a>
             </li>
-
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" 
-                 data-toggle="dropdown" 
-                 role="button" 
-                 aria-label="'User requests' menu element"
-                 tabindex="2"
-                 aria-haspopup="true" 
-                 aria-expanded="false">
-                User Requests
-                <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                <li>
-                  <a href="#" aria-label="'Start new requests' menu element" tabindex="3">
-                    Start new requests
-                  </a>
-                </li>
-                <li>
-                  <a href="#" aria-label="'View ongoing requests' menu element" tabindex="4">
-                    View ongoing requests
-                  </a>
-                </li>
-              </ul>
-            </li>
+            <ul wicket:id="extPages" class="nav navbar-nav">
+              <li wicket:id="extPageLI" class="active">
+                <a href="#" wicket:id="extPage"><i wicket:id="extPageIcon"></i><span wicket:id="extPageLabel"/></a>
+              </li>
+            </ul>
           </ul>
         </div>
       </div>

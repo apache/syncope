@@ -137,7 +137,13 @@ under the License.
       <artifactId>syncope-ext-flowable-client-console</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
-    </dependency>  
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.flowable</groupId>
+      <artifactId>syncope-ext-flowable-client-enduser</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.syncope.ext.camel</groupId>
       <artifactId>syncope-ext-camel-rest-cxf</artifactId>
