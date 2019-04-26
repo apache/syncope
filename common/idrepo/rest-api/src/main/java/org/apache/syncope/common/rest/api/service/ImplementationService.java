@@ -55,8 +55,6 @@ public interface ImplementationService extends JAXRSService {
      * @param type implementation type
      * @return list of all implementations.
      */
-    @Parameter(name = "type", description = "Implementation's type", in = ParameterIn.PATH, schema =
-            @Schema(type = "string"))
     @GET
     @Path("{type}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -69,10 +67,6 @@ public interface ImplementationService extends JAXRSService {
      * @param key key of implementation to be read
      * @return implementation with matching key
      */
-    @Parameter(name = "type", description = "Implementation's type", in = ParameterIn.PATH, schema =
-            @Schema(type = "string"))
-    @Parameter(name = "key", description = "Implementation's key", in = ParameterIn.PATH, schema =
-            @Schema(type = "string"))
     @GET
     @Path("{type}/{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -117,10 +111,6 @@ public interface ImplementationService extends JAXRSService {
      * @param key key for implementation to be deleted
      * @return an empty response if operation was successful
      */
-    @Parameter(name = "type", description = "Implementation's type", in = ParameterIn.PATH, schema =
-            @Schema(type = "string"))
-    @Parameter(name = "key", description = "Implementation's key", in = ParameterIn.PATH, schema =
-            @Schema(type = "string"))
     @DELETE
     @Path("{type}/{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
