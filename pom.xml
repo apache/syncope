@@ -443,7 +443,7 @@ under the License.
     <connid.location>file:${bundles.directory}/</connid.location>
     <log.directory>${project.build.directory}/log</log.directory>
 
-    <swagger-core.version>2.0.7</swagger-core.version>    
+    <swagger-core.version>2.0.8</swagger-core.version>    
     <swagger-ui.version>3.22.0</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
@@ -2435,7 +2435,7 @@ under the License.
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.0/apidocs/</link>
             <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/6.7.1/index.html</link>
-            <link>http://docs.swagger.io/swagger-core/v2.0.7/apidocs/</link>
+            <link>http://docs.swagger.io/swagger-core/v2.0.8/apidocs/</link>
           </links>
         </configuration>
         <reportSets>
