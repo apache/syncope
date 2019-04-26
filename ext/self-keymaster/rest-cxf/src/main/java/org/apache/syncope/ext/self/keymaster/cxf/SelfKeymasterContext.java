@@ -31,8 +31,12 @@ import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.core.spring.security.UsernamePasswordAuthenticationProvider;
+import org.apache.syncope.core.spring.security.WebSecurityContext;
 import org.apache.syncope.ext.self.keymaster.cxf.client.SelfKeymasterInternalConfParamOps;
+import org.apache.syncope.ext.self.keymaster.cxf.security.SelfKeymasterUsernamePasswordAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -44,6 +48,7 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource(value = "file:${conf.directory}/keymaster.properties", ignoreResourceNotFound = true)
 @ComponentScan("org.apache.syncope.ext.self.keymaster.cxf.service")
 @Configuration
+@AutoConfigureBefore(WebSecurityContext.class)
 @ConditionalOnExpression("'${keymaster.address}' matches '^http.+'")
 public class SelfKeymasterContext {
 
@@ -106,6 +111,11 @@ public class SelfKeymasterContext {
 
         selfKeymasterContainer.setApplicationContext(ctx);
         return selfKeymasterContainer.create();
+    }
+
+    @Bean
+    public UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider() {
+        return new SelfKeymasterUsernamePasswordAuthenticationProvider();
     }
 
     @Bean

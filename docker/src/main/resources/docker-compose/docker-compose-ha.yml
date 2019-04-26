@@ -44,6 +44,9 @@ services:
        DB_POOL_MAX: 10
        DB_POOL_MIN: 2
        OPENJPA_REMOTE_COMMIT: tcp(Addresses=syncope1;syncope2)
+       KEYMASTER_ADDRESS: http://localhost:8080/syncope/rest/keymaster
+       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
+       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}
 
    syncope2:
      depends_on:
@@ -60,6 +63,9 @@ services:
        DB_POOL_MAX: 10
        DB_POOL_MIN: 2
        OPENJPA_REMOTE_COMMIT: tcp(Addresses=syncope1;syncope2)
+       KEYMASTER_ADDRESS: http://localhost:8080/syncope/rest/keymaster
+       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
+       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}
 
    syncope-console:
      depends_on:
@@ -72,6 +78,9 @@ services:
        CORE_SCHEME: http
        CORE_HOST: syncope1
        CORE_PORT: 8080
+       KEYMASTER_ADDRESS: http://syncope1:8080/syncope/rest/keymaster
+       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
+       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}
 
    syncope-enduser:
      depends_on:
@@ -85,3 +94,6 @@ services:
        CORE_HOST: syncope1
        CORE_PORT: 8080
        DOMAIN: Master
+       KEYMASTER_ADDRESS: http://syncope1:8080/syncope/rest/keymaster
+       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
+       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}

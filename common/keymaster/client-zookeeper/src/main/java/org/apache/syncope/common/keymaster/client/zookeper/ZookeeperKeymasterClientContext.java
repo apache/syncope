@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.security.auth.login.AppConfigurationEntry;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.ACLProvider;
@@ -79,24 +80,30 @@ public class ZookeeperKeymasterClientContext {
     @ConditionalOnExpression("#{'${keymaster.address}' matches '^(?!http).+'}")
     @Bean
     public CuratorFramework curatorFramework() throws InterruptedException {
-        javax.security.auth.login.Configuration.setConfiguration(createJaasConfig());
+        if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+            javax.security.auth.login.Configuration.setConfiguration(createJaasConfig());
+        }
 
-        CuratorFramework client = CuratorFrameworkFactory.builder().
+        CuratorFrameworkFactory.Builder clientBuilder = CuratorFrameworkFactory.builder().
                 connectString(address).
-                retryPolicy(new ExponentialBackoffRetry(baseSleepTimeMs, maxRetries)).
-                authorization("digest", (username).getBytes()).
-                aclProvider(new ACLProvider() {
+                retryPolicy(new ExponentialBackoffRetry(baseSleepTimeMs, maxRetries));
+        if (StringUtils.isNotBlank(username)) {
+            clientBuilder.
+                    authorization("digest", (username).getBytes()).
+                    aclProvider(new ACLProvider() {
 
-                    @Override
-                    public List<ACL> getDefaultAcl() {
-                        return ZooDefs.Ids.CREATOR_ALL_ACL;
-                    }
+                        @Override
+                        public List<ACL> getDefaultAcl() {
+                            return ZooDefs.Ids.CREATOR_ALL_ACL;
+                        }
 
-                    @Override
-                    public List<ACL> getAclForPath(final String path) {
-                        return ZooDefs.Ids.CREATOR_ALL_ACL;
-                    }
-                }).build();
+                        @Override
+                        public List<ACL> getAclForPath(final String path) {
+                            return ZooDefs.Ids.CREATOR_ALL_ACL;
+                        }
+                    });
+        }
+        CuratorFramework client = clientBuilder.build();
         client.start();
         client.blockUntilConnected(3, TimeUnit.SECONDS);
 

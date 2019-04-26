@@ -31,7 +31,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -67,7 +66,6 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -237,7 +235,7 @@ public class AuthDataAccessor {
             }
         }
 
-        return ImmutablePair.of(user, authenticated);
+        return Pair.of(user, authenticated);
     }
 
     protected boolean authenticate(final User user, final String password) {
@@ -360,10 +358,10 @@ public class AuthDataAccessor {
         } else {
             User user = userDAO.findByUsername(username);
             if (user == null) {
-                throw new UsernameNotFoundException("Could not find any user with id " + username);
+                authorities = Collections.emptySet();
+            } else {
+                authorities = getUserAuthorities(user);
             }
-
-            authorities = getUserAuthorities(user);
         }
 
         return authorities;

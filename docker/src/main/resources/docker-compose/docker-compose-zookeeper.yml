@@ -15,19 +15,25 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# Full deployment (Core, Console, Enduser) on MariaDB
+# Full deployment (Core, Console, Enduser) on PostgreSQL, with Keymaster on Zookeeper
+
+# Zookeeper is configured without JAAS, hence empty KEYMASTER_USERNAME / KEYMASTER_PASSWORD
+# are passed to other containers
 
 version: '3.3'
 
 services:
+   keymaster:
+     image: zookeeper:3.4.14
+     restart: always
+
    db:
-     image: mariadb:10.4
+     image: postgres:11.2
      restart: always
      environment:
-       MYSQL_ROOT_PASSWORD: password
-       MYSQL_DATABASE: syncope
-       MYSQL_USER: syncope
-       MYSQL_PASSWORD: syncope
+       POSTGRES_DB: syncope
+       POSTGRES_USER: syncope
+       POSTGRES_PASSWORD: syncope
 
    syncope:
      depends_on:
@@ -37,16 +43,16 @@ services:
        - "18080:8080"
      restart: always
      environment:
-       DBMS: mariadb
-       DB_URL: jdbc:mysql://db:3306/syncope?characterEncoding=UTF-8&relaxAutoCommit=true&useSSL=false
+       DBMS: postgresql
+       DB_URL: jdbc:postgresql://db:5432/syncope
        DB_USER: syncope
        DB_PASSWORD: syncope
        DB_POOL_MAX: 10
        DB_POOL_MIN: 2
        OPENJPA_REMOTE_COMMIT: sjvm
-       KEYMASTER_ADDRESS: http://localhost:8080/syncope/rest/keymaster
-       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
-       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}
+       KEYMASTER_ADDRESS: keymaster:2181
+       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
+       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
 
    syncope-console:
      depends_on:
@@ -59,9 +65,9 @@ services:
        CORE_SCHEME: http
        CORE_HOST: syncope
        CORE_PORT: 8080
-       KEYMASTER_ADDRESS: http://syncope:8080/syncope/rest/keymaster
-       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
-       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}
+       KEYMASTER_ADDRESS: keymaster:2181
+       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
+       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
 
    syncope-enduser:
      depends_on:
@@ -75,6 +81,6 @@ services:
        CORE_HOST: syncope
        CORE_PORT: 8080
        DOMAIN: Master
-       KEYMASTER_ADDRESS: http://syncope:8080/syncope/rest/keymaster
-       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
-       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}
+       KEYMASTER_ADDRESS: keymaster:2181
+       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
+       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}

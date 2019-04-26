@@ -19,6 +19,7 @@
 package org.apache.syncope.core.spring.security;
 
 import javax.annotation.Resource;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -60,6 +61,7 @@ public class WebSecurityContext extends WebSecurityConfigurerAdapter {
         web.httpFirewall(allowUrlEncodedSlashHttpFirewall());
     }
 
+    @ConditionalOnMissingBean
     @Bean
     public UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider() {
         return new UsernamePasswordAuthenticationProvider();
