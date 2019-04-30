@@ -186,7 +186,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
         List<OrderByClause> result = new ArrayList<>();
 
         for (String clause : orderBy.split(",")) {
-            String[] elems = clause.split(" ");
+            String[] elems = clause.trim().split(" ");
 
             if (elems.length > 0 && StringUtils.isNotBlank(elems[0])) {
                 OrderByClause obc = new OrderByClause();
