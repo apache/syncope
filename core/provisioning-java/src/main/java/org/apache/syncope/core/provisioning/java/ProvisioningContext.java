@@ -165,7 +165,8 @@ public class ProvisioningContext implements EnvironmentAware, SchedulingConfigur
         Properties quartzProperties = new Properties();
         quartzProperties.setProperty(
                 "org.quartz.scheduler.idleWaitTime", env.getProperty("quartz.scheduler.idleWaitTime", "30000"));
-        quartzProperties.setProperty("org.quartz.jobStore.misfireThreshold", "6000000");
+        quartzProperties.setProperty(
+                "org.quartz.jobStore.misfireThreshold", env.getProperty("quartz.misfireThreshold", "60000"));
         quartzProperties.setProperty("org.quartz.jobStore.driverDelegateClass", env.getProperty("quartz.jobstore"));
         quartzProperties.setProperty("org.quartz.jobStore.isClustered", "true");
         quartzProperties.setProperty("org.quartz.jobStore.clusterCheckinInterval", "20000");
