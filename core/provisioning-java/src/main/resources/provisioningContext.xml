@@ -81,7 +81,7 @@ under the License.
       <props>
         <prop key="org.quartz.scheduler.idleWaitTime">${quartz.scheduler.idleWaitTime:30000}</prop>
 
-        <prop key="org.quartz.jobStore.misfireThreshold">6000000</prop>
+        <prop key="org.quartz.jobStore.misfireThreshold">${quartz.misfireThreshold:60000}</prop>
         <prop key="org.quartz.jobStore.driverDelegateClass">${quartz.jobstore}</prop>
 
         <prop key="org.quartz.jobStore.isClustered">true</prop>
