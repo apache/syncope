@@ -88,8 +88,6 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         return (SyncopeConsoleApplication) WebApplication.get();
     }
 
-    private String site;
-
     private String anonymousUser;
 
     private String anonymousKey;
@@ -152,8 +150,6 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         // read console.properties
         Properties props = PropertyUtils.read(getClass(), CONSOLE_PROPERTIES, "console.directory").getLeft();
 
-        site = props.getProperty("site");
-        Args.notNull(site, "<site>");
         anonymousUser = props.getProperty("anonymousUser");
         Args.notNull(anonymousUser, "<anonymousUser>");
         anonymousKey = props.getProperty("anonymousKey");
@@ -314,10 +310,6 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     public Class<? extends BasePage> getPageClass(final String key) {
         return pageClasses.get(key);
-    }
-
-    public String getSite() {
-        return site;
     }
 
     public String getAnonymousUser() {
