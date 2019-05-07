@@ -96,10 +96,6 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         services.clear();
     }
 
-    public MediaType getMediaType() {
-        return clientFactory.getContentType().getMediaType();
-    }
-
     public String getJWT() {
         return client == null ? null : client.getJWT();
     }

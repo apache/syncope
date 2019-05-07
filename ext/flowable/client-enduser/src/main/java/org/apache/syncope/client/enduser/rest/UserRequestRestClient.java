@@ -45,12 +45,11 @@ public class UserRequestRestClient extends BaseRestClient {
             final int size,
             final String username,
             final SortParam<String> sort) {
-        return getService(UserRequestService.class).list(
-                new UserRequestQuery.Builder()
-                        .user(StringUtils.isBlank(username)
-                                ? SyncopeEnduserSession.get().getSelfTO().getUsername()
-                                : username)
-                        .page(page).size(size).build()).getResult();
+        return getService(UserRequestService.class).list(new UserRequestQuery.Builder().
+                user(StringUtils.isBlank(username)
+                        ? SyncopeEnduserSession.get().getSelfTO().getUsername()
+                        : username).
+                page(page).size(size).build()).getResult();
     }
 
     public void cancelRequest(final String executionId, final String reason) {
@@ -85,5 +84,4 @@ public class UserRequestRestClient extends BaseRestClient {
     public void start(final String bpmnProcess, final String user) {
         getService(UserRequestService.class).start(bpmnProcess, user);
     }
-
 }

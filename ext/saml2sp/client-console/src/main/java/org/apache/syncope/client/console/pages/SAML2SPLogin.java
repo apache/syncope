@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.pages;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.authentication.IAuthenticationStrategy;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -52,9 +53,7 @@ public class SAML2SPLogin extends WebPage {
 
         if (SyncopeConsoleSession.get().authenticate(token)) {
             if (parameters.get("sloSupported").toBoolean(false)) {
-                SyncopeConsoleSession.get().setAttribute(
-                        org.apache.syncope.client.console.commons.Constants.BEFORE_LOGOUT_PAGE,
-                        SAML2SPBeforeLogout.class);
+                SyncopeConsoleSession.get().setAttribute(Constants.BEFORE_LOGOUT_PAGE, SAML2SPBeforeLogout.class);
             }
 
             // If login has been called because the user was not yet logged in, than continue to the

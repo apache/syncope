@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.pages;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.ui.commons.Constants;
 
 import org.apache.wicket.authentication.IAuthenticationStrategy;
 import org.apache.wicket.markup.html.WebPage;
@@ -53,9 +54,7 @@ public class OIDCClientLogin extends WebPage {
 
         if (SyncopeConsoleSession.get().authenticate(token)) {
             if (parameters.get("logoutSupported").toBoolean(false)) {
-                SyncopeConsoleSession.get().setAttribute(
-                        org.apache.syncope.client.console.commons.Constants.BEFORE_LOGOUT_PAGE,
-                        OIDCClientBeforeLogout.class);
+                SyncopeConsoleSession.get().setAttribute(Constants.BEFORE_LOGOUT_PAGE, OIDCClientBeforeLogout.class);
             }
 
             // If login has been called because the user was not yet logged in, than continue to the
