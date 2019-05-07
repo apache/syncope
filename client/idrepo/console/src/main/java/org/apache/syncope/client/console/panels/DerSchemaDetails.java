@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.PropertyModel;

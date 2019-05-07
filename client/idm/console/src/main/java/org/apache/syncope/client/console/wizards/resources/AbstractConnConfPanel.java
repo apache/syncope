@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.wizards.resources;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.markup.html.list.ConnConfPropertyListView;
 import org.apache.syncope.common.lib.to.EntityTO;

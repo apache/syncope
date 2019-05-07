@@ -24,7 +24,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig
 import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.NotificationRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;

@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
@@ -43,6 +42,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.lib.batch.BatchRequest;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.request.UserUR;

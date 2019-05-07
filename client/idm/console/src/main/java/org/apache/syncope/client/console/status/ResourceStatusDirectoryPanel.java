@@ -23,8 +23,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.commons.IdMConstants;
 import org.apache.syncope.client.console.commons.status.AbstractStatusBeanProvider;
 import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.ui.commons.status.StatusUtils;
@@ -235,7 +235,7 @@ public class ResourceStatusDirectoryPanel
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_RECONCILIATION_PAGINATOR_ROWS;
+        return IdMConstants.PREF_RECONCILIATION_PAGINATOR_ROWS;
     }
 
     protected class ResourceStatusDataProvider extends AbstractStatusBeanProvider {

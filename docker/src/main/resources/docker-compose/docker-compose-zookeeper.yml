@@ -76,7 +76,6 @@ services:
        - "38080:8080"
      restart: always
      environment:
-       DOMAIN: Master
        KEYMASTER_ADDRESS: keymaster:2181
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}

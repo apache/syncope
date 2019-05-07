@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.link;
 
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.markup.html.link.PopupSettings;
 
 public class VeilPopupSettings extends PopupSettings {

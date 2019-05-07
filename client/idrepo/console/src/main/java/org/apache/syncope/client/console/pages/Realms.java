@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.pages;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.Realm;
 import org.apache.syncope.client.console.panels.RealmChoicePanel;
 import org.apache.syncope.client.console.panels.RealmChoicePanel.ChosenRealm;
@@ -31,6 +30,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.any.ResultPage;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.common.lib.to.AnyTO;

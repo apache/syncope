@@ -127,10 +127,6 @@ public final class Constants {
 
     public static final String PREF_REMEDIATION_PAGINATOR_ROWS = "remediation.paginator.rows";
 
-    public static final String PREF_RESOURCES_PAGINATOR_ROWS = "resources.paginator.rows";
-
-    public static final String PREF_CONNECTORS_PAGINATOR_ROWS = "connectors.paginator.rows";
-
     public static final String PREF_NOTIFICATION_PAGINATOR_ROWS = "notification.paginator.rows";
 
     public static final String PREF_IMPLEMENTATION_PAGINATOR_ROWS = "implementation.paginator.rows";

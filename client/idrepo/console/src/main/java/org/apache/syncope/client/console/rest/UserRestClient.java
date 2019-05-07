@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.status.Status;
 import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.ui.commons.status.StatusUtils;

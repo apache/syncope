@@ -30,7 +30,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.ITabComponent;
 import org.apache.syncope.client.ui.commons.status.StatusUtils;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;

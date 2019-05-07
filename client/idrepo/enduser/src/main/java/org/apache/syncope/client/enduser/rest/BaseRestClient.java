@@ -18,18 +18,9 @@
  */
 package org.apache.syncope.client.enduser.rest;
 
-import java.net.URI;
-import javax.ws.rs.core.HttpHeaders;
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.rest.RestClient;
-import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
-import org.apache.syncope.common.lib.types.ExecStatus;
-import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,39 +45,4 @@ public abstract class BaseRestClient implements RestClient {
     protected static <T> void resetClient(final Class<T> serviceClass) {
         SyncopeEnduserSession.get().resetClient(serviceClass);
     }
-
-    protected static String toOrderBy(final SortParam<String> sort) {
-        OrderByClauseBuilder builder = SyncopeClient.getOrderByClauseBuilder();
-
-        String property = sort.getProperty();
-        if (property.indexOf('#') != -1) {
-            property = property.substring(property.indexOf('#') + 1);
-        }
-
-        if (sort.isAscending()) {
-            builder.asc(property);
-        } else {
-            builder.desc(property);
-        }
-
-        return builder.build();
-    }
-
-    protected static <E extends JAXRSService, T> T getObject(
-            final E service, final URI location, final Class<T> resultClass) {
-
-        WebClient webClient = WebClient.fromClient(WebClient.client(service));
-        webClient.accept(SyncopeEnduserSession.get().getMediaType()).to(location.toASCIIString(), false);
-        return webClient.
-                header(HttpHeaders.AUTHORIZATION, "Bearer " + SyncopeEnduserSession.get().getJWT()).
-                get(resultClass);
-    }
-
-    protected static String getStatus(final int httpStatus) {
-        ExecStatus execStatus = ExecStatus.fromHttpStatus(httpStatus);
-        return execStatus == null
-                ? Constants.UNKNOWN
-                : execStatus.name();
-    }
-
 }

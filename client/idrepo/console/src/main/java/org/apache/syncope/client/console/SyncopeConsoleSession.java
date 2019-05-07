@@ -39,11 +39,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.lib.batch.BatchRequest;
+import org.apache.syncope.client.ui.commons.BaseSession;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
@@ -59,7 +60,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-public class SyncopeConsoleSession extends AuthenticatedWebSession {
+public class SyncopeConsoleSession extends AuthenticatedWebSession implements BaseSession {
 
     private static final long serialVersionUID = 747562246415852166L;
 
@@ -95,10 +96,9 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         super(request);
 
         clientFactory = SyncopeWebApplication.get().newClientFactory();
-        anonymousClient = clientFactory.
-                create(new AnonymousAuthenticationHandler(
-                        SyncopeWebApplication.get().getAnonymousUser(),
-                        SyncopeWebApplication.get().getAnonymousKey()));
+        anonymousClient = clientFactory.create(new AnonymousAuthenticationHandler(
+                SyncopeWebApplication.get().getAnonymousUser(),
+                SyncopeWebApplication.get().getAnonymousKey()));
 
         platformInfo = anonymousClient.getService(SyncopeService.class).platform();
         systemInfo = anonymousClient.getService(SyncopeService.class).system();
@@ -145,10 +145,12 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         return systemInfo;
     }
 
+    @Override
     public void setDomain(final String domain) {
         this.domain = domain;
     }
 
+    @Override
     public String getDomain() {
         return StringUtils.isBlank(domain) ? SyncopeConstants.MASTER_DOMAIN : domain;
     }

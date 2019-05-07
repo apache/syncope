@@ -22,7 +22,7 @@ import static de.agilecoders.wicket.jquery.JQuery.$;
 
 import de.agilecoders.wicket.jquery.function.JavaScriptInlineFunction;
 import java.util.ArrayList;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;

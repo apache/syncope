@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.console.policies.PolicyRuleWrapper;
 import org.apache.syncope.client.console.reports.ReportletWrapper;

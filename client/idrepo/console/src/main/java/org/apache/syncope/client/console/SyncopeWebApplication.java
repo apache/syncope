@@ -73,6 +73,7 @@ import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.pages.MustChangePassword;
+import org.apache.syncope.client.ui.commons.BaseApplication;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.keymaster.client.api.NetworkService;
@@ -85,7 +86,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
+public class SyncopeWebApplication extends WicketBootSecuredWebApplication implements BaseApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeWebApplication.class);
 
@@ -195,7 +196,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         maxPoolSize = Integer.valueOf(props.getProperty("executor.maxPoolSize", "10"));
         queueCapacity = Integer.valueOf(props.getProperty("executor.queueCapacity", "50"));
 
-        String csrf = props.getProperty("csrf");
+        boolean csrf = BooleanUtils.toBoolean(props.getProperty("csrf"));
 
         // process page properties
         pageClasses = new HashMap<>();
@@ -233,7 +234,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         getMarkupSettings().setStripWicketTags(true);
         getMarkupSettings().setCompressWhitespace(true);
 
-        if (BooleanUtils.toBoolean(csrf)) {
+        if (csrf) {
             getRequestCycleListeners().add(new WebSocketAwareCsrfPreventionRequestCycleListener());
         }
 
@@ -371,6 +372,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
                 setUseCompression(useGZIPCompression);
     }
 
+    @Override
     public List<String> getDomains() {
         synchronized (LOG) {
             if (domains == null) {

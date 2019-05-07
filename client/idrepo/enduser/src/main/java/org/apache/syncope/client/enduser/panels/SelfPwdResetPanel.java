@@ -20,10 +20,12 @@ package org.apache.syncope.client.enduser.panels;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.pages.BaseEnduserWebPage;
 import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.enduser.wizards.any.CaptchaPanel;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.DomainDropDown;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
@@ -61,8 +63,28 @@ public class SelfPwdResetPanel extends Panel implements IEventSource {
     public SelfPwdResetPanel(final String id, final PageReference pageRef) {
         super(id);
 
-        TextField<String> username = new TextField<>("username", new PropertyModel<>(SelfPwdResetPanel.this,
-                "usernameText"), String.class);
+        DomainDropDown domainSelect = new DomainDropDown("domain");
+        domainSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                // nothing to do
+            }
+        }).add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                // nothing to do
+            }
+        });
+        add(domainSelect);
+
+        TextField<String> username =
+                new TextField<>("username", new PropertyModel<>(this, "usernameText"), String.class);
         username.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
 
             private static final long serialVersionUID = -1107858522700306810L;
@@ -71,13 +93,12 @@ public class SelfPwdResetPanel extends Panel implements IEventSource {
             protected void onUpdate(final AjaxRequestTarget target) {
                 loadSecurityQuestion(pageRef, target);
             }
-
         });
         username.setRequired(true);
         add(username);
 
-        securityQuestion = new TextField<>("securityQuestion", new PropertyModel<>(Model.of(), "content"),
-                String.class);
+        securityQuestion =
+                new TextField<>("securityQuestion", new PropertyModel<>(Model.of(), "content"), String.class);
         securityQuestion.setOutputMarkupId(true);
         securityQuestion.setEnabled(false);
         add(securityQuestion);
@@ -93,14 +114,16 @@ public class SelfPwdResetPanel extends Panel implements IEventSource {
         };
         add(reloadLink);
 
-        AjaxTextFieldPanel securityAnswer = new AjaxTextFieldPanel("securityAnswer", "securityAnswer",
-                securityAnswerModel);
+        AjaxTextFieldPanel securityAnswer =
+                new AjaxTextFieldPanel("securityAnswer", "securityAnswer", securityAnswerModel);
         securityAnswer.setOutputMarkupId(true);
         securityAnswer.setOutputMarkupPlaceholderTag(true);
         securityAnswer.setRequired(true);
         add(securityAnswer);
 
         captcha = new CaptchaPanel<>("captchaPanel");
+        captcha.setOutputMarkupPlaceholderTag(true);
+        captcha.setVisible(SyncopeWebApplication.get().isCaptchaEnabled());
         add(captcha);
 
         AjaxButton submitButton = new AjaxButton("submit") {
@@ -109,14 +132,18 @@ public class SelfPwdResetPanel extends Panel implements IEventSource {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
-                // captcha check
-                if (!captcha.captchaCheck()) {
+                boolean checked = true;
+                if (SyncopeWebApplication.get().isCaptchaEnabled()) {
+                    // captcha check
+                    checked = captcha.captchaCheck();
+                }
+                if (!checked) {
                     SyncopeEnduserSession.get().error(getString(Constants.CAPTCHA_ERROR));
                     ((BaseEnduserWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 } else {
                     try {
-                        SyncopeEnduserSession.get().getService(UserSelfService.class)
-                                .requestPasswordReset(usernameText, securityAnswerModel.getObject());
+                        SyncopeEnduserSession.get().getService(UserSelfService.class).
+                                requestPasswordReset(usernameText, securityAnswerModel.getObject());
                         final PageParameters parameters = new PageParameters();
                         parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.pwd.reset.success"));
                         setResponsePage(Login.class, parameters);

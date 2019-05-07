@@ -70,7 +70,6 @@ services:
        - "38080:8080"
      restart: always
      environment:
-       DOMAIN: Master
        KEYMASTER_ADDRESS: http://syncope:8080/syncope/rest/keymaster
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}

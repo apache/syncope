@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.util.Set;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.common.lib.to.ResourceTO;

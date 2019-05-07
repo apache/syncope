@@ -47,9 +47,9 @@ import org.slf4j.LoggerFactory;
 
 public abstract class BaseLogin extends WebPage {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(BaseLogin.class);
-
     private static final long serialVersionUID = 5889157642852559004L;
+
+    protected static final Logger LOG = LoggerFactory.getLogger(BaseLogin.class);
 
     protected final NotificationPanel notificationPanel;
 
@@ -116,6 +116,26 @@ public abstract class BaseLogin extends WebPage {
         });
         form.add(languageSelect);
 
+        DomainDropDown domainSelect = new DomainDropDown("domain");
+        domainSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                // nothing to do
+            }
+        }).add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                // nothing to do
+            }
+        });
+        form.add(domainSelect);
+
         AjaxButton submitButton = new AjaxButton("submit", new Model<>(getString("submit"))) {
 
             private static final long serialVersionUID = 429178684321093953L;
@@ -144,6 +164,20 @@ public abstract class BaseLogin extends WebPage {
 
         add(form);
     }
+
+    @Override
+    public void renderHead(final IHeaderResponse response) {
+        super.renderHead(response);
+        if (StringUtils.isNotBlank(notificationMessage)) {
+            response.render(OnLoadHeaderItem.forScript(StyledNotificationBehavior.jQueryShow(notificationMessage,
+                    String.format("jQuery('#%s').data('kendoNotification')",
+                            notificationPanel.getNotificationMarkupId()), notificationLevel)));
+        }
+    }
+
+    protected abstract BaseApplication getBaseApplication();
+
+    protected abstract BaseSession getBaseSession();
 
     protected abstract List<Panel> getSSOLoginFormPanels();
 
@@ -202,16 +236,6 @@ public abstract class BaseLogin extends WebPage {
 
             // set default value to English
             getModel().setObject(Locale.ENGLISH);
-        }
-    }
-
-    @Override
-    public void renderHead(final IHeaderResponse response) {
-        super.renderHead(response);
-        if (StringUtils.isNotBlank(notificationMessage)) {
-            response.render(OnLoadHeaderItem.forScript(StyledNotificationBehavior.jQueryShow(notificationMessage,
-                    String.format("jQuery('#%s').data('kendoNotification')",
-                            notificationPanel.getNotificationMarkupId()), notificationLevel)));
         }
     }
 }

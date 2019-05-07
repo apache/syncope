@@ -27,7 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.ui.commons.status.Status;
 import org.apache.syncope.client.ui.commons.status.StatusBean;

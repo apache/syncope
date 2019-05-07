@@ -28,15 +28,17 @@ import java.util.concurrent.Future;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.common.lib.info.PlatformInfo;
+import org.apache.syncope.client.ui.commons.BaseSession;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.common.rest.api.service.SyncopeService;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.Request;
@@ -48,25 +50,25 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 /**
  * Custom Syncope Enduser Session class.
  */
-public class SyncopeEnduserSession extends WebSession {
+public class SyncopeEnduserSession extends WebSession implements BaseSession {
 
     private static final long serialVersionUID = 1284946129513378647L;
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeEnduserSession.class);
 
-    private final SyncopeClient anonymousClient;
-
     private final SyncopeClientFactoryBean clientFactory;
 
-    private SyncopeClient client;
+    private final SyncopeClient anonymousClient;
 
-    private final PlatformInfo platformInfo;
+    private SyncopeClient client;
 
     private UserTO selfTO;
 
     private final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<>());
 
     private final ThreadPoolTaskExecutor executor;
+
+    private String domain;
 
     public static SyncopeEnduserSession get() {
         return (SyncopeEnduserSession) Session.get();
@@ -76,11 +78,9 @@ public class SyncopeEnduserSession extends WebSession {
         super(request);
 
         clientFactory = SyncopeWebApplication.get().newClientFactory();
-        anonymousClient = clientFactory.
-                create(new AnonymousAuthenticationHandler(
-                        SyncopeWebApplication.get().getAnonymousUser(),
-                        SyncopeWebApplication.get().getAnonymousKey()));
-        platformInfo = anonymousClient.getService(SyncopeService.class).platform();
+        anonymousClient = clientFactory.create(new AnonymousAuthenticationHandler(
+                SyncopeWebApplication.get().getAnonymousUser(),
+                SyncopeWebApplication.get().getAnonymousKey()));
 
         executor = new ThreadPoolTaskExecutor();
         executor.setWaitForTasksToCompleteOnShutdown(false);
@@ -104,6 +104,16 @@ public class SyncopeEnduserSession extends WebSession {
         return client == null ? null : client.getJWT();
     }
 
+    @Override
+    public void setDomain(final String domain) {
+        this.domain = domain;
+    }
+
+    @Override
+    public String getDomain() {
+        return StringUtils.isBlank(domain) ? SyncopeConstants.MASTER_DOMAIN : domain;
+    }
+
     private void afterAuthentication(final String username) {
         try {
             selfTO = client.self().getRight();
@@ -124,7 +134,7 @@ public class SyncopeEnduserSession extends WebSession {
         boolean authenticated = false;
 
         try {
-            client = clientFactory.setDomain(SyncopeWebApplication.get().getDomain()).create(username, password);
+            client = clientFactory.setDomain(getDomain()).create(username, password);
 
             afterAuthentication(username);
 
@@ -140,7 +150,7 @@ public class SyncopeEnduserSession extends WebSession {
         boolean authenticated = false;
 
         try {
-            client = clientFactory.setDomain(SyncopeWebApplication.get().getDomain()).create(jwt);
+            client = clientFactory.setDomain(getDomain()).create(jwt);
 
             afterAuthentication(null);
 
@@ -168,9 +178,11 @@ public class SyncopeEnduserSession extends WebSession {
     }
 
     public <T> T getService(final Class<T> serviceClass) {
-        return (client == null || !isAuthenticated())
+        T service = (client == null || !isAuthenticated())
                 ? anonymousClient.getService(serviceClass)
                 : client.getService(serviceClass);
+        WebClient.client(service).header(RESTHeaders.DOMAIN, getDomain());
+        return service;
     }
 
     public <T> T getService(final String etag, final Class<T> serviceClass) {
@@ -194,10 +206,6 @@ public class SyncopeEnduserSession extends WebSession {
         }
 
         return service;
-    }
-
-    public PlatformInfo getPlatformInfo() {
-        return platformInfo;
     }
 
     public UserTO getSelfTO() {

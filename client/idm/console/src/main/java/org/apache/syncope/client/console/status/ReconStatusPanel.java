@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.status;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.panels.RemoteObjectPanel;
 import org.apache.syncope.client.console.wizards.any.ConnObjectPanel;
 import org.apache.syncope.common.lib.to.ConnObjectTO;

@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
@@ -48,12 +50,16 @@ import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.enduser.pages.MustChangePassword;
 import org.apache.syncope.client.enduser.pages.Self;
 import org.apache.syncope.client.enduser.pages.SelfConfirmPasswordReset;
+import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.client.ui.commons.BaseApplication;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.common.keymaster.client.api.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
@@ -76,7 +82,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SyncopeWebApplication extends WicketBootStandardWebApplication {
+public class SyncopeWebApplication extends WicketBootStandardWebApplication implements BaseApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeWebApplication.class);
 
@@ -88,6 +94,8 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
             new Locale[] {
                 Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE
             }));
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public static SyncopeWebApplication get() {
         return (SyncopeWebApplication) WebApplication.get();
@@ -104,8 +112,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
     private boolean useGZIPCompression;
 
-    private String domain;
-
     private String adminUser;
 
     private String anonymousUser;
@@ -113,8 +119,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
     private String anonymousKey;
 
     private boolean captchaEnabled;
-
-    private boolean xsrfEnabled;
 
     private Integer maxWaitTime;
 
@@ -126,9 +130,9 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
     private Integer maxUploadFileSizeMB;
 
-    private Map<String, CustomAttributesInfo> customFormAttributes;
+    private List<String> domains;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private Map<String, CustomAttributesInfo> customFormAttributes;
 
     @Override
     protected void init() {
@@ -137,7 +141,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         // read enduser.properties
         Properties props = PropertyUtils.read(getClass(), ENDUSER_PROPERTIES, "enduser.directory");
 
-        domain = props.getProperty("domain", SyncopeConstants.MASTER_DOMAIN);
         adminUser = props.getProperty("adminUser");
         Args.notNull(adminUser, "<adminUser>");
         anonymousUser = props.getProperty("anonymousUser");
@@ -148,8 +151,8 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         captchaEnabled = Boolean.parseBoolean(props.getProperty("captcha"));
         Args.notNull(captchaEnabled, "<captcha>");
 
-        xsrfEnabled = Boolean.parseBoolean(props.getProperty("xsrf"));
-        Args.notNull(xsrfEnabled, "<xsrf>");
+        boolean xsrf = Boolean.parseBoolean(props.getProperty("xsrf"));
+        Args.notNull(xsrf, "<xsrf>");
 
         useGZIPCompression = BooleanUtils.toBoolean(props.getProperty("useGZIPCompression"));
         Args.notNull(useGZIPCompression, "<useGZIPCompression>");
@@ -253,9 +256,7 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         getMarkupSettings().setStripWicketTags(true);
         getMarkupSettings().setCompressWhitespace(true);
 
-        String csrf = props.getProperty("csrf");
-
-        if (BooleanUtils.toBoolean(csrf)) {
+        if (xsrf) {
             getRequestCycleListeners().add(new CsrfPreventionRequestCycleListener());
         }
 
@@ -332,12 +333,23 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
                 setUseCompression(useGZIPCompression);
     }
 
-    protected Class<? extends WebPage> getSignInPageClass() {
-        return Login.class;
+    @Override
+    public List<String> getDomains() {
+        synchronized (LOG) {
+            if (domains == null) {
+                domains = newClientFactory().create(
+                        new AnonymousAuthenticationHandler(anonymousUser, anonymousKey)).
+                        getService(DomainService.class).list().stream().map(EntityTO::getKey).
+                        collect(Collectors.toList());
+                domains.add(0, SyncopeConstants.MASTER_DOMAIN);
+                domains = ListUtils.unmodifiableList(domains);
+            }
+        }
+        return domains;
     }
 
-    public String getDomain() {
-        return domain;
+    protected Class<? extends WebPage> getSignInPageClass() {
+        return Login.class;
     }
 
     public String getAdminUser() {
@@ -356,10 +368,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         return captchaEnabled;
     }
 
-    public boolean isXsrfEnabled() {
-        return xsrfEnabled;
-    }
-
     public Integer getMaxUploadFileSizeMB() {
         return maxUploadFileSizeMB;
     }
@@ -368,32 +376,16 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         return corePoolSize;
     }
 
-    public void setCorePoolSize(final Integer corePoolSize) {
-        this.corePoolSize = corePoolSize;
-    }
-
     public Integer getMaxPoolSize() {
         return maxPoolSize;
-    }
-
-    public void setMaxPoolSize(final Integer maxPoolSize) {
-        this.maxPoolSize = maxPoolSize;
     }
 
     public Integer getQueueCapacity() {
         return queueCapacity;
     }
 
-    public void setQueueCapacity(final Integer queueCapacity) {
-        this.queueCapacity = queueCapacity;
-    }
-
     public Integer getMaxWaitTimeInSeconds() {
         return maxWaitTime;
-    }
-
-    public void setMaxWaitTime(final Integer maxWaitTime) {
-        this.maxWaitTime = maxWaitTime;
     }
 
     public Map<String, CustomAttributesInfo> getCustomFormAttributes() {

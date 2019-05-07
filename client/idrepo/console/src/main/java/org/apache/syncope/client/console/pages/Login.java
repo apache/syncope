@@ -18,31 +18,24 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
 import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.ui.commons.BaseApplication;
 import org.apache.syncope.client.ui.commons.BaseLogin;
-import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.authentication.IAuthenticationStrategy;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Login extends BaseLogin {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Login.class);
 
     private static final long serialVersionUID = 5889157642852559004L;
 
@@ -51,29 +44,16 @@ public class Login extends BaseLogin {
 
     public Login(final PageParameters parameters) {
         super(parameters);
+    }
 
-        DomainDropDown domainSelect = new DomainDropDown("domain");
-        if (SyncopeWebApplication.get().getDomains().size() == 1) {
-            domainSelect.setOutputMarkupPlaceholderTag(true);
-        }
-        domainSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
+    @Override
+    protected BaseApplication getBaseApplication() {
+        return SyncopeWebApplication.get();
+    }
 
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
-            }
-        }).add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
-
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
-            }
-        });
-        form.add(domainSelect);
+    @Override
+    protected BaseSession getBaseSession() {
+        return SyncopeConsoleSession.get();
     }
 
     @Override
@@ -123,40 +103,5 @@ public class Login extends BaseLogin {
             notificationPanel.refresh(target);
         }
         strategy.remove();
-    }
-
-    /**
-     * Inner class which implements (custom) Domain DropDownChoice component.
-     */
-    private class DomainDropDown extends BootstrapSelect<String> {
-
-        private static final long serialVersionUID = -7401167913360133325L;
-
-        DomainDropDown(final String id) {
-            super(id, SyncopeWebApplication.get().getDomains());
-
-            setModel(new IModel<String>() {
-
-                private static final long serialVersionUID = -1124206668056084806L;
-
-                @Override
-                public String getObject() {
-                    return SyncopeConsoleSession.get().getDomain();
-                }
-
-                @Override
-                public void setObject(final String object) {
-                    SyncopeConsoleSession.get().setDomain(object);
-                }
-
-                @Override
-                public void detach() {
-                    // Empty.
-                }
-            });
-
-            // set default value to Master Domain
-            getModel().setObject(SyncopeConstants.MASTER_DOMAIN);
-        }
     }
 }

@@ -47,5 +47,4 @@ public class SelfPasswordReset extends BaseEnduserWebPage {
 
         form.add(pwdResetPanel);
     }
-
 }

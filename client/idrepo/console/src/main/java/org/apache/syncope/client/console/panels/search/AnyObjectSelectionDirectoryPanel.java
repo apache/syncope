@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.panels.search;
 
 import java.util.List;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.panels.AnyObjectDisplayAttributesModalPanel;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;

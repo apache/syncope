@@ -25,7 +25,9 @@ import java.util.Locale;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.ui.commons.BaseApplication;
 import org.apache.syncope.client.ui.commons.BaseLogin;
+import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -44,6 +46,16 @@ public class Login extends BaseLogin {
 
         add(new BookmarkablePageLink<>("self-registration", Self.class).setOutputMarkupId(true));
         add(new BookmarkablePageLink<>("self-pwd-reset", SelfPasswordReset.class).setOutputMarkupId(true));
+    }
+
+    @Override
+    protected BaseApplication getBaseApplication() {
+        return SyncopeWebApplication.get();
+    }
+
+    @Override
+    protected BaseSession getBaseSession() {
+        return SyncopeEnduserSession.get();
     }
 
     @Override
@@ -79,8 +91,11 @@ public class Login extends BaseLogin {
             final String username,
             final String password,
             final AjaxRequestTarget target) throws AccessControlException {
+
         if (!SyncopeWebApplication.get().getAdminUser().equalsIgnoreCase(username)
+                && !SyncopeWebApplication.get().getAnonymousUser().equalsIgnoreCase(username)
                 && SyncopeEnduserSession.get().authenticate(username, password)) {
+
             // user has been authenticated successfully
             continueToOriginalDestination();
             setResponsePage(getApplication().getHomePage());
@@ -90,5 +105,4 @@ public class Login extends BaseLogin {
             notificationPanel.refresh(target);
         }
     }
-
 }

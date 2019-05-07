@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.panels.AnyDirectoryPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel.ListViewReload;

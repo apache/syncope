@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -41,5 +41,4 @@ public class ModelerPopupPage extends WebPage {
                 + "/index.html#/editor/" + modelId.toString()));
         add(refresh);
     }
-
 }

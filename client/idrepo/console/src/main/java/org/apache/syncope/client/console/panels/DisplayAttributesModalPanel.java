@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;

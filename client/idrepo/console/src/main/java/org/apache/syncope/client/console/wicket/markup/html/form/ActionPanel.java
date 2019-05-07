@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.wicket.markup.html.form;
 import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.link.VeilPopupSettings;
 import org.apache.wicket.AttributeModifier;

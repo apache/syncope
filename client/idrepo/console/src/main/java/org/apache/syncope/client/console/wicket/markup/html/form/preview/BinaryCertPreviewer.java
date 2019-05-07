@@ -26,7 +26,7 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
