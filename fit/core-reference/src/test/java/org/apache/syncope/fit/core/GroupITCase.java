@@ -1116,4 +1116,43 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(groupTO);
         assertEquals("11.23", groupTO.getPlainAttr(doubleSchemaName).get().getValues().get(0));
     }
+
+    @Test
+    public void issueSYNCOPE1467() {
+        GroupTO groupTO = null;
+        try {
+            groupTO = new GroupTO();
+            groupTO.setRealm(SyncopeConstants.ROOT_REALM);
+            groupTO.setName("issueSYNCOPE1467");
+            groupTO.getResources().add(RESOURCE_NAME_LDAP);
+
+            groupTO = createGroup(groupTO).getEntity();
+            assertNotNull(groupTO);
+            assertTrue(groupTO.getResources().contains(RESOURCE_NAME_LDAP));
+
+            ConnObjectTO connObjectTO =
+                    resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
+            assertNotNull(connObjectTO);
+            assertEquals("issueSYNCOPE1467", connObjectTO.getAttr("cn").get().getValues().get(0));
+
+            GroupPatch groupPatch = new GroupPatch();
+            groupPatch.setKey(groupTO.getKey());
+            groupPatch.setName(new StringReplacePatchItem.Builder().value("fixedSYNCOPE1467").build());
+
+            assertNotNull(updateGroup(groupPatch).getEntity());
+
+            // Assert resources are present
+            ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+            assertNotNull(ldap);
+
+            connObjectTO = resourceService.
+                    readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
+            assertNotNull(connObjectTO);
+            assertEquals("fixedSYNCOPE1467", connObjectTO.getAttr("cn").get().getValues().get(0));
+        } finally {
+            if (groupTO.getKey() != null) {
+                groupService.delete(groupTO.getKey());
+            }
+        }
+    }
 }
