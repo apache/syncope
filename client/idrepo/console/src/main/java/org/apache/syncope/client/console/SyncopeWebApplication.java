@@ -110,8 +110,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
     @Value("${service.discovery.address}")
     private String address;
 
-    private String site;
-
     private String anonymousUser;
 
     private String anonymousKey;
@@ -176,8 +174,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
         // read console.properties
         Properties props = PropertyUtils.read(getClass(), CONSOLE_PROPERTIES, "console.directory");
 
-        site = props.getProperty("site");
-        Args.notNull(site, "<site>");
         anonymousUser = props.getProperty("anonymousUser");
         Args.notNull(anonymousUser, "<anonymousUser>");
         anonymousKey = props.getProperty("anonymousKey");
@@ -328,10 +324,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
 
     public Class<? extends BasePage> getPageClass(final String key) {
         return pageClasses.get(key);
-    }
-
-    public String getSite() {
-        return site;
     }
 
     public String getAnonymousUser() {
