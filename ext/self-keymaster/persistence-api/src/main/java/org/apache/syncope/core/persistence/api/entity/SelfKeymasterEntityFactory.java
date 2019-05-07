@@ -21,4 +21,6 @@ package org.apache.syncope.core.persistence.api.entity;
 public interface SelfKeymasterEntityFactory {
 
     ConfParam newConfParam();
+
+    Service newService();
 }

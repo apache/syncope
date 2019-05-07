@@ -22,8 +22,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public abstract class BatchItem implements Serializable {
 
@@ -51,7 +51,38 @@ public abstract class BatchItem implements Serializable {
     }
 
     @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(headers).
+                append(content).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final BatchItem other = (BatchItem) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(headers, other.headers).
+                append(content, other.content).
+                build();
+    }
+
+    @Override
     public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
+        return "BatchItem{"
+                + "headers=" + headers + ", "
+                + "content=" + content
+                + '}';
     }
 }

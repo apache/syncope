@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
@@ -32,14 +31,28 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.OIDCConstants;
 import org.apache.syncope.common.lib.to.OIDCLoginRequestTO;
 import org.apache.syncope.common.rest.api.service.OIDCClientService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
-public class Login extends HttpServlet {
+public class Login extends AbstractOIDCClientServlet {
 
     private static final long serialVersionUID = 968480296813639041L;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(Login.class);
+    private final String anonymousUser;
+
+    private final String anonymousKey;
+
+    private final boolean useGZIPCompression;
+
+    public Login(final ApplicationContext ctx,
+            final String anonymousUser,
+            final String anonymousKey,
+            final boolean useGZIPCompression) {
+
+        super(ctx);
+        this.anonymousUser = anonymousUser;
+        this.anonymousKey = anonymousKey;
+        this.useGZIPCompression = useGZIPCompression;
+    }
 
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
@@ -47,8 +60,8 @@ public class Login extends HttpServlet {
 
         String op = request.getParameter(Constants.PARAM_OP);
 
-        SyncopeClient anonymous = (SyncopeClient) request.getServletContext().
-                getAttribute(Constants.SYNCOPE_ANONYMOUS_CLIENT);
+        SyncopeClient anonymous =
+                getAnonymousClient(request.getServletContext(), anonymousUser, anonymousKey, useGZIPCompression);
         try {
             String redirectURI = StringUtils.substringBefore(request.getRequestURL().toString(), "/login")
                     + "/code-consumer";

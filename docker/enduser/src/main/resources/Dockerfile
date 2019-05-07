@@ -29,7 +29,6 @@ RUN mkdir /opt/syncope/log
 
 COPY *.properties /opt/syncope/conf/
 COPY *.json /opt/syncope/conf/
-COPY *.properties.template /opt/syncope/conf/
 COPY log4j2.xml /opt/syncope/conf/
 
 COPY syncope-docker-enduser-*war /opt/syncope/lib/syncope-enduser.war

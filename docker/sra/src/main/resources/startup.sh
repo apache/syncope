@@ -17,11 +17,6 @@
 # specific language governing permissions and limitations
 # under the License.
 
-cd /opt/syncope/conf
-
-sed "s/\${CORE_SCHEME}/$CORE_SCHEME/" sra.properties.template | 
-sed "s/\${CORE_HOST}/$CORE_HOST/" | sed "s/\${CORE_PORT}/$CORE_PORT/" > sra.properties
-
 export LOADER_PATH="/opt/syncope/conf,/opt/syncope/lib"
 java -Dfile.encoding=UTF-8 -server -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m \
  -XX:+DisableExplicitGC -Djava.security.egd=file:/dev/./urandom -jar /opt/syncope/lib/syncope-sra.jar

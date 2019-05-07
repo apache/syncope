@@ -49,6 +49,7 @@ import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
 import org.apache.syncope.common.keymaster.client.zookeper.ZookeeperKeymasterClientContext;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
@@ -361,6 +362,9 @@ public abstract class AbstractITCase {
 
     @Autowired
     protected ConfParamOps confParamOps;
+
+    @Autowired
+    protected ServiceOps serviceOps;
 
     @Autowired
     protected DataSource testDataSource;

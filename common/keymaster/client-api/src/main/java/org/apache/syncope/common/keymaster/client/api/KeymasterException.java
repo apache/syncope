@@ -22,7 +22,15 @@ public class KeymasterException extends RuntimeException {
 
     private static final long serialVersionUID = 3007656743901867906L;
 
+    public KeymasterException(final String message) {
+        super(message);
+    }
+
     public KeymasterException(final Throwable cause) {
         super(cause);
+    }
+
+    public KeymasterException(final String message, final Throwable cause) {
+        super(message, cause);
     }
 }

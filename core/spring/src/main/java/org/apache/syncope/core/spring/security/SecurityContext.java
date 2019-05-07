@@ -20,7 +20,6 @@ package org.apache.syncope.core.spring.security;
 
 import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.spring.DefaultRolesPrefixPostProcessor;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureProvider;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureVerifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -29,6 +28,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 
 @PropertySource("classpath:security.properties")
 @PropertySource(value = "file:${conf.directory}/security.properties", ignoreResourceNotFound = true)
@@ -108,8 +108,8 @@ public class SecurityContext implements EnvironmentAware {
     }
 
     @Bean
-    public DefaultRolesPrefixPostProcessor rolesPrefixPostProcessor() {
-        return new DefaultRolesPrefixPostProcessor();
+    public GrantedAuthorityDefaults grantedAuthorityDefaults() {
+        return new GrantedAuthorityDefaults(""); // Remove the ROLE_ prefix
     }
 
     @Bean

@@ -24,58 +24,33 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.cxf.jaxrs.client.Client;
-import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
-import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.ext.self.keymaster.api.service.ConfParamService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SelfKeymasterConfParamOps implements ConfParamOps {
+public class SelfKeymasterConfParamOps extends SelfKeymasterOps implements ConfParamOps {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfParamOps.class);
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private final JAXRSClientFactoryBean clientFactory;
-
     public SelfKeymasterConfParamOps(final JAXRSClientFactoryBean clientFactory) {
-        this.clientFactory = clientFactory;
-    }
-
-    private ConfParamService client(final String domain) {
-        ConfParamService service;
-        synchronized (clientFactory) {
-            clientFactory.setServiceClass(ConfParamService.class);
-            clientFactory.setHeaders(Map.of(RESTHeaders.DOMAIN, domain));
-            service = clientFactory.create(ConfParamService.class);
-        }
-
-        Client client = WebClient.client(service);
-        client.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
-
-        ClientConfiguration config = WebClient.getConfig(client);
-        config.getInInterceptors().add(new GZIPInInterceptor());
-        config.getOutInterceptors().add(new GZIPOutInterceptor());
-
-        return service;
+        super(clientFactory);
     }
 
     @Override
     public Map<String, Object> list(final String domain) {
-        return client(domain).list();
+        return client(ConfParamService.class, Map.of(RESTHeaders.DOMAIN, domain)).list();
     }
 
     @Override
     public <T> T get(final String domain, final String key, final T defaultValue, final Class<T> reference) {
-        Response response = client(domain).get(key);
+        Response response = client(ConfParamService.class, Map.of(RESTHeaders.DOMAIN, domain)).get(key);
         if (response.getStatus() != Response.Status.OK.getStatusCode()) {
             return defaultValue;
         }
@@ -96,15 +71,16 @@ public class SelfKeymasterConfParamOps implements ConfParamOps {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 MAPPER.writeValue(baos, value);
 
-                client(domain).set(key, new ByteArrayInputStream(baos.toByteArray()));
+                client(ConfParamService.class, Map.of(RESTHeaders.DOMAIN, domain)).
+                        set(key, new ByteArrayInputStream(baos.toByteArray()));
             } catch (IOException e) {
-                throw new IllegalArgumentException("Could not serialize " + value, e);
+                throw new KeymasterException("Could not serialize " + value, e);
             }
         }
     }
 
     @Override
     public void remove(final String domain, final String key) {
-        client(domain).remove(key);
+        client(ConfParamService.class, Map.of(RESTHeaders.DOMAIN, domain)).remove(key);
     }
 }

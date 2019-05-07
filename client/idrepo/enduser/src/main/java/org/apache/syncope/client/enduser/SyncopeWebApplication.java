@@ -50,6 +50,8 @@ import org.apache.syncope.client.enduser.pages.Self;
 import org.apache.syncope.client.enduser.pages.SelfConfirmPasswordReset;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
+import org.apache.syncope.common.keymaster.client.api.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.Page;
@@ -70,12 +72,11 @@ import org.apache.wicket.util.lang.Args;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SyncopeWebApplication extends WicketBootStandardWebApplication {
-
-    private static final long serialVersionUID = -6445919351044845120L;
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeWebApplication.class);
 
@@ -95,15 +96,13 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
     @Autowired
     private ClassPathScanImplementationLookup lookup;
 
-    private String scheme;
+    @Autowired
+    private ServiceOps serviceOps;
 
-    private String host;
+    @Value("${service.discovery.address}")
+    private String address;
 
-    private String port;
-
-    private String rootPath;
-
-    private String useGZIPCompression;
+    private boolean useGZIPCompression;
 
     private String domain;
 
@@ -127,8 +126,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
     private Integer maxUploadFileSizeMB;
 
-    private SyncopeClientFactoryBean clientFactory;
-
     private Map<String, CustomAttributesInfo> customFormAttributes;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -139,17 +136,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
         // read enduser.properties
         Properties props = PropertyUtils.read(getClass(), ENDUSER_PROPERTIES, "enduser.directory");
-
-        scheme = props.getProperty("scheme");
-        Args.notNull(scheme, "<scheme>");
-        host = props.getProperty("host");
-        Args.notNull(host, "<host>");
-        port = props.getProperty("port");
-        Args.notNull(port, "<port>");
-        rootPath = props.getProperty("rootPath");
-        Args.notNull(rootPath, "<rootPath>");
-        useGZIPCompression = props.getProperty("useGZIPCompression");
-        Args.notNull(useGZIPCompression, "<useGZIPCompression>");
 
         domain = props.getProperty("domain", SyncopeConstants.MASTER_DOMAIN);
         adminUser = props.getProperty("adminUser");
@@ -165,6 +151,8 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         xsrfEnabled = Boolean.parseBoolean(props.getProperty("xsrf"));
         Args.notNull(xsrfEnabled, "<xsrf>");
 
+        useGZIPCompression = BooleanUtils.toBoolean(props.getProperty("useGZIPCompression"));
+        Args.notNull(useGZIPCompression, "<useGZIPCompression>");
         maxUploadFileSizeMB = props.getProperty("maxUploadFileSizeMB") == null
                 ? null
                 : Integer.valueOf(props.getProperty("maxUploadFileSizeMB"));
@@ -175,11 +163,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         corePoolSize = Integer.valueOf(props.getProperty("executor.corePoolSize", "5"));
         maxPoolSize = Integer.valueOf(props.getProperty("executor.maxPoolSize", "10"));
         queueCapacity = Integer.valueOf(props.getProperty("executor.queueCapacity", "50"));
-
-        clientFactory = new SyncopeClientFactoryBean().
-                setAddress(scheme + "://" + host + ":" + port + StringUtils.prependIfMissing(rootPath, "/")).
-                setContentType(SyncopeClientFactoryBean.ContentType.JSON).
-                setUseCompression(BooleanUtils.toBoolean(useGZIPCompression));
 
         // read customFormAttributes.json
         File enduserDir;
@@ -321,6 +304,11 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         if (getDebugSettings().isAjaxDebugModeEnabled()) {
             getDebugSettings().setComponentPathAttributeName("syncope-path");
         }
+
+        NetworkService ns = new NetworkService();
+        ns.setType(NetworkService.Type.ENDUSER);
+        ns.setAddress(address);
+        serviceOps.register(ns);
     }
 
     @Override
@@ -340,8 +328,8 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
     public SyncopeClientFactoryBean newClientFactory() {
         return new SyncopeClientFactoryBean().
-                setAddress(scheme + "://" + host + ":" + port + StringUtils.prependIfMissing(rootPath, "/")).
-                setUseCompression(BooleanUtils.toBoolean(useGZIPCompression));
+                setAddress(serviceOps.get(NetworkService.Type.CORE).getAddress()).
+                setUseCompression(useGZIPCompression);
     }
 
     protected Class<? extends WebPage> getSignInPageClass() {
@@ -362,10 +350,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
     public String getAnonymousKey() {
         return anonymousKey;
-    }
-
-    public SyncopeClientFactoryBean getClientFactory() {
-        return clientFactory;
     }
 
     public boolean isCaptchaEnabled() {

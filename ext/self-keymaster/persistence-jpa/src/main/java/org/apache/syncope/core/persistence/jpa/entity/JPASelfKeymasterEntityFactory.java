@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import org.apache.syncope.core.persistence.api.entity.ConfParam;
 import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
+import org.apache.syncope.core.persistence.api.entity.Service;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -28,5 +30,12 @@ public class JPASelfKeymasterEntityFactory implements SelfKeymasterEntityFactory
     @Override
     public ConfParam newConfParam() {
         return new JPAConfParam();
+    }
+
+    @Override
+    public Service newService() {
+        JPAService service = new JPAService();
+        service.setKey(SecureRandomUtils.generateRandomUUID().toString());
+        return service;
     }
 }

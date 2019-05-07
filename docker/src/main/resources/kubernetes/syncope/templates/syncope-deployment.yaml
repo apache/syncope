@@ -26,9 +26,6 @@ data:
  DB_POOL_MAX: "{{.Values.syncopeEnvironment.dbPoolMax}}"
  DB_POOL_MIN: "{{.Values.syncopeEnvironment.dbPoolMin}}"
  OPENJPA_REMOTE_COMMIT: sjvm
- CORE_SCHEME: "{{.Values.syncopeEnvironment.coreScheme}}"
- CORE_HOST: "{{.Values.syncopeEnvironment.coreHost}}"
- CORE_PORT: "{{.Values.syncopeEnvironment.corePort}}"
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment

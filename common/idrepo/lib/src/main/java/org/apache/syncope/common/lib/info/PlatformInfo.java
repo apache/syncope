@@ -244,6 +244,8 @@ public class PlatformInfo implements Serializable {
 
     private String keymasterConfParamOps;
 
+    private String keymasterServiceOps;
+
     private final ProvisioningInfo provisioningInfo = new ProvisioningInfo();
 
     private final WorkflowInfo workflowInfo = new WorkflowInfo();
@@ -284,6 +286,10 @@ public class PlatformInfo implements Serializable {
 
     public String getKeymasterConfParamOps() {
         return keymasterConfParamOps;
+    }
+
+    public String getKeymasterServiceOps() {
+        return keymasterServiceOps;
     }
 
     public ProvisioningInfo getProvisioningInfo() {
@@ -389,6 +395,10 @@ public class PlatformInfo implements Serializable {
 
     public void setKeymasterConfParamOps(final String keymasterConfParamOps) {
         this.keymasterConfParamOps = keymasterConfParamOps;
+    }
+
+    public void setKeymasterServiceOps(final String keymasterServiceOps) {
+        this.keymasterServiceOps = keymasterServiceOps;
     }
 
     public void setSelfRegAllowed(final boolean selfRegAllowed) {

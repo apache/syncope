@@ -181,12 +181,13 @@ under the License.
 
                     <copy file="${project.build.directory}/test-classes/enduser.properties" 
                           todir="${project.build.directory}/${project.build.finalName}/WEB-INF/classes" 
-                          overwrite="true"/>
-                    
+                          overwrite="true"/>                    
+                    <copy file="${project.build.directory}/test-classes/keymaster.properties" 
+                          todir="${project.build.directory}/${project.build.finalName}/WEB-INF/classes" 
+                          overwrite="true"/>                    
                     <copy file="${project.build.directory}/test-classes/customFormAttributes.json" 
                           todir="${project.build.directory}/${project.build.finalName}/WEB-INF/classes" 
                           overwrite="true"/>
-                    
                     <copy file="${project.build.directory}/test-classes/customTemplate.json" 
                           todir="${project.build.directory}/${project.build.finalName}/WEB-INF/classes" 
                           overwrite="true"/>

@@ -47,6 +47,7 @@ services:
        KEYMASTER_ADDRESS: http://localhost:8080/syncope/rest/keymaster
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}
+       SERVICE_DISCOVERY_ADDRESS: http://syncope1:8080/syncope/rest/
 
    syncope2:
      depends_on:
@@ -66,6 +67,7 @@ services:
        KEYMASTER_ADDRESS: http://localhost:8080/syncope/rest/keymaster
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}
+       SERVICE_DISCOVERY_ADDRESS: http://syncope2:8080/syncope/rest/
 
    syncope-console:
      depends_on:
@@ -75,12 +77,10 @@ services:
        - "28080:8080"
      restart: always
      environment:
-       CORE_SCHEME: http
-       CORE_HOST: syncope1
-       CORE_PORT: 8080
        KEYMASTER_ADDRESS: http://syncope1:8080/syncope/rest/keymaster
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}
+       SERVICE_DISCOVERY_ADDRESS: http://syncope-console:8080/syncope-console/
 
    syncope-enduser:
      depends_on:
@@ -90,10 +90,8 @@ services:
        - "38080:8080"
      restart: always
      environment:
-       CORE_SCHEME: http
-       CORE_HOST: syncope1
-       CORE_PORT: 8080
        DOMAIN: Master
        KEYMASTER_ADDRESS: http://syncope1:8080/syncope/rest/keymaster
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}
+       SERVICE_DISCOVERY_ADDRESS: http://syncope-enduser:8080/syncope-enduser/

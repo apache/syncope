@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
@@ -45,7 +46,7 @@ public class SelfKeymasterClientContext {
 
     @ConditionalOnExpression("#{'${keymaster.address}' matches '^http.+'}")
     @Bean
-    public ConfParamOps selfConfParamOps() {
+    public JAXRSClientFactoryBean selfKeymasterRESTClientFactoryBean() {
         JAXRSClientFactoryBean restClientFactoryBean = new JAXRSClientFactoryBean();
         restClientFactoryBean.setAddress(address);
         restClientFactoryBean.setUsername(username);
@@ -54,7 +55,18 @@ public class SelfKeymasterClientContext {
         restClientFactoryBean.setInheritHeaders(true);
         restClientFactoryBean.setFeatures(Arrays.asList(new LoggingFeature()));
         restClientFactoryBean.setProviders(Arrays.asList(new JacksonJsonProvider()));
+        return restClientFactoryBean;
+    }
 
-        return new SelfKeymasterConfParamOps(restClientFactoryBean);
+    @ConditionalOnExpression("#{'${keymaster.address}' matches '^http.+'}")
+    @Bean
+    public ConfParamOps selfConfParamOps() {
+        return new SelfKeymasterConfParamOps(selfKeymasterRESTClientFactoryBean());
+    }
+
+    @ConditionalOnExpression("#{'${keymaster.address}' matches '^http.+'}")
+    @Bean
+    public ServiceOps selfServiceOps() {
+        return new SelfKeymasterServiceOps(selfKeymasterRESTClientFactoryBean(), 5);
     }
 }

@@ -26,8 +26,7 @@ RUN mkdir /opt/syncope/conf
 RUN mkdir /opt/syncope/lib
 RUN mkdir /opt/syncope/log
 
-COPY application.properties /opt/syncope/conf/
-COPY *.properties.template /opt/syncope/conf/
+COPY *.properties /opt/syncope/conf/
 COPY log4j2.xml /opt/syncope/conf/
 
 COPY syncope-docker-console-*war /opt/syncope/lib/syncope-console.war

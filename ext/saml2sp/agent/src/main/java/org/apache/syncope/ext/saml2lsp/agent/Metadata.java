@@ -21,7 +21,6 @@ package org.apache.syncope.ext.saml2lsp.agent;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
@@ -31,17 +30,36 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
+import org.springframework.context.ApplicationContext;
 
-public class Metadata extends HttpServlet {
+public class Metadata extends AbstractSAML2SPServlet {
 
     private static final long serialVersionUID = 694030186105137875L;
+
+    private final String anonymousUser;
+
+    private final String anonymousKey;
+
+    private final boolean useGZIPCompression;
+
+    public Metadata(
+            final ApplicationContext ctx,
+            final String anonymousUser,
+            final String anonymousKey,
+            final boolean useGZIPCompression) {
+
+        super(ctx);
+        this.anonymousUser = anonymousUser;
+        this.anonymousKey = anonymousKey;
+        this.useGZIPCompression = useGZIPCompression;
+    }
 
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
 
-        SyncopeClient anonymous = (SyncopeClient) request.getServletContext().
-                getAttribute(Constants.SYNCOPE_ANONYMOUS_CLIENT);
+        SyncopeClient anonymous =
+                getAnonymousClient(request.getServletContext(), anonymousUser, anonymousKey, useGZIPCompression);
         SAML2SPService service = anonymous.getService(SAML2SPService.class);
         WebClient.client(service).accept(MediaType.APPLICATION_XML_TYPE).type(MediaType.APPLICATION_XML_TYPE);
         try {

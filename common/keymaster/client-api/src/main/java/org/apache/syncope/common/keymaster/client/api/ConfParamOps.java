@@ -21,7 +21,7 @@ package org.apache.syncope.common.keymaster.client.api;
 import java.util.Map;
 
 /**
- * Operations available for configuration parameters, managed by the configured Keymaster(s).
+ * Operations available for configuration parameters.
  */
 public interface ConfParamOps {
 

@@ -20,21 +20,30 @@ package org.apache.syncope.ext.oidcclient.agent;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriBuilder;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.OIDCConstants;
 import org.apache.syncope.common.lib.to.OIDCLogoutRequestTO;
 import org.apache.syncope.common.rest.api.service.OIDCClientService;
+import org.springframework.context.ApplicationContext;
 
-public class BeforeLogout extends HttpServlet {
+public class BeforeLogout extends AbstractOIDCClientServlet {
 
     private static final long serialVersionUID = -5920740403138557179L;
+
+    private final boolean useGZIPCompression;
+
+    public BeforeLogout(
+            final ApplicationContext ctx,
+            final boolean useGZIPCompression) {
+
+        super(ctx);
+        this.useGZIPCompression = useGZIPCompression;
+    }
 
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
@@ -44,14 +53,13 @@ public class BeforeLogout extends HttpServlet {
         response.setHeader("Pragma", "no-cache");
         response.setStatus(HttpServletResponse.SC_SEE_OTHER);
 
-        SyncopeClientFactoryBean clientFactory = (SyncopeClientFactoryBean) request.getServletContext().
-                getAttribute(Constants.SYNCOPE_CLIENT_FACTORY);
         String accessToken = (String) request.getSession().getAttribute(Constants.OIDCCLIENTJWT);
         if (StringUtils.isBlank(accessToken)) {
             throw new IllegalArgumentException("No access token found ");
         }
-        SyncopeClient client = clientFactory.create(accessToken);
-        OIDCLogoutRequestTO requestTO = client.getService(OIDCClientService.class).
+
+        SyncopeClientFactoryBean clientFactory = getClientFactory(request.getServletContext(), useGZIPCompression);
+        OIDCLogoutRequestTO requestTO = clientFactory.create(accessToken).getService(OIDCClientService.class).
                 createLogoutRequest(request.getSession().getAttribute(OIDCConstants.OP).toString());
 
         String postLogoutRedirectURI = StringUtils.substringBefore(request.getRequestURL().toString(), "/beforelogout")

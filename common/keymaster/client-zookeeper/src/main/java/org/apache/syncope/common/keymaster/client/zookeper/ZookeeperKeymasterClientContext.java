@@ -28,6 +28,7 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.ACLProvider;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.server.auth.DigestLoginModule;
@@ -57,31 +58,27 @@ public class ZookeeperKeymasterClientContext {
     @Value("${keymaster.maxRetries:3}")
     private Integer maxRetries;
 
-    private javax.security.auth.login.Configuration createJaasConfig() {
-        return new javax.security.auth.login.Configuration() {
-
-            private final AppConfigurationEntry[] entries = {
-                new AppConfigurationEntry(
-                DigestLoginModule.class.getName(),
-                AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
-                Map.of(
-                "username", username,
-                "password", password
-                ))
-            };
-
-            @Override
-            public AppConfigurationEntry[] getAppConfigurationEntry(final String name) {
-                return entries;
-            }
-        };
-    }
-
     @ConditionalOnExpression("#{'${keymaster.address}' matches '^(?!http).+'}")
     @Bean
     public CuratorFramework curatorFramework() throws InterruptedException {
         if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
-            javax.security.auth.login.Configuration.setConfiguration(createJaasConfig());
+            javax.security.auth.login.Configuration.setConfiguration(new javax.security.auth.login.Configuration() {
+
+                private final AppConfigurationEntry[] entries = {
+                    new AppConfigurationEntry(
+                    DigestLoginModule.class.getName(),
+                    AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
+                    Map.of(
+                    "username", username,
+                    "password", password
+                    ))
+                };
+
+                @Override
+                public AppConfigurationEntry[] getAppConfigurationEntry(final String name) {
+                    return entries;
+                }
+            });
         }
 
         CuratorFrameworkFactory.Builder clientBuilder = CuratorFrameworkFactory.builder().
@@ -114,5 +111,12 @@ public class ZookeeperKeymasterClientContext {
     @Bean
     public ConfParamOps selfConfParamOps() {
         return new ZookeeperConfParamOps();
+    }
+
+    @ConditionalOnExpression("#{'${keymaster.address}' matches '^(?!http).+'}")
+    @Bean
+    public ServiceOps serviceOps() {
+        return new ZookeeperServiceDiscoveryOps();
+        //return new ZookeeperServiceOps();
     }
 }

@@ -37,6 +37,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.info.NumbersInfo;
@@ -158,6 +159,9 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
     @Autowired
     private ConfParamOps confParamOps;
 
+    @Autowired
+    private ServiceOps serviceOps;
+
     @Resource(name = "version")
     private String version;
 
@@ -241,6 +245,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                 PLATFORM_INFO.setVersion(version);
                 PLATFORM_INFO.setBuildNumber(buildNumber);
                 PLATFORM_INFO.setKeymasterConfParamOps(AopUtils.getTargetClass(confParamOps).getName());
+                PLATFORM_INFO.setKeymasterServiceOps(AopUtils.getTargetClass(serviceOps).getName());
 
                 if (bundleManager.getLocations() != null) {
                     PLATFORM_INFO.getConnIdLocations().addAll(bundleManager.getLocations().stream().

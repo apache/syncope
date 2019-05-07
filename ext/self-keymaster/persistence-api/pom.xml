@@ -43,6 +43,11 @@ under the License.
       <artifactId>syncope-core-persistence-api</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.common.keymaster</groupId>
+      <artifactId>syncope-common-keymaster-client-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>

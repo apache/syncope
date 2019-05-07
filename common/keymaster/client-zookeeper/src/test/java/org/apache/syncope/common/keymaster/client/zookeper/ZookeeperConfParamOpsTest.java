@@ -18,63 +18,12 @@
  */
 package org.apache.syncope.common.keymaster.client.zookeper;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicReference;
-import javax.security.auth.login.AppConfigurationEntry;
-import javax.security.auth.login.Configuration;
-import org.apache.curator.test.InstanceSpec;
-import org.apache.curator.test.TestingServer;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
 public class ZookeeperConfParamOpsTest extends ZookeeperConfParamOpsITCase {
 
-    private static TestingServer ZK_SERVER;
-
     @BeforeAll
     public static void setUp() throws Exception {
-        AtomicReference<String> username = new AtomicReference<>();
-        AtomicReference<String> password = new AtomicReference<>();
-        try (InputStream propStream = ZookeeperConfParamOpsTest.class.getResourceAsStream("/keymaster.properties")) {
-            Properties props = new Properties();
-            props.load(propStream);
-
-            username.set(props.getProperty("keymaster.username"));
-            password.set(props.getProperty("keymaster.password"));
-        } catch (Exception e) {
-            fail("Could not load /keymaster.properties", e);
-        }
-
-        Configuration.setConfiguration(new Configuration() {
-
-            private final AppConfigurationEntry[] entries = {
-                new AppConfigurationEntry(
-                "org.apache.zookeeper.server.auth.DigestLoginModule",
-                AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
-                Map.of(
-                "user_" + username.get(), password.get()
-                ))
-            };
-
-            @Override
-            public AppConfigurationEntry[] getAppConfigurationEntry(final String name) {
-                return entries;
-            }
-        });
-
-        Map<String, Object> customProperties = new HashMap<>();
-        customProperties.put("authProvider.1", "org.apache.zookeeper.server.auth.SASLAuthenticationProvider");
-        InstanceSpec spec = new InstanceSpec(null, 2181, -1, -1, true, 1, -1, -1, customProperties);
-        ZK_SERVER = new TestingServer(spec, true);
-    }
-
-    @AfterAll
-    public static void tearDown() throws Exception {
-        ZK_SERVER.stop();
+        ZookeeperTestServer.start();
     }
 }

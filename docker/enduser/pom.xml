@@ -160,10 +160,8 @@ under the License.
       </resource>
       
       <resource>
-        <directory>${project.basedir}/../../client/enduser/src/main/resources</directory>
+        <directory>${project.basedir}/../../client/idrepo/enduser/src/main/resources</directory>
         <includes>
-          <include>application.properties</include>
-          <include>enduser.properties</include>
           <include>customFormAttributes.json</include>
           <include>customTemplate.json</include>
         </includes>

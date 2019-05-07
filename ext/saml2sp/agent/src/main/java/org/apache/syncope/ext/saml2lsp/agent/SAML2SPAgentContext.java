@@ -18,36 +18,52 @@
  */
 package org.apache.syncope.ext.saml2lsp.agent;
 
-import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
+@PropertySource("classpath:saml2sp-agent.properties")
+@PropertySource(value = "file:${conf.directory}/saml2sp-agent.properties", ignoreResourceNotFound = true)
 @Configuration
 public class SAML2SPAgentContext {
 
-    @Bean
-    public ServletListenerRegistrationBean<SAML2SPAgentSetup> saml2SPAgentSetup() {
-        return new ServletListenerRegistrationBean<>(new SAML2SPAgentSetup());
-    }
+    @Value("${anonymousUser}")
+    private String anonymousUser;
+
+    @Value("${anonymousKey}")
+    private String anonymousKey;
+
+    @Value("${useGZIPCompression}")
+    private boolean useGZIPCompression;
+
+    @Autowired
+    private ApplicationContext ctx;
 
     @Bean
     public ServletRegistrationBean<Metadata> saml2SPMetadata() {
-        return new ServletRegistrationBean<>(new Metadata(), "/saml2sp/metadata");
+        return new ServletRegistrationBean<>(
+                new Metadata(ctx, anonymousUser, anonymousKey, useGZIPCompression), "/saml2sp/metadata");
     }
 
     @Bean
     public ServletRegistrationBean<Login> saml2SPLogin() {
-        return new ServletRegistrationBean<>(new Login(), "/saml2sp/login");
+        return new ServletRegistrationBean<>(
+                new Login(ctx, anonymousUser, anonymousKey, useGZIPCompression), "/saml2sp/login");
     }
 
     @Bean
     public ServletRegistrationBean<AssertionConsumer> saml2SPAssertionConsumer() {
-        return new ServletRegistrationBean<>(new AssertionConsumer(), "/saml2sp/assertion-consumer");
+        return new ServletRegistrationBean<>(
+                new AssertionConsumer(ctx, anonymousUser, anonymousKey, useGZIPCompression),
+                "/saml2sp/assertion-consumer");
     }
 
     @Bean
     public ServletRegistrationBean<Logout> saml2SPLogout() {
-        return new ServletRegistrationBean<>(new Logout(), "/saml2sp/logout");
+        return new ServletRegistrationBean<>(new Logout(ctx, useGZIPCompression), "/saml2sp/logout");
     }
 }

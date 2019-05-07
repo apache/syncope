@@ -293,13 +293,6 @@ under the License.
       </resource>
 
       <resource>
-        <directory>${basedir}/../../core/starter/src/main/resources</directory>
-        <includes>
-          <include>application.properties</include>
-        </includes>
-        <filtering>true</filtering>
-      </resource>
-      <resource>
         <directory>${basedir}/../../core/spring/src/main/resources</directory>
         <includes>
           <include>security.properties</include>

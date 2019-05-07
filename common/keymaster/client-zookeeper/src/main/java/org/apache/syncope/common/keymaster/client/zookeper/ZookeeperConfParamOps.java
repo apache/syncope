@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.keymaster.client.zookeper;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.TreeMap;
@@ -57,8 +56,7 @@ public class ZookeeperConfParamOps implements ConfParamOps {
 
             Map<String, Object> list = new TreeMap<>();
             for (String child : client.getChildren().forPath(buildConfPath(domain))) {
-                JsonNode node = MAPPER.readTree(client.getData().forPath(buildConfPath(domain, child)));
-                list.put(child, MAPPER.treeToValue(node, Object.class));
+                list.put(child, MAPPER.readValue(client.getData().forPath(buildConfPath(domain, child)), Object.class));
             }
 
             return list;
@@ -71,8 +69,7 @@ public class ZookeeperConfParamOps implements ConfParamOps {
     public <T> T get(final String domain, final String key, final T defaultValue, final Class<T> reference) {
         T value = null;
         try {
-            JsonNode node = MAPPER.readTree(client.getData().forPath(buildConfPath(domain, key)));
-            value = MAPPER.treeToValue(node, reference);
+            value = MAPPER.readValue(client.getData().forPath(buildConfPath(domain, key)), reference);
         } catch (KeeperException.NoNodeException e) {
             LOG.debug("Node {} was not found", buildConfPath(domain, key));
         } catch (Exception e) {
@@ -92,8 +89,6 @@ public class ZookeeperConfParamOps implements ConfParamOps {
                 if (client.checkExists().forPath(buildConfPath(domain, key)) == null) {
                     client.create().creatingParentContainersIfNeeded().forPath(buildConfPath(domain, key));
                 }
-
-                MAPPER.writeValueAsBytes(value);
 
                 client.setData().forPath(buildConfPath(domain, key), MAPPER.writeValueAsBytes(value));
             } catch (Exception e) {

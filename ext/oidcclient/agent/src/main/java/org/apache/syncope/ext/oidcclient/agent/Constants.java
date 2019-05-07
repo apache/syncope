@@ -20,10 +20,6 @@ package org.apache.syncope.ext.oidcclient.agent;
 
 public final class Constants {
 
-    public static final String SYNCOPE_ANONYMOUS_CLIENT = "SyncopeAnonymousClient";
-
-    public static final String SYNCOPE_CLIENT_FACTORY = "SyncopeClientFactory";
-
     public static final String PARAM_OP = "op";
 
     public static final String CONTEXT_PARAM_LOGIN_SUCCESS_URL = "oidcclient.login.success.url";

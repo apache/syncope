@@ -75,10 +75,13 @@ import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.pages.MustChangePassword;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.common.keymaster.client.api.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -100,6 +103,12 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
     @Autowired
     private ClassPathScanImplementationLookup lookup;
 
+    @Autowired
+    private ServiceOps serviceOps;
+
+    @Value("${service.discovery.address}")
+    private String address;
+
     private String site;
 
     private String anonymousUser;
@@ -108,15 +117,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     private String reconciliationReportKey;
 
-    private String scheme;
-
-    private String host;
-
-    private String port;
-
-    private String rootPath;
-
-    private String useGZIPCompression;
+    private boolean useGZIPCompression;
 
     private Integer maxUploadFileSizeMB;
 
@@ -181,15 +182,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         anonymousKey = props.getProperty("anonymousKey");
         Args.notNull(anonymousKey, "<anonymousKey>");
 
-        scheme = props.getProperty("scheme");
-        Args.notNull(scheme, "<scheme>");
-        host = props.getProperty("host");
-        Args.notNull(host, "<host>");
-        port = props.getProperty("port");
-        Args.notNull(port, "<port>");
-        rootPath = props.getProperty("rootPath");
-        Args.notNull(rootPath, "<rootPath>");
-        useGZIPCompression = props.getProperty("useGZIPCompression");
+        useGZIPCompression = BooleanUtils.toBoolean(props.getProperty("useGZIPCompression"));
         Args.notNull(useGZIPCompression, "<useGZIPCompression>");
         maxUploadFileSizeMB = props.getProperty("maxUploadFileSizeMB") == null
                 ? null
@@ -307,6 +300,11 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         if (getDebugSettings().isAjaxDebugModeEnabled()) {
             getDebugSettings().setComponentPathAttributeName("syncope-path");
         }
+
+        NetworkService ns = new NetworkService();
+        ns.setType(NetworkService.Type.CONSOLE);
+        ns.setAddress(address);
+        serviceOps.register(ns);
     }
 
     @Override
@@ -369,8 +367,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     public SyncopeClientFactoryBean newClientFactory() {
         return new SyncopeClientFactoryBean().
-                setAddress(scheme + "://" + host + ":" + port + StringUtils.prependIfMissing(rootPath, "/")).
-                setUseCompression(BooleanUtils.toBoolean(useGZIPCompression));
+                setAddress(serviceOps.get(NetworkService.Type.CORE).getAddress()).
+                setUseCompression(useGZIPCompression);
     }
 
     public List<String> getDomains() {

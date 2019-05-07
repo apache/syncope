@@ -18,32 +18,46 @@
  */
 package org.apache.syncope.ext.oidcclient.agent;
 
-import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
+@PropertySource("classpath:oidcclient-agent.properties")
+@PropertySource(value = "file:${conf.directory}/oidcclient-agent.properties", ignoreResourceNotFound = true)
 @Configuration
 public class OIDCClientAgentContext {
 
-    @Bean
-    public ServletListenerRegistrationBean<OIDCClientAgentSetup> oidcClientAgentSetup() {
-        return new ServletListenerRegistrationBean<>(new OIDCClientAgentSetup());
-    }
+    @Value("${anonymousUser}")
+    private String anonymousUser;
+
+    @Value("${anonymousKey}")
+    private String anonymousKey;
+
+    @Value("${useGZIPCompression}")
+    private boolean useGZIPCompression;
+
+    @Autowired
+    private ApplicationContext ctx;
 
     @Bean
     public ServletRegistrationBean<Login> oidcClientLogin() {
-        return new ServletRegistrationBean<>(new Login(), "/oidcclient/login");
+        return new ServletRegistrationBean<>(
+                new Login(ctx, anonymousUser, anonymousKey, useGZIPCompression), "/oidcclient/login");
     }
 
     @Bean
     public ServletRegistrationBean<CodeConsumer> oidcClientCodeConsumer() {
-        return new ServletRegistrationBean<>(new CodeConsumer(), "/oidcclient/code-consumer");
+        return new ServletRegistrationBean<>(
+                new CodeConsumer(ctx, anonymousUser, anonymousKey, useGZIPCompression), "/oidcclient/code-consumer");
     }
 
     @Bean
     public ServletRegistrationBean<BeforeLogout> oidcClientBeforeLogout() {
-        return new ServletRegistrationBean<>(new BeforeLogout(), "/oidcclient/beforelogout");
+        return new ServletRegistrationBean<>(new BeforeLogout(ctx, useGZIPCompression), "/oidcclient/beforelogout");
     }
 
     @Bean

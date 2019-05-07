@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
@@ -31,17 +32,69 @@ import javax.ws.rs.core.UriBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
+import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
+import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.common.keymaster.client.api.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.lib.SSOConstants;
 import org.apache.syncope.common.lib.to.SAML2ReceivedResponseTO;
 import org.apache.syncope.common.lib.to.SAML2RequestTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 public abstract class AbstractSAML2SPServlet extends HttpServlet {
 
     private static final long serialVersionUID = 7969539245875799817L;
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSAML2SPServlet.class);
+
+    private static final String SYNCOPE_CLIENT_FACTORY = "SyncopeClientFactory";
+
+    private static final String SYNCOPE_ANONYMOUS_CLIENT = "SyncopeAnonymousClient";
+
+    private final ApplicationContext ctx;
+
+    public AbstractSAML2SPServlet(final ApplicationContext ctx) {
+        super();
+        this.ctx = ctx;
+    }
+
+    protected SyncopeClientFactoryBean getClientFactory(
+            final ServletContext servletContext,
+            final boolean useGZIPCompression) {
+
+        SyncopeClientFactoryBean clientFactory =
+                (SyncopeClientFactoryBean) servletContext.getAttribute(SYNCOPE_CLIENT_FACTORY);
+        if (clientFactory == null) {
+            ServiceOps serviceOps = ctx.getBean(ServiceOps.class);
+            clientFactory = new SyncopeClientFactoryBean().
+                    setAddress(serviceOps.get(NetworkService.Type.CORE).getAddress()).
+                    setUseCompression(useGZIPCompression);
+
+            servletContext.setAttribute(SYNCOPE_CLIENT_FACTORY, clientFactory);
+        }
+
+        return clientFactory;
+    }
+
+    protected SyncopeClient getAnonymousClient(
+            final ServletContext servletContext,
+            final String anonymousUser,
+            final String anonymousKey,
+            final boolean useGZIPCompression) {
+
+        SyncopeClient anonymousClient = (SyncopeClient) servletContext.getAttribute(SYNCOPE_ANONYMOUS_CLIENT);
+        if (anonymousClient == null) {
+            SyncopeClientFactoryBean clientFactory = getClientFactory(servletContext, useGZIPCompression);
+            anonymousClient = clientFactory.create(new AnonymousAuthenticationHandler(anonymousUser, anonymousKey));
+
+            servletContext.setAttribute(SYNCOPE_ANONYMOUS_CLIENT, anonymousClient);
+        }
+
+        return anonymousClient;
+    }
 
     protected void prepare(final HttpServletResponse response, final SAML2RequestTO requestTO) throws IOException {
         response.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache, no-store");

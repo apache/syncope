@@ -31,6 +31,7 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
+import org.springframework.context.ApplicationContext;
 
 public class AssertionConsumer extends AbstractSAML2SPServlet {
 
@@ -39,12 +40,30 @@ public class AssertionConsumer extends AbstractSAML2SPServlet {
     private static final ObjectMapper MAPPER =
             new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
+    private final String anonymousUser;
+
+    private final String anonymousKey;
+
+    private final boolean useGZIPCompression;
+
+    public AssertionConsumer(
+            final ApplicationContext ctx,
+            final String anonymousUser,
+            final String anonymousKey,
+            final boolean useGZIPCompression) {
+
+        super(ctx);
+        this.anonymousUser = anonymousUser;
+        this.anonymousKey = anonymousKey;
+        this.useGZIPCompression = useGZIPCompression;
+    }
+
     @Override
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
 
-        SyncopeClient anonymous = (SyncopeClient) request.getServletContext().
-                getAttribute(Constants.SYNCOPE_ANONYMOUS_CLIENT);
+        SyncopeClient anonymous =
+                getAnonymousClient(request.getServletContext(), anonymousUser, anonymousKey, useGZIPCompression);
         try {
             SAML2LoginResponseTO responseTO = anonymous.getService(SAML2SPService.class).
                     validateLoginResponse(extract(

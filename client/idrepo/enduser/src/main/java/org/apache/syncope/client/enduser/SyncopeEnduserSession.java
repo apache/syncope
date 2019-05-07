@@ -76,7 +76,7 @@ public class SyncopeEnduserSession extends WebSession {
         super(request);
 
         clientFactory = SyncopeWebApplication.get().newClientFactory();
-        anonymousClient = SyncopeWebApplication.get().getClientFactory().
+        anonymousClient = clientFactory.
                 create(new AnonymousAuthenticationHandler(
                         SyncopeWebApplication.get().getAnonymousUser(),
                         SyncopeWebApplication.get().getAnonymousKey()));
@@ -97,7 +97,7 @@ public class SyncopeEnduserSession extends WebSession {
     }
 
     public MediaType getMediaType() {
-        return SyncopeWebApplication.get().getClientFactory().getContentType().getMediaType();
+        return clientFactory.getContentType().getMediaType();
     }
 
     public String getJWT() {
@@ -124,9 +124,7 @@ public class SyncopeEnduserSession extends WebSession {
         boolean authenticated = false;
 
         try {
-            client = SyncopeWebApplication.get().getClientFactory().
-                    setDomain(SyncopeWebApplication.get().getDomain()).
-                    create(username, password);
+            client = clientFactory.setDomain(SyncopeWebApplication.get().getDomain()).create(username, password);
 
             afterAuthentication(username);
 
@@ -142,8 +140,7 @@ public class SyncopeEnduserSession extends WebSession {
         boolean authenticated = false;
 
         try {
-            client = SyncopeWebApplication.get().getClientFactory().
-                    setDomain(SyncopeWebApplication.get().getDomain()).create(jwt);
+            client = clientFactory.setDomain(SyncopeWebApplication.get().getDomain()).create(jwt);
 
             afterAuthentication(null);
 

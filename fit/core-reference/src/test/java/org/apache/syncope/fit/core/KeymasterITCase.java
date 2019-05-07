@@ -22,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +31,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.syncope.common.keymaster.client.api.KeymasterException;
+import org.apache.syncope.common.keymaster.client.api.NetworkService;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
@@ -36,14 +40,14 @@ import org.junit.jupiter.api.Test;
 public class KeymasterITCase extends AbstractITCase {
 
     @Test
-    public void list() {
+    public void confParamList() {
         Map<String, Object> confParams = confParamOps.list(SyncopeConstants.MASTER_DOMAIN);
         assertNotNull(confParams);
         assertFalse(confParams.isEmpty());
     }
 
     @Test
-    public void get() {
+    public void confParamGet() {
         String stringValue = confParamOps.get(
                 SyncopeConstants.MASTER_DOMAIN, "password.cipher.algorithm", null, String.class);
         assertNotNull(stringValue);
@@ -63,14 +67,14 @@ public class KeymasterITCase extends AbstractITCase {
                 Arrays.asList(confParamOps.get(
                         SyncopeConstants.MASTER_DOMAIN, "authentication.attributes", null, String[].class));
         assertNotNull(stringValues);
-        ArrayList<String> actualStringValues = new ArrayList<>();
+        List<String> actualStringValues = new ArrayList<>();
         actualStringValues.add("username");
         actualStringValues.add("userId");
         assertEquals(actualStringValues, stringValues);
     }
 
     @Test
-    public void setGetRemove() {
+    public void confParamSetGetRemove() {
         String key = UUID.randomUUID().toString();
 
         String stringValue = "stringValue";
@@ -98,7 +102,7 @@ public class KeymasterITCase extends AbstractITCase {
         Boolean actualBooleanValue = confParamOps.get(SyncopeConstants.MASTER_DOMAIN, key, null, Boolean.class);
         assertEquals(booleanValue, actualBooleanValue);
 
-        ArrayList<String> stringValues = new ArrayList<>();
+        List<String> stringValues = new ArrayList<>();
         stringValues.add("stringValue1");
         stringValues.add("stringValue2");
         confParamOps.set(SyncopeConstants.MASTER_DOMAIN, key, stringValues);
@@ -111,5 +115,66 @@ public class KeymasterITCase extends AbstractITCase {
         assertEquals(
                 "defaultValue",
                 confParamOps.get(SyncopeConstants.MASTER_DOMAIN, key, "defaultValue", String.class));
+    }
+
+    @Test
+    public void serviceList() {
+        List<NetworkService> services = serviceOps.list(NetworkService.Type.CORE);
+        assertFalse(services.isEmpty());
+        assertEquals(1, services.size());
+
+        services = serviceOps.list(NetworkService.Type.SRA);
+        assertTrue(services.isEmpty());
+
+        services = serviceOps.list(NetworkService.Type.WA);
+        assertTrue(services.isEmpty());
+    }
+
+    @Test
+    public void serviceRun() {
+        List<NetworkService> list = serviceOps.list(NetworkService.Type.SRA);
+        assertTrue(list.isEmpty());
+
+        NetworkService sra1 = new NetworkService();
+        sra1.setType(NetworkService.Type.SRA);
+        sra1.setAddress("http://localhost:9080/syncope-sra");
+        serviceOps.register(sra1);
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            // ignore
+        }
+
+        list = serviceOps.list(NetworkService.Type.SRA);
+        assertFalse(list.isEmpty());
+        assertEquals(1, list.size());
+        assertEquals(sra1, list.get(0));
+
+        assertEquals(sra1, serviceOps.get(NetworkService.Type.SRA));
+
+        NetworkService sra2 = new NetworkService();
+        sra2.setType(NetworkService.Type.SRA);
+        sra2.setAddress("http://localhost:9080/syncope-sra");
+        assertEquals(sra1, sra2);
+        serviceOps.register(sra2);
+
+        list = serviceOps.list(NetworkService.Type.SRA);
+        assertFalse(list.isEmpty());
+        assertEquals(1, list.size());
+        assertEquals(sra1, list.get(0));
+
+        assertEquals(sra1, serviceOps.get(NetworkService.Type.SRA));
+
+        serviceOps.unregister(sra1);
+        list = serviceOps.list(NetworkService.Type.SRA);
+        assertTrue(list.isEmpty());
+
+        try {
+            serviceOps.get(NetworkService.Type.SRA);
+            fail();
+        } catch (KeymasterException e) {
+            assertNotNull(e);
+        }
     }
 }

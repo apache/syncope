@@ -28,10 +28,29 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.SAML2RequestTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
+import org.springframework.context.ApplicationContext;
 
 public class Login extends AbstractSAML2SPServlet {
 
     private static final long serialVersionUID = 968480296813639041L;
+
+    private final String anonymousUser;
+
+    private final String anonymousKey;
+
+    private final boolean useGZIPCompression;
+
+    public Login(
+            final ApplicationContext ctx,
+            final String anonymousUser,
+            final String anonymousKey,
+            final boolean useGZIPCompression) {
+
+        super(ctx);
+        this.anonymousUser = anonymousUser;
+        this.anonymousKey = anonymousKey;
+        this.useGZIPCompression = useGZIPCompression;
+    }
 
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
@@ -39,8 +58,8 @@ public class Login extends AbstractSAML2SPServlet {
 
         String idp = request.getParameter(Constants.PARAM_IDP);
 
-        SyncopeClient anonymous = (SyncopeClient) request.getServletContext().
-                getAttribute(Constants.SYNCOPE_ANONYMOUS_CLIENT);
+        SyncopeClient anonymous =
+                getAnonymousClient(request.getServletContext(), anonymousUser, anonymousKey, useGZIPCompression);
         try {
             SAML2RequestTO requestTO = anonymous.getService(SAML2SPService.class).createLoginRequest(
                     StringUtils.substringBefore(request.getRequestURL().toString(), "/saml2sp"), idp);

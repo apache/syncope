@@ -19,12 +19,15 @@
 package org.apache.syncope.core.starter;
 
 import java.util.Comparator;
+import org.apache.syncope.common.keymaster.client.api.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
@@ -40,6 +43,12 @@ public class SyncopeCoreInitializer implements ApplicationListener<ContextRefres
 
     @Autowired
     private DomainsHolder domainsHolder;
+
+    @Autowired
+    private ServiceOps serviceOps;
+
+    @Value("${service.discovery.address}")
+    private String address;
 
     @Override
     public int getOrder() {
@@ -65,5 +74,10 @@ public class SyncopeCoreInitializer implements ApplicationListener<ContextRefres
 
                     LOG.debug("[{}] Initialization completed", loaderName);
                 });
+
+        NetworkService ns = new NetworkService();
+        ns.setType(NetworkService.Type.CORE);
+        ns.setAddress(address);
+        serviceOps.register(ns);
     }
 }

@@ -74,7 +74,7 @@ public class ZookeeperConfParamOpsITCase {
         List<String> stringValues =
                 Arrays.asList(confParamOps.get(DOMAIN, "authentication.attributes", null, String[].class));
         assertNotNull(stringValues);
-        ArrayList<String> actualStringValues = new ArrayList<>();
+        List<String> actualStringValues = new ArrayList<>();
         actualStringValues.add("created");
         actualStringValues.add("active");
         assertEquals(actualStringValues, stringValues);
@@ -109,7 +109,7 @@ public class ZookeeperConfParamOpsITCase {
         Boolean actualBooleanValue = confParamOps.get(DOMAIN, key, null, Boolean.class);
         assertEquals(booleanValue, actualBooleanValue);
 
-        ArrayList<String> stringValues = new ArrayList<>();
+        List<String> stringValues = new ArrayList<>();
         stringValues.add("stringValue1");
         stringValues.add("stringValue2");
         confParamOps.set(DOMAIN, key, stringValues);
