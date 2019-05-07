@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.commons.IdMConstants;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
@@ -306,7 +307,7 @@ public class RemediationDirectoryPanel
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_REMEDIATION_PAGINATOR_ROWS;
+        return IdMConstants.PREF_REMEDIATION_PAGINATOR_ROWS;
     }
 
     @Override

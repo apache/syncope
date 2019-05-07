@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -45,7 +45,7 @@ public abstract class PullTaskDirectoryPanel extends ProvisioningTaskDirectoryPa
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_PUSH_TASKS_PAGINATOR_ROWS;
+        return IdRepoConstants.PREF_PUSH_TASKS_PAGINATOR_ROWS;
     }
 
     @Override

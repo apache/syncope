@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
@@ -106,7 +107,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_ANYTYPE_PAGINATOR_ROWS;
+        return IdRepoConstants.PREF_ANYTYPE_PAGINATOR_ROWS;
     }
 
     @Override

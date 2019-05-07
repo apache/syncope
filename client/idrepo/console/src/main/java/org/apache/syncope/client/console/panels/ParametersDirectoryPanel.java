@@ -29,8 +29,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.panels.ParametersDirectoryPanel.ParametersProvider;
 import org.apache.syncope.client.console.rest.SyncopeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -55,7 +57,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ParametersDirectoryPanel
-        extends DirectoryPanel<ConfParam, ConfParam, ParametersDirectoryPanel.ParametersProvider, SyncopeRestClient> {
+        extends DirectoryPanel<ConfParam, ConfParam, ParametersProvider, SyncopeRestClient> {
 
     private static final long serialVersionUID = 2765863608539154422L;
 
@@ -102,7 +104,7 @@ public class ParametersDirectoryPanel
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_PARAMETERS_PAGINATOR_ROWS;
+        return IdRepoConstants.PREF_PARAMETERS_PAGINATOR_ROWS;
     }
 
     @Override

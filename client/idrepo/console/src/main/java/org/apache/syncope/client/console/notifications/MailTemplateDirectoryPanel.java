@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.TemplateContent;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.notifications.MailTemplateDirectoryPanel.MailTemplateProvider;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -182,7 +183,7 @@ public class MailTemplateDirectoryPanel
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_MAIL_TEMPLATE_PAGINATOR_ROWS;
+        return IdRepoConstants.PREF_MAIL_TEMPLATE_PAGINATOR_ROWS;
     }
 
     @Override

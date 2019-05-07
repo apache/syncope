@@ -74,6 +74,8 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
 
     private static final long serialVersionUID = 2705668831139984998L;
 
+    private static final String PREF_WORKFLOW_PAGINATOR_ROWS = "workflow.paginator.rows";
+
     private static final String FLOWABLE_MODELER_CTX = "flowable-modeler";
 
     private final BaseModal<String> utility;
@@ -155,7 +157,7 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_WORKFLOW_PAGINATOR_ROWS;
+        return PREF_WORKFLOW_PAGINATOR_ROWS;
     }
 
     @Override

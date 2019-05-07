@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
@@ -153,7 +154,7 @@ public abstract class ExecutionsDirectoryPanel
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_TASK_EXECS_PAGINATOR_ROWS;
+        return IdRepoConstants.PREF_TASK_EXECS_PAGINATOR_ROWS;
     }
 
     @Override

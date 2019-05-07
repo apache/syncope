@@ -24,6 +24,22 @@ public final class IdMConstants {
 
     public static final String PREF_RESOURCE_STATUS_PAGINATOR_ROWS = "resource.status.paginator.rows";
 
+    public static final String PREF_CONNECTOR_HISTORY_CONF_PAGINATOR_ROWS = "connectorhistoryconf.paginator.rows";
+
+    public static final String PREF_RESOURCE_HISTORY_CONF_PAGINATOR_ROWS = "resourcehistoryconf.paginator.rows";
+
+    public static final String PREF_REMEDIATION_PAGINATOR_ROWS = "remediation.paginator.rows";
+
+    /**
+     * ConnId's GuardedString is not in the classpath.
+     */
+    public static final String GUARDED_STRING = "org.identityconnectors.common.security.GuardedString";
+
+    /**
+     * ConnId's GuardedByteArray is not in the classpath.
+     */
+    public static final String GUARDED_BYTE_ARRAY = "org.identityconnectors.common.security.GuardedByteArray";
+
     private IdMConstants() {
         // private constructor for static utility class
     }

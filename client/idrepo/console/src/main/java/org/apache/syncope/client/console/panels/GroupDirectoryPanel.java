@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
 import org.apache.syncope.client.console.notifications.NotificationTasks;
@@ -173,7 +174,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_GROUP_PAGINATOR_ROWS;
+        return IdRepoConstants.PREF_GROUP_PAGINATOR_ROWS;
     }
 
     @Override

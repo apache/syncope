@@ -26,6 +26,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.notifications.NotificationTasks;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -80,7 +81,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_USERS_PAGINATOR_ROWS;
+        return IdRepoConstants.PREF_USERS_PAGINATOR_ROWS;
     }
 
     @Override

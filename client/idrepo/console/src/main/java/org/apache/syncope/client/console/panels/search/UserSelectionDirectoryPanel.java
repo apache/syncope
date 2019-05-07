@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.panels.search;
 
 import java.util.List;
-import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.panels.UserDisplayAttributesModalPanel;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
@@ -38,7 +38,7 @@ public final class UserSelectionDirectoryPanel extends AnySelectionDirectoryPane
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_USERS_PAGINATOR_ROWS;
+        return IdRepoConstants.PREF_USERS_PAGINATOR_ROWS;
     }
 
     @Override

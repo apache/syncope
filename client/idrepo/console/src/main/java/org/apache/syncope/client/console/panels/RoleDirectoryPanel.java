@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.layout.ConsoleLayoutInfo;
 import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
@@ -103,7 +104,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_ROLE_PAGINATOR_ROWS;
+        return IdRepoConstants.PREF_ROLE_PAGINATOR_ROWS;
     }
 
     @Override

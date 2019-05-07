@@ -27,10 +27,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.NetworkService;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -130,6 +132,32 @@ public class KeymasterITCase extends AbstractITCase {
         assertTrue(services.isEmpty());
     }
 
+    private List<NetworkService> findNetworkServices(
+            final NetworkService.Type type,
+            final Function<List<NetworkService>, Boolean> check,
+            final int maxWaitSeconds) {
+
+        int i = 0;
+        int maxit = maxWaitSeconds;
+
+        List<NetworkService> list = Collections.emptyList();
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            list = serviceOps.list(type);
+
+            i++;
+        } while (check.apply(list) && i < maxit);
+        if (check.apply(list)) {
+            fail("Timeout when looking for network services of type " + type);
+        }
+
+        return list;
+    }
+
     @Test
     public void serviceRun() {
         List<NetworkService> list = serviceOps.list(NetworkService.Type.SRA);
@@ -140,13 +168,7 @@ public class KeymasterITCase extends AbstractITCase {
         sra1.setAddress("http://localhost:9080/syncope-sra");
         serviceOps.register(sra1);
 
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            // ignore
-        }
-
-        list = serviceOps.list(NetworkService.Type.SRA);
+        list = findNetworkServices(NetworkService.Type.SRA, List::isEmpty, 30);
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
         assertEquals(sra1, list.get(0));
@@ -159,7 +181,7 @@ public class KeymasterITCase extends AbstractITCase {
         assertEquals(sra1, sra2);
         serviceOps.register(sra2);
 
-        list = serviceOps.list(NetworkService.Type.SRA);
+        list = findNetworkServices(NetworkService.Type.SRA, List::isEmpty, 30);
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
         assertEquals(sra1, list.get(0));
@@ -167,7 +189,7 @@ public class KeymasterITCase extends AbstractITCase {
         assertEquals(sra1, serviceOps.get(NetworkService.Type.SRA));
 
         serviceOps.unregister(sra1);
-        list = serviceOps.list(NetworkService.Type.SRA);
+        list = findNetworkServices(NetworkService.Type.SRA, l -> !l.isEmpty(), 30);
         assertTrue(list.isEmpty());
 
         try {

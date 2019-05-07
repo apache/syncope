@@ -28,6 +28,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.notifications.NotificationDirectoryPanel.NotificationProvider;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -157,7 +158,7 @@ public class NotificationDirectoryPanel
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_NOTIFICATION_PAGINATOR_ROWS;
+        return IdRepoConstants.PREF_NOTIFICATION_PAGINATOR_ROWS;
     }
 
     @Override

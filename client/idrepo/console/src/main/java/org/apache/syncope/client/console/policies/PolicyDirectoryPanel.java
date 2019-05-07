@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
@@ -205,7 +206,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_POLICY_PAGINATOR_ROWS;
+        return IdRepoConstants.PREF_POLICY_PAGINATOR_ROWS;
     }
 
     protected class PolicyDataProvider extends DirectoryDataProvider<T> {

@@ -23,14 +23,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ConfParam implements Serializable {
 
     private static final long serialVersionUID = -9162995157523535429L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(ConfParam.class);
 
     private String schema;
 

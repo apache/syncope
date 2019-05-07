@@ -222,6 +222,12 @@ public class BasePage extends BaseWebPage {
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.LOG_LIST);
         liContainer.add(link);
 
+        liContainer = new WebMarkupContainer(getLIContainerId("networkServices"));
+        confULContainer.add(liContainer);
+        link = BookmarkablePageLinkBuilder.build("networkServices", NetworkServices.class);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.INTERNAL_STORAGE_EXPORT);
+        liContainer.add(link);
+
         liContainer = new WebMarkupContainer(getLIContainerId("types"));
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("types", Types.class);

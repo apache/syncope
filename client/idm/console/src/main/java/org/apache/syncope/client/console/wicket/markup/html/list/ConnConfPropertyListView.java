@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.List;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.IdMConstants;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
@@ -79,8 +80,8 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
         boolean isArray = false;
 
         if (property.getSchema().isConfidential()
-                || Constants.GUARDED_STRING.equalsIgnoreCase(property.getSchema().getType())
-                || Constants.GUARDED_BYTE_ARRAY.equalsIgnoreCase(property.getSchema().getType())) {
+                || IdMConstants.GUARDED_STRING.equalsIgnoreCase(property.getSchema().getType())
+                || IdMConstants.GUARDED_BYTE_ARRAY.equalsIgnoreCase(property.getSchema().getType())) {
 
             field = new AjaxPasswordFieldPanel("panel", label, new Model<>(), false);
             ((PasswordTextField) field.getField()).setResetPassword(false);
