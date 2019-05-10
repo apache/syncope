@@ -27,6 +27,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.slf4j.Logger;
@@ -52,6 +53,9 @@ public class SelfKeymasterExceptionMapper implements ExceptionMapper<Exception> 
             builder = null;
         } else if (ex instanceof NotFoundException) {
             builder = Response.status(Response.Status.NOT_FOUND).
+                    entity(ExceptionUtils.getRootCauseMessage(ex));
+        } else if (ex instanceof KeymasterException) {
+            builder = Response.status(Response.Status.BAD_REQUEST).
                     entity(ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof SyncopeClientException) {
             SyncopeClientException sce = (SyncopeClientException) ex;

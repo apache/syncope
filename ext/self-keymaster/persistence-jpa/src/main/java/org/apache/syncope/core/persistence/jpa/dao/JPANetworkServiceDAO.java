@@ -20,32 +20,33 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.common.keymaster.client.api.NetworkService;
-import org.apache.syncope.core.persistence.api.dao.ServiceDAO;
-import org.apache.syncope.core.persistence.api.entity.Service;
-import org.apache.syncope.core.persistence.jpa.entity.JPAService;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.core.persistence.jpa.entity.JPANetworkService;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.persistence.api.dao.NetworkServiceDAO;
+import org.apache.syncope.core.persistence.api.entity.NetworkServiceEntity;
 
 @Repository
-public class JPAServiceDAO extends AbstractDAO<Service> implements ServiceDAO {
+public class JPANetworkServiceDAO extends AbstractDAO<NetworkServiceEntity> implements NetworkServiceDAO {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Service> findAll(final NetworkService.Type serviceType) {
-        TypedQuery<Service> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAService.class.getSimpleName() + " e WHERE e.type=:serviceType", Service.class);
+    public List<NetworkServiceEntity> findAll(final NetworkService.Type serviceType) {
+        TypedQuery<NetworkServiceEntity> query = entityManager().createQuery(
+                "SELECT e FROM " + JPANetworkService.class.getSimpleName()
+                + " e WHERE e.type=:serviceType", NetworkServiceEntity.class);
         query.setParameter("serviceType", serviceType);
         return query.getResultList();
     }
 
     @Override
-    public Service save(final Service service) {
+    public NetworkServiceEntity save(final NetworkServiceEntity service) {
         return entityManager().merge(service);
     }
 
     @Override
-    public void delete(final Service service) {
+    public void delete(final NetworkServiceEntity service) {
         entityManager().remove(service);
     }
 }

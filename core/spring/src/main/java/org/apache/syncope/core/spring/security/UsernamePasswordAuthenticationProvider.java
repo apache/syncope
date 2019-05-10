@@ -21,11 +21,13 @@ package org.apache.syncope.core.spring.security;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.keymaster.client.api.KeymasterException;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.persistence.api.entity.Domain;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.slf4j.Logger;
@@ -43,6 +45,9 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
     protected static final Logger LOG = LoggerFactory.getLogger(UsernamePasswordAuthenticationProvider.class);
 
     protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+
+    @Autowired
+    protected DomainOps domainOps;
 
     @Autowired
     protected AuthDataAccessor dataAccessor;
@@ -109,14 +114,16 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
                         CipherAlgorithm.valueOf(adminPasswordAlgorithm),
                         adminPassword);
             } else {
-                authenticated = AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> {
-                    Domain domainEntity = dataAccessor.findDomain(domain);
-
-                    return ENCRYPTOR.verify(
+                try {
+                    Domain domainObj = domainOps.read(domain);
+                    authenticated = ENCRYPTOR.verify(
                             authentication.getCredentials().toString(),
-                            domainEntity.getAdminCipherAlgorithm(),
-                            domainEntity.getAdminPwd());
-                });
+                            domainObj.getAdminCipherAlgorithm(),
+                            domainObj.getAdminPassword());
+                } catch (KeymasterException e) {
+                    LOG.error("While attempting to read domain {}", domain, e);
+                    authenticated = false;
+                }
             }
         } else {
             Pair<User, Boolean> authResult = AuthContextUtils.callAsAdmin(domain,

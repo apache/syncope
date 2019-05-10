@@ -31,10 +31,12 @@ import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.core.spring.security.UsernamePasswordAuthenticationProvider;
 import org.apache.syncope.core.spring.security.WebSecurityContext;
 import org.apache.syncope.ext.self.keymaster.cxf.client.SelfKeymasterInternalConfParamOps;
+import org.apache.syncope.ext.self.keymaster.cxf.client.SelfKeymasterInternalDomainOps;
 import org.apache.syncope.ext.self.keymaster.cxf.client.SelfKeymasterInternalServiceOps;
 import org.apache.syncope.ext.self.keymaster.cxf.security.SelfKeymasterUsernamePasswordAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,5 +130,10 @@ public class SelfKeymasterContext {
     @Bean
     public ServiceOps internalServiceOps() {
         return new SelfKeymasterInternalServiceOps();
+    }
+
+    @Bean
+    public DomainOps domainOps() {
+        return new SelfKeymasterInternalDomainOps();
     }
 }

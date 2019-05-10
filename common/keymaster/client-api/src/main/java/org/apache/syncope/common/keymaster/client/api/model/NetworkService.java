@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.keymaster.client.api;
+package org.apache.syncope.common.keymaster.client.api.model;
 
 import java.io.Serializable;
 import org.apache.commons.lang3.builder.EqualsBuilder;

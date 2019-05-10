@@ -22,9 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
+import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,9 +36,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
+import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
-import org.apache.syncope.common.keymaster.client.api.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.UserCR;
+import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.service.UserService;
+import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 
@@ -197,6 +212,119 @@ public class KeymasterITCase extends AbstractITCase {
             fail();
         } catch (KeymasterException e) {
             assertNotNull(e);
+        }
+    }
+
+    @Test
+    public void domainCRUD() throws Exception {
+        List<Domain> initial = domainOps.list();
+        assertNotNull(initial);
+
+        // 1. create new domain
+        String key = UUID.randomUUID().toString();
+
+        domainOps.create(new Domain.Builder(key).
+                jdbcDriver("org.h2.Driver").
+                jdbcURL("jdbc:h2:mem:syncopetest;DB_CLOSE_DELAY=-1").
+                dbUsername("sa").
+                dbPassword("").
+                databasePlatform("org.apache.openjpa.jdbc.sql.H2Dictionary").
+                transactionIsolation(Domain.TransactionIsolation.TRANSACTION_READ_UNCOMMITTED).
+                adminPassword(Encryptor.getInstance().encode("password", CipherAlgorithm.BCRYPT)).
+                adminCipherAlgorithm(CipherAlgorithm.BCRYPT).
+                build());
+
+        Domain domain = domainOps.read(key);
+        assertEquals(Domain.TransactionIsolation.TRANSACTION_READ_UNCOMMITTED, domain.getTransactionIsolation());
+        assertEquals(CipherAlgorithm.BCRYPT, domain.getAdminCipherAlgorithm());
+        assertEquals(10, domain.getMaxPoolSize());
+        assertEquals(2, domain.getMinIdle());
+
+        assertEquals(domain, domainOps.read(key));
+
+        // 2. update domain
+        domainOps.adjustPoolSize(key, 100, 23);
+
+        domain = domainOps.read(key);
+        assertEquals(100, domain.getMaxPoolSize());
+        assertEquals(23, domain.getMinIdle());
+
+        // 3. work with new domain - create user
+        clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain(key);
+        adminClient = clientFactory.create(ADMIN_UNAME, "password");
+
+        userService = adminClient.getService(UserService.class);
+
+        PagedResult<UserTO> users = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).page(1).size(1).build());
+        assertNotNull(users);
+        assertTrue(users.getResult().isEmpty());
+        assertEquals(0, users.getTotalCount());
+
+        Response response = userService.create(
+                new UserCR.Builder(SyncopeConstants.ROOT_REALM, "monteverdi").
+                        password("password123").
+                        plainAttr(attr("email", "monteverdi@syncope.apache.org")).
+                        build());
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        UserTO user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getEntity();
+        assertNotNull(user);
+        assertEquals("monteverdi", user.getUsername());
+
+        users = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).page(1).size(1).build());
+        assertNotNull(users);
+        assertFalse(users.getResult().isEmpty());
+        assertEquals(1, users.getTotalCount());
+
+        // 4. delete domain
+        domainOps.delete(key);
+
+        List<Domain> list = domainOps.list();
+        assertEquals(initial, list);
+    }
+
+    @Test
+    public void domainCreateMaster() {
+        assertThrows(KeymasterException.class, () -> {
+            domainOps.create(new Domain.Builder(SyncopeConstants.MASTER_DOMAIN).build());
+        });
+    }
+
+    @Test
+    public void domainUpdateAdminPassword() throws Exception {
+        assumeFalse(domainOps.list().isEmpty());
+
+        Domain two = domainOps.read("Two");
+        assertNotNull(two);
+
+        String origPasswowrd = two.getAdminPassword();
+        CipherAlgorithm origCipherAlgo = two.getAdminCipherAlgorithm();
+
+        try {
+            // 1. change admin pwd for domain Two
+            domainOps.changeAdminPassword(
+                    two.getKey(),
+                    Encryptor.getInstance().encode("password3", CipherAlgorithm.AES),
+                    CipherAlgorithm.AES);
+
+            // 2. attempt to access with old pwd -> fail
+            try {
+                new SyncopeClientFactoryBean().
+                        setAddress(ADDRESS).setDomain(two.getKey()).setContentType(clientFactory.getContentType()).
+                        create(ADMIN_UNAME, "password2").self();
+            } catch (AccessControlException e) {
+                assertNotNull(e);
+            }
+
+            // 3. access with new pwd -> succeed
+            new SyncopeClientFactoryBean().
+                    setAddress(ADDRESS).setDomain(two.getKey()).setContentType(clientFactory.getContentType()).
+                    create(ADMIN_UNAME, "password3").self();
+        } finally {
+            domainOps.changeAdminPassword(two.getKey(), origPasswowrd, origCipherAlgo);
         }
     }
 }

@@ -22,5 +22,7 @@ public interface SelfKeymasterEntityFactory {
 
     ConfParam newConfParam();
 
-    Service newService();
+    NetworkServiceEntity newNetworkService();
+
+    DomainEntity newDomainEntity();
 }

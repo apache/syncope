@@ -127,5 +127,4 @@ public class OpenJpaVendorAdapter extends AbstractJpaVendorAdapter {
     public Class<? extends EntityManager> getEntityManagerInterface() {
         return OpenJPAEntityManagerSPI.class;
     }
-
 }

@@ -19,10 +19,11 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import org.apache.syncope.core.persistence.api.entity.ConfParam;
+import org.apache.syncope.core.persistence.api.entity.DomainEntity;
 import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
-import org.apache.syncope.core.persistence.api.entity.Service;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.stereotype.Component;
+import org.apache.syncope.core.persistence.api.entity.NetworkServiceEntity;
 
 @Component
 public class JPASelfKeymasterEntityFactory implements SelfKeymasterEntityFactory {
@@ -33,9 +34,14 @@ public class JPASelfKeymasterEntityFactory implements SelfKeymasterEntityFactory
     }
 
     @Override
-    public Service newService() {
-        JPAService service = new JPAService();
+    public NetworkServiceEntity newNetworkService() {
+        JPANetworkService service = new JPANetworkService();
         service.setKey(SecureRandomUtils.generateRandomUUID().toString());
         return service;
+    }
+
+    @Override
+    public DomainEntity newDomainEntity() {
+        return new JPADomain();
     }
 }

@@ -28,6 +28,7 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.ACLProvider;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
@@ -118,5 +119,11 @@ public class ZookeeperKeymasterClientContext {
     public ServiceOps serviceOps() {
         return new ZookeeperServiceDiscoveryOps();
         //return new ZookeeperServiceOps();
+    }
+
+    @ConditionalOnExpression("#{'${keymaster.address}' matches '^(?!http).+'}")
+    @Bean
+    public DomainOps domainOps() {
+        return new ZookeeperDomainOps();
     }
 }

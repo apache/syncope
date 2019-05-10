@@ -155,5 +155,4 @@ public class OpenJpaDialect extends DefaultJpaDialect {
             JdbcUtils.closeConnection(con);
         }
     }
-
 }

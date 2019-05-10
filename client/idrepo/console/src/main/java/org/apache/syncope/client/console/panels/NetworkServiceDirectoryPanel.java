@@ -30,7 +30,7 @@ import org.apache.syncope.client.console.panels.NetworkServiceDirectoryPanel.Net
 import org.apache.syncope.client.console.rest.SyncopeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
-import org.apache.syncope.common.keymaster.client.api.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;

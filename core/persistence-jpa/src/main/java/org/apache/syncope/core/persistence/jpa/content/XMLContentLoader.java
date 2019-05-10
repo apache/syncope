@@ -92,8 +92,8 @@ public class XMLContentLoader implements ContentLoader {
                 LOG.error("[{}] While creating indexes", domain, e);
             }
             try {
-                ResourceWithFallbackLoader contentXML = ApplicationContextProvider.getBeanFactory().
-                        getBean(domain + "ContentXML", ResourceWithFallbackLoader.class);
+                InputStream contentXML = ApplicationContextProvider.getBeanFactory().
+                        getBean(domain + "ContentXML", InputStream.class);
                 loadDefaultContent(domain, contentXML, datasource);
             } catch (Exception e) {
                 LOG.error("[{}] While loading default content", domain, e);
@@ -102,14 +102,14 @@ public class XMLContentLoader implements ContentLoader {
     }
 
     private void loadDefaultContent(
-            final String domain, final ResourceWithFallbackLoader contentXML, final DataSource dataSource)
+            final String domain, final InputStream contentXML, final DataSource dataSource)
             throws IOException, ParserConfigurationException, SAXException {
 
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
-        try (InputStream in = contentXML.getResource().getInputStream()) {
+        try (contentXML) {
             SAXParser parser = factory.newSAXParser();
-            parser.parse(in, new ContentLoaderHandler(dataSource, ROOT_ELEMENT, true));
+            parser.parse(contentXML, new ContentLoaderHandler(dataSource, ROOT_ELEMENT, true));
             LOG.debug("[{}] Default content successfully loaded", domain);
         }
     }

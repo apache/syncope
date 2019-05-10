@@ -21,39 +21,35 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.DomainDAO;
-import org.apache.syncope.core.persistence.api.entity.Domain;
+import org.apache.syncope.core.persistence.api.entity.DomainEntity;
 import org.apache.syncope.core.persistence.jpa.entity.JPADomain;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class JPADomainDAO extends AbstractDAO<Domain> implements DomainDAO {
-
-    @Transactional(readOnly = true)
-    @Override
-    public Domain find(final String key) {
-        return entityManager().find(JPADomain.class, key);
-    }
+public class JPADomainDAO extends AbstractDAO<DomainEntity> implements DomainDAO {
 
     @Override
-    public List<Domain> findAll() {
-        TypedQuery<Domain> query = entityManager().createQuery(
-                "SELECT e FROM " + JPADomain.class.getSimpleName() + " e ", Domain.class);
+    public List<DomainEntity> findAll() {
+        TypedQuery<DomainEntity> query = entityManager().createQuery(
+                "SELECT e FROM " + JPADomain.class.getSimpleName() + " e", DomainEntity.class);
         return query.getResultList();
     }
 
     @Override
-    public Domain save(final Domain anyTypeClass) {
-        return entityManager().merge(anyTypeClass);
+    public DomainEntity find(final String key) {
+        return entityManager().find(JPADomain.class, key);
+    }
+
+    @Override
+    public DomainEntity save(final DomainEntity domain) {
+        return entityManager().merge(domain);
     }
 
     @Override
     public void delete(final String key) {
-        Domain domain = find(key);
-        if (domain == null) {
-            return;
+        DomainEntity domain = find(key);
+        if (domain != null) {
+            entityManager().remove(domain);
         }
-
-        entityManager().remove(domain);
     }
 }

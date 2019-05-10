@@ -1821,7 +1821,7 @@ under the License.
 
       <dependency>
         <groupId>org.apache.curator</groupId>
-        <artifactId>curator-framework</artifactId>
+        <artifactId>curator-x-async</artifactId>
         <version>${curator.version}</version>
         <exclusions>
           <exclusion>

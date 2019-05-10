@@ -72,6 +72,12 @@ under the License.
       <version>${project.version}</version>
     </dependency>
     
+    <dependency>
+      <groupId>org.apache.syncope.common.keymaster</groupId>
+      <artifactId>syncope-common-keymaster-client-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
     <!-- TEST -->
     <dependency>
       <groupId>org.slf4j</groupId>

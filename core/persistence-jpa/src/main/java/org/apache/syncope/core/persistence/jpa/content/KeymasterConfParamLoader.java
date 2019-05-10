@@ -21,14 +21,13 @@ package org.apache.syncope.core.persistence.jpa.content;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.io.Serializable;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
-import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
+import org.apache.syncope.core.persistence.api.content.ConfParamLoader;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +37,9 @@ import org.springframework.stereotype.Component;
  * Initialize Keymaster with default content if no data is present already.
  */
 @Component
-public class KeymasterContentLoader implements SyncopeCoreLoader {
+public class KeymasterConfParamLoader implements ConfParamLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KeymasterContentLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KeymasterConfParamLoader.class);
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -68,8 +67,8 @@ public class KeymasterContentLoader implements SyncopeCoreLoader {
             LOG.info("[{}] Empty Keymaster found, loading default content", domain);
 
             try {
-                ResourceWithFallbackLoader contentJSON = ApplicationContextProvider.getBeanFactory().
-                        getBean(domain + "KeymasterContentJSON", ResourceWithFallbackLoader.class);
+                InputStream contentJSON = ApplicationContextProvider.getBeanFactory().
+                        getBean(domain + "KeymasterConfParamsJSON", InputStream.class);
                 loadDefaultContent(domain, contentJSON);
             } catch (Exception e) {
                 LOG.error("[{}] While loading default Keymaster content", domain, e);
@@ -77,28 +76,17 @@ public class KeymasterContentLoader implements SyncopeCoreLoader {
         }
     }
 
-    private Serializable parse(final JsonNode valueNode) {
-        Serializable value = null;
-        if (valueNode.isTextual()) {
-            value = valueNode.textValue();
-        } else if (valueNode.isNumber()) {
-            value = valueNode.numberValue();
-        } else if (valueNode.isBoolean()) {
-            value = valueNode.booleanValue();
-        }
-
-        return value;
-    }
-
-    private void loadDefaultContent(final String domain, final ResourceWithFallbackLoader contentJSON)
+    private void loadDefaultContent(final String domain, final InputStream contentJSON)
             throws IOException {
 
-        JsonNode content = MAPPER.readTree(contentJSON.getResource().getInputStream());
-        for (Iterator<Map.Entry<String, JsonNode>> itor = content.fields(); itor.hasNext();) {
-            Map.Entry<String, JsonNode> param = itor.next();
-            Object value = MAPPER.treeToValue(param.getValue(), Object.class);
-            if (value != null) {
-                confParamOps.set(domain, param.getKey(), value);
+        try (contentJSON) {
+            JsonNode content = MAPPER.readTree(contentJSON);
+            for (Iterator<Map.Entry<String, JsonNode>> itor = content.fields(); itor.hasNext();) {
+                Map.Entry<String, JsonNode> param = itor.next();
+                Object value = MAPPER.treeToValue(param.getValue(), Object.class);
+                if (value != null) {
+                    confParamOps.set(domain, param.getKey(), value);
+                }
             }
         }
     }

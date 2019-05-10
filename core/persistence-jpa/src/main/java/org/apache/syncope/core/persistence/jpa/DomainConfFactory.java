@@ -20,16 +20,14 @@ package org.apache.syncope.core.persistence.jpa;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import javax.sql.DataSource;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.request.DomainCR;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.core.persistence.jpa.spring.DomainEntityManagerFactoryBean;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.AutowireCandidateQualifier;
@@ -43,12 +41,10 @@ import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter;
 import org.springframework.stereotype.Component;
+import org.apache.syncope.core.persistence.api.DomainRegistry;
 
 @Component
-public class DomainConfFactory implements EnvironmentAware {
-
-    @Value("${content.directory}")
-    private String contentDirectory;
+public class DomainConfFactory implements DomainRegistry, EnvironmentAware {
 
     private Environment env;
 
@@ -71,97 +67,85 @@ public class DomainConfFactory implements EnvironmentAware {
         ApplicationContextProvider.getBeanFactory().registerBeanDefinition(name, beanDefinition);
     }
 
-    public void register(final DomainCR req) {
+    @Override
+    public void register(final Domain domain) {
         // localDomainDataSource
         HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setDriverClassName(req.getJdbcDriver());
-        hikariConfig.setJdbcUrl(req.getJdbcURL());
-        hikariConfig.setUsername(req.getDbUsername());
-        hikariConfig.setPassword(req.getDbPassword());
-        hikariConfig.setSchema(req.getDbSchema());
-        hikariConfig.setTransactionIsolation(req.getTransactionIsolation());
-        hikariConfig.setMaximumPoolSize(req.getMaxPoolSize());
-        hikariConfig.setMinimumIdle(req.getMinIdle());
-        String domainName = StringUtils.capitalize(req.getDomainName());
+        hikariConfig.setDriverClassName(domain.getJdbcDriver());
+        hikariConfig.setJdbcUrl(domain.getJdbcURL());
+        hikariConfig.setUsername(domain.getDbUsername());
+        hikariConfig.setPassword(domain.getDbPassword());
+        hikariConfig.setSchema(domain.getDbSchema());
+        hikariConfig.setTransactionIsolation(domain.getTransactionIsolation().name());
+        hikariConfig.setMaximumPoolSize(domain.getMaxPoolSize());
+        hikariConfig.setMinimumIdle(domain.getMinIdle());
 
         HikariDataSource localDomainDataSource = new HikariDataSource(hikariConfig);
 
         // domainDataSource
         registerBeanDefinition(
-                domainName + "DataSource",
+                domain.getKey() + "DataSource",
                 BeanDefinitionBuilder.rootBeanDefinition(JndiObjectFactoryBean.class).
-                        addPropertyValue("jndiName", "java:comp/env/jdbc/syncope" + domainName + "DataSource").
+                        addPropertyValue("jndiName", "java:comp/env/jdbc/syncope" + domain.getKey() + "DataSource").
                         addPropertyValue("defaultObject", localDomainDataSource).
                         getBeanDefinition());
         DataSource initedDataSource = ApplicationContextProvider.getBeanFactory().
-                getBean(domainName + "DataSource", DataSource.class);
+                getBean(domain.getKey() + "DataSource", DataSource.class);
 
         // domainResourceDatabasePopulator
         ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
         databasePopulator.setContinueOnError(true);
         databasePopulator.setIgnoreFailedDrops(true);
         databasePopulator.setSqlScriptEncoding(StandardCharsets.UTF_8.name());
-        databasePopulator.addScript(new ClassPathResource("/audit/" + req.getAuditSql()));
+        databasePopulator.addScript(new ClassPathResource("/audit/" + domain.getAuditSql()));
 
-        registerSingleton(domainName.toLowerCase() + "ResourceDatabasePopulator", databasePopulator);
+        registerSingleton(domain.getKey().toLowerCase() + "ResourceDatabasePopulator", databasePopulator);
 
         // domainDataSourceInitializer
         DataSourceInitializer dataSourceInitializer = new DataSourceInitializer();
         dataSourceInitializer.setDataSource(initedDataSource);
         dataSourceInitializer.setEnabled(true);
         dataSourceInitializer.setDatabasePopulator(databasePopulator);
-        registerSingleton(domainName.toLowerCase() + "DataSourceInitializer", dataSourceInitializer);
+        registerSingleton(domain.getKey().toLowerCase() + "DataSourceInitializer", dataSourceInitializer);
 
         // domainEntityManagerFactory
         OpenJpaVendorAdapter vendorAdapter = new OpenJpaVendorAdapter();
         vendorAdapter.setShowSql(false);
         vendorAdapter.setGenerateDdl(true);
-        vendorAdapter.setDatabasePlatform(req.getDatabasePlatform());
+        vendorAdapter.setDatabasePlatform(domain.getDatabasePlatform());
 
         BeanDefinitionBuilder emf = BeanDefinitionBuilder.rootBeanDefinition(DomainEntityManagerFactoryBean.class).
-                addPropertyValue("mappingResources", req.getOrm()).
-                addPropertyValue("persistenceUnitName", domainName).
-                addPropertyReference("dataSource", domainName + "DataSource").
+                addPropertyValue("mappingResources", domain.getOrm()).
+                addPropertyValue("persistenceUnitName", domain.getKey()).
+                addPropertyReference("dataSource", domain.getKey() + "DataSource").
                 addPropertyValue("jpaVendorAdapter", vendorAdapter).
                 addPropertyReference("commonEntityManagerFactoryConf", "commonEMFConf");
         if (env.containsProperty("openjpaMetaDataFactory")) {
-            emf.addPropertyValue("jpaPropertyMap",
-                    Collections.singletonMap(
-                            "openjpa.MetaDataFactory",
-                            env.getProperty("openjpaMetaDataFactory").replace("##orm##", req.getOrm())));
+            emf.addPropertyValue("jpaPropertyMap", Collections.singletonMap(
+                    "openjpa.MetaDataFactory",
+                    env.getProperty("openjpaMetaDataFactory").replace("##orm##", domain.getOrm())));
         }
-        registerBeanDefinition(domainName + "EntityManagerFactory", emf.getBeanDefinition());
-        ApplicationContextProvider.getBeanFactory().getBean(domainName + "EntityManagerFactory");
+        registerBeanDefinition(domain.getKey() + "EntityManagerFactory", emf.getBeanDefinition());
+        ApplicationContextProvider.getBeanFactory().getBean(domain.getKey() + "EntityManagerFactory");
 
         // domainTransactionManager
         AbstractBeanDefinition domainTransactionManager =
                 BeanDefinitionBuilder.rootBeanDefinition(JpaTransactionManager.class).
-                        addPropertyReference("entityManagerFactory", domainName + "EntityManagerFactory").
+                        addPropertyReference("entityManagerFactory", domain.getKey() + "EntityManagerFactory").
                         getBeanDefinition();
-        domainTransactionManager.addQualifier(new AutowireCandidateQualifier(Qualifier.class, domainName));
-        registerBeanDefinition(domainName + "TransactionManager", domainTransactionManager);
+        domainTransactionManager.addQualifier(new AutowireCandidateQualifier(Qualifier.class, domain.getKey()));
+        registerBeanDefinition(domain.getKey() + "TransactionManager", domainTransactionManager);
 
         // domainContentXML
-        registerBeanDefinition(domainName + "ContentXML",
-                BeanDefinitionBuilder.rootBeanDefinition(ResourceWithFallbackLoader.class).
-                        addPropertyValue(
-                                "primary",
-                                "file:" + contentDirectory + "/domains/" + domainName + "Content.xml").
-                        addPropertyValue(
-                                "fallback",
-                                "classpath:domains/" + domainName + "Content.xml").
+        registerBeanDefinition(domain.getKey() + "ContentXML",
+                BeanDefinitionBuilder.rootBeanDefinition(ByteArrayInputStream.class).
+                        addConstructorArgValue(domain.getContent().getBytes()).
                         getBeanDefinition());
 
-        // domainKeymasterContentJSON
-        registerBeanDefinition(domainName + "KeymasterContentJSON",
-                BeanDefinitionBuilder.rootBeanDefinition(ResourceWithFallbackLoader.class).
-                        addPropertyValue(
-                                "primary",
-                                "file:" + contentDirectory + "/domains/" + domainName + "KeymasterContent.json").
-                        addPropertyValue(
-                                "fallback",
-                                "classpath:domains/" + domainName + "KeymasterContent.json").
+        // domainKeymasterConfParamsJSON
+        registerBeanDefinition(domain.getKey() + "KeymasterConfParamsJSON",
+                BeanDefinitionBuilder.rootBeanDefinition(ByteArrayInputStream.class).
+                        addConstructorArgValue(domain.getKeymasterConfParams().getBytes()).
                         getBeanDefinition());
-
     }
 }

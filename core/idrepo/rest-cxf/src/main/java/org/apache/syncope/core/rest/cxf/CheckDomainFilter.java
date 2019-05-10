@@ -30,8 +30,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ErrorTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.core.persistence.api.dao.DomainDAO;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -42,35 +41,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class CheckDomainFilter implements ContainerRequestFilter {
 
     @Autowired
-    private DomainDAO domainDAO;
+    private DomainHolder domainHolder;
 
     @Override
     public void filter(final ContainerRequestContext reqContext) throws IOException {
         final String domain = reqContext.getHeaderString(RESTHeaders.DOMAIN);
         if (domain != null && !SyncopeConstants.MASTER_DOMAIN.equals(domain)) {
-            AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> {
-                if (domainDAO.find(domain) == null) {
-                    String message = "Domain '" + domain + "' not available";
+            if (!domainHolder.getDomains().containsKey(domain)) {
+                String message = "Domain '" + domain + "' not available";
 
-                    ErrorTO error = new ErrorTO();
-                    error.setStatus(Response.Status.NOT_FOUND.getStatusCode());
-                    error.setType(ClientExceptionType.NotFound);
-                    error.getElements().add(message);
+                ErrorTO error = new ErrorTO();
+                error.setStatus(Response.Status.NOT_FOUND.getStatusCode());
+                error.setType(ClientExceptionType.NotFound);
+                error.getElements().add(message);
 
-                    reqContext.abortWith(Response.status(Response.Status.NOT_FOUND).
-                            entity(error).
-                            header(HttpHeaders.CONTENT_TYPE,
-                                    reqContext.getAcceptableMediaTypes().isEmpty()
-                                    ? MediaType.APPLICATION_JSON
-                                    : reqContext.getAcceptableMediaTypes().get(0).toString()).
-                            header(RESTHeaders.ERROR_CODE,
-                                    ClientExceptionType.NotFound.name()).
-                            header(RESTHeaders.ERROR_INFO,
-                                    ClientExceptionType.NotFound.getInfoHeaderValue(message)).
-                            build());
-                }
-                return null;
-            });
+                reqContext.abortWith(Response.status(Response.Status.NOT_FOUND).
+                        entity(error).
+                        header(HttpHeaders.CONTENT_TYPE,
+                                reqContext.getAcceptableMediaTypes().isEmpty()
+                                ? MediaType.APPLICATION_JSON
+                                : reqContext.getAcceptableMediaTypes().get(0).toString()).
+                        header(RESTHeaders.ERROR_CODE,
+                                ClientExceptionType.NotFound.name()).
+                        header(RESTHeaders.ERROR_INFO,
+                                ClientExceptionType.NotFound.getInfoHeaderValue(message)).
+                        build());
+            }
         }
     }
 }

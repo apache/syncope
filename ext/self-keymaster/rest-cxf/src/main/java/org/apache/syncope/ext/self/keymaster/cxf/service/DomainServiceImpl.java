@@ -16,37 +16,45 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.rest.cxf.service;
+package org.apache.syncope.ext.self.keymaster.cxf.service;
 
 import java.net.URI;
 import java.util.List;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.DomainTO;
+import javax.ws.rs.core.UriInfo;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.syncope.core.logic.DomainLogic;
+import org.apache.syncope.ext.self.keymaster.api.service.DomainService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DomainServiceImpl extends AbstractServiceImpl implements DomainService {
+public class DomainServiceImpl implements DomainService {
+
+    private static final long serialVersionUID = -375255764389240615L;
+
+    @Context
+    private UriInfo uriInfo;
 
     @Autowired
     private DomainLogic logic;
 
     @Override
-    public List<DomainTO> list() {
+    public List<Domain> list() {
         return logic.list();
     }
 
     @Override
-    public DomainTO read(final String key) {
+    public Domain read(final String key) {
         return logic.read(key);
     }
 
     @Override
-    public Response create(final DomainTO anyTypeTO) {
-        DomainTO created = logic.create(anyTypeTO);
+    public Response create(final Domain domain) {
+        Domain created = logic.create(domain);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
         return Response.created(location).
                 header(RESTHeaders.RESOURCE_KEY, created.getKey()).
@@ -54,13 +62,22 @@ public class DomainServiceImpl extends AbstractServiceImpl implements DomainServ
     }
 
     @Override
-    public void update(final DomainTO anyTypeTO) {
-        logic.update(anyTypeTO);
+    public Response changeAdminPassword(
+            final String key, final String password, final CipherAlgorithm cipherAlgorithm) {
+
+        logic.changeAdminPassword(key, password, cipherAlgorithm);
+        return Response.noContent().build();
     }
 
     @Override
-    public void delete(final String key) {
-        logic.delete(key);
+    public Response adjustPoolSize(final String key, final int maxPoolSize, final int minIdle) {
+        logic.adjustPoolSize(key, maxPoolSize, minIdle);
+        return Response.noContent().build();
     }
 
+    @Override
+    public Response delete(final String key) {
+        logic.delete(key);
+        return Response.noContent().build();
+    }
 }

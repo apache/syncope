@@ -61,7 +61,6 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
-import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.common.rest.api.service.ReconciliationService;
@@ -73,41 +72,28 @@ import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.ElasticsearchDetector;
 import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class MultitenancyITCase extends AbstractITCase {
 
-    @BeforeAll
-    public static void domainSetup() {
-        if (!domainService.list().isEmpty()) {
-            clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("Two");
-
-            String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
-            if (StringUtils.isNotBlank(envContentType)) {
-                clientFactory.setContentType(envContentType);
-            }
-            LOG.info("Performing IT with content type {}", clientFactory.getContentType().getMediaType());
-
-            adminClient = clientFactory.create(ADMIN_UNAME, "password2");
-        }
-    }
-
     @BeforeEach
     public void multitenancyCheck() {
-        assumeFalse(domainService.list().isEmpty());
+        assumeFalse(domainOps.list().isEmpty());
+
+        clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("Two");
+
+        String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
+        if (StringUtils.isNotBlank(envContentType)) {
+            clientFactory.setContentType(envContentType);
+        }
+        LOG.info("Performing IT with content type {}", clientFactory.getContentType().getMediaType());
+
+        adminClient = clientFactory.create(ADMIN_UNAME, "password2");
     }
 
     @Test
     public void masterOnly() {
-        try {
-            adminClient.getService(DomainService.class).read("Two");
-            fail("This should not happen");
-        } catch (ForbiddenException e) {
-            assertNotNull(e);
-        }
-
         try {
             adminClient.getService(LoggerService.class).list(LoggerType.LOG);
             fail("This should not happen");

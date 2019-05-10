@@ -16,18 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.api;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
 
-public interface DomainDAO extends DAO<Domain> {
+/**
+ * Allows to register domains, to make available at runtime.
+ */
+public interface DomainRegistry {
 
-    Domain find(String key);
-
-    List<Domain> findAll();
-
-    Domain save(Domain domain);
-
-    void delete(String key);
+    void register(Domain req);
 }

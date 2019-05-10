@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -54,7 +55,8 @@ public class SelfKeymasterClientContext {
         restClientFactoryBean.setThreadSafe(true);
         restClientFactoryBean.setInheritHeaders(true);
         restClientFactoryBean.setFeatures(Arrays.asList(new LoggingFeature()));
-        restClientFactoryBean.setProviders(Arrays.asList(new JacksonJsonProvider()));
+        restClientFactoryBean.setProviders(
+                Arrays.asList(new JacksonJsonProvider(), new SelfKeymasterClientExceptionMapper()));
         return restClientFactoryBean;
     }
 
@@ -68,5 +70,11 @@ public class SelfKeymasterClientContext {
     @Bean
     public ServiceOps selfServiceOps() {
         return new SelfKeymasterServiceOps(selfKeymasterRESTClientFactoryBean(), 5);
+    }
+
+    @ConditionalOnExpression("#{'${keymaster.address}' matches '^http.+'}")
+    @Bean
+    public DomainOps domainOps() {
+        return new SelfKeymasterDomainOps(selfKeymasterRESTClientFactoryBean());
     }
 }

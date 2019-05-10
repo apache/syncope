@@ -49,6 +49,7 @@ import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
 import org.apache.syncope.common.keymaster.client.zookeper.ZookeeperKeymasterClientContext;
@@ -87,7 +88,6 @@ import org.apache.syncope.common.rest.api.service.ApplicationService;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.apache.syncope.common.rest.api.service.ConnectorHistoryService;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
-import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.syncope.common.rest.api.service.DynRealmService;
 import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
@@ -210,8 +210,6 @@ public abstract class AbstractITCase {
 
     protected static SyncopeService syncopeService;
 
-    protected static DomainService domainService;
-
     protected static ApplicationService applicationService;
 
     protected static AnyTypeClassService anyTypeClassService;
@@ -320,7 +318,6 @@ public abstract class AbstractITCase {
         adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
 
         syncopeService = adminClient.getService(SyncopeService.class);
-        domainService = adminClient.getService(DomainService.class);
         applicationService = adminClient.getService(ApplicationService.class);
         anyTypeClassService = adminClient.getService(AnyTypeClassService.class);
         anyTypeService = adminClient.getService(AnyTypeService.class);
@@ -365,6 +362,9 @@ public abstract class AbstractITCase {
 
     @Autowired
     protected ServiceOps serviceOps;
+
+    @Autowired
+    protected DomainOps domainOps;
 
     @Autowired
     protected DataSource testDataSource;

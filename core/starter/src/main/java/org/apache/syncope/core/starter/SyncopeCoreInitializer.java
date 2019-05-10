@@ -19,9 +19,9 @@
 package org.apache.syncope.core.starter;
 
 import java.util.Comparator;
-import org.apache.syncope.common.keymaster.client.api.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
-import org.apache.syncope.core.persistence.api.DomainsHolder;
+import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ public class SyncopeCoreInitializer implements ApplicationListener<ContextRefres
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeCoreInitializer.class);
 
     @Autowired
-    private DomainsHolder domainsHolder;
+    private DomainHolder domainHolder;
 
     @Autowired
     private ServiceOps serviceOps;
@@ -66,7 +66,7 @@ public class SyncopeCoreInitializer implements ApplicationListener<ContextRefres
 
                     loader.load();
 
-                    domainsHolder.getDomains().forEach((domain, datasource) -> {
+                    domainHolder.getDomains().forEach((domain, datasource) -> {
                         LOG.debug("[{}] Starting on domain '{}'", loaderName, domain);
                         loader.load(domain, datasource);
                         LOG.debug("[{}] Completed on domain '{}'", loaderName, domain);

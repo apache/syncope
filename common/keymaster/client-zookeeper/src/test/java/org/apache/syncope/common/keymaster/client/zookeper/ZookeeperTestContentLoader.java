@@ -35,7 +35,7 @@ public class ZookeeperTestContentLoader implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        JsonNode content = MAPPER.readTree(getClass().getResourceAsStream("/keymasterContent.json"));
+        JsonNode content = MAPPER.readTree(getClass().getResourceAsStream("/testKeymasterConfParams.json"));
         for (Iterator<Map.Entry<String, JsonNode>> itor = content.fields(); itor.hasNext();) {
             Map.Entry<String, JsonNode> param = itor.next();
             Object value = MAPPER.treeToValue(param.getValue(), Object.class);

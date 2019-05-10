@@ -38,7 +38,6 @@ import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ConnInstanceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.Domain;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -145,9 +144,7 @@ public class JPAEntityFactory implements EntityFactory {
     public <E extends Entity> E newEntity(final Class<E> reference) {
         E result;
 
-        if (reference.equals(Domain.class)) {
-            result = (E) new JPADomain();
-        } else if (reference.equals(Realm.class)) {
+        if (reference.equals(Realm.class)) {
             result = (E) new JPARealm();
         } else if (reference.equals(DynRealm.class)) {
             result = (E) new JPADynRealm();

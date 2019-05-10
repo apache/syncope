@@ -25,7 +25,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
-import org.apache.syncope.common.keymaster.client.api.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;

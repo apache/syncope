@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
-import org.apache.syncope.common.keymaster.client.api.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;

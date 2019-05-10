@@ -16,17 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.common.keymaster.client.api;
 
 import java.util.List;
-import org.apache.syncope.common.keymaster.client.api.NetworkService;
-import org.apache.syncope.core.persistence.api.entity.Service;
 
-public interface ServiceDAO extends DAO<Service> {
+/**
+ * Interface to be implemented by anyone that wants to be notified when domains are created / updated / deleted.
+ */
+public interface DomainWatcher {
 
-    List<Service> findAll(NetworkService.Type serviceType);
-
-    Service save(Service service);
-
-    void delete(Service service);
+    void update(List<String> domains);
 }

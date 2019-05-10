@@ -18,8 +18,6 @@ specific language governing permissions and limitations
 under the License.
 -->
 <dataset>
-  <SyncopeDomain id="Two" adminCipherAlgorithm="SHA" adminPwd="2AA60A8FF7FCD473D321E0146AFD9E26DF395147"/>
-  
   <!-- sample policies -->
   <PasswordPolicy id="ce93fcda-dc3a-4369-a7b0-a6108c261c85" description="a password policy"
                   historyLength="1" allowNullPassword="1"/>

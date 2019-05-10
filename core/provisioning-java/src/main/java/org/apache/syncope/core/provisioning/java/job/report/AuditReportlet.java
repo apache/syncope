@@ -27,10 +27,10 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.report.AuditReportletConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.provisioning.java.AuditEntry;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -42,7 +42,7 @@ import org.xml.sax.helpers.AttributesImpl;
 public class AuditReportlet extends AbstractReportlet {
 
     @Autowired
-    private DomainsHolder domainsHolder;
+    private DomainHolder domainHolder;
 
     private AuditReportletConf conf;
 
@@ -140,7 +140,7 @@ public class AuditReportlet extends AbstractReportlet {
             throw new ReportException(new IllegalArgumentException("Invalid configuration provided"));
         }
 
-        datasource = domainsHolder.getDomains().get(AuthContextUtils.getDomain());
+        datasource = domainHolder.getDomains().get(AuthContextUtils.getDomain());
         if (datasource == null) {
             throw new ReportException(new IllegalArgumentException("Could not get to DataSource"));
         }

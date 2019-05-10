@@ -110,6 +110,10 @@ under the License.
       <appender-ref ref="restFile"/>
       <appender-ref ref="rest"/>
     </asyncLogger>
+    <asyncLogger name="org.apache.syncope.ext.self.keymaster" additivity="false" level="ERROR">
+      <appender-ref ref="restFile"/>
+      <appender-ref ref="rest"/>
+    </asyncLogger>
     
     <asyncLogger name="org.identityconnectors" additivity="false" level="DEBUG">
       <appender-ref ref="connidFile"/>

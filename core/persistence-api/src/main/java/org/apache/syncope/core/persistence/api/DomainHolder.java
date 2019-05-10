@@ -21,7 +21,10 @@ package org.apache.syncope.core.persistence.api;
 import java.util.Map;
 import javax.sql.DataSource;
 
-public interface DomainsHolder {
+/**
+ * Holds information about domain effectively available at runtime.
+ */
+public interface DomainHolder {
 
     Map<String, DataSource> getDomains();
 }

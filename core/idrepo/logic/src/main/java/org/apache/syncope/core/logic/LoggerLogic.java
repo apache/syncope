@@ -50,7 +50,7 @@ import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.logic.init.LoggerLoader;
-import org.apache.syncope.core.persistence.api.dao.DomainDAO;
+import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -77,6 +77,9 @@ import org.springframework.util.SystemPropertyUtils;
 public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @Autowired
+    private DomainHolder domainHolder;
+
+    @Autowired
     private LoggerLoader loggerLoader;
 
     @Autowired
@@ -84,9 +87,6 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
-
-    @Autowired
-    private DomainDAO domainDAO;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -129,8 +129,8 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
     public List<LoggerTO> listLogs() {
         return list(LoggerType.LOG).stream().
                 filter(logger -> !logger.getKey().startsWith(SyncopeConstants.MASTER_DOMAIN)).
-                filter(logger -> domainDAO.findAll().stream().
-                noneMatch(domain -> logger.getKey().startsWith(domain.getKey()))).
+                filter(logger -> domainHolder.getDomains().keySet().stream().
+                noneMatch(domain -> logger.getKey().startsWith(domain))).
                 collect(Collectors.toList());
     }
 

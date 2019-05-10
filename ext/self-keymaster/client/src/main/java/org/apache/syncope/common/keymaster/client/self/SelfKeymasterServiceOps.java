@@ -28,7 +28,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
-import org.apache.syncope.common.keymaster.client.api.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.ext.self.keymaster.api.service.NetworkServiceService;
 import org.slf4j.Logger;
@@ -60,6 +60,8 @@ public class SelfKeymasterServiceOps extends SelfKeymasterOps implements Service
     public List<NetworkService> list(final NetworkService.Type serviceType) {
         try {
             return client(NetworkServiceService.class, Collections.emptyMap()).list(serviceType);
+        } catch (KeymasterException e) {
+            throw e;
         } catch (Exception e) {
             throw new KeymasterException(e);
         }
@@ -69,6 +71,8 @@ public class SelfKeymasterServiceOps extends SelfKeymasterOps implements Service
     public NetworkService get(final NetworkService.Type serviceType) {
         try {
             return client(NetworkServiceService.class, Collections.emptyMap()).get(serviceType);
+        } catch (KeymasterException e) {
+            throw e;
         } catch (Exception e) {
             throw new KeymasterException(e);
         }
@@ -108,7 +112,7 @@ public class SelfKeymasterServiceOps extends SelfKeymasterOps implements Service
             final BackOffExecution backOffExecution) {
 
         completionStage.whenComplete((response, throwable) -> {
-            if (throwable == null) {
+            if (throwable == null && response.getStatus() < 300) {
                 LOG.info("{} successfully " + action + "ed", service);
             } else {
                 LOG.error("Could not " + action + " {}", service, throwable);

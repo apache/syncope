@@ -23,16 +23,16 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.keymaster.client.api.NetworkService;
-import org.apache.syncope.core.persistence.api.entity.Service;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.core.persistence.api.entity.NetworkServiceEntity;
 
 @Entity
-@Table(name = JPAService.TABLE)
-public class JPAService extends AbstractGeneratedKeyEntity implements Service {
+@Table(name = JPANetworkService.TABLE)
+public class JPANetworkService extends AbstractGeneratedKeyEntity implements NetworkServiceEntity {
 
     private static final long serialVersionUID = 8742750097008236475L;
 
-    public static final String TABLE = "Service";
+    public static final String TABLE = "NetworkService";
 
     @NotNull
     @Enumerated(EnumType.STRING)

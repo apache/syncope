@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.jpa;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf;
@@ -28,6 +30,7 @@ import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,6 +54,9 @@ public class MasterDomain implements EnvironmentAware {
 
     @Autowired
     private CommonEntityManagerFactoryConf commonEMFConf;
+
+    @Autowired
+    private ConfigurableApplicationContext ctx;
 
     @Value("${Master.driverClassName}")
     private String driverClassName;
@@ -170,19 +176,21 @@ public class MasterDomain implements EnvironmentAware {
     }
 
     @Bean("MasterContentXML")
-    public ResourceWithFallbackLoader masterContentXML() {
-        ResourceWithFallbackLoader masterContentXML = new ResourceWithFallbackLoader();
+    public InputStream masterContentXML() throws IOException {
+        ResourceWithFallbackLoader masterContentXML =
+                ctx.getBeanFactory().createBean(ResourceWithFallbackLoader.class);
         masterContentXML.setPrimary("file:" + contentDirectory + "/domains/MasterContent.xml");
         masterContentXML.setFallback("classpath:domains/MasterContent.xml");
-        return masterContentXML;
+        return masterContentXML.getResource().getInputStream();
     }
 
-    @Bean("MasterKeymasterContentJSON")
-    public ResourceWithFallbackLoader masterKeymasterContentJSON() {
-        ResourceWithFallbackLoader masterKeymasterContentJSON = new ResourceWithFallbackLoader();
-        masterKeymasterContentJSON.setPrimary("file:" + contentDirectory + "/domains/MasterKeymasterContent.json");
-        masterKeymasterContentJSON.setFallback("classpath:domains/MasterKeymasterContent.json");
-        return masterKeymasterContentJSON;
+    @Bean("MasterKeymasterConfParamsJSON")
+    public InputStream masterKeymasterConfParamsJSON() throws IOException {
+        ResourceWithFallbackLoader keymasterConfParamsJSON =
+                ctx.getBeanFactory().createBean(ResourceWithFallbackLoader.class);
+        keymasterConfParamsJSON.setPrimary("file:" + contentDirectory + "/domains/MasterKeymasterConfParams.json");
+        keymasterConfParamsJSON.setFallback("classpath:domains/MasterKeymasterConfParams.json");
+        return keymasterConfParamsJSON.getResource().getInputStream();
     }
 
     @Bean("MasterDatabaseSchema")

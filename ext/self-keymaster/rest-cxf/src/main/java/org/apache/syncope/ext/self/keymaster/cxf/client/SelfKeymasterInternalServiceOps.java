@@ -21,7 +21,7 @@ package org.apache.syncope.ext.self.keymaster.cxf.client;
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
-import org.apache.syncope.common.keymaster.client.api.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.logic.NetworkServiceLogic;

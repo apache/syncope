@@ -19,9 +19,9 @@
 package org.apache.syncope.core.provisioning.java;
 
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.core.persistence.api.DomainsHolder;
+import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
-import org.apache.syncope.core.persistence.jpa.DomainLoader;
+import org.apache.syncope.core.persistence.jpa.StartupDomainLoader;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
@@ -39,10 +39,10 @@ public class TestInitializer implements InitializingBean, ApplicationContextAwar
     private ConfigurableApplicationContext ctx;
 
     @Autowired
-    private DomainLoader domainLoader;
+    private StartupDomainLoader domainLoader;
 
     @Autowired
-    private DomainsHolder domainsHolder;
+    private DomainHolder domainHolder;
 
     @Autowired
     private ContentLoader contentLoader;
@@ -65,6 +65,6 @@ public class TestInitializer implements InitializingBean, ApplicationContextAwar
 
         contentLoader.load(
                 SyncopeConstants.MASTER_DOMAIN,
-                domainsHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN));
+                domainHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN));
     }
 }

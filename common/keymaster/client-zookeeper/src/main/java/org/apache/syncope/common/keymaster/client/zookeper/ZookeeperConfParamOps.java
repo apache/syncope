@@ -73,7 +73,6 @@ public class ZookeeperConfParamOps implements ConfParamOps {
         } catch (KeeperException.NoNodeException e) {
             LOG.debug("Node {} was not found", buildConfPath(domain, key));
         } catch (Exception e) {
-            LOG.error("While reading {}", buildConfPath(domain, key), e);
             throw new KeymasterException(e);
         }
 
@@ -92,7 +91,6 @@ public class ZookeeperConfParamOps implements ConfParamOps {
 
                 client.setData().forPath(buildConfPath(domain, key), MAPPER.writeValueAsBytes(value));
             } catch (Exception e) {
-                LOG.error("While writing {}", buildConfPath(domain, key), e);
                 throw new KeymasterException(e);
             }
         }

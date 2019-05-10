@@ -16,16 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.common.keymaster.client.api;
 
-import org.apache.syncope.common.lib.to.DomainTO;
-import org.apache.syncope.core.persistence.api.entity.Domain;
+import java.util.List;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 
-public interface DomainDataBinder {
+/**
+ * Operations available for domains.
+ */
+public interface DomainOps {
 
-    Domain create(DomainTO domainTO);
+    List<Domain> list();
 
-    void update(Domain domain, DomainTO domainTO);
+    Domain read(String key);
 
-    DomainTO getDomainTO(Domain domain);
+    void create(Domain domain);
+
+    void changeAdminPassword(String key, String password, CipherAlgorithm cipherAlgorithm);
+
+    void adjustPoolSize(String key, int maxPoolSize, int minIdle);
+
+    void delete(String key);
 }

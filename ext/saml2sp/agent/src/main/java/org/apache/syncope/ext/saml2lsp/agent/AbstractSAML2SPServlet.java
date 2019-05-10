@@ -35,7 +35,7 @@ import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.common.keymaster.client.api.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.lib.SSOConstants;
 import org.apache.syncope.common.lib.to.SAML2ReceivedResponseTO;

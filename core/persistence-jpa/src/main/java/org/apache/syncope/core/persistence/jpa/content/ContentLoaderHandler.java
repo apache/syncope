@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.content;
 
-import java.sql.ResultSet;
 import java.sql.Types;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -55,12 +54,11 @@ public class ContentLoaderHandler extends DefaultHandler {
 
     private Object[] getParameters(final String tableName, final Attributes attrs) {
         Map<String, Integer> colTypes = jdbcTemplate.query(
-                "SELECT * FROM " + tableName + " WHERE 0=1", (final ResultSet rs) -> {
+                "SELECT * FROM " + tableName + " WHERE 0=1", rs -> {
                     Map<String, Integer> colTypes1 = new HashMap<>();
-                    for (int i = 1; i <= rs.getMetaData().getColumnCount();
-                    i++) {
-                        colTypes1.
-                                put(rs.getMetaData().getColumnName(i).toUpperCase(), rs.getMetaData().getColumnType(i));
+                    for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+                        colTypes1.put(
+                                rs.getMetaData().getColumnName(i).toUpperCase(), rs.getMetaData().getColumnType(i));
                     }
                     return colTypes1;
                 });

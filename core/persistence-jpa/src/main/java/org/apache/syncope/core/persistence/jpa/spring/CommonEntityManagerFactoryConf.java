@@ -22,14 +22,14 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.persistence.ValidationMode;
 import javax.sql.DataSource;
-import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.springframework.orm.jpa.persistenceunit.PersistenceUnitPostProcessor;
+import org.apache.syncope.core.persistence.api.DomainHolder;
 
 /**
  * Container for common configuration options among all EntityManagerFactory entities (one for each domain).
  * Acts as a commodity place for fetching each domain's {@link DataSource}..
  */
-public class CommonEntityManagerFactoryConf implements DomainsHolder {
+public class CommonEntityManagerFactoryConf implements DomainHolder {
 
     private final Map<String, DataSource> domains = new HashMap<>();
 

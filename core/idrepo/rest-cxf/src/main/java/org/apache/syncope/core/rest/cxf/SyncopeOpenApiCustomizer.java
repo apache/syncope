@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
+import static org.codehaus.groovy.tools.shell.util.Logger.io;
+
 import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.headers.Header;
@@ -46,7 +48,7 @@ import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ErrorTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.core.persistence.api.DomainsHolder;
+import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +89,7 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
                 super.setJavadocProvider(javaDocProvider);
 
                 domains = new ArrayList<>(ApplicationContextProvider.getApplicationContext().
-                        getBean(DomainsHolder.class).getDomains().keySet());
+                        getBean(DomainHolder.class).getDomains().keySet());
 
                 inited = true;
             }

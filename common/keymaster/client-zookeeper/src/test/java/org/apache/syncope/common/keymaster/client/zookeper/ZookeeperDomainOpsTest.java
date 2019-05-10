@@ -16,15 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity;
+package org.apache.syncope.common.keymaster.client.zookeper;
 
-import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.junit.jupiter.api.BeforeAll;
 
-public interface Domain extends ProvidedKeyEntity {
+public class ZookeeperDomainOpsTest extends ZookeeperDomainOpsITCase {
 
-    String getAdminPwd();
-
-    CipherAlgorithm getAdminCipherAlgorithm();
-
-    void setPassword(String password, CipherAlgorithm cipherAlgoritm);
+    @BeforeAll
+    public static void setUp() throws Exception {
+        ZookeeperTestServer.start();
+    }
 }

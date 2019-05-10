@@ -22,29 +22,29 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomUtils;
-import org.apache.syncope.common.keymaster.client.api.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.ServiceDAO;
 import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
-import org.apache.syncope.core.persistence.api.entity.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.persistence.api.dao.NetworkServiceDAO;
+import org.apache.syncope.core.persistence.api.entity.NetworkServiceEntity;
 
 @Component
 public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @Autowired
-    private ServiceDAO serviceDAO;
+    private NetworkServiceDAO serviceDAO;
 
     @Autowired
     private SelfKeymasterEntityFactory entityFactory;
 
     private NetworkService toNetworkService(
             final NetworkService.Type serviceType,
-            final Service service) {
+            final NetworkServiceEntity service) {
 
         NetworkService ns = new NetworkService();
         ns.setType(serviceType);
@@ -72,17 +72,15 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
                 : list.get(RandomUtils.nextInt(0, list.size()));
     }
 
-    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
     public void register(final NetworkService networkService) {
         unregister(networkService);
 
-        Service service = entityFactory.newService();
+        NetworkServiceEntity service = entityFactory.newNetworkService();
         service.setType(networkService.getType());
         service.setAddress(networkService.getAddress());
         serviceDAO.save(service);
     }
 
-    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
     public void unregister(final NetworkService networkService) {
         serviceDAO.findAll(networkService.getType()).stream().
                 filter(service -> service.getAddress().equals(networkService.getAddress())).

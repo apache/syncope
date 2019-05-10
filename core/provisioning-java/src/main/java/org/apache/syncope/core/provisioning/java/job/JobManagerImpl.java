@@ -36,6 +36,7 @@ import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -46,7 +47,6 @@ import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -82,7 +82,7 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
     private static final Logger LOG = LoggerFactory.getLogger(JobManager.class);
 
     @Autowired
-    private DomainsHolder domainsHolder;
+    private DomainHolder domainHolder;
 
     @Autowired
     private SchedulerFactoryBean scheduler;
@@ -115,7 +115,7 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
             return false;
         }
 
-        DataSource dataSource = domainsHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN);
+        DataSource dataSource = domainHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN);
         Connection conn = DataSourceUtils.getConnection(dataSource);
         PreparedStatement stmt = null;
         ResultSet resultSet = null;

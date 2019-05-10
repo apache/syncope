@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.keymaster.client.api;
 
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import java.util.List;
 
 /**

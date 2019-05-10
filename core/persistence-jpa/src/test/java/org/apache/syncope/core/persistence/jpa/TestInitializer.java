@@ -19,7 +19,7 @@
 package org.apache.syncope.core.persistence.jpa;
 
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.core.persistence.api.DomainsHolder;
+import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.BeansException;
@@ -37,10 +37,10 @@ public class TestInitializer implements InitializingBean, ApplicationContextAwar
     private ConfigurableApplicationContext ctx;
 
     @Autowired
-    private DomainLoader domainLoader;
+    private StartupDomainLoader domainLoader;
 
     @Autowired
-    private DomainsHolder domainsHolder;
+    private DomainHolder domainHolder;
 
     @Autowired
     private ContentLoader contentLoader;
@@ -59,11 +59,11 @@ public class TestInitializer implements InitializingBean, ApplicationContextAwar
 
         contentLoader.load(
                 SyncopeConstants.MASTER_DOMAIN,
-                domainsHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN));
-        if (domainsHolder.getDomains().containsKey("Two")) {
+                domainHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN));
+        if (domainHolder.getDomains().containsKey("Two")) {
             contentLoader.load(
                     "Two",
-                    domainsHolder.getDomains().get("Two"));
+                    domainHolder.getDomains().get("Two"));
         }
     }
 }

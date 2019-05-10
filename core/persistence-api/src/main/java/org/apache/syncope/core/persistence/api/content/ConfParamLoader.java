@@ -16,17 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity;
+package org.apache.syncope.core.persistence.api.content;
 
-import org.apache.syncope.common.keymaster.client.api.NetworkService;
+import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 
-public interface Service extends Entity {
-
-    NetworkService.Type getType();
-
-    void setType(NetworkService.Type type);
-
-    String getAddress();
-
-    void setAddress(String address);
+public interface ConfParamLoader extends SyncopeCoreLoader {
 }

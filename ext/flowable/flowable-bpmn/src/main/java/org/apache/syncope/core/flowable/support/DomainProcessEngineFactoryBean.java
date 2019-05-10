@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
-import org.apache.syncope.core.persistence.api.DomainsHolder;
+import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.common.engine.impl.cfg.SpringBeanFactoryProxyMap;
@@ -106,7 +106,7 @@ public class DomainProcessEngineFactoryBean
         if (engine == null) {
             Map<String, ProcessEngine> engines = new HashMap<>();
 
-            ctx.getBean(DomainsHolder.class).getDomains().forEach((domain, datasource) -> {
+            ctx.getBean(DomainHolder.class).getDomains().forEach((domain, datasource) -> {
                 engines.put(domain, build(domain, datasource));
             });
 

@@ -53,7 +53,6 @@ import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
@@ -81,6 +80,7 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
+import org.apache.syncope.core.persistence.api.DomainHolder;
 
 /**
  * Export internal storage content as XML.
@@ -105,7 +105,7 @@ public class XMLContentExporter implements ContentExporter {
             Collections.singletonMap("SYNCOPEGROUP", Collections.singleton("USEROWNER_ID"));
 
     @Autowired
-    private DomainsHolder domainsHolder;
+    private DomainHolder domainHolder;
 
     @Autowired
     private RealmDAO realmDAO;
@@ -379,7 +379,7 @@ public class XMLContentExporter implements ContentExporter {
         handler.startDocument();
         handler.startElement("", "", ROOT_ELEMENT, new AttributesImpl());
 
-        DataSource dataSource = domainsHolder.getDomains().get(domain);
+        DataSource dataSource = domainHolder.getDomains().get(domain);
         if (dataSource == null) {
             throw new IllegalArgumentException("Could not find DataSource for domain " + domain);
         }

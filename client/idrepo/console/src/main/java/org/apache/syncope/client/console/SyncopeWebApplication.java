@@ -32,7 +32,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,12 +43,8 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Dashboard;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.client.console.themes.AdminLTE;
-import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.PropertyUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.wicket.Page;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
@@ -76,8 +71,11 @@ import org.apache.syncope.client.console.pages.MustChangePassword;
 import org.apache.syncope.client.ui.commons.BaseApplication;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.common.keymaster.client.api.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -106,6 +104,9 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
 
     @Autowired
     private ServiceOps serviceOps;
+
+    @Autowired
+    private DomainOps domainOps;
 
     @Value("${service.discovery.address}")
     private String address;
@@ -368,12 +369,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
     public List<String> getDomains() {
         synchronized (LOG) {
             if (domains == null) {
-                domains = newClientFactory().create(
-                        new AnonymousAuthenticationHandler(anonymousUser, anonymousKey)).
-                        getService(DomainService.class).list().stream().map(EntityTO::getKey).
-                        collect(Collectors.toList());
+                domains = domainOps.list().stream().map(Domain::getKey).sorted().collect(Collectors.toList());
                 domains.add(0, SyncopeConstants.MASTER_DOMAIN);
-                domains = ListUtils.unmodifiableList(domains);
             }
         }
         return domains;

@@ -42,14 +42,12 @@ import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.DomainDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
-import org.apache.syncope.core.persistence.api.entity.Domain;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -63,7 +61,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,9 +90,6 @@ public class AuthDataAccessor {
 
     @Resource(name = "anonymousUser")
     protected String anonymousUser;
-
-    @Autowired
-    protected DomainDAO domainDAO;
 
     @Autowired
     protected RealmDAO realmDAO;
@@ -156,15 +150,6 @@ public class AuthDataAccessor {
         }
 
         return provider;
-    }
-
-    @Transactional(readOnly = true)
-    public Domain findDomain(final String key) {
-        Domain domain = domainDAO.find(key);
-        if (domain == null) {
-            throw new AuthenticationServiceException("Could not find domain " + key);
-        }
-        return domain;
     }
 
     /**
