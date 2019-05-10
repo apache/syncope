@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.spring;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.persistence.ValidationMode;
 import javax.sql.DataSource;
 import org.springframework.orm.jpa.persistenceunit.PersistenceUnitPostProcessor;
@@ -31,7 +32,7 @@ import org.apache.syncope.core.persistence.api.DomainHolder;
  */
 public class CommonEntityManagerFactoryConf implements DomainHolder {
 
-    private final Map<String, DataSource> domains = new HashMap<>();
+    private final Map<String, DataSource> domains = new ConcurrentHashMap<>();
 
     private String[] packagesToScan;
 

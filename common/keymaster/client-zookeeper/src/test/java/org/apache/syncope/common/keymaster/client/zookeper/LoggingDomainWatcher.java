@@ -19,19 +19,16 @@
 package org.apache.syncope.common.keymaster.client.zookeper;
 
 import org.apache.syncope.common.keymaster.client.api.DomainWatcher;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Configuration
-public class ZookeeperTestContext {
+public class LoggingDomainWatcher implements DomainWatcher {
 
-    @Bean
-    public ZookeeperTestContentLoader zookeeperTestContentLoader() {
-        return new ZookeeperTestContentLoader();
-    }
+    private static final Logger LOG = LoggerFactory.getLogger(LoggingDomainWatcher.class);
 
-    @Bean
-    public DomainWatcher loggingDomainWatcher() {
-        return new LoggingDomainWatcher();
+    @Override
+    public void process(final Domain domain) {
+        LOG.info("Domain {} created", domain);
     }
 }

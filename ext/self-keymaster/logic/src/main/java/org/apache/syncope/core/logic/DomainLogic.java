@@ -19,7 +19,6 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -75,7 +74,7 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
         domainEntity.set(domain);
         domainEntity = domainDAO.save(domainEntity);
 
-        domainWatcher.update(Collections.singletonList(domain.getKey()));
+        domainWatcher.process(domain);
 
         return domainEntity.get();
     }

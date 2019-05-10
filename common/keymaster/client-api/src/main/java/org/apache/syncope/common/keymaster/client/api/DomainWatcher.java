@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.common.keymaster.client.api;
 
-import java.util.List;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
 
 /**
  * Interface to be implemented by anyone that wants to be notified when domains are created / updated / deleted.
  */
 public interface DomainWatcher {
 
-    void update(List<String> domains);
+    void process(Domain domain);
 }

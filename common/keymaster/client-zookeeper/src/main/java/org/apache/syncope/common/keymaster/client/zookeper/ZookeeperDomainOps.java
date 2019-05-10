@@ -19,21 +19,19 @@
 package org.apache.syncope.common.keymaster.client.zookeper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.x.async.AsyncCuratorFramework;
-import org.apache.curator.x.async.WatchMode;
+import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.DomainWatcher;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.zookeeper.Watcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -63,16 +61,30 @@ public class ZookeeperDomainOps implements DomainOps, InitializingBean {
                 client.create().creatingParentContainersIfNeeded().forPath(buildDomainPath());
             }
 
-            AsyncCuratorFramework.wrap(client).with(WatchMode.successOnly).watched().getChildren().
-                    forPath(buildDomainPath()).event().thenAccept(event -> {
-                if (event.getType() == Watcher.Event.EventType.NodeChildrenChanged) {
-                    try {
-                        List<String> children = client.getChildren().
-                                forPath(event.getPath()).stream().collect(Collectors.toList());
-                        watcher.update(children);
-                    } catch (Exception e) {
-                        LOG.error("Unexpected exception", e);
-                    }
+            new TreeCache(client, buildDomainPath()).start().getListenable().addListener((cf, event) -> {
+                switch (event.getType()) {
+                    case NODE_ADDED:
+                        LOG.debug("Domain {} added", event.getData().getPath());
+                        try {
+                            Domain domain = MAPPER.readValue(event.getData().getData(), Domain.class);
+                            
+                            LOG.info("Domain {} created", domain.getKey());
+                            watcher.process(domain);
+                        } catch (IOException e) {
+                            LOG.debug("Could not parse {}", new String(event.getData().getData()), e);
+                        }
+                        break;
+
+                    case NODE_UPDATED:
+                        LOG.debug("Domain {} update", event.getData().getPath());
+                        break;
+
+                    case NODE_REMOVED:
+                        LOG.debug("Domain {} removed", event.getData().getPath());
+                        break;
+
+                    default:
+                        LOG.debug("Event {} received", event);
                 }
             });
         }
@@ -125,8 +137,8 @@ public class ZookeeperDomainOps implements DomainOps, InitializingBean {
                 throw new KeymasterException("Domain " + domain.getKey() + " existing");
             }
 
-            client.create().creatingParentContainersIfNeeded().forPath(buildDomainPath(domain.getKey()));
-            client.setData().forPath(buildDomainPath(domain.getKey()), MAPPER.writeValueAsBytes(domain));
+            client.create().creatingParentContainersIfNeeded().
+                    forPath(buildDomainPath(domain.getKey()), MAPPER.writeValueAsBytes(domain));
         } catch (KeymasterException e) {
             throw e;
         } catch (Exception e) {

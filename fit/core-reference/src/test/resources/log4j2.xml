@@ -45,7 +45,13 @@ under the License.
       <appender-ref ref="main"/>
     </asyncLogger>
 
-    <asyncLogger name="org.apache.syncope.common.keymaster" additivity="false" level="DEBUG">
+    <asyncLogger name="org.apache.syncope.common.keymaster" additivity="false" level="ERROR">
+      <appender-ref ref="main"/>
+    </asyncLogger>
+    <asyncLogger name="org.apache.zookeeper" additivity="false" level="ERROR">
+      <appender-ref ref="main"/>
+    </asyncLogger>
+    <asyncLogger name="org.apache.curator" additivity="false" level="ERROR">
       <appender-ref ref="main"/>
     </asyncLogger>
 

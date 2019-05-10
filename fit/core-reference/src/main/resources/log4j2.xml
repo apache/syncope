@@ -196,6 +196,14 @@ under the License.
       <appender-ref ref="mainFile"/>
       <appender-ref ref="main"/>
     </asyncLogger>
+    <asyncLogger name="org.apache.zookeeper" additivity="false" level="ERROR">
+      <appender-ref ref="mainFile"/>
+      <appender-ref ref="main"/>
+    </asyncLogger>
+    <asyncLogger name="org.apache.curator" additivity="false" level="ERROR">
+      <appender-ref ref="mainFile"/>
+      <appender-ref ref="main"/>
+    </asyncLogger>
     
     <!-- To enable when setting 'mail.debug=true' in mail.properties -->
     <!--<asyncLogger name="org.apache.syncope.core.provisioning.java.job.notification" additivity="false" level="DEBUG">
