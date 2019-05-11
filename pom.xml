@@ -407,7 +407,7 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <groovy.version>3.0.0-alpha-4</groovy.version>
+    <groovy.version>3.0.0-beta-1</groovy.version>
 
     <flowable.version>6.4.1</flowable.version>
 
