@@ -1144,7 +1144,7 @@ under the License.
       <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
-        <version>1.9.3</version>
+        <version>1.9.4</version>
       </dependency>
       
       <dependency>
@@ -1821,7 +1821,7 @@ under the License.
 
       <dependency>
         <groupId>org.apache.curator</groupId>
-        <artifactId>curator-x-async</artifactId>
+        <artifactId>curator-framework</artifactId>
         <version>${curator.version}</version>
         <exclusions>
           <exclusion>
@@ -2244,7 +2244,7 @@ under the License.
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.3</version>
+        <version>0.8.4</version>
         <configuration>
           <append>true</append>
           <skip>${skipTests}</skip>
