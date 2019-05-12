@@ -406,7 +406,7 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <groovy.version>2.5.6</groovy.version>
+    <groovy.version>2.5.7</groovy.version>
 
     <activiti.version>5.22.0</activiti.version>
     <flowable.version>5.23.0</flowable.version>
@@ -1054,7 +1054,7 @@ under the License.
       <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
-        <version>1.9.3</version>
+        <version>1.9.4</version>
       </dependency>
       
       <dependency>
@@ -2243,7 +2243,7 @@ under the License.
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.3</version>
+        <version>0.8.4</version>
         <configuration>
           <append>true</append>
           <skip>${skipTests}</skip>
