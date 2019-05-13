@@ -74,7 +74,7 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
         domainEntity.set(domain);
         domainEntity = domainDAO.save(domainEntity);
 
-        domainWatcher.process(domain);
+        domainWatcher.added(domain);
 
         return domainEntity.get();
     }
@@ -110,6 +110,8 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
     public void delete(final String key) {
         domainDAO.delete(key);
+
+        domainWatcher.removed(key);
     }
 
     @Override

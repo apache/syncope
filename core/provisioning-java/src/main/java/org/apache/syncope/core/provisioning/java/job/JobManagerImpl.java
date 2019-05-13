@@ -403,4 +403,33 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
             }
         }
     }
+
+    @Override
+    public void unload(final String domain) {
+        AuthContextUtils.callAsAdmin(domain, () -> {
+            // 1. jobs for SchedTasks
+            Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
+            tasks.addAll(taskDAO.<PullTask>findAll(TaskType.PULL));
+            tasks.addAll(taskDAO.<PushTask>findAll(TaskType.PUSH));
+
+            tasks.forEach(task -> {
+                try {
+                    unregister(task);
+                } catch (Exception e) {
+                    LOG.error("While unloading job instance for task " + task.getKey(), e);
+                }
+            });
+
+            // 2. jobs for Reports
+            reportDAO.findAll().forEach(report -> {
+                try {
+                    unregister(report);
+                } catch (Exception e) {
+                    LOG.error("While unloading job instance for report " + report.getName(), e);
+                }
+            });
+
+            return null;
+        });
+    }
 }

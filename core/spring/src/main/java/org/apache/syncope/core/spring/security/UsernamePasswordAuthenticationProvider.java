@@ -28,6 +28,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.slf4j.Logger;
@@ -96,7 +97,20 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
     @Override
     public Authentication authenticate(final Authentication authentication) {
-        String domain = SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).getDomain();
+        Domain domain;
+        if (SyncopeConstants.MASTER_DOMAIN.equals(
+                SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).getDomain())) {
+
+            domain = new Domain.Builder(SyncopeConstants.MASTER_DOMAIN).build();
+        } else {
+            try {
+                domain = domainOps.read(
+                        SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).getDomain());
+            } catch (NotFoundException | KeymasterException e) {
+                throw new BadCredentialsException("Could not find domain "
+                        + SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).getDomain(), e);
+            }
+        }
 
         String[] username = new String[1];
         boolean authenticated;
@@ -107,33 +121,27 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
             authenticated = authentication.getCredentials().toString().equals(anonymousKey);
         } else if (adminUser.equals(authentication.getName())) {
             username[0] = adminUser;
-            if (SyncopeConstants.MASTER_DOMAIN.equals(domain)) {
+            if (SyncopeConstants.MASTER_DOMAIN.equals(domain.getKey())) {
                 credentialChecker.checkIsDefaultAdminPasswordInUse();
                 authenticated = ENCRYPTOR.verify(
                         authentication.getCredentials().toString(),
                         CipherAlgorithm.valueOf(adminPasswordAlgorithm),
                         adminPassword);
             } else {
-                try {
-                    Domain domainObj = domainOps.read(domain);
-                    authenticated = ENCRYPTOR.verify(
-                            authentication.getCredentials().toString(),
-                            domainObj.getAdminCipherAlgorithm(),
-                            domainObj.getAdminPassword());
-                } catch (KeymasterException e) {
-                    LOG.error("While attempting to read domain {}", domain, e);
-                    authenticated = false;
-                }
+                authenticated = ENCRYPTOR.verify(
+                        authentication.getCredentials().toString(),
+                        domain.getAdminCipherAlgorithm(),
+                        domain.getAdminPassword());
             }
         } else {
-            Pair<User, Boolean> authResult = AuthContextUtils.callAsAdmin(domain,
-                    () -> dataAccessor.authenticate(domain, authentication));
+            Pair<User, Boolean> authResult = AuthContextUtils.callAsAdmin(domain.getKey(),
+                    () -> dataAccessor.authenticate(domain.getKey(), authentication));
             authenticated = BooleanUtils.toBoolean(authResult.getRight());
             if (authResult.getLeft() != null && authResult.getRight() != null) {
                 username[0] = authResult.getLeft().getUsername();
 
                 if (!authResult.getRight()) {
-                    AuthContextUtils.callAsAdmin(domain, () -> {
+                    AuthContextUtils.callAsAdmin(domain.getKey(), () -> {
                         provisioningManager.internalSuspend(authResult.getLeft().getKey());
                         return null;
                     });
@@ -144,7 +152,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
             username[0] = authentication.getPrincipal().toString();
         }
 
-        return finalizeAuthentication(authenticated, domain, username[0], authentication);
+        return finalizeAuthentication(authenticated, domain.getKey(), username[0], authentication);
     }
 
     protected Authentication finalizeAuthentication(

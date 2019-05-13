@@ -23,6 +23,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.core.persistence.jpa.spring.DomainEntityManagerFactoryBean;
@@ -42,9 +43,13 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter;
 import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class DomainConfFactory implements DomainRegistry, EnvironmentAware {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DomainConfFactory.class);
 
     private Environment env;
 
@@ -53,17 +58,25 @@ public class DomainConfFactory implements DomainRegistry, EnvironmentAware {
         this.env = env;
     }
 
-    private void registerSingleton(final String name, final Object bean) {
+    private void unregisterSingleton(final String name) {
         if (ApplicationContextProvider.getBeanFactory().containsSingleton(name)) {
             ApplicationContextProvider.getBeanFactory().destroySingleton(name);
         }
+    }
+
+    private void registerSingleton(final String name, final Object bean) {
+        unregisterSingleton(name);
         ApplicationContextProvider.getBeanFactory().registerSingleton(name, bean);
     }
 
-    private void registerBeanDefinition(final String name, final BeanDefinition beanDefinition) {
+    private void unregisterBeanDefinition(final String name) {
         if (ApplicationContextProvider.getBeanFactory().containsBeanDefinition(name)) {
             ApplicationContextProvider.getBeanFactory().removeBeanDefinition(name);
         }
+    }
+
+    private void registerBeanDefinition(final String name, final BeanDefinition beanDefinition) {
+        unregisterBeanDefinition(name);
         ApplicationContextProvider.getBeanFactory().registerBeanDefinition(name, beanDefinition);
     }
 
@@ -98,7 +111,6 @@ public class DomainConfFactory implements DomainRegistry, EnvironmentAware {
         databasePopulator.setIgnoreFailedDrops(true);
         databasePopulator.setSqlScriptEncoding(StandardCharsets.UTF_8.name());
         databasePopulator.addScript(new ClassPathResource("/audit/" + domain.getAuditSql()));
-
         registerSingleton(domain.getKey().toLowerCase() + "ResourceDatabasePopulator", databasePopulator);
 
         // domainDataSourceInitializer
@@ -147,5 +159,41 @@ public class DomainConfFactory implements DomainRegistry, EnvironmentAware {
                 BeanDefinitionBuilder.rootBeanDefinition(ByteArrayInputStream.class).
                         addConstructorArgValue(domain.getKeymasterConfParams().getBytes()).
                         getBeanDefinition());
+    }
+
+    @Override
+    public void unregister(final String domain) {
+        // domainKeymasterConfParamsJSON
+        unregisterSingleton(domain + "KeymasterConfParamsJSON");
+        unregisterBeanDefinition(domain + "KeymasterConfParamsJSON");
+
+        // domainContentXML
+        unregisterSingleton(domain + "ContentXML");
+        unregisterBeanDefinition(domain + "ContentXML");
+
+        // domainEntityManagerFactory
+        try {
+            EntityManagerFactory emf = ApplicationContextProvider.getBeanFactory().
+                    getBean(domain + "EntityManagerFactory", EntityManagerFactory.class);
+            emf.close();
+        } catch (Exception e) {
+            LOG.error("Could not close EntityManagerFactory for Domain {}", domain, e);
+        }
+        unregisterSingleton(domain + "EntityManagerFactory");
+        unregisterBeanDefinition(domain + "EntityManagerFactory");
+
+        // domainTransactionManager
+        unregisterSingleton(domain + "TransactionManager");
+        unregisterBeanDefinition(domain + "TransactionManager");
+
+        // domainDataSourceInitializer
+        unregisterSingleton(domain.toLowerCase() + "DataSourceInitializer");
+
+        // domainResourceDatabasePopulator
+        unregisterSingleton(domain.toLowerCase() + "ResourceDatabasePopulator");
+
+        // domainDataSource
+        unregisterSingleton(domain + "DataSource");
+        unregisterBeanDefinition(domain + "DataSource");
     }
 }

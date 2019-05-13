@@ -39,4 +39,13 @@ public interface SyncopeCoreLoader extends Ordered {
     default void load(String domain, DataSource datasource) {
         // nothing to do        
     }
+
+    /**
+     * Perform closing operations on the given domain.
+     *
+     * @param domain domain to unload
+     */
+    default void unload(String domain) {
+        // nothing to do        
+    }
 }

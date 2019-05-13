@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
+import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.provisioning.api.job.JobDelegate;
@@ -30,6 +31,7 @@ import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class TaskJob extends AbstractInterruptableJob {
 
@@ -48,6 +50,9 @@ public class TaskJob extends AbstractInterruptableJob {
         FAILURE
 
     }
+
+    @Autowired
+    private DomainHolder domainHolder;
 
     /**
      * Key, set by the caller, for identifying the task to be executed.
@@ -73,29 +78,34 @@ public class TaskJob extends AbstractInterruptableJob {
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
         try {
-            AuthContextUtils.callAsAdmin(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY), () -> {
-                try {
-                    ImplementationDAO implementationDAO =
-                            ApplicationContextProvider.getApplicationContext().getBean(ImplementationDAO.class);
-                    Implementation implementation = implementationDAO.find(
-                            context.getMergedJobDataMap().getString(DELEGATE_IMPLEMENTATION));
-                    if (implementation == null) {
-                        LOG.error("Could not find Implementation '{}', aborting",
+            String domain = context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY);
+            if (domainHolder.getDomains().containsKey(domain)) {
+                AuthContextUtils.callAsAdmin(domain, () -> {
+                    try {
+                        ImplementationDAO implementationDAO =
+                                ApplicationContextProvider.getApplicationContext().getBean(ImplementationDAO.class);
+                        Implementation implementation = implementationDAO.find(
                                 context.getMergedJobDataMap().getString(DELEGATE_IMPLEMENTATION));
-                    } else {
-                        delegate = ImplementationManager.<SchedTaskJobDelegate>build(implementation);
-                        delegate.execute(
-                                taskKey,
-                                context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY),
-                                context);
+                        if (implementation == null) {
+                            LOG.error("Could not find Implementation '{}', aborting",
+                                    context.getMergedJobDataMap().getString(DELEGATE_IMPLEMENTATION));
+                        } else {
+                            delegate = ImplementationManager.<SchedTaskJobDelegate>build(implementation);
+                            delegate.execute(
+                                    taskKey,
+                                    context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY),
+                                    context);
+                        }
+                    } catch (Exception e) {
+                        LOG.error("While executing task {}", taskKey, e);
+                        throw new RuntimeException(e);
                     }
-                } catch (Exception e) {
-                    LOG.error("While executing task {}", taskKey, e);
-                    throw new RuntimeException(e);
-                }
 
-                return null;
-            });
+                    return null;
+                });
+            } else {
+                LOG.debug("Domain {} not found, skipping", domain);
+            }
         } catch (RuntimeException e) {
             LOG.error("While executing task {}", taskKey, e);
             throw new JobExecutionException("While executing task " + taskKey, e);

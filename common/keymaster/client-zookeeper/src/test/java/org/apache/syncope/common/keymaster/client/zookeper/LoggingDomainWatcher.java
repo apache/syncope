@@ -28,7 +28,12 @@ public class LoggingDomainWatcher implements DomainWatcher {
     private static final Logger LOG = LoggerFactory.getLogger(LoggingDomainWatcher.class);
 
     @Override
-    public void process(final Domain domain) {
-        LOG.info("Domain {} created", domain);
+    public void added(final Domain domain) {
+        LOG.info("Domain {} added", domain);
+    }
+
+    @Override
+    public void removed(final String domain) {
+        LOG.info("Domain {} removed", domain);
     }
 }

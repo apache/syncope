@@ -25,5 +25,7 @@ import org.apache.syncope.common.keymaster.client.api.model.Domain;
  */
 public interface DomainWatcher {
 
-    void process(Domain domain);
+    void added(Domain domain);
+
+    void removed(String domain);
 }

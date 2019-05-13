@@ -43,11 +43,11 @@ public class RuntimeDomainLoader implements DomainWatcher {
     private DomainRegistry domainRegistry;
 
     @Override
-    public void process(final Domain domain) {
+    public void added(final Domain domain) {
         if (domainHolder.getDomains().containsKey(domain.getKey())) {
             LOG.debug("Domain {} already inited, skipping", domain.getKey());
         } else {
-            LOG.info("Domain {} initialization", domain.getKey());
+            LOG.info("Domain {} registration", domain.getKey());
 
             domainRegistry.register(domain);
 
@@ -56,14 +56,37 @@ public class RuntimeDomainLoader implements DomainWatcher {
                     forEach(loader -> {
                         String loaderName = AopUtils.getTargetClass(loader).getName();
 
-                        loader.load();
-
                         LOG.debug("[{}] Starting on domain '{}'", loaderName, domain);
                         loader.load(domain.getKey(), domainHolder.getDomains().get(domain.getKey()));
                         LOG.debug("[{}] Completed on domain '{}'", loaderName, domain);
                     });
 
-            LOG.info("Domain {} successfully inited", domain.getKey());
+            LOG.info("Domain {} successfully deployed", domain.getKey());
+        }
+    }
+
+    @Override
+    public void removed(final String domain) {
+        if (domainHolder.getDomains().containsKey(domain)) {
+            LOG.info("Domain {} unregistration", domain);
+
+            ApplicationContextProvider.getApplicationContext().getBeansOfType(SyncopeCoreLoader.class).values().
+                    stream().sorted(Comparator.comparing(SyncopeCoreLoader::getOrder).reversed()).
+                    forEach(loader -> {
+                        String loaderName = AopUtils.getTargetClass(loader).getName();
+
+                        LOG.debug("[{}] Starting on domain '{}'", loaderName, domain);
+                        loader.unload(domain);
+                        LOG.debug("[{}] Completed on domain '{}'", loaderName, domain);
+                    });
+
+            domainRegistry.unregister(domain);
+
+            domainHolder.getDomains().remove(domain);
+
+            LOG.info("Domain {} successfully undeployed", domain);
+        } else {
+            LOG.debug("Domain {} not inited, skipping", domain);
         }
     }
 }

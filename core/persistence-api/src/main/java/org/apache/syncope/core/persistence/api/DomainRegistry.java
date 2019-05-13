@@ -26,4 +26,6 @@ import org.apache.syncope.common.keymaster.client.api.model.Domain;
 public interface DomainRegistry {
 
     void register(Domain req);
+
+    void unregister(String domain);
 }

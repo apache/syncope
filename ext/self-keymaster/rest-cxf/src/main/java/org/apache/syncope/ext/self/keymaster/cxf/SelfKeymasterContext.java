@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.ext.self.keymaster.cxf;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import java.util.Arrays;
 import java.util.Collections;
 import javax.annotation.Resource;
@@ -33,6 +33,7 @@ import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
+import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
 import org.apache.syncope.core.spring.security.UsernamePasswordAuthenticationProvider;
 import org.apache.syncope.core.spring.security.WebSecurityContext;
 import org.apache.syncope.ext.self.keymaster.cxf.client.SelfKeymasterInternalConfParamOps;
@@ -64,16 +65,6 @@ public class SelfKeymasterContext {
 
     @Resource(name = "version")
     private String version;
-
-    @Bean
-    public JacksonJsonProvider selfKeymasterJacksonJsonProvider() {
-        return new JacksonJsonProvider();
-    }
-
-    @Bean
-    public SelfKeymasterExceptionMapper selfKeymasterExceptionMapper() {
-        return new SelfKeymasterExceptionMapper();
-    }
 
     @Bean
     public WadlGenerator selfKeymasterWADLGenerator() {
@@ -109,8 +100,8 @@ public class SelfKeymasterContext {
                 ctx.getBean(JAXRSBeanValidationOutInterceptor.class)));
 
         selfKeymasterContainer.setProviders(Arrays.asList(
-                selfKeymasterJacksonJsonProvider(),
-                selfKeymasterExceptionMapper(),
+                ctx.getBean(RestServiceExceptionMapper.class),
+                ctx.getBean(JacksonJaxbJsonProvider.class),
                 selfKeymasterWADLGenerator()));
 
         selfKeymasterContainer.setApplicationContext(ctx);

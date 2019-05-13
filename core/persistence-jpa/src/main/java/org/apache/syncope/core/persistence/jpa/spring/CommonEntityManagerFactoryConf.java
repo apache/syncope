@@ -42,10 +42,6 @@ public class CommonEntityManagerFactoryConf implements DomainHolder {
 
     private final Map<String, Object> jpaPropertyMap = new HashMap<>();
 
-    public void addDomain(final String domain, final DataSource datasource) {
-        this.domains.put(domain, datasource);
-    }
-
     @Override
     public Map<String, DataSource> getDomains() {
         return domains;

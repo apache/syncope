@@ -67,9 +67,9 @@ public class ZookeeperDomainOps implements DomainOps, InitializingBean {
                         LOG.debug("Domain {} added", event.getData().getPath());
                         try {
                             Domain domain = MAPPER.readValue(event.getData().getData(), Domain.class);
-                            
+
                             LOG.info("Domain {} created", domain.getKey());
-                            watcher.process(domain);
+                            watcher.added(domain);
                         } catch (IOException e) {
                             LOG.debug("Could not parse {}", new String(event.getData().getData()), e);
                         }
@@ -81,6 +81,7 @@ public class ZookeeperDomainOps implements DomainOps, InitializingBean {
 
                     case NODE_REMOVED:
                         LOG.debug("Domain {} removed", event.getData().getPath());
+                        watcher.removed(StringUtils.substringAfter(event.getData().getPath(), DOMAIN_PATH + "/"));
                         break;
 
                     default:
