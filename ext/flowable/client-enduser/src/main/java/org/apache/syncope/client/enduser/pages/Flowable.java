@@ -19,8 +19,9 @@
 package org.apache.syncope.client.enduser.pages;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.Iterator;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.ExtPage;
 import org.apache.syncope.client.enduser.markup.html.form.BpmnProcessesAjaxPanel;
@@ -29,20 +30,28 @@ import org.apache.syncope.client.enduser.rest.UserRequestRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.UserRequest;
+import org.apache.syncope.common.lib.to.UserRequestForm;
+import org.apache.syncope.ext.client.common.ui.panels.UserRequestFormPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.PageableListView;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 @ExtPage(label = "User Requests")
@@ -52,53 +61,49 @@ public class Flowable extends BaseExtPage {
 
     private final int rowsPerPage = 10;
 
-    protected final IModel<List<UserRequest>> userRequests;
-
     private final Model<String> bpmnProcessModel = new Model<>();
 
     private final BpmnProcessRestClient restClient = new BpmnProcessRestClient();
 
     private final UserRequestRestClient userRequestRestClient = new UserRequestRestClient();
 
+    private final WebMarkupContainer paginationContainer;
+
+    private final DataView<UserRequest> urDataView;
+
     public Flowable(final PageParameters parameters) {
         super(parameters);
 
-        this.userRequests = new ListModel<>(userRequestRestClient.getUserRequests(1, rowsPerPage,
-                SyncopeEnduserSession.get().getSelfTO().getUsername(), new SortParam<>("name", true)));
-        final WebMarkupContainer content = new WebMarkupContainer("content");
-        content.setOutputMarkupId(true);
+        paginationContainer = new WebMarkupContainer("content");
+        paginationContainer.setOutputMarkupId(true);
 
         // list of accordions containing request form (if any) and delete button
-        PageableListView<UserRequest> userReqsListView = new PageableListView<>("userRequests", userRequests,
-                rowsPerPage) {
+        urDataView = new DataView<UserRequest>("userRequests", new URDataProvider(rowsPerPage, "bpmnProcess")) {
 
             private static final long serialVersionUID = -5002600396458362774L;
 
             @Override
-            protected void populateItem(final ListItem<UserRequest> item) {
+            protected void populateItem(final Item<UserRequest> item) {
                 final UserRequest userRequest = item.getModelObject();
                 item.add(new Accordion("userRequestDetails", Collections.<ITab>singletonList(new AbstractTab(
-                        new StringResourceModel("user.requests.accordion", content, Model.of(userRequest))) {
+                        new StringResourceModel("user.requests.accordion", paginationContainer,
+                                Model.of(userRequest))) {
 
                     private static final long serialVersionUID = 1037272333056449378L;
 
                     @Override
                     public WebMarkupContainer getPanel(final String panelId) {
-                        // find the form associated to the current request
-                        return new Panel("userRequestForm") {
-
-                            private static final long serialVersionUID = -957948639666058749L;
-
-                        };
+                        // find the form associated to the current request, if any
+                        return new UserRequestDetails(panelId, userRequest);
                     }
                 }), Model.of(-1)).setOutputMarkupId(true));
             }
-
         };
 
-        userReqsListView.setOutputMarkupId(true);
-        content.add(userReqsListView);
-        content.add(new AjaxPagingNavigator("navigator", userReqsListView));
+        urDataView.setItemsPerPage(rowsPerPage);
+        urDataView.setOutputMarkupId(true);
+        paginationContainer.add(urDataView);
+        paginationContainer.add(new AjaxPagingNavigator("navigator", urDataView));
 
         // autocomplete select with bpmnProcesses
         final BpmnProcessesAjaxPanel bpmnProcesses =
@@ -109,22 +114,130 @@ public class Flowable extends BaseExtPage {
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
-                        userRequestRestClient.start(bpmnProcessModel.getObject(), null);
-                        target.add(userReqsListView);
+                        if (StringUtils.isNotBlank(bpmnProcessModel.getObject())) {
+                            try {
+                                userRequestRestClient.start(bpmnProcessModel.getObject(), null);
+                            } catch (Exception e) {
+                                LOG.error("Unable to start bpmnProcess [{}]", bpmnProcessModel.getObject(), e);
+                                SyncopeEnduserSession.get()
+                                        .error(String.format("Unable to start bpmnProcess [%s]", e.getMessage()));
+                                notificationPanel.refresh(target);
+                            }
+                            target.add(paginationContainer);
+                        }
                     }
                 });
         bpmnProcesses.setChoices(restClient.getDefinitions().stream()
                 .filter(definition -> !definition.isUserWorkflow())
                 .map(definition -> definition.getKey()).collect(Collectors.toList()));
-        content.add(bpmnProcesses);
+        paginationContainer.add(bpmnProcesses);
 
-        body.add(content);
+        body.add(paginationContainer);
     }
 
     @Override
     protected void onBeforeRender() {
         super.onBeforeRender();
         navbar.setActiveNavItem(getClass().getSimpleName().toLowerCase());
+    }
+
+    public class UserRequestDetails extends Panel {
+
+        private static final long serialVersionUID = -2447602429647965090L;
+
+        public UserRequestDetails(final String id, final UserRequest userRequest) {
+            super(id);
+
+            final UserRequestForm formTO = userRequest.getHasForm()
+                    ? userRequestRestClient.getForm(userRequest.getTaskId()).orElse(null)
+                    : null;
+
+            add(formTO == null || formTO.getProperties() == null || formTO.getProperties().isEmpty()
+                    ? new Fragment("fragContainer", "formDetails", UserRequestDetails.this)
+                            .add(new Label("executionId", userRequest.getExecutionId()))
+                            .add(new Label("startTime", userRequest.getStartTime()))
+                    : new Fragment("fragContainer", "formProperties", UserRequestDetails.this)
+                            .add(new Form<>("userRequestWrapForm")
+                                    .add(new UserRequestFormPanel(
+                                            "userRequestFormPanel",
+                                            getPageReference(),
+                                            formTO,
+                                            false) {
+
+                                        private static final long serialVersionUID = 3617895525072546591L;
+
+                                        @Override
+                                        protected void viewDetails(final AjaxRequestTarget target) {
+                                            // do nothing
+                                        }
+                                    })
+                                    .add(new AjaxButton("submit") {
+
+                                        private static final long serialVersionUID = 4284361595033427185L;
+
+                                        @Override
+                                        protected void onSubmit(final AjaxRequestTarget target) {
+                                            try {
+                                                userRequestRestClient.claimForm(formTO.getTaskId());
+                                                userRequestRestClient.submitForm(formTO);
+                                                target.add(paginationContainer);
+                                            } catch (SyncopeClientException sce) {
+                                                LOG.error("Unable to submit user request form for BPMN process [{}]",
+                                                        formTO.getBpmnProcess(), sce);
+                                                SyncopeEnduserSession.get().error(StringUtils.isBlank(sce.getMessage())
+                                                        ? sce.getClass().getName()
+                                                        : sce.getMessage());
+                                                notificationPanel.refresh(target);
+                                            }
+                                        }
+
+                                    }.setOutputMarkupId(true))));
+
+            add(new AjaxLink<Void>("delete") {
+
+                private static final long serialVersionUID = 3669569969172391336L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target) {
+                    userRequestRestClient.cancelRequest(userRequest.getExecutionId(), null);
+                    target.add(paginationContainer);
+                }
+
+            });
+        }
+    }
+
+    public class URDataProvider implements IDataProvider<UserRequest> {
+
+        private static final long serialVersionUID = 1169386589403139714L;
+
+        protected final int paginatorRows;
+
+        protected final String sortParam;
+
+        public URDataProvider(final int paginatorRows, final String sortParam) {
+            this.paginatorRows = paginatorRows;
+            this.sortParam = sortParam;
+        }
+
+        @Override
+        public Iterator<UserRequest> iterator(final long first, final long count) {
+            final int page = ((int) first / paginatorRows);
+            return userRequestRestClient.getUserRequests((page < 0 ? 0 : page) + 1,
+                    paginatorRows,
+                    SyncopeEnduserSession.get().getSelfTO().getUsername(),
+                    new SortParam<>(sortParam, true)).iterator();
+        }
+
+        @Override
+        public long size() {
+            return userRequestRestClient.countUserRequests();
+        }
+
+        @Override
+        public IModel<UserRequest> model(final UserRequest ur) {
+            return Model.of(ur);
+        }
     }
 
 }

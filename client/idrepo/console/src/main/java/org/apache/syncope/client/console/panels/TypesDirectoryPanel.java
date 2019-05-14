@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.wicket.PageReference;

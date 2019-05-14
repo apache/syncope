@@ -30,7 +30,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.ui.commons.SchemaUtils;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
@@ -40,8 +42,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoiceP
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateTimeFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.EncryptedFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
@@ -268,13 +269,13 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                             "panel",
                             schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()),
                             new Model<>(),
-                            datePattern);
+                            FastDateFormat.getInstance(datePattern));
                 } else {
                     panel = new AjaxDateFieldPanel(
                             "panel",
                             schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()),
                             new Model<>(),
-                            datePattern);
+                            FastDateFormat.getInstance(datePattern));
                 }
 
                 if (required) {

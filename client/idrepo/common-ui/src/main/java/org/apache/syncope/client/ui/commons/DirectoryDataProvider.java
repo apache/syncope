@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.commons;
+package org.apache.syncope.client.ui.commons;
 
 import java.io.Serializable;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;

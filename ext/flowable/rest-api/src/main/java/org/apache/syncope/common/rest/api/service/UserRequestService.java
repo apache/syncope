@@ -92,6 +92,17 @@ public interface UserRequestService extends JAXRSService {
             @QueryParam("reason") String reason);
 
     /**
+     * Returns a user request form matching the given task id.
+     *
+     * @param taskId workflow task id
+     * @return the form for the given task id
+     */
+    @GET
+    @Path("forms/{taskId}")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    UserRequestForm getForm(@NotNull @PathParam("taskId") String taskId);
+
+    /**
      * Returns a list of user request forms matching the given query.
      *
      * @param query query conditions

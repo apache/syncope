@@ -37,9 +37,9 @@ public abstract class DateFieldPanel extends FieldPanel<Date> {
 
     protected final FastDateFormat fmt;
 
-    protected DateFieldPanel(final String id, final String name, final IModel<Date> model, final String datePattern) {
+    protected DateFieldPanel(final String id, final String name, final IModel<Date> model, final FastDateFormat fmt) {
         super(id, name, model);
-        fmt = getDateFormat(datePattern);
+        this.fmt = fmt;
     }
 
     @Override
@@ -126,6 +126,4 @@ public abstract class DateFieldPanel extends FieldPanel<Date> {
         response.render(JavaScriptHeaderItem.forReference(
                 new KendoCultureResourceReference(getLocale())));
     }
-
-    protected abstract FastDateFormat getDateFormat(String datePattern);
 }

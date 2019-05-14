@@ -28,7 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.TemplateContent;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.notifications.TemplateModal;

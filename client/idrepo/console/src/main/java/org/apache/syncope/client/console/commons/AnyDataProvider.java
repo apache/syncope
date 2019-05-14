@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.commons;
 
+import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;

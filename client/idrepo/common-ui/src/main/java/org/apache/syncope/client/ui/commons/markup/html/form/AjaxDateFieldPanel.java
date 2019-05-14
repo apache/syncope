@@ -16,14 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.enduser.markup.html.form;
+package org.apache.syncope.client.ui.commons.markup.html.form;
 
-import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import com.googlecode.wicket.kendo.ui.form.datetime.AjaxDatePicker;
 import java.util.Date;
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.client.ui.commons.markup.html.form.DateFieldPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
@@ -31,16 +28,20 @@ public class AjaxDateFieldPanel extends DateFieldPanel {
 
     private static final long serialVersionUID = 1919852712185883648L;
 
-    public AjaxDateFieldPanel(final String id, final String name, final IModel<Date> model, final String datePattern) {
+    public AjaxDateFieldPanel(
+            final String id, 
+            final String name, 
+            final IModel<Date> model,
+            final FastDateFormat datePattern) {
         super(id, name, model, datePattern);
 
-        field = new AjaxDatePicker("field", model, AjaxDateFieldPanel.this.getLocale(), datePattern);
+        field = new AjaxDatePicker("field", model, getLocale(), datePattern.getPattern());
         add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
     }
 
     @Override
     public FieldPanel<Date> clone() {
-        FieldPanel<Date> panel = new AjaxDateFieldPanel(getId(), name, new Model<>(), fmt.getPattern());
+        FieldPanel<Date> panel = new AjaxDateFieldPanel(getId(), name, new Model<>(), fmt);
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());
         panel.setTitle(title);
@@ -50,12 +51,5 @@ public class AjaxDateFieldPanel extends DateFieldPanel {
         }
 
         return panel;
-    }
-
-    @Override
-    protected FastDateFormat getDateFormat(final String datePattern) {
-        return datePattern == null
-                ? SyncopeEnduserSession.get().getDateFormat()
-                : FastDateFormat.getInstance(datePattern);
     }
 }

@@ -16,14 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.wicket.markup.html.form;
+package org.apache.syncope.client.ui.commons.markup.html.form;
 
-import org.apache.syncope.client.ui.commons.markup.html.form.DateFieldPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import com.googlecode.wicket.kendo.ui.form.datetime.AjaxDateTimePicker;
 import java.util.Date;
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
@@ -32,19 +29,26 @@ public class AjaxDateTimeFieldPanel extends DateFieldPanel {
     private static final long serialVersionUID = -428975732068281726L;
 
     public AjaxDateTimeFieldPanel(
-            final String id, final String name, final IModel<Date> model, final String dateTimePattern) {
+            final String id,
+            final String name,
+            final IModel<Date> model,
+            final FastDateFormat dateTimePattern) {
 
         super(id, name, model, dateTimePattern);
 
         // dateTimePattern should be spit into separate date and time pattern strings in order to be passed to the
         // AjaxDateTimePicker constructor, but there is no safe way to do that - ignoring
-        field = new AjaxDateTimePicker("field", model, SyncopeConsoleSession.get().getLocale());
+        field = new AjaxDateTimePicker("field", model, getLocale());
         add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
     }
 
     @Override
     public FieldPanel<Date> clone() {
-        FieldPanel<Date> panel = new AjaxDateTimeFieldPanel(getId(), name, new Model<>(null), fmt.getPattern());
+        FieldPanel<Date> panel = new AjaxDateTimeFieldPanel(
+                getId(),
+                name,
+                new Model<>(null),
+                fmt);
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());
         panel.setTitle(title);
@@ -54,12 +58,5 @@ public class AjaxDateTimeFieldPanel extends DateFieldPanel {
         }
 
         return panel;
-    }
-
-    @Override
-    protected FastDateFormat getDateFormat(final String datePattern) {
-        return datePattern == null
-                ? SyncopeConsoleSession.get().getDateFormat()
-                : FastDateFormat.getInstance(datePattern);
     }
 }

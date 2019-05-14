@@ -29,7 +29,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdMConstants;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;

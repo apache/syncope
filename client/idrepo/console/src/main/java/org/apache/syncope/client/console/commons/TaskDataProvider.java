@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.commons;
 
+import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;

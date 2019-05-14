@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
@@ -36,8 +35,11 @@ public class UserRequestRestClient extends BaseRestClient {
 
     public int countUserRequests() {
         return getService(UserRequestService.class).
-                list(new UserRequestQuery.Builder().page(1).size(1).build()).
-                getTotalCount();
+                list(new UserRequestQuery.Builder()
+                        .user(SyncopeEnduserSession.get().getSelfTO().getUsername())
+                        .page(1)
+                        .size(1)
+                        .build()).getTotalCount();
     }
 
     public List<UserRequest> getUserRequests(
@@ -68,13 +70,8 @@ public class UserRequestRestClient extends BaseRestClient {
                 getResult();
     }
 
-    public Optional<UserRequestForm> getForm(final String userKey) {
-        PagedResult<UserRequestForm> forms = getService(UserRequestService.class).
-                getForms(new UserRequestFormQuery.Builder().user(userKey).page(1).size(1).build());
-        UserRequestForm form = forms.getResult().isEmpty()
-                ? null
-                : forms.getResult().get(0);
-        return Optional.ofNullable(form);
+    public Optional<UserRequestForm> getForm(final String taskId) {
+        return Optional.ofNullable(getService(UserRequestService.class).getForm(taskId));
     }
 
     public void submitForm(final UserRequestForm form) {
@@ -83,5 +80,9 @@ public class UserRequestRestClient extends BaseRestClient {
 
     public void start(final String bpmnProcess, final String user) {
         getService(UserRequestService.class).start(bpmnProcess, user);
+    }
+
+    public UserRequestForm claimForm(final String taskKey) {
+        return getService(UserRequestService.class).claimForm(taskKey);
     }
 }

@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.commons.status;
 import org.apache.syncope.client.ui.commons.status.StatusBean;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.model.IModel;

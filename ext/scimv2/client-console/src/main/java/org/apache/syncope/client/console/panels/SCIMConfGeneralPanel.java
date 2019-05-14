@@ -19,7 +19,8 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.Date;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateTimeFieldPanel;
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.scim.SCIMConf;
@@ -53,7 +54,7 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
                         scimGeneralConf.setCreationDate(object);
                     }
 
-                }, SyncopeConstants.DEFAULT_DATE_PATTERN);
+                }, FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN));
         creationDatePanel.setEnabled(false);
 
         AjaxDateTimeFieldPanel lastChangeDatePanel =
@@ -71,7 +72,7 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
                         scimGeneralConf.setLastChangeDate(object);
                     }
 
-                }, SyncopeConstants.DEFAULT_DATE_PATTERN);
+                }, FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN));
         lastChangeDatePanel.setEnabled(false);
 
         AjaxTextFieldPanel bulkMaxOperationsPanel =

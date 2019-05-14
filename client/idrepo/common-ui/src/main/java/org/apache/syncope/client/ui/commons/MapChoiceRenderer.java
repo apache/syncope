@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.commons;
+package org.apache.syncope.client.ui.commons;
 
 import java.util.List;
 import java.util.Map;

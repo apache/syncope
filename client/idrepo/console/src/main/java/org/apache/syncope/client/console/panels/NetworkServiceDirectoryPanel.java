@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.panels.NetworkServiceDirectoryPanel.NetworkServiceProvider;
 import org.apache.syncope.client.console.rest.SyncopeRestClient;

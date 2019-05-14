@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.ext.client.common.ui.panels;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -26,8 +26,8 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.apache.syncope.client.console.commons.MapChoiceRenderer;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateTimeFieldPanel;
+import org.apache.syncope.client.ui.commons.MapChoiceRenderer;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
@@ -54,8 +54,13 @@ public abstract class UserRequestFormPanel extends Panel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(UserRequestFormPanel.class);
 
-    public UserRequestFormPanel(final PageReference pageRef, final UserRequestForm form) {
-        super(MultilevelPanel.FIRST_LEVEL_ID);
+    public UserRequestFormPanel(final String id, final PageReference pageRef, final UserRequestForm form) {
+        this(id, pageRef, form, true);
+    }
+
+    public UserRequestFormPanel(final String id, final PageReference pageRef, final UserRequestForm form,
+            final boolean showDetails) {
+        super(id);
 
         IModel<List<UserRequestFormProperty>> formProps = new LoadableDetachableModel<List<UserRequestFormProperty>>() {
 
@@ -123,7 +128,7 @@ public abstract class UserRequestFormPanel extends Panel {
                                 prop.setValue(formatter.format(object));
                             }
 
-                        }, prop.getDatePattern());
+                        }, formatter);
                         break;
 
                     case Enum:
@@ -190,7 +195,7 @@ public abstract class UserRequestFormPanel extends Panel {
         MetaDataRoleAuthorizationStrategy.authorize(userDetails, ENABLE, IdRepoEntitlement.USER_READ);
 
         boolean enabled = form.getUserTO() != null;
-        userDetails.setVisible(enabled).setEnabled(enabled);
+        userDetails.setVisible(enabled && showDetails).setEnabled(enabled);
 
         add(propView);
         add(userDetails);

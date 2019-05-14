@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
 import org.apache.syncope.client.console.panels.search.GroupSearchPanel;
@@ -40,7 +41,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoiceP
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateTimeFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -241,7 +242,8 @@ public class BeanPanel<T extends Serializable> extends Panel {
             result = new AjaxSpinnerFieldPanel.Builder<>().build(
                     id, fieldName, (Class<Number>) ClassUtils.resolvePrimitiveIfNecessary(type), model);
         } else if (Date.class.equals(type)) {
-            result = new AjaxDateTimeFieldPanel(id, fieldName, model, SyncopeConstants.DEFAULT_DATE_PATTERN);
+            result = new AjaxDateTimeFieldPanel(id, fieldName, model,
+                    FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN));
         } else if (type.isEnum()) {
             result = new AjaxDropDownChoicePanel(id, fieldName, model).setChoices(
                     Arrays.asList(type.getEnumConstants()));

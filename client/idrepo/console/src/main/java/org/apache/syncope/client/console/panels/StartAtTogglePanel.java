@@ -21,13 +21,14 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.ExecutionRestClient;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateTimeFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.PageReference;
@@ -54,7 +55,8 @@ public abstract class StartAtTogglePanel extends TogglePanel<Serializable> {
         addInnerObject(form);
 
         final AjaxDateTimeFieldPanel startAtDate = new AjaxDateTimeFieldPanel(
-                "startAtDate", "startAtDate", startAtDateModel, SyncopeConstants.DATE_PATTERNS[3]);
+                "startAtDate", "startAtDate", startAtDateModel, 
+                FastDateFormat.getInstance(SyncopeConstants.DATE_PATTERNS[3]));
 
         startAtDate.setReadOnly(true).hideLabel();
         form.add(startAtDate);

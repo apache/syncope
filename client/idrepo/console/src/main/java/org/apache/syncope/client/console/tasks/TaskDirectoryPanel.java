@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;

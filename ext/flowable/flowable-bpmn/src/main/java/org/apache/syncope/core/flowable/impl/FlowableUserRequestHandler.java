@@ -123,8 +123,11 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         userRequest.setStartTime(procInst.getStartTime());
         userRequest.setUsername(userDAO.find(split.getRight()).getUsername());
         userRequest.setExecutionId(procInst.getId());
-        userRequest.setActivityId(engine.getTaskService().createTaskQuery().
-                processInstanceId(procInst.getProcessInstanceId()).singleResult().getTaskDefinitionKey());
+        final Task task = engine.getTaskService().createTaskQuery()
+                .processInstanceId(procInst.getProcessInstanceId()).singleResult();
+        userRequest.setActivityId(task.getTaskDefinitionKey());
+        userRequest.setTaskId(task.getId());
+        userRequest.setHasForm(StringUtils.isNotBlank(task.getFormKey()));
         return userRequest;
     }
 
@@ -399,7 +402,6 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         }
         formTO.setUsername(user.getUsername());
 
-        formTO.setExecutionId(procInstId);
         formTO.setTaskId(taskId);
         formTO.setFormKey(formKey);
 
@@ -444,6 +446,11 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         }).collect(Collectors.toList()));
 
         return formTO;
+    }
+
+    @Override
+    public UserRequestForm getForm(final String taskId) {
+        return getForm(getTask(taskId));
     }
 
     @Transactional(readOnly = true)
@@ -518,15 +525,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     }
 
     protected Pair<Task, TaskFormData> parseTask(final String taskId) {
-        Task task;
-        try {
-            task = engine.getTaskService().createTaskQuery().taskWithFormKey().taskId(taskId).singleResult();
-            if (task == null) {
-                throw new FlowableException("NULL result");
-            }
-        } catch (FlowableException e) {
-            throw new NotFoundException("Flowable Task " + taskId, e);
-        }
+        Task task = getTask(taskId);
 
         TaskFormData formData;
         try {
@@ -536,6 +535,19 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         }
 
         return Pair.of(task, formData);
+    }
+
+    protected Task getTask(final String taskId) throws NotFoundException {
+        Task task;
+        try {
+            task = engine.getTaskService().createTaskQuery().taskWithFormKey().taskId(taskId).singleResult();
+            if (task == null) {
+                throw new FlowableException("NULL result");
+            }
+        } catch (FlowableException e) {
+            throw new NotFoundException("Flowable Task " + taskId, e);
+        }
+        return task;
     }
 
     @Override

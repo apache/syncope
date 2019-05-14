@@ -29,8 +29,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.enduser.markup.html.form.AjaxDateFieldPanel;
-import org.apache.syncope.client.enduser.markup.html.form.AjaxDateTimeFieldPanel;
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.enduser.markup.html.form.BinaryFieldPanel;
 import org.apache.syncope.client.enduser.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.EncryptedFieldPanel;
@@ -38,6 +38,7 @@ import org.apache.syncope.client.ui.commons.SchemaUtils;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
@@ -255,13 +256,13 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                             "panel",
                             schemaTO.getLabel(getLocale()),
                             new Model<>(),
-                            datePattern);
+                            FastDateFormat.getInstance(datePattern));
                 } else {
                     panel = new AjaxDateFieldPanel(
                             "panel",
                             schemaTO.getLabel(getLocale()),
                             new Model<>(),
-                            datePattern);
+                            FastDateFormat.getInstance(datePattern));
                 }
 
                 if (required) {

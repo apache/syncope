@@ -17,13 +17,20 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:extend>
-    <wicket:enclosure child="field-label">
-      <label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>
-      <span wicket:id="externalAction"/>
-    </wicket:enclosure>
-    <div class="input-group">
-      <input wicket:id="field" type="text"></input>
-    </div>
-  </wicket:extend>
+  <wicket:panel>
+    <span wicket:id="fragContainer"/>
+    <wicket:fragment wicket:id="formProperties">
+      <form wicket:id="userRequestWrapForm" class="form-horizontal">
+        <span wicket:id="userRequestFormPanel"></span>
+        <div>
+          <input wicket:id="submit" type="submit" wicket:message="value:submit" class="btn btn-primary pull-right"/>
+        </div>
+      </form>
+    </wicket:fragment>
+    <wicket:fragment wicket:id="formDetails">
+      <span><wicket:message key="executionId"/>: <label wicket:id="executionId"/></span>
+      <span><wicket:message key="startTime"/>: <label wicket:id="startTime"/></span>
+    </wicket:fragment>
+    <input wicket:id="delete" type="button" wicket:message="value:delete" class="btn btn-danger pull-left">
+  </wicket:panel>
 </html>

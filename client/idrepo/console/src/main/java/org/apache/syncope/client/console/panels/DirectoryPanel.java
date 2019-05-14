@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;

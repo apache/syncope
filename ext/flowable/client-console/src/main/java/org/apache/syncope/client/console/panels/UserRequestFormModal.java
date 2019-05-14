@@ -26,6 +26,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.ui.commons.panels.SubmitableModalPanel;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.common.lib.to.UserRequestForm;
+import org.apache.syncope.ext.client.common.ui.panels.UserRequestFormPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -49,7 +50,7 @@ public class UserRequestFormModal extends Panel implements SubmitableModalPanel,
         this.pageRef = pageRef;
 
         MultilevelPanel mlp = new MultilevelPanel("userRequestForm");
-        mlp.setFirstLevel(new UserRequestFormPanel(pageRef, formTO) {
+        mlp.setFirstLevel(new UserRequestFormPanel(MultilevelPanel.FIRST_LEVEL_ID, pageRef, formTO) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 

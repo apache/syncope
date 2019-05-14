@@ -153,6 +153,11 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
+    public UserRequestForm getForm(final String taskId) {
+        return userRequestHandler.getForm(taskId);
+    }
+    
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public Pair<Integer, List<UserRequestForm>> getForms(
             final String userKey,
