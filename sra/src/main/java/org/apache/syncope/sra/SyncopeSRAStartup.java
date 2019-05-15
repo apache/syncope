@@ -18,21 +18,14 @@
  */
 package org.apache.syncope.sra;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.gateway.route.RouteLocator;
-import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 
-@SpringBootApplication
-public class SyncopeRemoteAccessApplication {
+public class SyncopeSRAStartup extends SyncopeSRAStartStop
+        implements ApplicationListener<ContextRefreshedEvent> {
 
-    public static void main(final String[] args) {
-        SpringApplication.run(SyncopeRemoteAccessApplication.class, args);
-    }
-
-    @Bean
-    public RouteLocator routes(final RouteLocatorBuilder builder) {
-        return builder.routes().build();
+    @Override
+    public void onApplicationEvent(final ContextRefreshedEvent event) {
+        serviceOps.register(getNetworkService());
     }
 }

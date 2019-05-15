@@ -85,7 +85,7 @@ public class SelfKeymasterServiceOps extends SelfKeymasterOps implements Service
             final BackOffExecution backOffExecution) {
 
         try {
-            if (retries > 0) {
+            if (action == Action.register && retries > 0) {
                 long nextBackoff = backOffExecution.nextBackOff();
 
                 LOG.debug("Still {} retries available for {}; waiting for {} ms", retries, service, nextBackoff);
@@ -97,7 +97,7 @@ public class SelfKeymasterServiceOps extends SelfKeymasterOps implements Service
 
                 retry(completionStage(action, service), service, action, retries - 1, backOffExecution);
             } else {
-                LOG.debug("No more retries for {}", service);
+                LOG.debug("No more retries {} for {}", action, service);
             }
         } catch (Throwable t) {
             LOG.error("Could not continue {} for {}, aborting", action, service, t);

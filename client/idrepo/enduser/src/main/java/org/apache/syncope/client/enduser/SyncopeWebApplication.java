@@ -123,9 +123,14 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
     private Integer maxUploadFileSizeMB;
 
-    private List<String> domains;
-
     private Map<String, CustomAttributesInfo> customFormAttributes;
+
+    private NetworkService getNetworkService() {
+        NetworkService ns = new NetworkService();
+        ns.setType(NetworkService.Type.ENDUSER);
+        ns.setAddress(address);
+        return ns;
+    }
 
     @Override
     protected void init() {
@@ -299,10 +304,14 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
             getDebugSettings().setComponentPathAttributeName("syncope-path");
         }
 
-        NetworkService ns = new NetworkService();
-        ns.setType(NetworkService.Type.ENDUSER);
-        ns.setAddress(address);
-        serviceOps.register(ns);
+        serviceOps.register(getNetworkService());
+    }
+
+    @Override
+    protected void onDestroy() {
+        serviceOps.unregister(getNetworkService());
+
+        super.onDestroy();
     }
 
     @Override

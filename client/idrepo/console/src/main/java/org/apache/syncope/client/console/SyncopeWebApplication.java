@@ -158,6 +158,13 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         }
     }
 
+    private NetworkService getNetworkService() {
+        NetworkService ns = new NetworkService();
+        ns.setType(NetworkService.Type.CONSOLE);
+        ns.setAddress(address);
+        return ns;
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -289,10 +296,14 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
             getDebugSettings().setComponentPathAttributeName("syncope-path");
         }
 
-        NetworkService ns = new NetworkService();
-        ns.setType(NetworkService.Type.CONSOLE);
-        ns.setAddress(address);
-        serviceOps.register(ns);
+        serviceOps.register(getNetworkService());
+    }
+
+    @Override
+    protected void onDestroy() {
+        serviceOps.unregister(getNetworkService());
+
+        super.onDestroy();
     }
 
     @Override

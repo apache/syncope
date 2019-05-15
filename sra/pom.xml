@@ -77,6 +77,17 @@ under the License.
     </dependency>
 
     <dependency>
+      <groupId>org.apache.syncope.ext.self-keymaster</groupId>
+      <artifactId>syncope-ext-self-keymaster-client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.common.keymaster</groupId>
+      <artifactId>syncope-common-keymaster-client-zookeeper</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.syncope.client.am</groupId>
       <artifactId>syncope-client-am-lib</artifactId>
       <version>${project.version}</version>
@@ -130,7 +141,7 @@ under the License.
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <configuration>
-          <mainClass>org.apache.syncope.sra.SyncopeRemoteAccessApplication</mainClass>
+          <mainClass>org.apache.syncope.sra.SyncopeSRAApplication</mainClass>
         </configuration>
         <executions>
           <execution>
