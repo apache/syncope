@@ -84,13 +84,13 @@ public class Domain implements Serializable {
             return this;
         }
 
-        public Builder maxPoolSize(final int maxPoolSize) {
-            this.domain.maxPoolSize = maxPoolSize;
+        public Builder poolMaxActive(final int poolMaxActive) {
+            this.domain.poolMaxActive = poolMaxActive;
             return this;
         }
 
-        public Builder minIdle(final int minIdle) {
-            this.domain.minIdle = minIdle;
+        public Builder poolMinIdle(final int poolMinIdle) {
+            this.domain.poolMinIdle = poolMinIdle;
             return this;
         }
 
@@ -148,9 +148,9 @@ public class Domain implements Serializable {
 
     private TransactionIsolation transactionIsolation = TransactionIsolation.TRANSACTION_READ_COMMITTED;
 
-    private int maxPoolSize = 10;
+    private int poolMaxActive = 10;
 
-    private int minIdle = 2;
+    private int poolMinIdle = 2;
 
     private String auditSql = "audit.sql";
 
@@ -194,20 +194,20 @@ public class Domain implements Serializable {
         return transactionIsolation;
     }
 
-    public int getMaxPoolSize() {
-        return maxPoolSize;
+    public int getPoolMaxActive() {
+        return poolMaxActive;
     }
 
-    public void setMaxPoolSize(final int maxPoolSize) {
-        this.maxPoolSize = maxPoolSize;
+    public void setPoolMaxActive(final int poolMaxActive) {
+        this.poolMaxActive = poolMaxActive;
     }
 
-    public int getMinIdle() {
-        return minIdle;
+    public int getPoolMinIdle() {
+        return poolMinIdle;
     }
 
-    public void setMinIdle(final int minIdle) {
-        this.minIdle = minIdle;
+    public void setPoolMinIdle(final int poolMinIdle) {
+        this.poolMinIdle = poolMinIdle;
     }
 
     public String getAuditSql() {
@@ -275,8 +275,8 @@ public class Domain implements Serializable {
                 append(dbUsername).
                 append(dbPassword).
                 append(transactionIsolation).
-                append(maxPoolSize).
-                append(minIdle).
+                append(poolMaxActive).
+                append(poolMinIdle).
                 append(auditSql).
                 append(orm).
                 append(databasePlatform).
@@ -307,8 +307,8 @@ public class Domain implements Serializable {
                 append(dbUsername, other.dbUsername).
                 append(dbPassword, other.dbPassword).
                 append(transactionIsolation, other.transactionIsolation).
-                append(maxPoolSize, other.maxPoolSize).
-                append(minIdle, other.minIdle).
+                append(poolMaxActive, other.poolMaxActive).
+                append(poolMinIdle, other.poolMinIdle).
                 append(auditSql, other.auditSql).
                 append(orm, other.orm).
                 append(databasePlatform, other.databasePlatform).
@@ -329,8 +329,8 @@ public class Domain implements Serializable {
                 + ", dbUsername=" + dbUsername
                 + ", dbPassword=" + dbPassword
                 + ", transactionIsolation=" + transactionIsolation
-                + ", maxPoolSize=" + maxPoolSize
-                + ", minIdle=" + minIdle
+                + ", poolMaxSize=" + poolMaxActive
+                + ", poolMinIdle=" + poolMinIdle
                 + ", auditSql=" + auditSql
                 + ", orm=" + orm
                 + ", databasePlatform=" + databasePlatform

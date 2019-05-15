@@ -67,8 +67,8 @@ public interface DomainService extends Serializable {
     @Produces({ MediaType.APPLICATION_JSON })
     Response adjustPoolSize(
             @NotNull @PathParam("key") String key,
-            @QueryParam("maxPoolSize") int maxPoolSize,
-            @QueryParam("minIdle") int minIdle);
+            @QueryParam("poolMaxActive") int poolMaxActive,
+            @QueryParam("poolMinIdle") int poolMinIdle);
 
     @DELETE
     @Path("{key}")

@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.client.enduser.panels;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
@@ -27,7 +30,10 @@ import org.apache.syncope.client.enduser.wizards.any.CaptchaPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DomainDropDown;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
@@ -40,9 +46,11 @@ import org.apache.wicket.event.IEventSource;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +59,22 @@ public class SelfPwdResetPanel extends Panel implements IEventSource {
     private static final long serialVersionUID = -2841210052053545578L;
 
     private static final Logger LOG = LoggerFactory.getLogger(SelfPwdResetPanel.class);
+
+    @SpringBean
+    private DomainOps domainOps;
+
+    private final LoadableDetachableModel<List<String>> domains = new LoadableDetachableModel<List<String>>() {
+
+        private static final long serialVersionUID = 4659376149825914247L;
+
+        @Override
+        protected List<String> load() {
+            List<String> current = new ArrayList<>();
+            current.addAll(domainOps.list().stream().map(Domain::getKey).sorted().collect(Collectors.toList()));
+            current.add(0, SyncopeConstants.MASTER_DOMAIN);
+            return current;
+        }
+    };
 
     private String usernameText;
 
@@ -63,7 +87,7 @@ public class SelfPwdResetPanel extends Panel implements IEventSource {
     public SelfPwdResetPanel(final String id, final PageReference pageRef) {
         super(id);
 
-        DomainDropDown domainSelect = new DomainDropDown("domain");
+        DomainDropDown domainSelect = new DomainDropDown("domain", domains);
         domainSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
 
             private static final long serialVersionUID = -1107858522700306810L;

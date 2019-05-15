@@ -52,61 +52,11 @@ under the License.
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-log4j2</artifactId>
     </dependency>
-      
-    <dependency>
-      <groupId>org.apache.wicket</groupId>
-      <artifactId>wicket-auth-roles</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.wicket-jquery-ui</groupId>
-      <artifactId>wicket-jquery-ui</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.wicket-jquery-ui</groupId>
-      <artifactId>wicket-kendo-ui</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.wicket-jquery-ui</groupId>
-      <artifactId>wicket-kendo-ui-culture</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.wicket-jquery-ui</groupId>
-      <artifactId>wicket-kendo-ui-theme-bootstrap</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.wicket</groupId>
-      <artifactId>wicket-native-websocket-javax</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>de.agilecoders.wicket</groupId>
-      <artifactId>wicket-bootstrap-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>de.agilecoders.wicket</groupId>
-      <artifactId>wicket-bootstrap-extensions</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.syncope.common.keymaster</groupId>
-      <artifactId>syncope-common-keymaster-client-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.syncope.client.idrepo</groupId>
-      <artifactId>syncope-client-idrepo-lib</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     
     <dependency>
       <groupId>org.apache.syncope.client.idrepo</groupId>
       <artifactId>syncope-client-idrepo-common-ui</artifactId>      
       <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-rs-security-jose</artifactId>
     </dependency>
 
     <dependency>
@@ -128,27 +78,11 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
-      <artifactId>codemirror</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>google-diff-match-patch</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.webjars</groupId>
       <artifactId>jsplumb</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.webjars.bower</groupId>
-      <artifactId>chart.js</artifactId>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>jquery-cookie</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>jquery-ui</artifactId>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>

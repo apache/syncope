@@ -25,7 +25,6 @@ import java.util.Locale;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.ui.commons.BaseApplication;
 import org.apache.syncope.client.ui.commons.BaseLogin;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -44,11 +43,6 @@ public class Login extends BaseLogin {
 
     public Login(final PageParameters parameters) {
         super(parameters);
-    }
-
-    @Override
-    protected BaseApplication getBaseApplication() {
-        return SyncopeWebApplication.get();
     }
 
     @Override

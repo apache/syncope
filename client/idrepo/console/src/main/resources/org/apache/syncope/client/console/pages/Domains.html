@@ -17,18 +17,20 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:panel>
-    <wicket:fragment wicket:id="requiredFragment">
-      <span wicket:id="requiredLabel"/>
-    </wicket:fragment>
+  <wicket:extend>
+    <section class="content-header">
+      <h1>&nbsp;</h1>
+      <ol class="breadcrumb">
+        <li><a wicket:id="dashboardBr"><i class="fa fa-dashboard"></i> <wicket:message key="dashboard"/></a></li>
+        <li class="active"><wicket:message key="keymaster"/></li>
+        <li class="active"><wicket:message key="domains"/></li>
+      </ol>
+    </section>
 
-    <wicket:fragment wicket:id="externalActionFragment">
-      <span wicket:id="externalAction"/>
-    </wicket:fragment>
-
-    <wicket:fragment wicket:id="emptyFragment">
-    </wicket:fragment>
-
-    <wicket:child/>
-  </wicket:panel>
+    <section class="content" wicket:id="content">
+      <div class="box">
+        <div class="box-body" wicket:id="domainPanel"/>
+      </div>
+    </section>
+  </wicket:extend>
 </html>

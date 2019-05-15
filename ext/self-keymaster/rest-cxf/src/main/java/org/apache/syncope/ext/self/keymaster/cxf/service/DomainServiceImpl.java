@@ -70,8 +70,8 @@ public class DomainServiceImpl implements DomainService {
     }
 
     @Override
-    public Response adjustPoolSize(final String key, final int maxPoolSize, final int minIdle) {
-        logic.adjustPoolSize(key, maxPoolSize, minIdle);
+    public Response adjustPoolSize(final String key, final int poolMaxActive, final int poolMinIdle) {
+        logic.adjustPoolSize(key, poolMaxActive, poolMinIdle);
         return Response.noContent().build();
     }
 

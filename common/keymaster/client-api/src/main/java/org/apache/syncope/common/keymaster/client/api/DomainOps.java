@@ -35,7 +35,7 @@ public interface DomainOps {
 
     void changeAdminPassword(String key, String password, CipherAlgorithm cipherAlgorithm);
 
-    void adjustPoolSize(String key, int maxPoolSize, int minIdle);
+    void adjustPoolSize(String key, int poolMaxActive, int poolMinIdle);
 
     void delete(String key);
 }

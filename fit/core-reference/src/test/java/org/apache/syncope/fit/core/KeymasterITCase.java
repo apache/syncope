@@ -237,8 +237,8 @@ public class KeymasterITCase extends AbstractITCase {
         Domain domain = domainOps.read(key);
         assertEquals(Domain.TransactionIsolation.TRANSACTION_READ_UNCOMMITTED, domain.getTransactionIsolation());
         assertEquals(CipherAlgorithm.BCRYPT, domain.getAdminCipherAlgorithm());
-        assertEquals(10, domain.getMaxPoolSize());
-        assertEquals(2, domain.getMinIdle());
+        assertEquals(10, domain.getPoolMaxActive());
+        assertEquals(2, domain.getPoolMinIdle());
 
         assertEquals(domain, domainOps.read(key));
 
@@ -246,8 +246,8 @@ public class KeymasterITCase extends AbstractITCase {
         domainOps.adjustPoolSize(key, 100, 23);
 
         domain = domainOps.read(key);
-        assertEquals(100, domain.getMaxPoolSize());
-        assertEquals(23, domain.getMinIdle());
+        assertEquals(100, domain.getPoolMaxActive());
+        assertEquals(23, domain.getPoolMinIdle());
 
         // 3. work with new domain - create user
         clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain(key);
@@ -290,6 +290,13 @@ public class KeymasterITCase extends AbstractITCase {
     public void domainCreateMaster() {
         assertThrows(KeymasterException.class, () -> {
             domainOps.create(new Domain.Builder(SyncopeConstants.MASTER_DOMAIN).build());
+        });
+    }
+
+    @Test
+    public void domainCreateDuplicateKey() {
+        assertThrows(KeymasterException.class, () -> {
+            domainOps.create(new Domain.Builder("Two").build());
         });
     }
 

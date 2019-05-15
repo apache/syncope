@@ -55,7 +55,11 @@ public class AbstractModalPanel<T extends Serializable> extends Panel
     protected final HeaderItem meta = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
     public AbstractModalPanel(final BaseModal<T> modal, final PageReference pageRef) {
-        super(BaseModal.getContentId());
+        this(BaseModal.getContentId(), modal, pageRef);
+    }
+
+    public AbstractModalPanel(final String id, final BaseModal<T> modal, final PageReference pageRef) {
+        super(id);
         this.pageRef = pageRef;
         this.modal = modal;
     }

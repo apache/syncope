@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.DomainDAO;
+import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.DomainEntity;
 import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
@@ -69,6 +70,10 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
             throw new KeymasterException("Cannot create domain " + SyncopeConstants.MASTER_DOMAIN);
         }
 
+        if (domainDAO.find(domain.getKey()) != null) {
+            throw new DuplicateException("Domain " + domain.getKey() + " already existing");
+        }
+
         DomainEntity domainEntity = entityFactory.newDomainEntity();
         domainEntity.setKey(domain.getKey());
         domainEntity.set(domain);
@@ -94,15 +99,15 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
-    public void adjustPoolSize(final String key, final int maxPoolSize, final int minIdle) {
+    public void adjustPoolSize(final String key, final int poolMaxActive, final int poolMinIdle) {
         DomainEntity domain = domainDAO.find(key);
         if (domain == null) {
             throw new NotFoundException("Domain " + key);
         }
 
         Domain domainObj = domain.get();
-        domainObj.setMaxPoolSize(maxPoolSize);
-        domainObj.setMinIdle(minIdle);
+        domainObj.setPoolMaxActive(poolMaxActive);
+        domainObj.setPoolMinIdle(poolMinIdle);
         domain.set(domainObj);
         domainDAO.save(domain);
     }

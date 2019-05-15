@@ -112,9 +112,9 @@ public class StartupDomainLoader implements SyncopeCoreLoader {
                             } else if (prop.endsWith(".orm")) {
                                 builder.orm(props.getProperty(prop));
                             } else if (prop.endsWith(".pool.maxActive")) {
-                                builder.maxPoolSize(Integer.parseInt(props.getProperty(prop)));
+                                builder.poolMaxActive(Integer.parseInt(props.getProperty(prop)));
                             } else if (prop.endsWith(".pool.minIdle")) {
-                                builder.minIdle(Integer.parseInt(props.getProperty(prop)));
+                                builder.poolMinIdle(Integer.parseInt(props.getProperty(prop)));
                             } else if (prop.endsWith(".audit.sql")) {
                                 builder.auditSql(props.getProperty(prop));
                             }

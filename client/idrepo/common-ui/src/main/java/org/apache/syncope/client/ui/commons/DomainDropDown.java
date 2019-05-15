@@ -19,8 +19,8 @@
 package org.apache.syncope.client.ui.commons;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
+import java.util.List;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.wicket.Application;
 import org.apache.wicket.Session;
 import org.apache.wicket.model.IModel;
 
@@ -31,8 +31,8 @@ public class DomainDropDown extends BootstrapSelect<String> {
 
     private static final long serialVersionUID = -7401167913360133325L;
 
-    public DomainDropDown(final String id) {
-        super(id, BaseApplication.class.cast(Application.get()).getDomains());
+    public DomainDropDown(final String id, final IModel<List<String>> domains) {
+        super(id, domains);
         setModel(new IModel<String>() {
 
             private static final long serialVersionUID = -1124206668056084806L;
@@ -55,7 +55,7 @@ public class DomainDropDown extends BootstrapSelect<String> {
         // set default value to Master Domain
         getModel().setObject(SyncopeConstants.MASTER_DOMAIN);
 
-        if (BaseApplication.class.cast(Application.get()).getDomains().size() == 1) {
+        if (domains.getObject().size() == 1) {
             setOutputMarkupPlaceholderTag(true);
         }
     }

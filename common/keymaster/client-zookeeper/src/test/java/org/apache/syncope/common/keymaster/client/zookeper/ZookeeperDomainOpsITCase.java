@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import java.util.UUID;
@@ -59,12 +60,19 @@ public class ZookeeperDomainOpsITCase {
         assertEquals(Domain.TransactionIsolation.TRANSACTION_READ_UNCOMMITTED, domain.getTransactionIsolation());
         assertEquals("password", domain.getAdminPassword());
         assertEquals(CipherAlgorithm.BCRYPT, domain.getAdminCipherAlgorithm());
-        assertEquals(10, domain.getMaxPoolSize());
-        assertEquals(2, domain.getMinIdle());
+        assertEquals(10, domain.getPoolMaxActive());
+        assertEquals(2, domain.getPoolMinIdle());
 
         List<Domain> list = domainOps.list();
         assertNotNull(list);
         assertEquals(domain, list.get(0));
+
+        try {
+            domainOps.create(new Domain.Builder(domain.getKey()).build());
+            fail();
+        } catch (KeymasterException e) {
+            assertNotNull(e);
+        }
 
         domainOps.changeAdminPassword(key, "newpassword", CipherAlgorithm.SSHA512);
 
@@ -75,8 +83,8 @@ public class ZookeeperDomainOpsITCase {
         domainOps.adjustPoolSize(key, 100, 23);
 
         domain = domainOps.read(key);
-        assertEquals(100, domain.getMaxPoolSize());
-        assertEquals(23, domain.getMinIdle());
+        assertEquals(100, domain.getPoolMaxActive());
+        assertEquals(23, domain.getPoolMinIdle());
 
         domainOps.delete(key);
 

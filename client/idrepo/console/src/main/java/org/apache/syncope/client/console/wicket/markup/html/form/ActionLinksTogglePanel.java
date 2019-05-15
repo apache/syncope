@@ -50,6 +50,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.syncope.client.console.panels.ToggleableTarget;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
 
 public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<Serializable> {
 
@@ -118,8 +119,8 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
                     ? ((JobTO) modelObject).getRefDesc() : ((JobTO) modelObject).getRefKey();
         } else if (modelObject instanceof ToggleableTarget) {
             header = ((ToggleableTarget) modelObject).getAnyType();
-        } else if (modelObject instanceof EntityTO) {
-            header = ((EntityTO) modelObject).getKey();
+        } else if (modelObject instanceof Domain) {
+            header = ((Domain) modelObject).getKey();
         } else {
             header = new ResourceModel("actions", StringUtils.EMPTY).getObject();
         }

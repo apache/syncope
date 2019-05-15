@@ -17,14 +17,18 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:extend>
-    <wicket:enclosure child="field-label">
-      <label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>
-      <span wicket:id="jexlInfo" class="glyphicon glyphicon-info-sign" style="cursor: pointer"></span>
-      <span wicket:id="externalAction"/>
-    </wicket:enclosure>
-    <fieldset class="input-group">
-      <input type="text" class="form-control" wicket:id="textField" placeholder=""/>
-    </fieldset>
-  </wicket:extend>
+  <wicket:panel>
+    <div wicket:id="key"/>
+    <div wicket:id="jdbcDriver"/>
+    <div wicket:id="jdbcURL"/>
+    <div wicket:id="dbSchema"/>
+    <div wicket:id="dbUsername"/>
+    <div wicket:id="dbPassword"/>
+    <div wicket:id="transactionIsolation"/>
+    <div wicket:id="poolMaxActive"/>
+    <div wicket:id="poolMinIdle"/>
+    <div wicket:id="auditSql"/>
+    <div wicket:id="orm"/>
+    <div wicket:id="databasePlatform"/>
+  </wicket:panel>
 </html>

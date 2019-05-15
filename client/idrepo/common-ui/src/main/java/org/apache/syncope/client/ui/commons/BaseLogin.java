@@ -21,10 +21,15 @@ package org.apache.syncope.client.ui.commons;
 import com.googlecode.wicket.kendo.ui.widget.notification.Notification;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
 import java.security.AccessControlException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -40,8 +45,10 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +57,9 @@ public abstract class BaseLogin extends WebPage {
     private static final long serialVersionUID = 5889157642852559004L;
 
     protected static final Logger LOG = LoggerFactory.getLogger(BaseLogin.class);
+
+    @SpringBean
+    private DomainOps domainOps;
 
     protected final NotificationPanel notificationPanel;
 
@@ -62,6 +72,19 @@ public abstract class BaseLogin extends WebPage {
     protected String notificationMessage;
 
     protected String notificationLevel;
+
+    private final LoadableDetachableModel<List<String>> domains = new LoadableDetachableModel<List<String>>() {
+
+        private static final long serialVersionUID = 4659376149825914247L;
+
+        @Override
+        protected List<String> load() {
+            List<String> current = new ArrayList<>();
+            current.addAll(domainOps.list().stream().map(Domain::getKey).sorted().collect(Collectors.toList()));
+            current.add(0, SyncopeConstants.MASTER_DOMAIN);
+            return current;
+        }
+    };
 
     public BaseLogin(final PageParameters parameters) {
         super(parameters);
@@ -116,7 +139,7 @@ public abstract class BaseLogin extends WebPage {
         });
         form.add(languageSelect);
 
-        DomainDropDown domainSelect = new DomainDropDown("domain");
+        DomainDropDown domainSelect = new DomainDropDown("domain", domains);
         domainSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
 
             private static final long serialVersionUID = -1107858522700306810L;
@@ -174,8 +197,6 @@ public abstract class BaseLogin extends WebPage {
                             notificationPanel.getNotificationMarkupId()), notificationLevel)));
         }
     }
-
-    protected abstract BaseApplication getBaseApplication();
 
     protected abstract BaseSession getBaseSession();
 

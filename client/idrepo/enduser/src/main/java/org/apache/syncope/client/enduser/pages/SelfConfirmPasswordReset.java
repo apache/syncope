@@ -18,13 +18,19 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DomainDropDown;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -35,12 +41,30 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.validation.EqualPasswordInputValidator;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class SelfConfirmPasswordReset extends BaseEnduserWebPage {
 
     private static final long serialVersionUID = -2166782304542750726L;
+
+    @SpringBean
+    private DomainOps domainOps;
+
+    private final LoadableDetachableModel<List<String>> domains = new LoadableDetachableModel<List<String>>() {
+
+        private static final long serialVersionUID = 4659376149825914247L;
+
+        @Override
+        protected List<String> load() {
+            List<String> current = new ArrayList<>();
+            current.addAll(domainOps.list().stream().map(Domain::getKey).sorted().collect(Collectors.toList()));
+            current.add(0, SyncopeConstants.MASTER_DOMAIN);
+            return current;
+        }
+    };
 
     public SelfConfirmPasswordReset(final PageParameters parameters) {
         super(parameters);
@@ -62,7 +86,7 @@ public class SelfConfirmPasswordReset extends BaseEnduserWebPage {
         form.setOutputMarkupId(true);
         content.add(form);
 
-        DomainDropDown domainSelect = new DomainDropDown("domain");
+        DomainDropDown domainSelect = new DomainDropDown("domain", domains);
         domainSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
 
             private static final long serialVersionUID = -1107858522700306810L;

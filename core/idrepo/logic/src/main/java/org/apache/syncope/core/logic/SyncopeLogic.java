@@ -493,7 +493,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
         return groupDataBinder.getTypeExtensionTO(typeExt.get());
     }
 
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.INTERNAL_STORAGE_EXPORT + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.KEYMASTER + "')")
     @Transactional(readOnly = true)
     public void exportInternalStorageContent(final OutputStream os) {
         try {

@@ -165,12 +165,12 @@ public class ZookeeperDomainOps implements DomainOps, InitializingBean {
     }
 
     @Override
-    public void adjustPoolSize(final String key, final int maxPoolSize, final int minIdle) {
+    public void adjustPoolSize(final String key, final int poolMaxActive, final int poolMinIdle) {
         try {
             Domain domain = read(key);
 
-            domain.setMaxPoolSize(maxPoolSize);
-            domain.setMinIdle(minIdle);
+            domain.setPoolMaxActive(poolMaxActive);
+            domain.setPoolMinIdle(poolMinIdle);
             client.setData().forPath(buildDomainPath(key), MAPPER.writeValueAsBytes(domain));
         } catch (KeymasterException e) {
             throw e;

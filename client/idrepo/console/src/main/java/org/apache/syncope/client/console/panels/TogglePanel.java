@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.GroupWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -190,6 +191,8 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
                     ? ((JobTO) modelObject).getRefDesc() : ((JobTO) modelObject).getRefKey();
         } else if (modelObject instanceof ToggleableTarget) {
             key = ((ToggleableTarget) modelObject).getKey();
+        } else if (modelObject instanceof Domain) {
+            key = ((Domain) modelObject).getKey();
         } else {
             key = new ResourceModel("actions", StringUtils.EMPTY).getObject();
         }

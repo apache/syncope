@@ -90,8 +90,8 @@ public class DomainConfFactory implements DomainRegistry, EnvironmentAware {
         hikariConfig.setPassword(domain.getDbPassword());
         hikariConfig.setSchema(domain.getDbSchema());
         hikariConfig.setTransactionIsolation(domain.getTransactionIsolation().name());
-        hikariConfig.setMaximumPoolSize(domain.getMaxPoolSize());
-        hikariConfig.setMinimumIdle(domain.getMinIdle());
+        hikariConfig.setMaximumPoolSize(domain.getPoolMaxActive());
+        hikariConfig.setMinimumIdle(domain.getPoolMinIdle());
 
         HikariDataSource localDomainDataSource = new HikariDataSource(hikariConfig);
 

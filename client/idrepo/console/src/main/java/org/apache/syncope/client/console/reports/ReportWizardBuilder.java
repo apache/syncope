@@ -68,7 +68,6 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
         private static final long serialVersionUID = -3043839139187792810L;
 
         public Profile(final ReportTO reportTO) {
-
             AjaxTextFieldPanel name = new AjaxTextFieldPanel(
                     "name", "name", new PropertyModel<>(reportTO, "name"), false);
             name.addRequiredLabel();

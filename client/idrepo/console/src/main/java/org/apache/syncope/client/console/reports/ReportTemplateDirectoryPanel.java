@@ -66,8 +66,8 @@ public class ReportTemplateDirectoryPanel
 
     protected final BaseModal<String> utilityModal = new BaseModal<>("outer");
 
-    public ReportTemplateDirectoryPanel(final String id, final PageReference pageReference) {
-        super(id, pageReference, true);
+    public ReportTemplateDirectoryPanel(final String id, final PageReference pageRef) {
+        super(id, pageRef);
         disableCheckBoxes();
 
         modal.size(Modal.Size.Small);
@@ -99,7 +99,7 @@ public class ReportTemplateDirectoryPanel
             public WizardModalPanel<ReportTemplateTO> build(
                     final String id, final int index, final AjaxWizard.Mode mode) {
 
-                return new TemplateModal<>(modal, restClient, new ReportTemplateTO(), pageReference);
+                return new TemplateModal<>(modal, restClient, new ReportTemplateTO(), pageRef);
             }
         }, true);
 

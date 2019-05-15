@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
@@ -50,14 +49,10 @@ import org.apache.syncope.client.enduser.pages.MustChangePassword;
 import org.apache.syncope.client.enduser.pages.Self;
 import org.apache.syncope.client.enduser.pages.SelfConfirmPasswordReset;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.client.ui.commons.BaseApplication;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
-import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
-import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.PropertyUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
@@ -80,7 +75,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SyncopeWebApplication extends WicketBootStandardWebApplication implements BaseApplication {
+public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeWebApplication.class);
 
@@ -104,9 +99,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication impl
 
     @Autowired
     private ServiceOps serviceOps;
-
-    @Autowired
-    private DomainOps domainOps;
 
     @Value("${service.discovery.address}")
     private String address;
@@ -332,17 +324,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication impl
         return new SyncopeClientFactoryBean().
                 setAddress(serviceOps.get(NetworkService.Type.CORE).getAddress()).
                 setUseCompression(useGZIPCompression);
-    }
-
-    @Override
-    public List<String> getDomains() {
-        synchronized (LOG) {
-            if (domains == null) {
-                domains = domainOps.list().stream().map(Domain::getKey).sorted().collect(Collectors.toList());
-                domains.add(0, SyncopeConstants.MASTER_DOMAIN);
-            }
-        }
-        return domains;
     }
 
     protected Class<? extends WebPage> getSignInPageClass() {

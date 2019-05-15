@@ -72,6 +72,8 @@ public final class IdRepoConstants {
 
     public static final String PREF_NETWORK_SERVICE_PAGINATOR_ROWS = "network.service.paginator.rows";
 
+    public static final String PREF_DOMAIN_PAGINATOR_ROWS = "domain.paginator.rows";
+
     public static final String PREF_MAIL_TEMPLATE_PAGINATOR_ROWS = "mail.template.paginator.rows";
 
     public static final String PREF_PROPAGATION_TASKS_PAGINATOR_ROWS = "proagationtasks.paginator.rows";

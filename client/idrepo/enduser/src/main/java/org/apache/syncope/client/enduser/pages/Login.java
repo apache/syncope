@@ -25,7 +25,6 @@ import java.util.Locale;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.ui.commons.BaseApplication;
 import org.apache.syncope.client.ui.commons.BaseLogin;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -46,11 +45,6 @@ public class Login extends BaseLogin {
 
         add(new BookmarkablePageLink<>("self-registration", Self.class).setOutputMarkupId(true));
         add(new BookmarkablePageLink<>("self-pwd-reset", SelfPasswordReset.class).setOutputMarkupId(true));
-    }
-
-    @Override
-    protected BaseApplication getBaseApplication() {
-        return SyncopeWebApplication.get();
     }
 
     @Override
