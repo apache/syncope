@@ -518,7 +518,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.19</tomcat.version>
+    <tomcat.version>9.0.20</tomcat.version>
 
     <nodejs.version>v8.11.4</nodejs.version>    
     <protractor.version>5.4.0</protractor.version>    
@@ -1978,7 +1978,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.7.3</version>
+          <version>1.7.4</version>
           <configuration>
             <container>
               <containerId>tomcat9x</containerId>
