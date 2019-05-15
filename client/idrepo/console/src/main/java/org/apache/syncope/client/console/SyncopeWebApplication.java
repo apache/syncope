@@ -227,7 +227,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
         getMarkupSettings().setStripWicketTags(true);
         getMarkupSettings().setCompressWhitespace(true);
-
+        
         if (csrf) {
             getRequestCycleListeners().add(new WebSocketAwareCsrfPreventionRequestCycleListener());
         }

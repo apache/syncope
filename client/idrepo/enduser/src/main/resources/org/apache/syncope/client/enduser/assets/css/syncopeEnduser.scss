@@ -119,7 +119,7 @@ body {
 
   > .wrapper .content-wrapper {
     width: 100%;
-    margin: 0 2%;
+    margin: 0 2rem;
   }
 }
 
@@ -437,10 +437,10 @@ option {
   width: 100%;
   z-index: 10;
   align-self: flex-start;
-  max-width: 768px;
+  /*max-width: 768px;*/
   min-width: 415px;
-  width: auto;
-  padding-right: 20px;
+  /*width: auto;*/
+  /*padding-right: 20px;*/
   background-color: $palette_dark;
   border-color: $palette_base;
 
@@ -544,7 +544,7 @@ option {
     }
 
     .navbar-toggle {
-      margin-right: 35px;
+      margin-right: 6rem;
 
       &:not(:focus) {
         .icon-bar {
@@ -563,12 +563,29 @@ option {
 
 
 
+/* Accessibility
+============================================================================= */
+
+.btn-accessibility {
+  i {
+    font-size: 26px;
+  }
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+
+
 /* Password Reset / Confirm Password Reset / Must Change Password
 ============================================================================= */
 
 .password_reset_wrapper {
-  padding-top: 25px;
-  padding-bottom: 25px;
+
+  @include desktop {
+    padding-top: 25px;
+    padding-bottom: 25px;
+  }
 
   .page-header {
     text-align: center;
@@ -580,6 +597,14 @@ option {
       padding-top: 30px;
     }
   }
+}
+
+.enduser_fieldset {
+  padding: 0 10px;
+}
+
+#navbarAccessibility {
+  padding-right: 4rem;
 }
 
 #mcp_logo {

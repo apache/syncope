@@ -43,6 +43,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.enduser.assets.SyncopeEnduserCss;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.enduser.pages.MustChangePassword;
@@ -56,6 +57,9 @@ import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.CsrfPreventionRequestCycleListener;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -250,9 +254,19 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
         getMarkupSettings().setStripWicketTags(true);
         getMarkupSettings().setCompressWhitespace(true);
+        getMarkupSettings().setStripComments(true);
 
-        getMarkupSettings().setStripWicketTags(true);
-        getMarkupSettings().setCompressWhitespace(true);
+        // add some css assets as Java Wicket resource in order to set Bootstrap css as a dependency of those
+        // and stop it to override the custom css rules
+        getHeaderContributorListeners().add(new IHeaderContributor() {
+
+            private static final long serialVersionUID = -8955205747168484695L;
+
+            @Override
+            public void renderHead(final IHeaderResponse response) {
+                response.render(CssHeaderItem.forReference(SyncopeEnduserCss.INSTANCE));
+            }
+        });
 
         if (xsrf) {
             getRequestCycleListeners().add(new CsrfPreventionRequestCycleListener());

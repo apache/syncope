@@ -18,16 +18,60 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:extend>
-    <section class="content-header">
-      <h1>&nbsp;</h1>
-      <ol class="breadcrumb">
-        <li class="active"><wicket:message key="extensions"/></li>
-        <li class="active">Flowable</li>
-      </ol>
-    </section>
 
     <section class="content" wicket:id="content">
-      <span wicket:id="bpmnProcesses">[BPMN PROCESSES]</span>
+      <div id="flowable_wrapper" class="container-fluid password_reset_wrapper">
+
+        <div class="row">
+          <div class="col-md-6 col-md-offset-3">
+
+            <div class="page-header">
+              <h1>
+                <wicket:message key="bpmn.process.title">[BPMN_PROCESSES_TITLE]</wicket:message>
+              </h1>
+            </div>
+
+            <div>
+              <span wicket:id="bpmnProcesses">[BPMN PROCESSES]</span>
+            </div>
+
+          </div> <!-- col -->
+        </div> <!-- row -->
+
+        <div class="row">
+          <div class="col-md-6 col-md-offset-3">
+
+            <table>
+              <tbody>
+                <tr wicket:id="userRequests">
+                  <td>
+                    <span wicket:id="userRequestDetails">
+                      <div wicket:id="userRequestDetails">
+                        <wicket:panel>
+                          <div wicket:id="userRequestForm">
+                            <div class="form-group">
+                              <span wicket:id="panel">
+                                [panel for dynamic input type markup]
+                              </span>
+                            </div>
+                          </div>
+                        </wicket:panel>
+                      </div>
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td wicket:id="navigator"></td>
+                </tr>
+              </tfoot>
+            </table>
+
+          </div> <!-- col -->
+        </div> <!-- row -->
+      </div>
     </section>
+
   </wicket:extend>
 </html>

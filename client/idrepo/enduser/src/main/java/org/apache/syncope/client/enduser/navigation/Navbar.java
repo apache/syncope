@@ -18,14 +18,18 @@
  */
 package org.apache.syncope.client.enduser.navigation;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.enduser.pages.BaseEnduserWebPage;
 import org.apache.syncope.client.enduser.pages.BaseExtPage;
+import org.apache.syncope.client.enduser.pages.Login;
+import org.apache.syncope.client.enduser.pages.Self;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
+import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
@@ -43,9 +47,26 @@ public class Navbar extends Panel {
 
     private final ListView<Class<? extends BaseExtPage>> extPages;
 
+    private final List<WebMarkupContainer> navbarItems = new ArrayList<>();
+
     public Navbar(final String id, final List<Class<? extends BaseExtPage>> extPageClasses) {
         super(id);
         setOutputMarkupId(true);
+
+        WebMarkupContainer detailsLI = new WebMarkupContainer("detailsLI");
+        detailsLI.setMarkupId("self");
+        navbarItems.add(detailsLI);
+        add(detailsLI);
+
+        BookmarkablePageLink<Page> detailsLink = new BookmarkablePageLink<>("detailsLILink", Self.class);
+        detailsLink.setOutputMarkupId(true);
+        detailsLink.add(new Label("detailsLILabel", getString("details")));
+        detailsLI.add(detailsLink);
+
+        WebMarkupContainer extLI = new WebMarkupContainer("extensionsLI");
+        extLI.setOutputMarkupPlaceholderTag(true);
+        extLI.setVisible(!extPageClasses.isEmpty());
+        add(extLI);
 
         extPages = new ListView<Class<? extends BaseExtPage>>("extPages", extPageClasses) {
 
@@ -53,41 +74,59 @@ public class Navbar extends Panel {
 
             @Override
             protected void populateItem(final ListItem<Class<? extends BaseExtPage>> item) {
-                WebMarkupContainer containingLI = new WebMarkupContainer("extPageLI");
-                item.add(containingLI);
-                if (item.getModelObject().equals(BaseEnduserWebPage.class)) {
-                    containingLI.add(new Behavior() {
-
-                        private static final long serialVersionUID = 1469628524240283489L;
-
-                        @Override
-                        public void onComponentTag(final Component component, final ComponentTag tag) {
-                            tag.put("class", "active");
-                        }
-                    });
-                }
+                WebMarkupContainer extPageLI = new WebMarkupContainer("extPageLI");
+                item.add(extPageLI);
+                extPageLI.setMarkupId(item.getModelObject().getSimpleName().toLowerCase());
+                navbarItems.add(extPageLI);
 
                 ExtPage ann = item.getModelObject().getAnnotation(ExtPage.class);
 
-                BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("extPage", item.getModelObject());
-                link.add(new Label("extPageLabel", ann.label()));
+                BookmarkablePageLink<Page> extLIPageLink =
+                        new BookmarkablePageLink<>("extPageLILink", item.getModelObject());
+                extLIPageLink.setOutputMarkupId(true);
+                extLIPageLink.add(new Label("extPageLabel", ann.label()));
                 if (StringUtils.isNotBlank(ann.listEntitlement())) {
-                    MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, ann.listEntitlement());
+                    MetaDataRoleAuthorizationStrategy.authorize(extLIPageLink, WebPage.RENDER, ann.listEntitlement());
                 }
-                containingLI.add(link);
-
-                Label extPageIcon = new Label("extPageIcon");
-                extPageIcon.add(new AttributeModifier("class", "fa " + ann.icon()));
-                link.add(extPageIcon);
+                extPageLI.add(extLIPageLink);
             }
         };
         extPages.setOutputMarkupId(true);
-        extPages.setVisible(!extPageClasses.isEmpty());
-        add(extPages);
+        extPages.setVisible(true);
+        extLI.add(extPages);
+
+        WebMarkupContainer logoLinkWmc = new WebMarkupContainer("logoIcon");
+        logoLinkWmc.add(new AjaxEventBehavior("click") {
+
+            private static final long serialVersionUID = -4255753643957306394L;
+
+            @Override
+            protected void onEvent(final AjaxRequestTarget target) {
+                setResponsePage(Login.class);
+            }
+        });
+        add(logoLinkWmc);
     }
 
     public ListView<Class<? extends BaseExtPage>> getExtPages() {
         return extPages;
+    }
+
+    public void setActiveNavItem(final String id) {
+        Optional<WebMarkupContainer> found = navbarItems.stream().filter(containingLI -> {
+            return containingLI.getMarkupId().equals(id);
+        }).findFirst();
+        if (found.isPresent()) {
+            found.get().add(new Behavior() {
+
+                private static final long serialVersionUID = -5775607340182293596L;
+
+                @Override
+                public void onComponentTag(final Component component, final ComponentTag tag) {
+                    tag.put("class", "active");
+                }
+            });
+        }
     }
 
 }

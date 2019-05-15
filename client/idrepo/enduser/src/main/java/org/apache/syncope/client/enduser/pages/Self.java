@@ -68,6 +68,12 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
         }
         super.onEvent(event);
     }
+    
+    @Override
+    protected void onBeforeRender() {
+        super.onBeforeRender();
+        navbar.setActiveNavItem(getClass().getSimpleName().toLowerCase());
+    }
 
     protected final AjaxWizard<AnyWrapper<UserTO>> buildWizard(final UserTO userTO, final AjaxWizard.Mode mode) {
         userWizardBuilder = new UserWizardBuilder(
