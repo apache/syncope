@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.ui.commons.annotations;
+package org.apache.syncope.client.enduser.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -34,20 +34,4 @@ public @interface ExtPage {
      */
     String label();
 
-    /**
-     * @return the icon shown next to the label, under the "Extensions" menu item, on the left pane;
-     * check https://fortawesome.github.io/Font-Awesome/icons/ for more
-     */
-    String icon() default "fa-circle-o";
-
-    /**
-     * @return the entitlement required to access this extension page
-     */
-    String listEntitlement();
-
-    /**
-     * @return the priority used to determine the display order under the "Extensions" menu item, on the left pane; the
-     * higher value, the higher rank
-     */
-    int priority() default 0;
 }

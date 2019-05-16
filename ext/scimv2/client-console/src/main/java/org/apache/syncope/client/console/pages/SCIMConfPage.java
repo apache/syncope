@@ -23,7 +23,7 @@ import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.ui.commons.annotations.ExtPage;
+import org.apache.syncope.client.console.annotations.ExtPage;
 import org.apache.syncope.client.console.panels.SCIMConfPanel;
 import org.apache.syncope.client.console.rest.SCIMConfRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;

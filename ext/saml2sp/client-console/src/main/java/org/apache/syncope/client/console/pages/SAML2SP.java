@@ -22,7 +22,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbed
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
-import org.apache.syncope.client.ui.commons.annotations.ExtPage;
+import org.apache.syncope.client.console.annotations.ExtPage;
 import org.apache.syncope.client.console.panels.SAML2IdPsDirectoryPanel;
 import org.apache.syncope.client.console.panels.SAML2SPPanel;
 import org.apache.syncope.common.lib.types.SAML2SPEntitlement;

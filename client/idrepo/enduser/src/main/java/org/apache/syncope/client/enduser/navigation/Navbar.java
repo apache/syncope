@@ -21,20 +21,17 @@ package org.apache.syncope.client.enduser.navigation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.enduser.annotations.ExtPage;
 import org.apache.syncope.client.enduser.pages.BaseExtPage;
 import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.enduser.pages.Self;
-import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -85,9 +82,6 @@ public class Navbar extends Panel {
                         new BookmarkablePageLink<>("extPageLILink", item.getModelObject());
                 extLIPageLink.setOutputMarkupId(true);
                 extLIPageLink.add(new Label("extPageLabel", ann.label()));
-                if (StringUtils.isNotBlank(ann.listEntitlement())) {
-                    MetaDataRoleAuthorizationStrategy.authorize(extLIPageLink, WebPage.RENDER, ann.listEntitlement());
-                }
                 extPageLI.add(extLIPageLink);
             }
         };

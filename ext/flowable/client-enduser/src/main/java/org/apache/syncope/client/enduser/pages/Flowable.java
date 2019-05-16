@@ -22,15 +22,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.annotations.ExtPage;
 import org.apache.syncope.client.enduser.markup.html.form.BpmnProcessesAjaxPanel;
 import org.apache.syncope.client.enduser.rest.BpmnProcessRestClient;
 import org.apache.syncope.client.enduser.rest.UserRequestRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.common.lib.to.UserRequest;
-import org.apache.syncope.common.lib.types.FlowableEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -46,8 +45,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-@ExtPage(label = "User Requests",
-        listEntitlement = FlowableEntitlement.BPMN_PROCESS_GET, priority = 200)
+@ExtPage(label = "User Requests")
 public class Flowable extends BaseExtPage {
 
     private static final long serialVersionUID = -8781434495150074529L;
