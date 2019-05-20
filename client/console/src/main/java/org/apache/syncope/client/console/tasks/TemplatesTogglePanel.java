@@ -176,8 +176,7 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
         });
     }
 
-    protected abstract Serializable onApplyInternal(
-            final TemplatableTO targetObject, final String type, final AnyTO anyTO);
+    protected abstract Serializable onApplyInternal(TemplatableTO targetObject, String type, AnyTO anyTO);
 
     public void setTargetObject(final TemplatableTO targetObject) {
         this.targetObject = targetObject;

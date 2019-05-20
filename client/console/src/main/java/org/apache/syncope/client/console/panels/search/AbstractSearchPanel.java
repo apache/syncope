@@ -117,7 +117,7 @@ public abstract class AbstractSearchPanel extends Panel {
             return this;
         }
 
-        public abstract T build(final String id);
+        public abstract T build(String id);
     }
 
     protected AbstractSearchPanel(final String id, final AnyTypeKind kind, final Builder<?> builder) {

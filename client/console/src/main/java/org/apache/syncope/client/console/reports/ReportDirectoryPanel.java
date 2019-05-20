@@ -276,7 +276,7 @@ public abstract class ReportDirectoryPanel
         return Constants.PREF_REPORT_TASKS_PAGINATOR_ROWS;
     }
 
-    protected abstract void viewTask(final ReportTO reportTO, final AjaxRequestTarget target);
+    protected abstract void viewTask(ReportTO reportTO, AjaxRequestTarget target);
 
     protected class ReportDataProvider extends DirectoryDataProvider<ReportTO> {
 

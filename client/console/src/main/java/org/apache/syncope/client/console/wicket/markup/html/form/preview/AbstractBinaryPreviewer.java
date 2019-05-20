@@ -41,5 +41,5 @@ public abstract class AbstractBinaryPreviewer extends Panel {
         return preview(Base64.decodeBase64(uploaded));
     }
 
-    public abstract Component preview(final byte[] uploadedBytes);
+    public abstract Component preview(byte[] uploadedBytes);
 }

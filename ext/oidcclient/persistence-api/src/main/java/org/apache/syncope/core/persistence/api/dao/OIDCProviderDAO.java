@@ -29,7 +29,7 @@ public interface OIDCProviderDAO {
 
     List<OIDCProvider> findAll();
 
-    OIDCProvider save(final OIDCProvider op);
+    OIDCProvider save(OIDCProvider op);
 
     void delete(String key);
 }

@@ -29,10 +29,10 @@ public interface GroupableRelatable<
         REL extends Relationship<L, R>> extends Any<P> {
 
     @Override
-    boolean add(final P attr);
+    boolean add(P attr);
 
     @Override
-    boolean remove(final P attr);
+    boolean remove(P attr);
 
     /**
      * Returns the plain attribute for this instance and the given schema name - if found, {@code NULL} otherwise.

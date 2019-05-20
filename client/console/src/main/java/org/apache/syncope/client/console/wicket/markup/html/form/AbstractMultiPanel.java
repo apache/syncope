@@ -189,7 +189,7 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
         }
     }
 
-    protected abstract Panel getItemPanel(final ListItem<INNER> item);
+    protected abstract Panel getItemPanel(ListItem<INNER> item);
 
     protected void clearInput(final Panel panel) {
         // do nothing by default

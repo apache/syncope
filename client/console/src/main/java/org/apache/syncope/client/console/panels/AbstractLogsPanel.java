@@ -110,5 +110,5 @@ public abstract class AbstractLogsPanel<T extends AbstractBaseBean> extends Pane
         loggerContainer.add(builder.build("logger"));
     }
 
-    protected abstract void update(final LoggerTO loggerTO);
+    protected abstract void update(LoggerTO loggerTO);
 }

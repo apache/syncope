@@ -25,7 +25,7 @@ public interface PasswordPolicy extends Policy {
 
     boolean isAllowNullPassword();
 
-    void setAllowNullPassword(final boolean allowNullPassword);
+    void setAllowNullPassword(boolean allowNullPassword);
 
     int getHistoryLength();
 

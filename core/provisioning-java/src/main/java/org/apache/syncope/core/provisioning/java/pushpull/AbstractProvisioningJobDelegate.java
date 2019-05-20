@@ -567,10 +567,8 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
         }
     }
 
-    protected abstract String doExecuteProvisioning(
-            final T task,
-            final Connector connector,
-            final boolean dryRun) throws JobExecutionException;
+    protected abstract String doExecuteProvisioning(T task, Connector connector, boolean dryRun)
+            throws JobExecutionException;
 
     @Override
     protected boolean hasToBeRegistered(final TaskExec execution) {

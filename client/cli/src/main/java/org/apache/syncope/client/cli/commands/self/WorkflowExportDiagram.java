@@ -46,7 +46,7 @@ public class WorkflowExportDiagram extends AbstractWorkflowCommand {
             try {
                 final Response response = workflowSyncopeOperations.exportDiagram(input.firstParameter());
                 final byte[] diagram = IOUtils.readBytesFromStream((InputStream) response.getEntity());
-                try (final OutputStream os = Files.newOutputStream(Paths.get("/tmp/diagram.png"))) {
+                try (OutputStream os = Files.newOutputStream(Paths.get("/tmp/diagram.png"))) {
                     os.write(diagram);
                     os.close();
                 }

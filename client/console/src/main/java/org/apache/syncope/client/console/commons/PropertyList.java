@@ -203,5 +203,5 @@ public abstract class PropertyList<T> implements List<String> {
 
     public abstract String getValues();
 
-    public abstract void setValues(final List<String> list);
+    public abstract void setValues(List<String> list);
 }

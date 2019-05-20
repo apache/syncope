@@ -165,7 +165,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
      * @param target request target
      * @return a pair of payload (maybe null) and resulting object.
      */
-    protected abstract Pair<Serializable, Serializable> onApplyInternal(final AjaxRequestTarget target);
+    protected abstract Pair<Serializable, Serializable> onApplyInternal(AjaxRequestTarget target);
 
     /**
      * @see org.apache.wicket.extensions.wizard.Wizard#onCancel()

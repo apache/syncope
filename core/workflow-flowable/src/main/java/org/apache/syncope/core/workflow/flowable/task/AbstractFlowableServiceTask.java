@@ -41,5 +41,5 @@ public abstract class AbstractFlowableServiceTask {
         doExecute(executionId);
     }
 
-    protected abstract void doExecute(final String executionId);
+    protected abstract void doExecute(String executionId);
 }

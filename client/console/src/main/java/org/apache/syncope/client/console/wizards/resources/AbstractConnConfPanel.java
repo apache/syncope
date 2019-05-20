@@ -84,9 +84,9 @@ public abstract class AbstractConnConfPanel<T extends AbstractBaseBean>
                 "connectorProperties", model, withOverridable).setOutputMarkupId(true));
     }
 
-    protected abstract Pair<Boolean, String> check(final AjaxRequestTarget taget);
+    protected abstract Pair<Boolean, String> check(AjaxRequestTarget taget);
 
-    protected abstract List<ConnConfProperty> getConnProperties(final T instance);
+    protected abstract List<ConnConfProperty> getConnProperties(T instance);
 
     @Override
     public boolean evaluate() {
