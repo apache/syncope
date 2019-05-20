@@ -94,7 +94,7 @@ public interface LoggerService extends JAXRSService {
     @GET
     @Path("{type}/{name}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    LoggerTO read(@NotNull @PathParam("type") LoggerType type, @NotNull @PathParam("name") final String name);
+    LoggerTO read(@NotNull @PathParam("type") LoggerType type, @NotNull @PathParam("name") String name);
 
     /**
      * Returns a list of loggers with matching type.

@@ -279,13 +279,13 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         return mlp;
     }
 
-    protected abstract void onClickTemplate(final AjaxRequestTarget target);
+    protected abstract void onClickTemplate(AjaxRequestTarget target);
 
-    protected abstract void onClickCreate(final AjaxRequestTarget target);
+    protected abstract void onClickCreate(AjaxRequestTarget target);
 
-    protected abstract void onClickEdit(final AjaxRequestTarget target, final RealmTO realmTO);
+    protected abstract void onClickEdit(AjaxRequestTarget target, RealmTO realmTO);
 
-    protected abstract void onClickDelete(final AjaxRequestTarget target, final RealmTO realmTO);
+    protected abstract void onClickDelete(AjaxRequestTarget target, RealmTO realmTO);
 
     class RemoteRealmPanel extends RemoteObjectPanel {
 

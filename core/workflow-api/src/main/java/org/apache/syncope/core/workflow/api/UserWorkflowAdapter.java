@@ -47,7 +47,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @return user just created
      */
     WorkflowResult<Pair<String, Boolean>> create(
-            UserTO userTO, boolean disablePwdPolicyCheck, final Boolean enabled, boolean storePassword);
+            UserTO userTO, boolean disablePwdPolicyCheck, Boolean enabled, boolean storePassword);
 
     /**
      * Activate an user.

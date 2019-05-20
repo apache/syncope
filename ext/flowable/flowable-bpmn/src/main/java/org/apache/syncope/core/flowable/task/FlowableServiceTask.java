@@ -39,5 +39,5 @@ public abstract class FlowableServiceTask implements JavaDelegate {
         doExecute(execution);
     }
 
-    protected abstract void doExecute(final DelegateExecution execution);
+    protected abstract void doExecute(DelegateExecution execution);
 }

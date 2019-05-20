@@ -59,9 +59,9 @@ public abstract class ResultPage<T extends Serializable> extends Panel implement
         panel.setRenderBodyOnly(true);
     }
 
-    protected abstract void closeAction(final AjaxRequestTarget target);
+    protected abstract void closeAction(AjaxRequestTarget target);
 
-    protected abstract Panel customResultBody(final String panleId, final T item, final Serializable result);
+    protected abstract Panel customResultBody(String panleId, T item, Serializable result);
 
     @Override
     public T getItem() {

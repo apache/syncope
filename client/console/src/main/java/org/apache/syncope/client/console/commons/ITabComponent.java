@@ -74,6 +74,5 @@ public abstract class ITabComponent extends Component implements ITab {
     }
 
     @Override
-    public abstract WebMarkupContainer getPanel(final String panelId);
-
+    public abstract WebMarkupContainer getPanel(String panelId);
 }

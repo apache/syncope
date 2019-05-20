@@ -121,7 +121,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
         }.setEventSink(eventSink).addOuterObject(outerObjects);
     }
 
-    protected abstract WizardModel buildModelSteps(final T modelObject, final WizardModel wizardModel);
+    protected abstract WizardModel buildModelSteps(T modelObject, WizardModel wizardModel);
 
     /**
      * Override to send custom events after create.

@@ -74,7 +74,7 @@ public abstract class ObjectTypeTogglePanel extends TogglePanel<Serializable> {
         });
     }
 
-    protected abstract void onSubmit(final String type, final AjaxRequestTarget target);
+    protected abstract void onSubmit(String type, AjaxRequestTarget target);
 
     public void setHeaderLabel(final AjaxRequestTarget target) {
         setHeader(target, getString("type"));

@@ -282,7 +282,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
             private static final long serialVersionUID = 3582312993557742858L;
 
-            public abstract List<T> execute(final String filter);
+            public abstract List<T> execute(String filter);
         }
     }
 

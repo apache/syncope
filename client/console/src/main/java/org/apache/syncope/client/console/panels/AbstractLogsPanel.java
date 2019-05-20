@@ -110,5 +110,5 @@ public abstract class AbstractLogsPanel<T extends Serializable> extends Panel {
         loggerContainer.add(builder.build("logger"));
     }
 
-    protected abstract void update(final LoggerTO loggerTO);
+    protected abstract void update(LoggerTO loggerTO);
 }
