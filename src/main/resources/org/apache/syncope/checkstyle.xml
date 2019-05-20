@@ -46,6 +46,9 @@ under the License.
 
 -->
 <module name="Checker">
+
+  <property name="cacheFile" value="target/checkstyle.cache"/>
+
   <!--
         If you set the basedir property below, then all reported file
         names will be relative to the specified directory. See
@@ -83,11 +86,7 @@ under the License.
     <property name="message" value="Line has trailing spaces."/>
   </module>
 
-  <module name="SuppressionCommentFilter"/>
-
   <module name="TreeWalker">
-
-    <property name="cacheFile" value="target/checkstyle.cache"/>
 
     <!-- Checks for Javadoc comments.                     -->
     <!-- See http://checkstyle.sf.net/config_javadoc.html -->
@@ -116,7 +115,7 @@ under the License.
       <property name="format" value="^[A-Z][A-Z0-9_]*$"/>
     </module>
     <module name="TypeName"/>
-
+    <module name="SuppressionCommentFilter"/>
 
     <!-- Checks for Headers                                -->
     <!-- See http://checkstyle.sf.net/config_header.html   -->
@@ -219,8 +218,6 @@ under the License.
     <module name="FinalParameters"/>
     <module name="TodoComment"/>
     <module name="UpperEll"/>
-
-    <module name="FileContentsHolder"/>
   </module>
 
 </module>
