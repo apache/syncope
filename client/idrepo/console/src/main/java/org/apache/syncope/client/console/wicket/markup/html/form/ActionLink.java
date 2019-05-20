@@ -120,7 +120,7 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         return modelObject;
     }
 
-    public abstract void onClick(final AjaxRequestTarget target, final T modelObject);
+    public abstract void onClick(AjaxRequestTarget target, T modelObject);
 
     public void postClick() {
     }

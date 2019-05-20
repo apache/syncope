@@ -211,7 +211,7 @@ public abstract class EventSelectionPanel extends Panel {
      *
      * @param event event.
      */
-    protected abstract void onEventAction(final IEvent<?> event);
+    protected abstract void onEventAction(IEvent<?> event);
 
     @Override
     public void onEvent(final IEvent<?> event) {

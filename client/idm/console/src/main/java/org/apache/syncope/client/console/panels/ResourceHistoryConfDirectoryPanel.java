@@ -175,8 +175,7 @@ public abstract class ResourceHistoryConfDirectoryPanel extends DirectoryPanel<
         return IdMConstants.PREF_RESOURCE_HISTORY_CONF_PAGINATOR_ROWS;
     }
 
-    protected abstract void viewConfiguration(ResourceHistoryConfTO resHistoryTO,
-            final AjaxRequestTarget target);
+    protected abstract void viewConfiguration(ResourceHistoryConfTO resHistoryTO, AjaxRequestTarget target);
 
     @Override
     protected void resultTableCustomChanges(

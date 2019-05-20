@@ -118,7 +118,7 @@ public abstract class AbstractMustChangePassword extends WebPage {
         add(new AttributeModifier("style", "height: \"100%\""));
     }
 
-    protected abstract void doSubmit(final AjaxRequestTarget target);
+    protected abstract void doSubmit(AjaxRequestTarget target);
 
     protected abstract void doCancel();
 

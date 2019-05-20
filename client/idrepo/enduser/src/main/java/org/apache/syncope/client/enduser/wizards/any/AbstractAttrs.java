@@ -177,11 +177,11 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
 
     protected abstract void setAttrs();
 
-    protected abstract void setAttrs(final MembershipTO membershipTO);
+    protected abstract void setAttrs(MembershipTO membershipTO);
 
     protected abstract List<Attr> getAttrsFromTO();
 
-    protected abstract List<Attr> getAttrsFromTO(final MembershipTO membershipTO);
+    protected abstract List<Attr> getAttrsFromTO(MembershipTO membershipTO);
 
     protected List<String> getMembershipAuxClasses(final MembershipTO membershipTO, final String anyType) {
         try {

@@ -127,5 +127,5 @@ public abstract class DateFieldPanel extends FieldPanel<Date> {
                 new KendoCultureResourceReference(getLocale())));
     }
 
-    protected abstract FastDateFormat getDateFormat(final String datePattern);
+    protected abstract FastDateFormat getDateFormat(String datePattern);
 }

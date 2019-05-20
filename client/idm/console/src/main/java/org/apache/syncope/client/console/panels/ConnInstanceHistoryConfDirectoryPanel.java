@@ -174,8 +174,7 @@ public abstract class ConnInstanceHistoryConfDirectoryPanel extends DirectoryPan
         return IdMConstants.PREF_CONNECTOR_HISTORY_CONF_PAGINATOR_ROWS;
     }
 
-    protected abstract void viewConfiguration(ConnInstanceHistoryConfTO connHistoryTO,
-            final AjaxRequestTarget target);
+    protected abstract void viewConfiguration(ConnInstanceHistoryConfTO connHistoryTO, AjaxRequestTarget target);
 
     @Override
     protected void resultTableCustomChanges(

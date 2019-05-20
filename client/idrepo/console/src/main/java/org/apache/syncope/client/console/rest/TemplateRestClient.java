@@ -25,13 +25,13 @@ public interface TemplateRestClient<T, F> extends RestClient {
 
     List<T> listTemplates();
 
-    void createTemplate(final T templateTO);
+    void createTemplate(T templateTO);
 
-    void deleteTemplate(final String key);
+    void deleteTemplate(String key);
 
-    T readTemplate(final String key);
+    T readTemplate(String key);
 
-    String readTemplateFormat(final String key, final F format);
+    String readTemplateFormat(String key, F format);
 
-    void updateTemplateFormat(final String key, final String content, final F format);
+    void updateTemplateFormat(String key, String content, F format);
 }

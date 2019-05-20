@@ -58,7 +58,7 @@ public interface GroupDAO extends AnyDAO<Group> {
     int countUDynMembers(Group group);
 
     @Override
-    Collection<String> findAllResourceKeys(final String key);
+    Collection<String> findAllResourceKeys(String key);
 
     void clearADynMembers(Group group);
 

@@ -50,7 +50,7 @@ abstract class AbstractJobLogic<T extends EntityTO> extends AbstractTransactiona
     @Autowired
     protected SchedulerFactoryBean scheduler;
 
-    protected abstract Triple<JobType, String, String> getReference(final JobKey jobKey);
+    protected abstract Triple<JobType, String, String> getReference(JobKey jobKey);
 
     protected JobTO getJobTO(final JobKey jobKey, final boolean includeCustom) throws SchedulerException {
         JobTO jobTO = null;

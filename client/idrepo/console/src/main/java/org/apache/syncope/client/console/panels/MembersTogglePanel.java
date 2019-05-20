@@ -98,7 +98,7 @@ public abstract class MembersTogglePanel extends TogglePanel<Serializable> {
     }
 
     protected abstract Serializable onApplyInternal(
-            final GroupTO groupTO, final String type, final AjaxRequestTarget target);
+            GroupTO groupTO, String type, AjaxRequestTarget target);
 
     public void setTargetObject(final GroupTO groupTO) {
         this.groupTO = groupTO;

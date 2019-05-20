@@ -202,16 +202,16 @@ public abstract class BaseLogin extends WebPage {
 
     protected abstract List<Panel> getSSOLoginFormPanels();
 
-    protected abstract void sendError(final String error);
+    protected abstract void sendError(String error);
 
     protected abstract String getAnonymousUser();
 
     protected abstract List<Locale> getSupportedLocales();
 
     protected abstract void authenticate(
-            final String username,
-            final String password,
-            final AjaxRequestTarget target)
+            String username,
+            String password,
+            AjaxRequestTarget target)
             throws AccessControlException;
 
     /**

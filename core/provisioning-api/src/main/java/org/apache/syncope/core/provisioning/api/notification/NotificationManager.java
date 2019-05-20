@@ -38,7 +38,7 @@ public interface NotificationManager {
      * @param status status
      * @return number of task executions
      */
-    long countExecutionsWithStatus(final String taskKey, final String status);
+    long countExecutionsWithStatus(String taskKey, String status);
 
     /**
      * Checks if notifications are available matching the provided conditions.
@@ -95,7 +95,7 @@ public interface NotificationManager {
      * @param taskKey task to be updated
      * @param executed execution state
      */
-    void setTaskExecuted(final String taskKey, final boolean executed);
+    void setTaskExecuted(String taskKey, boolean executed);
 
     /**
      * Store execution of a NotificationTask.
@@ -103,6 +103,6 @@ public interface NotificationManager {
      * @param execution task execution.
      * @return merged task execution.
      */
-    TaskExec storeExec(final TaskExec execution);
+    TaskExec storeExec(TaskExec execution);
 
 }

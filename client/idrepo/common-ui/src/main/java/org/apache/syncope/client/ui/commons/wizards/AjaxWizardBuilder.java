@@ -144,7 +144,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
         }.setEventSink(eventSink).addOuterObject(outerObjects);
     }
 
-    protected abstract WizardModel buildModelSteps(final T modelObject, final WizardModel wizardModel);
+    protected abstract WizardModel buildModelSteps(T modelObject, WizardModel wizardModel);
 
     /**
      * Override to send custom events after create.
@@ -159,12 +159,12 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
 
     protected abstract long getMaxWaitTimeInSeconds();
 
-    protected abstract void sendError(final String message);
+    protected abstract void sendError(String message);
 
-    protected abstract void sendWarning(final String message);
+    protected abstract void sendWarning(String message);
 
     protected abstract Future<Pair<Serializable, Serializable>> execute(
-            final Callable<Pair<Serializable, Serializable>> future);
+            Callable<Pair<Serializable, Serializable>> future);
 
     /**
      * Override to send custom events after edit.

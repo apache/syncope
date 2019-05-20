@@ -158,12 +158,12 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
     protected abstract void onCancelInternal();
 
-    protected abstract void sendError(final String message);
+    protected abstract void sendError(String message);
 
-    protected abstract void sendWarning(final String message);
+    protected abstract void sendWarning(String message);
 
     protected abstract Future<Pair<Serializable, Serializable>> execute(
-            final Callable<Pair<Serializable, Serializable>> future);
+            Callable<Pair<Serializable, Serializable>> future);
 
     /**
      * Apply operation
@@ -171,7 +171,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
      * @param target request target
      * @return a pair of payload (maybe null) and resulting object.
      */
-    protected abstract Pair<Serializable, Serializable> onApplyInternal(final AjaxRequestTarget target);
+    protected abstract Pair<Serializable, Serializable> onApplyInternal(AjaxRequestTarget target);
 
     protected abstract long getMaxWaitTimeInSeconds();
 

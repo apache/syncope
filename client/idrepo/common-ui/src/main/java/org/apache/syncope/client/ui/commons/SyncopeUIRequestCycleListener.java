@@ -112,5 +112,5 @@ public abstract class SyncopeUIRequestCycleListener implements IRequestCycleList
 
     protected abstract void invalidateSession();
 
-    protected abstract IRequestablePage getErrorPage(final PageParameters errorParameters);
+    protected abstract IRequestablePage getErrorPage(PageParameters errorParameters);
 }

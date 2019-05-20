@@ -196,5 +196,5 @@ public abstract class UserRequestFormPanel extends Panel {
         add(userDetails);
     }
 
-    protected abstract void viewDetails(final AjaxRequestTarget target);
+    protected abstract void viewDetails(AjaxRequestTarget target);
 }

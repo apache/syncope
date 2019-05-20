@@ -53,10 +53,10 @@ public abstract class StatusModal<T extends EntityTO> extends Panel implements M
 
     protected abstract DirectoryPanel<
         StatusBean, StatusBean, DirectoryDataProvider<StatusBean>, AbstractAnyRestClient<?>> getStatusDirectoryPanel(
-            final MultilevelPanel mlp,
-            final BaseModal<?> baseModal,
-            final PageReference pageReference,
-            final T entity,
-            final String itemKeyFieldName,
-            final boolean statusOnly);
+            MultilevelPanel mlp,
+            BaseModal<?> baseModal,
+            PageReference pageReference,
+            T entity,
+            String itemKeyFieldName,
+            boolean statusOnly);
 }

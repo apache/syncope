@@ -44,7 +44,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param enabled specify true/false to force active/supended status
      * @return user just created
      */
-    WorkflowResult<Pair<String, Boolean>> create(UserCR userCR, boolean disablePwdPolicyCheck, final Boolean enabled);
+    WorkflowResult<Pair<String, Boolean>> create(UserCR userCR, boolean disablePwdPolicyCheck, Boolean enabled);
 
     /**
      * Activate an user.

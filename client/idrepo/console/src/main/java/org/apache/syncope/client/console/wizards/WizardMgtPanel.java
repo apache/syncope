@@ -413,7 +413,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
             this.pageRef = pageRef;
         }
 
-        protected abstract WizardMgtPanel<T> newInstance(final String id, final boolean wizardInModal);
+        protected abstract WizardMgtPanel<T> newInstance(String id, boolean wizardInModal);
 
         /**
          * Builds a list view.

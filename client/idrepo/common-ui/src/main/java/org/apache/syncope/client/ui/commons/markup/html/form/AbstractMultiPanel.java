@@ -131,7 +131,7 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
 
     protected abstract INNER newModelObject();
 
-    protected abstract void sendError(final String message);
+    protected abstract void sendError(String message);
 
     private final class InnerView extends ListView<INNER> {
 
@@ -190,7 +190,7 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
         }
     }
 
-    protected abstract Panel getItemPanel(final ListItem<INNER> item);
+    protected abstract Panel getItemPanel(ListItem<INNER> item);
 
     protected void clearInput(final Panel panel) {
         // do nothing by default
