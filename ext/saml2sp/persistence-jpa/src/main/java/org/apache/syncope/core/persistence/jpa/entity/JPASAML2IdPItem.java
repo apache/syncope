@@ -28,6 +28,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
@@ -51,7 +52,9 @@ public class JPASAML2IdPItem extends AbstractItem implements SAML2IdPItem {
             joinColumns =
             @JoinColumn(name = "item_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "implementation_id"))
+            @JoinColumn(name = "implementation_id"),
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "item_id", "implementation_id" }))
     private List<JPAImplementation> transformers = new ArrayList<>();
 
     @Override
@@ -69,7 +72,8 @@ public class JPASAML2IdPItem extends AbstractItem implements SAML2IdPItem {
     public boolean add(final Implementation transformer) {
         checkType(transformer, JPAImplementation.class);
         checkImplementationType(transformer, ImplementationType.ITEM_TRANSFORMER);
-        return this.transformers.add((JPAImplementation) transformer);
+        return transformers.contains((JPAImplementation) transformer)
+                || this.transformers.add((JPAImplementation) transformer);
     }
 
     @Override

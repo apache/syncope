@@ -178,4 +178,23 @@ public class AnyTypeITCase extends AbstractITCase {
             anyTypeService.update(group);
         }
     }
+
+    @Test
+    public void issueSYNCOPE1472() {
+        // 1. add any type class csv twice to PRINTER any type
+        AnyTypeTO anyTypeTO = anyTypeService.read("PRINTER");
+        anyTypeTO.getClasses().clear();
+        anyTypeTO.getClasses().add("minimal printer");
+        anyTypeTO.getClasses().add("csv");
+        anyTypeTO.getClasses().add("csv");
+        anyTypeService.update(anyTypeTO);
+
+        // 2. read again and remove any type class
+        anyTypeTO = anyTypeService.read("PRINTER");
+        anyTypeTO.getClasses().remove("csv");
+        anyTypeService.update(anyTypeTO);
+
+        assertFalse(anyTypeService.read("PRINTER").getClasses().contains("csv"), 
+                "Should not contain removed any type classes");
+    }
 }

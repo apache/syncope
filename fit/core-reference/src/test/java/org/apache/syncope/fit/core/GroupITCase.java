@@ -1155,4 +1155,40 @@ public class GroupITCase extends AbstractITCase {
             }
         }
     }
+
+    @Test
+    public void issueSYNCOPE1472() {
+        // 1. update group artDirector by assigning twice resource-testdb and auxiliary class csv
+        GroupPatch groupPatch = new GroupPatch();
+        groupPatch.setKey("ece66293-8f31-4a84-8e8d-23da36e70846");
+        groupPatch.getResources().add(new StringPatchItem.Builder()
+                .value(RESOURCE_NAME_TESTDB)
+                .operation(PatchOperation.ADD_REPLACE)
+                .build());
+        groupPatch.getAuxClasses().add(new StringPatchItem.Builder()
+                .operation(PatchOperation.ADD_REPLACE)
+                .value("csv")
+                .build());
+        for (int i = 0; i < 2; i++) {
+            updateGroup(groupPatch);
+        }
+
+        // 2. remove resources and auxiliary classes
+        groupPatch.getResources().clear();
+        groupPatch.getResources().add(new StringPatchItem.Builder()
+                .value(RESOURCE_NAME_TESTDB)
+                .operation(PatchOperation.DELETE)
+                .build());
+        groupPatch.getAuxClasses().clear();
+        groupPatch.getAuxClasses().add(new StringPatchItem.Builder()
+                .value("csv")
+                .operation(PatchOperation.DELETE)
+                .build());
+
+        updateGroup(groupPatch);
+
+        GroupTO groupTO = groupService.read("ece66293-8f31-4a84-8e8d-23da36e70846");
+        assertFalse(groupTO.getResources().contains(RESOURCE_NAME_TESTDB), "Should not contain removed resources");
+        assertFalse(groupTO.getAuxClasses().contains("csv"), "Should not contain removed auxiliary classes");
+    }
 }

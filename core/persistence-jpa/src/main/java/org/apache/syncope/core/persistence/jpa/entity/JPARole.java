@@ -36,6 +36,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
 import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
@@ -67,7 +68,9 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     @JoinTable(joinColumns =
             @JoinColumn(name = "role_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "realm_id"))
+            @JoinColumn(name = "realm_id"),
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "role_id", "realm_id" }))
     @Valid
     private List<JPARealm> realms = new ArrayList<>();
 
@@ -75,7 +78,9 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     @JoinTable(joinColumns =
             @JoinColumn(name = "role_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "dynamicRealm_id"))
+            @JoinColumn(name = "dynamicRealm_id"),
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "role_id", "dynamicRealm_id" }))
     @Valid
     private List<JPADynRealm> dynRealms = new ArrayList<>();
 
@@ -90,7 +95,9 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     @JoinTable(joinColumns =
             @JoinColumn(name = "role_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "privilege_id"))
+            @JoinColumn(name = "privilege_id"),
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "role_id", "privilege_id" }))
     @Valid
     private Set<JPAPrivilege> privileges = new HashSet<>();
 
@@ -102,7 +109,7 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     @Override
     public boolean add(final Realm realm) {
         checkType(realm, JPARealm.class);
-        return realms.add((JPARealm) realm);
+        return realms.contains((JPARealm) realm) || realms.add((JPARealm) realm);
     }
 
     @Override
@@ -113,7 +120,7 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     @Override
     public boolean add(final DynRealm dynamicRealm) {
         checkType(dynamicRealm, JPADynRealm.class);
-        return dynRealms.add((JPADynRealm) dynamicRealm);
+        return dynRealms.contains((JPADynRealm) dynamicRealm) || dynRealms.add((JPADynRealm) dynamicRealm);
     }
 
     @Override

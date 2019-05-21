@@ -268,4 +268,23 @@ public class RealmITCase extends AbstractITCase {
         assertNull(
                 getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=test,o=isp"));
     }
+
+    @Test
+    public void issueSYNCOPE1472() {
+        // 1. assign twice resource-ldap-orgunit to /odd
+        RealmTO realmTO = realmService.list("/odd").get(0);
+        realmTO.getResources().clear();
+        realmTO.getResources().add("resource-ldap-orgunit");
+        realmTO.getResources().add("resource-ldap-orgunit");
+        realmTO = realmService.update(realmTO).readEntity(new GenericType<ProvisioningResult<RealmTO>>() {
+        }).getEntity();
+
+        // 2. remove resource-ldap-orgunit resource
+        realmTO.getResources().remove("resource-ldap-orgunit");
+
+        realmTO = realmService.update(realmTO).readEntity(new GenericType<ProvisioningResult<RealmTO>>() {
+        }).getEntity();
+
+        assertFalse(realmTO.getResources().contains("resource-ldap-orgunit"), "Should not contain removed resources");
+    }
 }

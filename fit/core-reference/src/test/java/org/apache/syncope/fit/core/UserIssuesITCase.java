@@ -1520,4 +1520,55 @@ public class UserIssuesITCase extends AbstractITCase {
             configurationService.set(original);
         }
     }
+
+    @Test
+    public void issueSYNCOPE1472() {
+        // 1. update user rossini by assigning twice resource-testdb2 and auxiliary class csv
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey("1417acbe-cbf6-4277-9372-e75e04f97000");
+        userPatch.setPassword(new PasswordPatch.Builder()
+                .onSyncope(false)
+                .resource(RESOURCE_NAME_TESTDB)
+                .value("Password123")
+                .build());
+        userPatch.getResources().add(new StringPatchItem.Builder()
+                .value(RESOURCE_NAME_TESTDB)
+                .operation(PatchOperation.ADD_REPLACE)
+                .build());
+        userPatch.getAuxClasses().add(new StringPatchItem.Builder()
+                .operation(PatchOperation.ADD_REPLACE)
+                .value("csv")
+                .build());
+        userPatch.getRoles().add(new StringPatchItem.Builder()
+                .operation(PatchOperation.ADD_REPLACE)
+                .value("Other")
+                .build());
+
+        for (int i = 0; i < 2; i++) {
+            updateUser(userPatch);
+        }
+
+        // 2. remove resources, auxiliary classes and roles
+        userPatch.getResources().clear();
+        userPatch.getResources().add(new StringPatchItem.Builder()
+                .value(RESOURCE_NAME_TESTDB)
+                .operation(PatchOperation.DELETE)
+                .build());
+        userPatch.getAuxClasses().clear();
+        userPatch.getAuxClasses().add(new StringPatchItem.Builder()
+                .value("csv")
+                .operation(PatchOperation.DELETE)
+                .build());
+        userPatch.getRoles().clear();
+        userPatch.getRoles().add(new StringPatchItem.Builder()
+                .value("Other")
+                .operation(PatchOperation.DELETE)
+                .build());
+        updateUser(userPatch);
+
+        UserTO userTO = userService.read("1417acbe-cbf6-4277-9372-e75e04f97000");
+        assertFalse(userTO.getResources().contains(RESOURCE_NAME_TESTDB), "Should not contain removed resources");
+        assertFalse(userTO.getAuxClasses().contains("csv"), "Should not contain removed auxiliary classes");
+        assertFalse(userTO.getRoles().contains("Other"),"Should not contain removed roles");
+    }
 }

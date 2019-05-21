@@ -31,6 +31,7 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -39,6 +40,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.fit.AbstractITCase;
@@ -210,5 +212,36 @@ public class AnyObjectITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidAnyType, e.getType());
         }
+    }
+
+    @Test
+    public void issueSYNCOPE1472() {
+        // 1. assign resource-db-scripted again to Canon MF 8030cn and update twice
+        AnyObjectPatch anyObjectPatch = new AnyObjectPatch();
+        anyObjectPatch.setKey("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
+        anyObjectPatch.getResources().add(new StringPatchItem.Builder().value(RESOURCE_NAME_DBSCRIPTED).build());
+        anyObjectPatch.getAuxClasses().add(new StringPatchItem.Builder().value("csv").build());
+
+        for (int i = 0; i < 2; i++) {
+            updateAnyObject(anyObjectPatch);
+        }
+
+        // 2. remove resources and auxiliary classes
+        anyObjectPatch.getResources().clear();
+        anyObjectPatch.getResources().add(new StringPatchItem.Builder()
+                .value(RESOURCE_NAME_DBSCRIPTED)
+                .operation(PatchOperation.DELETE)
+                .build());
+        anyObjectPatch.getAuxClasses().clear();
+        anyObjectPatch.getAuxClasses().add(new StringPatchItem.Builder()
+                .value("csv")
+                .operation(PatchOperation.DELETE)
+                .build());
+
+        updateAnyObject(anyObjectPatch);
+
+        AnyObjectTO printer = anyObjectService.read("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
+        assertFalse(printer.getResources().contains(RESOURCE_NAME_DBSCRIPTED), "Should not contain removed resources");
+        assertFalse(printer.getAuxClasses().contains("csv"), "Should not contain removed auxiliary classes");
     }
 }

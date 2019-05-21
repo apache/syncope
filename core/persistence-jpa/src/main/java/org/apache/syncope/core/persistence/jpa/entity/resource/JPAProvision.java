@@ -69,7 +69,9 @@ public class JPAProvision extends AbstractGeneratedKeyEntity implements Provisio
     @JoinTable(joinColumns =
             @JoinColumn(name = "provision_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyTypeClass_id"))
+            @JoinColumn(name = "anyTypeClass_id"),
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "provision_id", "anyTypeClass_id" }))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @Lob

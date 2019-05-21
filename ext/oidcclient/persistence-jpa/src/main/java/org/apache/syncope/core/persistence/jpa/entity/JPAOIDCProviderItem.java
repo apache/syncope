@@ -28,6 +28,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.OIDCProvider;
@@ -62,14 +63,17 @@ public class JPAOIDCProviderItem extends AbstractItem implements OIDCProviderIte
             joinColumns =
             @JoinColumn(name = "item_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "implementation_id"))
+            @JoinColumn(name = "implementation_id"),
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "item_id", "implementation_id" }))
     private List<JPAImplementation> transformers = new ArrayList<>();
 
     @Override
     public boolean add(final Implementation transformer) {
         checkType(transformer, JPAImplementation.class);
         checkImplementationType(transformer, ImplementationType.ITEM_TRANSFORMER);
-        return this.transformers.add((JPAImplementation) transformer);
+        return transformers.contains((JPAImplementation) transformer)
+                || this.transformers.add((JPAImplementation) transformer);
     }
 
     @Override
