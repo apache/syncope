@@ -31,6 +31,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.commons.collections4.CollectionUtils;
@@ -66,7 +67,9 @@ public class JPAAccountPolicy extends AbstractPolicy implements AccountPolicy {
     @JoinTable(joinColumns =
             @JoinColumn(name = "accountPolicy_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "resource_id"))
+            @JoinColumn(name = "resource_id"),
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "accountPolicy_id", "resource_id" }))
     private Set<JPAExternalResource> resources = new HashSet<>();
 
     @Override
