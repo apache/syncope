@@ -32,6 +32,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -79,14 +80,16 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     @JoinTable(joinColumns =
             @JoinColumn(name = "group_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "resource_id"))
+            @JoinColumn(name = "resource_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = { "group_id", "resource_id" }))
     private List<JPAExternalResource> resources = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(joinColumns =
             @JoinColumn(name = "group_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyTypeClass_id"))
+            @JoinColumn(name = "anyTypeClass_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = { "group_id", "anyTypeClass_id" }))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "group")
@@ -122,7 +125,7 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     @Override
     public boolean add(final ExternalResource resource) {
         checkType(resource, JPAExternalResource.class);
-        return resources.add((JPAExternalResource) resource);
+        return resources.contains((JPAExternalResource) resource) || resources.add((JPAExternalResource) resource);
     }
 
     @Override
@@ -190,7 +193,7 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     @Override
     public boolean add(final AnyTypeClass auxClass) {
         checkType(auxClass, JPAAnyTypeClass.class);
-        return this.auxClasses.add((JPAAnyTypeClass) auxClass);
+        return auxClasses.contains((JPAAnyTypeClass) auxClass) || this.auxClasses.add((JPAAnyTypeClass) auxClass);
     }
 
     @Override

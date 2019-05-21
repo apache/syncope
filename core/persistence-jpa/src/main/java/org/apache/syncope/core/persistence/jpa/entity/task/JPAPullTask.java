@@ -33,6 +33,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.PullMode;
@@ -65,7 +66,9 @@ public class JPAPullTask extends AbstractProvisioningTask implements PullTask {
             joinColumns =
             @JoinColumn(name = "task_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "implementation_id"))
+            @JoinColumn(name = "implementation_id"),
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "task_id", "implementation_id" }))
     private List<JPAImplementation> actions = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "pullTask")

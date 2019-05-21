@@ -42,6 +42,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -88,7 +89,8 @@ public class JPAUser
     @JoinTable(joinColumns =
             @JoinColumn(name = "user_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "role_id"))
+            @JoinColumn(name = "role_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = { "user_id", "role_id" }))
     private List<JPARole> roles = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
@@ -152,14 +154,16 @@ public class JPAUser
     @JoinTable(joinColumns =
             @JoinColumn(name = "user_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "resource_id"))
+            @JoinColumn(name = "resource_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = { "user_id", "resource_id" }))
     private List<JPAExternalResource> resources = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(joinColumns =
             @JoinColumn(name = "user_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyTypeClass_id"))
+            @JoinColumn(name = "anyTypeClass_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = { "user_id", "anyTypeClass_id" }))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "leftEnd")
@@ -189,7 +193,7 @@ public class JPAUser
     @Override
     public boolean add(final ExternalResource resource) {
         checkType(resource, JPAExternalResource.class);
-        return resources.add((JPAExternalResource) resource);
+        return resources.contains((JPAExternalResource) resource) || resources.add((JPAExternalResource) resource);
     }
 
     @Override
@@ -419,7 +423,7 @@ public class JPAUser
     @Override
     public boolean add(final AnyTypeClass auxClass) {
         checkType(auxClass, JPAAnyTypeClass.class);
-        return this.auxClasses.add((JPAAnyTypeClass) auxClass);
+        return auxClasses.contains((JPAAnyTypeClass) auxClass) || this.auxClasses.add((JPAAnyTypeClass) auxClass);
     }
 
     @Override

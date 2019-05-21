@@ -77,7 +77,9 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
             joinColumns =
             @JoinColumn(name = "realm_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "implementation_id"))
+            @JoinColumn(name = "implementation_id"),
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "realm_id", "implementation_id" }))
     private List<JPAImplementation> actions = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "realm")
@@ -87,7 +89,8 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
     @JoinTable(joinColumns =
             @JoinColumn(name = "realm_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "resource_id"))
+            @JoinColumn(name = "resource_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = { "realm_id", "resource_id" }))
     private List<JPAExternalResource> resources = new ArrayList<>();
 
     @Override
@@ -173,7 +176,7 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
     @Override
     public boolean add(final ExternalResource resource) {
         checkType(resource, JPAExternalResource.class);
-        return resources.add((JPAExternalResource) resource);
+        return resources.contains((JPAExternalResource) resource) || resources.add((JPAExternalResource) resource);
     }
 
     @Override

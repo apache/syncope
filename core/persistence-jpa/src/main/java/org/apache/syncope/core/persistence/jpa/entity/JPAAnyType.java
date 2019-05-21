@@ -29,6 +29,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -53,7 +54,9 @@ public class JPAAnyType extends AbstractProvidedKeyEntity implements AnyType {
     @JoinTable(joinColumns =
             @JoinColumn(name = "anyType_id", referencedColumnName = "id"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyTypeClass_id", referencedColumnName = "id"))
+            @JoinColumn(name = "anyTypeClass_id", referencedColumnName = "id"),
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "anyType_id", "anyTypeClass_id" }))
     private List<JPAAnyTypeClass> classes = new ArrayList<>();
 
     @Override
@@ -69,7 +72,7 @@ public class JPAAnyType extends AbstractProvidedKeyEntity implements AnyType {
     @Override
     public boolean add(final AnyTypeClass anyTypeClass) {
         checkType(anyTypeClass, JPAAnyTypeClass.class);
-        return this.classes.add((JPAAnyTypeClass) anyTypeClass);
+        return classes.contains((JPAAnyTypeClass) anyTypeClass) || this.classes.add((JPAAnyTypeClass) anyTypeClass);
     }
 
     @Override

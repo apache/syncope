@@ -30,6 +30,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -55,7 +56,9 @@ public class JPAReport extends AbstractGeneratedKeyEntity implements Report {
             joinColumns =
             @JoinColumn(name = "report_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "implementation_id"))
+            @JoinColumn(name = "implementation_id"),
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "report_id", "implementation_id" }))
     private List<JPAImplementation> reportlets = new ArrayList<>();
 
     private String cronExpression;

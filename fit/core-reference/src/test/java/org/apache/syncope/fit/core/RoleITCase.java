@@ -28,8 +28,10 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.DynRealmTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -145,5 +147,31 @@ public class RoleITCase extends AbstractITCase {
         bellini = userService.read("bellini");
         assertTrue(bellini.getDynMemberships().isEmpty());
         assertTrue(bellini.getPrivileges().isEmpty());
+    }
+
+    @Test
+    public void issueSYNCOPE1472() {
+        final DynRealmTO dynRealmTO = new DynRealmTO();
+        dynRealmTO.setKey("dynRealm");
+        dynRealmTO.getDynMembershipConds().put(AnyTypeKind.USER.name(), "username=~rossini");
+        dynRealmService.create(dynRealmTO);
+
+        // 1. associate role Other again to /odd realm and twice to dynRealm
+        RoleTO roleTO = roleService.read("Other");
+        roleTO.getRealms().add("/odd");
+        roleTO.getDynRealms().add("dynRealm");
+        roleTO.getDynRealms().add("dynRealm");
+        roleService.update(roleTO);
+
+        // 2. update by removing realm and dynamic realm
+        roleTO = roleService.read("Other");
+        roleTO.getRealms().remove("/odd");
+        roleTO.getDynRealms().remove("dynRealm");
+        roleService.update(roleTO);
+
+        roleTO = roleService.read("Other");
+
+        assertFalse(roleTO.getRealms().contains("/odd"), "Should not contain removed realms");
+        assertFalse(roleTO.getDynRealms().contains("dynRealm"), "Should not contain removed dynamic realms");
     }
 }

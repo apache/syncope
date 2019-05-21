@@ -29,6 +29,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
+import javax.persistence.UniqueConstraint;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
@@ -51,7 +52,9 @@ public class JPAMappingItem extends AbstractItem implements MappingItem {
             joinColumns =
             @JoinColumn(name = "item_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "implementation_id"))
+            @JoinColumn(name = "implementation_id"),
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "item_id", "implementation_id" }))
     private List<JPAImplementation> transformers = new ArrayList<>();
 
     @Override

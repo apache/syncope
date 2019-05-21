@@ -26,6 +26,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -50,7 +51,9 @@ public class JPAPasswordPolicy extends AbstractPolicy implements PasswordPolicy 
             joinColumns =
             @JoinColumn(name = "policy_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "implementation_id"))
+            @JoinColumn(name = "implementation_id"),
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "policy_id", "implementation_id" }))
     private List<JPAImplementation> rules = new ArrayList<>();
 
     @Override

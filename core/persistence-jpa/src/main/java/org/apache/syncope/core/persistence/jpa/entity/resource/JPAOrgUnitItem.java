@@ -29,6 +29,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
+import javax.persistence.UniqueConstraint;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
@@ -51,7 +52,9 @@ public class JPAOrgUnitItem extends AbstractItem implements OrgUnitItem {
             joinColumns =
             @JoinColumn(name = "item_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "implementation_id"))
+            @JoinColumn(name = "implementation_id"),
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "item_id", "implementation_id" }))
     private List<JPAImplementation> transformers = new ArrayList<>();
 
     @Override
