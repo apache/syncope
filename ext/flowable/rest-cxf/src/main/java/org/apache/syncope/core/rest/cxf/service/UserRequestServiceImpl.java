@@ -75,8 +75,8 @@ public class UserRequestServiceImpl extends AbstractServiceImpl implements UserR
     }
 
     @Override
-    public UserRequestForm getForm(final String taskId) {
-        return logic.getForm(taskId);
+    public UserRequestForm getForm(final String username, final String taskId) {
+        return logic.getForm(getActualKey(userDAO, username), taskId);
     }
 
     @Override

@@ -149,7 +149,8 @@ public class Flowable extends BaseExtPage {
             super(id);
 
             final UserRequestForm formTO = userRequest.getHasForm()
-                    ? userRequestRestClient.getForm(userRequest.getTaskId()).orElse(null)
+                    ? userRequestRestClient.getForm(SyncopeEnduserSession.get().getSelfTO().getUsername(), userRequest.
+                            getTaskId()).orElse(null)
                     : null;
 
             add(formTO == null || formTO.getProperties() == null || formTO.getProperties().isEmpty()

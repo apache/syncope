@@ -70,8 +70,11 @@ public class UserRequestRestClient extends BaseRestClient {
                 getResult();
     }
 
-    public Optional<UserRequestForm> getForm(final String taskId) {
-        return Optional.ofNullable(getService(UserRequestService.class).getForm(taskId));
+    public Optional<UserRequestForm> getForm(final String username, final String taskId) {
+        return Optional.ofNullable(getService(UserRequestService.class).getForm(StringUtils.isBlank(username)
+                ? SyncopeEnduserSession.get().getSelfTO().getUsername()
+                : username,
+                taskId));
     }
 
     public void submitForm(final UserRequestForm form) {

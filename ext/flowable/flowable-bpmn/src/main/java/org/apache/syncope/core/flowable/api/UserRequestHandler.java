@@ -87,10 +87,11 @@ public interface UserRequestHandler {
     /**
      * Get the form matching the provided task id.
      *
-     * @param taskId  user key (optional)
+     * @param userKey user key
+     * @param taskId task id
      * @return the form for the given task id
      */
-    UserRequestForm getForm(String taskId);
+    UserRequestForm getForm(String userKey, String taskId);
 
     /**
      * Get the forms matching the provided parameters.
@@ -111,7 +112,7 @@ public interface UserRequestHandler {
      * @return updated form
      */
     UserRequestForm claimForm(String taskId);
-    
+
     /**
      * Unclaim a form for a given object.
      *

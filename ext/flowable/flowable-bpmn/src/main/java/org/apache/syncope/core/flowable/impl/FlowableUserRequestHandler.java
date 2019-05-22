@@ -299,7 +299,9 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     }
 
     protected UserRequestForm getForm(final Task task) {
-        return FlowableUserRequestHandler.this.getForm(task, engine.getFormService().getTaskFormData(task.getId()));
+        return task == null
+                ? null
+                : FlowableUserRequestHandler.this.getForm(task, engine.getFormService().getTaskFormData(task.getId()));
     }
 
     protected UserRequestForm getForm(final Task task, final TaskFormData fd) {
@@ -449,8 +451,17 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     }
 
     @Override
-    public UserRequestForm getForm(final String taskId) {
-        return getForm(getTask(taskId));
+    public UserRequestForm getForm(final String userKey, final String taskId) {
+        TaskQuery query = engine.getTaskService().createTaskQuery().taskId(taskId);
+        if (userKey != null) {
+            query.processInstanceBusinessKeyLike(FlowableRuntimeUtils.getProcBusinessKey("%", userKey));
+        }
+
+        String authUser = AuthContextUtils.getUsername();
+
+        return adminUser.equals(authUser)
+                ? getForm(getTask(taskId))
+                : getForm(query.taskCandidateOrAssigned(authUser).singleResult());
     }
 
     @Transactional(readOnly = true)
