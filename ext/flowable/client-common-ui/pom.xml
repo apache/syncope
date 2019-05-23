@@ -27,8 +27,8 @@ under the License.
     <version>3.0.0-SNAPSHOT</version>
   </parent>
     
-  <name>Apache Syncope Ext: Flowable Common UI Lib</name>
-  <description>Apache Syncope Ext: Flowable Common UI Lib</description>
+  <name>Apache Syncope Ext: Flowable Client Common UI</name>
+  <description>Apache Syncope Ext: Flowable Client Common UI</description>
   <groupId>org.apache.syncope.ext.flowable</groupId>
   <artifactId>syncope-ext-flowable-client-common-ui</artifactId>
   <packaging>jar</packaging>
