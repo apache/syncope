@@ -67,15 +67,15 @@ public class Flowable extends BaseExtPage {
 
     private final UserRequestRestClient userRequestRestClient = new UserRequestRestClient();
 
-    private final WebMarkupContainer paginationContainer;
+    private final WebMarkupContainer container;
 
     private final DataView<UserRequest> urDataView;
 
     public Flowable(final PageParameters parameters) {
         super(parameters);
 
-        paginationContainer = new WebMarkupContainer("content");
-        paginationContainer.setOutputMarkupId(true);
+        container = new WebMarkupContainer("content");
+        container.setOutputMarkupId(true);
 
         // list of accordions containing request form (if any) and delete button
         urDataView = new DataView<UserRequest>("userRequests", new URDataProvider(rowsPerPage, "bpmnProcess")) {
@@ -86,7 +86,7 @@ public class Flowable extends BaseExtPage {
             protected void populateItem(final Item<UserRequest> item) {
                 final UserRequest userRequest = item.getModelObject();
                 item.add(new Accordion("userRequestDetails", Collections.<ITab>singletonList(new AbstractTab(
-                        new StringResourceModel("user.requests.accordion", paginationContainer,
+                        new StringResourceModel("user.requests.accordion", container,
                                 Model.of(userRequest))) {
 
                     private static final long serialVersionUID = 1037272333056449378L;
@@ -102,8 +102,32 @@ public class Flowable extends BaseExtPage {
 
         urDataView.setItemsPerPage(rowsPerPage);
         urDataView.setOutputMarkupId(true);
-        paginationContainer.add(urDataView);
-        paginationContainer.add(new AjaxPagingNavigator("navigator", urDataView));
+        container.add(urDataView);
+        container.add(new AjaxPagingNavigator("navigator", urDataView));
+
+        final AjaxLink<Void> startButton =
+                new AjaxLink<>("start") {
+
+            private static final long serialVersionUID = 3669569969172391336L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                if (StringUtils.isNotBlank(bpmnProcessModel.getObject())) {
+                    try {
+                        userRequestRestClient.start(bpmnProcessModel.getObject(), null);
+                    } catch (Exception e) {
+                        LOG.error("Unable to start bpmnProcess [{}]", bpmnProcessModel.getObject(), e);
+                        SyncopeEnduserSession.get()
+                                .error(String.format("Unable to start bpmnProcess [%s]", e.getMessage()));
+                        notificationPanel.refresh(target);
+                    }
+                    target.add(container);
+                }
+            }
+        };
+
+        startButton.setEnabled(false);
+        container.add(startButton);
 
         // autocomplete select with bpmnProcesses
         final BpmnProcessesAjaxPanel bpmnProcesses =
@@ -115,24 +139,19 @@ public class Flowable extends BaseExtPage {
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
                         if (StringUtils.isNotBlank(bpmnProcessModel.getObject())) {
-                            try {
-                                userRequestRestClient.start(bpmnProcessModel.getObject(), null);
-                            } catch (Exception e) {
-                                LOG.error("Unable to start bpmnProcess [{}]", bpmnProcessModel.getObject(), e);
-                                SyncopeEnduserSession.get()
-                                        .error(String.format("Unable to start bpmnProcess [%s]", e.getMessage()));
-                                notificationPanel.refresh(target);
-                            }
-                            target.add(paginationContainer);
+                            startButton.setEnabled(true);
+                        } else {
+                            startButton.setEnabled(false);
                         }
+                        target.add(container);
                     }
                 });
         bpmnProcesses.setChoices(restClient.getDefinitions().stream()
                 .filter(definition -> !definition.isUserWorkflow())
                 .map(definition -> definition.getKey()).collect(Collectors.toList()));
-        paginationContainer.add(bpmnProcesses);
+        container.add(bpmnProcesses);
 
-        body.add(paginationContainer);
+        body.add(container);
     }
 
     @Override
@@ -181,7 +200,7 @@ public class Flowable extends BaseExtPage {
                                             try {
                                                 userRequestRestClient.claimForm(formTO.getTaskId());
                                                 userRequestRestClient.submitForm(formTO);
-                                                target.add(paginationContainer);
+                                                target.add(container);
                                             } catch (SyncopeClientException sce) {
                                                 LOG.error("Unable to submit user request form for BPMN process [{}]",
                                                         formTO.getBpmnProcess(), sce);
@@ -201,7 +220,7 @@ public class Flowable extends BaseExtPage {
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
                     userRequestRestClient.cancelRequest(userRequest.getExecutionId(), null);
-                    target.add(paginationContainer);
+                    target.add(container);
                 }
 
             });
