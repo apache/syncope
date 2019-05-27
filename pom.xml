@@ -400,7 +400,7 @@ under the License.
     <hikaricp.version>2.4.13</hikaricp.version>
     <bval.version>1.1.2</bval.version>
 
-    <jasypt.version>1.9.2</jasypt.version>
+    <jasypt.version>1.9.3</jasypt.version>
 
     <quartz.version>2.3.1</quartz.version>
 
@@ -2006,7 +2006,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
-          <version>3.2.2</version>
+          <version>3.2.3</version>
           <configuration>
             <webResources>
               <resource>
