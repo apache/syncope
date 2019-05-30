@@ -212,7 +212,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         liContainer = new WebMarkupContainer(getLIContainerId("types"));
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("types", Types.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.SCHEMA_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.ANYTYPECLASS_LIST);
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("administration"));

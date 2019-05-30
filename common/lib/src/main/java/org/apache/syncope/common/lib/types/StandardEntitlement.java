@@ -94,8 +94,6 @@ public final class StandardEntitlement {
 
     public static final String DYNREALM_DELETE = "DYNREALM_DELETE";
 
-    public static final String SCHEMA_LIST = "SCHEMA_LIST";
-
     public static final String SCHEMA_CREATE = "SCHEMA_CREATE";
 
     public static final String SCHEMA_UPDATE = "SCHEMA_UPDATE";
