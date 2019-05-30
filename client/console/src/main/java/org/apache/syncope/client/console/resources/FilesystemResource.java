@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.util.io.IOUtils;
 import org.slf4j.Logger;
@@ -53,6 +54,7 @@ public class FilesystemResource extends AbstractResource {
         final File baseDir = new File(basePath);
         if (baseDir.exists() && baseDir.canRead() && baseDir.isDirectory()) {
             String reqPath = attributes.getRequest().getUrl().getPath();
+            response.setFileName(StringUtils.substringAfterLast(reqPath, "/"));
             final String subPath = reqPath.substring(reqPath.indexOf(baseCtx) + baseCtx.length()).
                     replace('/', File.separatorChar);
             LOG.debug("Request for {}", subPath);
