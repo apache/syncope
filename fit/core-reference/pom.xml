@@ -1419,7 +1419,7 @@ under the License.
               <container>
                 <containerId>glassfish5x</containerId>
                 <zipUrlInstaller>
-                  <url>http://download.oracle.com/glassfish/5.0/release/glassfish-5.0.zip</url>
+                  <url>http://download.oracle.com/glassfish/5.0.1/release/glassfish-5.0.1.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
@@ -1459,7 +1459,7 @@ under the License.
               <container>
                 <containerId>glassfish5x</containerId>
                 <zipUrlInstaller>
-                  <url>https://repo1.maven.org/maven2/fish/payara/distributions/payara/5.191/payara-5.191.zip</url>
+                  <url>https://repo1.maven.org/maven2/fish/payara/distributions/payara/5.192/payara-5.192.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
@@ -1529,9 +1529,9 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>wildfly15x</containerId>
+                <containerId>wildfly16x</containerId>
                 <zipUrlInstaller>
-                  <url>https://download.jboss.org/wildfly/15.0.1.Final/wildfly-15.0.1.Final.zip</url>
+                  <url>https://download.jboss.org/wildfly/16.0.0.Final/wildfly-16.0.0.Final.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
