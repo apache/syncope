@@ -90,7 +90,7 @@ public class CompletenessWidget extends BaseWidget {
 
         types = BookmarkablePageLinkBuilder.build("types", Types.class);
         types.setOutputMarkupPlaceholderTag(true);
-        MetaDataRoleAuthorizationStrategy.authorize(types, WebPage.ENABLE, IdRepoEntitlement.SCHEMA_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(types, WebPage.ENABLE, IdRepoEntitlement.ANYTYPECLASS_LIST);
         actions.add(types);
         types.setVisible(
                 !confCompleteness.get(NumbersInfo.ConfItem.VIR_SCHEMA.name())

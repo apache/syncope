@@ -250,7 +250,7 @@ public class BasePage extends BaseWebPage {
         liContainer = new WebMarkupContainer(getLIContainerId("types"));
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("types", Types.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.SCHEMA_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.ANYTYPECLASS_LIST);
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("security"));
